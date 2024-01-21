@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- Mirrored from preschool.dreamstechnologies.com/template/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 06 Jan 2024 07:00:29 GMT -->
+
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <title>Preskool - Dashboard</title>
+    <title>{{ $title }}</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="assets/img/favicon.png">

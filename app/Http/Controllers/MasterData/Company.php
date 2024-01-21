@@ -9,6 +9,9 @@ class Company extends Controller
 {
     public function index()
     {
-        return view('Masterdata/Company/index');
+        $data = array(
+            'title' => 'Company | ' . config('app.name'),
+        );
+        return view('Masterdata/Company/index', $data);
     }
 }

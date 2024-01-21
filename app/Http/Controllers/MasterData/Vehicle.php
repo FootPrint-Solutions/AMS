@@ -10,7 +10,10 @@ class Vehicle extends Controller
 
     public function index()
     {
-        return view('Masterdata/Vehicle/index');
+        $data = array(
+            'title' => 'Vehicle | ' . config('app.name'),
+        );
+        return view('Masterdata/Vehicle/index', $data);
     }
 
 

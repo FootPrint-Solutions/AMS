@@ -9,10 +9,11 @@ class Customer extends Controller
 {
     public function index()
     {
+
         return view(
             'masterdata.Customer.index',
             [
-                'title' => 'Customer',
+                'title' => 'Customer | ' . config('app.name'),
                 'subtitle' => 'List',
                 'active' => 'customer',
             ]

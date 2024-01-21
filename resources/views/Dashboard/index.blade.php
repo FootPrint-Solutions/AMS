@@ -1,6 +1,14 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        .breadcrumb-item+.breadcrumb-item::before {
+            float: left;
+            padding-right: var(--bs-breadcrumb-item-padding-x);
+            color: var(--bs-breadcrumb-divider-color);
+            content: var(--bs-breadcrumb-divider, "/");
+        }
+    </style>
     <!-- Page Header -->
     <div class="page-header">
         <div class="row">
@@ -8,8 +16,8 @@
                 <div class="page-sub-header">
                     <h3 class="page-title">Welcome Admin!</h3>
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item active">Admin</li>
+                        <li class="breadcrumb-item"><a href="">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
                     </ul>
                 </div>
             </div>

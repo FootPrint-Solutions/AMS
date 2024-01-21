@@ -11,6 +11,9 @@ class Dashboard extends Controller
 
     public function index()
     {
-        return view('Dashboard.index');
+        $data = array(
+            'title' => 'Dashboard | ' . config('app.name'),
+        );
+        return view('Dashboard.index', $data);
     }
 }

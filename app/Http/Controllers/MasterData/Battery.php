@@ -10,7 +10,10 @@ class Battery extends Controller
 
     public function index()
     {
-        return view('Masterdata/Battery/index');
+        $data = array(
+            'title' => 'Battery | ' . config('app.name'),
+        );
+        return view('Masterdata/Battery/index', $data);
     }
 
     public function create()
