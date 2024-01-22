@@ -44,7 +44,7 @@
 
 
                 {{-- Orders --}}
-                <li class="submenu">
+                <li class="submenu {{ $active == 'Orders' ? 'active' : '' }}">
                     <a href="#"><i class="fa-solid fa-receipt"></i> <span> Orders </span> <span
                             class="menu-arrow"></span></a>
                     <ul>

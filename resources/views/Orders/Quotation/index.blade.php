@@ -40,7 +40,7 @@
                         {{-- Customer Details --}}
                         <div class="tab-pane active" id="progress-seller-details">
                             <div class="h3 mb-4">
-                                Customer Details <button class="btn btn-success btn-sm mx-2"><i class="fa fa-share" aria-hidden="true"></i></button>
+                                Customer Details
                             </div>
 
                             <form>
@@ -84,6 +84,7 @@
 
                             <div class="row">
                                 <div class="col text-end">
+                                    <a href="javascript: void(0);" class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></a>
                                     <a href="javascript: void(0);" class="btn btn-primary seller-next-btn"> Next <i class="bx bx-chevron-right ms-1"></i></a>
                                 </div>
                             </div>
@@ -93,7 +94,7 @@
                         <div class="tab-pane" id="progress-company-document">
                           <div>
                             <div class="h3 mb-4">
-                                Order Details <button class="btn btn-success btn-sm mx-2"><i class="fa fa-share" aria-hidden="true"></i></button>
+                                Order Details
                             </div>
 
                             <form>
@@ -214,6 +215,7 @@
                                 </div>
 
                                 <div class="col text-end">
+                                    <a href="javascript: void(0);" class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></a>
                                     <a href="javascript: void(0);" class="btn btn-primary seller-next-btn">Next <i class="bx bx-chevron-right ms-1"></i></a>
                                 </div>
                             </div>
