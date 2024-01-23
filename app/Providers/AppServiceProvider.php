@@ -23,6 +23,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Set migration loading paths to path of all the folder locations.
+        // Thanks to https://dcblog.dev/laravel-organise-migrations-into-folders.
+        $migrationsPath = database_path('migrations');
+        $directories = glob($migrationsPath . '/*', GLOB_ONLYDIR);
+        $paths = array_merge([$migrationsPath], $directories);
+
+        $this->loadMigrationsFrom($paths);
     }
 }
