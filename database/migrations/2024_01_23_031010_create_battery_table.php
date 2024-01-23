@@ -43,7 +43,7 @@ class CreateBatteryTable extends Migration
             $table->foreign('id_size_category')
                 ->references('id')
                 ->on('battery_size_category');
-            $table->foreign('id_tecnology')
+            $table->foreign('id_technology')
                 ->references('id')
                 ->on('battery_technology');
         });
