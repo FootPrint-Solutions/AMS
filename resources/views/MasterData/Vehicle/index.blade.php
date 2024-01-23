@@ -1,6 +1,7 @@
 @extends('template.master')
 
 @section('content')
+
 {{-- Title --}}
 <div class="h1">
     Vehicle <a href="/vehicle/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</a>

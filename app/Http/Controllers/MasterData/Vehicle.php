@@ -5,15 +5,20 @@ namespace App\Http\Controllers\MasterData;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\MasterData\VehicleModel;
+
 class Vehicle extends Controller
 {
 
     public function index()
     {
-        $data = array(
-            'title' => 'Vehicle | ' . config('app.name'),
+        return view(
+            'Masterdata/Vehicle/index',
+            [
+                'title' => 'Vehicle | ' . config('app.name'),
+                'data' => VehicleModel::all(),
+            ]
         );
-        return view('Masterdata/Vehicle/index', $data);
     }
 
 
