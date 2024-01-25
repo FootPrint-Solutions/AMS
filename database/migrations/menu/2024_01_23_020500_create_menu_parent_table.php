@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMenuTable extends Migration
+class CreateMenuParentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,12 @@ class CreateMenuTable extends Migration
      */
     public function up()
     {
-        Schema::create('menu', function (Blueprint $table) {
+        Schema::create('menu_parent', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('id_parent');
-            $table->string('url');
             $table->boolean('hide')->default(0);
+            $table->string('icon');
             $table->timestamps();
-
-            $table->foreign('id_parent')
-                ->references('id')
-                ->on('menu_parent');
         });
     }
 
@@ -34,6 +29,6 @@ class CreateMenuTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('menu');
+        Schema::dropIfExists('menu_parent');
     }
 }
