@@ -16,6 +16,8 @@ class CreateMenuParentTable extends Migration
         Schema::create('menu_parent', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('order');
+            $table->string('url')->nullable();
             $table->boolean('hide')->default(0);
             $table->string('icon');
             $table->timestamps();

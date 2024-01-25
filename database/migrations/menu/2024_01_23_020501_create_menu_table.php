@@ -17,6 +17,7 @@ class CreateMenuTable extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('id_parent');
+            $table->integer('order');
             $table->string('url');
             $table->boolean('hide')->default(0);
             $table->timestamps();
