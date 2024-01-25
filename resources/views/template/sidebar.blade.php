@@ -1,4 +1,6 @@
 <!-- Sidebar -->
+{{-- @dd(session('menu')); --}}
+
 <div class="sidebar" id="sidebar">
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
@@ -12,45 +14,26 @@
                     <a href="/"><i class="fas fa-dashboard"></i> <span>Dashboard</span></a>
                 </li>
 
+                {{--  --}}
+                @foreach (session('menu') as $menu)
+                    <li class="submenu 
+                        @if (isset($active) && $active === $menu['id'])
+                            active
+                        @endif
+                    ">
+                        <a href="#"><i class="{{ $menu['icon'] }}"></i> <span> {{ $menu['name'] }} </span>
+                            @if (count($menu['menus']) > 0)
+                                <span class="menu-arrow"></span>
+                            @endif
+                        </a>
 
-
-                {{-- Master Data --}}
-                <li
-                    class="submenu {{ $title == 'Company | ' . config('app.name') || $title == 'Customer | ' . config('app.name') . '' || $title == 'Vehicle | ' . config('app.name') . '' || $title == 'Battery | ' . config('app.name') . '' ? 'active' : '' }}">
-                    <a href="#"
-                        class="{{ $title == 'Company | ' . config('app.name') || $title == 'Customer | ' . config('app.name') . '' || $title == 'Vehicle | ' . config('app.name') . '' || $title == 'Battery | ' . config('app.name') . '' ? 'active subdrop' : '' }}"><i
-                            class="fa-solid fa-book"></i> <span> Master Data </span> <span
-                            class="menu-arrow"></span></a>
-                    <ul
-                        style="{{ $title == 'Company | ' . config('app.name') || $title == 'Customer | ' . config('app.name') . '' || $title == 'Vehicle | ' . config('app.name') . '' || $title == 'Battery | ' . config('app.name') . '' ? 'display: block;' : '' }}">
-                        <li>
-                            <a href="/company"
-                                class="{{ $title == 'Company | ' . config('app.name') ? 'active' : '' }}">Company</a>
-                        </li>
-                        <li>
-                            <a href="/customer"
-                                class="{{ $title == 'Customer | ' . config('app.name') ? 'active' : '' }}">
-                                Customer
-                            </a>
-                        </li>
-                        <li><a href="/vehicle"
-                                class="{{ $title == 'Vehicle | ' . config('app.name') ? 'active' : '' }}">Vehicle</a>
-                        </li>
-                        <li><a href="/battery"
-                                class="{{ $title == 'Battery | ' . config('app.name') ? 'active' : '' }}">Battery</a>
-                        </li>
-                    </ul>
-                </li>
-
-
-                {{-- Orders --}}
-                <li class="submenu {{ isset($active) && $active == 'Orders' ? 'active' : '' }}">
-                    <a href="#"><i class="fa-solid fa-receipt"></i> <span> Orders </span> <span
-                            class="menu-arrow"></span></a>
-                    <ul>
-                        <li><a href="/quotation">Quick Quotation</a></li>
-                    </ul>
-                </li>
+                        <ul>
+                            @foreach ($menu['menus'] as $menu_child)
+                                <li><a href="{{ $menu_child['url'] }}">{{ $menu_child['name'] }}</a></li>
+                            @endforeach
+                        </ul>
+                    </li>
+                @endforeach
             </ul>
         </div>
     </div>

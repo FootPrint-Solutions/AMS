@@ -12,6 +12,7 @@ class Battery extends Controller
     {
         $data = array(
             'title' => 'Battery | ' . config('app.name'),
+            'active' => 1,
         );
         return view('Masterdata/Battery/index', $data);
     }

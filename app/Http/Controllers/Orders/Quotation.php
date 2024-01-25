@@ -14,7 +14,7 @@ class Quotation extends Controller
             [
                 'title' => 'Quick Quotation | ' . config('app.name'),
                 'subtitle' => 'List',
-                'active' => 'Orders',
+                'active' => 2,
             ]
         );
     }

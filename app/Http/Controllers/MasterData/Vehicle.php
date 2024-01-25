@@ -17,6 +17,7 @@ class Vehicle extends Controller
             [
                 'title' => 'Vehicle | ' . config('app.name'),
                 'data' => VehicleModel::all(),
+                'active' => 1,
             ]
         );
     }
