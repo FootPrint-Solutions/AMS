@@ -15,7 +15,7 @@ class Customer extends Controller
             [
                 'title' => 'Customer | ' . config('app.name'),
                 'subtitle' => 'List',
-                'active' => 1,
+                'active' => 2,
             ]
         );
     }

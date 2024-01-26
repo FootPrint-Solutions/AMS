@@ -1,27 +1,23 @@
 <!-- Sidebar -->
-{{-- @dd(session('menu')); --}}
-
 <div class="sidebar" id="sidebar">
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
             <ul>
+                {{-- Menu Title --}}
                 <li class="menu-title">
-                    <span>Main Menu</span>
+                    <span> Main Menu </span>
                 </li>
 
-                {{-- Dashboard --}}
-                <li class="{{ $title == 'Dashboard | ' . config('app.name') ? 'active' : '' }}">
-                    <a href="/"><i class="fas fa-dashboard"></i> <span>Dashboard</span></a>
-                </li>
-
-                {{--  --}}
+                {{-- Menu --}}
                 @foreach (session('menu') as $menu)
                     <li class="submenu 
                         @if (isset($active) && $active === $menu['id'])
                             active
                         @endif
                     ">
-                        <a href="#"><i class="{{ $menu['icon'] }}"></i> <span> {{ $menu['name'] }} </span>
+                        <a href="{{ $menu['url'] }}">
+                            <i class="{{ $menu['icon'] }}"></i>
+                            <span> {{ $menu['name'] }} </span>
                             @if (count($menu['menus']) > 0)
                                 <span class="menu-arrow"></span>
                             @endif

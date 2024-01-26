@@ -11,7 +11,7 @@ class Company extends Controller
     {
         $data = array(
             'title' => 'Company | ' . config('app.name'),
-            'active' => 1,
+            'active' => 2,
         );
         return view('Masterdata/Company/index', $data);
     }
