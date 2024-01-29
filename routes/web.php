@@ -35,6 +35,7 @@ Route::post('/company/update', [Company::class, 'update']);
 // Customer
 Route::get('/customer', [Customer::class, 'index']);
 Route::get('/customer/create', [Customer::class, 'create']);
+Route::post('/customer/store', [Customer::class, 'store']);
 
 // Vehicle
 Route::get('/vehicle', [Vehicle::class, 'index']);

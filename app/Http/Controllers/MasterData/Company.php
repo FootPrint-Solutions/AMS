@@ -17,12 +17,14 @@ class Company extends Controller
      */
     public function index()
     {
-        $data = array(
-            'title' => 'Company | ' . config('app.name'),
-            'active' => 2,
-            'data' => CompanyModel::first(),
+        return view(
+            'MasterData/Company/edit',
+            array(
+                'title' => 'Company | ' . config('app.name'),
+                'active' => 2,
+                'data' => CompanyModel::first(),
+            )
         );
-        return view('MasterData/Company/edit', $data);
     }
 
     /**
@@ -58,7 +60,7 @@ class Company extends Controller
             $message = 'Company profile was successfully updated!';
         } else {
             // The updating or inserting process is failed.
-            $message = 'Failed to update company profile';
+            $message = 'Failed to update company profile!';
         }
 
         return json_encode([

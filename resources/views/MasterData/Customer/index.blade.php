@@ -1,14 +1,17 @@
 @extends('template.master')
 
 @section('content')
-{{-- Title --}}
-<div class="h1">
-    Customer <a href="/customer/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new customer </a>
-</div>
-
 {{-- Form --}}
 <div class="card">
     <div class="card-body">
+        {{-- Title --}}
+        <div class="card-title h2">
+            Customer
+            <a href="/customer/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new customer </a>
+        </div>
+        <br>
+
+        {{-- Table --}}
         <table class="table table-striped">
             <thead>
                 <tr>
