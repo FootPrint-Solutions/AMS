@@ -30,6 +30,7 @@ Route::get('/', [Dashboard::class, 'index']);
 // MASTER DATA
 // Company
 Route::get('/company', [Company::class, 'index']);
+Route::post('/company/update', [Company::class, 'update']);
 
 // Customer
 Route::get('/customer', [Customer::class, 'index']);
