@@ -71,4 +71,29 @@
         </form>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#btn-save").on('click', function() {
+            $.ajax({
+                url: '/company/update',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    let responseData = JSON.parse(response);
+                    if (responseData.status) {
+                        // Success
+                        showSuccessToast(responseData.message);
+                    } else {
+                        // Failed
+                        showErrorToast(responseData.message);
+                    }
+                }
+            });
+        });
+    });
+</script>
 @endsection

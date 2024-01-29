@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
@@ -24,6 +22,9 @@
 
     <!-- Pe7 CSS -->
     <link rel="stylesheet" href="{{ asset('/css/flags.css') }}">
+
+    <!-- Toatr CSS -->		
+    <link rel="stylesheet" href=" {{ asset('plugins//toastr/toatr.css') }}">
 
     <!-- Fontawesome CSS -->
     <link rel="stylesheet" href="{{ asset('/plugins/fontawesome/css/fontawesome.min.css') }}">
@@ -74,9 +75,27 @@
     <script src="{{ asset('/plugins/apexchart/apexcharts.min.js') }}"></script>
     <script src="{{ asset('/plugins/apexchart/chart-data.js') }}"></script>
 
+    <!-- Mask JS -->
+		<script src="{{ asset('/plugins/toastr/toastr.min.js') }}"></script>
+
     <!-- Custom JS -->
     <script src="{{ asset('/js/script.js') }}"></script>
 
 </body>
 
 </html>
+<script>
+  function showSuccessToast(message) {
+    toastr.success(message, {
+      closeButton: true,
+      tapToDismiss: !1,
+    });
+  }
+
+  function showErrorToast(message) {
+    toastr.error(message, {
+      closeButton: !0,
+      tapToDismiss: !1,
+    });
+  }
+</script>
