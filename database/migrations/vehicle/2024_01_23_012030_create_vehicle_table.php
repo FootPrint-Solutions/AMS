@@ -20,9 +20,11 @@ class CreateVehicleTable extends Migration
             $table->string('url');
             $table->timestamps();
 
+            /*
             $table->foreign('id_brand')
                 ->references('id')
                 ->on('vehicle_brand');
+            */
         });
     }
 

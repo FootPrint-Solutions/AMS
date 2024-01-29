@@ -19,9 +19,11 @@ class CreateBatteryAliasTable extends Migration
             $table->string('name', 50);
             $table->timestamps();
 
+            /*
             $table->foreign('id_battery')
                 ->references('id')
                 ->on('battery');
+            */
         });
     }
 

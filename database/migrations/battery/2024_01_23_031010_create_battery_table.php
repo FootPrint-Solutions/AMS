@@ -31,6 +31,7 @@ class CreateBatteryTable extends Migration
             $table->binary('image');
             $table->timestamps();
 
+            /*
             $table->foreign('id_brand')
                 ->references('id')
                 ->on('battery_brand');
@@ -46,6 +47,7 @@ class CreateBatteryTable extends Migration
             $table->foreign('id_technology')
                 ->references('id')
                 ->on('battery_technology');
+            */
         });
     }
 

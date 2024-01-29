@@ -19,9 +19,11 @@ class CreateBatteryTradeInTable extends Migration
             $table->double('price');
             $table->timestamps();
 
+            /*
             $table->foreign('id_size_category')
                 ->references('id')
                 ->on('battery_size_category');
+            */
         });
     }
 

@@ -19,12 +19,14 @@ class CreateOrderPricingStrategyTable extends Migration
             $table->unsignedBigInteger('id_pricing_strategy');
             $table->timestamps();
 
+            /*
             $table->foreign('id_order')
                 ->references('id')
                 ->on('order');
             $table->foreign('id_pricing_strategy')
                 ->references('id')
                 ->on('pricing_strategy');
+            */
         });
     }
 

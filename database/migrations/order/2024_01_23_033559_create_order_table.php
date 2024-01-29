@@ -28,6 +28,7 @@ class CreateOrderTable extends Migration
             $table->boolean('status');
             $table->timestamps();
 
+            /*
             $table->foreign('id_customer')
                 ->references('id')
                 ->on('customer');
@@ -37,6 +38,7 @@ class CreateOrderTable extends Migration
             $table->foreign('id_mechanic')
                 ->references('id')
                 ->on('mechanic');
+            */
         });
     }
 

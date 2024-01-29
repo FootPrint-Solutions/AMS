@@ -22,9 +22,11 @@ class CreateMenuTable extends Migration
             $table->boolean('hide')->default(0);
             $table->timestamps();
 
+            /*
             $table->foreign('id_parent')
                 ->references('id')
                 ->on('menu_parent');
+            */
         });
     }
 

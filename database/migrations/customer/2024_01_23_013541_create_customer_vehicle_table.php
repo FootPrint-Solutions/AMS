@@ -19,12 +19,14 @@ class CreateCustomerVehicleTable extends Migration
             $table->unsignedBigInteger('id_vehicle');
             $table->timestamps();
 
+            /*
             $table->foreign('id_customer')
                 ->references('id')
                 ->on('customer');
             $table->foreign('id_vehicle')
                 ->references('id')
                 ->on('vehicle');
+            */
         });
     }
 
