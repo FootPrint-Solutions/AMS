@@ -26,10 +26,10 @@ class Company extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the company resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return string
      */
     public function update(Request $request)
     {
@@ -52,9 +52,12 @@ class Company extends Controller
             $status = $company->save();
         }
 
+        // Set a new response data to be sent.
         if ($status) {
+            // The updating or inserting process is succeeded.
             $message = 'Company profile was successfully updated!';
         } else {
+            // The updating or inserting process is failed.
             $message = 'Failed to update company profile';
         }
 
