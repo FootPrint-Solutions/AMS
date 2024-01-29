@@ -19,37 +19,18 @@
     {{-- Feathericon CSS --}}
     <link rel="stylesheet" href="{{ asset('plugins/feather/feather.css') }}">
 
-    {{-- Toatr CSS	 --}}
+    {{-- Toatr CSS --}}
     <link rel="stylesheet" href=" {{ asset('plugins//toastr/toatr.css') }}">
 
     {{-- Fontawesome CSS --}}
     <link rel="stylesheet" href="{{ asset('/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/plugins/fontawesome/css/all.min.css') }}">
 
-    {{-- jQuery --}}
-    <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
-
-    {{-- Bootstrap Core JS --}}
-    <script src="{{ asset('/js/bootstrap.bundle.min.js') }}"></script>
-
-    {{-- Feather Icon JS --}}
-    <script src="{{ asset('/js/feather.min.js') }}"></script>
-
-    {{-- Slimscroll JS --}}
-    <script src="{{ asset('/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
-
-    {{-- Chart JS --}}
-    <script src="{{ asset('/plugins/apexchart/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('/plugins/apexchart/chart-data.js') }}"></script>
-
-    {{-- Mask JS --}}
-    <script src="{{ asset('/plugins/toastr/toastr.min.js') }}"></script>
-
-    {{-- Custom JS --}}
-    <script src="{{ asset('/js/script.js') }}"></script>
-
     {{-- Main CSS --}}
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
+
+    {{-- jQuery --}}
+    <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
   </head>
 
   <body>
@@ -69,9 +50,33 @@
           @include('template.footer')
       </div>
     </div>
+
+    {{-- Bootstrap Core JS --}}
+    <script src="{{ asset('/js/bootstrap.bundle.min.js') }}"></script>
+
+    {{-- Feather Icon JS --}}
+    <script src="{{ asset('/js/feather.min.js') }}"></script>
+
+    {{-- Slimscroll JS --}}
+    <script src="{{ asset('/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
+
+    {{-- Chart JS --}}
+    <script src="{{ asset('/plugins/apexchart/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('/plugins/apexchart/chart-data.js') }}"></script>
+
+    {{-- Toastr JS --}}
+    <script src="{{ asset('/plugins/toastr/toastr.min.js') }}"></script>
+
+    {{-- Custom JS --}}
+    <script src="{{ asset('/js/script.js') }}"></script>
   </body>
 
   <script>
+    /**
+     * Displays a success toast message using Toastr.
+     *
+     * @param {string} message - The success message to be displayed.
+     */
     function showSuccessToast(message) {
       toastr.success(message, {
         closeButton: true,
@@ -79,6 +84,11 @@
       });
     }
 
+    /**
+     * Displays an error toast message using Toastr.
+     *
+     * @param {string} message - The error message to be displayed.
+     */
     function showErrorToast(message) {
       toastr.error(message, {
         closeButton: !0,
