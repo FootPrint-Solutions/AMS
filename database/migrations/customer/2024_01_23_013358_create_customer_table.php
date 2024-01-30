@@ -19,6 +19,7 @@ class CreateCustomerTable extends Migration
             $table->string('contact', 50);
             $table->string('email', 50);
             $table->string('address', 100);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
