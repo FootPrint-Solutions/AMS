@@ -43,7 +43,12 @@ Route::post('/customer/destroy', [Customer::class, 'destroy']);
 
 // Vehicle
 Route::get('/vehicle', [Vehicle::class, 'index']);
+Route::post('/vehicle/show', [Vehicle::class, 'show']);
 Route::get('/vehicle/create', [Vehicle::class, 'create']);
+Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit']);
+Route::post('/vehicle/store', [Vehicle::class, 'store']);
+Route::post('/vehicle/update', [Vehicle::class, 'update']);
+Route::post('/vehicle/destroy', [Vehicle::class, 'destroy']);
 
 // Battery
 Route::get('/battery', [Battery::class, 'index']);

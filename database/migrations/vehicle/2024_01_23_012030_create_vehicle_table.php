@@ -18,6 +18,7 @@ class CreateVehicleTable extends Migration
             $table->string('name', 100);
             $table->unsignedBigInteger('id_brand');
             $table->string('url');
+            $table->softDeletes();
             $table->timestamps();
 
             /*
