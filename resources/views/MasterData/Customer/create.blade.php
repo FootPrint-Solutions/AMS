@@ -52,8 +52,8 @@
             </div> --}}
             
             {{-- Buttons --}}
-            <a class="btn btn-primary" id="btn-save">Save</button>
-            <a href="/customer/" type="button" class="btn btn-danger">Cancel</a>
+            <a class="btn btn-primary mx-1" id="btn-save">Save</button>
+            <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
         </form>
     </div>
 </div>
@@ -91,11 +91,11 @@
             });
         });
 
-        $("#btn-reset").on('click', function() {
+        $("#btn-cancel").on('click', function() {
             $.ajax({
-                url: '/company',
+                url: '/customer',
                 success: function(response) {
-                    window.location.replace('/company');
+                    $('#main-wrapper').html(response);
                 }
             });
         });

@@ -7,12 +7,12 @@
         {{-- Title --}}
         <div class="card-title h2">
             Customer
-            <a href="/customer/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new customer </a>
+            <a type="button" class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new customer </a>
         </div>
         <br>
 
         {{-- Table --}}
-        <table class="table table-striped">
+        <table class="table table-striped" id="table-customer">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -20,30 +20,70 @@
                     <th scope="col">Contact</th>
                     <th scope="col">E-mail</th>
                     <th scope="col">Address</th>
+                    <th scope="col">Delete</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td scope="row">1</td>
-                    <td scope="row">Nakano Nino</td>
-                    <td scope="row">+62 421 5142 1932</td>
-                    <td scope="row">ninobestgirl@hotmail.com</td>
-                    <td scope="row">Jalan Tokyo R no. 42 
-                        <button type="button" class="btn btn-primary"><i class="fa fa-map-marker" aria-hidden="true"></i></button>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td scope="row">2</td>
-                    <td scope="row">Yor Forger</td>
-                    <td scope="row">+62 232 2898 2093</td>
-                    <td scope="row">yorforger1@gmail.com</td>
-                    <td scope="row">Jalan Berlint City no. 238
-                        <button type="button" class="btn btn-primary"><i class="fa fa-map-marker" aria-hidden="true"></i></button>
-                    </td>
-                </tr>
-            </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    var table;
+    $(document).ready(function() {
+        table = $('#table-customer').DataTable({
+            "dom": 'lBfrtp',
+            "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
+            "searching": true,
+            "stateSave": false,
+            "processing": true,
+            "serverSide": true,
+            "paging": true,
+            "pagingType": 'numbers',
+            "ajax": {
+                "url": "/customer/show",
+                "type": "POST",
+                "data": {
+                    "_token": "{{ csrf_token() }}"
+                }
+            }
+        });
+
+        $('#btn-add').on('click', function() {
+            $.ajax({
+                url: '/customer/create',
+                success: function(response) {
+                    $('#main-wrapper').html(response);
+                }
+            });
+        });
+    });
+
+    function destroy(id) {
+        $.ajax({
+            url: '/customer/destroy',
+            method: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "id": id
+            },
+            success: function(response) {
+                // Get response data (in JSON).
+                let responseData = JSON.parse(response);
+
+                // Check response data status.
+                // Status indicates the success status of company profile update.
+                if (responseData.status) {
+                    // Company profile update was succeeded.
+                    showSuccessToast(responseData.message);
+                } else {
+                    // Company profile update was failed.
+                    showErrorToast(responseData.message);
+                }
+
+                // Reload table with updated rows.
+                table.ajax.reload();
+            }
+        });
+    }
+</script>
 @endsection

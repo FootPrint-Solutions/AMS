@@ -99,7 +99,7 @@
             $.ajax({
                 url: '/company',
                 success: function(response) {
-                    window.location.replace('/company');
+                    $('#main-wrapper').html(response);
                 }
             });
         });

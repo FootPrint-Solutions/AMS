@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="{{ asset('/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/plugins/fontawesome/css/all.min.css') }}">
 
+    {{-- Datatables CSS --}}
+		<link rel="stylesheet" href="{{ asset('/plugins/datatables/datatables.min.css') }}">
+
     {{-- Main CSS --}}
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
 
@@ -34,7 +37,7 @@
   </head>
 
   <body>
-    <div class="main-wrapper">
+    <div id="main-wrapper">
       {{-- Header --}}
       @include('template.header')
 
@@ -66,6 +69,9 @@
 
     {{-- Toastr JS --}}
     <script src="{{ asset('/plugins/toastr/toastr.min.js') }}"></script>
+
+    {{-- Datatables JS --}}
+		<script src="{{ asset('/plugins/datatables/datatables.min.js') }}"></script>
 
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>
