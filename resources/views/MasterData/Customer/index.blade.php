@@ -20,6 +20,7 @@
                     <th scope="col">Contact</th>
                     <th scope="col">E-mail</th>
                     <th scope="col">Address</th>
+                    <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
                 </tr>
             </thead>
@@ -57,6 +58,15 @@
             });
         });
     });
+
+    function edit(id) {
+        $.ajax({
+            url: '/customer/edit/' + id,
+            success: function(response) {
+                $('#main-wrapper').html(response);
+            }
+        });
+    }
 
     function destroy(id) {
         $.ajax({

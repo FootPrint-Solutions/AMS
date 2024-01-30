@@ -28,7 +28,7 @@ class Customer extends Controller
     }
 
     /**
-     * Show the form for editing Company profile resource.
+     * Show the form for creating Customer profile resource.
      *
      * @return \Illuminate\View\View
      */
@@ -40,6 +40,25 @@ class Customer extends Controller
                 'title' => 'Customer | ' . config('app.name'),
                 'subtitle' => 'List',
                 'active' => 2,
+            )
+        );
+    }
+
+    /**
+     * Show the form for editing Customer profile resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'MasterData/Customer/create',
+            array(
+                'title' => 'Customer | ' . config('app.name'),
+                'subtitle' => 'List',
+                'active' => 2,
+                'profile' => CustomerModel::find($id)->toArray()
             )
         );
     }
@@ -68,7 +87,8 @@ class Customer extends Controller
                 $row[] = $i["contact"]; // Contact
                 $row[] = $i["email"]; // E-mail
                 $row[] = $i["address"]; // Address
-                $row[] = "<a type='button' class='btn btn-danger btn-delete' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
+                $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
+                $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
                 $tableRows[] = $row;
                 $number++;
             }
@@ -106,6 +126,37 @@ class Customer extends Controller
         } else {
             // The inserting process is failed.
             $message = 'Failed to create the new customer!';
+        }
+
+        return json_encode([
+            'status' => $status,
+            'message' => $message
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $customer = CustomerModel::find($request->id);
+        $customer->name = $request->name;
+        $customer->address = $request->address;
+        $customer->contact = $request->contact;
+        $customer->email = $request->email;
+        $status = $customer->save();
+
+        // Set a new response data to be sent.
+        if ($status) {
+            // The updating process is succeeded.
+            $message = 'The customer was successfully updated!';
+        } else {
+            // The updating process is failed.
+            $message = 'Failed to update the customer!';
         }
 
         return json_encode([

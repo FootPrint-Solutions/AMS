@@ -36,7 +36,9 @@ Route::post('/company/update', [Company::class, 'update']);
 Route::get('/customer', [Customer::class, 'index']);
 Route::post('/customer/show', [Customer::class, 'show']);
 Route::get('/customer/create', [Customer::class, 'create']);
+Route::get('/customer/edit/{id}', [Customer::class, 'edit']);
 Route::post('/customer/store', [Customer::class, 'store']);
+Route::post('/customer/update', [Customer::class, 'update']);
 Route::post('/customer/destroy', [Customer::class, 'destroy']);
 
 // Vehicle

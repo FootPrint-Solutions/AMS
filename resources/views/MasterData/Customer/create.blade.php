@@ -6,7 +6,11 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Customer
+            @if (isset($profile))
+                Edit Customer
+            @else
+                Add New Customer
+            @endif
         </div>
         <br>
 
@@ -17,25 +21,41 @@
             {{-- Name --}}
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Customer name" required>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Customer name" required
+                @if (isset($profile))
+                    value="{{ $profile['name'] }}"
+                @endif
+                >
             </div>
             
             {{-- Address --}}
             <div class="form-group">
                 <label for="address">Address</label>
-                <input type="text" class="form-control" id="address" name="address" placeholder="Customer address" required>
+                <input type="text" class="form-control" id="address" name="address" placeholder="Customer address" required
+                @if (isset($profile))
+                    value="{{ $profile['address'] }}"
+                @endif
+                >
             </div>
 
             {{-- Contact --}}
             <div class="form-group">
                 <label for="contact">Contact</label>
-                <input type="text" class="form-control" id="contact" name="contact" placeholder="Customer contact" required>
+                <input type="text" class="form-control" id="contact" name="contact" placeholder="Customer contact" required
+                @if (isset($profile))
+                    value="{{ $profile['contact'] }}"
+                @endif
+                >
             </div>
 
             {{-- Email --}}
             <div class="form-group">
                 <label for="contact">E-mail</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Customer e-mail" required>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Customer e-mail" required
+                @if (isset($profile))
+                    value="{{ $profile['email'] }}"
+                @endif
+                >
             </div>
 
             {{-- Vehicle --}}
@@ -50,9 +70,24 @@
                     </div>
                 </div>
             </div> --}}
+
+            {{-- Hidden Inputs --}}
+            <input type="hidden" id="id" name="id"
+            @if (isset($profile))
+                value="{{ $profile['id'] }}"
+            @endif
+            >
             
             {{-- Buttons --}}
-            <a class="btn btn-primary mx-1" id="btn-save">Save</button>
+            <a class="btn btn-primary mx-1" id="btn-save"
+                @if (isset($profile))
+                    value="update">
+                    Update
+                @else
+                    value="create">
+                    Create
+                @endif
+            </button>
             <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
         </form>
     </div>
@@ -61,12 +96,20 @@
 <script>
     $(document).ready(function() {
         $("#btn-save").on('click', function() {
+            console.log();
+
+            let mode = $(this).attr("value"); // Update or Create
+            let url = "/customer/store";
+            if (mode == "update") {
+                url = "/customer/update";
+            }
+
             // Get customer form data.
             let formData = new FormData($('#customer-form')[0]);
             
             // Send customer form data to Customer controller using AJAX.
             $.ajax({
-                url: '/customer/store',
+                url: url,
                 method: 'POST',
                 data: formData,
                 processData: false,
