@@ -22,7 +22,7 @@ class MenuParentSeeder extends Seeder
 
         // Insert menu parent data to menu_parent table.
         DB::table('menu_parent')->insert([
-            ['name' => 'Dashboard', 'order' => 1, 'url' => '/dashboard', 'hide' => 0, 'icon' => 'fas fa-dashboard', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Dashboard', 'order' => 1, 'url' => '/', 'hide' => 0, 'icon' => 'fas fa-dashboard', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Master Data', 'order' => 2, 'url' => '#', 'hide' => 0, 'icon' => 'fas fa-book', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Orders', 'order' => 3, 'url' => '#', 'hide' => 0, 'icon' => 'fas fa-receipt', 'created_at' => now(), 'updated_at' => now()],
         ]);

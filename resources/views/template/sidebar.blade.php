@@ -10,11 +10,12 @@
 
                 {{-- Menu --}}
                 @foreach (session('menu') as $menu)
-                    <li class="submenu 
-                        @if (isset($active) && $active === $menu['id'])
-                            active
-                        @endif
-                    ">
+                    @php
+                        $isActive = isset($active) && $active === $menu['id'];
+                    @endphp
+
+                    <li
+                        class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif">
                         <a href="{{ $menu['url'] }}">
                             <i class="{{ $menu['icon'] }}"></i>
                             <span> {{ $menu['name'] }} </span>
@@ -23,9 +24,17 @@
                             @endif
                         </a>
 
-                        <ul>
+                        <ul style="@if ($isActive) display: block; @endif">
                             @foreach ($menu['menus'] as $menu_child)
-                                <li><a href="{{ $menu_child['url'] }}">{{ $menu_child['name'] }}</a></li>
+                                @php
+                                    $active_child = isset($active) && $active === $menu_child['id'];
+                                @endphp
+                                <li>
+                                    <a href="{{ $menu_child['url'] }}"
+                                        class="@if ($active_child) active @endif">
+                                        {{ $menu_child['name'] }}
+                                    </a>
+                                </li>
                             @endforeach
                         </ul>
                     </li>
