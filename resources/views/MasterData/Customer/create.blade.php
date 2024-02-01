@@ -6,7 +6,7 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            @if (isset($profile))
+            @if (isset($data['profile']))
                 Edit Customer
             @else
                 Add New Customer
@@ -19,73 +19,87 @@
             @csrf
 
             {{-- Name --}}
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Customer name" required
-                @if (isset($profile))
-                    value="{{ $profile['name'] }}"
+            <div class="form-group local-forms">
+                <label for="name">Name <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter customer name" required
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['name'] }}"
                 @endif
                 >
             </div>
             
             {{-- Address --}}
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" class="form-control" id="address" name="address" placeholder="Customer address" required
-                @if (isset($profile))
-                    value="{{ $profile['address'] }}"
+            <div class="form-group local-forms">
+                <label for="address">Address <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="address" name="address" placeholder="Enter customer address" required
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['address'] }}"
                 @endif
                 >
             </div>
 
-            {{-- Contact --}}
-            <div class="form-group">
-                <label for="contact">Contact</label>
-                <input type="text" class="form-control" id="contact" name="contact" placeholder="Customer contact" required
-                @if (isset($profile))
-                    value="{{ $profile['contact'] }}"
-                @endif
-                >
-            </div>
+            <div class="row">
+                {{-- Contact --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="contact">Contact <span class="login-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text border-end country-code">+62</span>
+                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Enter customer contact" required
+                            @if (isset($data['profile']))
+                                value="{{ $data['profile']['contact'] }}"
+                            @endif
+                            >
+                        </div>
+                    </div>
+                </div>
 
-            {{-- Email --}}
-            <div class="form-group">
-                <label for="contact">E-mail</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Customer e-mail" required
-                @if (isset($profile))
-                    value="{{ $profile['email'] }}"
-                @endif
-                >
+                {{-- Email --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="contact">E-mail <span class="login-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter customer e-mail" required
+                        @if (isset($data['profile']))
+                            value="{{ $data['profile']['email'] }}"
+                        @endif
+                        >
+                    </div>
+                </div>
             </div>
 
             {{-- Vehicle --}}
-            <div class="form-group">
-                <label for="vehicle" class="col-sm-2 col-form-label">Customer Vehicle</label>
+            <div class="form-group local-forms">
+                <label for="vehicle">Customer Vehicle</label>
                 <select class="form-control" id="vehicle" name="vehicle[]" multiple="multiple">
                     @foreach ($data['vehicles'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">{{ $vehicle['name'] }}</option>
+                        <option value="{{ $vehicle['id'] }}" @if (isset($data['owned_vehicles']) && in_array($vehicle['id'], $data['owned_vehicles'])) selected @endif>{{ $vehicle['name'] }}</option>
                     @endforeach
                 </select>
             </div>
 
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
-            @if (isset($profile))
-                value="{{ $profile['id'] }}"
+            @if (isset($data['profile']))
+                value="{{ $data['profile']['id'] }}"
             @endif
             >
             
             {{-- Buttons --}}
-            <a class="btn btn-primary mx-1" id="btn-save"
-                @if (isset($profile))
-                    value="update">
-                    Update
-                @else
-                    value="create">
-                    Create
-                @endif
-            </button>
-            <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
+            <div class="d-flex flex-row-reverse">
+                {{-- Create or Update Button --}}
+                <button class="btn btn-success mx-1" id="btn-save"
+                    @if (isset($data['profile']))
+                        value="update">
+                        Update Customer
+                    @else
+                        value="create">
+                        Create Customer
+                    @endif
+                </button>
+
+                {{-- Cancel Button --}}
+                <button class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+            </div>
         </form>
     </div>
 </div>

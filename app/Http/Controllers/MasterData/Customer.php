@@ -58,11 +58,15 @@ class Customer extends Controller
     {
         return view(
             'MasterData/Customer/create',
-            array(
-                'title' => 'Customer | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
-                'profile' => CustomerModel::find($id)->toArray()
+            getIndexData(
+                'Customer',
+                2,
+                2,
+                array(
+                    'profile' => CustomerModel::find($id)->toArray(),
+                    'owned_vehicles' => CustomerModel::find($id)->vehicles()->pluck('id_vehicle')->toArray(),
+                    'vehicles' => VehicleModel::all()->toArray()
+                )
             )
         );
     }
@@ -88,7 +92,7 @@ class Customer extends Controller
                 $row = array();
                 $row[] = number_format($number, 0); // #
                 $row[] = $i["name"]; // Name
-                $row[] = $i["contact"]; // Contact
+                $row[] = '<span class="text-secondary">+62</span> ' . $i["contact"]; // Contact
                 $row[] = $i["email"]; // E-mail
                 $row[] = $i["address"]; // Address
                 $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
@@ -123,6 +127,9 @@ class Customer extends Controller
         $customer->email = $request->email;
         $status = $customer->save();
 
+        // Store the list of customers' owned vehicles.
+        $customer->vehicles()->attach($request->vehicle);
+
         // Set a new response data to be sent.
         if ($status) {
             // The inserting process is succeeded.
@@ -150,6 +157,9 @@ class Customer extends Controller
         $customer->contact = $request->contact;
         $customer->email = $request->email;
         $status = $customer->save();
+
+        // Update the list of customers' owned vehicles.
+        $customer->vehicles()->sync($request->vehicle);
 
         // Set a new response data to be sent.
         if ($status) {

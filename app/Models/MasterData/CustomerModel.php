@@ -16,4 +16,13 @@ class CustomerModel extends Model
      * @var string
      */
     protected $table = 'customer';
+
+    /**
+     * Get all of the vehicles owned by the customer.
+     */
+    public function vehicles()
+    {
+        return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'id_customer', 'id_vehicle')
+            ->withTimestamps();
+    }
 }

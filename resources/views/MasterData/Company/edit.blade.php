@@ -14,53 +14,46 @@
             @csrf
 
             {{-- Company Name --}}
-            <div class="form-group row">
-                <div class="col-1">
-                    <label for="company-name">Name</label>
-                </div>
-
-                <div class="col-11">
-                    <input type="text" class="form-control" id="company-name" name="name" placeholder="Company name" value="{{ $data['company_profile'] ? $data['company_profile']['name'] : '' }}">
-
-                </div>
+            <div class="form-group local-forms">
+                <label for="company-name">Name</label>
+                <input type="text" class="form-control" id="company-name" name="name" placeholder="Enter company name" value="{{ $data['company_profile'] ? $data['company_profile']['name'] : '' }}">
             </div>
             
             {{-- Company Address --}}
-            <div class="form-group row">
-                <div class="col-1">
-                    <label for="company-address">Address</label>
-                </div>
-
-                <div class="col-11">
-                    <input type="text" class="form-control" id="company-address" name="address" placeholder="Company address" value="{{ $data['company_profile'] ? $data['company_profile']['address'] : '' }}">
-                </div>
+            <div class="form-group local-forms">
+                <label for="company-address">Address</label>
+                <input type="text" class="form-control" id="company-address" name="address" placeholder="Enter company address" value="{{ $data['company_profile'] ? $data['company_profile']['address'] : '' }}">
             </div>
 
-            {{-- Company Contact --}}
-            <div class="form-group row">
-                <div class="col-1">
-                    <label for="company-address">Contact</label>
+            <div class="row">
+                {{-- Company Contact --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="company-contact">Contact <span class="login-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text border-end country-code">+62</span>
+                            <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Enter company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-11">    
-                    <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}">
-                </div>
-            </div>
-
-            {{-- Company E-mail --}}
-            <div class="form-group row">
-                <div class="col-1">
-                    <label for="company-email">E-mail</label>
-                </div>
-
-                <div class="col-11">
-                    <input type="email" class="form-control" id="company-email" name="email" placeholder="Company e-mail" value="{{ $data['company_profile'] ? $data['company_profile']['email'] : '' }}">
+                {{-- Company E-mail --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="company-email">E-mail</label>
+                        <input type="email" class="form-control" id="company-email" name="email" placeholder="Enter company e-mail" value="{{ $data['company_profile'] ? $data['company_profile']['email'] : '' }}">
+                    </div>
                 </div>
             </div>
             
             {{-- Buttons --}}
-            <a class="btn btn-primary mx-1" id="btn-save">Save</button>
-            <a class="btn btn-danger mx-1" id="btn-reset">Reset</a>
+            <div class="d-flex flex-row-reverse">
+                {{-- Save Button --}}
+                <a class="btn btn-success mx-1" id="btn-save">Save Company Profile</button>
+
+                {{-- Reset Button --}}
+                <a class="btn btn-danger mx-1" id="btn-reset">Reset</a>
+            </div>
         </form>
     </div>
 </div>
