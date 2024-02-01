@@ -14,7 +14,7 @@ class Quotation extends Controller
             getIndexData(
                 'Quick Quotation',
                 3,
-                4
+                5
             )
         );
     }

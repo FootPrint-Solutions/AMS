@@ -29,6 +29,9 @@
     {{-- Datatables CSS --}}
 		<link rel="stylesheet" href="{{ asset('/plugins/datatables/datatables.min.css') }}">
 
+    {{-- Select2 CSS --}}
+    <link rel="stylesheet" href="{{ asset('/plugins/select2/css/select2.min.css') }}">
+
     {{-- Main CSS --}}
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
 
@@ -72,6 +75,9 @@
 
     {{-- Datatables JS --}}
 		<script src="{{ asset('/plugins/datatables/datatables.min.js') }}"></script>
+
+    {{-- Select2 JS --}}
+    <script href="{{ asset('/plugins/select2/js/select2.min.js') }}"></script>
 
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>

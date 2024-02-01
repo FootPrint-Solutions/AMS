@@ -59,7 +59,7 @@
             </div>
 
             {{-- Vehicle --}}
-            {{-- <div class="form-group">
+            <div class="form-group">
                 <label for="vehicle" class="col-sm-2 col-form-label">Customer Vehicle</label>
                 <div class="col-sm-10">
                     <div class="border rounded p-2">
@@ -69,7 +69,13 @@
                         <span class="btn btn-success"><i class="fa fa-plus-circle" aria-hidden="true"></i></span>
                     </div>
                 </div>
-            </div> --}}
+
+                <select class="js-example-basic-multiple" name="states[]" multiple="multiple">
+                    <option value="AL">Alabama</option>
+                    <option value="XS">XSElkjelr</option>
+                    <option value="WY">Wyoming</option>
+                  </select>
+            </div>
 
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
@@ -95,9 +101,9 @@
 
 <script>
     $(document).ready(function() {
-        $("#btn-save").on('click', function() {
-            console.log();
+        $('.js-example-basic-multiple').select2();
 
+        $("#btn-save").on('click', function() {
             let mode = $(this).attr("value"); // Update or Create
             let url = "/customer/store";
             if (mode == "update") {
