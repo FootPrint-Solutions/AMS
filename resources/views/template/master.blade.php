@@ -77,7 +77,7 @@
 		<script src="{{ asset('/plugins/datatables/datatables.min.js') }}"></script>
 
     {{-- Select2 JS --}}
-    <script href="{{ asset('/plugins/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('/plugins/select2/js/select2.min.js') }}"></script>
 
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>

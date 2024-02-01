@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\CustomerModel;
+use App\Models\MasterData\VehicleModel;
 
 class Customer extends Controller
 {
@@ -36,10 +37,13 @@ class Customer extends Controller
     {
         return view(
             'MasterData/Customer/create',
-            array(
-                'title' => 'Customer | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
+            getIndexData(
+                'Customer',
+                2,
+                2,
+                array(
+                    'vehicles' => VehicleModel::all()->toArray()
+                )
             )
         );
     }
