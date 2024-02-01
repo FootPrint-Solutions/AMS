@@ -61,20 +61,11 @@
             {{-- Vehicle --}}
             <div class="form-group">
                 <label for="vehicle" class="col-sm-2 col-form-label">Customer Vehicle</label>
-                <div class="col-sm-10">
-                    <div class="border rounded p-2">
-                        <span class="btn btn-primary">Toyota Avanza</span>
-                        <span class="btn btn-primary">Azunyan #2</span>
-                        <span class="btn btn-primary">Hohoho</span>
-                        <span class="btn btn-success"><i class="fa fa-plus-circle" aria-hidden="true"></i></span>
-                    </div>
-                </div>
-
-                <select class="js-example-basic-multiple" name="states[]" multiple="multiple">
-                    <option value="AL">Alabama</option>
-                    <option value="XS">XSElkjelr</option>
-                    <option value="WY">Wyoming</option>
-                  </select>
+                <select class="form-control" id="vehicle" name="vehicle[]" multiple="multiple">
+                    @foreach ($data['vehicles'] as $vehicle)
+                        <option value="{{ $vehicle['id'] }}">{{ $vehicle['name'] }}</option>
+                    @endforeach
+                </select>
             </div>
 
             {{-- Hidden Inputs --}}
@@ -101,7 +92,9 @@
 
 <script>
     $(document).ready(function() {
-        $('.js-example-basic-multiple').select2();
+        $('#vehicle').select2({
+            placeholder: "Customer owned vehicles"
+        });
 
         $("#btn-save").on('click', function() {
             let mode = $(this).attr("value"); // Update or Create

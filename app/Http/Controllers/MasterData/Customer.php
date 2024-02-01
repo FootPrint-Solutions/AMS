@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\CustomerModel;
+use App\Models\MasterData\VehicleModel;
 
 class Customer extends Controller
 {
@@ -36,10 +37,13 @@ class Customer extends Controller
     {
         return view(
             'MasterData/Customer/create',
-            array(
-                'title' => 'Customer | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
+            getIndexData(
+                'Customer',
+                2,
+                2,
+                array(
+                    'vehicles' => VehicleModel::all()->toArray()
+                )
             )
         );
     }
@@ -128,10 +132,7 @@ class Customer extends Controller
             $message = 'Failed to create the new customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 
     /**
@@ -159,10 +160,7 @@ class Customer extends Controller
             $message = 'Failed to update the customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 
     /**
@@ -185,9 +183,6 @@ class Customer extends Controller
             $message = 'Failed to delete the selected customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 }

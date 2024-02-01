@@ -19,3 +19,19 @@ function getIndexData($title, $active, $activeChild, $data = null)
         "data" => $data
     );
 }
+
+/**
+ * Get data array for request response result.
+ *
+ * @param bool $status The status of the response
+ * @param string $message The response message
+ *
+ * @return string JSON-encoded string representing the response result.
+ */
+function getResponseData($status, $message)
+{
+    return json_encode(array(
+        "status" => $status,
+        "message" => $message
+    ));
+}
