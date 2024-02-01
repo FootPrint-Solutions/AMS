@@ -132,10 +132,7 @@ class Customer extends Controller
             $message = 'Failed to create the new customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 
     /**
@@ -163,10 +160,7 @@ class Customer extends Controller
             $message = 'Failed to update the customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 
     /**
@@ -189,9 +183,6 @@ class Customer extends Controller
             $message = 'Failed to delete the selected customer!';
         }
 
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData($status, $message);
     }
 }
