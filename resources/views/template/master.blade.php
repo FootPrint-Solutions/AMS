@@ -79,6 +79,10 @@
     {{-- Select2 JS --}}
     <script src="{{ asset('/plugins/select2/js/select2.min.js') }}"></script>
 
+    {{-- Sweetalert JS --}}
+    <script src="{{ asset('/plugins/sweetalert/sweetalerts.min.js') }}"></script>
+    <script src="{{ asset('/plugins/sweetalert/sweetalert2.all.min.js') }}"></script>
+
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>
   </body>
