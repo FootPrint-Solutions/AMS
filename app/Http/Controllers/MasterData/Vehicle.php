@@ -18,7 +18,7 @@ class Vehicle extends Controller
     public function index()
     {
         return view(
-            'Masterdata/Vehicle/index',
+            'MasterData/Vehicle/index',
             getIndexData(
                 'Vehicle',
                 2,
@@ -34,7 +34,7 @@ class Vehicle extends Controller
      */
     public function create()
     {
-        return view('Masterdata/Vehicle/create');
+        return view('MasterData/Vehicle/create');
     }
 
     /**

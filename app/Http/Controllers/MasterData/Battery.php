@@ -11,7 +11,7 @@ class Battery extends Controller
     public function index()
     {
         return view(
-            'Masterdata/Battery/index',
+            'MasterData/Battery/index',
             getIndexData(
                 'Battery',
                 2,
