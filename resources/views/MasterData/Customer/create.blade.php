@@ -6,7 +6,7 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            @if (isset($profile))
+            @if (isset($data['profile']))
                 Edit Customer
             @else
                 Add New Customer
@@ -22,8 +22,8 @@
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Customer name" required
-                @if (isset($profile))
-                    value="{{ $profile['name'] }}"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['name'] }}"
                 @endif
                 >
             </div>
@@ -32,8 +32,8 @@
             <div class="form-group">
                 <label for="address">Address</label>
                 <input type="text" class="form-control" id="address" name="address" placeholder="Customer address" required
-                @if (isset($profile))
-                    value="{{ $profile['address'] }}"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['address'] }}"
                 @endif
                 >
             </div>
@@ -42,8 +42,8 @@
             <div class="form-group">
                 <label for="contact">Contact</label>
                 <input type="text" class="form-control" id="contact" name="contact" placeholder="Customer contact" required
-                @if (isset($profile))
-                    value="{{ $profile['contact'] }}"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['contact'] }}"
                 @endif
                 >
             </div>
@@ -52,8 +52,8 @@
             <div class="form-group">
                 <label for="contact">E-mail</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="Customer e-mail" required
-                @if (isset($profile))
-                    value="{{ $profile['email'] }}"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['email'] }}"
                 @endif
                 >
             </div>
@@ -63,21 +63,21 @@
                 <label for="vehicle" class="col-sm-2 col-form-label">Customer Vehicle</label>
                 <select class="form-control" id="vehicle" name="vehicle[]" multiple="multiple">
                     @foreach ($data['vehicles'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">{{ $vehicle['name'] }}</option>
+                        <option value="{{ $vehicle['id'] }}" @if (in_array($vehicle['id'], $data['owned_vehicles'])) selected @endif>{{ $vehicle['name'] }}</option>
                     @endforeach
                 </select>
             </div>
 
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
-            @if (isset($profile))
-                value="{{ $profile['id'] }}"
+            @if (isset($data['profile']))
+                value="{{ $data['profile']['id'] }}"
             @endif
             >
             
             {{-- Buttons --}}
             <a class="btn btn-primary mx-1" id="btn-save"
-                @if (isset($profile))
+                @if (isset($data['profile']))
                     value="update">
                     Update
                 @else

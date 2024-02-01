@@ -58,11 +58,15 @@ class Customer extends Controller
     {
         return view(
             'MasterData/Customer/create',
-            array(
-                'title' => 'Customer | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
-                'profile' => CustomerModel::find($id)->toArray()
+            getIndexData(
+                'Customer',
+                2,
+                2,
+                array(
+                    'profile' => CustomerModel::find($id)->toArray(),
+                    'owned_vehicles' => CustomerModel::find($id)->vehicles()->pluck('id_vehicle')->toArray(),
+                    'vehicles' => VehicleModel::all()->toArray()
+                )
             )
         );
     }
@@ -122,6 +126,9 @@ class Customer extends Controller
         $customer->contact = $request->contact;
         $customer->email = $request->email;
         $status = $customer->save();
+
+        // Store the list of customers' owned vehicles.
+        $customer->vehicles()->attach($request->vehicle);
 
         // Set a new response data to be sent.
         if ($status) {
