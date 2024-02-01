@@ -22,6 +22,6 @@ class Battery extends Controller
 
     public function create()
     {
-        return view('Masterdata/Battery/create');
+        return view('MasterData/Battery/create');
     }
 }
