@@ -19,10 +19,10 @@ class Customer extends Controller
     {
         return view(
             'MasterData/Customer/index',
-            array(
-                'title' => 'Customer | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
+            getIndexData(
+                'Customer',
+                2,
+                2
             )
         );
     }

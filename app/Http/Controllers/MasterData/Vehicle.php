@@ -19,11 +19,11 @@ class Vehicle extends Controller
     {
         return view(
             'Masterdata/Vehicle/index',
-            [
-                'title' => 'Vehicle | ' . config('app.name'),
-                'data' => VehicleModel::all(),
-                'active' => 2,
-            ]
+            getIndexData(
+                'Vehicle',
+                2,
+                3
+            )
         );
     }
 

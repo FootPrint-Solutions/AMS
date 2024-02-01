@@ -11,11 +11,11 @@ class Quotation extends Controller
     {
         return view(
             'Orders/Quotation/index',
-            [
-                'title' => 'Quick Quotation | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 3,
-            ]
+            getIndexData(
+                'Quick Quotation',
+                3,
+                4
+            )
         );
     }
 }
