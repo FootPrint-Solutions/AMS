@@ -20,7 +20,7 @@
                 </div>
 
                 <div class="col-11">
-                    <input type="text" class="form-control" id="company-name" name="name" placeholder="Company name" value="{{ $data ? $data->name : '' }}">
+                    <input type="text" class="form-control" id="company-name" name="name" placeholder="Company name" value="{{ $data['company_profile'] ? $data['company_profile']['name'] : '' }}">
 
                 </div>
             </div>
@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="col-11">
-                    <input type="text" class="form-control" id="company-address" name="address" placeholder="Company address" value="{{ $data ? $data->address : '' }}">
+                    <input type="text" class="form-control" id="company-address" name="address" placeholder="Company address" value="{{ $data['company_profile'] ? $data['company_profile']['address'] : '' }}">
                 </div>
             </div>
 
@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="col-11">    
-                    <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Company contact" value="{{ $data ? $data->contact : '' }}">
+                    <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}">
                 </div>
             </div>
 
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="col-11">
-                    <input type="email" class="form-control" id="company-email" name="email" placeholder="Company e-mail" value="{{ $data ? $data->email : '' }}">
+                    <input type="email" class="form-control" id="company-email" name="email" placeholder="Company e-mail" value="{{ $data['company_profile'] ? $data['company_profile']['email'] : '' }}">
                 </div>
             </div>
             

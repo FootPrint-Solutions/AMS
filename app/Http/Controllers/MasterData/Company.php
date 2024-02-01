@@ -19,10 +19,13 @@ class Company extends Controller
     {
         return view(
             'MasterData/Company/edit',
-            array(
-                'title' => 'Company | ' . config('app.name'),
-                'active' => 2,
-                'data' => CompanyModel::first(),
+            getIndexData(
+                'Company',
+                2,
+                1,
+                array(
+                    'company_profile' => CompanyModel::first()->toArray()
+                )
             )
         );
     }
