@@ -27,13 +27,11 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <a class="btn btn-primary mx-1" id="btn-save" value="create">Create</button>
+                <a class="btn btn-success mx-1" id="btn-save" value="create">Create</button>
 
                 {{-- Cancel Button --}}
                 <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
             </div>
-            
-            
         </form>
     </div>
 </div>

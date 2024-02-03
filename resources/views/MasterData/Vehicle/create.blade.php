@@ -6,7 +6,7 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            @if (isset($profile))
+            @if (isset($data['profile']))
                 Edit Vehicle
             @else
                 Add New Vehicle
@@ -22,8 +22,8 @@
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Vehicle name" required
-                @if (isset($profile))
-                    value="{{ $profile['name'] }}"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['name'] }}"
                 @endif
                 >
             </div>
@@ -33,29 +33,34 @@
                 <label for="vehicle-brand">Customer Vehicle</label>
                 <select class="form-control" id="vehicle-brand" name="vehiclebrand">
                     @foreach ($data['brands'] as $brand)
-                        <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                        <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                     @endforeach
                 </select>
             </div>
 
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
-            @if (isset($profile))
-                value="{{ $profile['id'] }}"
+            @if (isset($data['profile']))
+                value="{{ $data['profile']['id'] }}"
             @endif
             >
             
             {{-- Buttons --}}
-            <a class="btn btn-primary mx-1" id="btn-save"
-                @if (isset($profile))
-                    value="update">
-                    Update
-                @else
-                    value="create">
-                    Create
-                @endif
-            </button>
-            <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
+            <div class="d-flex flex-row-reverse">
+                {{-- Create Button --}}
+                <a class="btn btn-success mx-1" id="btn-save"
+                    @if (isset($data['profile']))
+                        value="update">
+                        Update
+                    @else
+                        value="create">
+                        Create
+                    @endif
+                </button>
+
+                {{-- Cancel Button --}}
+                <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
+            </div>
         </form>
     </div>
 </div>
