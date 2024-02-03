@@ -107,7 +107,7 @@
                                 value="{{ $data['profile']['dimension_length'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">mm</span>
+                            <span class="input-group-text border-end">cm</span>
                         </div>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                                 value="{{ $data['profile']['dimension_width'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">mm</span>
+                            <span class="input-group-text border-end">cm</span>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
                                 value="{{ $data['profile']['dimension_height'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">mm</span>
+                            <span class="input-group-text border-end">cm</span>
                         </div>
                     </div>
                 </div>
@@ -182,11 +182,14 @@
                 <div class="col">
                     <div class="form-group local-forms">
                         <label for="warranty">Warranty <span class="login-danger">*</span></label>
-                        <input type="text" class="form-control" id="warranty" name="warranty" placeholder="Enter battery warranty duration" required
-                        @if (isset($data['profile']))
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="warranty" name="warranty" placeholder="Enter battery warranty duration" required
+                            @if (isset($data['profile']))
                             value="{{ $data['profile']['warranty'] }}"
-                        @endif
-                        >
+                            @endif
+                            >
+                            <span class="input-group-text border-end">month</span>
+                        </div>
                     </div>
                 </div>
 
