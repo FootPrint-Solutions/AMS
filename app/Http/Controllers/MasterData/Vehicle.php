@@ -120,7 +120,7 @@ class Vehicle extends Controller
     {
         $vehicle = new VehicleModel();
         $vehicle->name = $request->name;
-        $vehicle->id_brand = $request->vehiclebrand;
+        $vehicle->id_brand = $request->brand;
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
@@ -149,7 +149,7 @@ class Vehicle extends Controller
     {
         $vehicle = VehicleModel::find($request->id);
         $vehicle->name = $request->name;
-        $vehicle->id_brand = $request->vehiclebrand;
+        $vehicle->id_brand = $request->brand;
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
