@@ -45,7 +45,14 @@
                     @foreach ($data['brands'] as $brand)
                         <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                     @endforeach
+                    <option value="new">Quick add new brand&hellip;</option>
                 </select>
+            </div>
+
+            {{-- Quick Add New Brand --}}
+            <div id="new-brand" class="form-group local-forms" style="display: none;">
+                <label for="brand-new">New Brand</label>
+                <input type="text" class="form-control" id="brand" name="newbrand" required>
             </div>
 
             {{-- Hidden Inputs --}}
@@ -78,8 +85,16 @@
 
 <script>
     $(document).ready(function() {
-        $('#vehicle').select2({
+        $('#brand').select2({
             placeholder: "Enter vehicle brand"
+        });
+
+        $("#brand").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#new-brand").show();
+            } else {
+                $("#new-brand").hide();
+            }
         });
 
         $("#vehicle-form").on("submit", function(event) {
