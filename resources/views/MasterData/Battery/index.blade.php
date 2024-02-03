@@ -62,5 +62,37 @@
             goToPage("/battery/create");
         });
     });
+
+    function edit(id) {
+        goToPage("/battery/edit/" + id);
+    }
+
+    function destroy(id) {
+        $.ajax({
+            url: '/battery/destroy',
+            method: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "id": id
+            },
+            success: function(response) {
+                // Get response data (in JSON).
+                let responseData = JSON.parse(response);
+
+                // Check response data status.
+                // Status indicates the success status of company profile update.
+                if (responseData.status) {
+                    // Company profile update was succeeded.
+                    showSuccessToast(responseData.message);
+                } else {
+                    // Company profile update was failed.
+                    showErrorToast(responseData.message);
+                }
+
+                // Reload table with updated rows.
+                table.ajax.reload();
+            }
+        });
+    }
 </script>
 @endsection

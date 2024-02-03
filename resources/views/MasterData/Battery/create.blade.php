@@ -6,7 +6,11 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Battery
+            @if (isset($data['profile']))
+                Edit Battery
+            @else
+                Add New Battery
+            @endif
         </div>
         <br>
 
@@ -20,7 +24,11 @@
                 <div class="col">
                     <div class="form-group local-forms">
                         <label for="name">Name <span class="login-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter battery name" required>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter battery name" required
+                        @if (isset($data['profile']))
+                            value="{{ $data['profile']['name'] }}"
+                        @endif
+                        >
                     </div>
                 </div>
                 
@@ -96,7 +104,7 @@
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" id="dimension-length" name="dimension[]" placeholder="Enter battery length" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['dimension_length'] }}"
                             @endif
                             >
                             <span class="input-group-text border-end">mm</span>
@@ -111,7 +119,7 @@
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" id="dimension-width" name="dimension[]" placeholder="Enter battery width" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['dimension_width'] }}"
                             @endif
                             >
                             <span class="input-group-text border-end">mm</span>
@@ -126,7 +134,7 @@
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" id="dimension-height" name="dimension[]" placeholder="Enter battery height" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['dimension_height'] }}"
                             @endif
                             >
                             <span class="input-group-text border-end">mm</span>
@@ -144,7 +152,7 @@
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" id="standard-cca" name="standardcca" placeholder="Enter battery standard CCA" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['standard_cca'] }}"
                             @endif
                             >
                             <span class="input-group-text border-end">A</span>
@@ -159,7 +167,7 @@
                         <div class="input-group">
                             <input type="number" min="0" class="form-control" id="capacity" name="capacity" placeholder="Enter battery capacity" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['capacity'] }}"
                             @endif
                             >
                             <span class="input-group-text border-end">AH</span>
@@ -176,7 +184,7 @@
                         <label for="warranty">Warranty <span class="login-danger">*</span></label>
                         <input type="text" class="form-control" id="warranty" name="warranty" placeholder="Enter battery warranty duration" required
                         @if (isset($data['profile']))
-                            value="{{ $data['profile']['contact'] }}"
+                            value="{{ $data['profile']['warranty'] }}"
                         @endif
                         >
                     </div>
@@ -190,7 +198,7 @@
                             <span class="input-group-text border-end">IDR</span>
                             <input type="number" min="0" class="form-control" id="price" name="price" placeholder="Enter battery price retail" required
                             @if (isset($data['profile']))
-                                value="{{ $data['profile']['contact'] }}"
+                                value="{{ $data['profile']['price_retail'] }}"
                             @endif
                             >
                         </div>
@@ -208,10 +216,25 @@
                 </div>
             </div>
 
+            {{-- Hidden Inputs --}}
+            <input type="hidden" id="id" name="id"
+            @if (isset($data['profile']))
+                value="{{ $data['profile']['id'] }}"
+            @endif
+            >
+
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Battery</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                    @if (isset($data['profile']))
+                        value="update">
+                        Update Battery
+                    @else
+                        value="create">
+                        Create Battery
+                    @endif
+                </button>
 
                 {{-- Cancel Button --}}
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -241,12 +264,18 @@
         $("#battery-form").on("submit", function(event) {
             event.preventDefault();
 
+            let mode = $("#btn-save").attr("value"); // Update or Create
+            let url = "/battery/store";
+            if (mode == "update") {
+                url = "/battery/update";
+            }
+
             // Get customer form data.
             let formData = new FormData($(this)[0]);
             
             // Send customer form data to Customer controller using AJAX.
             $.ajax({
-                url: "/battery/store",
+                url: url,
                 method: "POST",
                 data: formData,
                 processData: false,

@@ -63,7 +63,10 @@ Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store']);
 Route::get('/battery', [Battery::class, 'index']);
 Route::post('/battery/show', [Battery::class, 'show']);
 Route::get('/battery/create', [Battery::class, 'create']);
+Route::get('/battery/edit/{id}', [Battery::class, 'edit']);
 Route::post('/battery/store', [Battery::class, 'store']);
+Route::post('/battery/update', [Battery::class, 'update']);
+Route::post('/battery/destroy', [Battery::class, 'destroy']);
 
 // Orders
 // Quick Quotation
