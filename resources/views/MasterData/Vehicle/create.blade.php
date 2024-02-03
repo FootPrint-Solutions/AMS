@@ -117,18 +117,13 @@
                     }
 
                     // Redirect to index page.
-                    window.location.href = "/vehicle";
+                    goToPage("/vehicle");
                 }
             });
         });
 
         $("#vehicle-form").on("reset", function() {
-            $.ajax({
-                url: '/vehicle',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/vehicle");
         });
     });
 </script>

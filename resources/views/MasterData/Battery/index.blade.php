@@ -39,8 +39,9 @@
     var table;
 
     $(document).ready(function() {
+        // DataTables configuration
         table = $('#table-battery').DataTable({
-            "dom": 'lBfrtp',
+            "dom": "lBfrtp",
             "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
             "searching": true,
             "stateSave": false,
@@ -57,13 +58,8 @@
             }
         });
 
-        $('#btn-add').on('click', function() {
-            $.ajax({
-                url: '/battery/create',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+        $("#btn-add").on("click", function() {
+            goToPage("/battery/create");
         });
     });
 </script>

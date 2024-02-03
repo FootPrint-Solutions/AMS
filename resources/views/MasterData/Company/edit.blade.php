@@ -91,12 +91,7 @@
         });
 
         $("#company-form").on("reset", function() {
-            $.ajax({
-                url: '/company',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/company");
         });
     });
 </script>

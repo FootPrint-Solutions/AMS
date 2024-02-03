@@ -53,34 +53,17 @@
 
         // Add New Vehicle button
         $("#btn-add").on("click", function() {
-            $.ajax({
-                url: "/vehicle/create",
-                success: function(response) {
-                    // Replace main wrapper with new display.
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/vehicle/create");
         });
 
         // Add New Brand button
         $("#btn-add-brand").on("click", function() {
-            $.ajax({
-                url: "/vehicle/brand/create",
-                success: function(response) {
-                    // Replace main wrapper with new display.
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/vehicle/brand/create");
         });
     });
 
     function edit(id) {
-        $.ajax({
-            url: "/vehicle/edit/" + id,
-            success: function(response) {
-                $('#main-wrapper').html(response);
-            }
-        });
+        goToPage("/vehicle/edit/" + id);
     }
 
     function destroy(id) {

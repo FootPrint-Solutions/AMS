@@ -30,7 +30,9 @@
 
 <script>
     var table;
+
     $(document).ready(function() {
+        // DataTables configuration
         table = $('#table-customer').DataTable({
             "dom": 'lBfrtp',
             "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
@@ -50,22 +52,12 @@
         });
 
         $('#btn-add').on('click', function() {
-            $.ajax({
-                url: '/customer/create',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/customer/create");
         });
     });
 
     function edit(id) {
-        $.ajax({
-            url: '/customer/edit/' + id,
-            success: function(response) {
-                $('#main-wrapper').html(response);
-            }
-        });
+        goToPage("/customer/edit/" + id);
     }
 
     function destroy(id) {

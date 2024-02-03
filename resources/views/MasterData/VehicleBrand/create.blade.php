@@ -62,18 +62,13 @@
                     }
 
                     // Redirect to Vehicle index page.
-                    window.location.href = "/vehicle";
+                    goToPage("/vehicle");
                 }
             });
         });
 
         $("#vehicle-brand-form").on("reset", function() {
-            $.ajax({
-                url: '/vehicle',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/vehicle");
         });
     });
 </script>
