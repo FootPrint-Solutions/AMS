@@ -52,7 +52,7 @@
             {{-- Quick Add New Brand --}}
             <div id="new-brand" class="form-group local-forms" style="display: none;">
                 <label for="brand-new">New Brand</label>
-                <input type="text" class="form-control" id="brand" name="newbrand" required>
+                <input type="text" class="form-control" id="brand-new" name="newbrand">
             </div>
 
             {{-- Hidden Inputs --}}

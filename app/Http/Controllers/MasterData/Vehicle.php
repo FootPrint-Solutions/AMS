@@ -122,7 +122,7 @@ class Vehicle extends Controller
         $vehicle->name = $request->name;
 
         // Check if the brand is newly added or not.
-        if ($request->brand == "new") {
+        if ($request->brand === "new") {
             // Store the newly added vehicle brand.
             $brand = new VehicleBrandModel();
             $brand->name = $request->newbrand;
@@ -135,8 +135,6 @@ class Vehicle extends Controller
 
         $vehicle->url = $request->url;
         $status = $vehicle->save();
-
-
 
         // Set a new response data to be sent.
         if ($status) {
