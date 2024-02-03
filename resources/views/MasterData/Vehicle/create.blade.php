@@ -29,15 +29,14 @@
             </div>
 
             {{-- Brand --}}
-            {{-- <div class="form-group">
-                <label for="brand">Brand</label>
-                <select class="form-select" id="brand">
-                    <option>Select car brand</option>
-                    <option value="toyota" selected>Toyota</option>
-                    <option value="mazda">Mazda</option>
-                    <option value="-1">Add New...</option>
+            <div class="form-group local-forms">
+                <label for="vehicle-brand">Customer Vehicle</label>
+                <select class="form-control" id="vehicle-brand" name="vehiclebrand">
+                    @foreach ($data['brands'] as $brand)
+                        <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                    @endforeach
                 </select>
-            </div> --}}
+            </div>
 
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
@@ -63,6 +62,10 @@
 
 <script>
     $(document).ready(function() {
+        $('#vehicle').select2({
+            placeholder: "Vehicel brand"
+        });
+
         $("#btn-save").on('click', function() {
             let mode = $(this).attr("value"); // Update or Create
             let url = "/vehicle/store";
