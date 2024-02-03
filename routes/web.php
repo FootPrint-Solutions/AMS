@@ -71,3 +71,5 @@ Route::post('/battery/destroy', [Battery::class, 'destroy']);
 // Orders
 // Quick Quotation
 Route::get('/quotation', [Quotation::class, 'index']);
+Route::get('/find-customer', [Quotation::class, 'findCustomer']);
+Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails']);
