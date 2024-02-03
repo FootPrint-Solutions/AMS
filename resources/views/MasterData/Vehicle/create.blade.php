@@ -50,8 +50,8 @@
             </div>
 
             {{-- Quick Add New Brand --}}
-            <div id="new-brand" class="form-group local-forms" style="display: none;">
-                <label for="brand-new">New Brand</label>
+            <div id="brand-new-group" class="form-group local-forms" style="display: none;">
+                <label for="brand-new">New Brand <span class="login-danger">*</span></label>
                 <input type="text" class="form-control" id="brand-new" name="newbrand">
             </div>
 
@@ -91,9 +91,11 @@
 
         $("#brand").on("select2:select", function (e) {
             if (e.params.data.id === "new") {
-                $("#new-brand").show();
+                $("#brand-new-group").show();
+                $("#brand-new-group").attr("required", true);
             } else {
-                $("#new-brand").hide();
+                $("#brand-new-group").hide();
+                $("#brand-new-group").attr("required", false);
             }
         });
 
