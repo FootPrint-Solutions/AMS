@@ -16,6 +16,7 @@ class CreateBatteryBrandTable extends Migration
         Schema::create('battery_brand', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

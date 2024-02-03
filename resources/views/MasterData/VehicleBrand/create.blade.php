@@ -23,7 +23,7 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Vehicle Brand</button>
 
                 {{-- Cancel Button --}}
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>

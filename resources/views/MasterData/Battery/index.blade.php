@@ -1,51 +1,70 @@
 @extends('template.master')
 
 @section('content')
-{{-- Title --}}
-<div class="h1">
-    Battery <a href="/battery/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
-</div>
-
 {{-- Form --}}
 <div class="card">
     <div class="card-body">
-        <table class="table table-striped">
+        {{-- Title --}}
+        <div class="card-title h2">
+            Battery
+            <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
+        </div>
+        <br>
+
+        {{-- Table --}}
+        <table class="table table-striped" id="table-battery">
             <thead>
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Brand</th>
+                    <th scope="col">Subbrand Category</th>
+                    <th scope="col">Usage Type</th>
+                    <th scope="col">Size Category</th>
+                    <th scope="col">Technology</th>
                     <th scope="col">Dimensions</th>
                     <th scope="col">Standard CCA</th>
                     <th scope="col">Capacity</th>
                     <th scope="col">Warranty</th>
                     <th scope="col">Retail Price (IDR)</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td scope="row">1</td>
-                    <td scope="row">Amaron GO 95D31R</td>
-                    <td scope="row">AMARON</td>
-                    <td scope="row">300 x 172 x 233</td>
-                    <td scope="row">720 A</td>
-                    <td scope="row">75 AH</td>
-                    <td scope="row">1 week</td>
-                    <td scope="row" class="text-end">1,670,000</td>
-                </tr>
-
-                <tr>
-                    <td scope="row">2</td>
-                    <td scope="row">Amaron GO 9523SM</td>
-                    <td scope="row">AMARON</td>
-                    <td scope="row">200 x 123 x 200</td>
-                    <td scope="row">600 A</td>
-                    <td scope="row">75 AH</td>
-                    <td scope="row">6 weeks</td>
-                    <td scope="row" class="text-end">859,000</td>
-                </tr>
-            </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    var table;
+
+    $(document).ready(function() {
+        table = $('#table-battery').DataTable({
+            "dom": 'lBfrtp',
+            "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
+            "searching": true,
+            "stateSave": false,
+            "processing": true,
+            "serverSide": true,
+            "paging": true,
+            "pagingType": 'numbers',
+            "ajax": {
+                "url": "/battery/show",
+                "type": "POST",
+                "data": {
+                    "_token": "{{ csrf_token() }}"
+                }
+            }
+        });
+
+        $('#btn-add').on('click', function() {
+            $.ajax({
+                url: '/battery/create',
+                success: function(response) {
+                    $('#main-wrapper').html(response);
+                }
+            });
+        });
+    });
+</script>
 @endsection
