@@ -32,7 +32,7 @@
                         <label for="company-contact">Contact <span class="login-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text border-end country-code">+62</span>
-                            <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Enter company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}" required>
+                            <input type="tel" pattern="[0-9]+" class="form-control" id="company-contact" name="contact" placeholder="Enter company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}" required>
                         </div>
                     </div>
                 </div>
