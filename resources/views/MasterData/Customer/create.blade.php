@@ -45,7 +45,7 @@
                         <label for="contact">Contact <span class="login-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text border-end country-code">+62</span>
-                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Enter customer contact" required
+                            <input type="tel"  pattern="[0-9]+" class="form-control" id="contact" name="contact" placeholder="Enter customer contact" required
                             @if (isset($data['profile']))
                                 value="{{ $data['profile']['contact'] }}"
                             @endif
@@ -87,7 +87,7 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create or Update Button --}}
-                <button class="btn btn-success mx-1" id="btn-save"
+                <button type="submit" class="btn btn-success mx-1" id="btn-save"
                     @if (isset($data['profile']))
                         value="update">
                         Update Customer
@@ -98,7 +98,7 @@
                 </button>
 
                 {{-- Cancel Button --}}
-                <button class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
             </div>
         </form>
     </div>
@@ -110,8 +110,10 @@
             placeholder: "Customer owned vehicles"
         });
 
-        $("#btn-save").on('click', function() {
-            let mode = $(this).attr("value"); // Update or Create
+        $("#customer-form").on("submit", function(event) {
+            event.preventDefault();
+
+            let mode = $("#btn-save").attr("value"); // Update or Create
             let url = "/customer/store";
             if (mode == "update") {
                 url = "/customer/update";
@@ -147,7 +149,7 @@
             });
         });
 
-        $("#btn-cancel").on('click', function() {
+        $("#customer-form").on("reset", function() {
             $.ajax({
                 url: '/customer',
                 success: function(response) {
