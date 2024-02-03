@@ -144,18 +144,13 @@
                     }
 
                     // Redirect to Customer index page.
-                    window.location.href = "/customer";
+                    goToPage("/customer");
                 }
             });
         });
 
         $("#customer-form").on("reset", function() {
-            $.ajax({
-                url: '/customer',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+            goToPage("/customer");
         });
     });
 </script>

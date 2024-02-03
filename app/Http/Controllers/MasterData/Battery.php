@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\MasterData;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Battery\BatteryBrandModel;
 use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
+use App\Models\MasterData\Battery\BatteryTechnologyModel;
+use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 
 class Battery extends Controller
 {
@@ -39,7 +43,38 @@ class Battery extends Controller
             getIndexData(
                 'Battery',
                 2,
-                4
+                4,
+                array(
+                    'brands' => BatteryBrandModel::all()->toArray(),
+                    'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
+                    'usage_types' => BatteryUsageTypeModel::all()->toArray(),
+                    'technologies' => BatteryTechnologyModel::all()->toArray(),
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the form for editing Battery profile resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'MasterData.Battery.create',
+            getIndexData(
+                'Customer',
+                2,
+                2,
+                array(
+                    'profile' => BatteryModel::find($id)->toArray(),
+                    'brands' => BatteryBrandModel::all()->toArray(),
+                    'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
+                    'usage_types' => BatteryUsageTypeModel::all()->toArray(),
+                    'technologies' => BatteryTechnologyModel::all()->toArray(),
+                )
             )
         );
     }
@@ -93,5 +128,114 @@ class Battery extends Controller
             // Output data in JSON.
             return json_encode($output);
         }
+    }
+
+    /**
+     * Store a newly created Customer resource in database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function store(Request $request)
+    {
+        $battery = new BatteryModel();
+        $battery->name = $request->name;
+        $battery->id_brand = 0;
+        $battery->id_subbrand_category = 0;
+        $battery->id_usage_type = 0;
+        $battery->id_size_category = 0;
+        $battery->id_technology = 0;
+        $battery->dimension_length = $request->dimension[0];
+        $battery->dimension_width = $request->dimension[1];
+        $battery->dimension_height = $request->dimension[2];
+        $battery->standard_cca = $request->standardcca;
+        $battery->capacity = $request->capacity;
+        $battery->warranty = $request->warranty;
+        $battery->price_retail = $request->price;
+        $battery->image = '';
+        $status = $battery->save();
+
+        // Store the list of batteries' aliases.
+        // $battery->aliases()->attach($request->altname);
+
+        // Set a new response data to be sent.
+        if ($status) {
+            // The inserting process is succeeded.
+            $message = 'The new customer was successfully created!';
+        } else {
+            // The inserting process is failed.
+            $message = 'Failed to create the new customer!';
+        }
+
+        return getResponseData($status, $message);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $battery = BatteryModel::find($request->id);
+        $battery->name = $request->name;
+        $battery->id_brand = 0;
+        $battery->id_subbrand_category = 0;
+        $battery->id_usage_type = 0;
+        $battery->id_size_category = 0;
+        $battery->id_technology = 0;
+        $battery->dimension_length = $request->dimension[0];
+        $battery->dimension_width = $request->dimension[1];
+        $battery->dimension_height = $request->dimension[2];
+        $battery->standard_cca = $request->standardcca;
+        $battery->capacity = $request->capacity;
+        $battery->warranty = $request->warranty;
+        $battery->price_retail = $request->price;
+        $battery->image = '';
+        $status = $battery->save();
+
+        // Update the list of customers' owned vehicles.
+        // $battery->aliases()->sync($request->vehicle);
+
+        // Set a new response data to be sent.
+        if ($status) {
+            // The updating process is succeeded.
+            $message = 'The battery was successfully updated!';
+        } else {
+            // The updating process is failed.
+            $message = 'Failed to update the battery!';
+        }
+
+        return getResponseData($status, $message);
+    }
+
+    /**
+     * Remove the specified Battery resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $battery = BatteryModel::find($request->id);
+
+        // Detach associated vehicles from the pivot table
+        // $battery->aliases()->detach();
+
+        // Delete customer data in storage.
+        $status = $battery->delete();
+
+        // Set a new response data to be sent.
+        if ($status) {
+            // The deleting process is succeeded.
+            $message = 'The selected battery was successfully deleted!';
+        } else {
+            // The deleting process is failed.
+            $message = 'Failed to delete the selected battery!';
+        }
+
+        return getResponseData($status, $message);
     }
 }

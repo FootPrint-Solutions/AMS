@@ -39,8 +39,9 @@
     var table;
 
     $(document).ready(function() {
+        // DataTables configuration
         table = $('#table-battery').DataTable({
-            "dom": 'lBfrtp',
+            "dom": "lBfrtp",
             "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
             "searching": true,
             "stateSave": false,
@@ -57,14 +58,41 @@
             }
         });
 
-        $('#btn-add').on('click', function() {
-            $.ajax({
-                url: '/battery/create',
-                success: function(response) {
-                    $('#main-wrapper').html(response);
-                }
-            });
+        $("#btn-add").on("click", function() {
+            goToPage("/battery/create");
         });
     });
+
+    function edit(id) {
+        goToPage("/battery/edit/" + id);
+    }
+
+    function destroy(id) {
+        $.ajax({
+            url: '/battery/destroy',
+            method: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "id": id
+            },
+            success: function(response) {
+                // Get response data (in JSON).
+                let responseData = JSON.parse(response);
+
+                // Check response data status.
+                // Status indicates the success status of company profile update.
+                if (responseData.status) {
+                    // Company profile update was succeeded.
+                    showSuccessToast(responseData.message);
+                } else {
+                    // Company profile update was failed.
+                    showErrorToast(responseData.message);
+                }
+
+                // Reload table with updated rows.
+                table.ajax.reload();
+            }
+        });
+    }
 </script>
 @endsection
