@@ -18,6 +18,9 @@ class VehicleModel extends Model
      */
     protected $table = 'vehicle';
 
+    /**
+     * Get vehicle brand.
+     */
     public function brand(): BelongsTo
     {
         return $this->belongsTo(VehicleBrandModel::class, 'id_brand');
