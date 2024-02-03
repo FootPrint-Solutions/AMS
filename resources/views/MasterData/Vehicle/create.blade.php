@@ -19,18 +19,28 @@
             @csrf
 
             {{-- Name --}}
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Vehicle name" required
+            <div class="form-group local-forms">
+                <label for="name">Name <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle name" required
                 @if (isset($data['profile']))
                     value="{{ $data['profile']['name'] }}"
                 @endif
                 >
             </div>
 
+            {{-- URL --}}
+            <div class="form-group local-forms">
+                <label for="url">URL</label>
+                <input type="url" pattern="https?://.+" class="form-control" id="url" name="url" placeholder="Enter vehicle url link"
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['url'] }}"
+                @endif
+                >
+            </div>
+
             {{-- Brand --}}
             <div class="form-group local-forms">
-                <label for="vehicle-brand">Customer Vehicle</label>
+                <label for="vehicle-brand">Brand <span class="login-danger">*</span></label>
                 <select class="form-control" id="vehicle-brand" name="vehiclebrand">
                     @foreach ($data['brands'] as $brand)
                         <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
@@ -48,7 +58,7 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <a class="btn btn-success mx-1" id="btn-save"
+                <button type="submit" class="btn btn-success mx-1" id="btn-save"
                     @if (isset($data['profile']))
                         value="update">
                         Update
@@ -59,7 +69,7 @@
                 </button>
 
                 {{-- Cancel Button --}}
-                <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
+                <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
             </div>
         </form>
     </div>
@@ -68,20 +78,23 @@
 <script>
     $(document).ready(function() {
         $('#vehicle').select2({
-            placeholder: "Vehicel brand"
+            placeholder: "Enter vehicle brand"
         });
 
-        $("#btn-save").on('click', function() {
-            let mode = $(this).attr("value"); // Update or Create
+        $("#vehicle-form").on("submit", function(event) {
+            event.preventDefault();
+
+            // Get current display mode (Update or Create).
+            let mode = $("#btn-save").attr("value");
             let url = "/vehicle/store";
             if (mode == "update") {
                 url = "/vehicle/update";
             }
 
-            // Get vehicle form data.
-            let formData = new FormData($('#vehicle-form')[0]);
+            // Get form data.
+            let formData = new FormData($(this)[0]);
             
-            // Send vehicle form data to Vehicle controller using AJAX.
+            // Send form data to Vehicle controller using AJAX.
             $.ajax({
                 url: url,
                 method: 'POST',
@@ -95,20 +108,20 @@
                     // Check response data status.
                     // Status indicates the success status of vehicle creating porcess.
                     if (responseData.status) {
-                        // Creating new vehicle was succeeded.
+                        // Creating or updating process was succeeded.
                         showSuccessToast(responseData.message);
                     } else {
-                        // Creating new vehicle was failed.
+                        // Creating or updating process was failed.
                         showErrorToast(responseData.message);
                     }
 
-                    // Redirect to Vehicle index page.
+                    // Redirect to index page.
                     window.location.href = "/vehicle";
                 }
             });
         });
 
-        $("#btn-cancel").on('click', function() {
+        $("#vehicle-form").on("reset", function() {
             $.ajax({
                 url: '/vehicle',
                 success: function(response) {

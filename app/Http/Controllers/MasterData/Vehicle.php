@@ -121,7 +121,7 @@ class Vehicle extends Controller
         $vehicle = new VehicleModel();
         $vehicle->name = $request->name;
         $vehicle->id_brand = $request->vehiclebrand;
-        $vehicle->url = '';
+        $vehicle->url = $request->url;
         $status = $vehicle->save();
 
         // Set a new response data to be sent.
@@ -150,7 +150,7 @@ class Vehicle extends Controller
         $vehicle = VehicleModel::find($request->id);
         $vehicle->name = $request->name;
         $vehicle->id_brand = $request->vehiclebrand;
-        $vehicle->url = '';
+        $vehicle->url = $request->url;
         $status = $vehicle->save();
 
         // Set a new response data to be sent.

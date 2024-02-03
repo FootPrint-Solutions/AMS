@@ -8,7 +8,7 @@
         <div class="card-title h2">
             Vehicle
             <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</button>
-            <button class="btn btn-primary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</button>
+            <button class="btn btn-secondary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</button>
         </div>
         <br>
 
@@ -30,16 +30,18 @@
 
 <script>
     var table;
+
     $(document).ready(function() {
+        // DataTables configuration
         table = $('#table-vehicle').DataTable({
-            "dom": 'lBfrtp',
-            "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
+            "dom": "lBfrtp",
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
             "searching": true,
             "stateSave": false,
             "processing": true,
             "serverSide": true,
             "paging": true,
-            "pagingType": 'numbers',
+            "pagingType": "numbers",
             "ajax": {
                 "url": "/vehicle/show",
                 "type": "POST",
@@ -49,19 +51,23 @@
             }
         });
 
+        // Add New Vehicle button
         $("#btn-add").on("click", function() {
             $.ajax({
-                url: '/vehicle/create',
+                url: "/vehicle/create",
                 success: function(response) {
+                    // Replace main wrapper with new display.
                     $('#main-wrapper').html(response);
                 }
             });
         });
 
+        // Add New Brand button
         $("#btn-add-brand").on("click", function() {
             $.ajax({
-                url: '/vehicle/brand/create',
+                url: "/vehicle/brand/create",
                 success: function(response) {
+                    // Replace main wrapper with new display.
                     $('#main-wrapper').html(response);
                 }
             });
@@ -70,7 +76,7 @@
 
     function edit(id) {
         $.ajax({
-            url: '/vehicle/edit/' + id,
+            url: "/vehicle/edit/" + id,
             success: function(response) {
                 $('#main-wrapper').html(response);
             }
@@ -79,8 +85,8 @@
 
     function destroy(id) {
         $.ajax({
-            url: '/vehicle/destroy',
-            method: 'POST',
+            url: "/vehicle/destroy",
+            method: "POST",
             data: {
                 "_token": "{{ csrf_token() }}",
                 "id": id
@@ -92,10 +98,10 @@
                 // Check response data status.
                 // Status indicates the success status of company profile update.
                 if (responseData.status) {
-                    // Company profile update was succeeded.
+                    // Delete process was succeeded.
                     showSuccessToast(responseData.message);
                 } else {
-                    // Company profile update was failed.
+                    // Delete process was failed.
                     showErrorToast(responseData.message);
                 }
 
