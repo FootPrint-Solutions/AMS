@@ -107,17 +107,6 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="form-group local-forms">
-                                                <label for="company-contact">Address Customer <span
-                                                        class="login-danger">*</span></label>
-
-
-                                                <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
-                                                    value="" required autocomplete="off"></textarea>
-
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
                                                 <label for="company-name">Vehicle Customer <span
                                                         class="login-danger">*</span></label>
                                                 <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
@@ -128,6 +117,17 @@
                                                     @endforeach
 
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group local-forms">
+                                                <label for="company-contact">Address Customer <span
+                                                        class="login-danger">*</span></label>
+
+
+                                                <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
+                                                    value="" required autocomplete="off"></textarea>
+
                                             </div>
                                         </div>
                                     </div>
