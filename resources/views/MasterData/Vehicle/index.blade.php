@@ -8,6 +8,7 @@
         <div class="card-title h2">
             Vehicle
             <a href="/vehicle/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</a>
+            <a href="/vehicle/brand/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
         </div>
         <br>
 
