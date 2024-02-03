@@ -17,20 +17,16 @@
             {{-- Name --}}
             <div class="form-group local-forms">
                 <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required
-                @if (isset($profile))
-                    value="{{ $profile['name'] }}"
-                @endif
-                >
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required>
             </div>
             
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <a class="btn btn-success mx-1" id="btn-save" value="create">Create</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create</button>
 
                 {{-- Cancel Button --}}
-                <a type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</a>
+                <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
             </div>
         </form>
     </div>
@@ -38,9 +34,11 @@
 
 <script>
     $(document).ready(function() {
-        $("#btn-save").on('click', function() {
+        $("#vehicle-brand-form").on("submit", function(event) {
+            event.preventDefault();
+
             // Get vehicle brand form data.
-            let formData = new FormData($('#vehicle-brand-form')[0]);
+            let formData = new FormData($(this)[0]);
             
             // Send vehicle brand form data to VehicleBrand controller using AJAX.
             $.ajax({
@@ -69,7 +67,7 @@
             });
         });
 
-        $("#btn-cancel").on('click', function() {
+        $("#vehicle-brand-form").on("reset", function() {
             $.ajax({
                 url: '/vehicle',
                 success: function(response) {

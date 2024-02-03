@@ -120,7 +120,7 @@
             }
 
             // Get customer form data.
-            let formData = new FormData($('#customer-form')[0]);
+            let formData = new FormData($(this)[0]);
             
             // Send customer form data to Customer controller using AJAX.
             $.ajax({

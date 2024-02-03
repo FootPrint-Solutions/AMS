@@ -64,7 +64,7 @@
             event.preventDefault();
 
             // Get company form data.
-            let formData = new FormData($('#company-form')[0]);
+            let formData = new FormData($(this)[0]);
             
             // Send company form data to Company controller using AJAX.
             $.ajax({
