@@ -32,7 +32,7 @@ class BatteryModel extends Model
      */
     public function subbrandCategory(): BelongsTo
     {
-        return $this->belongsTo(BatterySubbrandCategory::class, 'id_subbrand_category');
+        return $this->belongsTo(BatterySubbrandCategoryModel::class, 'id_subbrand_category');
     }
 
     /**

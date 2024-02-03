@@ -89,6 +89,20 @@
 
   <script>
     /**
+     * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
+     *
+     * @param {string} destination - The destination view
+     */
+    function goToPage(destination) {
+      $.ajax({
+        url: destination,
+        success: function(response) {
+            $('#main-wrapper').html(response);
+        }
+      });
+    }
+
+    /**
      * Displays a success toast message using Toastr.
      *
      * @param {string} message - The success message to be displayed.
