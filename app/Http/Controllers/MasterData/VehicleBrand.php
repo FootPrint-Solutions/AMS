@@ -20,9 +20,9 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.VehicleBrand.create',
             getIndexData(
-                'Brand',
+                'Vehicle Brand',
                 2,
-                4
+                3
             )
         );
     }

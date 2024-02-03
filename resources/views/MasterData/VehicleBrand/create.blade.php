@@ -16,7 +16,7 @@
 
             {{-- Name --}}
             <div class="form-group local-forms">
-                <label for="name">Name</label>
+                <label for="name">Name <span class="login-danger">*</span></label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required>
             </div>
             

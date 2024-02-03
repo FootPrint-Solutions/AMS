@@ -7,8 +7,8 @@
         {{-- Title --}}
         <div class="card-title h2">
             Vehicle
-            <a href="/vehicle/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</a>
-            <a href="/vehicle/brand/create" type="button" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
+            <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</button>
+            <button class="btn btn-primary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</button>
         </div>
         <br>
 
@@ -49,9 +49,18 @@
             }
         });
 
-        $('#btn-add').on('click', function() {
+        $("#btn-add").on("click", function() {
             $.ajax({
                 url: '/vehicle/create',
+                success: function(response) {
+                    $('#main-wrapper').html(response);
+                }
+            });
+        });
+
+        $("#btn-add-brand").on("click", function() {
+            $.ajax({
+                url: '/vehicle/brand/create',
                 success: function(response) {
                     $('#main-wrapper').html(response);
                 }
