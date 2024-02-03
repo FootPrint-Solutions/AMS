@@ -61,6 +61,7 @@ Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store']);
 
 // Battery
 Route::get('/battery', [Battery::class, 'index']);
+Route::post('/battery/show', [Battery::class, 'show']);
 Route::get('/battery/create', [Battery::class, 'create']);
 
 // Orders

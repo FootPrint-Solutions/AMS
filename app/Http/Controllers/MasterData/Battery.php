@@ -5,13 +5,20 @@ namespace App\Http\Controllers\MasterData;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+// MODELS
+use App\Models\MasterData\Battery\BatteryModel;
+
 class Battery extends Controller
 {
-
+    /**
+     * Show the Battery index page.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         return view(
-            'MasterData/Battery/index',
+            'MasterData.Battery.index',
             getIndexData(
                 'Battery',
                 2,
@@ -20,8 +27,71 @@ class Battery extends Controller
         );
     }
 
+    /**
+     * Show the form for creating Battery profile resource.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
-        return view('MasterData/Battery/create');
+        return view(
+            'MasterData.Battery.create',
+            getIndexData(
+                'Battery',
+                2,
+                4
+            )
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return string
+     */
+    public function show(Request $request, $id = null)
+    {
+        if ($id == null) {
+            $result = BatteryModel::with(["brand", "subbrandCategory", "usageType", "sizeCategory", "technology"])
+                ->get()
+                ->toArray();
+
+            // Set a new array for table rows.
+            $tableRows = array();
+            $number = 1;
+
+            // Iterate through each row in table.
+            foreach ($result as $i) {
+                // Set a new row for the table.
+                $row = array();
+                $row[] = number_format($number, 0); // #
+                $row[] = $i["name"]; // Name
+                $row[] = $i["brand"]["name"] ?? ""; // Brand
+                $row[] = $i["subbrandCategory"]["name"] ?? ""; // Subbrand Category
+                $row[] = $i["usageType"]["name"] ?? ""; // Usage Type
+                $row[] = $i["sizeCategory"]["name"] ?? ""; // Size Category
+                $row[] = $i["technology"]["name"] ?? ""; // Technology
+                $row[] = $i["dimension_length"] . " x " . $i["dimension_width"] . " x " . $i["dimension_height"]; // Dimensions
+
+                $row[] = $i["standard_cca"]; // Standard CCa
+                $row[] = $i["capacity"]; // Capacity
+                $row[] = $i["warranty"]; // Warranty
+                $row[] = $i["price_retail"]; // Retail Price
+                $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
+                $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
+                $tableRows[] = $row;
+                $number++;
+            }
+
+            // Save data in array.
+            $output = array(
+                // "draw" => $_POST['draw'],
+                "data" => $tableRows,
+            );
+
+            // Output data in JSON.
+            return json_encode($output);
+        }
     }
 }
