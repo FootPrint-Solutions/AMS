@@ -174,7 +174,7 @@ class Customer extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified Customer resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -182,6 +182,11 @@ class Customer extends Controller
     public function destroy(Request $request)
     {
         $customer = CustomerModel::find($request->id);
+
+        // Detach associated vehicles from the pivot table
+        $customer->vehicles()->detach();
+
+        // Delete customer data in storage.
         $status = $customer->delete();
 
         // Set a new response data to be sent.

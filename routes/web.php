@@ -1,12 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+// MASTER DATA
 use App\Http\Controllers\Dashboard\Dashboard;
 use App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\MasterData\Company;
 use App\Http\Controllers\MasterData\Customer;
 use App\Http\Controllers\MasterData\Vehicle;
+use App\Http\Controllers\MasterData\VehicleBrand;
+
+// ORDERS
 use App\Http\Controllers\Orders\Quotation;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +54,10 @@ Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit']);
 Route::post('/vehicle/store', [Vehicle::class, 'store']);
 Route::post('/vehicle/update', [Vehicle::class, 'update']);
 Route::post('/vehicle/destroy', [Vehicle::class, 'destroy']);
+
+// Brand
+Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create']);
+Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store']);
 
 // Battery
 Route::get('/battery', [Battery::class, 'index']);

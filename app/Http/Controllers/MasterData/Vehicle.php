@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\VehicleModel;
+use App\Models\MasterData\VehicleBrandModel;
 
 class Vehicle extends Controller
 {
@@ -34,7 +35,17 @@ class Vehicle extends Controller
      */
     public function create()
     {
-        return view('MasterData/Vehicle/create');
+        return view(
+            'MasterData/Vehicle/create',
+            getIndexData(
+                'Vehicle',
+                2,
+                3,
+                array(
+                    'brands' => VehicleBrandModel::all()->toArray()
+                )
+            )
+        );
     }
 
     /**
@@ -47,11 +58,14 @@ class Vehicle extends Controller
     {
         return view(
             'MasterData/Vehicle/create',
-            array(
-                'title' => 'Vehicle | ' . config('app.name'),
-                'subtitle' => 'List',
-                'active' => 2,
-                'profile' => VehicleModel::find($id)->toArray()
+            getIndexData(
+                'Vehicle',
+                2,
+                3,
+                array(
+                    'brands' => VehicleBrandModel::all()->toArray(),
+                    'profile' => VehicleModel::find($id)->toArray()
+                )
             )
         );
     }
@@ -65,7 +79,7 @@ class Vehicle extends Controller
     public function show(Request $request, $id = null)
     {
         if ($id == null) {
-            $result = VehicleModel::all()->toArray();
+            $result = VehicleModel::with('brand')->get()->toArray();
 
             // Set a new array for table rows.
             $tableRows = array();
@@ -77,7 +91,7 @@ class Vehicle extends Controller
                 $row = array();
                 $row[] = number_format($number, 0); // #
                 $row[] = $i["name"]; // Name
-                $row[] = "-"; // Brand
+                $row[] = $i["brand"]["name"] ?? '-'; // Brand
                 $row[] = "<a href='" . $i['url'] . "'>" . $i["url"] . "</a>"; // URL
                 $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
                 $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
@@ -106,8 +120,8 @@ class Vehicle extends Controller
     {
         $vehicle = new VehicleModel();
         $vehicle->name = $request->name;
-        $vehicle->id_brand = 0;
-        $vehicle->url = '';
+        $vehicle->id_brand = $request->vehiclebrand;
+        $vehicle->url = $request->url;
         $status = $vehicle->save();
 
         // Set a new response data to be sent.
@@ -135,8 +149,8 @@ class Vehicle extends Controller
     {
         $vehicle = VehicleModel::find($request->id);
         $vehicle->name = $request->name;
-        $vehicle->id_brand = 0;
-        $vehicle->url = '';
+        $vehicle->id_brand = $request->vehiclebrand;
+        $vehicle->url = $request->url;
         $status = $vehicle->save();
 
         // Set a new response data to be sent.

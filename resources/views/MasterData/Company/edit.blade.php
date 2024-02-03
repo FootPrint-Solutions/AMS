@@ -15,14 +15,14 @@
 
             {{-- Company Name --}}
             <div class="form-group local-forms">
-                <label for="company-name">Name</label>
-                <input type="text" class="form-control" id="company-name" name="name" placeholder="Enter company name" value="{{ $data['company_profile'] ? $data['company_profile']['name'] : '' }}">
+                <label for="company-name">Name <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="company-name" name="name" placeholder="Enter company name" value="{{ $data['company_profile'] ? $data['company_profile']['name'] : '' }}" required>
             </div>
             
             {{-- Company Address --}}
             <div class="form-group local-forms">
-                <label for="company-address">Address</label>
-                <input type="text" class="form-control" id="company-address" name="address" placeholder="Enter company address" value="{{ $data['company_profile'] ? $data['company_profile']['address'] : '' }}">
+                <label for="company-address">Address <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="company-address" name="address" placeholder="Enter company address" value="{{ $data['company_profile'] ? $data['company_profile']['address'] : '' }}" required>
             </div>
 
             <div class="row">
@@ -32,7 +32,7 @@
                         <label for="company-contact">Contact <span class="login-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text border-end country-code">+62</span>
-                            <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Enter company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}">
+                            <input type="text" class="form-control" id="company-contact" name="contact" placeholder="Enter company contact" value="{{ $data['company_profile'] ? $data['company_profile']['contact'] : '' }}" required>
                         </div>
                     </div>
                 </div>
@@ -40,8 +40,8 @@
                 {{-- Company E-mail --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="company-email">E-mail</label>
-                        <input type="email" class="form-control" id="company-email" name="email" placeholder="Enter company e-mail" value="{{ $data['company_profile'] ? $data['company_profile']['email'] : '' }}">
+                        <label for="company-email">E-mail <span class="login-danger">*</span></label>
+                        <input type="email" class="form-control" id="company-email" name="email" placeholder="Enter company e-mail" value="{{ $data['company_profile'] ? $data['company_profile']['email'] : '' }}" required>
                     </div>
                 </div>
             </div>
@@ -49,10 +49,10 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Save Button --}}
-                <a class="btn btn-success mx-1" id="btn-save">Save Company Profile</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save">Save Company Profile</button>
 
                 {{-- Reset Button --}}
-                <a class="btn btn-danger mx-1" id="btn-reset">Reset</a>
+                <button type="reset" class="btn btn-danger mx-1" id="btn-reset">Reset</button>
             </div>
         </form>
     </div>
@@ -60,9 +60,11 @@
 
 <script>
     $(document).ready(function() {
-        $("#btn-save").on('click', function() {
+        $("#company-form").on("submit", function(event) {
+            event.preventDefault();
+
             // Get company form data.
-            let formData = new FormData($('#company-form')[0]);
+            let formData = new FormData($(this)[0]);
             
             // Send company form data to Company controller using AJAX.
             $.ajax({
@@ -88,7 +90,7 @@
             });
         });
 
-        $("#btn-reset").on('click', function() {
+        $("#company-form").on("reset", function() {
             $.ajax({
                 url: '/company',
                 success: function(response) {
