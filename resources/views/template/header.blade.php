@@ -129,8 +129,10 @@
                     <img class="rounded-circle" src="{{ asset('/img/profiles/avatar-01.jpg') }}" width="31"
                         alt="Ryan Taylor">
                     <div class="user-text">
-                        <h6>Ryan Taylor</h6>
-                        <p class="text-muted mb-0">Administrator</p>
+                        @auth
+                            <h6>{{ Auth::user()->name }}</h6>
+                            <p class="text-muted mb-0">Administrator</p>
+                        @endauth
                     </div>
                 </div>
             </a>
@@ -141,13 +143,15 @@
                             class="avatar-img rounded-circle">
                     </div>
                     <div class="user-text">
-                        <h6>Ryan Taylor</h6>
-                        <p class="text-muted mb-0">Administrator</p>
+                        @auth
+                            <h6>{{ Auth::user()->name }}</h6>
+                            <p class="text-muted mb-0">Administrator</p>
+                        @endauth
                     </div>
                 </div>
                 <a class="dropdown-item" href="profile.html">My Profile</a>
                 <a class="dropdown-item" href="inbox.html">Inbox</a>
-                <a class="dropdown-item" href="login.html">Logout</a>
+                <a class="dropdown-item" href="/logout">Logout</a>
             </div>
         </li>
         <!-- /User Menu -->

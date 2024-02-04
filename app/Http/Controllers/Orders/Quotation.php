@@ -31,7 +31,7 @@ class Quotation extends Controller
     public function findCustomer(Request $request)
     {
         $query = $request->input('input');
-        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->get();
+        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
         return response()->json($results);
     }
 
