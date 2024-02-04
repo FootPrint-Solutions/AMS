@@ -17,6 +17,14 @@ class Company extends Controller
      */
     public function index()
     {
+        $company = CompanyModel::firstOrNew();
+        if (!$company->exists) {
+            $company->name = '';
+            $company->address = '';
+            $company->contact = '';
+            $company->email = '';
+            $company->save();
+        }
         return view(
             'MasterData/Company/edit',
             getIndexData(
