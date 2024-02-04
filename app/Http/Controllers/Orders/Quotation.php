@@ -31,7 +31,7 @@ class Quotation extends Controller
     public function findCustomer(Request $request)
     {
         $query = $request->input('input');
-        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->get();
+        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
         return response()->json($results);
     }
 
@@ -44,7 +44,7 @@ class Quotation extends Controller
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => 'mysession',
+            'session' => auth()->user()->username,
             'text' => 'Hello, ' . $request->input('FullName') . ' here is your address : ' . $request->input('AddressCustomer') . ' and your email : ' . $request->input('EmailCustomer') . ' and your vehicle is ' . $vehicleCustomerString
         ];
 

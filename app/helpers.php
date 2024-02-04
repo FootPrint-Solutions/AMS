@@ -10,7 +10,7 @@
  *
  * @return array Associative array containing data for index display.
  */
-function getIndexData($title, $active, $activeChild, $data = null)
+function getIndexData($title = null, $active = null, $activeChild = null, $data = null)
 {
     return array(
         "title" => $title . ' | ' . config('app.name'),
