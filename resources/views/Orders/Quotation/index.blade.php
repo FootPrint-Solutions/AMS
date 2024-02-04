@@ -506,10 +506,19 @@
                 suggestions.forEach(function(item) {
                     $('#AutoCompleteFullNameCustomer').append('<div class="suggestion">' + item.name +
                         '</div>');
+                    $("#EmailCustomer").val(item.email);
+                    $("#ContactNumber").val(item.contact);
+                    $("#AddressCustomer").val(item.address);
                 });
 
                 $('.suggestion').click(function() {
-                    $('#FullName').val($(this).text());
+                    var index = $(this).index();
+
+                    $('#FullName').val(suggestions[index].name);
+                    var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
+                    $('#ContactNumber').val(cleanNumber);
+                    $('#EmailCustomer').val(suggestions[index].email);
+                    $('#AddressCustomer').val(suggestions[index].address);
                     $('#AutoCompleteFullNameCustomer').empty();
                 });
             }
