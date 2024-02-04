@@ -44,7 +44,7 @@ class Quotation extends Controller
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => 'mysession',
+            'session' => auth()->user()->username,
             'text' => 'Hello, ' . $request->input('FullName') . ' here is your address : ' . $request->input('AddressCustomer') . ' and your email : ' . $request->input('EmailCustomer') . ' and your vehicle is ' . $vehicleCustomerString
         ];
 
