@@ -44,4 +44,14 @@ class Authentication extends Controller
 
         return redirect('/');
     }
+
+    public function profile()
+    {
+        return view(
+            'Auth.profile',
+            getIndexData(
+                'Profile',
+            )
+        );
+    }
 }

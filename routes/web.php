@@ -14,6 +14,10 @@ use App\Http\Controllers\Dashboard\Dashboard;
 use App\Http\Controllers\MasterData\Customer;
 use App\Http\Controllers\MasterData\VehicleBrand;
 
+
+// PROFILE
+use App\Http\Controllers\Profile;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -71,6 +75,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation', [Quotation::class, 'index']);
     Route::get('/find-customer', [Quotation::class, 'findCustomer'])->name('quotation.findCustomer');
     Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
+
+    //profile
+    Route::get('/profile',  [Profile::class, 'index']);
+    Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
