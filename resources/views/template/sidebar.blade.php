@@ -30,21 +30,11 @@
                                     $active_child_menu = isset($active_child) && $active_child === $menu_child['id'];
                                 @endphp
 
-                                <li class="submenu">
+                                <li>
                                     <a href="{{ $menu_child['url'] }}"
                                         class="@if ($active_child_menu) active @endif">
                                         {{ $menu_child['name'] }}
-                                        <span class="menu-arrow"></span>
                                     </a>
-
-                                    <ul>
-                                        <li><a href="{{ $menu_child["url"] }}">{{ $menu_child["name"] }}</a></li>
-                                        @foreach ($menu['menu_subs'] as $menu_sub)
-                                            @if ($menu_sub['id_menu'] == $menu_child['id'])
-                                                <li><a href="{{ $menu_sub["url"] }}">{{ $menu_sub["name"] }}</a></li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
                                 </li>
                             @endforeach
                         </ul>
