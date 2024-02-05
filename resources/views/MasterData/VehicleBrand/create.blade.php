@@ -6,7 +6,7 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Brand
+            Add New Vehicle Brand
         </div>
         <br>
 

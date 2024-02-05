@@ -6,7 +6,7 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Subbrand Category
+            Add New Battery Subbrand Category
         </div>
         <br>
 
@@ -23,7 +23,7 @@
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Battery Brand</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Battery Subbrand</button>
 
                 {{-- Cancel Button --}}
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
