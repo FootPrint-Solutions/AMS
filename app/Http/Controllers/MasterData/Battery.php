@@ -233,11 +233,56 @@ class Battery extends Controller
     {
         $battery = BatteryModel::find($request->id);
         $battery->name = $request->name;
-        $battery->id_brand = 0;
-        $battery->id_subbrand_category = 0;
-        $battery->id_usage_type = 0;
+
+        // Check if the brand is newly added or not.
+        if ($request->brand === "new") {
+            // Store the newly added vehicle brand.
+            $brand = new BatteryBrandModel();
+            $brand->name = $request->newbrand;
+            $status = $brand->save();
+
+            $battery->id_brand = $brand->id;
+        } else {
+            $battery->id_brand = $request->brand;
+        }
+
+        // Check if the subbrand category is newly added or not.
+        if ($request->subbrandcategory === "new") {
+            // Store the newly added vehicle brand.
+            $subbrand = new BatterySubbrandCategoryModel();
+            $subbrand->name = $request->newsubbrandcategory;
+            $status = $subbrand->save();
+
+            $battery->id_subbrand_category = $subbrand->id;
+        } else {
+            $battery->id_subbrand_category = $request->subbrandcategory;
+        }
+
+        // Check if the subbrand category is newly added or not.
+        if ($request->usagetype === "new") {
+            // Store the newly added vehicle brand.
+            $usagetype = new BatteryUsageTypeModel();
+            $usagetype->name = $request->newusagetype;
+            $status = $usagetype->save();
+
+            $battery->id_usage_type = $usagetype->id;
+        } else {
+            $battery->id_usage_type = $request->usagetype;
+        }
+
+        // Check if the technology is newly added or not.
+        if ($request->technology === "new") {
+            // Store the newly added vehicle brand.
+            $technology = new BatteryTechnologyModel();
+            $technology->name = $request->newtechnology;
+            $status = $technology->save();
+
+            $battery->id_technology = $technology->id;
+        } else {
+            $battery->id_technology = $request->technology;
+        }
+
         $battery->id_size_category = 0;
-        $battery->id_technology = 0;
         $battery->dimension_length = $request->dimension[0];
         $battery->dimension_width = $request->dimension[1];
         $battery->dimension_height = $request->dimension[2];
