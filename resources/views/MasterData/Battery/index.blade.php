@@ -53,6 +53,11 @@
             "serverSide": true,
             "paging": true,
             "pagingType": 'numbers',
+            "columnDefs": [
+                {
+                    className: "text-end", "targets": [ 8, 9, 10, 11 ]
+                }
+            ],
             "ajax": {
                 "url": "/battery/show",
                 "type": "POST",

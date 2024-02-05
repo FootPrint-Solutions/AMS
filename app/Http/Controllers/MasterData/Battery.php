@@ -112,7 +112,7 @@ class Battery extends Controller
                 $row[] = $i["standard_cca"]; // Standard CCa
                 $row[] = $i["capacity"]; // Capacity
                 $row[] = $i["warranty"]; // Warranty
-                $row[] = $i["price_retail"]; // Retail Price
+                $row[] = number_format($i["price_retail"]); // Retail Price
                 $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
                 $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
                 $tableRows[] = $row;
@@ -196,7 +196,7 @@ class Battery extends Controller
         $battery->standard_cca = $request->standardcca;
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
-        $battery->price_retail = $request->price;
+        $battery->price_retail = (float) str_replace(',', '', $request->price);
         $battery->image = '';
         $status = $battery->save();
 

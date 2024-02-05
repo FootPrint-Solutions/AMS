@@ -241,12 +241,13 @@
                         <label for="price">Price Retail <span class="login-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text border-end">IDR</span>
-                            <input type="number" min="0" class="form-control" id="price" name="price" placeholder="Enter battery price retail" required
+                            <input type="text" min="0" class="form-control" id="price" name="price" placeholder="Enter battery price retail" required
                             @if (isset($data['profile']))
                                 value="{{ $data['profile']['price_retail'] }}"
                             @endif
                             >
                         </div>
+                        <small id="price-warning-number" class="form-text text-danger" style="display: none;">Please enter a valid numeric value for the price.</small>
                     </div>
                 </div>
             </div>
@@ -344,6 +345,18 @@
             } else {
                 $("#technology-new-group").hide();
                 $("#technology-new-group").attr("required", false);
+            }
+        });
+
+        $('#price').on("keyup", function() {
+            let n = parseInt($(this).val().replace(/\D/g,''),10);
+            
+            if (!isNaN(n)) {
+                $("#price-warning-number").hide();
+                $(this).val(n.toLocaleString());
+            } else {
+                $("#price-warning-number").show();
+                $(this).val("");
             }
         });
 
