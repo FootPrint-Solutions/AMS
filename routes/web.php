@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\Dashboard\Dashboard;
 use App\Http\Controllers\MasterData\BatteryBrand;
 use App\Http\Controllers\MasterData\BatterySubbrand;
+use App\Http\Controllers\MasterData\BatteryTechnology;
 use App\Http\Controllers\MasterData\BatteryUsage;
 // ORDERS
 use App\Http\Controllers\MasterData\Customer;
@@ -83,6 +84,10 @@ Route::middleware(['auth'])->group(function () {
     // Usage Type
     Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
     Route::post('/battery/usage/store', [BatteryUsage::class, 'store']);
+
+    // Technology
+    Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
+    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store']);
 
     // Orders
     // Quick Quotation

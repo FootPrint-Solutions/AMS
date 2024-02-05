@@ -11,6 +11,7 @@
             <button class="btn btn-secondary mx-1" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
             <button class="btn btn-secondary mx-1" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
             <button class="btn btn-secondary mx-1" id="btn-add-usage"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new usage type</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-tech"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new technology</a>
         </div>
         <br>
 
@@ -75,6 +76,10 @@
 
         $("#btn-add-usage").on("click", function() {
             goToPage("/battery/usage/create");
+        });
+
+        $("#btn-add-tech").on("click", function() {
+            goToPage("/battery/technology/create");
         });
     });
 
