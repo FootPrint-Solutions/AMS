@@ -85,6 +85,10 @@
                                                     placeholder="Enter Full Name" value="" required
                                                     autocomplete="off">
                                                 <div id="AutoCompleteFullNameCustomer"></div>
+                                                <span class="badge bg-success" id="UserExist" style='display:none;'>User
+                                                    Exist</span>
+                                                <span class="badge bg-warning" id="UserNotExist" style='display:none;'>New
+                                                    User</span>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
@@ -135,6 +139,10 @@
                                                     value="" required autocomplete="off"></textarea>
 
                                             </div>
+
+                                            <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
+                                            <input type="hidden" name="Latitude" id="Latitude" value="">
+                                            <input type="hidden" name="Longitude" id="Longitude" value="">
                                         </div>
                                         <div class="col-lg-6">
                                             <div id="map"></div>
@@ -501,11 +509,37 @@
                         },
                         success: function(data) {
                             // let suggestions = data.map(item => item.name);
-                            displaySuggestions(data);
+                            if (data.length > 0) {
+                                displaySuggestions(data);
+                            } else {
+                                $('#AutoCompleteFullNameCustomer').html('');
+                                $("#EmailCustomer").val('');
+                                $("#ContactNumber").val('');
+                                $("#AddressCustomer").val('');
+                                $("#IdCustomer").val('');
+                                $("#Latitude").val('');
+                                $("#Longitude").val('');
+                                $('#UserExist').hide();
+                                $('#UserNotExist').show();
+                            }
                         }
                     });
                 } else {
                     $('#AutoCompleteFullNameCustomer').html('');
+                    $("#EmailCustomer").val('');
+                    $("#ContactNumber").val('');
+                    $("#AddressCustomer").val('');
+                    $("#Latitude").val('');
+                    $("#Longitude").val('');
+                    $("#IdCustomer").val('');
+                    var IdCustomer = $("#IdCustomer").val();
+                    if (IdCustomer != '') {
+                        $('#UserExist').show();
+                        $('#UserNotExist').hide();
+                    } else {
+                        $('#UserExist').hide();
+                        $('#UserNotExist').show();
+                    }
                 }
             });
 
@@ -528,7 +562,19 @@
                     $('#ContactNumber').val(cleanNumber);
                     $('#EmailCustomer').val(suggestions[index].email);
                     $('#AddressCustomer').val(suggestions[index].address);
+                    $('#IdCustomer').val(suggestions[index].id);
+                    $("#Latitude").val(suggestions[index].latitude);
+                    $("#Longitude").val(suggestions[index].longitude);
                     $('#AutoCompleteFullNameCustomer').empty();
+
+                    var IdCustomer = $("#IdCustomer").val();
+                    if (IdCustomer != '') {
+                        $('#UserExist').show();
+                        $('#UserNotExist').hide();
+                    } else {
+                        $('#UserExist').hide();
+                        $('#UserNotExist').show();
+                    }
                 });
             }
 
