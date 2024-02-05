@@ -139,47 +139,55 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            $('#DeleteSessionWhatsApp').click(function() {
-                swal.fire({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will need to scan the QR code again to activate the session",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        $.ajax({
-                            url: "/delete-session-whatsapp",
-                            type: 'GET',
-                            success: function(data) {
-                                if (data.status == true) {
-                                    swal.fire({
-                                        title: "Success",
-                                        text: "Session deleted successfully",
-                                        icon: "success",
-                                    });
-                                    location.reload();
-                                } else {
-                                    swal.fire({
-                                        title: "Error",
-                                        text: data.message ||
-                                            "Something went wrong, please try again later",
-                                        icon: "error",
-                                    });
-                                }
-                            },
-                            error: function() {
+        $('#DeleteSessionWhatsApp').click(function() {
+            swal.fire({
+                title: "Are you sure?",
+                text: "Once deleted, you will need to scan the QR code again to activate the session",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+                confirmButtonClass: "btn btn-primary",
+                cancelButtonClass: "btn btn-danger ml-1",
+                buttonsStyling: !1
+            }).then((willDelete) => {
+                if (willDelete.isConfirmed) {
+                    $.ajax({
+                        url: "/delete-session-whatsapp",
+                        type: 'GET',
+                        success: function(data) {
+                            if (data.status == true) {
+                                swal.fire({
+                                    title: "Success",
+                                    text: "Session deleted successfully",
+                                    icon: "success",
+                                });
+                                location.reload();
+                            } else {
                                 swal.fire({
                                     title: "Error",
-                                    text: "Something went wrong",
+                                    text: data.message ||
+                                        "Something went wrong, please try again later",
                                     icon: "error",
                                 });
                             }
-                        });
-                    }
-                });
-
+                        },
+                        error: function() {
+                            swal.fire({
+                                title: "Error",
+                                text: "Something went wrong",
+                                icon: "error",
+                            });
+                        }
+                    });
+                } else {
+                    swal.fire({
+                        title: "Cancelled",
+                        text: "Your session is safe",
+                        icon: "error",
+                    });
+                }
             });
         });
     </script>
