@@ -41,11 +41,18 @@ class Quotation extends Controller
         $vehicleCustomer = $request->input('VehicleCustomer');
         $vehicleCustomerString = is_array($vehicleCustomer) ? implode(', ', $vehicleCustomer) : $vehicleCustomer;
 
+        $template = $request->input('TemplateMessage');
+        $text = str_replace(
+            ['<NAME>', '<ADDRESS>', '<EMAIL>', '<VEHICLE>'],
+            [$request->input('FullName'), $request->input('AddressCustomer'), $request->input('EmailCustomer'), $vehicleCustomerString],
+            $template
+        );
+
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
             'session' => auth()->user()->username,
-            'text' => 'Hello, ' . $request->input('FullName') . ' here is your address : ' . $request->input('AddressCustomer') . ' and your email : ' . $request->input('EmailCustomer') . ' and your vehicle is ' . $vehicleCustomerString
+            'text' => $text,
         ];
 
         try {
