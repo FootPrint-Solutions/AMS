@@ -7,9 +7,10 @@
         {{-- Title --}}
         <div class="card-title h2">
             Battery
-            <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
-            <button class="btn btn-secondary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
-            <button class="btn btn-secondary" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
+            <button class="btn btn-primary mx-1" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-usage"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new usage type</a>
         </div>
         <br>
 
@@ -70,6 +71,10 @@
 
         $("#btn-add-subbrand").on("click", function() {
             goToPage("/battery/subbrand/create");
+        });
+
+        $("#btn-add-usage").on("click", function() {
+            goToPage("/battery/usage/create");
         });
     });
 
