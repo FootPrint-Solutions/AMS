@@ -42,6 +42,7 @@
             <div class="form-group local-forms">
                 <label for="brand">Brand <span class="login-danger">*</span></label>
                 <select class="form-control" id="brand" name="brand">
+                    <option></option>
                     @foreach ($data['brands'] as $brand)
                         <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                     @endforeach
