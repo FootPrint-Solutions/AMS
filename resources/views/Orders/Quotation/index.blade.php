@@ -140,12 +140,26 @@
 
                                             </div>
 
+                                            <div class="form-group local-forms">
+                                                <label for="company-contact">Template Message <span
+                                                        class="login-danger">*</span></label>
+
+
+                                                <textarea class="form-control" id="TemplateMessage" name="TemplateMessage" placeholder="Enter Addres Customer"
+                                                    required autocomplete="off">Hello, <NAME> here is your address : <ADDRESS> and your email : <EMAIL> and your vehicle is <VEHICLE>          
+                                                </textarea>
+
+                                            </div>
+
                                             <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
                                             <input type="hidden" name="Latitude" id="Latitude" value="">
                                             <input type="hidden" name="Longitude" id="Longitude" value="">
                                         </div>
                                         <div class="col-lg-6">
                                             <div id="map"></div>
+                                        </div>
+                                        <div class="col-lg-6">
+
                                         </div>
                                     </div>
                                 </form>
@@ -428,6 +442,7 @@
                 let AddressCustomer = $('#AddressCustomer').val();
                 let VehicleCustomer = $('#VehicleCustomer').val();
                 let EmailCustomer = $('#EmailCustomer').val();
+                let templateMessage = $('#TemplateMessage').val();
 
                 if (FullName == '') {
                     swal.fire("Error!", "Full Name is required", "error");
@@ -459,6 +474,14 @@
                     return;
                 }
 
+                if (templateMessage.includes('<NAME>') == false || templateMessage.includes('<ADDRESS>') ==
+                    false || templateMessage.includes('<EMAIL>') == false || templateMessage.includes(
+                        '<VEHICLE>') == false) {
+                    swal.fire("Error!",
+                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                    return;
+                }
+
 
 
                 let data = {
@@ -467,6 +490,7 @@
                     AddressCustomer: AddressCustomer,
                     VehicleCustomer: VehicleCustomer,
                     EmailCustomer: EmailCustomer,
+                    TemplateMessage: templateMessage,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
