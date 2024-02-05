@@ -9,6 +9,8 @@ use App\Http\Controllers\MasterData\Company;
 use App\Http\Controllers\MasterData\Vehicle;
 use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\Dashboard\Dashboard;
+use App\Http\Controllers\MasterData\BatteryBrand;
+use App\Http\Controllers\MasterData\BatterySubbrand;
 
 // ORDERS
 use App\Http\Controllers\MasterData\Customer;
@@ -69,6 +71,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store');
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
     Route::post('/battery/destroy', [Battery::class, 'destroy'])->name('battery.destroy');
+
+    // Brand
+    Route::get('/battery/brand/create', [BatteryBrand::class, 'create']);
+    Route::post('/battery/brand/store', [BatteryBrand::class, 'store']);
+
+    // Subbrand Category
+    Route::get('/battery/subbrand/create', [BatterySubbrand::class, 'create']);
+    Route::post('/battery/subbrand/store', [BatterySubbrand::class, 'store']);
 
     // Orders
     // Quick Quotation

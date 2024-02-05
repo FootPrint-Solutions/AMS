@@ -8,6 +8,8 @@
         <div class="card-title h2">
             Battery
             <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
+            <button class="btn btn-secondary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
+            <button class="btn btn-secondary" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
         </div>
         <br>
 
@@ -60,6 +62,14 @@
 
         $("#btn-add").on("click", function() {
             goToPage("/battery/create");
+        });
+
+        $("#btn-add-brand").on("click", function() {
+            goToPage("/battery/brand/create");
+        });
+
+        $("#btn-add-subbrand").on("click", function() {
+            goToPage("/battery/subbrand/create");
         });
     });
 
