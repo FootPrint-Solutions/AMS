@@ -24,7 +24,7 @@ class CreateMenuParentTable extends Migration
             $table->timestamps();
         });
 
-        Artisan::call('db:seed', array('--class' => 'MenuParentSeeder'));
+        // Artisan::call('db:seed', array('--class' => 'MenuParentSeeder'));
     }
 
     /**
