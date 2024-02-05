@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 // MODELS
 use App\Models\MasterData\VehicleModel;
 use App\Models\MasterData\VehicleBrandModel;
+use App\Models\MasterData\Battery\BatteryModel;
 
 class Vehicle extends Controller
 {
@@ -42,7 +43,8 @@ class Vehicle extends Controller
                 2,
                 3,
                 array(
-                    'brands' => VehicleBrandModel::all()->toArray()
+                    'brands' => VehicleBrandModel::all()->toArray(),
+                    'batteries' => BatteryModel::all()->toArray()
                 )
             )
         );
@@ -64,7 +66,9 @@ class Vehicle extends Controller
                 3,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'profile' => VehicleModel::find($id)->toArray()
+                    'batteries' => BatteryModel::all()->toArray(),
+                    'profile' => VehicleModel::find($id)->toArray(),
+                    'suitable_batteries' => VehicleModel::find($id)->batteries()->pluck('id_battery')->toArray(),
                 )
             )
         );
@@ -136,6 +140,9 @@ class Vehicle extends Controller
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
+        // Store the list of vehicles' suitable batteries.
+        $vehicle->batteries()->attach($request->battery);
+
         // Set a new response data to be sent.
         if ($status) {
             // The inserting process is succeeded.
@@ -165,6 +172,9 @@ class Vehicle extends Controller
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
+        // Update the list of vehicles' suitable batteries.
+        $vehicle->batteries()->sync($request->battery);
+
         // Set a new response data to be sent.
         if ($status) {
             // The updating process is succeeded.
@@ -190,6 +200,9 @@ class Vehicle extends Controller
     {
         $vehicle = VehicleModel::find($request->id);
         $status = $vehicle->delete();
+
+        // Detach suitable batteries from the pivot table
+        $vehicle->batteries()->detach();
 
         // Set a new response data to be sent.
         if ($status) {
