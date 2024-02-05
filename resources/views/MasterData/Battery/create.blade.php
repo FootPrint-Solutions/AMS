@@ -48,6 +48,7 @@
                     <div class="form-group local-forms">
                         <label for="brand">Brand <span class="login-danger">*</span></label>
                         <select class="form-control" id="brand" name="brand">
+                            <option></option>
                             @foreach ($data['brands'] as $brand)
                                 <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                             @endforeach
@@ -61,6 +62,7 @@
                     <div class="form-group local-forms">
                         <label for="subbrand-category">Subbrand Category <span class="login-danger">*</span></label>
                         <select class="form-control" id="subbrand-category" name="subbrandcategory">
+                            <option></option>
                             @foreach ($data['subbrand_categories'] as $category)
                                 <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
                             @endforeach
@@ -96,6 +98,7 @@
                     <div class="form-group local-forms">
                         <label for="usagetype">Usage Type <span class="login-danger">*</span></label>
                         <select class="form-control" id="usagetype" name="usagetype">
+                            <option></option>
                             @foreach ($data['usage_types'] as $usage)
                                 <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['id_usage_type'] == $usage['id']) selected @endif>{{ $usage['name'] }}</option>
                             @endforeach
@@ -109,6 +112,7 @@
                     <div class="form-group local-forms">
                         <label for="technology">Technology <span class="login-danger">*</span></label>
                         <select class="form-control" id="technology" name="technology">
+                            <option></option>
                             @foreach ($data['technologies'] as $tech)
                                 <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['id_technology'] == $tech['id']) selected @endif>{{ $tech['name'] }}</option>
                             @endforeach

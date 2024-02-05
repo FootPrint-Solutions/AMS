@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MasterData;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Battery\BatteryAlias;
 use App\Models\MasterData\Battery\BatteryBrandModel;
 use Illuminate\Http\Request;
 
@@ -201,7 +202,13 @@ class Battery extends Controller
         $status = $battery->save();
 
         // Store the list of batteries' aliases.
-        // $battery->aliases()->attach($request->altname);
+        // $aliases = explode(',', $request->altname);
+        // foreach ($aliases as $i) {
+        //     $alias = new BatteryAlias();
+        //     $alias->id_battery = $battery->id;
+        //     $alias->name = $i;
+        //     $alias->save();
+        // }
 
         // Set a new response data to be sent.
         if ($status) {
