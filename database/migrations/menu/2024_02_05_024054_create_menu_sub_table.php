@@ -29,7 +29,7 @@ class CreateMenuSubTable extends Migration
                 ->on('menu');
             */
 
-            Artisan::call('db:seed', array('--class' => 'MenuSubSeeder', '--force' => true));
+            // Artisan::call('db:seed', array('--class' => 'MenuSubSeeder', '--force' => true));
         });
     }
 

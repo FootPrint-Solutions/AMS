@@ -30,7 +30,7 @@ class CreateMenuTable extends Migration
             */
         });
 
-        Artisan::call('db:seed', array('--class' => 'MenuSeeder'));
+        // Artisan::call('db:seed', array('--class' => 'MenuSeeder'));
     }
 
     /**

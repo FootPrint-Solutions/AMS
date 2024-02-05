@@ -24,7 +24,7 @@ class CreateCustomerTable extends Migration
             $table->timestamps();
         });
 
-        Artisan::call('db:seed', array('--class' => 'CustomerModelSeeder'));
+        // Artisan::call('db:seed', array('--class' => 'CustomerModelSeeder'));
     }
 
     /**

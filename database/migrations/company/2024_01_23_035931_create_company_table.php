@@ -23,7 +23,7 @@ class CreateCompanyTable extends Migration
             $table->timestamps();
         });
 
-        Artisan::call('db:seed', array('--class' => 'CompanySeeder'));
+        // Artisan::call('db:seed', array('--class' => 'CompanySeeder'));
     }
 
     /**
