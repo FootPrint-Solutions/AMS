@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+// MODELS
+use App\Models\MasterData\Battery\BatteryModel;
+
 class VehicleModel extends Model
 {
     use HasFactory, SoftDeletes;
@@ -32,6 +35,15 @@ class VehicleModel extends Model
     public function customers()
     {
         return $this->belongsToMany(CustomerModel::class, 'customer_vehicle', 'id_vehicle', 'id_customer')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all of the batteries suitable for the vehicle.
+     */
+    public function batteries()
+    {
+        return $this->belongsToMany(BatteryModel::class, 'vehicle_battery', 'id_vehicle', 'id_battery')
             ->withTimestamps();
     }
 }

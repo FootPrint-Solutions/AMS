@@ -6,24 +6,24 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Vehicle Brand
+            Add New Battery Brand
         </div>
         <br>
 
         {{-- Form --}}
-        <form id="vehicle-brand-form">
+        <form id="battery-brand-form">
             @csrf
 
             {{-- Name --}}
             <div class="form-group local-forms">
                 <label for="name">Name <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter battery brand name" required>
             </div>
             
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Vehicle Brand</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Battery Brand</button>
 
                 {{-- Cancel Button --}}
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -34,15 +34,15 @@
 
 <script>
     $(document).ready(function() {
-        $("#vehicle-brand-form").on("submit", function(event) {
+        $("#battery-brand-form").on("submit", function(event) {
             event.preventDefault();
 
-            // Get vehicle brand form data.
+            // Get battery brand form data.
             let formData = new FormData($(this)[0]);
             
-            // Send vehicle brand form data to VehicleBrand controller using AJAX.
+            // Send battery brand form data to BatteryBrand controller using AJAX.
             $.ajax({
-                url: '/vehicle/brand/store',
+                url: '/battery/brand/store',
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -52,23 +52,23 @@
                     let responseData = JSON.parse(response);
 
                     // Check response data status.
-                    // Status indicates the success status of vehicle creating porcess.
+                    // Status indicates the success status of battery creating porcess.
                     if (responseData.status) {
-                        // Creating new vehicle was succeeded.
+                        // Creating new battery was succeeded.
                         showSuccessToast(responseData.message);
                     } else {
-                        // Creating new vehicle was failed.
+                        // Creating new battery was failed.
                         showErrorToast(responseData.message);
                     }
 
-                    // Redirect to Vehicle index page.
-                    goToPage("/vehicle");
+                    // Redirect to battery index page.
+                    goToPage("/battery");
                 }
             });
         });
 
-        $("#vehicle-brand-form").on("reset", function() {
-            goToPage("/vehicle");
+        $("#battery-brand-form").on("reset", function() {
+            goToPage("/battery");
         });
     });
 </script>

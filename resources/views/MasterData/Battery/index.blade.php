@@ -7,7 +7,11 @@
         {{-- Title --}}
         <div class="card-title h2">
             Battery
-            <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
+            <button class="btn btn-primary mx-1" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-usage"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new usage type</a>
+            <button class="btn btn-secondary mx-1" id="btn-add-tech"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new technology</a>
         </div>
         <br>
 
@@ -22,10 +26,10 @@
                     <th scope="col">Usage Type</th>
                     <th scope="col">Size Category</th>
                     <th scope="col">Technology</th>
-                    <th scope="col">Dimensions</th>
-                    <th scope="col">Standard CCA</th>
-                    <th scope="col">Capacity</th>
-                    <th scope="col">Warranty</th>
+                    <th scope="col">Dimensions (cm)</th>
+                    <th scope="col">Standard CCA (A)</th>
+                    <th scope="col">Capacity (AH)</th>
+                    <th scope="col">Warranty (month)</th>
                     <th scope="col">Retail Price (IDR)</th>
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
@@ -49,6 +53,11 @@
             "serverSide": true,
             "paging": true,
             "pagingType": 'numbers',
+            "columnDefs": [
+                {
+                    className: "text-end", "targets": [ 8, 9, 10, 11 ]
+                }
+            ],
             "ajax": {
                 "url": "/battery/show",
                 "type": "POST",
@@ -60,6 +69,22 @@
 
         $("#btn-add").on("click", function() {
             goToPage("/battery/create");
+        });
+
+        $("#btn-add-brand").on("click", function() {
+            goToPage("/battery/brand/create");
+        });
+
+        $("#btn-add-subbrand").on("click", function() {
+            goToPage("/battery/subbrand/create");
+        });
+
+        $("#btn-add-usage").on("click", function() {
+            goToPage("/battery/usage/create");
+        });
+
+        $("#btn-add-tech").on("click", function() {
+            goToPage("/battery/technology/create");
         });
     });
 

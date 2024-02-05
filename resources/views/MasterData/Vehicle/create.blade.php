@@ -55,6 +55,16 @@
                 <input type="text" class="form-control" id="brand-new" name="newbrand">
             </div>
 
+            {{-- Battery --}}
+            <div class="form-group local-forms">
+                <label for="battery">Battery</label>
+                <select class="form-control" id="battery" name="battery[]" multiple="multiple">
+                    @foreach ($data['batteries'] as $battery)
+                        <option value="{{ $battery['id'] }}" @if (isset($data['suitable_batteries']) && in_array($battery['id'], $data['suitable_batteries'])) selected @endif>{{ $battery['name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             {{-- Hidden Inputs --}}
             <input type="hidden" id="id" name="id"
             @if (isset($data['profile']))
@@ -87,6 +97,10 @@
     $(document).ready(function() {
         $('#brand').select2({
             placeholder: "Enter vehicle brand"
+        });
+
+        $('#battery').select2({
+            placeholder: "Enter vehicle battery"
         });
 
         $("#brand").on("select2:select", function (e) {

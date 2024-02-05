@@ -9,7 +9,10 @@ use App\Http\Controllers\MasterData\Company;
 use App\Http\Controllers\MasterData\Vehicle;
 use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\Dashboard\Dashboard;
-
+use App\Http\Controllers\MasterData\BatteryBrand;
+use App\Http\Controllers\MasterData\BatterySubbrand;
+use App\Http\Controllers\MasterData\BatteryTechnology;
+use App\Http\Controllers\MasterData\BatteryUsage;
 // ORDERS
 use App\Http\Controllers\MasterData\Customer;
 use App\Http\Controllers\MasterData\VehicleBrand;
@@ -69,6 +72,22 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store');
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
     Route::post('/battery/destroy', [Battery::class, 'destroy'])->name('battery.destroy');
+
+    // Brand
+    Route::get('/battery/brand/create', [BatteryBrand::class, 'create']);
+    Route::post('/battery/brand/store', [BatteryBrand::class, 'store']);
+
+    // Subbrand Category
+    Route::get('/battery/subbrand/create', [BatterySubbrand::class, 'create']);
+    Route::post('/battery/subbrand/store', [BatterySubbrand::class, 'store']);
+
+    // Usage Type
+    Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
+    Route::post('/battery/usage/store', [BatteryUsage::class, 'store']);
+
+    // Technology
+    Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
+    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store']);
 
     // Orders
     // Quick Quotation
