@@ -26,10 +26,10 @@
                     <th scope="col">Usage Type</th>
                     <th scope="col">Size Category</th>
                     <th scope="col">Technology</th>
-                    <th scope="col">Dimensions</th>
-                    <th scope="col">Standard CCA</th>
-                    <th scope="col">Capacity</th>
-                    <th scope="col">Warranty</th>
+                    <th scope="col">Dimensions (cm)</th>
+                    <th scope="col">Standard CCA (A)</th>
+                    <th scope="col">Capacity (AH)</th>
+                    <th scope="col">Warranty (month)</th>
                     <th scope="col">Retail Price (IDR)</th>
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>

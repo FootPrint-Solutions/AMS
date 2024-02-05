@@ -51,6 +51,7 @@
                             @foreach ($data['brands'] as $brand)
                                 <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                             @endforeach
+                            <option value="new">Quick add new brand&hellip;</option>
                         </select>
                     </div>
                 </div>
@@ -63,7 +64,27 @@
                             @foreach ($data['subbrand_categories'] as $category)
                                 <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
                             @endforeach
+                            <option value="new">Quick add new subbrand&hellip;</option>
                         </select>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Quick Add New Brand & Subbrand Category --}}
+            <div class="row">
+                {{-- New Brand --}}
+                <div class="col">
+                    <div id="brand-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="brand-new">New Brand <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="brand-new" name="newbrand" placeholder="Enter new battery brand">
+                    </div>
+                </div>
+
+                {{-- New Subbrand Category --}}
+                <div class="col">
+                    <div id="subbrand-category-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="subbrand-category-new">New Subbrand Category <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="subbrand-category-new" name="newsubbrandcategory" placeholder="Enter new battery subbrand category">
                     </div>
                 </div>
             </div>
@@ -78,6 +99,7 @@
                             @foreach ($data['usage_types'] as $usage)
                                 <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['id_usage_type'] == $usage['id']) selected @endif>{{ $usage['name'] }}</option>
                             @endforeach
+                            <option value="new">Quick add new usage type&hellip;</option>
                         </select>
                     </div>
                 </div>
@@ -90,7 +112,27 @@
                             @foreach ($data['technologies'] as $tech)
                                 <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['id_technology'] == $tech['id']) selected @endif>{{ $tech['name'] }}</option>
                             @endforeach
+                            <option value="new">Quick add new technology&hellip;</option>
                         </select>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Quick Add New Brand & Subbrand Category --}}
+            <div class="row">
+                {{-- New Usage Type --}}
+                <div class="col">
+                    <div id="usagetype-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="usagetype-new">New Usage Type <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="usagetype-new" name="newusagetype" placeholder="Enter new battery usage type">
+                    </div>
+                </div>
+
+                {{-- New Technology --}}
+                <div class="col">
+                    <div id="technology-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="technology-new">New Technology <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="technology-new" name="newtechnology" placeholder="Enter new battery technology">
                     </div>
                 </div>
             </div>
@@ -252,16 +294,57 @@
             placeholder: "Enter battery brand"
         });
 
+        $("#brand").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#brand-new-group").show();
+                $("#brand-new-group").attr("required", true);
+            } else {
+                $("#brand-new-group").hide();
+                $("#brand-new-group").attr("required", false);
+            }
+        });
+
         $('#subbrand-category').select2({
             placeholder: "Enter battery subbrand category"
+        });
+
+        $("#subbrand-category").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#subbrand-category-new-group").show();
+                $("#subbrand-category-new-group").attr("required", true);
+            } else {
+                $("#subbrand-category-new-group").hide();
+                $("#subbrand-category-new-group").attr("required", false);
+            }
         });
 
         $('#usagetype').select2({
             placeholder: "Enter battery usage type"
         });
 
+        $("#usagetype").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#usagetype-new-group").show();
+                $("#usagetype-new-group").attr("required", true);
+            } else {
+                $("#usagetype-new-group").hide();
+                $("#usagetype-new-group").attr("required", false);
+            }
+        });
+
+
         $('#technology').select2({
             placeholder: "Enter battery technolgy"
+        });
+
+        $("#technology").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#technology-new-group").show();
+                $("#technology-new-group").attr("required", true);
+            } else {
+                $("#technology-new-group").hide();
+                $("#technology-new-group").attr("required", false);
+            }
         });
 
         $("#battery-form").on("submit", function(event) {
