@@ -29,6 +29,7 @@
                                 @php
                                     $active_child_menu = isset($active_child) && $active_child === $menu_child['id'];
                                 @endphp
+
                                 <li>
                                     <a href="{{ $menu_child['url'] }}"
                                         class="@if ($active_child_menu) active @endif">
