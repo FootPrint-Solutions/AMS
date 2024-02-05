@@ -20,7 +20,7 @@ class Dashboard extends Controller
      */
     public function index()
     {
-        $menu = MenuParent::with('menus')->get()->toArray();
+        $menu = MenuParent::with(["menus", "menuSubs"])->get()->toArray();
         session(['menu' => $menu]);
         return view('Dashboard.index',   getIndexData(
             'Dashboard',
