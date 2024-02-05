@@ -61,8 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/vehicle/destroy', [Vehicle::class, 'destroy'])->name('vehicle.destroy');
 
     // Brand
+    Route::get('/vehicle/brand', [VehicleBrand::class, 'index']);
+    Route::post('/vehicle/brand/show', [VehicleBrand::class, 'show'])->name('vehicle.brand.show');
     Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create']);
     Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store');
+    Route::post('/vehicle/brand/destroy', [VehicleBrand::class, 'destroy'])->name('vehicle.brand.destroy');
 
     // Battery
     Route::get('/battery', [Battery::class, 'index']);
