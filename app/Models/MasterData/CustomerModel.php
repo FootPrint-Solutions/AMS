@@ -17,6 +17,11 @@ class CustomerModel extends Model
      */
     protected $table = 'customer';
 
+    protected $fillable = [
+        'name', 'address', 'contact', 'email',
+        // Add other fillable columns here if any
+    ];
+
     /**
      * Get all of the vehicles owned by the customer.
      */
@@ -24,5 +29,10 @@ class CustomerModel extends Model
     {
         return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'id_customer', 'id_vehicle')
             ->withTimestamps();
+    }
+
+    public static function getFillableColumns()
+    {
+        return (new static())->getFillable();
     }
 }

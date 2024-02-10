@@ -200,4 +200,69 @@ class Customer extends Controller
 
         return getResponseData($status, $message);
     }
+
+
+    public function json(Request $request)
+    {
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
+        $searchValue = $request->input('search.value');
+        $orderColumn = $request->input('order.0.column');
+        $orderDirection = $request->input('order.0.dir');
+        $orderColumnIndex = $request->input('order.0.column');
+
+        $query = CustomerModel::query();  //// tinggal custom disini jika ada relasi atau kondisi lain yang diperlukan, jika tidak ada langsung di panggil saja, seperti contoh dibawah ini :
+        /// kalo pengen rapih bisa di pindahin ke model :) 
+
+        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
+        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
+
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $selectColumns) {
+                foreach ($selectColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . $searchValue . '%');
+                }
+            });
+        }
+
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumnIndex] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        $ListData = $query->orderBy('name', 'asc')
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $no = $start + 1;
+
+        foreach ($ListData as $key) {
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name;
+            $row[] = $key->contact;
+            $row[] = $key->email;
+            $row[] = $key->address;
+            $data[] = $row;
+        }
+
+
+        $recordTotal = CustomerModel::count();
+
+        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
+
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $recordTotal,
+            "recordsFiltered" => $recordFiltered,
+            "data" => $data
+        ];
+
+        return response()->json($output);
+    }
 }

@@ -20,8 +20,6 @@
                     <th scope="col">Contact</th>
                     <th scope="col">E-mail</th>
                     <th scope="col">Address</th>
-                    <th scope="col">Edit</th>
-                    <th scope="col">Delete</th>
                 </tr>
             </thead>
         </table>
@@ -29,27 +27,48 @@
 </div>
 
 <script>
-    var table;
-
     $(document).ready(function() {
         // DataTables configuration
-        table = $('#table-customer').DataTable({
-            "dom": 'lBfrtp',
-            "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
-            "searching": true,
-            "stateSave": false,
-            "processing": true,
-            "serverSide": true,
-            "paging": true,
-            "pagingType": 'numbers',
-            "ajax": {
-                "url": "/customer/show",
-                "type": "POST",
-                "data": {
-                    "_token": "{{ csrf_token() }}"
+
+        var table = $("#table-customer").DataTable({
+            lengthMenu: [
+                [5, 10, 25, -1],
+                [5, 10, 25, "All"]
+            ],
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            order: [],
+            ajax: {
+                url: "/customer/json",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}"
                 }
-            }
+            },
+            columnDefs: [{
+                targets: [0],
+                orderable: false
+            }]
         });
+
+        // table = $('#table-customer').DataTable({
+        //     "dom": 'lBfrtp',
+        //     "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
+        //     "searching": true,
+        //     "stateSave": false,
+        //     "processing": true,
+        //     "serverSide": true,
+        //     "paging": true,
+        //     "pagingType": 'numbers',
+        //     "ajax": {
+        //         "url": "/customer/show",
+        //         "type": "POST",
+        //         "data": {
+        //             "_token": "{{ csrf_token() }}"
+        //         }
+        //     }
+        // });
 
         $('#btn-add').on('click', function() {
             goToPage("/customer/create");
