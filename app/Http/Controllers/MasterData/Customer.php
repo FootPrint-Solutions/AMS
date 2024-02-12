@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\CustomerModel;
-use App\Models\MasterData\VehicleModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class Customer extends Controller
 {
