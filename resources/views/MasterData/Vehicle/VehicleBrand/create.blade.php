@@ -6,7 +6,12 @@
     <div class="card-body">
         {{-- Title --}}
         <div class="card-title h2">
-            Add New Vehicle Brand
+            @isset($data["profile"])
+                Edit
+            @else
+                Add New
+            @endisset
+            Vehicle Brand
         </div>
         <br>
 

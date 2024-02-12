@@ -7,7 +7,7 @@
         {{-- Title --}}
         <div class="card-title h2">
             @isset($data["profile"])
-                Update
+                Edit
             @else
                 Add New
             @endisset
