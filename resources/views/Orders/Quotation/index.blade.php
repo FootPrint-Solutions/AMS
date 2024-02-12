@@ -512,22 +512,22 @@
                             success: function(data) {
                                 let ResponseData = JSON.parse(data);
                                 if (ResponseData.status) {
-                                    swal.fire([
+                                    Swal.fire({
                                         title: "Success",
                                         text: ResponseData.message,
                                         icon: "success",
-                                    ]);
+                                    });
                                 } else {
-                                    swal.fire([
+                                    Swal.fire({
                                         title: "Error",
                                         text: ResponseData.message ||
-                                        "Something went wrong, please try again later",
+                                            "Something went wrong, please try again later",
                                         icon: "error",
-                                    ]);
-                                }
+                                    });
+                                };
                             }
                         });
-                    }
+                    };
                 });
 
             });

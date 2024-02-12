@@ -20,6 +20,10 @@
         .dataTables_filter {
             margin-top: -30px
         }
+
+        .dataTables_length {
+            margin-right: 5px;
+        }
     </style>
     {{-- Form --}}
     <div class="card">
@@ -83,7 +87,7 @@
                     targets: [0],
                     orderable: false
                 }],
-                dom: "lBfrtp",
+                dom: "lBfrtip",
                 buttons: [{
                         text: '<i class="fas fa-file-alt"></i> Export to PDF',
                         extend: 'pdf',
@@ -100,8 +104,12 @@
                         },
                         className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
                     },
-
-                ]
+                ],
+                language: {
+                    searchPlaceholder: "Search Customer",
+                    search: "",
+                    lengthMenu: "_MENU_",
+                },
             });
 
             $('#btn-add').on('click', function() {
