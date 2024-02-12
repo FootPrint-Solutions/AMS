@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Vehicle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

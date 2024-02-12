@@ -2,21 +2,25 @@
 
 use Illuminate\Support\Facades\Route;
 
-// MASTER DATA
-use App\Http\Controllers\Orders\Quotation;
-use App\Http\Controllers\MasterData\Battery;
-use App\Http\Controllers\MasterData\Company;
-use App\Http\Controllers\MasterData\Vehicle;
-use App\Http\Controllers\Auth\Authentication;
+// DASHBOARD
 use App\Http\Controllers\Dashboard\Dashboard;
-use App\Http\Controllers\MasterData\BatteryBrand;
-use App\Http\Controllers\MasterData\BatterySubbrand;
-use App\Http\Controllers\MasterData\BatteryTechnology;
-use App\Http\Controllers\MasterData\BatteryUsage;
-// ORDERS
-use App\Http\Controllers\MasterData\Customer;
-use App\Http\Controllers\MasterData\VehicleBrand;
 
+// MASTER DATA
+use App\Http\Controllers\MasterData\Company;
+use App\Http\Controllers\MasterData\Customer;
+use App\Http\Controllers\MasterData\Vehicle\Vehicle;
+use App\Http\Controllers\MasterData\Vehicle\VehicleBrand;
+use App\Http\Controllers\MasterData\Battery\Battery;
+use App\Http\Controllers\MasterData\Battery\BatteryBrand;
+use App\Http\Controllers\MasterData\Battery\BatterySubbrand;
+use App\Http\Controllers\MasterData\Battery\BatteryTechnology;
+use App\Http\Controllers\MasterData\Battery\BatteryUsage;
+
+// ORDERS
+use App\Http\Controllers\Orders\Quotation;
+
+// AUTH
+use App\Http\Controllers\Auth\Authentication;
 
 // PROFILE
 use App\Http\Controllers\Profile;

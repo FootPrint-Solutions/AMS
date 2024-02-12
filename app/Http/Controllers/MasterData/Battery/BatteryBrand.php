@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\MasterData\Battery\BatteryTechnologyModel;
+use App\Models\MasterData\Battery\BatteryBrandModel;
 
-class BatteryTechnology extends Controller
+class BatteryBrand extends Controller
 {
     /**
-     * Show the form for creating Battery Technology profile resource.
+     * Show the form for creating Vehicle Brand profile resource.
      *
      * @return \Illuminate\View\View
      */
     public function create()
     {
         return view(
-            'MasterData.Battery.BatteryTechnology.create',
+            'MasterData.Battery.BatteryBrand.create',
             getIndexData(
-                'Battery Usage Type',
+                'Battery Brand',
                 2,
                 4
             )
@@ -28,24 +28,24 @@ class BatteryTechnology extends Controller
     }
 
     /**
-     * Store a newly created Battery Technology resource in database.
+     * Store a newly created Vehicle Brand resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
      */
     public function store(Request $request)
     {
-        $technology = new BatteryTechnologyModel();
-        $technology->name = $request->name;
-        $status = $technology->save();
+        $brand = new BatteryBrandModel();
+        $brand->name = $request->name;
+        $status = $brand->save();
 
         // Set a new response data to be sent.
         if ($status) {
             // The inserting process is succeeded.
-            $message = 'The new battery technology was successfully created!';
+            $message = 'The new battery brand was successfully created!';
         } else {
             // The inserting process is failed.
-            $message = 'Failed to create the new battery technology!';
+            $message = 'Failed to create the new battery brand!';
         }
 
         return getResponseData($status, $message);

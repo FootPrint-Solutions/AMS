@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryAlias;

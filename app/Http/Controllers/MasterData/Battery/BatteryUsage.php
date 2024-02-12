@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\MasterData\Battery\BatteryBrandModel;
+use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 
-class BatteryBrand extends Controller
+class BatteryUsage extends Controller
 {
     /**
-     * Show the form for creating Vehicle Brand profile resource.
+     * Show the form for creating Vehicle Usage Type profile resource.
      *
      * @return \Illuminate\View\View
      */
     public function create()
     {
         return view(
-            'MasterData.Battery.BatteryBrand.create',
+            'MasterData.Battery.BatteryUsage.create',
             getIndexData(
-                'Battery Brand',
+                'Battery Usage Type',
                 2,
                 4
             )
@@ -28,24 +28,24 @@ class BatteryBrand extends Controller
     }
 
     /**
-     * Store a newly created Vehicle Brand resource in database.
+     * Store a newly created Vehicle Usage Type resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
      */
     public function store(Request $request)
     {
-        $brand = new BatteryBrandModel();
-        $brand->name = $request->name;
-        $status = $brand->save();
+        $usage = new BatteryUsageTypeModel();
+        $usage->name = $request->name;
+        $status = $usage->save();
 
         // Set a new response data to be sent.
         if ($status) {
             // The inserting process is succeeded.
-            $message = 'The new battery brand was successfully created!';
+            $message = 'The new battery usage type was successfully created!';
         } else {
             // The inserting process is failed.
-            $message = 'Failed to create the new battery brand!';
+            $message = 'Failed to create the new battery usage type!';
         }
 
         return getResponseData($status, $message);
