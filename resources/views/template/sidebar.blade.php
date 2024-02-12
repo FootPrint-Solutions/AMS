@@ -30,7 +30,7 @@
                                     $active_child_menu = isset($active_child) && $active_child === $menu_child['id'];
                                 @endphp
 
-                                <li class="submenu">
+                                <li @if (!empty(session('submenu')[$menu_child['id']])) class="submenu" @endif>
                                     <a href="{{ $menu_child['url'] }}"
                                         class="@if ($active_child_menu) active @endif">
                                         {{ $menu_child['name'] }}
