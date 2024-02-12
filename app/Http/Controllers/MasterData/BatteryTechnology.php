@@ -18,7 +18,7 @@ class BatteryTechnology extends Controller
     public function create()
     {
         return view(
-            'MasterData.BatteryTechnology.create',
+            'MasterData.Battery.BatteryTechnology.create',
             getIndexData(
                 'Battery Usage Type',
                 2,

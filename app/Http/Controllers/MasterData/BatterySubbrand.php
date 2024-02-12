@@ -18,7 +18,7 @@ class BatterySubbrand extends Controller
     public function create()
     {
         return view(
-            'MasterData.BatterySubbrand.create',
+            'MasterData.Battery.BatterySubbrand.create',
             getIndexData(
                 'Battery Subbrand Category',
                 2,

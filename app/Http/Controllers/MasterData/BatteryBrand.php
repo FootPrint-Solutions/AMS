@@ -18,7 +18,7 @@ class BatteryBrand extends Controller
     public function create()
     {
         return view(
-            'MasterData.BatteryBrand.create',
+            'MasterData.Battery.BatteryBrand.create',
             getIndexData(
                 'Battery Brand',
                 2,
