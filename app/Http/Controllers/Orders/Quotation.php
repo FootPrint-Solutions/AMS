@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 // MODELS
 use App\Models\MasterData\CustomerModel;
-use App\Models\MasterData\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleBrandModel;
 
 class Quotation extends Controller
 {
