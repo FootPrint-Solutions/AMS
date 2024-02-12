@@ -16,6 +16,10 @@ use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 
 class Battery extends Controller
 {
+    private $title = "Battery";
+    private $menu = 2;
+    private $submenu = 4;
+
     /**
      * Show the Battery index page.
      *
@@ -26,9 +30,9 @@ class Battery extends Controller
         return view(
             'MasterData.Battery.index',
             getIndexData(
-                'Battery',
-                2,
-                4
+                $this->title,
+                $this->menu,
+                $this->submenu
             )
         );
     }
@@ -43,9 +47,9 @@ class Battery extends Controller
         return view(
             'MasterData.Battery.create',
             getIndexData(
-                'Battery',
-                2,
-                4,
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
@@ -71,9 +75,9 @@ class Battery extends Controller
         return view(
             'MasterData.Battery.create',
             getIndexData(
-                'Customer',
-                2,
-                2,
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
                     'profile' => $batteryProfile->toArray(),
                     'aliases' => $batteryProfile->aliases()->get()->toArray(),
