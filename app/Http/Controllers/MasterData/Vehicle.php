@@ -89,7 +89,9 @@ class Vehicle extends Controller
     public function show(Request $request, $id = null)
     {
         if ($id == null) {
-            $result = VehicleModel::with('brand')->get()->toArray();
+            $result = VehicleModel::with(['brand' => function ($query) {
+                $query->withTrashed();
+            }])->get()->toArray();
 
             // Set a new array for table rows.
             $tableRows = array();
