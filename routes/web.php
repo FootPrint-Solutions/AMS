@@ -100,9 +100,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/subbrand/update', [BatterySubbrand::class, 'update'])->name('battery.subbrand.update');
     Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy');
 
-    // Usage Type
+    // Battery Usage Type
+    Route::get('/battery/usage', [BatteryUsage::class, 'index']);
+    Route::post('/battery/usage/show', [BatteryUsage::class, 'show'])->name('battery.usage.show');
     Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
-    Route::post('/battery/usage/store', [BatteryUsage::class, 'store']);
+    Route::get('/battery/usage/edit/{id}', [BatteryUsage::class, 'edit'])->name('battery.usage.edit');
+    Route::post('/battery/usage/store', [BatteryUsage::class, 'store'])->name('battery.usage.store');
+    Route::post('/battery/usage/update', [BatteryUsage::class, 'update'])->name('battery.usage.update');
+    Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy');
 
     // Technology
     Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
