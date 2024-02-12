@@ -21,7 +21,7 @@ class CustomerModel extends Model
     protected $table = 'customer';
 
     protected $fillable = [
-        'name', 'address', 'contact', 'email',
+        'id', 'name', 'address', 'contact', 'email',
         // Add other fillable columns here if any
     ];
 

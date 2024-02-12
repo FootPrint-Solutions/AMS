@@ -123,6 +123,7 @@ class Customer extends Controller
             $row[] = $key->contact;
             $row[] = $key->email;
             $row[] = $key->address;
+            $row[] = $key->id;
             $data[] = $row;
         }
 

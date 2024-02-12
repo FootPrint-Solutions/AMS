@@ -64,10 +64,11 @@
     </div>
 
     <script>
+        var table;
         $(document).ready(function() {
             // DataTables configuration
 
-            var table = $("#table-customer").DataTable({
+            table = $("#table-customer").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
                     [5, 10, 25]
@@ -110,6 +111,49 @@
                     search: "",
                     lengthMenu: "_MENU_",
                 },
+                select: true,
+            });
+
+            $(".dt-buttons").append(
+                '<button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button>'
+            );
+            $(".dt-buttons").append(
+                '<button class="btn btn-outline-danger btn-sm delete-selected ml-1" style="margin-left: 3px;"> <i class="fas fa-trash"></i> Delete</button>'
+            );
+
+
+            $('.edit-selected').on('click', function() {
+                var selectedRows = table.rows({
+                    selected: true
+                }).data().toArray();
+                if (selectedRows.length === 0) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Please select at least one row to edit.",
+                        icon: "error",
+                    });
+                    return;
+                }
+                var selectedRow = selectedRows[0];
+                var id = selectedRow[5];
+                edit(id);
+            });
+
+            $('.delete-selected').on('click', function() {
+                var selectedRows = table.rows({
+                    selected: true
+                }).data().toArray();
+                if (selectedRows.length === 0) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Please select at least one row to delete.",
+                        icon: "error",
+                    });
+                    return;
+                }
+                var selectedRow = selectedRows[0];
+                var id = selectedRow[5];
+                destroy(id);
             });
 
             $('#btn-add').on('click', function() {
@@ -122,29 +166,41 @@
         }
 
         function destroy(id) {
-            $.ajax({
-                url: '/customer/destroy',
-                method: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "id": id
-                },
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will delete this customer data !",
+                icon: "warning",
+                showCancelButton: !0,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: !0
+            }).then(function(e) {
+                if (e.value === true) {
+                    $.ajax({
+                        url: '/customer/destroy',
+                        method: 'POST',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "id": id
+                        },
+                        success: function(response) {
+                            // Get response data (in JSON).
+                            let responseData = JSON.parse(response);
 
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Company profile update was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Company profile update was failed.
-                        showErrorToast(responseData.message);
-                    }
+                            // Check response data status.
+                            // Status indicates the success status of company profile update.
+                            if (responseData.status) {
+                                // Company profile update was succeeded.
+                                showSuccessToast(responseData.message);
+                            } else {
+                                // Company profile update was failed.
+                                showErrorToast(responseData.message);
+                            }
 
-                    // Reload table with updated rows.
-                    table.ajax.reload();
+                            // Reload table with updated rows.
+                            table.ajax.reload();
+                        }
+                    });
                 }
             });
         }
