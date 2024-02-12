@@ -15,13 +15,13 @@ use App\Http\Controllers\MasterData\Battery\BatteryBrand;
 use App\Http\Controllers\MasterData\Battery\BatterySubbrand;
 use App\Http\Controllers\MasterData\Battery\BatteryTechnology;
 use App\Http\Controllers\MasterData\Battery\BatteryUsage;
+use App\Http\Controllers\MasterData\Battery\BatterySize;
 
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -117,6 +117,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/technology/store', [BatteryTechnology::class, 'store'])->name('battery.technology.store');
     Route::post('/battery/technology/update', [BatteryTechnology::class, 'update'])->name('battery.technology.update');
     Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy');
+
+    // Battery Size Category
+    Route::get('/battery/size', [BatterySize::class, 'index']);
+    Route::post('/battery/size/show', [BatterySize::class, 'show'])->name('battery.size.show');
+    Route::get('/battery/size/create', [BatterySize::class, 'create']);
+    Route::get('/battery/size/edit/{id}', [BatterySize::class, 'edit'])->name('battery.size.edit');
+    Route::post('/battery/size/store', [BatterySize::class, 'store'])->name('battery.size.store');
+    Route::post('/battery/size/update', [BatterySize::class, 'update'])->name('battery.size.update');
+    Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
 
     // Orders
     // Quick Quotation
