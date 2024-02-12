@@ -160,10 +160,10 @@ class Vehicle extends Controller
         $vehicle->batteries()->attach($batteries);
 
         // Set a new response data to be sent.
-        return json_encode([
-            'status' => $status,
-            'message' => $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
-        ]);
+        return getResponseData(
+            $status,
+            $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
+        );
     }
 
     /**
@@ -193,10 +193,10 @@ class Vehicle extends Controller
         $vehicle->batteries()->sync($batteries);
 
         // Set a new response data to be sent.
-        return json_encode([
-            'status' => $status,
-            'message' => $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
-        ]);
+        return getResponseData(
+            $status,
+            $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
+        );
     }
 
     /**
@@ -214,9 +214,9 @@ class Vehicle extends Controller
         $vehicle->batteries()->detach();
 
         // Set a new response data to be sent.
-        return json_encode([
-            'status' => $status,
-            'message' => $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
-        ]);
+        return getResponseData(
+            $status,
+            $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+        );
     }
 }
