@@ -153,7 +153,7 @@
                                 value="{{ $data['profile']['dimension_length'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">cm</span>
+                            <span class="input-group-text border-end">mm</span>
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                                 value="{{ $data['profile']['dimension_width'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">cm</span>
+                            <span class="input-group-text border-end">mm</span>
                         </div>
                     </div>
                 </div>
@@ -183,7 +183,7 @@
                                 value="{{ $data['profile']['dimension_height'] }}"
                             @endif
                             >
-                            <span class="input-group-text border-end">cm</span>
+                            <span class="input-group-text border-end">mm</span>
                         </div>
                     </div>
                 </div>
