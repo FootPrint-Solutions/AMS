@@ -63,6 +63,9 @@ class Battery extends Controller
      */
     public function edit($id)
     {
+        // Get the specific battery profile.
+        $batteryProfile = BatteryModel::find($id);
+
         return view(
             'MasterData.Battery.create',
             getIndexData(
@@ -70,7 +73,8 @@ class Battery extends Controller
                 2,
                 2,
                 array(
-                    'profile' => BatteryModel::find($id)->toArray(),
+                    'profile' => $batteryProfile->toArray(),
+                    'aliases' => $batteryProfile->aliases()->get()->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -202,24 +206,17 @@ class Battery extends Controller
         $status = $battery->save();
 
         // Store the list of batteries' aliases.
-        // $aliases = explode(',', $request->altname);
-        // foreach ($aliases as $i) {
-        //     $alias = new BatteryAlias();
-        //     $alias->id_battery = $battery->id;
-        //     $alias->name = $i;
-        //     $alias->save();
-        // }
-
-        // Set a new response data to be sent.
-        if ($status) {
-            // The inserting process is succeeded.
-            $message = 'The new customer was successfully created!';
-        } else {
-            // The inserting process is failed.
-            $message = 'Failed to create the new customer!';
+        foreach ($request->altname as $alias) {
+            $battery->aliases()->create([
+                "name" => $alias
+            ]);
         }
 
-        return getResponseData($status, $message);
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
+        );
     }
 
     /**
@@ -293,19 +290,18 @@ class Battery extends Controller
         $battery->image = '';
         $status = $battery->save();
 
-        // Update the list of customers' owned vehicles.
-        // $battery->aliases()->sync($request->vehicle);
-
-        // Set a new response data to be sent.
-        if ($status) {
-            // The updating process is succeeded.
-            $message = 'The battery was successfully updated!';
-        } else {
-            // The updating process is failed.
-            $message = 'Failed to update the battery!';
+        // Update the list of batteries' aliases.
+        foreach ($request->altname as $alias) {
+            $battery->aliases()->updateOrCreate(
+                ['name' => $alias]
+            );
         }
 
-        return getResponseData($status, $message);
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The battery was successfully updated!" : "Failed to update the battery!"
+        );
     }
 
     /**
@@ -318,21 +314,16 @@ class Battery extends Controller
     {
         $battery = BatteryModel::find($request->id);
 
-        // Detach associated vehicles from the pivot table
-        // $battery->aliases()->detach();
+        // Delete batteries' aliases.
+        $battery->aliases()->delete();
 
         // Delete customer data in storage.
         $status = $battery->delete();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The deleting process is succeeded.
-            $message = 'The selected battery was successfully deleted!';
-        } else {
-            // The deleting process is failed.
-            $message = 'Failed to delete the selected battery!';
-        }
-
-        return getResponseData($status, $message);
+        return getResponseData(
+            $status,
+            $status ? "The selected battery was successfully deleted!" : "Failed to delete the selected battery!"
+        );
     }
 }

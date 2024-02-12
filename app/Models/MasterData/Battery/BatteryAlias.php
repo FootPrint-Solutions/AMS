@@ -15,4 +15,5 @@ class BatteryAlias extends Model
      * @var string
      */
     protected $table = 'battery_alias';
+    protected $fillable = ['name'];
 }
