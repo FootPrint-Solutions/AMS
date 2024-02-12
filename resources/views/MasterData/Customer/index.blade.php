@@ -31,9 +31,7 @@
                         <h3 class="page-title">Customer</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
-
-                        <a href="#" class="btn btn-outline-primary me-2"><i class="fas fa-download"></i> Download</a>
-                        <button id="btn-add" class="btn btn-primary"><i class="fas fa-plus"></i> Add
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
                             New Customer</button>
                     </div>
                 </div>
@@ -67,15 +65,15 @@
 
             var table = $("#table-customer").DataTable({
                 lengthMenu: [
-                    [5, 10, 25, -1],
-                    [5, 10, 25, "All"]
+                    [5, 10, 25],
+                    [5, 10, 25]
                 ],
                 responsive: true,
                 processing: true,
                 serverSide: true,
                 order: [],
                 ajax: {
-                    url: "/customer/json",
+                    url: "/customer/show",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}"
@@ -105,27 +103,6 @@
 
                 ]
             });
-
-
-
-
-            // table = $('#table-customer').DataTable({
-            //     "dom": 'lBfrtp',
-            //     "buttons": ['copy', 'csv', 'excel', 'pdf', 'print'],
-            //     "searching": true,
-            //     "stateSave": false,
-            //     "processing": true,
-            //     "serverSide": true,
-            //     "paging": true,
-            //     "pagingType": 'numbers',
-            //     "ajax": {
-            //         "url": "/customer/show",
-            //         "type": "POST",
-            //         "data": {
-            //             "_token": "{{ csrf_token() }}"
-            //         }
-            //     }
-            // });
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");

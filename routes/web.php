@@ -50,7 +50,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store');
     Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update');
     Route::post('/customer/destroy', [Customer::class, 'destroy'])->name('customer.destroy');
-    Route::post('/customer/json', [Customer::class, 'json'])->name('customer.json');
 
     // Vehicle
     Route::get('/vehicle', [Vehicle::class, 'index']);
