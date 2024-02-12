@@ -10,6 +10,9 @@ use App\Models\MasterData\VehicleBrandModel;
 
 class VehicleBrand extends Controller
 {
+    private $menu = 2;
+    private $submenu = 3;
+
     /**
      * Show the Vehicle index page.
      *
@@ -21,8 +24,8 @@ class VehicleBrand extends Controller
             'MasterData.VehicleBrand.index',
             getIndexData(
                 'Vehicle Brand',
-                2,
-                3
+                $this->menu,
+                $this->submenu
             )
         );
     }
@@ -38,8 +41,29 @@ class VehicleBrand extends Controller
             'MasterData.VehicleBrand.create',
             getIndexData(
                 'Vehicle Brand',
-                2,
-                3
+                $this->menu,
+                $this->submenu
+            )
+        );
+    }
+
+    /**
+     * Show the form for editing Vehicle Brand resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'MasterData.VehicleBrand.create',
+            getIndexData(
+                'Vehicle',
+                $this->menu,
+                $this->submenu,
+                array(
+                    'profile' => VehicleBrandModel::find($id)->toArray(),
+                )
             )
         );
     }
@@ -95,15 +119,29 @@ class VehicleBrand extends Controller
         $status = $brand->save();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The inserting process is succeeded.
-            $message = 'The new vehicle brand was successfully created!';
-        } else {
-            // The inserting process is failed.
-            $message = 'Failed to create the new vehicle brand!';
-        }
+        return getResponseData(
+            $status,
+            $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
+        );
+    }
 
-        return getResponseData($status, $message);
+    /**
+     * Update the specified Vehicle Brand resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $brand = VehicleBrandModel::find($request->id);
+        $brand->name = $request->name;
+        $status = $brand->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
+        );
     }
 
     /**
@@ -118,17 +156,9 @@ class VehicleBrand extends Controller
         $status = $vehicle->delete();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The deleting process is succeeded.
-            $message = 'The selected brand was successfully deleted!';
-        } else {
-            // The deleting process is failed.
-            $message = 'Failed to delete the selected brand!';
-        }
-
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData(
+            $status,
+            $status ? 'The selected brand was successfully deleted!' : 'Failed to delete the selected brand!'
+        );
     }
 }

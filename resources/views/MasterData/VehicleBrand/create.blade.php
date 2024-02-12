@@ -17,13 +17,30 @@
             {{-- Name --}}
             <div class="form-group local-forms">
                 <label for="name">Name <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle brand name" required
+                    @if (isset($data['profile']))
+                        value="{{ $data['profile']['name'] }}"
+                    @endif>
             </div>
+
+            {{-- Hidden Inputs --}}
+            <input type="hidden" name="id" 
+                @if (isset($data['profile']))
+                    value="{{ $data['profile']['id'] }}"
+                @endif>
             
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
                 {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save" value="create">Create Vehicle Brand</button>
+                <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                    @if (isset($data['profile']))
+                        value="update">
+                        Update Vehicle Brand
+                    @else
+                        value="create">
+                        Create Vehicle Brand
+                    @endif
+                </button>
 
                 {{-- Cancel Button --}}
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -37,12 +54,19 @@
         $("#vehicle-brand-form").on("submit", function(event) {
             event.preventDefault();
 
+            // Get current display mode (Update or Create).
+            let mode = $("#btn-save").attr("value");
+            let url = "/vehicle/brand/store";
+            if (mode == "update") {
+                url = "/vehicle/brand/update";
+            }
+
             // Get vehicle brand form data.
             let formData = new FormData($(this)[0]);
             
             // Send vehicle brand form data to VehicleBrand controller using AJAX.
             $.ajax({
-                url: '/vehicle/brand/store',
+                url: url,
                 method: 'POST',
                 data: formData,
                 processData: false,

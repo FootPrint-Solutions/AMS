@@ -65,7 +65,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vehicle/brand', [VehicleBrand::class, 'index']);
     Route::post('/vehicle/brand/show', [VehicleBrand::class, 'show'])->name('vehicle.brand.show');
     Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create']);
+    Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('vehicle.brand.edit');
     Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store');
+    Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update');
     Route::post('/vehicle/brand/destroy', [VehicleBrand::class, 'destroy'])->name('vehicle.brand.destroy');
 
     // Battery
