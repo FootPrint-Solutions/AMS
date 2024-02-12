@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\MasterData;
+namespace App\Models\MasterData\Vehicle;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\CustomerModel;
 
 class VehicleModel extends Model
 {

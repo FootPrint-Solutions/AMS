@@ -6,10 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\MasterData\VehicleModel;
-use App\Models\MasterData\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\MasterData\VehicleBatteryModel;
 
 use function PHPUnit\Framework\isNull;
 

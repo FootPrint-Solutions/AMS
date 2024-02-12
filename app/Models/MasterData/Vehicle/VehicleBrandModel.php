@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\MasterData;
+namespace App\Models\MasterData\Vehicle;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class VehicleBatteryModel extends Model
+class VehicleBrandModel extends Model
 {
     use HasFactory;
 
@@ -14,5 +14,5 @@ class VehicleBatteryModel extends Model
      *
      * @var string
      */
-    protected $table = 'vehicle_battery';
+    protected $table = 'vehicle_brand';
 }

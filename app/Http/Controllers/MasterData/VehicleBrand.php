@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\MasterData\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleBrandModel;
 
 class VehicleBrand extends Controller
 {
@@ -21,7 +21,7 @@ class VehicleBrand extends Controller
     public function index()
     {
         return view(
-            'MasterData.VehicleBrand.index',
+            'MasterData.Vehicle.VehicleBrand.index',
             getIndexData(
                 'Vehicle Brand',
                 $this->menu,
@@ -38,7 +38,7 @@ class VehicleBrand extends Controller
     public function create()
     {
         return view(
-            'MasterData.VehicleBrand.create',
+            'MasterData.Vehicle.VehicleBrand.create',
             getIndexData(
                 'Vehicle Brand',
                 $this->menu,
@@ -56,7 +56,7 @@ class VehicleBrand extends Controller
     public function edit($id)
     {
         return view(
-            'MasterData.VehicleBrand.create',
+            'MasterData.Vehicle.VehicleBrand.create',
             getIndexData(
                 'Vehicle',
                 $this->menu,

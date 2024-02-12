@@ -8,7 +8,6 @@
         <div class="card-title h2">
             Vehicle
             <button class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new vehicle</button>
-            <button class="btn btn-secondary" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</button>
         </div>
         <br>
 
