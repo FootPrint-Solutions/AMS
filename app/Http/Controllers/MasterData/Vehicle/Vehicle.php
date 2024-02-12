@@ -14,6 +14,7 @@ use function PHPUnit\Framework\isNull;
 
 class Vehicle extends Controller
 {
+    private $title = "Vehicle";
     private $menu = 2;
     private $submenu = 3;
 
@@ -27,7 +28,7 @@ class Vehicle extends Controller
         return view(
             'MasterData/Vehicle/index',
             getIndexData(
-                'Vehicle',
+                $this->title,
                 $this->menu,
                 $this->submenu
             )
@@ -44,7 +45,7 @@ class Vehicle extends Controller
         return view(
             'MasterData/Vehicle/create',
             getIndexData(
-                'Vehicle',
+                $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
@@ -66,7 +67,7 @@ class Vehicle extends Controller
         return view(
             'MasterData/Vehicle/create',
             getIndexData(
-                'Vehicle',
+                $this->title,
                 $this->menu,
                 $this->submenu,
                 array(

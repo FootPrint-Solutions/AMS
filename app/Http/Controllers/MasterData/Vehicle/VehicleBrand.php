@@ -10,6 +10,7 @@ use App\Models\MasterData\Vehicle\VehicleBrandModel;
 
 class VehicleBrand extends Controller
 {
+    private $title = "Vehicle Brand";
     private $menu = 2;
     private $submenu = 3;
 
@@ -23,7 +24,7 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.Vehicle.VehicleBrand.index',
             getIndexData(
-                'Vehicle Brand',
+                $this->title,
                 $this->menu,
                 $this->submenu
             )
@@ -40,7 +41,7 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.Vehicle.VehicleBrand.create',
             getIndexData(
-                'Vehicle Brand',
+                $this->title,
                 $this->menu,
                 $this->submenu
             )
@@ -58,7 +59,7 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.Vehicle.VehicleBrand.create',
             getIndexData(
-                'Vehicle',
+                $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
