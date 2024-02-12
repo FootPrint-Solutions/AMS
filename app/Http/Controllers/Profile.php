@@ -45,21 +45,12 @@ class Profile extends Controller
             ]);
 
             if (isset($response['message'])) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Session deleted successfully'
-                ]);
+                return getResponseData(true, "Session deleted successfully");
             } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to delete session'
-                ]);
+                return getResponseData(false, "Failed to delete session");
             }
         } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to delete session'
-            ]);
+            return getResponseData(false, "Failed to delete session => " . $th->getMessage());
         }
     }
 }

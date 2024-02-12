@@ -57,30 +57,18 @@ class Quotation extends Controller
 
         try {
             $response = Http::post($url, $data);
-
-            // Mengecek status respons dari API
             if ($response->successful()) {
                 $responseData = $response->json();
-
-
                 if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
-                    // return response()->json($responseData['data']);
-                    return response()->json(['status' => 'success', 'message' => 'Message sent successfully']);
+                    return getResponseData(true, "Message sent successfully");
                 } else {
-
-
-                    // return response()->json(['error' => 'Unexpected response structure'], 500);
-                    return response()->json(['status' => 'error', 'message' => 'Failed to send message']);
+                    return getResponseData(false, "Failed to send message");
                 }
             } else {
-
-                // return response()->json(['error' => 'Failed to send message'], $response->status());
-                return response()->json(['status' => 'error', 'message' => 'Failed to send message']);
+                return getResponseData(false, "Failed to send message");
             }
         } catch (\Exception $e) {
-
-            // return response()->json(['error' => $e->getMessage()], 500);
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return getResponseData(false, "Failed to send message => " . $e->getMessage());
         }
     }
 }

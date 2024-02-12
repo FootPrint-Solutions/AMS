@@ -510,10 +510,20 @@
                             type: "POST",
                             data: data,
                             success: function(data) {
-                                if (data.status == 'success') {
-                                    swal.fire("Done!", data.message, "success");
+                                let ResponseData = JSON.parse(data);
+                                if (ResponseData.status) {
+                                    swal.fire([
+                                        title: "Success",
+                                        text: ResponseData.message,
+                                        icon: "success",
+                                    ]);
                                 } else {
-                                    swal.fire("Error!", data.message, "error");
+                                    swal.fire([
+                                        title: "Error",
+                                        text: ResponseData.message ||
+                                        "Something went wrong, please try again later",
+                                        icon: "error",
+                                    ]);
                                 }
                             }
                         });
