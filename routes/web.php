@@ -109,9 +109,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/usage/update', [BatteryUsage::class, 'update'])->name('battery.usage.update');
     Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy');
 
-    // Technology
+    // Battery Technology
+    Route::get('/battery/technology', [BatteryTechnology::class, 'index']);
+    Route::post('/battery/technology/show', [BatteryTechnology::class, 'show'])->name('battery.technology.show');
     Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
-    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store']);
+    Route::get('/battery/technology/edit/{id}', [BatteryTechnology::class, 'edit'])->name('battery.technology.edit');
+    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store'])->name('battery.technology.store');
+    Route::post('/battery/technology/update', [BatteryTechnology::class, 'update'])->name('battery.technology.update');
+    Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy');
 
     // Orders
     // Quick Quotation
