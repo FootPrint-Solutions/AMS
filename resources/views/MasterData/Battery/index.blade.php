@@ -8,10 +8,6 @@
         <div class="card-title h2">
             Battery
             <button class="btn btn-primary mx-1" id="btn-add"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new battery</a>
-            <button class="btn btn-secondary mx-1" id="btn-add-brand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new brand</a>
-            <button class="btn btn-secondary mx-1" id="btn-add-subbrand"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new subbrand category</a>
-            <button class="btn btn-secondary mx-1" id="btn-add-usage"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new usage type</a>
-            <button class="btn btn-secondary mx-1" id="btn-add-tech"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add new technology</a>
         </div>
         <br>
 
