@@ -11,6 +11,8 @@ use App\Models\MasterData\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\VehicleBatteryModel;
 
+use function PHPUnit\Framework\isNull;
+
 class Vehicle extends Controller
 {
     private $menu = 2;
@@ -27,8 +29,8 @@ class Vehicle extends Controller
             'MasterData/Vehicle/index',
             getIndexData(
                 'Vehicle',
-                2,
-                3
+                $this->menu,
+                $this->submenu
             )
         );
     }
@@ -44,8 +46,8 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 'Vehicle',
-                2,
-                3,
+                $this->menu,
+                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::all()->toArray()
@@ -66,8 +68,8 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 'Vehicle',
-                2,
-                3,
+                $this->menu,
+                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::all()->toArray(),
@@ -150,8 +152,10 @@ class Vehicle extends Controller
         $batteries[$request->batteryprimary] = ["type" => "1"];
 
         // Set secondary battery type to 0.
-        foreach ($request->batterysecondary as $battery) {
-            $batteries[$battery] = ["type" => "0"];
+        if (!isNull($request->batterysecondary)) {
+            foreach ($request->batterysecondary as $battery) {
+                $batteries[$battery] = ["type" => "0"];
+            }
         }
         $vehicle->batteries()->attach($batteries);
 
@@ -181,23 +185,17 @@ class Vehicle extends Controller
         $batteries[$request->batteryprimary] = ["type" => "1"];
 
         // Set secondary battery type to 0.
-        foreach ($request->batterysecondary as $battery) {
-            $batteries[$battery] = ["type" => "0"];
+        if (!isNull($request->batterysecondary)) {
+            foreach ($request->batterysecondary as $battery) {
+                $batteries[$battery] = ["type" => "0"];
+            }
         }
         $vehicle->batteries()->sync($batteries);
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The updating process is succeeded.
-            $message = 'The vehicle was successfully updated!';
-        } else {
-            // The updating process is failed.
-            $message = 'Failed to update the vehicle!';
-        }
-
         return json_encode([
             'status' => $status,
-            'message' => $message
+            'message' => $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
         ]);
     }
 
@@ -216,17 +214,9 @@ class Vehicle extends Controller
         $vehicle->batteries()->detach();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The deleting process is succeeded.
-            $message = 'The selected customer was successfully deleted!';
-        } else {
-            // The deleting process is failed.
-            $message = 'Failed to delete the selected customer!';
-        }
-
         return json_encode([
             'status' => $status,
-            'message' => $message
+            'message' => $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
         ]);
     }
 }
