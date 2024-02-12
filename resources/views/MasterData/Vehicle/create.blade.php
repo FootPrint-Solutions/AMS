@@ -41,7 +41,7 @@
             {{-- Brand --}}
             <div class="form-group local-forms">
                 <label for="brand">Brand <span class="login-danger">*</span></label>
-                <select class="form-control" id="brand" name="brand">
+                <select class="form-control" id="brand" name="brand" required>
                     <option></option>
                     @foreach ($data['brands'] as $brand)
                         <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
@@ -57,13 +57,31 @@
             </div>
 
             {{-- Battery --}}
-            <div class="form-group local-forms">
-                <label for="battery">Battery</label>
-                <select class="form-control" id="battery" name="battery[]" multiple="multiple">
-                    @foreach ($data['batteries'] as $battery)
-                        <option value="{{ $battery['id'] }}" @if (isset($data['suitable_batteries']) && in_array($battery['id'], $data['suitable_batteries'])) selected @endif>{{ $battery['name'] }}</option>
-                    @endforeach
-                </select>
+            <div class="row">
+                {{-- Primary Battery --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="battery-primary">Battery (primary) <span class="login-danger">*</span></label>
+                        <select class="form-control" id="battery-primary" name="batteryprimary" required>
+                            <option></option>
+                            @foreach ($data['batteries'] as $battery)
+                                <option value="{{ $battery['id'] }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery['id']) selected @endif>{{ $battery['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Secondary Battery --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="battery-secondary">Battery (alternative)</label>
+                        <select class="form-control" id="battery-secondary" name="batterysecondary[]" multiple="multiple">
+                            @foreach ($data['batteries'] as $battery)
+                                <option value="{{ $battery['id'] }}" @if (isset($data['secondary_batteries']) && in_array($battery['id'], $data['secondary_batteries'])) selected @endif>{{ $battery['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </div>
 
             {{-- Hidden Inputs --}}
@@ -100,8 +118,12 @@
             placeholder: "Enter vehicle brand"
         });
 
-        $('#battery').select2({
-            placeholder: "Enter vehicle battery"
+        $('#battery-primary').select2({
+            placeholder: "Enter vehicle primary battery"
+        });
+
+        $('#battery-secondary').select2({
+            placeholder: "Enter vehicle secondary battery"
         });
 
         $("#brand").on("select2:select", function (e) {

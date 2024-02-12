@@ -29,6 +29,7 @@
   {{-- Datatables CSS --}}
   <link rel="stylesheet" href="{{ asset('/plugins/datatables/datatables.min.css') }}">
 
+
   {{-- Select2 CSS --}}
   <link rel="stylesheet" href="{{ asset('/plugins/select2/css/select2.min.css') }}">
 
@@ -75,6 +76,12 @@
 
   {{-- Datatables JS --}}
   <script src="{{ asset('/plugins/datatables/datatables.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/dataTables.buttons.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/buttons.html5.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/jszip.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/pdfmake.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/vfs_fonts.js') }}"></script>
+
 
   {{-- Select2 JS --}}
   <script src="{{ asset('/plugins/select2/js/select2.min.js') }}"></script>

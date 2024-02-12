@@ -1,7 +1,7 @@
 server {
 listen 7777;
-server_name 172.104.32.122;
-root /var/www/html/ams/public;
+server_name 172.104.32.164;
+root /var/www/html/AMS/public;
 index index.php index.html index.htm;
 
 add_header X-Frame-Options "SAMEORIGIN";

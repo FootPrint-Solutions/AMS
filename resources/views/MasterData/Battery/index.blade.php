@@ -26,7 +26,7 @@
                     <th scope="col">Usage Type</th>
                     <th scope="col">Size Category</th>
                     <th scope="col">Technology</th>
-                    <th scope="col">Dimensions (cm)</th>
+                    <th scope="col">Dimensions (mm)</th>
                     <th scope="col">Standard CCA (A)</th>
                     <th scope="col">Capacity (AH)</th>
                     <th scope="col">Warranty (month)</th>

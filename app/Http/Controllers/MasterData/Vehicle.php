@@ -9,9 +9,15 @@ use Illuminate\Http\Request;
 use App\Models\MasterData\VehicleModel;
 use App\Models\MasterData\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\VehicleBatteryModel;
+
+use function PHPUnit\Framework\isNull;
 
 class Vehicle extends Controller
 {
+    private $menu = 2;
+    private $submenu = 3;
+
     /**
      * Show the Vehicle index page.
      *
@@ -23,8 +29,8 @@ class Vehicle extends Controller
             'MasterData/Vehicle/index',
             getIndexData(
                 'Vehicle',
-                2,
-                3
+                $this->menu,
+                $this->submenu
             )
         );
     }
@@ -40,8 +46,8 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 'Vehicle',
-                2,
-                3,
+                $this->menu,
+                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::all()->toArray()
@@ -62,13 +68,14 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 'Vehicle',
-                2,
-                3,
+                $this->menu,
+                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'suitable_batteries' => VehicleModel::find($id)->batteries()->pluck('id_battery')->toArray(),
+                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('id_battery')->first(),
+                    'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('id_battery')->toArray(),
                 )
             )
         );
@@ -140,21 +147,22 @@ class Vehicle extends Controller
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
-        // Store the list of vehicles' suitable batteries.
-        $vehicle->batteries()->attach($request->battery);
+        // Store the list of all vehicles' suitable battery.
+        // Set primary battery type to 1.
+        $batteries[$request->batteryprimary] = ["type" => "1"];
+
+        // Set secondary battery type to 0.
+        if (!isNull($request->batterysecondary)) {
+            foreach ($request->batterysecondary as $battery) {
+                $batteries[$battery] = ["type" => "0"];
+            }
+        }
+        $vehicle->batteries()->attach($batteries);
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The inserting process is succeeded.
-            $message = 'The new vehicle was successfully created!';
-        } else {
-            // The inserting process is failed.
-            $message = 'Failed to create the new vehicle!';
-        }
-
         return json_encode([
             'status' => $status,
-            'message' => $message
+            'message' => $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
         ]);
     }
 
@@ -172,21 +180,22 @@ class Vehicle extends Controller
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 
-        // Update the list of vehicles' suitable batteries.
-        $vehicle->batteries()->sync($request->battery);
+        // Update the list of all vehicles' suitable batteries.
+        // Set primary battery type to 1.
+        $batteries[$request->batteryprimary] = ["type" => "1"];
+
+        // Set secondary battery type to 0.
+        if (!isNull($request->batterysecondary)) {
+            foreach ($request->batterysecondary as $battery) {
+                $batteries[$battery] = ["type" => "0"];
+            }
+        }
+        $vehicle->batteries()->sync($batteries);
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The updating process is succeeded.
-            $message = 'The vehicle was successfully updated!';
-        } else {
-            // The updating process is failed.
-            $message = 'Failed to update the vehicle!';
-        }
-
         return json_encode([
             'status' => $status,
-            'message' => $message
+            'message' => $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
         ]);
     }
 
@@ -205,17 +214,9 @@ class Vehicle extends Controller
         $vehicle->batteries()->detach();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The deleting process is succeeded.
-            $message = 'The selected customer was successfully deleted!';
-        } else {
-            // The deleting process is failed.
-            $message = 'Failed to delete the selected customer!';
-        }
-
         return json_encode([
             'status' => $status,
-            'message' => $message
+            'message' => $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
         ]);
     }
 }
