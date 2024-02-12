@@ -109,16 +109,13 @@
                 language: {
                     searchPlaceholder: "Search Customer",
                     search: "",
-                    lengthMenu: "_MENU_",
+                    lengthMenu: "_MENU_ entries | ",
                 },
                 select: true,
             });
 
             $(".dt-buttons").append(
-                '<button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button>'
-            );
-            $(".dt-buttons").append(
-                '<button class="btn btn-outline-danger btn-sm delete-selected ml-1" style="margin-left: 3px;"> <i class="fas fa-trash"></i> Delete</button>'
+                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
             );
 
 
