@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
@@ -50,6 +51,7 @@ class Battery extends Controller
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
                     'technologies' => BatteryTechnologyModel::all()->toArray(),
+                    'sizes' => BatterySizeCategoryModel::all()->toArray()
                 )
             )
         );
@@ -79,6 +81,7 @@ class Battery extends Controller
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
                     'technologies' => BatteryTechnologyModel::all()->toArray(),
+                    'sizes' => BatterySizeCategoryModel::all()->toArray()
                 )
             )
         );
@@ -194,7 +197,18 @@ class Battery extends Controller
             $battery->id_technology = $request->technology;
         }
 
-        $battery->id_size_category = 0;
+        // Check if the size category is newly added or not.
+        if ($request->size === "new") {
+            // Store the newly added vehicle brand.
+            $size = new BatterySizeCategoryModel();
+            $size->name = $request->newsize;
+            $status = $size->save();
+
+            $battery->id_size_category = $size->id;
+        } else {
+            $battery->id_size_category = $request->size;
+        }
+
         $battery->dimension_length = $request->dimension[0];
         $battery->dimension_width = $request->dimension[1];
         $battery->dimension_height = $request->dimension[2];
@@ -279,7 +293,18 @@ class Battery extends Controller
             $battery->id_technology = $request->technology;
         }
 
-        $battery->id_size_category = 0;
+        // Check if the size category is newly added or not.
+        if ($request->size === "new") {
+            // Store the newly added vehicle brand.
+            $size = new BatterySizeCategoryModel();
+            $size->name = $request->newsize;
+            $status = $size->save();
+
+            $battery->id_size_category = $size->id;
+        } else {
+            $battery->id_size_category = $request->size;
+        }
+
         $battery->dimension_length = $request->dimension[0];
         $battery->dimension_width = $request->dimension[1];
         $battery->dimension_height = $request->dimension[2];

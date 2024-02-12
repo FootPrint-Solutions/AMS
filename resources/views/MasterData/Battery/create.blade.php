@@ -97,7 +97,7 @@
                 </div>
             </div>
 
-            {{-- Usage Type & Technology --}}
+            {{-- Usage Type, Technology & Size Category --}}
             <div class="row">
                 {{-- Usage Type --}}
                 <div class="col">
@@ -126,9 +126,23 @@
                         </select>
                     </div>
                 </div>
+
+                {{-- Size Category --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="size">Size Category <span class="login-danger">*</span></label>
+                        <select class="form-control" id="size" name="size">
+                            <option></option>
+                            @foreach ($data['sizes'] as $size)
+                                <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['id_size_category'] == $size['id']) selected @endif>{{ $size['name'] }}</option>
+                            @endforeach
+                            <option value="new">Quick add new size category&hellip;</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            {{-- Quick Add New Brand & Subbrand Category --}}
+            {{-- Quick Add New Brand, Subbrand Category & Size Category --}}
             <div class="row">
                 {{-- New Usage Type --}}
                 <div class="col">
@@ -143,6 +157,14 @@
                     <div id="technology-new-group" class="form-group local-forms" style="display: none;">
                         <label for="technology-new">New Technology <span class="login-danger">*</span></label>
                         <input type="text" class="form-control" id="technology-new" name="newtechnology" placeholder="Enter new battery technology">
+                    </div>
+                </div>
+
+                {{-- Size Category --}}
+                <div class="col">
+                    <div id="size-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="size-new">New Size Category <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="size-new" name="newsize" placeholder="Enter new size category">
                     </div>
                 </div>
             </div>
@@ -362,6 +384,20 @@
             } else {
                 $("#technology-new-group").hide();
                 $("#technology-new-group").attr("required", false);
+            }
+        });
+
+        $('#size').select2({
+            placeholder: "Enter battery size category"
+        });
+
+        $("#size").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#size-new-group").show();
+                $("#size-new-group").attr("required", true);
+            } else {
+                $("#size-new-group").hide();
+                $("#size-new-group").attr("required", false);
             }
         });
 
