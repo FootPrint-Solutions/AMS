@@ -22,7 +22,7 @@ class VehicleBrand extends Controller
     public function index()
     {
         return view(
-            'MasterData.Vehicle.VehicleBrand.index',
+            'MasterData.Vehicle.Brand.index',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -39,7 +39,7 @@ class VehicleBrand extends Controller
     public function create()
     {
         return view(
-            'MasterData.Vehicle.VehicleBrand.create',
+            'MasterData.Vehicle.Brand.create',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -57,7 +57,7 @@ class VehicleBrand extends Controller
     public function edit($id)
     {
         return view(
-            'MasterData.Vehicle.VehicleBrand.create',
+            'MasterData.Vehicle.Brand.create',
             getIndexData(
                 $this->title,
                 $this->menu,

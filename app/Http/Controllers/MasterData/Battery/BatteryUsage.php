@@ -22,7 +22,7 @@ class BatteryUsage extends Controller
     public function index()
     {
         return view(
-            "MasterData.Battery.BatteryUsage.index",
+            "MasterData.Battery.Usage.index",
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -38,7 +38,7 @@ class BatteryUsage extends Controller
     public function create()
     {
         return view(
-            'MasterData.Battery.BatteryUsage.create',
+            'MasterData.Battery.Usage.create',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -56,7 +56,7 @@ class BatteryUsage extends Controller
     public function edit($id)
     {
         return view(
-            "MasterData.Battery.BatteryUsage.create",
+            "MasterData.Battery.Usage.create",
             getIndexData(
                 $this->title,
                 $this->menu,

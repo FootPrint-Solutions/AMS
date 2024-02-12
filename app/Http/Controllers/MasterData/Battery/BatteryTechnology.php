@@ -22,7 +22,7 @@ class BatteryTechnology extends Controller
     public function index()
     {
         return view(
-            "MasterData.Battery.BatteryTechnology.index",
+            "MasterData.Battery.Technology.index",
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -39,7 +39,7 @@ class BatteryTechnology extends Controller
     public function create()
     {
         return view(
-            'MasterData.Battery.BatteryTechnology.create',
+            'MasterData.Battery.Technology.create',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -57,7 +57,7 @@ class BatteryTechnology extends Controller
     public function edit($id)
     {
         return view(
-            "MasterData.Battery.BatteryTechnology.create",
+            "MasterData.Battery.Technology.create",
             getIndexData(
                 $this->title,
                 $this->menu,
