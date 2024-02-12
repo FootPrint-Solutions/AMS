@@ -64,7 +64,6 @@ class BatteryModel extends Model
      */
     public function aliases(): HasMany
     {
-        return $this->hasMany(BatteryAlias::class, "id_battery")
-            ->withTimestamps();
+        return $this->hasMany(BatteryAlias::class, "id_battery");
     }
 }

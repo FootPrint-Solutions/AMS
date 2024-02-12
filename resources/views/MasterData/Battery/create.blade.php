@@ -35,8 +35,14 @@
                 {{-- Alternate Names --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="altname">Alternate Names</label>
-                        <input type="text" class="form-control" id="altname" name="altname" placeholder="Enter battery alternate names">
+                        <label for="brand">Alternate Names</label>
+                        <select class="form-control" id="altname" name="altname[]" multiple="multiple">
+                            @if (isset($data["aliases"]) && !empty($data["aliases"]))
+                                @foreach ($data["aliases"] as $alias)
+                                    <option value="{{ $alias["name"] }}" selected>{{ $alias["name"] }}</option>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
                 </div>
             </div>
@@ -295,6 +301,13 @@
 
 <script>
     $(document).ready(function() {
+        $('#altname').select2({
+            placeholder: "Enter battery alternative names (separated by comma)",
+            tags: true,
+            tokenSeparators: [',', ' '],
+            minimumResultsForSearch: Infinity
+        });
+
         $('#brand').select2({
             placeholder: "Enter battery brand"
         });
