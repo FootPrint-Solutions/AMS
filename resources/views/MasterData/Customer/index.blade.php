@@ -1,6 +1,26 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        .btn-excel {
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .dataTables_filter {
+            margin-top: -30px
+        }
+    </style>
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
@@ -65,14 +85,29 @@
                     targets: [0],
                     orderable: false
                 }],
-                dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
+                dom: "lBfrtp",
+                buttons: [{
+                        text: '<i class="fas fa-file-alt"></i> Export to PDF',
+                        extend: 'pdf',
+                        className: 'btn btn-outline-danger btn-sm',
+                    }, {
+                        text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                        extend: 'excel',
+                        className: 'btn btn-outline-success btn-sm', // kelas CSS kustom
+                    },
+                    {
+                        text: '<i class="fas fa-sync-alt"></i> Refresh',
+                        action: function(e, dt, node, config) {
+                            dt.ajax.reload();
+                        },
+                        className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
+                    },
+
                 ]
             });
+
+
+
 
             // table = $('#table-customer').DataTable({
             //     "dom": 'lBfrtp',

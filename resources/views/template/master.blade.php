@@ -80,6 +80,7 @@
   <script src="{{ asset('/plugins/datatables/buttons.html5.min.js') }}"></script>
   <script src="{{ asset('/plugins/datatables/jszip.min.js') }}"></script>
   <script src="{{ asset('/plugins/datatables/pdfmake.min.js') }}"></script>
+  <script src="{{ asset('/plugins/datatables/vfs_fonts.js') }}"></script>
 
 
   {{-- Select2 JS --}}
