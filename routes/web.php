@@ -7,7 +7,7 @@ use App\Http\Controllers\Dashboard\Dashboard;
 
 // MASTER DATA
 use App\Http\Controllers\MasterData\Company\Company;
-use App\Http\Controllers\MasterData\Customer;
+use App\Http\Controllers\MasterData\Customer\Customer;
 use App\Http\Controllers\MasterData\Vehicle\Vehicle;
 use App\Http\Controllers\MasterData\Vehicle\VehicleBrand;
 use App\Http\Controllers\MasterData\Battery\Battery;

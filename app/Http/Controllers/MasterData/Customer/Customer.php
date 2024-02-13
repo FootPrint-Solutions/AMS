@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,6 +11,10 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 
 class Customer extends Controller
 {
+    private $title = "Customer";
+    private $menu = 2;
+    private $submenu = 2;
+
     /**
      * Show the Customer index page.
      *
@@ -19,11 +23,11 @@ class Customer extends Controller
     public function index()
     {
         return view(
-            'MasterData/Customer/index',
+            "MasterData.Customer.index",
             getIndexData(
-                'Customer',
-                2,
-                2
+                $this->title,
+                $this->menu,
+                $this->submenu
             )
         );
     }
@@ -36,13 +40,13 @@ class Customer extends Controller
     public function create()
     {
         return view(
-            'MasterData/Customer/create',
+            "MasterData.Customer.create",
             getIndexData(
-                'Customer',
-                2,
-                2,
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
-                    'vehicles' => VehicleModel::all()->toArray()
+                    "vehicles" => VehicleModel::all()->toArray()
                 )
             )
         );
@@ -57,15 +61,15 @@ class Customer extends Controller
     public function edit($id)
     {
         return view(
-            'MasterData/Customer/create',
+            "MasterData.Customer.create",
             getIndexData(
-                'Customer',
-                2,
-                2,
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
-                    'profile' => CustomerModel::find($id)->toArray(),
-                    'owned_vehicles' => CustomerModel::find($id)->vehicles()->pluck('id_vehicle')->toArray(),
-                    'vehicles' => VehicleModel::all()->toArray()
+                    "profile" => CustomerModel::find($id)->toArray(),
+                    "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray(),
+                    "vehicles" => VehicleModel::all()->toArray()
                 )
             )
         );
@@ -79,13 +83,13 @@ class Customer extends Controller
      */
     public function show(Request $request)
     {
-        $draw = $request->input('draw');
-        $start = $request->input('start');
-        $length = $request->input('length');
-        $searchValue = $request->input('search.value');
-        $orderColumn = $request->input('order.0.column');
-        $orderDirection = $request->input('order.0.dir');
-        $orderColumnIndex = $request->input('order.0.column');
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
+        $orderColumnIndex = $request->input("order.0.column");
 
         $query = CustomerModel::query();  //// tinggal custom disini jika ada relasi atau kondisi lain yang diperlukan, jika tidak ada langsung di panggil saja, seperti contoh dibawah ini :
         /// kalo pengen rapih bisa di pindahin ke model :) 
@@ -96,7 +100,7 @@ class Customer extends Controller
         if ($searchValue != null) {
             $query->where(function ($query) use ($searchValue, $selectColumns) {
                 foreach ($selectColumns as $column) {
-                    $query->orWhere($column, 'like', '%' . $searchValue . '%');
+                    $query->orWhere($column, "like", "%" . $searchValue . "%");
                 }
             });
         }
@@ -108,7 +112,7 @@ class Customer extends Controller
             }
         }
 
-        $ListData = $query->orderBy('name', 'asc')
+        $ListData = $query->orderBy("name", "asc")
             ->skip($start)
             ->take($length)
             ->get();
@@ -157,19 +161,14 @@ class Customer extends Controller
         $customer->email = $request->email;
         $status = $customer->save();
 
-        // Store the list of customers' owned vehicles.
+        // Store the list of customers" owned vehicles.
         $customer->vehicles()->attach($request->vehicle);
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The inserting process is succeeded.
-            $message = 'The new customer was successfully created!';
-        } else {
-            // The inserting process is failed.
-            $message = 'Failed to create the new customer!';
-        }
-
-        return getResponseData($status, $message);
+        return getResponseData(
+            $status,
+            $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
+        );
     }
 
     /**
@@ -188,19 +187,14 @@ class Customer extends Controller
         $customer->email = $request->email;
         $status = $customer->save();
 
-        // Update the list of customers' owned vehicles.
+        // Update the list of customers" owned vehicles.
         $customer->vehicles()->sync($request->vehicle);
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The updating process is succeeded.
-            $message = 'The customer was successfully updated!';
-        } else {
-            // The updating process is failed.
-            $message = 'Failed to update the customer!';
-        }
-
-        return getResponseData($status, $message);
+        return getResponseData(
+            $status,
+            $status ? "The customer was successfully updated!" : "Failed to update the customer!"
+        );
     }
 
     /**
@@ -220,14 +214,9 @@ class Customer extends Controller
         $status = $customer->delete();
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The deleting process is succeeded.
-            $message = 'The selected customer was successfully deleted!';
-        } else {
-            // The deleting process is failed.
-            $message = 'Failed to delete the selected customer!';
-        }
-
-        return getResponseData($status, $message);
+        return getResponseData(
+            $status,
+            $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+        );
     }
 }
