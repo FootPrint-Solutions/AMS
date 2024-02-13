@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 
 // Models
 use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\MasterData\CustomerModel;
+use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 
 class Dashboard extends Controller

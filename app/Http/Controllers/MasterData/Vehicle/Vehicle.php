@@ -10,6 +10,10 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
 
+// IMPORT CLASS
+use App\Imports\VehicleImport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use function PHPUnit\Framework\isNull;
 
 class Vehicle extends Controller
@@ -87,40 +91,69 @@ class Vehicle extends Controller
      * @param  int  $id
      * @return string
      */
-    public function show(Request $request, $id = null)
+    public function show(Request $request)
     {
-        if ($id == null) {
-            $result = VehicleModel::with(['brand' => function ($query) {
-                $query->withTrashed();
-            }])->get()->toArray();
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
+        $orderColumnIndex = $request->input("order.0.column");
 
-            // Set a new array for table rows.
-            $tableRows = array();
-            $number = 1;
+        $query = VehicleModel::with(['brand' => function ($query) {
+            $query->withTrashed();
+        }]);
 
-            // Iterate through each row in table.
-            foreach ($result as $i) {
-                // Set a new row for the table.
-                $row = array();
-                $row[] = number_format($number, 0); // #
-                $row[] = $i["name"]; // Name
-                $row[] = $i["brand"]["name"] ?? '-'; // Brand
-                $row[] = "<a href='" . $i['url'] . "'>" . $i["url"] . "</a>"; // URL
-                $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
-                $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
-                $tableRows[] = $row;
-                $number++;
-            }
+        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
+        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
 
-            // Save data in array.
-            $output = array(
-                // "draw" => $_POST['draw'],
-                "data" => $tableRows,
-            );
-
-            // Output data in JSON.
-            return json_encode($output);
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $selectColumns) {
+                foreach ($selectColumns as $column) {
+                    $query->orWhere($column, "like", "%" . $searchValue . "%");
+                }
+            });
         }
+
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumnIndex] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        $ListData = $query->orderBy("name", "asc")
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $no = $start + 1;
+
+        foreach ($ListData as $key) {
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name;
+            $row[] = $key->brand->name ?? '-';
+            $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
+            $row[] = $key->id;
+            $data[] = $row;
+        }
+
+        $recordTotal  = VehicleModel::count();
+
+
+        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
+
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $recordTotal,
+            "recordsFiltered" => $recordFiltered,
+            "data" => $data
+        ];
+
+        return response()->json($output);
     }
 
     /**
@@ -220,5 +253,27 @@ class Vehicle extends Controller
             $status,
             $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
         );
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        $file = $request->file('file');
+        $import = new VehicleImport();
+        try {
+            Excel::import($import, $file->getRealPath());
+            return getResponseData(
+                true,
+                "Data imported successfully!"
+            );
+        } catch (\Exception $e) {
+            return getResponseData(
+                false,
+                "Error importing data: " . $e->getMessage()
+            );
+        }
     }
 }

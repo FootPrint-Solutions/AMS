@@ -22,6 +22,13 @@ class VehicleModel extends Model
      */
     protected $table = 'vehicle';
 
+    protected $fillable = [
+        'id',
+        'name',
+        'id_brand',
+        'url',
+    ];
+
     /**
      * Get vehicle brand.
      */
