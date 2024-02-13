@@ -28,6 +28,9 @@
                             <input type="file" name="file" class="form-control form-control-sm">
                             <button type="submit" class="btn btn-outline-success btn-sm"><i
                                     class="fa-solid fa-file-import"></i> Import Battery Data</button>
+                            <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}" type="submit"
+                                class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
+                                Download Sample Import Data</a>
                         </div>
                     </div>
                 </div>
