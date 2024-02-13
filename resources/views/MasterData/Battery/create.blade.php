@@ -285,21 +285,29 @@
             </div>
             
             {{-- Image --}}
+            <label for="image" class="mb-1">Image</label>
             <div class="form-group students-up-files">
-                <label for="image">Upload Image</label>
-                <div class="uplod">
-                    <label class="file-upload image-upbtn mb-0">
-                        Choose File <input type="file" id="image" name="image">
-                    </label>
+                <div class="d-inline-flex align-items-start">
+                    <div class="uplod mx-2">
+                        <label class="btn btn-secondary file-upload ">
+                            Choose File <input type="file" id="image" name="image">
+                        </label>
+                    </div>
+
+                    @isset($data["profile"])
+                        @empty($data["profile"]["image"])
+                            No image has been uploaded for this battery.
+                        @else
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#image-modal">Preview Image</button>
+                        @endempty
+                    @endisset
                 </div>
             </div>
 
             {{-- Hidden Inputs --}}
-            <input type="hidden" id="id" name="id"
-            @if (isset($data['profile']))
-                value="{{ $data['profile']['id'] }}"
-            @endif
-            >
+            @isset($data["profile"])
+                <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+            @endisset
 
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
@@ -318,6 +326,24 @@
                 <button type="reset" type="button" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
             </div>
         </form>
+    </div>
+</div>
+
+{{-- Image Preview Modal --}}
+<div id="image-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            {{-- Header --}}
+            <div class="modal-header">
+                <h4 class="modal-title" id="standard-modalLabel">Image Preview</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            {{-- Body --}}
+            <div class="modal-body">
+                <img src="{{ asset("storage/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
+            </div>
+        </div>
     </div>
 </div>
 

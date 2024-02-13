@@ -28,7 +28,7 @@ class CreateBatteryTable extends Migration
             $table->double('capacity'); // AH
             $table->integer('warranty'); // Months
             $table->double('price_retail');
-            $table->binary('image');
+            $table->string('image')->nullable();
             $table->softDeletes();
             $table->timestamps();
 
