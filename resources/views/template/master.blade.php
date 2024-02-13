@@ -59,6 +59,9 @@
         {{-- Content --}}
         <div class="page-wrapper mb-5">
             <div class="content container-fluid">
+                {{-- Loading Overlay --}}
+                <div id="loading-overlay"></div>
+
                 {{-- Loading Indicator --}}
                 <div class="spinner-border text-primary" id="loading-indicator">
                     <span class="sr-only">Loading...</span>
@@ -115,9 +118,11 @@
         $.ajax({
             url: destination,
             beforeSend: function() {
+                $("#loading-overlay").show();
                 $("#loading-indicator").show();
             },
             success: function(response) {
+                $("#loading-overlay").hide();
                 $("#loading-indicator").hide();
                 $("#main-wrapper").html(response);
             }
