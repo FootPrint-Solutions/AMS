@@ -252,14 +252,21 @@ class Battery extends Controller
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
         $battery->price_retail = (float) str_replace(",", "", $request->price);
-        $battery->image = basename($request->file("image")->store("public/image/battery"));
+
+        // Check if an image has been uploaded or not.
+        if ($request->hasFile('image')) {
+            $battery->image = basename($request->file("image")->store("public/image/battery"));
+        }
+
         $status = $battery->save();
 
         // Store the list of batteries' aliases.
-        foreach ($request->altname as $alias) {
-            $battery->aliases()->create([
-                "name" => $alias
-            ]);
+        if ($request->altname !== null) {
+            foreach ($request->altname as $alias) {
+                $battery->aliases()->create([
+                    "name" => $alias
+                ]);
+            }
         }
 
         // Set a new response data to be sent.
@@ -348,14 +355,20 @@ class Battery extends Controller
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
         $battery->price_retail = $request->price;
-        $battery->image = basename($request->file("image")->store("public/image/battery"));
+
+        // Check if an image has been uploaded or not.
+        if ($request->hasFile('image')) {
+            $battery->image = basename($request->file("image")->store("public/image/battery"));
+        }
         $status = $battery->save();
 
         // Update the list of batteries' aliases.
-        foreach ($request->altname as $alias) {
-            $battery->aliases()->updateOrCreate(
-                ['name' => $alias]
-            );
+        if ($request->altname !== null) {
+            foreach ($request->altname as $alias) {
+                $battery->aliases()->updateOrCreate(
+                    ['name' => $alias]
+                );
+            }
         }
 
         // Set a new response data to be sent.
