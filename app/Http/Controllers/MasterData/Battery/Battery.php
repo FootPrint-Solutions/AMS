@@ -403,7 +403,7 @@ class Battery extends Controller
                 "Data imported successfully!"
             );
         } catch (\Exception $e) {
-            return redirect()->back()->getResponseData(
+            return getResponseData(
                 false,
                 "Error importing data: " . $e->getMessage()
             );
