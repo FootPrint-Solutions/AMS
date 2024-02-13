@@ -13,6 +13,7 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
+use Illuminate\Support\Facades\DB;
 
 class Battery extends Controller
 {
@@ -219,8 +220,8 @@ class Battery extends Controller
         $battery->standard_cca = $request->standardcca;
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
-        $battery->price_retail = (float) str_replace(',', '', $request->price);
-        $battery->image = '';
+        $battery->price_retail = (float) str_replace(",", "", $request->price);
+        $battery->image = basename($request->file("image")->store("public/image/battery"));
         $status = $battery->save();
 
         // Store the list of batteries' aliases.
@@ -316,7 +317,7 @@ class Battery extends Controller
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
         $battery->price_retail = $request->price;
-        $battery->image = '';
+        $battery->image = $request->file("image")->store("image/battery");
         $status = $battery->save();
 
         // Update the list of batteries' aliases.
