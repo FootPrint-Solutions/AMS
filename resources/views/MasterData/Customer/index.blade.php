@@ -16,14 +16,6 @@
             cursor: pointer;
             border-radius: 5px;
         }
-
-        .dataTables_filter {
-            margin-top: -30px
-        }
-
-        .dataTables_length {
-            margin-right: 5px;
-        }
     </style>
     {{-- Form --}}
     <div class="card">
@@ -40,12 +32,6 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="card-title h2">
-                Customer
-                <a type="button" class="btn btn-primary" id="btn-add"><i class="fa fa-plus-circle"
-                        aria-hidden="true"></i> Add
-                    new customer </a>
-            </div> --}}
             <br>
 
             {{-- Table --}}

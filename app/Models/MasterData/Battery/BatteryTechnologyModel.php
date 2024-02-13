@@ -16,4 +16,8 @@ class BatteryTechnologyModel extends Model
      * @var string
      */
     protected $table = 'battery_technology';
+
+    protected $fillable = [
+        'name',
+    ];
 }

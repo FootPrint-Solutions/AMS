@@ -43,6 +43,15 @@
 
     {{-- jQuery --}}
     <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
+    <style>
+        .dataTables_filter {
+            margin-top: -30px
+        }
+
+        .dataTables_length {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 
 <body>
