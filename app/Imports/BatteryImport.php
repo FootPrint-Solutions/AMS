@@ -20,7 +20,7 @@ class BatteryImport implements ToModel, WithStartRow
      */
     public function startRow(): int
     {
-        return 3;
+        return 4;
     }
 
     /**

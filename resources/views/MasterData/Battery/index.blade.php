@@ -23,12 +23,12 @@
             <form id="form-import" method="POST" enctype="multipart/form-data" class="mb-3">
                 @csrf
                 <div class="row align-items-center">
-                    <div class="col-6">
+                    <div class="col-8">
                         <div class="input-group">
                             <input type="file" name="file" class="form-control form-control-sm">
                             <button type="submit" class="btn btn-outline-success btn-sm"><i
                                     class="fa-solid fa-file-import"></i> Import Battery Data</button>
-                            <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}" type="submit"
+                            <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
                                 Download Sample Import Data</a>
                         </div>
@@ -188,9 +188,11 @@
                         if (responseData.status) {
                             // Company profile update was succeeded.
                             showSuccessToast(responseData.message);
+                            $("#form-import")[0].reset();
                         } else {
                             // Company profile update was failed.
                             showErrorToast(responseData.message);
+                            $("#form-import")[0].reset();
                         }
 
                         // Reload table with updated rows.
