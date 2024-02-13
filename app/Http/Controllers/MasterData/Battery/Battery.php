@@ -13,8 +13,6 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
-use Illuminate\Support\Facades\DB;
-
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
@@ -87,7 +85,6 @@ class Battery extends Controller
                 $this->submenu,
                 array(
                     'profile' => $batteryProfile->toArray(),
-                    'aliases' => $batteryProfile->aliases()->get()->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -184,6 +181,7 @@ class Battery extends Controller
     {
         $battery = new BatteryModel();
         $battery->name = $request->name;
+        $battery->name_alternate = $request->altname;
 
         // Check if the brand is newly added or not.
         if ($request->brand === "new") {
@@ -260,15 +258,6 @@ class Battery extends Controller
 
         $status = $battery->save();
 
-        // Store the list of batteries' aliases.
-        if ($request->altname !== null) {
-            foreach ($request->altname as $alias) {
-                $battery->aliases()->create([
-                    "name" => $alias
-                ]);
-            }
-        }
-
         // Set a new response data to be sent.
         return getResponseData(
             $status,
@@ -287,6 +276,7 @@ class Battery extends Controller
     {
         $battery = BatteryModel::find($request->id);
         $battery->name = $request->name;
+        $battery->name_alternate = $request->altname;
 
         // Check if the brand is newly added or not.
         if ($request->brand === "new") {
@@ -362,15 +352,6 @@ class Battery extends Controller
         }
         $status = $battery->save();
 
-        // Update the list of batteries' aliases.
-        if ($request->altname !== null) {
-            foreach ($request->altname as $alias) {
-                $battery->aliases()->updateOrCreate(
-                    ['name' => $alias]
-                );
-            }
-        }
-
         // Set a new response data to be sent.
         return getResponseData(
             $status,
@@ -387,9 +368,6 @@ class Battery extends Controller
     public function destroy(Request $request)
     {
         $battery = BatteryModel::find($request->id);
-
-        // Delete batteries' aliases.
-        $battery->aliases()->delete();
 
         // Delete customer data in storage.
         $status = $battery->delete();

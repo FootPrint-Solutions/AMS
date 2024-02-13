@@ -16,6 +16,7 @@ class CreateBatteryTable extends Migration
         Schema::create('battery', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->string('name_alternate', 50);
             $table->unsignedBigInteger('id_brand');
             $table->unsignedBigInteger('id_subbrand_category');
             $table->unsignedBigInteger('id_usage_type');

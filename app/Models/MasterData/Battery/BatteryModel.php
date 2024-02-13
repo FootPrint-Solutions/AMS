@@ -75,12 +75,4 @@ class BatteryModel extends Model
     {
         return $this->belongsTo(BatteryTechnologyModel::class, 'id_technology');
     }
-
-    /**
-     * Get all of the battery aliases.
-     */
-    public function aliases(): HasMany
-    {
-        return $this->hasMany(BatteryAlias::class, "id_battery");
-    }
 }
