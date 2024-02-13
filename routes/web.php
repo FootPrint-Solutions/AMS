@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\Dashboard;
 
 // MASTER DATA
-use App\Http\Controllers\MasterData\Company;
+use App\Http\Controllers\MasterData\Company\Company;
 use App\Http\Controllers\MasterData\Customer;
 use App\Http\Controllers\MasterData\Vehicle\Vehicle;
 use App\Http\Controllers\MasterData\Vehicle\VehicleBrand;
@@ -43,8 +43,8 @@ Route::middleware(['auth'])->group(function () {
 
     // MASTER DATA
     // Company
-    Route::get('/company', [Company::class, 'index']);
-    Route::post('/company/update', [Company::class, 'update']);
+    Route::get('/company', [Company::class, 'index'])->name('company.index');
+    Route::post('/company/update', [Company::class, 'update'])->name('company.update');
 
     // Customer
     Route::get('/customer', [Customer::class, 'index']);

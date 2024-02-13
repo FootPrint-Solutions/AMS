@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\MasterData\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,6 +10,10 @@ use App\Models\MasterData\CompanyModel;
 
 class Company extends Controller
 {
+    private $title = "Company";
+    private $menu = 2;
+    private $submenu = 1;
+
     /**
      * Show the form for editing Company profile resource.
      *
@@ -17,22 +21,24 @@ class Company extends Controller
      */
     public function index()
     {
+        // Check whether a company profile has been created or not.
         $company = CompanyModel::firstOrNew();
         if (!$company->exists) {
-            $company->name = '';
-            $company->address = '';
-            $company->contact = '';
-            $company->email = '';
+            $company->name = "";
+            $company->address = "";
+            $company->contact = "";
+            $company->email = "";
             $company->save();
         }
+
         return view(
-            'MasterData/Company/edit',
+            "MasterData.Company.edit",
             getIndexData(
-                'Company',
-                2,
-                1,
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
-                    'company_profile' => CompanyModel::first()->toArray()
+                    "profile" => CompanyModel::first()->toArray()
                 )
             )
         );
@@ -66,17 +72,9 @@ class Company extends Controller
         }
 
         // Set a new response data to be sent.
-        if ($status) {
-            // The updating or inserting process is succeeded.
-            $message = 'Company profile was successfully updated!';
-        } else {
-            // The updating or inserting process is failed.
-            $message = 'Failed to update company profile!';
-        }
-
-        return json_encode([
-            'status' => $status,
-            'message' => $message
-        ]);
+        return getResponseData(
+            $status,
+            $status ? "Company profile was successfully updated!" : "Failed to update company profile!"
+        );
     }
 }
