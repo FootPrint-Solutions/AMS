@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\MasterData\CompanyModel;
+use App\Models\MasterData\Company\CompanyModel;
 
 class Company extends Controller
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\MasterData;
+namespace App\Models\MasterData\Customer;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
