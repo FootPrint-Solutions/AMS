@@ -288,19 +288,21 @@
             <label for="image" class="mb-1">Image</label>
             <div class="form-group students-up-files">
                 <div class="d-inline-flex align-items-start">
-                    <div class="uplod mx-2">
+                    <div class="uplod mx-1">
                         <label class="btn btn-secondary file-upload ">
                             Choose File <input type="file" id="image" name="image">
                         </label>
                     </div>
 
-                    @isset($data["profile"])
-                        @empty($data["profile"]["image"])
+                    <div class="mx-1">
+                        @isset($data["profile"])
+                            @empty($data["profile"]["image"])
                             No image has been uploaded for this battery.
-                        @else
+                            @else
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#image-modal">Preview Image</button>
-                        @endempty
-                    @endisset
+                            @endempty
+                        @endisset
+                    </div>
                 </div>
             </div>
 
@@ -341,7 +343,7 @@
 
             {{-- Body --}}
             <div class="modal-body">
-                <img src="{{ asset("storage/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
+                <img src="{{ asset("storage/image/battery/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
             </div>
         </div>
     </div>

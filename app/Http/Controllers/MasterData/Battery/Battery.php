@@ -348,7 +348,7 @@ class Battery extends Controller
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
         $battery->price_retail = $request->price;
-        $battery->image = $request->file("image")->store("image/battery");
+        $battery->image = basename($request->file("image")->store("public/image/battery"));
         $status = $battery->save();
 
         // Update the list of batteries' aliases.
