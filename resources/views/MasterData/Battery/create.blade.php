@@ -332,22 +332,24 @@
 </div>
 
 {{-- Image Preview Modal --}}
-<div id="image-modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            {{-- Header --}}
-            <div class="modal-header">
-                <h4 class="modal-title" id="standard-modalLabel">Image Preview</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            {{-- Body --}}
-            <div class="modal-body">
-                <img src="{{ asset("storage/image/battery/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
+@isset($data["profile"])
+    <div id="image-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{-- Header --}}
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Image Preview</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                {{-- Body --}}
+                <div class="modal-body">
+                    <img src="{{ asset("storage/image/battery/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endisset
 
 <script>
     $(document).ready(function() {
