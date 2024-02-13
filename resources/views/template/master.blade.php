@@ -147,6 +147,28 @@
             tapToDismiss: !1,
         });
     }
+
+    /**
+     * Format price input field and displays an error warning message.
+     *
+     * @param {jQuery} inputField - The jQuery input price field object.
+     * @param {jQuery|null} warning - (Optional) The jQuery warning message object.
+     */
+    function formatPrice(inputField, warning = null) {
+        let n = parseInt(inputField.val().replace(/\D/g,''),10);
+        
+        if (!isNaN(n)) {
+            if (warning !== null) {
+                warning.hide();
+            }
+            inputField.val(n.toLocaleString());
+        } else {
+            if (warning !== null) {
+                warning.show();
+            }
+            inputField.val("");
+        }
+    }
 </script>
 
 </html>

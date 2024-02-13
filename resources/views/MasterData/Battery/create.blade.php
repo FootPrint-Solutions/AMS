@@ -287,19 +287,17 @@
             {{-- Image --}}
             <label for="image" class="mb-1">Image</label>
             <div class="form-group students-up-files">
-                <div class="d-inline-flex align-items-start">
-                    <div class="uplod mx-1">
-                        <label class="btn btn-secondary file-upload ">
-                            Choose File <input type="file" id="image" name="image">
-                        </label>
+                <div class="d-inline-flex align-items-center">
+                    <div class="mx-1">
+                        <input type="file" id="image" name="image">
                     </div>
 
                     <div class="mx-1">
                         @isset($data["profile"])
                             @empty($data["profile"]["image"])
-                            No image has been uploaded for this battery.
+                                No image has been uploaded for this battery.
                             @else
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#image-modal">Preview Image</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#image-modal">Preview Image</button>
                             @endempty
                         @endisset
                     </div>
@@ -353,6 +351,8 @@
 
 <script>
     $(document).ready(function() {
+        formatPrice($("#price"), $("#price-warning-number"));
+
         $('#altname').select2({
             placeholder: "Enter battery alternative names (separated by comma)",
             tags: true,
@@ -432,15 +432,7 @@
         });
 
         $('#price').on("keyup", function() {
-            let n = parseInt($(this).val().replace(/\D/g,''),10);
-            
-            if (!isNaN(n)) {
-                $("#price-warning-number").hide();
-                $(this).val(n.toLocaleString());
-            } else {
-                $("#price-warning-number").show();
-                $(this).val("");
-            }
+            formatPrice($("#price"), $("#price-warning-number"));
         });
 
         $("#battery-form").on("submit", function(event) {
