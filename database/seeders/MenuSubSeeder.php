@@ -21,11 +21,14 @@ class MenuSubSeeder extends Seeder
 
         // Insert menu data to menu table.
         DB::table('menu_sub')->insert([
+            // VEHICLE
             ['name' => 'Brand', 'id_menu' => 3, 'order' => 1, 'url' => '/vehicle/brand', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
+            // BATTERY
             ['name' => 'Brand', 'id_menu' => 4, 'order' => 1, 'url' => '/battery/brand', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Subbrand Category', 'id_menu' => 4, 'order' => 2, 'url' => '/battery/subbrand', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Usage Type', 'id_menu' => 4, 'order' => 3, 'url' => '/battery/usage', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Technology', 'id_menu' => 4, 'order' => 4, 'url' => '/battery/technology', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Size Category', 'id_menu' => 4, 'order' => 5, 'url' => '/battery/size', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

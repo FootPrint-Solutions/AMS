@@ -16,4 +16,8 @@ class BatteryUsageTypeModel extends Model
      * @var string
      */
     protected $table = 'battery_usage_type';
+
+    protected $fillable = [
+        'name',
+    ];
 }

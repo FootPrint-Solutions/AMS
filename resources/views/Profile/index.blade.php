@@ -157,17 +157,18 @@
                         url: "/delete-session-whatsapp",
                         type: 'GET',
                         success: function(data) {
-                            if (data.status == true) {
+                            let ResponseData = JSON.parse(data);
+                            if (ResponseData.status) {
                                 swal.fire({
                                     title: "Success",
-                                    text: "Session deleted successfully",
+                                    text: ResponseData.message,
                                     icon: "success",
                                 });
                                 location.reload();
                             } else {
                                 swal.fire({
                                     title: "Error",
-                                    text: data.message ||
+                                    text: ResponseData.message ||
                                         "Something went wrong, please try again later",
                                     icon: "error",
                                 });

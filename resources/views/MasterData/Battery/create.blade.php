@@ -35,8 +35,12 @@
                 {{-- Alternate Names --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="altname">Alternate Names</label>
-                        <input type="text" class="form-control" id="altname" name="altname" placeholder="Enter battery alternate names">
+                        <label for="altname">Alternate Names <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="altname" name="altname" placeholder="Enter battery alternate name" required
+                        @if (isset($data['profile']))
+                            value="{{ $data['profile']['name_alternate'] }}"
+                        @endif
+                        >
                     </div>
                 </div>
             </div>
@@ -91,7 +95,7 @@
                 </div>
             </div>
 
-            {{-- Usage Type & Technology --}}
+            {{-- Usage Type, Technology & Size Category --}}
             <div class="row">
                 {{-- Usage Type --}}
                 <div class="col">
@@ -120,9 +124,23 @@
                         </select>
                     </div>
                 </div>
+
+                {{-- Size Category --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="size">Size Category <span class="login-danger">*</span></label>
+                        <select class="form-control" id="size" name="size">
+                            <option></option>
+                            @foreach ($data['sizes'] as $size)
+                                <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['id_size_category'] == $size['id']) selected @endif>{{ $size['name'] }}</option>
+                            @endforeach
+                            <option value="new">Quick add new size category&hellip;</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            {{-- Quick Add New Brand & Subbrand Category --}}
+            {{-- Quick Add New Brand, Subbrand Category & Size Category --}}
             <div class="row">
                 {{-- New Usage Type --}}
                 <div class="col">
@@ -137,6 +155,14 @@
                     <div id="technology-new-group" class="form-group local-forms" style="display: none;">
                         <label for="technology-new">New Technology <span class="login-danger">*</span></label>
                         <input type="text" class="form-control" id="technology-new" name="newtechnology" placeholder="Enter new battery technology">
+                    </div>
+                </div>
+
+                {{-- Size Category --}}
+                <div class="col">
+                    <div id="size-new-group" class="form-group local-forms" style="display: none;">
+                        <label for="size-new">New Size Category <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="size-new" name="newsize" placeholder="Enter new size category">
                     </div>
                 </div>
             </div>
@@ -257,21 +283,29 @@
             </div>
             
             {{-- Image --}}
+            <label for="image" class="mb-1">Image</label>
             <div class="form-group students-up-files">
-                <label for="image">Upload Image</label>
-                <div class="uplod">
-                    <label class="file-upload image-upbtn mb-0">
-                        Choose File <input type="file" id="image" name="image">
-                    </label>
+                <div class="d-inline-flex align-items-center">
+                    <div class="mx-1">
+                        <input type="file" id="image" name="image">
+                    </div>
+
+                    <div class="mx-1">
+                        @isset($data["profile"])
+                            @empty($data["profile"]["image"])
+                                No image has been uploaded for this battery.
+                            @else
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#image-modal">Preview Image</button>
+                            @endempty
+                        @endisset
+                    </div>
                 </div>
             </div>
 
             {{-- Hidden Inputs --}}
-            <input type="hidden" id="id" name="id"
-            @if (isset($data['profile']))
-                value="{{ $data['profile']['id'] }}"
-            @endif
-            >
+            @isset($data["profile"])
+                <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+            @endisset
 
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
@@ -293,8 +327,30 @@
     </div>
 </div>
 
+{{-- Image Preview Modal --}}
+@isset($data["profile"])
+    <div id="image-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{-- Header --}}
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Image Preview</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                {{-- Body --}}
+                <div class="modal-body">
+                    <img src="{{ asset("storage/image/battery/" . $data["profile"]["image"]) }}" alt="Battery Image" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+@endisset
+
 <script>
     $(document).ready(function() {
+        formatPrice($("#price"), $("#price-warning-number"));
+
         $('#brand').select2({
             placeholder: "Enter battery brand"
         });
@@ -352,16 +408,22 @@
             }
         });
 
-        $('#price').on("keyup", function() {
-            let n = parseInt($(this).val().replace(/\D/g,''),10);
-            
-            if (!isNaN(n)) {
-                $("#price-warning-number").hide();
-                $(this).val(n.toLocaleString());
+        $('#size').select2({
+            placeholder: "Enter battery size category"
+        });
+
+        $("#size").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $("#size-new-group").show();
+                $("#size-new-group").attr("required", true);
             } else {
-                $("#price-warning-number").show();
-                $(this).val("");
+                $("#size-new-group").hide();
+                $("#size-new-group").attr("required", false);
             }
+        });
+
+        $('#price').on("keyup", function() {
+            formatPrice($("#price"), $("#price-warning-number"));
         });
 
         $("#battery-form").on("submit", function(event) {

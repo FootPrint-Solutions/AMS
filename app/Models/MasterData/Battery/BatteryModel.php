@@ -19,6 +19,23 @@ class BatteryModel extends Model
      */
     protected $table = 'battery';
 
+    protected $fillable = [
+        'id',
+        'name',
+        'id_brand',
+        'id_subbrand_category',
+        'id_usage_type',
+        'id_size_category',
+        'id_technology',
+        'dimension_length',
+        'dimension_width',
+        'dimension_height',
+        'standard_cca',
+        'capacity',
+        'warranty',
+        'price_retail',
+    ];
+
     /**
      * Get battery brand.
      */
@@ -57,14 +74,5 @@ class BatteryModel extends Model
     public function technology(): BelongsTo
     {
         return $this->belongsTo(BatteryTechnologyModel::class, 'id_technology');
-    }
-
-    /**
-     * Get all of the battery aliases.
-     */
-    public function aliases(): HasMany
-    {
-        return $this->hasMany(BatteryAlias::class, "id_battery")
-            ->withTimestamps();
     }
 }

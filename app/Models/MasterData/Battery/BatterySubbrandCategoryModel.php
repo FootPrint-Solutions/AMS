@@ -16,4 +16,8 @@ class BatterySubbrandCategoryModel extends Model
      * @var string
      */
     protected $table = 'battery_subbrand_category';
+
+    protected $fillable = [
+        'name',
+    ];
 }

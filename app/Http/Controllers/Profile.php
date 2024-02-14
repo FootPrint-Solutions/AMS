@@ -10,13 +10,17 @@ class Profile extends Controller
 {
     public function index()
     {
-        $response = Http::get('http://172.104.32.122:5001/start-session-json', [
-            'session' => auth()->user()->username,
-            'scan' => 'true',
-        ]);
-        if (isset($response['data']['qr']) && $response['data']['qr'] != null) {
-            $QrCode = $response['data']['qr'];
-        } else {
+        try {
+            $response = Http::get('http://172.104.32.164:5001/start-session-json', [
+                'session' => auth()->user()->username,
+                'scan' => 'true',
+            ]);
+            if (isset($response['data']['qr']) && $response['data']['qr'] != null) {
+                $QrCode = $response['data']['qr'];
+            } else {
+                $QrCode = "";
+            }
+        } catch (\Throwable $th) {
             $QrCode = "";
         }
 
@@ -35,20 +39,18 @@ class Profile extends Controller
 
     public function deleteSessionWhatsapp()
     {
-        $response = Http::get('http://172.104.32.122:5001/delete-session', [
-            'session' => auth()->user()->username,
-        ]);
+        try {
+            $response = Http::get('http://172.104.32.164:5001/delete-session', [
+                'session' => auth()->user()->username,
+            ]);
 
-        if (isset($response['message'])) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Session deleted successfully'
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to delete session'
-            ]);
+            if (isset($response['message'])) {
+                return getResponseData(true, "Session deleted successfully");
+            } else {
+                return getResponseData(false, "Failed to delete session");
+            }
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to delete session => " . $th->getMessage());
         }
     }
 }

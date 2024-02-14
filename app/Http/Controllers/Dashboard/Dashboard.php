@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
-use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\MasterData\CustomerModel;
-use App\Models\MasterData\VehicleModel;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-use App\Models\Menu;
-use App\Models\MenuParent;
+// Models
+use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class Dashboard extends Controller
 {
@@ -20,8 +19,6 @@ class Dashboard extends Controller
      */
     public function index()
     {
-        $menu = MenuParent::with(["menus", "menuSubs"])->get()->toArray();
-        session(['menu' => $menu]);
         return view('Dashboard.index',   getIndexData(
             'Dashboard',
             1,

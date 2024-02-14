@@ -6,10 +6,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Models
+use App\Models\MenuParent;
+use App\Models\Menu;
+
 class Authentication extends Controller
 {
     public function index()
     {
+        // Set menu session.
+        session([
+            'menu' => MenuParent::with("menus")->get()->toArray(),
+            'submenu' => Menu::with('menuSubs')->get()->mapWithKeys(function ($menu) {
+                return [$menu->id => $menu->menuSubs->toArray()];
+            })->toArray()
+        ]);
+
         return view(
             'Auth.login',
             getIndexData(
