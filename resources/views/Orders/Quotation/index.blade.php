@@ -51,10 +51,18 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="#product-display" class="nav-link" data-toggle="tab">
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Company Document">
+                                        <i class="fa-solid fa-boxes-stacked"></i>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="#company-document" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="Company Document">
-                                        <i class="fas fa-map-pin"></i>
+                                        <i class="fas fa-file-invoice"></i>
                                     </div>
                                 </a>
                             </li>
@@ -121,8 +129,8 @@
                                                         class="login-danger">*</span></label>
                                                 <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
                                                     class="form-select" aria-label="Default select example">
-                                                    @foreach ($data['VehicleBrandModel'] as $vehicle)
-                                                        <option value="{{ $vehicle['name'] }}">{{ $vehicle['name'] }}
+                                                    @foreach ($data['Vehicle'] as $vehicle)
+                                                        <option value="{{ $vehicle['id'] }}">{{ $vehicle['name'] }}
                                                         </option>
                                                     @endforeach
 
@@ -169,6 +177,179 @@
                                                 class="fa-brands fa-whatsapp"></i></button>
                                         <a href="javascript: void(0);" class="btn btn-primary seller-next-btn"> Next <i
                                                 class="bx bx-chevron-right ms-1"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- tab pane -->
+                            <div class="tab-pane" id="product-display">
+                                <div>
+                                    <div class="mb-4">
+                                        <h5>Enter Your Order Detail</h5>
+                                    </div>
+
+                                    <div class="row">
+
+                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
+                                            <div class="blog grid-blog flex-fill">
+                                                <div class="blog-image">
+                                                    <a href="blog-details.html">
+                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
+                                                            alt="Post Image">
+                                                    </a>
+                                                    {{-- <div class="blog-views">
+                                                        <i class="feather-eye me-1"></i> 225
+                                                    </div> --}}
+                                                </div>
+                                                <div class="blog-content">
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    </h3>
+                                                    <p>Details & Specification :</p>
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item">Alt Name : UPS</li>
+                                                        <li class="list-group-item">Brand : AMARON</li>
+                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                            Battery </li>
+                                                        <li class="list-group-item">Warranty : 12 Months</li>
+                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Price : Rp. 475.000</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="edit-options">
+                                                        <div class="edit-delete-btn">
+                                                            <a href="edit-blog.html" class="text-success"><i
+                                                                    class="feather-edit-3 me-1"></i> Edit</a>
+                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal"><i
+                                                                    class="feather-trash-2 me-1"></i> Delete</a>
+                                                        </div>
+                                                        <div class="text-end inactive-style mt-3">
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    Customer
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
+                                            <div class="blog grid-blog flex-fill">
+                                                <div class="blog-image">
+                                                    <a href="blog-details.html">
+                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
+                                                            alt="Post Image">
+                                                    </a>
+                                                    {{-- <div class="blog-views">
+                                                        <i class="feather-eye me-1"></i> 225
+                                                    </div> --}}
+                                                </div>
+                                                <div class="blog-content">
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    </h3>
+                                                    <p>Details & Specification :</p>
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item">Alt Name : UPS</li>
+                                                        <li class="list-group-item">Brand : AMARON</li>
+                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                            Battery </li>
+                                                        <li class="list-group-item">Warranty : 12 Months</li>
+                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Price : Rp. 475.000</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="edit-options">
+                                                        <div class="edit-delete-btn">
+                                                            <a href="edit-blog.html" class="text-success"><i
+                                                                    class="feather-edit-3 me-1"></i> Edit</a>
+                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal"><i
+                                                                    class="feather-trash-2 me-1"></i> Delete</a>
+                                                        </div>
+                                                        <div class="text-end inactive-style mt-3">
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    Customer
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
+                                            <div class="blog grid-blog flex-fill">
+                                                <div class="blog-image">
+                                                    <a href="blog-details.html">
+                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
+                                                            alt="Post Image">
+                                                    </a>
+                                                    {{-- <div class="blog-views">
+                                                        <i class="feather-eye me-1"></i> 225
+                                                    </div> --}}
+                                                </div>
+                                                <div class="blog-content">
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    </h3>
+                                                    <p>Details & Specification :</p>
+                                                    <ul class="list-group list-group-flush list-group-sm">
+                                                        <li class="list-group-item">Alt Name : UPS</li>
+                                                        <li class="list-group-item">Brand : AMARON</li>
+                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                            Battery </li>
+                                                        <li class="list-group-item">Warranty : 12 Months</li>
+                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Price : Rp. 475.000</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="edit-options">
+                                                        <div class="edit-delete-btn">
+                                                            <a href="edit-blog.html" class="text-success"><i
+                                                                    class="feather-edit-3 me-1"></i> Edit</a>
+                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal"><i
+                                                                    class="feather-trash-2 me-1"></i> Delete</a>
+                                                        </div>
+                                                        <div class="text-end inactive-style mt-3">
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    Customer
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                                                    class="bx bx-chevron-left me-1"></i> Previous</a>
+                                        </div>
+
+                                        <div class="col text-end">
+                                            <a href="javascript: void(0);" class="btn btn-success"> Share <i
+                                                    class="fa-brands fa-whatsapp"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-primary seller-next-btn">Next <i
+                                                    class="bx bx-chevron-right ms-1"></i></a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

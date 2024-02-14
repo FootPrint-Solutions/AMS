@@ -8,8 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 // MODELS
-use App\Models\MasterData\CustomerModel;
+use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class Quotation extends Controller
 {
@@ -22,7 +23,7 @@ class Quotation extends Controller
                 3,
                 5,
                 array(
-                    'VehicleBrandModel' => VehicleBrandModel::all()->toArray()
+                    'Vehicle' => VehicleModel::all()->toArray()
                 )
             )
         );
