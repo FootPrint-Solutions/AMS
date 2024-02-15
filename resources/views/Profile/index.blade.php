@@ -112,18 +112,20 @@
                             <h5 class="card-title">Change Password</h5>
                             <div class="row">
                                 <div class="col-md-10 col-lg-6">
-                                    <form>
+                                    <form id="form-password">
+                                        @csrf
+
                                         <div class="form-group">
                                             <label>Old Password</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" name="oldpass" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label>New Password</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" name="newpass" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label>Confirm Password</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" name="newpassrecheck" class="form-control">
                                         </div>
                                         <button class="btn btn-primary" type="submit">Save Changes</button>
                                     </form>
@@ -188,6 +190,36 @@
                         text: "Your session is safe",
                         icon: "error",
                     });
+                }
+            });
+        });
+
+        $("#form-password").on("submit", function(event) {
+            event.preventDefault();
+
+            // Get form data.
+            let formData = new FormData($(this)[0]);
+            
+            // Send form data to Vehicle controller using AJAX.
+            $.ajax({
+                url: '/profile/password/change',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    // Get response data (in JSON).
+                    let responseData = JSON.parse(response);
+
+                    // Check response data status.
+                    // Status indicates the success status of vehicle creating porcess.
+                    if (responseData.status) {
+                        // Creating or updating process was succeeded.
+                        showSuccessToast(responseData.message);
+                    } else {
+                        // Creating or updating process was failed.
+                        showErrorToast(responseData.message);
+                    }
                 }
             });
         });
