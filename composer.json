@@ -15,6 +15,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
+        "opcodesio/log-viewer": "^3.4",
         "yajra/laravel-datatables-oracle": "^9.0"
     },
     "require-dev": {
