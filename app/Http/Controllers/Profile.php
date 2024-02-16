@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 
 // MODELS
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class Profile extends Controller
 {
@@ -69,16 +71,25 @@ class Profile extends Controller
     {
         $user = User::where("username", auth()->user()->username)->first();
 
-        if (Hash::check($request->oldpass, $user->password)) {
-            $user->password = Hash::make($request->newpass);
-            $status = $user->save();
+        // Check if the current password entered is correct.
+        if (Hash::check($request->currentpass, $user->password)) {
+            // Check if the confirm password is the same as the new password.
+            if ($request->newpass === $request->newpassconfirm) {
+                $user->password = Hash::make($request->newpass);
+                $status = $user->save();
 
-            // Automatically log user out after successfully changing the password.
-            if ($status) {
-                return redirect("/logout");
+                // Automatically log user out after successfully changing the password.
+                if ($status) {
+                    Auth::logout();
+                    return getResponseData(1, "The password has successfully been changed.");
+                }
+            } else {
+                // Set a new error response data to be sent.
+                return getResponseData(0, "Enter the same new password you entered to confirm.");
             }
         } else {
-            return redirect('/profile');
+            // Set a new error response data to be sent.
+            return getResponseData(0, "The current password you entered is wrong.");
         }
     }
 }
