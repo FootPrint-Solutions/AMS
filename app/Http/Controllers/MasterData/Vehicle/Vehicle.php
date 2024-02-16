@@ -15,6 +15,7 @@ use App\Imports\VehicleImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 use function PHPUnit\Framework\isNull;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Vehicle extends Controller
 {
@@ -261,10 +262,14 @@ class Vehicle extends Controller
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
 
-        $file = $request->file('file');
-        $import = new VehicleImport();
+        // $file = $request->file('file');
+        // $import = new VehicleImport();   
+        $path1 = $request->file('file')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
+        // $data = Excel::import(new VehicleImport, $path);
         try {
-            Excel::import($import, $file->getRealPath());
+            Excel::import(new VehicleImport, $path);
+            // Excel::import($import, $file->getRealPath());
             return getResponseData(
                 true,
                 "Data imported successfully!"
