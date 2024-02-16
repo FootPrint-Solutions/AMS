@@ -261,15 +261,10 @@ class Vehicle extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
-
-        // $file = $request->file('file');
-        // $import = new VehicleImport();   
         $path1 = $request->file('file')->store('temp');
         $path = storage_path('app') . '/' . $path1;
-        // $data = Excel::import(new VehicleImport, $path);
         try {
             Excel::import(new VehicleImport, $path);
-            // Excel::import($import, $file->getRealPath());
             return getResponseData(
                 true,
                 "Data imported successfully!"
