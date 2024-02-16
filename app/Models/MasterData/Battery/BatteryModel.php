@@ -34,6 +34,7 @@ class BatteryModel extends Model
         'capacity',
         'warranty',
         'price_retail',
+        'name_alternate'
     ];
 
     /**
