@@ -62,12 +62,33 @@ class Profile extends Controller
     }
 
     /**
-     * Update the specified Vehicle resource in storage.
+     * Update the specified User resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
+    {
+        // Update the user personal details.
+        $user = User::where("username", auth()->user()->username)->first();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $status = $user->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "Your personal details was successfully updated!" : "Failed to update your personal details!"
+        );
+    }
+
+    /**
+     * Update the user password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(Request $request)
     {
         $user = User::where("username", auth()->user()->username)->first();
 

@@ -137,7 +137,8 @@ Route::middleware(['auth'])->group(function () {
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
-    Route::post('/profile/password/change', [Profile::class, 'update']);
+    Route::post('/profile/update', [Profile::class, 'update']);
+    Route::post('/profile/password/update', [Profile::class, 'updatePassword']);
     Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp']);
 
     // Logout
