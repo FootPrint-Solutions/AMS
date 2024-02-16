@@ -48,6 +48,7 @@ class BatteryImport implements ToModel, WithStartRow
 
         $Battery = BatteryModel::create([
             'name' => $row[0],
+            'name_alternate' => $row[1] ?? '',
             'id_brand' => $brand->id,
             'id_subbrand_category' => $SubbrandCategory->id,
             'id_usage_type' => $usageType->id,
@@ -60,6 +61,7 @@ class BatteryImport implements ToModel, WithStartRow
             'capacity' => $capacity,
             'warranty' => $warranty ?? 0,
             'price_retail' => $priceRetail,
+            'image' => ''
         ]);
 
         return $Battery;
