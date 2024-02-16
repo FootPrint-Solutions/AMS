@@ -384,11 +384,10 @@ class Battery extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
-
-        $file = $request->file('file');
-        $import = new BatteryImport();
+        $path1 = $request->file('file')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
         try {
-            Excel::import($import, $file->getRealPath());
+            Excel::import(new BatteryImport, $path);
             return getResponseData(
                 true,
                 "Data imported successfully!"
