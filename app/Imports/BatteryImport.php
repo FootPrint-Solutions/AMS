@@ -31,9 +31,9 @@ class BatteryImport implements ToModel, WithStartRow
     public function model(array $row)
     {
 
-        if (!$this->validateRow($row)) {
-            return null;
-        }
+        // if (!$this->validateRow($row)) {
+        //     return null;
+        // }
 
         $brand = BatteryBrandModel::firstOrCreate(['name' => $row[2]]);
         $sizeCategory = BatterySizeCategoryModel::firstOrCreate(['name' => $row[6]]);
@@ -61,7 +61,6 @@ class BatteryImport implements ToModel, WithStartRow
             'capacity' => $capacity,
             'warranty' => $warranty ?? 0,
             'price_retail' => $priceRetail,
-            'image' => ''
         ]);
 
         return $Battery;
