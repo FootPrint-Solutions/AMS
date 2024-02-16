@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-primary" type="submit">Update Password</button>
+                    <button class="btn btn-success" type="submit">Update Password</button>
                 </div>
             </form>
         </div>
@@ -50,7 +50,7 @@
         
         // Send form data to Vehicle controller using AJAX.
         $.ajax({
-            url: "/profile/password/change",
+            url: "/profile/password/update",
             method: "POST",
             data: formData,
             processData: false,
