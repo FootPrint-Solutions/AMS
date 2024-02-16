@@ -83,7 +83,7 @@
      * Status indicating whether the page is in editing process or not.
      * 0 : view mode, 1 : editing mode
      */
-    let editStatus = 0;
+    var editStatus = 0;
 
     $("#btn-edit").on("click", function() {
         if (editStatus == 0) {
