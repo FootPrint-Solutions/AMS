@@ -93,7 +93,7 @@
             $(".currents").hide();
 
             // Change the value of the button.
-            $(this).html("<i class='far fa-chevron-left me-1'></i> Back");
+            $(this).html("<i class='fa fa-chevron-left me-1'></i> Back");
 
             // Toggle editStatus to 1.
             editStatus = 1;
