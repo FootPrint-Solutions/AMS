@@ -143,6 +143,25 @@ Route::middleware(['auth'])->group(function () {
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
+
+    Route::get('/sse', function () {
+        // Set header untuk SSE
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+
+        // Kirim data SSE setiap detik
+        $counter = 0;
+        while (true) {
+            echo "data: Server time: " . now()->format('H:i:s') . "\n\n";
+            flush(); // Pastikan untuk mengirimkan buffer ke browser
+            sleep(1); // Tunggu 1 detik sebelum mengirimkan pembaruan berikutnya
+            $counter++;
+
+            // Jika Anda ingin membatasi jumlah pembaruan, Anda bisa menambahkan kondisi di sini
+            // Contoh: if ($counter >= 10) { break; }
+        }
+    });
 });
 
 // Auth
