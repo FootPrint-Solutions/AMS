@@ -18,6 +18,7 @@ class BatteryTechnologyModel extends Model
     protected $table = 'battery_technology';
 
     protected $fillable = [
+        'id',
         'name',
     ];
 }

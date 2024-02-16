@@ -18,6 +18,7 @@ class BatterySubbrandCategoryModel extends Model
     protected $table = 'battery_subbrand_category';
 
     protected $fillable = [
+        'id',
         'name',
     ];
 }
