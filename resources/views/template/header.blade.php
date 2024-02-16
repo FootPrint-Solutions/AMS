@@ -51,8 +51,11 @@
                             <a href="#">
                                 <div class="media d-flex">
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-02.jpg') }}">
+                                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                                        @else
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                                        @endif
                                     </span>
                                     <div class="media-body flex-grow-1">
                                         <p class="noti-details"><span class="noti-title">Carlson Tech</span> has
@@ -66,8 +69,11 @@
                             <a href="#">
                                 <div class="media d-flex">
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-11.jpg') }}">
+                                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                                        @else
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                                        @endif
                                     </span>
                                     <div class="media-body flex-grow-1">
                                         <p class="noti-details"><span class="noti-title">International Software
@@ -82,8 +88,11 @@
                             <a href="#">
                                 <div class="media d-flex">
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-17.jpg') }}">
+                                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                                        @else
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                                        @endif
                                     </span>
                                     <div class="media-body flex-grow-1">
                                         <p class="noti-details"><span class="noti-title">John Hendry</span> sent a
@@ -97,8 +106,11 @@
                             <a href="#">
                                 <div class="media d-flex">
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-13.jpg') }}">
+                                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                                        @else
+                                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                                        @endif
                                     </span>
                                     <div class="media-body flex-grow-1">
                                         <p class="noti-details"><span class="noti-title">Mercury Software Inc</span>
@@ -126,8 +138,12 @@
         <li class="nav-item dropdown has-arrow new-user-menus">
             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
                 <div class="user-img">
-                    <img class="rounded-circle" src="{{ asset('/img/profiles/avatar-01.jpg') }}" width="31"
-                        alt="Ryan Taylor">
+                    @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                        <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                    @else
+                        <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                    @endif
+
                     <div class="user-text">
                         @auth
                             <h6>{{ Auth::user()->name }}</h6>
@@ -139,8 +155,11 @@
             <div class="dropdown-menu">
                 <div class="user-header">
                     <div class="avatar avatar-sm">
-                        <img src="{{ asset('/img/profiles/avatar-01.jpg') }}" alt="User Image"
-                            class="avatar-img rounded-circle">
+                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                        @else
+                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                        @endif
                     </div>
                     <div class="user-text">
                         @auth
