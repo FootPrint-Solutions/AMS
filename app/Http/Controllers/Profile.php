@@ -44,23 +44,6 @@ class Profile extends Controller
         );
     }
 
-    public function deleteSessionWhatsapp()
-    {
-        try {
-            $response = Http::get('http://172.104.32.164:5001/delete-session', [
-                'session' => auth()->user()->username,
-            ]);
-
-            if (isset($response['message'])) {
-                return getResponseData(true, "Session deleted successfully");
-            } else {
-                return getResponseData(false, "Failed to delete session");
-            }
-        } catch (\Throwable $th) {
-            return getResponseData(false, "Failed to delete session => " . $th->getMessage());
-        }
-    }
-
     /**
      * Update the specified User resource in storage.
      *
@@ -83,7 +66,34 @@ class Profile extends Controller
     }
 
     /**
-     * Update the user password.
+     * Update the User profile picture resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfilePicture(Request $request)
+    {
+        $user = User::where("username", auth()->user()->username)->first();
+
+        // Check if an image has been uploaded or not.
+        if ($request->hasFile("image")) {
+            // Set new image value.
+            $user->image = basename($request->file("image")->store("public/image/profile"));
+        } else {
+            // Remove current image value.
+            $user->image = "";
+        }
+        $status = $user->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "Your profile picture was successfully updated!" : "Failed to update your profile picture!"
+        );
+    }
+
+    /**
+     * Update the User password resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -111,6 +121,23 @@ class Profile extends Controller
         } else {
             // Set a new error response data to be sent.
             return getResponseData(0, "The current password you entered is wrong.");
+        }
+    }
+
+    public function deleteSessionWhatsapp()
+    {
+        try {
+            $response = Http::get('http://172.104.32.164:5001/delete-session', [
+                'session' => auth()->user()->username,
+            ]);
+
+            if (isset($response['message'])) {
+                return getResponseData(true, "Session deleted successfully");
+            } else {
+                return getResponseData(false, "Failed to delete session");
+            }
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to delete session => " . $th->getMessage());
         }
     }
 }

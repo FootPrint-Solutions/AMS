@@ -1,7 +1,5 @@
-<!-- Header -->
 <div class="header">
-
-    <!-- Logo -->
+    {{-- Logo --}}
     <div class="header-left">
         <a href="/" class="logo">
             <h1>AMS</h1>
@@ -10,7 +8,6 @@
             <h3>AMS</h3>
         </a>
     </div>
-    <!-- /Logo -->
 
     <div class="menu-toggle">
         <a href="javascript:void(0);" id="toggle_btn">
@@ -18,116 +15,85 @@
         </a>
     </div>
 
-    <!-- Search Bar -->
+    {{-- Search Bar --}}
     <div class="top-nav-search">
         <form>
             <input type="text" class="form-control" placeholder="Search here">
             <button class="btn" type="submit"><i class="fas fa-search"></i></button>
         </form>
     </div>
-    <!-- /Search Bar -->
 
-    <!-- Mobile Menu Toggle -->
+    {{-- Mobile Menu Toggle --}}
     <a class="mobile_btn" id="mobile_btn">
         <i class="fas fa-bars"></i>
     </a>
-    <!-- /Mobile Menu Toggle -->
 
-    <!-- Header Right Menu -->
+    {{-- Right Menu --}}
     <ul class="nav user-menu">
-        <!-- Notifications -->
+        {{-- Notifications --}}
         <li class="nav-item dropdown noti-dropdown me-2">
+            {{-- Notification Logo --}}
             <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
                 <img src="{{ asset('/img/icons/header-icon-05.svg') }}" alt="">
             </a>
+            
+            {{-- Notification Dropdown Menu --}}
             <div class="dropdown-menu notifications">
+                {{-- Header --}}
                 <div class="topnav-dropdown-header">
                     <span class="notification-title">Notifications</span>
                     <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
                 </div>
+
+                {{-- List of Notifications --}}
                 <div class="noti-content">
                     <ul class="notification-list">
                         <li class="notification-message">
                             <a href="#">
                                 <div class="media d-flex">
+                                    {{-- Profile Picture --}}
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-02.jpg') }}">
+                                        <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
                                     </span>
+
+                                    {{-- Info --}}
                                     <div class="media-body flex-grow-1">
-                                        <p class="noti-details"><span class="noti-title">Carlson Tech</span> has
-                                            approved <span class="noti-title">your estimate</span></p>
+                                        <p class="noti-details"><span class="noti-title">Example Notifications</p>
                                         <p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="#">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-11.jpg') }}">
-                                    </span>
-                                    <div class="media-body flex-grow-1">
-                                        <p class="noti-details"><span class="noti-title">International Software
-                                                Inc</span> has sent you a invoice in the amount of <span
-                                                class="noti-title">$218</span></p>
-                                        <p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="#">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-17.jpg') }}">
-                                    </span>
-                                    <div class="media-body flex-grow-1">
-                                        <p class="noti-details"><span class="noti-title">John Hendry</span> sent a
-                                            cancellation request <span class="noti-title">Apple iPhone XR</span></p>
-                                        <p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="#">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" alt="User Image"
-                                            src="{{ asset('/img/profiles/avatar-13.jpg') }}">
-                                    </span>
-                                    <div class="media-body flex-grow-1">
-                                        <p class="noti-details"><span class="noti-title">Mercury Software Inc</span>
-                                            added a new product <span class="noti-title">Apple MacBook Pro</span></p>
-                                        <p class="noti-time"><span class="notification-time">12 mins ago</span></p>
                                     </div>
                                 </div>
                             </a>
                         </li>
                     </ul>
                 </div>
+
+                {{-- Footer --}}
                 <div class="topnav-dropdown-footer">
                     <a href="#">View all Notifications</a>
                 </div>
             </div>
         </li>
-        <!-- /Notifications -->
+        
+        {{-- Zoom --}}
         <li class="nav-item zoom-screen me-2">
             <a href="#" class="nav-link header-nav-list win-maximize">
                 <img src="{{ asset('/img/icons/header-icon-04.svg') }}" alt="">
             </a>
         </li>
 
-        <!-- User Menu -->
+        {{-- User Menu --}}
         <li class="nav-item dropdown has-arrow new-user-menus">
+            {{-- User --}}
             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
                 <div class="user-img">
-                    <img class="rounded-circle" src="{{ asset('/img/profiles/avatar-01.jpg') }}" width="31"
-                        alt="Ryan Taylor">
+                    {{-- Profile Picture --}}
+                    @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                        <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                    @else
+                        <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                    @endif
+
+                    {{-- Name & Role --}}
                     <div class="user-text">
                         @auth
                             <h6>{{ Auth::user()->name }}</h6>
@@ -136,12 +102,19 @@
                     </div>
                 </div>
             </a>
+
+            {{-- User Dropdown Menu --}}
             <div class="dropdown-menu">
+                {{-- Header --}}
                 <div class="user-header">
                     <div class="avatar avatar-sm">
-                        <img src="{{ asset('/img/profiles/avatar-01.jpg') }}" alt="User Image"
-                            class="avatar-img rounded-circle">
+                        @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
+                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                        @else
+                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                        @endif
                     </div>
+                    
                     <div class="user-text">
                         @auth
                             <h6>{{ Auth::user()->name }}</h6>
@@ -149,15 +122,16 @@
                         @endauth
                     </div>
                 </div>
+
+                {{-- Profile --}}
                 <a class="dropdown-item" href="/profile">My Profile</a>
-                {{-- <a class="dropdown-item" href="inbox.html">Inbox</a> --}}
+
+                {{-- Logout --}}
                 <a class="dropdown-item" href="/logout">Logout</a>
             </div>
         </li>
-        <!-- /User Menu -->
 
     </ul>
-    <!-- /Header Right Menu -->
+    {{-- End of Right Menu --}}
 
 </div>
-<!-- /Header -->

@@ -83,7 +83,7 @@
      * Status indicating whether the page is in editing process or not.
      * 0 : view mode, 1 : editing mode
      */
-    let editStatus = 0;
+    var editStatus = 0;
 
     $("#btn-edit").on("click", function() {
         if (editStatus == 0) {
@@ -93,7 +93,7 @@
             $(".currents").hide();
 
             // Change the value of the button.
-            $(this).html("<i class='far fa-chevron-left me-1'></i> Back");
+            $(this).html("<i class='fa fa-chevron-left me-1'></i> Back");
 
             // Toggle editStatus to 1.
             editStatus = 1;

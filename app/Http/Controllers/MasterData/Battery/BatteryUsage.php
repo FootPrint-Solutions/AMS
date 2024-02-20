@@ -74,36 +74,62 @@ class BatteryUsage extends Controller
      * @param  int  $id
      * @return string
      */
-    public function show(Request $request, $id = null)
+    public function show(Request $request)
     {
-        if ($id == null) {
-            $result = BatteryUsageTypeModel::get()->toArray();
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
+        $searchValue = $request->input('search.value');
+        $orderColumn = $request->input('order.0.column');
+        $orderDirection = $request->input('order.0.dir');
+        $orderColumnIndex = $request->input('order.0.column');
 
-            // Set a new array for table rows.
-            $tableRows = array();
-            $number = 1;
-
-            // Iterate through each row in table.
-            foreach ($result as $i) {
-                // Set a new row for the table.
-                $row = array();
-                $row[] = number_format($number, 0); // #
-                $row[] = $i["name"]; // Name
-                $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
-                $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
-                $tableRows[] = $row;
-                $number++;
-            }
-
-            // Save data in array.
-            $output = array(
-                // "draw" => $_POST['draw'],
-                "data" => $tableRows,
-            );
-
-            // Output data in JSON.
-            return json_encode($output);
+        $query = BatteryUsageTypeModel::select('*');
+        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
+        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $selectColumns) {
+                foreach ($selectColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . $searchValue . '%');
+                }
+            });
         }
+
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumnIndex] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        $ListData = $query->orderBy('name', 'asc')
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $no = $start + 1;
+
+        foreach ($ListData as $key) {
+            $row = [];
+            $row[] = $no;
+            $row[] = $key->name;
+            $row[] = $key->id;
+            $data[] = $row;
+            $no++;
+        }
+
+        $recordTotal =  BatteryUsageTypeModel::count();
+        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
+
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $recordTotal,
+            "recordsFiltered" => $recordFiltered,
+            "data" => $data
+        ];
+
+        return response()->json($output);
     }
 
     /**
