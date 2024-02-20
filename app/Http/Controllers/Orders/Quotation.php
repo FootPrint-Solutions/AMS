@@ -38,7 +38,7 @@ class Quotation extends Controller
 
     function shareFormPersonalDetails(Request $request)
     {
-        $url = "http://172.104.32.122:5001/send-message";
+        $url = "http://172.104.32.164:5001/send-message";
         $vehicleCustomer = $request->input('VehicleCustomer');
         $vehicleCustomerString = is_array($vehicleCustomer) ? implode(', ', $vehicleCustomer) : $vehicleCustomer;
 
