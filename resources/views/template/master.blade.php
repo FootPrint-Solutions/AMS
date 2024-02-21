@@ -160,8 +160,8 @@
      * @param {jQuery|null} warning - (Optional) The jQuery warning message object.
      */
     function formatPrice(inputField, warning = null) {
-        let n = parseInt(inputField.val().replace(/\D/g,''),10);
-        
+        let n = parseInt(inputField.val().replace(/\D/g, ''), 10);
+
         if (!isNaN(n)) {
             if (warning !== null) {
                 warning.hide();

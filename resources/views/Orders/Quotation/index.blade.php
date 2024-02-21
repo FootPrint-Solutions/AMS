@@ -21,7 +21,7 @@
         }
 
         #map {
-            height: 400px;
+            height: 280px;
             width: 100%;
             margin-bottom: 20px;
         }

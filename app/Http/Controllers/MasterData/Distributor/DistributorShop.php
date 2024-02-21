@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
@@ -163,6 +164,9 @@ class DistributorShop extends Controller
         $shop->contact = $request->contact;
         $shop->email = $request->email;
         $shop->note = $request->note;
+        $shop->latitude = $request->Latitude;
+        $shop->longitude = $request->Longitude;
+        $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
         $status = $shop->save();
 
         // Set a new response data to be sent.
@@ -189,6 +193,9 @@ class DistributorShop extends Controller
         $shop->contact = $request->contact;
         $shop->email = $request->email;
         $shop->note = $request->note;
+        $shop->latitude = $request->Latitude;
+        $shop->longitude = $request->Longitude;
+        $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
         $status = $shop->save();
 
         // Set a new response data to be sent.

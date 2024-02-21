@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\menu_parent;
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
