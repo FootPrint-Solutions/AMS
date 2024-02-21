@@ -16,12 +16,16 @@ use App\Http\Controllers\MasterData\Battery\BatterySubbrand;
 use App\Http\Controllers\MasterData\Battery\BatteryTechnology;
 use App\Http\Controllers\MasterData\Battery\BatteryUsage;
 use App\Http\Controllers\MasterData\Battery\BatterySize;
+use App\Http\Controllers\MasterData\Distributor\Distributor;
+use App\Http\Controllers\MasterData\Distributor\DistributorShop;
+use App\Http\Controllers\MasterData\Distributor\ShopTechnician;
 
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
+
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -128,6 +132,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/size/store', [BatterySize::class, 'store'])->name('battery.size.store');
     Route::post('/battery/size/update', [BatterySize::class, 'update'])->name('battery.size.update');
     Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
+
+    // Distributor
+    Route::get('/distributor', [Distributor::class, 'index']);
+    Route::get('/distributor/create', [Distributor::class, 'create']);
+
+    // Distributor Shop
+    Route::get('/distributor/shop', [DistributorShop::class, 'index']);
+    Route::get('/distributor/shop/create', [DistributorShop::class, 'create']);
+
+    // Shop Technician
+    Route::get('/distributor/technician', [ShopTechnician::class, 'index']);
+    Route::get('/distributor/technician/create', [ShopTechnician::class, 'create']);
 
     // Orders
     // Quick Quotation

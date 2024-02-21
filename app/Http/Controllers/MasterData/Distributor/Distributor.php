@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class Distributor extends Controller
 {
+    private $title = "Distributor";
+    private $menu = 2;
+    private $submenu = 5;
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,14 @@ class Distributor extends Controller
      */
     public function index()
     {
-        //
+        return view(
+            'MasterData.Distributor.index',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu
+            )
+        );
     }
 
     /**
@@ -24,7 +35,15 @@ class Distributor extends Controller
      */
     public function create()
     {
-        //
+        return view(
+            'MasterData.Distributor.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array()
+            )
+        );
     }
 
     /**

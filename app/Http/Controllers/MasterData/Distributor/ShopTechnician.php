@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class ShopTechnician extends Controller
 {
+    private $title = "Shop Technician";
+    private $menu = 2;
+    private $submenu = 5;
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,14 @@ class ShopTechnician extends Controller
      */
     public function index()
     {
-        //
+        return view(
+            'MasterData.Distributor.Technician.index',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu
+            )
+        );
     }
 
     /**
@@ -24,7 +35,15 @@ class ShopTechnician extends Controller
      */
     public function create()
     {
-        //
+        return view(
+            'MasterData.Distributor.Technician.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array()
+            )
+        );
     }
 
     /**
