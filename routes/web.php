@@ -153,7 +153,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Shop Technician
     Route::get('/distributor/technician', [ShopTechnician::class, 'index']);
+    Route::post('/distributor/technician/show', [ShopTechnician::class, 'show']);
     Route::get('/distributor/technician/create', [ShopTechnician::class, 'create']);
+    Route::get('/distributor/technician/edit/{id}', [ShopTechnician::class, 'edit']);
+    Route::post('/distributor/technician/store', [ShopTechnician::class, 'store']);
+    Route::post('/distributor/technician/update', [ShopTechnician::class, 'update']);
+    Route::post('/distributor/technician/destroy', [ShopTechnician::class, 'destroy']);
 
     // Orders
     // Quick Quotation

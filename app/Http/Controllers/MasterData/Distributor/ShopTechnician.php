@@ -5,6 +5,10 @@ namespace App\Http\Controllers\MasterData\Distributor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+// MODELS
+use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Distributor\ShopTechnicianModel;
+
 class ShopTechnician extends Controller
 {
     private $title = "Shop Technician";
@@ -41,31 +45,11 @@ class ShopTechnician extends Controller
                 $this->title,
                 $this->menu,
                 $this->submenu,
-                array()
+                array(
+                    "shops" => DistributorShopModel::all()->toArray()
+                )
             )
         );
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -75,6 +59,99 @@ class ShopTechnician extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
+    {
+        return view(
+            'MasterData.Distributor.Technician.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => ShopTechnicianModel::find($id)->toArray(),
+                    "shops" => DistributorShopModel::all()->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        // DataTables configuration data.
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
+        $orderColumnIndex = $request->input("order.0.column");
+
+        $query = ShopTechnicianModel::with(["shop" => function ($query) {
+            $query->withTrashed();
+        }]);
+
+        $selectColumns = ['id', 'name', 'id_shop', 'contact', 'email'];
+        $query->select($selectColumns);
+
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $selectColumns) {
+                foreach ($selectColumns as $column) {
+                    $query->orWhere($column, "like", "%" . $searchValue . "%");
+                }
+            });
+        }
+
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumnIndex] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        $ListData = $query->orderBy("name", "asc")
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $no = $start + 1;
+
+        foreach ($ListData as $key) {
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name; // Name
+            $row[] = $key->shop->name ?? "-"; // Shop
+            $row[] = "<span class='text-secondary'>+62</span> " . $key->contact; // Contact
+            $row[] = $key->email; // Email
+            $row[] = $key->id;
+            $data[] = $row;
+        }
+
+        $recordTotal  = ShopTechnicianModel::count();
+        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
+
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $recordTotal,
+            "recordsFiltered" => $recordFiltered,
+            "data" => $data
+        ];
+
+        return response()->json($output);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
     {
         //
     }

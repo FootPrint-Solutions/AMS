@@ -4,6 +4,7 @@ namespace App\Models\MasterData\Distributor;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ShopTechnicianModel extends Model
@@ -16,4 +17,12 @@ class ShopTechnicianModel extends Model
      * @var string
      */
     protected $table = 'shop_technician';
+
+    /**
+     * Get technicians' shop.
+     */
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(DistributorShopModel::class, 'id_shop');
+    }
 }
