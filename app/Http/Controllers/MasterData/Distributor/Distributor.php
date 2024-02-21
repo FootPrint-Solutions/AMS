@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 class Distributor extends Controller
 {
@@ -149,13 +150,33 @@ class Distributor extends Controller
     {
         $distributor = new DistributorModel();
         $distributor->name = $request->name;
-        $distributor->is_shop = false;
+        $distributor->is_shop = $request->isshop;
         $distributor->address = $request->address;
         $distributor->contact_person = $request->contactperson;
         $distributor->contact = $request->contact;
         $distributor->email = $request->email;
         $distributor->note = "";
         $status = $distributor->save();
+
+        // Check if is shop is checked or not.
+        if ($request->isshop == 1) {
+            // Add a new shop for the distributor.
+            $shop = new DistributorShopModel();
+            $shop->name = "Distributor Main Shop";
+            $shop->id_distributor = $distributor->id;
+            $shop->address = $request->address;
+            $shop->contact_person = $request->contactperson;
+            $shop->contact = $request->contact;
+            $shop->email = $request->email;
+            $shop->note = "";
+            $status &= $shop->save();
+        } else {
+            // Delete saved distributor shop.
+            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("name", "Distributor Main Shop")->first();
+            if ($shop) {
+                $shop->delete();
+            }
+        }
 
         // Set a new response data to be sent.
         return getResponseData(
@@ -175,13 +196,36 @@ class Distributor extends Controller
     {
         $distributor = DistributorModel::find($request->id);
         $distributor->name = $request->name;
-        $distributor->is_shop = false;
+        $distributor->is_shop = $request->isshop;
         $distributor->address = $request->address;
         $distributor->contact_person = $request->contactperson;
         $distributor->contact = $request->contact;
         $distributor->email = $request->email;
         $distributor->note = "";
         $status = $distributor->save();
+
+        // Check if is shop is checked or not.
+        if ($request->isshop == 1) {
+            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("name", "Distributor Main Shop")->first();
+            if (!$shop) {
+                // Add a new shop for the distributor.
+                $shop = new DistributorShopModel();
+                $shop->name = "Distributor Main Shop";
+                $shop->id_distributor = $distributor->id;
+                $shop->address = $request->address;
+                $shop->contact_person = $request->contactperson;
+                $shop->contact = $request->contact;
+                $shop->email = $request->email;
+                $shop->note = "";
+                $status &= $shop->save();
+            }
+        } else {
+            // Delete saved distributor shop.
+            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("name", "Distributor Main Shop")->first();
+            if ($shop) {
+                $shop->delete();
+            }
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

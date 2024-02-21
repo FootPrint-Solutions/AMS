@@ -54,7 +54,11 @@
                 
                 {{-- Is Shop --}}
                 <div class="col-sm-1">
-                    <input class="form-check-input" type="checkbox" value="" id="isshop">
+                    <input class="form-check-input" type="checkbox" value="" id="isshop"
+                    @if(isset($data['profile']) && $data['profile']['is_shop'] == 1)
+                        checked
+                    @endisset
+                    >
                     <label class="form-check-label" for="isshop">
                         Is shop
                     </label>
@@ -143,6 +147,7 @@
 
             // Get form data.
             let formData = new FormData($(this)[0]);
+            formData.append("isshop", $("#isshop").is(":checked") ? 1 : 0);
             
             // Send form data to controller using AJAX.
             $.ajax({
