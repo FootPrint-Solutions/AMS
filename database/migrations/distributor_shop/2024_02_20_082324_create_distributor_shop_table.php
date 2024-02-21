@@ -18,7 +18,6 @@ class CreateDistributorShopTable extends Migration
             $table->string('name');
             $table->unsignedBigInteger('id_distributor');
             $table->string('address');
-            $table->point('coordinate');
             $table->string('contact_person');
             $table->string('contact');
             $table->string('email');

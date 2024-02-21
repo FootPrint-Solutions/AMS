@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBatteryUsageTypeTable extends Migration
+class AddLatLngTodistributorShopTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateBatteryUsageTypeTable extends Migration
      */
     public function up()
     {
-        Schema::create('battery_usage_type', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50);
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('distributor_shop', function (Blueprint $table) {
+            $table->text('latitude')->nullable()->after('address');
+            $table->text('longitude')->nullable()->after('latitude');
         });
     }
 
@@ -28,6 +26,8 @@ class CreateBatteryUsageTypeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battery_usage_type');
+        Schema::table('distributor_shop', function (Blueprint $table) {
+            //
+        });
     }
 }
