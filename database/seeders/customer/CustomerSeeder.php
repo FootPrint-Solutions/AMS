@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\MasterData\CustomerModel;
 use Illuminate\Database\Seeder;
 
-class CustomerModelSeeder extends Seeder
+// MODELS
+use App\Models\MasterData\Customer\CustomerModel;
+
+class CustomerSeeder extends Seeder
 {
     /**
      * Run the database seeds.
