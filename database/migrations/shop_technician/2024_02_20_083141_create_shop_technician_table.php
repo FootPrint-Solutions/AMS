@@ -18,8 +18,8 @@ class CreateShopTechnicianTable extends Migration
             $table->string('name');
             $table->unsignedBigInteger('id_shop');
             $table->string('contact');
-            $table->string('email');
-            $table->string('note');
+            $table->string('email')->nullable();
+            $table->string('note')->nullable();
             $table->timestamps();
 
             /*

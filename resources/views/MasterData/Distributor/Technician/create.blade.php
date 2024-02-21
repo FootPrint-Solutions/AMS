@@ -7,10 +7,11 @@
         {{-- Title --}}
         <div class="card-title h2">
             @if (isset($data['profile']))
-                Edit Vehicle
+                Edit
             @else
-                Add New Vehicle
+                Add New
             @endif
+            Technician
         </div>
         <br>
 
@@ -39,9 +40,8 @@
                         <select class="form-control" id="shop" name="shop" required>
                             <option></option>
                             @foreach ($data['shops'] as $shop)
-                                <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $shop['id']) selected @endif>{{ $shop['distributor']['name'] . " - " . $shop['name'] }}</option>
+                                <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['id_shop'] == $shop['id']) selected @endif>{{ $shop['distributor']['name'] . " - " . $shop['name'] }}</option>
                             @endforeach
-                            <option value="new">Quick add new brand&hellip;</option>
                         </select>
                     </div>
                 </div>
@@ -67,8 +67,8 @@
                 {{-- E-mail --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="email">E-mail <span class="login-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter technician e-mail" required
+                        <label for="email">E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter technician e-mail"
                         @isset($data['profile'])
                             value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
                         @endisset

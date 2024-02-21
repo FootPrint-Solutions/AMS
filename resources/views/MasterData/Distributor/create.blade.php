@@ -94,17 +94,23 @@
                     </div>
                 </div>
 
-                {{-- Company E-mail --}}
+                {{-- E-mail --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="distributor-email">E-mail <span class="login-danger">*</span></label>
-                        <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail" required
+                        <label for="distributor-email">E-mail</label>
+                        <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail"
                         @isset($data['profile'])
                             value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
                         @endisset
                         >
                     </div>
                 </div>
+            </div>
+
+            {{-- Note --}}
+            <div class="form-group local-forms">
+                <label for="note">Note</label>
+                <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the distributor">@if (isset($data['profile']) && !empty($data['profile']['note'])) {{ $data['profile']['note'] }} @endif</textarea>
             </div>
 
             {{-- Hidden Inputs --}}

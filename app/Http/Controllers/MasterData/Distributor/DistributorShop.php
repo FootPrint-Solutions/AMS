@@ -129,7 +129,7 @@ class DistributorShop extends Controller
             $row[] = $key->address; // Address
             $row[] = $key->contact_person; // Contact Person
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact; // Contact
-            $row[] = $key->email; // Email
+            $row[] = $key->email ?? "-"; // Email
             $row[] = $key->id;
             $data[] = $row;
         }

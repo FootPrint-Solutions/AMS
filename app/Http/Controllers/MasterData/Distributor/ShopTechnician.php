@@ -68,7 +68,7 @@ class ShopTechnician extends Controller
                 $this->submenu,
                 array(
                     "profile" => ShopTechnicianModel::find($id)->toArray(),
-                    "shops" => DistributorShopModel::all()->toArray()
+                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
                 )
             )
         );
@@ -127,7 +127,7 @@ class ShopTechnician extends Controller
             $row[] = $key->name; // Name
             $row[] = $key->shop->name ?? "-"; // Shop
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact; // Contact
-            $row[] = $key->email; // Email
+            $row[] = $key->email ?? "-"; // Email
             $row[] = $key->id;
             $data[] = $row;
         }
@@ -158,7 +158,7 @@ class ShopTechnician extends Controller
         $technician->id_shop = $request->shop;
         $technician->contact = $request->contact;
         $technician->email = $request->email;
-        $technician->note = "";
+        $technician->note = $request->note;
         $status = $technician->save();
 
         // Set a new response data to be sent.
@@ -182,7 +182,7 @@ class ShopTechnician extends Controller
         $technician->id_shop = $request->shop;
         $technician->contact = $request->contact;
         $technician->email = $request->email;
-        $technician->note = "";
+        $technician->note = $request->note;
         $status = $technician->save();
 
         // Set a new response data to be sent.

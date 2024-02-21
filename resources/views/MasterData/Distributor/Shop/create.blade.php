@@ -99,8 +99,8 @@
                 {{-- E-mail --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="email">E-mail <span class="login-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter shop e-mail" required
+                        <label for="email">E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter shop e-mail"
                         @isset($data['profile'])
                             value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
                         @endisset

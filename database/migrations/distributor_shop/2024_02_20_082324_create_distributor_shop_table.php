@@ -20,7 +20,7 @@ class CreateDistributorShopTable extends Migration
             $table->string('address');
             $table->string('contact_person');
             $table->string('contact');
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();
 

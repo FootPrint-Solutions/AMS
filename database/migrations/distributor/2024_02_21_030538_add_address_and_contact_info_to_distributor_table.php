@@ -17,7 +17,7 @@ class AddAddressAndContactInfoToDistributorTable extends Migration
             $table->string('address')->after('name');
             $table->string('contact_person')->after('address');
             $table->string('contact')->after('contact_person');
-            $table->string('email')->after('contact');
+            $table->string('email')->after('contact')->nullable();
             $table->string('note')->after('email')->nullable();
         });
     }

@@ -122,7 +122,7 @@ class Distributor extends Controller
             $row[] = $key->address;
             $row[] = $key->contact_person;
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
-            $row[] = $key->email;
+            $row[] = $key->email ?? "-";
             $row[] = $key->id;
             $data[] = $row;
         }
@@ -169,7 +169,7 @@ class Distributor extends Controller
             $shop->contact_person = $request->contactperson;
             $shop->contact = $request->contact;
             $shop->email = $request->email;
-            $shop->note = "";
+            $shop->note = $request->note;
             $status &= $shop->save();
         } else {
             // Delete saved distributor shop.
@@ -202,7 +202,7 @@ class Distributor extends Controller
         $distributor->contact_person = $request->contactperson;
         $distributor->contact = $request->contact;
         $distributor->email = $request->email;
-        $distributor->note = "";
+        $distributor->note = $request->note;
         $status = $distributor->save();
 
         // Check if is shop is checked or not.
