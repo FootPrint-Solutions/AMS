@@ -85,9 +85,10 @@
                 select: true,
             });
 
-            $(".dt-buttons").append(
-                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
-            );
+            // Load DataTables toolbar component.
+            $.get("/datatables/toolbar", function(data) {
+                $(".dt-buttons").append(data);
+            });
 
 
             $('.edit-selected').on('click', function() {

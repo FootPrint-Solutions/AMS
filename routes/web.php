@@ -175,6 +175,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
+
+
+    // Reusable Component
+    Route::get('/datatables/toolbar', function () {
+        return view('template.component.dt-toolbar')->render();
+    });
 });
 
 // Auth
