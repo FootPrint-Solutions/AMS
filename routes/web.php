@@ -144,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Distributor Shop
     Route::get('/distributor/shop', [DistributorShop::class, 'index']);
+    Route::post('/distributor/shop/show', [DistributorShop::class, 'show']);
     Route::get('/distributor/shop/create', [DistributorShop::class, 'create']);
 
     // Shop Technician
