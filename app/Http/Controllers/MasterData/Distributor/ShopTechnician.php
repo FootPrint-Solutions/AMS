@@ -46,7 +46,7 @@ class ShopTechnician extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "shops" => DistributorShopModel::all()->toArray()
+                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
                 )
             )
         );
@@ -153,7 +153,19 @@ class ShopTechnician extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $technician = new ShopTechnicianModel();
+        $technician->name = $request->name;
+        $technician->id_shop = $request->shop;
+        $technician->contact = $request->contact;
+        $technician->email = $request->email;
+        $technician->note = "";
+        $status = $technician->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
+        );
     }
 
     /**
@@ -163,9 +175,21 @@ class ShopTechnician extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $technician = ShopTechnicianModel::find($request->id);
+        $technician->name = $request->name;
+        $technician->id_shop = $request->shop;
+        $technician->contact = $request->contact;
+        $technician->email = $request->email;
+        $technician->note = "";
+        $status = $technician->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
+        );
     }
 
     /**
@@ -174,8 +198,15 @@ class ShopTechnician extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $technician = ShopTechnicianModel::find($request->id);
+        $status = $technician->delete();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new technician was successfully deleted!" : "Failed to delete the new technician!"
+        );
     }
 }
