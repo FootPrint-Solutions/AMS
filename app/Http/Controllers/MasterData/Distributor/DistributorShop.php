@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasterData\Distributor\DistributorShopModel;
 use Illuminate\Http\Request;
+
+// MODELS
+use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Distributor\DistributorModel;
 
 class DistributorShop extends Controller
 {
@@ -42,7 +45,31 @@ class DistributorShop extends Controller
                 $this->title,
                 $this->menu,
                 $this->submenu,
-                array()
+                array(
+                    "distributors" => DistributorModel::all()->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'MasterData.Distributor.Shop.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => DistributorShopModel::find($id)->toArray(),
+                    "distributors" => DistributorModel::all()->toArray()
+                )
             )
         );
     }
@@ -128,18 +155,21 @@ class DistributorShop extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $shop = new DistributorShopModel();
+        $shop->name = $request->name;
+        $shop->id_distributor = $request->distributor;
+        $shop->address = $request->address;
+        $shop->contact_person = $request->contactperson;
+        $shop->contact = $request->contact;
+        $shop->email = $request->email;
+        $shop->note = $request->note;
+        $status = $shop->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+        );
     }
 
     /**
@@ -149,9 +179,23 @@ class DistributorShop extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $shop = DistributorShopModel::find($request->id);
+        $shop->name = $request->name;
+        $shop->id_distributor = $request->distributor;
+        $shop->address = $request->address;
+        $shop->contact_person = $request->contactperson;
+        $shop->contact = $request->contact;
+        $shop->email = $request->email;
+        $shop->note = $request->note;
+        $status = $shop->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+        );
     }
 
     /**
@@ -160,8 +204,15 @@ class DistributorShop extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $shop = DistributorShopModel::find($request->id);
+        $status = $shop->delete();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected shop was successfully deleted!" : "Failed to delete the selected shop!"
+        );
     }
 }

@@ -146,6 +146,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/distributor/shop', [DistributorShop::class, 'index']);
     Route::post('/distributor/shop/show', [DistributorShop::class, 'show']);
     Route::get('/distributor/shop/create', [DistributorShop::class, 'create']);
+    Route::get('/distributor/shop/edit/{id}', [DistributorShop::class, 'edit']);
+    Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
+    Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
+    Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
 
     // Shop Technician
     Route::get('/distributor/technician', [ShopTechnician::class, 'index']);

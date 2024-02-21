@@ -104,7 +104,7 @@
                     return;
                 }
                 var selectedRow = selectedRows[0];
-                var id = selectedRow[6];
+                var id = selectedRow[7];
                 edit(id);
             });
 
@@ -121,7 +121,7 @@
                     return;
                 }
                 var selectedRow = selectedRows[0];
-                var id = selectedRow[6];
+                var id = selectedRow[7];
                 destroy(id);
             });
 
@@ -132,12 +132,12 @@
         });
 
         function edit(id) {
-            goToPage("/vehicle/edit/" + id);
+            goToPage("/distributor/shop/edit/" + id);
         }
 
         function destroy(id) {
             $.ajax({
-                url: "/vehicle/destroy",
+                url: "/distributor/shop/destroy",
                 method: "POST",
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -162,36 +162,5 @@
                 }
             });
         }
-
-        $("#form-import").on("submit", function(e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-            $.ajax({
-                url: '/vehicle/import',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
-
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Company profile update was succeeded.
-                        showSuccessToast(responseData.message);
-                        $("#form-import")[0].reset();
-                    } else {
-                        // Company profile update was failed.
-                        showErrorToast(responseData.message);
-                        $("#form-import")[0].reset();
-                    }
-
-                    // Reload table with updated rows.
-                    table.ajax.reload();
-                }
-            });
-        });
     </script>
 @endsection

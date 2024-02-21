@@ -182,7 +182,7 @@ class Distributor extends Controller
         // Set a new response data to be sent.
         return getResponseData(
             $status,
-            $status ? "The new distributor was successfully created!" : "Failed to create the new vehicle!"
+            $status ? "The new distributor was successfully created!" : "Failed to create the new distributor!"
         );
     }
 
