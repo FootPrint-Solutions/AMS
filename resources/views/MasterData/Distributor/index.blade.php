@@ -18,34 +18,19 @@
             </div>
             <br>
 
-            {{-- Import Form --}}
-            <form id="form-import" method="POST" enctype="multipart/form-data" class="mb-3">
-                @csrf
-                <div class="row align-items-center">
-                    <div class="col-8">
-                        <div class="input-group">
-                            <input type="file" name="file" class="form-control form-control-sm">
-                            <button type="submit" class="btn btn-outline-success btn-sm"><i
-                                    class="fa-solid fa-file-import"></i> Import Vehicle</button>
-                            <a href="{{ asset('template/excel/SampleImportVehicle.xlsx') }}"
-                                class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
-                                Download Sample Import Data</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
             {{-- Table --}}
-            {{-- <table class="table table-striped" id="table-vehicle">
+            <table class="table table-striped" id="table-distributor">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
-                        <th scope="col">Brand</th>
-                        <th scope="col">URL</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Contact Person</th>
+                        <th scope="col">Contact</th>
+                        <th scope="col">E-mail</th>
                     </tr>
                 </thead>
-            </table> --}}
+            </table>
         </div>
     </div>
 
@@ -53,24 +38,109 @@
         var table;
 
         $(document).ready(function() {
-            // Add New Vehicle button
+            // DataTables configuration
+            table = $("#table-distributor").DataTable({
+                lengthMenu: [
+                    [5, 10, 25],
+                    [5, 10, 25]
+                ],
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                order: [],
+                ajax: {
+                    url: "/distributor/show",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }
+                },
+                columnDefs: [{
+                    targets: [0],
+                    orderable: false
+                }],
+                dom: "lBfrtip",
+                buttons: [{
+                        text: '<i class="fas fa-file-alt"></i> Export to PDF',
+                        extend: 'pdf',
+                        className: 'btn btn-outline-danger btn-sm',
+                    }, {
+                        text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                        extend: 'excel',
+                        className: 'btn btn-outline-success btn-sm', // kelas CSS kustom
+                    },
+                    {
+                        text: '<i class="fas fa-sync-alt"></i> Refresh',
+                        action: function(e, dt, node, config) {
+                            dt.ajax.reload();
+                        },
+                        className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
+                    },
+                ],
+                language: {
+                    searchPlaceholder: "Search distributor",
+                    search: "",
+                    lengthMenu: "_MENU_ entries | ",
+                },
+                select: true,
+            });
+
+            $(".dt-buttons").append(
+                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
+            );
+
+
+            $('.edit-selected').on('click', function() {
+                var selectedRows = table.rows({
+                    selected: true
+                }).data().toArray();
+                if (selectedRows.length === 0) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Please select at least one row to edit.",
+                        icon: "error",
+                    });
+                    return;
+                }
+                var selectedRow = selectedRows[0];
+                var id = selectedRow[6];
+                edit(id);
+            });
+
+            $('.delete-selected').on('click', function() {
+                var selectedRows = table.rows({
+                    selected: true
+                }).data().toArray();
+                if (selectedRows.length === 0) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Please select at least one row to delete.",
+                        icon: "error",
+                    });
+                    return;
+                }
+                var selectedRow = selectedRows[0];
+                var id = selectedRow[6];
+                destroy(id);
+            });
+            // Add New distributor button
             $("#btn-add").on("click", function() {
-                goToPage("/vehicle/create");
+                goToPage("/distributor/create");
             });
 
             // Add New Brand button
             $("#btn-add-brand").on("click", function() {
-                goToPage("/vehicle/brand/create");
+                goToPage("/distributor/brand/create");
             });
         });
 
         function edit(id) {
-            goToPage("/vehicle/edit/" + id);
+            goToPage("/distributor/edit/" + id);
         }
 
         function destroy(id) {
             $.ajax({
-                url: "/vehicle/destroy",
+                url: "/distributor/destroy",
                 method: "POST",
                 data: {
                     "_token": "{{ csrf_token() }}",
@@ -95,36 +165,5 @@
                 }
             });
         }
-
-        $("#form-import").on("submit", function(e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-            $.ajax({
-                url: '/vehicle/import',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
-
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Company profile update was succeeded.
-                        showSuccessToast(responseData.message);
-                        $("#form-import")[0].reset();
-                    } else {
-                        // Company profile update was failed.
-                        showErrorToast(responseData.message);
-                        $("#form-import")[0].reset();
-                    }
-
-                    // Reload table with updated rows.
-                    table.ajax.reload();
-                }
-            });
-        });
     </script>
 @endsection

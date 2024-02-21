@@ -7,89 +7,106 @@
         {{-- Title --}}
         <div class="card-title h2">
             @if (isset($data['profile']))
-                Edit Vehicle
+                Edit Distributor
             @else
-                Add New Vehicle
+                Add New Distributor
             @endif
         </div>
         <br>
 
         {{-- Form --}}
-        <form id="vehicle-form">
+        <form id="distributor-form">
             @csrf
 
             {{-- Name --}}
             <div class="form-group local-forms">
-                <label for="name">Name <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter vehicle name" required
-                @if (isset($data['profile']))
+                <label for="distributor-name">Name <span class="login-danger">*</span></label>
+                <input type="text" class="form-control" id="distributor-name" name="name" placeholder="Enter distributor name" required
+                @isset($data['profile'])
                     value="{{ $data['profile']['name'] }}"
-                @endif
+                @endisset
                 >
             </div>
 
-            {{-- URL --}}
-            <div class="form-group local-forms">
-                <label for="url">URL</label>
-                <input type="url" pattern="https?://.+" class="form-control" id="url" name="url" placeholder="Enter vehicle url link"
-                @if (isset($data['profile']))
-                    value="{{ $data['profile']['url'] }}"
-                @endif
-                >
-            </div>
-
-            {{-- Brand --}}
-            <div class="form-group local-forms">
-                <label for="brand">Brand <span class="login-danger">*</span></label>
-                <select class="form-control" id="brand" name="brand" required>
-                    <option></option>
-                    @foreach ($data['brands'] as $brand)
-                        <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
-                    @endforeach
-                    <option value="new">Quick add new brand&hellip;</option>
-                </select>
-            </div>
-
-            {{-- Quick Add New Brand --}}
-            <div id="brand-new-group" class="form-group local-forms" style="display: none;">
-                <label for="brand-new">New Brand <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="brand-new" name="newbrand">
-            </div>
-
-            {{-- Battery --}}
+            {{-- Address and Is Shop --}}
             <div class="row">
-                {{-- Primary Battery --}}
+                <div class="col">
+                    {{-- Address --}}
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="distributor-address">Address <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" id="distributor-address" name="address" placeholder="Enter distributor address" required
+                                @isset($data['profile'])
+                                    value="{{ $data['profile']['address'] }}"
+                                @endisset
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-sm-1">
+                            <button class="btn btn-primary">
+                                <i class="fa fa-map-marker"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- Is Shop --}}
+                <div class="col-sm-1">
+                    <input class="form-check-input" type="checkbox" value="" id="isshop">
+                    <label class="form-check-label" for="isshop">
+                        Is shop
+                    </label>
+                </div>
+            </div>
+
+            {{-- Contact Person, Contact and Email --}}
+            <div class="row">
+                {{-- Contact Person --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="battery-primary">Battery (primary) <span class="login-danger">*</span></label>
-                        <select class="form-control" id="battery-primary" name="batteryprimary" required>
-                            <option></option>
-                            @foreach ($data['batteries'] as $battery)
-                                <option value="{{ $battery['id'] }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery['id']) selected @endif>{{ $battery['name'] }}</option>
-                            @endforeach
-                        </select>
+                        <label for="distributor-contact-person">Contact Person <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="distributor-contact-person" name="contactperson" placeholder="Enter distributor contact person name" required
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['address'] }}"
+                        @endisset
+                        >
+                    </div>
+                </div>
+                
+                {{-- Contact --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label for="distributor-contact">Contact <span class="login-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text border-end country-code">+62</span>
+                            <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact" name="contact" placeholder="Enter distributor contact" required
+                            @isset($data['profile'])
+                                value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
+                            @endisset
+                            >
+                        </div>
                     </div>
                 </div>
 
-                {{-- Secondary Battery --}}
+                {{-- Company E-mail --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="battery-secondary">Battery (alternative)</label>
-                        <select class="form-control" id="battery-secondary" name="batterysecondary[]" multiple="multiple">
-                            @foreach ($data['batteries'] as $battery)
-                                <option value="{{ $battery['id'] }}" @if (isset($data['secondary_batteries']) && in_array($battery['id'], $data['secondary_batteries'])) selected @endif>{{ $battery['name'] }}</option>
-                            @endforeach
-                        </select>
+                        <label for="distributor-email">E-mail <span class="login-danger">*</span></label>
+                        <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail" required
+                        @isset($data['profile'])
+                            value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
+                        @endisset
+                        >
                     </div>
                 </div>
             </div>
 
             {{-- Hidden Inputs --}}
-            <input type="hidden" id="id" name="id"
-            @if (isset($data['profile']))
-                value="{{ $data['profile']['id'] }}"
-            @endif
-            >
+            @isset($data['profile'])
+                <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+            @endisset
             
             {{-- Buttons --}}
             <div class="d-flex flex-row-reverse">
@@ -102,7 +119,7 @@
                         value="create">
                         Create
                     @endif
-                    Vehicle
+                    Distributor
                 </button>
 
                 {{-- Cancel Button --}}
@@ -114,45 +131,23 @@
 
 <script>
     $(document).ready(function() {
-        $('#brand').select2({
-            placeholder: "Enter vehicle brand"
-        });
-
-        $('#battery-primary').select2({
-            placeholder: "Enter vehicle primary battery"
-        });
-
-        $('#battery-secondary').select2({
-            placeholder: "Enter vehicle secondary battery"
-        });
-
-        $("#brand").on("select2:select", function (e) {
-            if (e.params.data.id === "new") {
-                $("#brand-new-group").show();
-                $("#brand-new-group").attr("required", true);
-            } else {
-                $("#brand-new-group").hide();
-                $("#brand-new-group").attr("required", false);
-            }
-        });
-
-        $("#vehicle-form").on("submit", function(event) {
+        $("#distributor-form").on("submit", function(event) {
             event.preventDefault();
 
             // Get current display mode (Update or Create).
             let mode = $("#btn-save").attr("value");
-            let url = "/vehicle/store";
+            let url = "/distributor/store";
             if (mode == "update") {
-                url = "/vehicle/update";
+                url = "/distributor/update";
             }
 
             // Get form data.
             let formData = new FormData($(this)[0]);
             
-            // Send form data to Vehicle controller using AJAX.
+            // Send form data to controller using AJAX.
             $.ajax({
                 url: url,
-                method: 'POST',
+                method: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -160,8 +155,7 @@
                     // Get response data (in JSON).
                     let responseData = JSON.parse(response);
 
-                    // Check response data status.
-                    // Status indicates the success status of vehicle creating porcess.
+                    // Check response data status (0 || 1).
                     if (responseData.status) {
                         // Creating or updating process was succeeded.
                         showSuccessToast(responseData.message);
@@ -171,13 +165,13 @@
                     }
 
                     // Redirect to index page.
-                    goToPage("/vehicle");
+                    goToPage("/distributor");
                 }
             });
         });
 
-        $("#vehicle-form").on("reset", function() {
-            goToPage("/vehicle");
+        $("#distributor-form").on("reset", function() {
+            goToPage("/distributor");
         });
     });
 </script>

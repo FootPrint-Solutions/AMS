@@ -5,6 +5,9 @@ namespace App\Http\Controllers\MasterData\Distributor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+// MODELS
+use App\Models\MasterData\Distributor\DistributorModel;
+
 class Distributor extends Controller
 {
     private $title = "Distributor";
@@ -40,32 +43,9 @@ class Distributor extends Controller
             getIndexData(
                 $this->title,
                 $this->menu,
-                $this->submenu,
-                array()
+                $this->submenu
             )
         );
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -76,7 +56,112 @@ class Distributor extends Controller
      */
     public function edit($id)
     {
-        //
+        return view(
+            'MasterData.Distributor.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => DistributorModel::find($id)->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        // DataTables configuration data.
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
+        $orderColumnIndex = $request->input("order.0.column");
+
+        $query = DistributorModel::query();
+
+        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email'];
+        $query->select($selectColumns);
+
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $selectColumns) {
+                foreach ($selectColumns as $column) {
+                    $query->orWhere($column, "like", "%" . $searchValue . "%");
+                }
+            });
+        }
+
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumnIndex] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        $ListData = $query->orderBy("name", "asc")
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $no = $start + 1;
+
+        foreach ($ListData as $key) {
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name;
+            $row[] = $key->address;
+            $row[] = $key->contact_person;
+            $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
+            $row[] = $key->email;
+            $row[] = $key->id;
+            $data[] = $row;
+        }
+
+        $recordTotal  = DistributorModel::count();
+        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
+
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $recordTotal,
+            "recordsFiltered" => $recordFiltered,
+            "data" => $data
+        ];
+
+        return response()->json($output);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $distributor = new DistributorModel();
+        $distributor->name = $request->name;
+        $distributor->is_shop = false;
+        $distributor->address = $request->address;
+        $distributor->contact_person = $request->contactperson;
+        $distributor->contact = $request->contact;
+        $distributor->email = $request->email;
+        $distributor->note = "";
+        $status = $distributor->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new distributor was successfully created!" : "Failed to create the new vehicle!"
+        );
     }
 
     /**
@@ -86,9 +171,23 @@ class Distributor extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $distributor = DistributorModel::find($request->id);
+        $distributor->name = $request->name;
+        $distributor->is_shop = false;
+        $distributor->address = $request->address;
+        $distributor->contact_person = $request->contactperson;
+        $distributor->contact = $request->contact;
+        $distributor->email = $request->email;
+        $distributor->note = "";
+        $status = $distributor->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected distributor was successfully updated!" : "Failed to update the selected distributor!"
+        );
     }
 
     /**
@@ -97,8 +196,15 @@ class Distributor extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $distributor = DistributorModel::find($request->id);
+        $status = $distributor->delete();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected distributor was successfully deleted!" : "Failed to delete the selected distributor!"
+        );
     }
 }

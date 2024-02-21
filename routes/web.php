@@ -135,7 +135,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Distributor
     Route::get('/distributor', [Distributor::class, 'index']);
+    Route::post('/distributor/show', [Distributor::class, 'show']);
     Route::get('/distributor/create', [Distributor::class, 'create']);
+    Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
+    Route::post('/distributor/store', [Distributor::class, 'store']);
+    Route::post('/distributor/update', [Distributor::class, 'update']);
+    Route::post('/distributor/destroy', [Distributor::class, 'destroy']);
 
     // Distributor Shop
     Route::get('/distributor/shop', [DistributorShop::class, 'index']);
