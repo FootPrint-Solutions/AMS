@@ -180,7 +180,14 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
-    // Developer
+    // Reusable Component
+    Route::get('/datatables/toolbar', function () {
+        $idIdx = request()->input('idIdx');
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
+    });
+});
+
+Route::middleware(['developer'])->group(function () {
     // Menu Manager
     Route::get('/menu',  [Menu::class, 'index']);
     Route::post('/menu/show', [Menu::class, 'show']);
@@ -188,13 +195,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
-
-
-    // Reusable Component
-    Route::get('/datatables/toolbar', function () {
-        $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
-    });
 });
 
 // Auth
