@@ -61,23 +61,7 @@
                     orderable: false
                 }],
                 dom: "lBfrtip",
-                buttons: [{
-                        text: '<i class="fas fa-file-alt"></i> Export to PDF',
-                        extend: 'pdf',
-                        className: 'btn btn-outline-danger btn-sm',
-                    }, {
-                        text: '<i class="fas fa-file-excel"></i> Export to Excel',
-                        extend: 'excel',
-                        className: 'btn btn-outline-success btn-sm', // kelas CSS kustom
-                    },
-                    {
-                        text: '<i class="fas fa-sync-alt"></i> Refresh',
-                        action: function(e, dt, node, config) {
-                            dt.ajax.reload();
-                        },
-                        className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
-                    },
-                ],
+                buttons: getDatatablesButtonConfigurations(),
                 language: {
                     searchPlaceholder: "Search distributor",
                     search: "",

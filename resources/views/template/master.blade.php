@@ -205,13 +205,13 @@
                         "id": id
                     },
                     success: function(response) {
-                        // Get response data (in JSON).
+                        // Get response data from url (in JSON).
                         let responseData = JSON.parse(response);
 
-                        // Show Toast message.
+                        // Show Toast message based on responseData.
                         showResponseToast(responseData.status, responseData.message);
 
-                        // Call the callback table reload function.
+                        // Call the callback table reload act (or any other acts after the deletion process is complete).
                         if (typeof callback === "function") {
                             callback();
                         }
@@ -230,6 +230,33 @@
         $.get("/datatables/toolbar", { idIdx: idIdx }, function(data) {
             $(".dt-buttons").append(data);
         });
+    }
+
+    /**
+     * Get a list of custom DataTables button configurations in DataTables table.
+     * 
+     * @returns {Array} A list of button configurations DataTables.
+     */
+    function getDatatablesButtonConfigurations() {
+        return [
+            {
+                text: "<i class='fas fa-file-alt'></i> Export to PDF",
+                extend: "pdf",
+                className: "btn btn-outline-danger btn-sm",
+            },
+            {
+                text: "<i class='fas fa-file-excel'></i> Export to Excel",
+                extend: "excel",
+                className: "btn btn-outline-success btn-sm",
+            },
+            {
+                text: "<i class='fas fa-sync-alt'></i> Refresh",
+                action: function(e, dt, node, config) {
+                    dt.ajax.reload();
+                },
+                className: "btn btn-outline-primary btn-sm",
+            },
+        ];
     }
 
     /**
