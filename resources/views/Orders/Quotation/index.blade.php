@@ -21,9 +21,21 @@
         }
 
         #map {
-            height: 280px;
+            height: 205px;
             width: 100%;
             margin-bottom: 20px;
+        }
+
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(1px 1px 1px 1px);
+            /* IE6, IE7 */
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap;
+            /* added line */
         }
     </style>
     {{-- Title --}}
@@ -130,7 +142,8 @@
                                                 <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
                                                     class="form-select" aria-label="Default select example">
                                                     @foreach ($data['Vehicle'] as $vehicle)
-                                                        <option value="{{ $vehicle['id'] }}">{{ $vehicle['name'] }}
+                                                        <option value="{{ $vehicle['id'] }}">
+                                                            {{ trim($vehicle['name']) }}
                                                         </option>
                                                     @endforeach
 
@@ -143,9 +156,11 @@
                                                         class="login-danger">*</span></label>
 
 
-                                                <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
-                                                    value="" required autocomplete="off"></textarea>
+                                                {{-- <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
+                                                    value="" required autocomplete="off"></textarea> --}}
 
+                                                <input type="text" class="form-control" id="AddressCustomer"
+                                                    name="AddressCustomer">
                                             </div>
 
                                             <div class="form-group local-forms">
@@ -173,10 +188,19 @@
                                 </form>
                                 <div class="row">
                                     <div class="col text-end">
+                                        <a id="btnCopyAddress" class="btn clip-btn btn-primary" href="javascript:;"
+                                            data-clipboard-action="copy" data-clipboard-target="#CopyPersonalDetails"><i
+                                                class="far fa-copy"></i>
+                                            Copy from Input</a>
                                         <button id='BtnShareFormPersonalDetails' class="btn btn-success"> Share <i
                                                 class="fa-brands fa-whatsapp"></i></button>
-                                        <a href="javascript: void(0);" class="btn btn-primary seller-next-btn"> Next <i
-                                                class="bx bx-chevron-right ms-1"></i></a>
+                                        <a href="javascript: void(0);" class="btn btn-primary seller-next-btn-check">
+                                            Next
+                                            <i class="bx bx-chevron-right ms-1"></i></a>
+                                        <a id="btnNextStep2" href="javascript: void(0);"
+                                            class="btn btn-primary seller-next-btn d-none">
+                                            Next
+                                            <i class="bx bx-chevron-right ms-1"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -201,18 +225,22 @@
                                                     </div> --}}
                                                 </div>
                                                 <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
+                                                            Quanta
+                                                            9</a>
                                                     </h3>
                                                     <p>Details & Specification :</p>
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">Alt Name : UPS</li>
                                                         <li class="list-group-item">Brand : AMARON</li>
                                                         <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep
+                                                            Cycle
                                                             Battery </li>
                                                         <li class="list-group-item">Warranty : 12 Months</li>
                                                         <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
+                                                        </li>
                                                         <li class="list-group-item">Price : Rp. 475.000</li>
                                                     </ul>
                                                 </div>
@@ -228,7 +256,8 @@
                                                         <div class="text-end inactive-style mt-3">
                                                             <div class="checkbox">
                                                                 <label>
-                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    <input type="checkbox" name="checkbox"> Send
+                                                                    To
                                                                     Customer
                                                                 </label>
                                                             </div>
@@ -250,18 +279,22 @@
                                                     </div> --}}
                                                 </div>
                                                 <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
+                                                            Quanta
+                                                            9</a>
                                                     </h3>
                                                     <p>Details & Specification :</p>
                                                     <ul class="list-group list-group-flush">
                                                         <li class="list-group-item">Alt Name : UPS</li>
                                                         <li class="list-group-item">Brand : AMARON</li>
                                                         <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep
+                                                            Cycle
                                                             Battery </li>
                                                         <li class="list-group-item">Warranty : 12 Months</li>
                                                         <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
+                                                        </li>
                                                         <li class="list-group-item">Price : Rp. 475.000</li>
                                                     </ul>
                                                 </div>
@@ -277,7 +310,8 @@
                                                         <div class="text-end inactive-style mt-3">
                                                             <div class="checkbox">
                                                                 <label>
-                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    <input type="checkbox" name="checkbox"> Send
+                                                                    To
                                                                     Customer
                                                                 </label>
                                                             </div>
@@ -299,18 +333,22 @@
                                                     </div> --}}
                                                 </div>
                                                 <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON Quanta 9</a>
+                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
+                                                            Quanta
+                                                            9</a>
                                                     </h3>
                                                     <p>Details & Specification :</p>
                                                     <ul class="list-group list-group-flush list-group-sm">
                                                         <li class="list-group-item">Alt Name : UPS</li>
                                                         <li class="list-group-item">Brand : AMARON</li>
                                                         <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep Cycle
+                                                        <li class="list-group-item">Battery Technology : VRLA Deep
+                                                            Cycle
                                                             Battery </li>
                                                         <li class="list-group-item">Warranty : 12 Months</li>
                                                         <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm</li>
+                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
+                                                        </li>
                                                         <li class="list-group-item">Price : Rp. 475.000</li>
                                                     </ul>
                                                 </div>
@@ -326,7 +364,8 @@
                                                         <div class="text-end inactive-style mt-3">
                                                             <div class="checkbox">
                                                                 <label>
-                                                                    <input type="checkbox" name="checkbox"> Send To
+                                                                    <input type="checkbox" name="checkbox"> Send
+                                                                    To
                                                                     Customer
                                                                 </label>
                                                             </div>
@@ -425,7 +464,8 @@
 
                                         {{-- Trade In --}}
                                         <div class="form-group row mb-3">
-                                            <label for="order-tradein" class="col-sm-2 col-form-label">Trade In</label>
+                                            <label for="order-tradein" class="col-sm-2 col-form-label">Trade
+                                                In</label>
                                             <div class="col-sm-5">
                                                 <input type="radio" id="order-tradein-yes" name="order-tradein"
                                                     value="1">
@@ -440,7 +480,8 @@
 
                                         {{-- Trade In Type --}}
                                         <div class="form-group row mb-3">
-                                            <label for="order-tradein-type" class="col-sm-2 col-form-label">Trade In
+                                            <label for="order-tradein-type" class="col-sm-2 col-form-label">Trade
+                                                In
                                                 Type</label>
                                             <div class="col-sm-10">
                                                 <input type="number" class="form-control" id="order-tradein-type"
@@ -450,7 +491,8 @@
 
                                         {{-- Trade In Value --}}
                                         <div class="form-group row mb-3">
-                                            <label for="order-tradein-value" class="col-sm-2 col-form-label">Trade In
+                                            <label for="order-tradein-value" class="col-sm-2 col-form-label">Trade
+                                                In
                                                 Value</label>
                                             <div class="col-sm-10">
                                                 <input type="number" class="form-control" id="order-tradein-value"
@@ -518,7 +560,8 @@
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="basicpill-namecard-input" class="form-label">Name on
+                                                    <label for="basicpill-namecard-input" class="form-label">Name
+                                                        on
                                                         Card</label>
                                                     <input type="text" class="form-control"
                                                         id="basicpill-namecard-input">
@@ -541,7 +584,8 @@
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="basicpill-cardno-input" class="form-label">Credit Card
+                                                    <label for="basicpill-cardno-input" class="form-label">Credit
+                                                        Card
                                                         Number</label>
                                                     <input type="text" class="form-control"
                                                         id="basicpill-cardno-input">
@@ -610,7 +654,9 @@
         <!-- /Wizard -->
     </div>
 
-
+    <div class="clipboard visually-hidden">
+        <textarea cols="30" rows="10" id="CopyPersonalDetails" name="CopyPersonalDetails"></textarea>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -781,11 +827,27 @@
                     $("#Latitude").val(suggestions[index].latitude);
                     $("#Longitude").val(suggestions[index].longitude);
                     $('#AutoCompleteFullNameCustomer').empty();
+                    // call google maps
+                    initMap();
 
                     var IdCustomer = $("#IdCustomer").val();
                     if (IdCustomer != '') {
                         $('#UserExist').show();
                         $('#UserNotExist').hide();
+
+                        // get vehcile by  id 
+                        $.ajax({
+                            url: "/find-vehicle-by-id",
+                            type: "GET",
+                            data: {
+                                id: IdCustomer,
+                            },
+                            success: function(data) {
+                                var vehicles = data;
+                                $('#VehicleCustomer').val(vehicles);
+                                $('#VehicleCustomer').trigger('change');
+                            }
+                        });
                     } else {
                         $('#UserExist').hide();
                         $('#UserNotExist').show();
@@ -793,12 +855,91 @@
                 });
             }
 
+            function updateCopyPersonalDetails() {
+                var FullName = $("#FullName").val();
+                var AddressCustomer = $('#AddressCustomer').val();
+                var EmailCustomer = $('#EmailCustomer').val();
+                var vehicles = $('#VehicleCustomer').find('option:selected').map(function() {
+                    return $(this).text().trim();
+                }).get();
+                var VehicleCustomer = vehicles.join(", ");
+                var TemplateMessage = $('#TemplateMessage').val();
+
+                var CopyPersonalDetails = TemplateMessage.replace('<NAME>', FullName).replace('<ADDRESS>',
+                    AddressCustomer).replace('<EMAIL>', EmailCustomer).replace('<VEHICLE>',
+                    VehicleCustomer);
+                $('#CopyPersonalDetails').val(CopyPersonalDetails);
+            }
+
+            var ElementId =
+                "#FullName, #EmailCustomer, #ContactNumber, #AddressCustomer, #VehicleCustomer, #TemplateMessage, #AutoCompleteFullNameCustomer, .select2-selection__choice, #CopyPersonalDetails, #btnCopyAddress";
+            $(ElementId).on('click keyup', updateCopyPersonalDetails);
+
+
+            $("#btnCopyAddress").on('click', function() {
+                swal.fire("Copied!", "Personal Details Copied", "success");
+            });
+
+
+            // check 
+            $('.seller-next-btn-check').on('click', function() {
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+                var TemplateMessage = $("#TemplateMessage").val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var IdCustomer = $("#IdCustomer").val();
+
+                if (FullName == '') {
+                    swal.fire("Error!", "Full Name is required", "error");
+                    return;
+                }
+
+                if (EmailCustomer == '') {
+                    swal.fire("Error!", "Email Customer is required", "error");
+                    return;
+                }
+
+                if (ContactNumber == '') {
+                    swal.fire("Error!", "Contact Number is required", "error");
+                    return;
+                }
+
+                if (AddressCustomer == '') {
+                    swal.fire("Error!", "Address Customer is required", "error");
+                    return;
+                }
+
+                if (VehicleCustomer == '') {
+                    swal.fire("Error!", "Vehicle Customer is required", "error");
+                    return;
+                }
+
+                if (Latitude == '' || Longitude == '') {
+                    swal.fire("Error!", "Latitude and Longitude is required", "error");
+                    return;
+                }
+
+                if (IdCustomer == '') {
+                    swal.fire("Error!", "User not found", "error");
+                    return;
+                }
+
+                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
+                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
+                        '<VEHICLE>') == false) {
+                    swal.fire("Error!",
+                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                    return;
+                }
+
+                $('#btnNextStep2').trigger('click');
+            });
         });
     </script>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places">
-    </script>
-
 
     {{-- GOOGLE MAPS JANGAN DIOTAK ATIK YA GESSS YAA  --}}
     <script>

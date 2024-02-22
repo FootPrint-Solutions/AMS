@@ -104,6 +104,9 @@
     <script src="{{ asset('/plugins/sweetalert/sweetalerts.min.js') }}"></script>
     <script src="{{ asset('/plugins/sweetalert/sweetalert2.all.min.js') }}"></script>
 
+    {{-- Clipboard JS --}}
+    <script src="{{ asset('/plugins/clipboard/clipboard.min.js') }}" type=" text/javascript"></script>
+
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>
 </body>
@@ -138,7 +141,7 @@
          */
         $("#content-container").on("click", ".delete-selected", function() {
             var selectedRows = table.rows({
-                    selected: true
+                selected: true
             }).data().toArray();
 
             if (selectedRows.length === 0) {
@@ -155,7 +158,7 @@
         });
         // End of OnClick Event Listener
     });
-    
+
     /**
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
      *
@@ -183,7 +186,7 @@
      * @param {string} url - The url of the destroyer function.
      * @param {function} callback - The table reload function after destroy process.
      */
-     function sendDestroyRequest(id, url, callback) {
+    function sendDestroyRequest(id, url, callback) {
         // Show an alert before destroying an item.
         Swal.fire({
             title: "Are you sure?",
@@ -227,7 +230,9 @@
      * @param {int} idIdx - The index of data id.
      */
     function appendDatatablesToolbar(idIdx) {
-        $.get("/datatables/toolbar", { idIdx: idIdx }, function(data) {
+        $.get("/datatables/toolbar", {
+            idIdx: idIdx
+        }, function(data) {
             $(".dt-buttons").append(data);
         });
     }
@@ -238,8 +243,7 @@
      * @returns {Array} A list of button configurations DataTables.
      */
     function getDatatablesButtonConfigurations() {
-        return [
-            {
+        return [{
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
                 className: "btn btn-outline-danger btn-sm",
@@ -266,7 +270,7 @@
      * @param {string} [search=""] - The search value to display in the DataTable.
      * @returns {Object} A list of language configurations DataTables.
      */
-     function getDatatablesLanguangeConfigurations(searchPlaceholderKey, search = "") {
+    function getDatatablesLanguangeConfigurations(searchPlaceholderKey, search = "") {
         return {
             searchPlaceholder: "Search " + searchPlaceholderKey,
             search: search,
@@ -340,6 +344,11 @@
             }
             inputField.val("");
         }
+    }
+
+
+    if ($('.clipboard').length > 0) {
+        var clipboard = new Clipboard('.btn');
     }
 </script>
 

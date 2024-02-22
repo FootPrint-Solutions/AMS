@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\MasterData\Customer\CustomerVehicleModel;
 
 class Quotation extends Controller
 {
@@ -38,7 +39,7 @@ class Quotation extends Controller
 
     function shareFormPersonalDetails(Request $request)
     {
-        $url = "http://172.104.32.164:5001/send-message";
+        $url = "http://139.162.35.251:5001/send-message";
         $vehicleCustomer = $request->input('VehicleCustomer');
         $vehicleCustomerString = is_array($vehicleCustomer) ? implode(', ', $vehicleCustomer) : $vehicleCustomer;
 
@@ -71,5 +72,12 @@ class Quotation extends Controller
         } catch (\Exception $e) {
             return getResponseData(false, "Failed to send message => " . $e->getMessage());
         }
+    }
+
+    public function findVehicleByIdCustomer(Request $request)
+    {
+        $id = $request->input('id');
+        $results = CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray();
+        return response()->json($results);
     }
 }
