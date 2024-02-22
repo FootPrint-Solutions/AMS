@@ -16,10 +16,15 @@ class Authentication extends Controller
     {
         // Set menu session.
         session([
-            'menu' => MenuParent::with("menus")->get()->toArray(),
-            'submenu' => Menu::with('menuSubs')->get()->mapWithKeys(function ($menu) {
+            'menu' => MenuParent::with(['menus' => function ($query) {
+                $query->orderBy('order');
+            }])->orderBy('order')->get()->toArray(),
+            'submenu' => Menu::with(['menuSubs' => function ($query) {
+                $query->orderBy('order');
+            }])->get()->mapWithKeys(function ($menu) {
                 return [$menu->id => $menu->menuSubs->toArray()];
             })->toArray()
+
         ]);
 
         return view(
