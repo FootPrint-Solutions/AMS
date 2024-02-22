@@ -58,7 +58,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: getDatatablesLanguangeConfigurations("Distributor"),
+                language: getDatatablesLanguangeConfigurations("Menu"),
                 select: true,
             });
 
