@@ -110,6 +110,10 @@
 
 <script>
     $(document).ready(function() {
+        // OnClick Event Listener
+        /**
+         * Add a click listener to DataTables edit button in custom toolbar.
+         */
         $("#content-container").on("click", ".edit-selected", function() {
             var selectedRows = table.rows({
                 selected: true
@@ -129,6 +133,9 @@
             edit(id);
         });
 
+        /**
+         * Add a click listener to DataTables delete button in custom toolbar.
+         */
         $("#content-container").on("click", ".delete-selected", function() {
             var selectedRows = table.rows({
                     selected: true
@@ -146,6 +153,7 @@
             var id = selectedRow[$(this).attr("data-id")];
             destroy(id);
         });
+        // End of OnClick Event Listener
     });
     
     /**
