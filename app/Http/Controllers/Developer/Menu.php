@@ -95,8 +95,6 @@ class Menu extends Controller
 
         $query = MenuModel::query()
             ->join('menu_parent', 'menu_parent.id', '=', 'menu.id_parent');
-        // ->orderBy('column_x')
-        // ->orderBy('column_y');
 
         $selectColumns = ['menu.id', 'menu.name AS menu_name', 'menu_parent.name AS menu_parent_name'];
         $query->select($selectColumns);
@@ -182,6 +180,7 @@ class Menu extends Controller
         $menu = MenuModel::find($request->id);
         $menu->name = $request->name;
         $menu->id_parent = $request->menuparent;
+        // $menu->order = $menu->order($request->after, $request->menuparent);
         $menu->url = $request->url;
         $status = $menu->save();
 

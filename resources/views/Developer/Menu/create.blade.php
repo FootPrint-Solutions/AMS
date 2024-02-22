@@ -54,7 +54,7 @@
                         <select class="form-control" id="menu-parent" name="menuparent" required>
                             <option></option>
                             @foreach ($data['menu_parents'] as $parent)
-                                <option value="{{ $parent['id'] }}" @if (isset($data['profile']) && $data['profile']['id_parent'] == $brand['id']) selected @endif>{{ $parent['name'] }}</option>
+                                <option value="{{ $parent['id'] }}" @if (isset($data['profile']) && $data['profile']['id_parent'] == $parent['id']) selected @endif>{{ $parent['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -67,7 +67,7 @@
                         <select class="form-control" id="menu" name="after">
                             <option></option>
                             @foreach ($data['menus'] as $menu)
-                                <option value="{{ $menu['id'] }}">{{ $menu['name'] }}</option>
+                                <option value="{{ $menu['id'] }}" @if (isset($data['profile']) && $data['profile']['order'] == $menu['order'] - 1) selected @endif>{{ $menu['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
