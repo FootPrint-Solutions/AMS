@@ -188,7 +188,7 @@ class Vehicle extends Controller
         $batteries[$request->batteryprimary] = ["type" => "1"];
 
         // Set secondary battery type to 0.
-        if (!isNull($request->batterysecondary)) {
+        if (!is_null($request->batterysecondary)) {
             foreach ($request->batterysecondary as $battery) {
                 $batteries[$battery] = ["type" => "0"];
             }
@@ -221,7 +221,7 @@ class Vehicle extends Controller
         $batteries[$request->batteryprimary] = ["type" => "1"];
 
         // Set secondary battery type to 0.
-        if (!isNull($request->batterysecondary)) {
+        if (!is_null($request->batterysecondary)) {
             foreach ($request->batterysecondary as $battery) {
                 $batteries[$battery] = ["type" => "0"];
             }
