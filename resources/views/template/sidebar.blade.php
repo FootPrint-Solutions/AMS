@@ -15,7 +15,7 @@
                     @endphp
 
                     <li class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif"
-                        @if($menu['id'] == 4) @if(Auth::user() && Auth::user()->role == 0) style="display: block;" @else style="display: none;" @endif @endif>
+                        @if($menu['role'] == 0) @if(Auth::user() && Auth::user()->role == 0) style="display: block;" @else style="display: none;" @endif @endif>
                         <a href="{{ $menu['url'] }}">
                             <i class="{{ $menu['icon'] }}"></i>
                             <span> {{ $menu['name'] }} </span>
