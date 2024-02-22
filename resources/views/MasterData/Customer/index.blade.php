@@ -100,44 +100,8 @@
                 select: true,
             });
 
-            $(".dt-buttons").append(
-                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
-            );
-
-
-            $('.edit-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to edit.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[5];
-                edit(id);
-            });
-
-            $('.delete-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to delete.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[5];
-                destroy(id);
-            });
+            // Load DataTables toolbar component.
+            appendDatatablesToolbar(5);
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");
