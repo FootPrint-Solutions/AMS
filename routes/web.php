@@ -23,6 +23,9 @@ use App\Http\Controllers\MasterData\Distributor\ShopTechnician;
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
+// DEVELOPER
+use App\Http\Controllers\Developer\Menu;
+
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
 
@@ -175,6 +178,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
+
+    // Developer
+    // Menu Manager
+    Route::get('/menu',  [Menu::class, 'index']);
 
 
     // Reusable Component
