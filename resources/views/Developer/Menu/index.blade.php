@@ -67,12 +67,7 @@
 
             // Add New distributor button
             $("#btn-add").on("click", function() {
-                goToPage("/distributor/create");
-            });
-
-            // Add New Brand button
-            $("#btn-add-brand").on("click", function() {
-                goToPage("/distributor/brand/create");
+                goToPage("/menu/create");
             });
         });
 

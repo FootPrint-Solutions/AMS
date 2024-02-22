@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\Menu as MenuModel;
+use App\Models\MenuParent as MenuParentModel;
 
 class Menu extends Controller
 {
@@ -27,6 +28,50 @@ class Menu extends Controller
                 $this->title,
                 $this->menu,
                 $this->submenu
+            )
+        );
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view(
+            'Developer.Menu.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "menus" => MenuModel::all()->toArray(),
+                    "menu_parents" => MenuParentModel::all()->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'Developer.Menu.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => MenuModel::find($id)->toArray(),
+                    "menus" => MenuModel::all()->toArray(),
+                    "menu_parents" => MenuParentModel::all()->toArray()
+                )
             )
         );
     }
@@ -101,5 +146,48 @@ class Menu extends Controller
         ];
 
         return response()->json($output);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $menu = new MenuModel();
+        $menu->name = $request->name;
+        $menu->id_parent = $request->menuparent;
+        $menu->url = $request->url;
+        $status = $menu->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new menu was successfully created!" : "Failed to create the new menu!"
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $menu = MenuModel::find($request->id);
+        $menu->name = $request->name;
+        $menu->id_parent = $request->menuparent;
+        $menu->url = $request->url;
+        $status = $menu->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new menu was successfully updated!" : "Failed to update the new menu!"
+        );
     }
 }

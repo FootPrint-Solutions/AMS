@@ -183,6 +183,10 @@ Route::middleware(['auth'])->group(function () {
     // Menu Manager
     Route::get('/menu',  [Menu::class, 'index']);
     Route::post('/menu/show', [Menu::class, 'show']);
+    Route::get('/menu/create', [Menu::class, 'create']);
+    Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
+    Route::post('/menu/store', [Menu::class, 'store']);
+    Route::post('/menu/update', [Menu::class, 'update']);
 
 
     // Reusable Component
