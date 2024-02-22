@@ -37,6 +37,10 @@
             white-space: nowrap;
             /* added line */
         }
+
+        .blog-image img {
+            width: 75%;
+        }
     </style>
     {{-- Title --}}
     <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
@@ -62,7 +66,7 @@
                                     </div>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item" id="ProductDisplay">
                                 <a href="#product-display" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="Company Document">
@@ -70,7 +74,7 @@
                                     </div>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item" id="InvoiceDisplay">
                                 <a href="#company-document" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="Company Document">
@@ -79,7 +83,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
+                            <li class="nav-item" id="PaymentDisplay">
                                 <a href="#bank-detail" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="Bank Details">
@@ -211,171 +215,11 @@
                                         <h5>Enter Your Order Detail</h5>
                                     </div>
 
-                                    <div class="row">
+                                    <div id="MapsDistributorRecomendation">
+                                    </div>
 
-                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
-                                            <div class="blog grid-blog flex-fill">
-                                                <div class="blog-image">
-                                                    <a href="blog-details.html">
-                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
-                                                            alt="Post Image">
-                                                    </a>
-                                                    {{-- <div class="blog-views">
-                                                        <i class="feather-eye me-1"></i> 225
-                                                    </div> --}}
-                                                </div>
-                                                <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
-                                                            Quanta
-                                                            9</a>
-                                                    </h3>
-                                                    <p>Details & Specification :</p>
-                                                    <ul class="list-group list-group-flush">
-                                                        <li class="list-group-item">Alt Name : UPS</li>
-                                                        <li class="list-group-item">Brand : AMARON</li>
-                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep
-                                                            Cycle
-                                                            Battery </li>
-                                                        <li class="list-group-item">Warranty : 12 Months</li>
-                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
-                                                        </li>
-                                                        <li class="list-group-item">Price : Rp. 475.000</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="edit-options">
-                                                        <div class="edit-delete-btn">
-                                                            <a href="edit-blog.html" class="text-success"><i
-                                                                    class="feather-edit-3 me-1"></i> Edit</a>
-                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
-                                                                data-bs-target="#deleteModal"><i
-                                                                    class="feather-trash-2 me-1"></i> Delete</a>
-                                                        </div>
-                                                        <div class="text-end inactive-style mt-3">
-                                                            <div class="checkbox">
-                                                                <label>
-                                                                    <input type="checkbox" name="checkbox"> Send
-                                                                    To
-                                                                    Customer
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
-                                            <div class="blog grid-blog flex-fill">
-                                                <div class="blog-image">
-                                                    <a href="blog-details.html">
-                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
-                                                            alt="Post Image">
-                                                    </a>
-                                                    {{-- <div class="blog-views">
-                                                        <i class="feather-eye me-1"></i> 225
-                                                    </div> --}}
-                                                </div>
-                                                <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
-                                                            Quanta
-                                                            9</a>
-                                                    </h3>
-                                                    <p>Details & Specification :</p>
-                                                    <ul class="list-group list-group-flush">
-                                                        <li class="list-group-item">Alt Name : UPS</li>
-                                                        <li class="list-group-item">Brand : AMARON</li>
-                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep
-                                                            Cycle
-                                                            Battery </li>
-                                                        <li class="list-group-item">Warranty : 12 Months</li>
-                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
-                                                        </li>
-                                                        <li class="list-group-item">Price : Rp. 475.000</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="edit-options">
-                                                        <div class="edit-delete-btn">
-                                                            <a href="edit-blog.html" class="text-success"><i
-                                                                    class="feather-edit-3 me-1"></i> Edit</a>
-                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
-                                                                data-bs-target="#deleteModal"><i
-                                                                    class="feather-trash-2 me-1"></i> Delete</a>
-                                                        </div>
-                                                        <div class="text-end inactive-style mt-3">
-                                                            <div class="checkbox">
-                                                                <label>
-                                                                    <input type="checkbox" name="checkbox"> Send
-                                                                    To
-                                                                    Customer
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6 col-xl-4 col-sm-12 d-flex">
-                                            <div class="blog grid-blog flex-fill">
-                                                <div class="blog-image">
-                                                    <a href="blog-details.html">
-                                                        <img class="img-fluid" src="https://i.ibb.co/GdS8BTf/image.png"
-                                                            alt="Post Image">
-                                                    </a>
-                                                    {{-- <div class="blog-views">
-                                                        <i class="feather-eye me-1"></i> 225
-                                                    </div> --}}
-                                                </div>
-                                                <div class="blog-content">
-                                                    <h3 class="blog-title"><a href="blog-details.html">AMARON
-                                                            Quanta
-                                                            9</a>
-                                                    </h3>
-                                                    <p>Details & Specification :</p>
-                                                    <ul class="list-group list-group-flush list-group-sm">
-                                                        <li class="list-group-item">Alt Name : UPS</li>
-                                                        <li class="list-group-item">Brand : AMARON</li>
-                                                        <li class="list-group-item">Sub Brand : QUANTA</li>
-                                                        <li class="list-group-item">Battery Technology : VRLA Deep
-                                                            Cycle
-                                                            Battery </li>
-                                                        <li class="list-group-item">Warranty : 12 Months</li>
-                                                        <li class="list-group-item">Capacity : 12V 7.2Ah</li>
-                                                        <li class="list-group-item">Dimension : 151 x 65 x 94 mm
-                                                        </li>
-                                                        <li class="list-group-item">Price : Rp. 475.000</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="edit-options">
-                                                        <div class="edit-delete-btn">
-                                                            <a href="edit-blog.html" class="text-success"><i
-                                                                    class="feather-edit-3 me-1"></i> Edit</a>
-                                                            <a href="#" class="text-danger" data-bs-toggle="modal"
-                                                                data-bs-target="#deleteModal"><i
-                                                                    class="feather-trash-2 me-1"></i> Delete</a>
-                                                        </div>
-                                                        <div class="text-end inactive-style mt-3">
-                                                            <div class="checkbox">
-                                                                <label>
-                                                                    <input type="checkbox" name="checkbox"> Send
-                                                                    To
-                                                                    Customer
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
+                                    <h6 class="mt-3">Our Battery Recommendation</h6>
+                                    <div class="row" id="ResultRecommendationBattery">
                                     </div>
                                     <div class="row">
                                         <div class="col">
@@ -923,11 +767,6 @@
                     return;
                 }
 
-                if (IdCustomer == '') {
-                    swal.fire("Error!", "User not found", "error");
-                    return;
-                }
-
                 if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
                     false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
                         '<VEHICLE>') == false) {
@@ -937,6 +776,93 @@
                 }
 
                 $('#btnNextStep2').trigger('click');
+
+                // check jika button next step 2 berhasil di click
+                if ($('#ProductDisplay').hasClass('active')) {
+                    $.ajax({
+                        url: "/find-vehicle-by-id-vehicle",
+                        type: "GET",
+                        data: {
+                            id: VehicleCustomer,
+                        },
+                        success: function(data) {
+                            var html = '';
+                            data.forEach(function(vehicle) {
+                                html +=
+                                    '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
+                                html += '<div class="blog grid-blog flex-fill">';
+                                html += '<div class="blog-image">';
+                                html += '<a href="blog-details.html">';
+                                if (vehicle.image == null) {
+
+                                    vehicle.image =
+                                        'https://via.placeholder.com/210x210';
+                                    html += '<img class="img-fluid" src="' + vehicle
+                                        .image + '" alt="Post Image">';
+                                } else {
+                                    var baseUrl =
+                                        "{{ asset('storage/image/battery/') }}";
+                                    vehicle.image = vehicle.image;
+                                    html += '<img class="img-fluid" src="' + baseUrl +
+                                        '/' + vehicle.image +
+                                        '" alt="Post Image">';
+                                }
+                                html += '</a>';
+                                html += '</div>';
+                                html += '<div class="blog-content">';
+                                html +=
+                                    '<h3 class="blog-title"><a href="blog-details.html">' +
+                                    vehicle.name + '</a></h3>';
+                                html += '<p>Details & Specification :</p>';
+                                html += '<ul class="list-group list-group-flush">';
+                                html += '<li class="list-group-item">Warranty : ' +
+                                    vehicle.warranty + ' Months</li>';
+
+                                html += '<li class="list-group-item">Price : Rp. ' +
+                                    vehicle.price_retail + '</li>';
+                                html += '</ul>';
+                                html += '</div>';
+                                html += '<div class="row">';
+                                html += '<div class="edit-options">';
+                                html += '<div class="text-end inactive-style mt-3">';
+                                html += '<div class="checkbox">';
+                                html += '<label>';
+                                html +=
+                                    '<input type="checkbox" name="checkbox"> Send To Customer';
+                                html += '</label>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                            });
+                            $('#ResultRecommendationBattery').html(html);
+                            getMapsNearAddressCustomer();
+                        }
+                    });
+                }
+
+                function getMapsNearAddressCustomer() {
+                    var address = $('#AddressCustomer').val();
+                    var latitude = $('#Latitude').val();
+                    var longitude = $('#Longitude').val();
+                    var idCustomer = $('#IdCustomer').val();
+                    var data = {
+                        address: address,
+                        latitude: latitude,
+                        longitude: longitude,
+                    };
+
+                    $.ajax({
+                        url: "/get-maps-near-address-customer",
+                        type: "GET",
+                        data: data,
+                        success: function(data) {
+                            $("#MapsDistributorRecomendation").html(data);
+                        }
+                    });
+                }
             });
         });
     </script>

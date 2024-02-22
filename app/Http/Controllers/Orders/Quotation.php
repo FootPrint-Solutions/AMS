@@ -12,6 +12,7 @@ use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Customer\CustomerVehicleModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 class Quotation extends Controller
 {
@@ -79,5 +80,41 @@ class Quotation extends Controller
         $id = $request->input('id');
         $results = CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray();
         return response()->json($results);
+    }
+
+    public function findVehicleByIdVehicle(Request $request)
+    {
+        $ids = $request->input('id');
+        $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+        return response()->json($results);
+    }
+
+    public function getMapsNearAddressCustomer(Request $request)
+    {
+        $address = $request->input('address');
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->get()->toArray();
+
+        $datalatlong = [];
+        foreach ($Distibutor as $key => $value) {
+            $datalatlong[] = [
+                'latitude' => $value['latitude'],
+                'longitude' => $value['longitude'],
+                'name' => $value['name'],
+                'address' => $value['address'],
+                'contact' => $value['contact'],
+            ];
+        }
+
+        $data = [
+            'address' => $address,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'distributor' => $Distibutor,
+            'datalatlong' => $datalatlong
+        ];
+
+        return view('Orders.Quotation.mapsaddressdistributor', $data);
     }
 }
