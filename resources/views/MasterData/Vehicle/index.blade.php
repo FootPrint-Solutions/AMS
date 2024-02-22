@@ -119,31 +119,10 @@
         }
 
         function destroy(id) {
-            $.ajax({
-                url: "/vehicle/destroy",
-                method: "POST",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "id": id
-                },
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
+            sendDestroyRequest(id, "/vehicle/destroy");
 
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Delete process was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Delete process was failed.
-                        showErrorToast(responseData.message);
-                    }
-
-                    // Reload table with updated rows.
-                    table.ajax.reload();
-                }
-            });
+            // Reload the index table.
+            table.ajax.reload();
         }
 
         $("#form-import").on("submit", function(e) {

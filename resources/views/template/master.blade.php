@@ -169,6 +169,37 @@
     }
 
     /**
+     * Send a POST request to destroy an item in database.
+     *
+     * @param {int} id - The id of item to be destroyed.
+     * @param {string} url - The url of the destroyer function.
+     */
+     function sendDestroyRequest(id, url, table) {
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "id": id
+            },
+            success: function(response) {
+                // Get response data (in JSON).
+                let responseData = JSON.parse(response);
+
+                // Check response data status.
+                // Status indicates the success status of company profile update.
+                if (responseData.status) {
+                    // The process was succeeded.
+                    showSuccessToast(responseData.message);
+                } else {
+                    // The process was failed.
+                    showErrorToast(responseData.message);
+                }
+            }
+        });
+    }
+
+    /**
      * Append a custom toolbar component into DataTables table.
      * 
      * @param {int} idIdx - The index of data id.

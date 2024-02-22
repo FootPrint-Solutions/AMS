@@ -86,7 +86,7 @@
                         }
 
                         // Redirect to Vehicle index page.
-                        goToPage("/vehicle");
+                        goToPage("/vehicle/brand");
                     }
                 });
             });

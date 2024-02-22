@@ -113,43 +113,10 @@
         }
 
         function destroy(id) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You will delete this customer data !",
-                icon: "warning",
-                showCancelButton: !0,
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel!",
-                reverseButtons: !0
-            }).then(function(e) {
-                if (e.value === true) {
-                    $.ajax({
-                        url: '/customer/destroy',
-                        method: 'POST',
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            "id": id
-                        },
-                        success: function(response) {
-                            // Get response data (in JSON).
-                            let responseData = JSON.parse(response);
+            sendDestroyRequest(id, "/customer/destroy");
 
-                            // Check response data status.
-                            // Status indicates the success status of company profile update.
-                            if (responseData.status) {
-                                // Company profile update was succeeded.
-                                showSuccessToast(responseData.message);
-                            } else {
-                                // Company profile update was failed.
-                                showErrorToast(responseData.message);
-                            }
-
-                            // Reload table with updated rows.
-                            table.ajax.reload();
-                        }
-                    });
-                }
-            });
+            // Reload the index table.
+            table.ajax.reload();
         }
     </script>
 @endsection
