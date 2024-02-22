@@ -180,7 +180,7 @@ class Menu extends Controller
         $menu = MenuModel::find($request->id);
         $menu->name = $request->name;
         $menu->id_parent = $request->menuparent;
-        // $menu->order = $menu->order($request->after, $request->menuparent);
+        $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
         $menu->url = $request->url;
         $status = $menu->save();
 

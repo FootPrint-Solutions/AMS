@@ -69,6 +69,7 @@
                             @foreach ($data['menus'] as $menu)
                                 <option value="{{ $menu['id'] }}" @if (isset($data['profile']) && $data['profile']['order'] == $menu['order'] - 1) selected @endif>{{ $menu['name'] }}</option>
                             @endforeach
+                            <option value="new">Clear menu selection</option>
                         </select>
                     </div>
                 </div>
@@ -108,6 +109,15 @@
 
         $('#menu-parent').select2({
             placeholder: "Enter menu parent"
+        });
+
+        $("#menu").on("select2:select", function (e) {
+            if (e.params.data.id === "new") {
+                $('#menu option:selected').removeAttr('selected');
+                $('#menu').val('');
+                $('#menu').text('');
+                // $(this).val("");
+            }
         });
 
         $("#menu-form").on("submit", function(event) {
