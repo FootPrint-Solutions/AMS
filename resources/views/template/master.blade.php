@@ -173,28 +173,42 @@
      *
      * @param {int} id - The id of item to be destroyed.
      * @param {string} url - The url of the destroyer function.
+     * @param {function} callback - The table reload function after destroy process.
      */
-     function sendDestroyRequest(id, url, table) {
-        $.ajax({
-            url: url,
-            method: "POST",
-            data: {
-                "_token": "{{ csrf_token() }}",
-                "id": id
-            },
-            success: function(response) {
-                // Get response data (in JSON).
-                let responseData = JSON.parse(response);
+     function sendDestroyRequest(id, url, callback) {
+        // Show an alert before destroying an item.
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to delete the selected item!",
+            icon: "warning",
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!"
+        }).then(function(e) {
+            // If user has confirmed, do the destroy process.
+            if (e.value === true) {
+                // Send the destroy POST request to url.
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "id": id
+                    },
+                    success: function(response) {
+                        // Get response data (in JSON).
+                        let responseData = JSON.parse(response);
 
-                // Check response data status.
-                // Status indicates the success status of company profile update.
-                if (responseData.status) {
-                    // The process was succeeded.
-                    showSuccessToast(responseData.message);
-                } else {
-                    // The process was failed.
-                    showErrorToast(responseData.message);
-                }
+                        // Show Toast message.
+                        showResponseToast(responseData.status, responseData.message);
+
+                        // Call the callback table reload function.
+                        if (typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
             }
         });
     }
@@ -208,6 +222,28 @@
         $.get("/datatables/toolbar", { idIdx: idIdx }, function(data) {
             $(".dt-buttons").append(data);
         });
+    }
+
+    /**
+     * Displays a toast message using Toastr.
+     *
+     * @param {boolean} status - The proccess status.
+     * @param {string} message - The success message to be displayed.
+     */
+    function showResponseToast(status, message) {
+        if (status) {
+            // Show the success toast.
+            toastr.success(message, {
+                closeButton: true,
+                tapToDismiss: !1,
+            });
+        } else {
+            // Show the error toast.
+            toastr.error(message, {
+                closeButton: !0,
+                tapToDismiss: !1,
+            });
+        }
     }
 
     /**

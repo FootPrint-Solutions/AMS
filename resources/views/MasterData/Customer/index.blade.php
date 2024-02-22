@@ -113,10 +113,10 @@
         }
 
         function destroy(id) {
-            sendDestroyRequest(id, "/customer/destroy");
-
-            // Reload the index table.
-            table.ajax.reload();
+            sendDestroyRequest(id, "/customer/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
         }
     </script>
 @endsection

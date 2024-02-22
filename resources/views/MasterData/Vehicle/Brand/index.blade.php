@@ -95,10 +95,10 @@
         }
 
         function destroy(id) {
-            sendDestroyRequest(id, "/vehicle/brand/destroy");
-
-            // Reload the index table.
-            table.ajax.reload();
+            sendDestroyRequest(id, "/vehicle/brand/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
         }
     </script>
 @endsection

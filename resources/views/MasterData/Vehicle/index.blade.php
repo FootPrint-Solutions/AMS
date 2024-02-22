@@ -119,10 +119,10 @@
         }
 
         function destroy(id) {
-            sendDestroyRequest(id, "/vehicle/destroy");
-
-            // Reload the index table.
-            table.ajax.reload();
+            sendDestroyRequest(id, "/vehicle/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
         }
 
         $("#form-import").on("submit", function(e) {

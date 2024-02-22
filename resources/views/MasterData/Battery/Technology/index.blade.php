@@ -95,10 +95,10 @@
         }
 
         function destroy(id) {
-            sendDestroyRequest(id, "/battery/technology/destroy");
-
-            // Reload the index table.
-            table.ajax.reload();
+            sendDestroyRequest(id, "/battery/technology/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
         }
     </script>
 @endsection
