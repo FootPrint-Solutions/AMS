@@ -35,8 +35,8 @@
                 {{-- URL --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="url">URL</label>
-                        <input type="url" class="form-control" id="url" name="url" placeholder="Enter menu url"
+                        <label for="url">URL <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="url" name="url" placeholder="Enter menu url" required
                         @isset($data['profile'])
                             value="{{ $data['profile']['url'] }}"
                         @endisset
@@ -63,8 +63,8 @@
                 {{-- After --}}
                 <div class="col">
                     <div class="form-group local-forms">
-                        <label for="menu">Position (after) <span class="login-danger">*</span></label>
-                        <select class="form-control" id="menu" name="after" required>
+                        <label for="menu">Position (before which menu)</label>
+                        <select class="form-control" id="menu" name="after">
                             <option></option>
                             @foreach ($data['menus'] as $menu)
                                 <option value="{{ $menu['id'] }}">{{ $menu['name'] }}</option>
@@ -110,7 +110,7 @@
             placeholder: "Enter menu parent"
         });
 
-        $("#vehicle-form").on("submit", function(event) {
+        $("#menu-form").on("submit", function(event) {
             event.preventDefault();
 
             // Get current display mode (Update or Create).
@@ -145,13 +145,13 @@
                     }
 
                     // Redirect to index page.
-                    goToPage("/vehicle");
+                    goToPage("/menu");
                 }
             });
         });
 
-        $("#vehicle-form").on("reset", function() {
-            goToPage("/vehicle");
+        $("#menu-form").on("reset", function() {
+            goToPage("/menu");
         });
     });
 </script>

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 // MODELS
 use App\Models\Menu as MenuModel;
 use App\Models\MenuParent as MenuParentModel;
+use Illuminate\Support\Facades\DB;
 
 class Menu extends Controller
 {
@@ -160,6 +161,30 @@ class Menu extends Controller
         $menu->name = $request->name;
         $menu->id_parent = $request->menuparent;
         $menu->url = $request->url;
+
+        // Ordering
+        if (is_null($request->after)) {
+            // Get latest menu position in current menu parent.
+            $lastRow = MenuModel::where("id_parent", $request->menuparent)
+                ->orderBy("order", "DESC")
+                ->first();
+
+            // Add new menu to the last position.
+            $menu->order = $lastRow->order + 1;
+        } else {
+            // Move all menu to the correct position.
+            $destinationPosition = MenuModel::where("id", $request->after)->first();
+
+            MenuModel::where('order', '>=', $destinationPosition->order)
+                ->update([
+                    'order' => DB::raw('`order` + 1'),
+                    'updated_at' => now()->toDateTimeString() // Use now() to get the current timestamp
+                ]);
+
+            // Add new menu to the position.
+            $menu->order = $destinationPosition->order;
+        }
+
         $status = $menu->save();
 
         // Set a new response data to be sent.
