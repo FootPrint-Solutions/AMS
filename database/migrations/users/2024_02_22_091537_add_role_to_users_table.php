@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddImageToUsersTable extends Migration
+class AddRoleToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddImageToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('image')->after('remember_token')->nullable();
+            $table->string('role')->after('username')->default('1')->comment('0: developer, 1: user');
         });
     }
 
