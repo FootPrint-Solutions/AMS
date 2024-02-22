@@ -168,6 +168,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation', [Quotation::class, 'index']);
     Route::get('/find-customer', [Quotation::class, 'findCustomer'])->name('quotation.findCustomer');
     Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
+    Route::get('/find-vehicle-by-id', [Quotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
