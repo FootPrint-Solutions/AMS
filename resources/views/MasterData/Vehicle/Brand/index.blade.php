@@ -57,11 +57,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: {
-                    searchPlaceholder: "Search Vehicle Brand",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                language: getDatatablesLanguangeConfigurations("Vehicle Brand"),
                 select: true,
             });
 

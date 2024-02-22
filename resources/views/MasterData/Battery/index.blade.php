@@ -88,11 +88,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: {
-                    searchPlaceholder: "Search Battery",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
             });
 

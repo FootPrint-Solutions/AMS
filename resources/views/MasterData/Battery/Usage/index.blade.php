@@ -57,11 +57,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: {
-                    searchPlaceholder: "Search Battery Brand",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                language: getDatatablesLanguangeConfigurations("Battery Usage Type"),
                 select: true,
             });
 

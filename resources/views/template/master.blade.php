@@ -260,6 +260,21 @@
     }
 
     /**
+     * Get a list of custom DataTables language configurations in DataTables table.
+     * 
+     * @param {string} searchPlaceholderKey - The key to generate the search placeholder text.
+     * @param {string} [search=""] - The search value to display in the DataTable.
+     * @returns {Object} A list of language configurations DataTables.
+     */
+     function getDatatablesLanguangeConfigurations(searchPlaceholderKey, search = "") {
+        return {
+            searchPlaceholder: "Search " + searchPlaceholderKey,
+            search: search,
+            lengthMenu: "_MENU_ entries | ",
+        };
+    }
+
+    /**
      * Displays a toast message using Toastr.
      *
      * @param {boolean} status - The proccess status.

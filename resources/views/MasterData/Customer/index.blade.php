@@ -76,11 +76,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: {
-                    searchPlaceholder: "Search Customer",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                language: getDatatablesLanguangeConfigurations("Customer"),
                 select: true,
             });
 

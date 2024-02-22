@@ -76,11 +76,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: {
-                    searchPlaceholder: "Search Vehicle",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                language: getDatatablesLanguangeConfigurations("Vehicle"),
                 select: true,
             });
 
