@@ -57,7 +57,7 @@
         @include('template.sidebar')
 
         {{-- Content --}}
-        <div class="page-wrapper mb-5">
+        <div class="page-wrapper mb-5" id="content-container">
             <div class="content container-fluid">
                 {{-- Loading Overlay --}}
                 <div id="loading-overlay"></div>
@@ -109,6 +109,45 @@
 </body>
 
 <script>
+    $(document).ready(function() {
+        $("#content-container").on("click", ".edit-selected", function() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+
+            if (selectedRows.length === 0) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select at least one row to edit.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            var selectedRow = selectedRows[0];
+            var id = selectedRow[$(this).attr("data-id")];
+            edit(id);
+        });
+
+        $("#content-container").on("click", ".delete-selected", function() {
+            var selectedRows = table.rows({
+                    selected: true
+            }).data().toArray();
+
+            if (selectedRows.length === 0) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select at least one row to delete.",
+                    icon: "error",
+                });
+                return;
+            }
+            var selectedRow = selectedRows[0];
+            var id = selectedRow[$(this).attr("data-id")];
+            destroy(id);
+        });
+    });
+    
     /**
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
      *
@@ -126,6 +165,17 @@
                 $("#loading-indicator").hide();
                 $("#main-wrapper").html(response);
             }
+        });
+    }
+
+    /**
+     * Append a custom toolbar component into DataTables table.
+     * 
+     * @param {int} idIdx - The index of data id.
+     */
+    function appendDatatablesToolbar(idIdx) {
+        $.get("/datatables/toolbar", { idIdx: idIdx }, function(data) {
+            $(".dt-buttons").append(data);
         });
     }
 

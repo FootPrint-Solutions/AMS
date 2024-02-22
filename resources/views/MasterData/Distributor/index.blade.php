@@ -86,44 +86,8 @@
             });
 
             // Load DataTables toolbar component.
-            $.get("/datatables/toolbar", function(data) {
-                $(".dt-buttons").append(data);
-            });
+            appendDatatablesToolbar(6);
 
-
-            $('.edit-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to edit.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[6];
-                edit(id);
-            });
-
-            $('.delete-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to delete.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[6];
-                destroy(id);
-            });
             // Add New distributor button
             $("#btn-add").on("click", function() {
                 goToPage("/distributor/create");

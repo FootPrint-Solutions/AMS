@@ -87,44 +87,7 @@
             });
 
             // Load DataTables toolbar component.
-            $.get("/datatables/toolbar", function(data) {
-                $(".dt-buttons").append(data);
-            });
-
-
-            $('.edit-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to edit.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[7];
-                edit(id);
-            });
-
-            $('.delete-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to delete.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[7];
-                destroy(id);
-            });
+            appendDatatablesToolbar(7);
 
             // Add New Store button
             $("#btn-add").on("click", function() {

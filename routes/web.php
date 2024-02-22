@@ -179,7 +179,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
-        return view('template.component.dt-toolbar')->render();
+        $idIdx = request()->input('idIdx');
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
     });
 });
 
