@@ -68,7 +68,7 @@
                         <select class="form-control" id="subbrand-category" name="subbrandcategory">
                             <option></option>
                             @foreach ($data['subbrand_categories'] as $category)
-                                <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
+                                <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['id_subbrand_category'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new subbrand&hellip;</option>
                         </select>
@@ -348,6 +348,8 @@
 @endisset
 
 <script>
+    let indexUrl = "/battery";
+
     $(document).ready(function() {
         formatPrice($("#price"), $("#price-warning-number"));
 
@@ -429,44 +431,21 @@
         $("#battery-form").on("submit", function(event) {
             event.preventDefault();
 
-            let mode = $("#btn-save").attr("value"); // Update or Create
-            let url = "/battery/store";
-            if (mode == "update") {
-                url = "/battery/update";
-            }
+            let mode = $("#btn-save").attr("value"); // update || create
+            let url = (mode == "update") ? "/battery/update" : "/battery/store";
 
-            // Get customer form data.
+            // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
-            
-            // Send customer form data to Customer controller using AJAX.
-            $.ajax({
-                url: url,
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
 
-                    // Check response data status.
-                    // Status indicates the success status of customer creating porcess.
-                    if (responseData.status) {
-                        // Creating process was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Creating process was failed.
-                        showErrorToast(responseData.message);
-                    }
-
-                    // Redirect to Battery index page.
-                    goToPage("/battery");
-                }
+            // Send submit POST request via AJAX.
+            sendSubmitRequest(url, formData, function() {
+                // Redirect to index page.
+                goToPage(indexUrl);
             });
         });
 
         $("#battery-form").on("reset", function() {
-            goToPage("/battery");
+            goToPage(indexUrl);
         });
     });
 </script>

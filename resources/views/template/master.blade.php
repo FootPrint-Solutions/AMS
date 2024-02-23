@@ -165,18 +165,19 @@
      * @param {string} destination - The destination view
      */
     function goToPage(destination) {
-        $.ajax({
-            url: destination,
-            beforeSend: function() {
-                $("#loading-overlay").show();
-                $("#loading-indicator").show();
-            },
-            success: function(response) {
-                $("#loading-overlay").hide();
-                $("#loading-indicator").hide();
-                $("#main-wrapper").html(response);
-            }
-        });
+        window.location.href = destination;
+        // $.ajax({
+        //     url: destination,
+        //     beforeSend: function() {
+        //         $("#loading-overlay").show();
+        //         $("#loading-indicator").show();
+        //     },
+        //     success: function(response) {
+        //         $("#loading-overlay").hide();
+        //         $("#loading-indicator").hide();
+        //         $("#main-wrapper").html(response);
+        //     }
+        // });
     }
 
     /**
@@ -184,9 +185,9 @@
      *
      * @param {int} id - The id of item to be destroyed.
      * @param {string} url - The url of the destroyer function.
-     * @param {function} callback - The table reload function after destroy process.
+     * @param {function|null} callback - The table reload function after destroy process.
      */
-    function sendDestroyRequest(id, url, callback) {
+    function sendDestroyRequest(id, url, callback = null) {
         // Show an alert before destroying an item.
         Swal.fire({
             title: "Are you sure?",
@@ -215,11 +216,40 @@
                         showResponseToast(responseData.status, responseData.message);
 
                         // Call the callback table reload act (or any other acts after the deletion process is complete).
-                        if (typeof callback === "function") {
+                        if (callbakc !== null && typeof callback === "function") {
                             callback();
                         }
                     }
                 });
+            }
+        });
+    }
+
+    /**
+     * Send a POST request to store or update an item in database.
+     *
+     * @param {string} url - The url of the storer or updater function.
+     * @param {FormData} data - The form data to be submitted.
+     * @param {function|null} callback - The redirecting process after updating or storing process.
+     */
+    function sendSubmitRequest(url, data, callback = null) {
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // Get response data (in JSON).
+                let responseData = JSON.parse(response);
+
+                // Show Toast message based on responseData.
+                showResponseToast(responseData.status, responseData.message);
+
+                // Call the callback redirect act.
+                if (callback !== null && typeof callback === "function") {
+                    callback();
+                }
             }
         });
     }

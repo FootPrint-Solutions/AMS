@@ -117,12 +117,7 @@
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
-                    <textarea type="text" class="form-control" id="note" name="note"
-                        placeholder="Enter some notes regarding the shop">
-@if (isset($data['profile']) && !empty($data['profile']['note']))
-{{ $data['profile']['note'] }}
-@endif
-</textarea>
+                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the shop">@if (isset($data['profile']) && !empty($data['profile']['note'])){{ $data['profile']['note'] }}@endif</textarea>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -152,6 +147,8 @@
     @include('maps.addressmodal')
 
     <script>
+        let indexUrl = "/distributor/shop";
+
         $(document).ready(function() {
             $('#distributor').select2({
                 placeholder: "Enter distributor brand"
@@ -159,45 +156,22 @@
 
             $("#distributor-shop-form").on("submit", function(event) {
                 event.preventDefault();
+                
+                let mode = $("#btn-save").attr("value"); // update || create
+                let url = (mode == "update") ? "/distributor/shop/update" : "/distributor/shop/store";
 
-                // Get current display mode (Update or Create).
-                let mode = $("#btn-save").attr("value");
-                let url = "/distributor/shop/store";
-                if (mode == "update") {
-                    url = "/distributor/shop/update";
-                }
-
-                // Get form data.
+                // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
 
-                // Send form data to Vehicle controller using AJAX.
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Check response data status (0 || 1).
-                        if (responseData.status) {
-                            // Creating or updating process was succeeded.
-                            showSuccessToast(responseData.message);
-                        } else {
-                            // Creating or updating process was failed.
-                            showErrorToast(responseData.message);
-                        }
-
-                        // Redirect to index page.
-                        goToPage("/distributor/shop");
-                    }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage(indexUrl);
                 });
             });
 
             $("#distributor-shop-form").on("reset", function() {
-                goToPage("/distributor/shop");
+                goToPage(indexUrl);
             });
         });
     </script>

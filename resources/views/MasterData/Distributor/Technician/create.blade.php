@@ -79,12 +79,7 @@
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
-                    <textarea type="text" class="form-control" id="note" name="note"
-                        placeholder="Enter some notes regarding the technician">
-@if (isset($data['profile']) && !empty($data['profile']['note']))
-{{ $data['profile']['note'] }}
-@endif
-</textarea>
+                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the technician">@if (isset($data['profile']) && !empty($data['profile']['note'])){{ $data['profile']['note'] }}@endif</textarea>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -110,6 +105,8 @@
     </div>
 
     <script>
+        let indexUrl = "/distributor/technician";
+
         $(document).ready(function() {
             $('#shop').select2({
                 placeholder: "Enter technician shop"
@@ -118,45 +115,21 @@
             $("#technician-form").on("submit", function(event) {
                 event.preventDefault();
 
-                // Get current display mode (Update or Create).
-                let mode = $("#btn-save").attr("value");
-                let url = "/distributor/technician/store";
-                if (mode == "update") {
-                    url = "/distributor/technician/update";
-                }
+                let mode = $("#btn-save").attr("value"); // update || create
+                let url = (mode == "update") ? "/distributor/technician/update" : "/distributor/technician/store";
 
-                // Get form data.
+                // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
 
-                // Send form data to Vehicle controller using AJAX.
-                $.ajax({
-                    url: url,
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Check response data status.
-                        // Status indicates the success status of vehicle creating porcess.
-                        if (responseData.status) {
-                            // Creating or updating process was succeeded.
-                            showSuccessToast(responseData.message);
-                        } else {
-                            // Creating or updating process was failed.
-                            showErrorToast(responseData.message);
-                        }
-
-                        // Redirect to index page.
-                        goToPage("/distributor/technician");
-                    }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage(indexUrl);
                 });
             });
 
             $("#technician-form").on("reset", function() {
-                goToPage("/distributor/technician");
+                goToPage(indexUrl);
             });
         });
     </script>
