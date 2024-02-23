@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AlterTableCustomerChangeTypeData extends Migration
+class AddNameAlternateToBatteryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AlterTableCustomerChangeTypeData extends Migration
      */
     public function up()
     {
-        Schema::table('customer', function (Blueprint $table) {
-            $table->text('latitude')->change();
-            $table->text('longitude')->change();
+        Schema::table('battery', function (Blueprint $table) {
+            // $table->string('name_alternate')->nullable(); // Definisi kolom baru
         });
     }
 
@@ -26,8 +25,8 @@ class AlterTableCustomerChangeTypeData extends Migration
      */
     public function down()
     {
-        Schema::table('Customer', function (Blueprint $table) {
-            //
+        Schema::table('battery', function (Blueprint $table) {
+            $table->dropColumn('name_alternate');
         });
     }
 }
