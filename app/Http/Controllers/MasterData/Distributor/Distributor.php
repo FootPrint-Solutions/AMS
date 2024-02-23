@@ -173,7 +173,6 @@ class Distributor extends Controller
             $shop->note = $request->note;
             $shop->latitude = $request->Latitude;
             $shop->longitude = $request->Longitude;
-            $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
             $status &= $shop->save();
         } else {
             // Delete saved distributor shop.
@@ -225,7 +224,6 @@ class Distributor extends Controller
                 $shop->note = "";
                 $shop->latitude = $request->Latitude;
                 $shop->longitude = $request->Longitude;
-                $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
                 $status &= $shop->save();
             }
         } else {
