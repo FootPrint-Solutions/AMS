@@ -171,6 +171,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/find-vehicle-by-id', [Quotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
     Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
     Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
+    Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

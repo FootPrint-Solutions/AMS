@@ -228,8 +228,8 @@
                                         </div>
 
                                         <div class="col text-end">
-                                            <a href="javascript: void(0);" class="btn btn-success"> Share <i
-                                                    class="fa-brands fa-whatsapp"></i></a>
+                                            <button id='BtnShareBattery' class="btn btn-success"> Share <i
+                                                    class="fa-brands fa-whatsapp"></i></button>
                                             <a href="javascript: void(0);" class="btn btn-primary seller-next-btn">Next <i
                                                     class="bx bx-chevron-right ms-1"></i></a>
                                         </div>
@@ -828,7 +828,8 @@
                                 html += '<div class="checkbox">';
                                 html += '<label>';
                                 html +=
-                                    '<input type="checkbox" name="checkbox"> Send To Customer';
+                                    '<input type="checkbox" name="CheckBattery[]" value=' +
+                                    vehicle.id + '> Send To Customer';
                                 html += '</label>';
                                 html += '</div>';
                                 html += '</div>';
@@ -864,6 +865,129 @@
                     });
                 }
             });
+
+            $("#BtnShareBattery").click(function() {
+
+                $("#BtnShareBattery").prop('disabled', true);
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+                var TemplateMessage = $("#TemplateMessage").val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var IdCustomer = $("#IdCustomer").val();
+                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (Battery.length == 0) {
+                    swal.fire("Error!", "Please select battery", "error");
+                    return;
+                }
+
+                if (FullName == '') {
+                    swal.fire("Error!", "Full Name is required", "error");
+                    return;
+                }
+
+                if (EmailCustomer == '') {
+                    swal.fire("Error!", "Email Customer is required", "error");
+                    return;
+                }
+
+                if (ContactNumber == '') {
+                    swal.fire("Error!", "Contact Number is required", "error");
+                    return;
+                }
+
+                if (AddressCustomer == '') {
+                    swal.fire("Error!", "Address Customer is required", "error");
+                    return;
+                }
+
+                if (VehicleCustomer == '') {
+                    swal.fire("Error!", "Vehicle Customer is required", "error");
+                    return;
+                }
+
+                if (Latitude == '' || Longitude == '') {
+                    swal.fire("Error!", "Latitude and Longitude is required", "error");
+                    return;
+                }
+
+                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
+                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
+                        '<VEHICLE>') == false) {
+                    swal.fire("Error!",
+                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                    return;
+                }
+
+                var data = {
+                    FullName: FullName,
+                    EmailCustomer: EmailCustomer,
+                    ContactNumber: ContactNumber,
+                    AddressCustomer: AddressCustomer,
+                    VehicleCustomer: VehicleCustomer,
+                    TemplateMessage: TemplateMessage,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    IdCustomer: IdCustomer,
+                    Battery: Battery,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+
+                Battery.forEach(function(battery) {
+                    var data = {
+                        FullName: FullName,
+                        EmailCustomer: EmailCustomer,
+                        ContactNumber: ContactNumber,
+                        AddressCustomer: AddressCustomer,
+                        VehicleCustomer: VehicleCustomer,
+                        TemplateMessage: TemplateMessage,
+                        Latitude: Latitude,
+                        Longitude: Longitude,
+                        IdCustomer: IdCustomer,
+                        Battery: battery,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    };
+
+                    $.ajax({
+                        url: "/share-battery",
+                        type: "POST",
+                        data: data,
+                        success: function(data) {
+                            let ResponseData = JSON.parse(data);
+                            if (ResponseData.status) {
+                                Swal.fire({
+                                    title: "Success",
+                                    text: ResponseData.message,
+                                    icon: "success",
+                                });
+
+                                $("#BtnShareBattery").prop('disabled', false);
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: ResponseData.message ||
+                                        "Something went wrong, please try again later",
+                                    icon: "error",
+                                });
+
+                                $("#BtnShareBattery").prop('disabled', false);
+                            };
+                        }
+                    });
+                });
+            });
+
+
         });
     </script>
 

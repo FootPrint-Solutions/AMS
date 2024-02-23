@@ -13,6 +13,7 @@ use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Customer\CustomerVehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Battery\BatteryModel;
 
 class Quotation extends Controller
 {
@@ -116,5 +117,43 @@ class Quotation extends Controller
         ];
 
         return view('Orders.Quotation.mapsaddressdistributor', $data);
+    }
+
+    public function shareBattery(Request $request)
+    {
+        $url = "http://139.162.35.251:5001/send-image";
+        $ids = $request->input('Battery');
+        $results = BatteryModel::where('id', $ids)->get()->toArray();
+
+
+        foreach ($results as $key => $value) {
+            if ($value['image'] != null) {
+                $value['image'] = asset('storage/image/battery/' . $value['image']);
+            } else {
+                $value['image'] = null;
+            }
+            $data = [
+                'to' => "62" . $request->input('ContactNumber'),
+                'session' => auth()->user()->username,
+                'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
+                'caption' => "Battery Name : " . $value['name'] . "\n" . "Battery Capacity : " . $value['capacity'] . "\n" . "Battery Price : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\n" . "Battery Warranty : " . $value['warranty'] . "\n" . "\n",
+            ];
+
+            try {
+                $response = Http::post($url, $data);
+                if ($response->successful()) {
+                    $responseData = $response->json();
+                    if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
+                        return getResponseData(true, "Message sent successfully");
+                    } else {
+                        return getResponseData(false, "Failed to send message");
+                    }
+                } else {
+                    return getResponseData(false, "Failed to send message");
+                }
+            } catch (\Exception $e) {
+                return getResponseData(false, "Failed to send message => " . $e->getMessage());
+            }
+        }
     }
 }
