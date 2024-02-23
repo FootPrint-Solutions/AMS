@@ -159,6 +159,8 @@ class Customer extends Controller
         $customer->address = $request->address;
         $customer->contact = $request->contact;
         $customer->email = $request->email;
+        $customer->latitude = $request->Latitude;
+        $customer->longitude = $request->Longitude;
         $status = $customer->save();
 
         // Store the list of customers" owned vehicles.
@@ -185,6 +187,8 @@ class Customer extends Controller
         $customer->address = $request->address;
         $customer->contact = $request->contact;
         $customer->email = $request->email;
+        $customer->latitude = $request->Latitude;
+        $customer->longitude = $request->Longitude;
         $status = $customer->save();
 
         // Update the list of customers" owned vehicles.

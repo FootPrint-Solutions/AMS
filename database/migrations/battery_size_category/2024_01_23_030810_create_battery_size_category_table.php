@@ -16,8 +16,8 @@ class CreateBatterySizeCategoryTable extends Migration
         Schema::create('battery_size_category', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

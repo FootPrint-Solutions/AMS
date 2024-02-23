@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBatteryUsageTypeTable extends Migration
+class AddSoftdeleteToDistributorShopTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateBatteryUsageTypeTable extends Migration
      */
     public function up()
     {
-        Schema::create('battery_usage_type', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50);
+        Schema::table('distributor_shop', function (Blueprint $table) {
             $table->softDeletes();
-            $table->timestamps();
         });
     }
 
@@ -28,6 +25,8 @@ class CreateBatteryUsageTypeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battery_usage_type');
+        Schema::table('distributor_shop', function (Blueprint $table) {
+            //
+        });
     }
 }

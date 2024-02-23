@@ -59,29 +59,9 @@
     }
 
     function destroy(id) {
-        $.ajax({
-            url: "/battery/size/destroy",
-            method: "POST",
-            data: {
-                "_token": "{{ csrf_token() }}",
-                "id": id
-            },
-            success: function(response) {
-                // Get response data (in JSON).
-                let responseData = JSON.parse(response);
-
-                // Check response data status.
-                if (responseData.status) {
-                    // Delete process was succeeded.
-                    showSuccessToast(responseData.message);
-                } else {
-                    // Delete process was failed.
-                    showErrorToast(responseData.message);
-                }
-
-                // Reload table with updated rows.
-                table.ajax.reload();
-            }
+        sendDestroyRequest(id, "/battery/size/destroy", function() {
+            // Reload the index table.
+            table.ajax.reload();
         });
     }
 </script>

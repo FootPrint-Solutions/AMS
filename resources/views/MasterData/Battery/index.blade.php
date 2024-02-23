@@ -87,69 +87,14 @@
                     orderable: false
                 }],
                 dom: "lBfrtip",
-                buttons: [{
-                        text: '<i class="fas fa-file-alt"></i> Export to PDF',
-                        extend: 'pdf',
-                        className: 'btn btn-outline-danger btn-sm',
-                    }, {
-                        text: '<i class="fas fa-file-excel"></i> Export to Excel',
-                        extend: 'excel',
-                        className: 'btn btn-outline-success btn-sm', // kelas CSS kustom
-                    },
-                    {
-                        text: '<i class="fas fa-sync-alt"></i> Refresh',
-                        action: function(e, dt, node, config) {
-                            dt.ajax.reload();
-                        },
-                        className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
-                    },
-                ],
-                language: {
-                    searchPlaceholder: "Search Battery",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                buttons: getDatatablesButtonConfigurations(),
+                language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
             });
 
-            $(".dt-buttons").append(
-                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
-            );
-
-
-            $('.edit-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to edit.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[12];
-                edit(id);
-            });
-
-            $('.delete-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to delete.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[12];
-                destroy(id);
-            });
+            // Load DataTables toolbar component.
+            appendDatatablesToolbar(12);
+            
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");
             });
@@ -208,33 +153,10 @@
             goToPage("/battery/edit/" + id);
         }
 
-
-
         function destroy(id) {
-            $.ajax({
-                url: '/battery/destroy',
-                method: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "id": id
-                },
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
-
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Company profile update was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Company profile update was failed.
-                        showErrorToast(responseData.message);
-                    }
-
-                    // Reload table with updated rows.
-                    table.ajax.reload();
-                }
+            sendDestroyRequest(id, "/battery/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
             });
         }
     </script>

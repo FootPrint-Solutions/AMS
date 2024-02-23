@@ -75,69 +75,14 @@
                     orderable: false
                 }],
                 dom: "lBfrtip",
-                buttons: [{
-                        text: '<i class="fas fa-file-alt"></i> Export to PDF',
-                        extend: 'pdf',
-                        className: 'btn btn-outline-danger btn-sm',
-                    }, {
-                        text: '<i class="fas fa-file-excel"></i> Export to Excel',
-                        extend: 'excel',
-                        className: 'btn btn-outline-success btn-sm', // kelas CSS kustom
-                    },
-                    {
-                        text: '<i class="fas fa-sync-alt"></i> Refresh',
-                        action: function(e, dt, node, config) {
-                            dt.ajax.reload();
-                        },
-                        className: 'btn btn-outline-primary btn-sm', // kelas CSS kustom
-                    },
-                ],
-                language: {
-                    searchPlaceholder: "Search Vehicle",
-                    search: "",
-                    lengthMenu: "_MENU_ entries | ",
-                },
+                buttons: getDatatablesButtonConfigurations(),
+                language: getDatatablesLanguangeConfigurations("Vehicle"),
                 select: true,
             });
 
-            $(".dt-buttons").append(
-                '<div class="btn-group"><button class="btn btn-outline-primary btn-sm edit-selected"><i class="fas fa-pencil"></i> Edit</button><button class="btn btn-outline-danger btn-sm delete-selected ml-1" > <i class="fas fa-trash"></i> Delete</button></div>'
-            );
+            // Load DataTables toolbar component.
+            appendDatatablesToolbar(4);
 
-
-            $('.edit-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to edit.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[4];
-                edit(id);
-            });
-
-            $('.delete-selected').on('click', function() {
-                var selectedRows = table.rows({
-                    selected: true
-                }).data().toArray();
-                if (selectedRows.length === 0) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please select at least one row to delete.",
-                        icon: "error",
-                    });
-                    return;
-                }
-                var selectedRow = selectedRows[0];
-                var id = selectedRow[4];
-                destroy(id);
-            });
             // Add New Vehicle button
             $("#btn-add").on("click", function() {
                 goToPage("/vehicle/create");
@@ -154,30 +99,9 @@
         }
 
         function destroy(id) {
-            $.ajax({
-                url: "/vehicle/destroy",
-                method: "POST",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "id": id
-                },
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
-
-                    // Check response data status.
-                    // Status indicates the success status of company profile update.
-                    if (responseData.status) {
-                        // Delete process was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Delete process was failed.
-                        showErrorToast(responseData.message);
-                    }
-
-                    // Reload table with updated rows.
-                    table.ajax.reload();
-                }
+            sendDestroyRequest(id, "/vehicle/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
             });
         }
 

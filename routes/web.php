@@ -16,12 +16,19 @@ use App\Http\Controllers\MasterData\Battery\BatterySubbrand;
 use App\Http\Controllers\MasterData\Battery\BatteryTechnology;
 use App\Http\Controllers\MasterData\Battery\BatteryUsage;
 use App\Http\Controllers\MasterData\Battery\BatterySize;
+use App\Http\Controllers\MasterData\Distributor\Distributor;
+use App\Http\Controllers\MasterData\Distributor\DistributorShop;
+use App\Http\Controllers\MasterData\Distributor\ShopTechnician;
 
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
+// DEVELOPER
+use App\Http\Controllers\Developer\Menu;
+
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
+
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -129,11 +136,42 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/size/update', [BatterySize::class, 'update'])->name('battery.size.update');
     Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
 
+    // Distributor
+    Route::get('/distributor', [Distributor::class, 'index']);
+    Route::post('/distributor/show', [Distributor::class, 'show']);
+    Route::get('/distributor/create', [Distributor::class, 'create']);
+    Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
+    Route::post('/distributor/store', [Distributor::class, 'store']);
+    Route::post('/distributor/update', [Distributor::class, 'update']);
+    Route::post('/distributor/destroy', [Distributor::class, 'destroy']);
+
+    // Distributor Shop
+    Route::get('/distributor/shop', [DistributorShop::class, 'index']);
+    Route::post('/distributor/shop/show', [DistributorShop::class, 'show']);
+    Route::get('/distributor/shop/create', [DistributorShop::class, 'create']);
+    Route::get('/distributor/shop/edit/{id}', [DistributorShop::class, 'edit']);
+    Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
+    Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
+    Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
+
+    // Shop Technician
+    Route::get('/distributor/technician', [ShopTechnician::class, 'index']);
+    Route::post('/distributor/technician/show', [ShopTechnician::class, 'show']);
+    Route::get('/distributor/technician/create', [ShopTechnician::class, 'create']);
+    Route::get('/distributor/technician/edit/{id}', [ShopTechnician::class, 'edit']);
+    Route::post('/distributor/technician/store', [ShopTechnician::class, 'store']);
+    Route::post('/distributor/technician/update', [ShopTechnician::class, 'update']);
+    Route::post('/distributor/technician/destroy', [ShopTechnician::class, 'destroy']);
+
     // Orders
     // Quick Quotation
     Route::get('/quotation', [Quotation::class, 'index']);
     Route::get('/find-customer', [Quotation::class, 'findCustomer'])->name('quotation.findCustomer');
     Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
+    Route::get('/find-vehicle-by-id', [Quotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
+    Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
+    Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
+    Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
@@ -145,24 +183,24 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
-    Route::get('/sse', function () {
-        // Set header untuk SSE
-        header('Content-Type: text/event-stream');
-        header('Cache-Control: no-cache');
-        header('Connection: keep-alive');
 
-        // Kirim data SSE setiap detik
-        $counter = 0;
-        while (true) {
-            echo "data: Server time: " . now()->format('H:i:s') . "\n\n";
-            flush(); // Pastikan untuk mengirimkan buffer ke browser
-            sleep(1); // Tunggu 1 detik sebelum mengirimkan pembaruan berikutnya
-            $counter++;
-
-            // Jika Anda ingin membatasi jumlah pembaruan, Anda bisa menambahkan kondisi di sini
-            // Contoh: if ($counter >= 10) { break; }
-        }
+    // Reusable Component
+    Route::get('/datatables/toolbar', function () {
+        $idIdx = request()->input('idIdx');
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
     });
+});
+
+Route::middleware(['developer'])->group(function () {
+    // Menu Manager
+    Route::get('/menu',  [Menu::class, 'index']);
+    Route::post('/menu/show', [Menu::class, 'show']);
+    Route::get('/menu/create', [Menu::class, 'create']);
+    Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
+    Route::post('/menu/store', [Menu::class, 'store']);
+    Route::post('/menu/update', [Menu::class, 'update']);
+
+
 });
 
 // Auth

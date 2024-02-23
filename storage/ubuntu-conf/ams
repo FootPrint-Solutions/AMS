@@ -1,6 +1,6 @@
 server {
 listen 7777;
-server_name 172.104.32.164;
+server_name 139.162.35.251;
 root /var/www/html/AMS/public;
 index index.php index.html index.htm;
 
@@ -28,7 +28,7 @@ error_page 404 /index.php;
 
 location ~ \.php$ {
 include snippets/fastcgi-php.conf;
-fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
 include fastcgi_params;
 fastcgi_intercept_errors on;

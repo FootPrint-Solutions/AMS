@@ -344,7 +344,7 @@ class Battery extends Controller
         $battery->standard_cca = $request->standardcca;
         $battery->capacity = $request->capacity;
         $battery->warranty = $request->warranty;
-        $battery->price_retail = $request->price;
+        $battery->price_retail = (float) str_replace(",", "", $request->price);
 
         // Check if an image has been uploaded or not.
         if ($request->hasFile('image')) {

@@ -29,6 +29,9 @@ class MenuSubSeeder extends Seeder
             ['name' => 'Usage Type', 'id_menu' => 4, 'order' => 3, 'url' => '/battery/usage', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Technology', 'id_menu' => 4, 'order' => 4, 'url' => '/battery/technology', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Size Category', 'id_menu' => 4, 'order' => 5, 'url' => '/battery/size', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
+            // PARTNER
+            ['name' => 'Shop', 'id_menu' => 5, 'order' => 2, 'url' => '/distributor/shop', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Technician', 'id_menu' => 5, 'order' => 3, 'url' => '/distributor/technician', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

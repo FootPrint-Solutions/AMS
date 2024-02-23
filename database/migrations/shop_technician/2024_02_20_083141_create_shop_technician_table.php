@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDistributorShopTable extends Migration
+class CreateShopTechnicianTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,19 @@ class CreateDistributorShopTable extends Migration
      */
     public function up()
     {
-        Schema::create('distributor_shop', function (Blueprint $table) {
+        Schema::create('shop_technician', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('id_distributor');
-            $table->string('address');
-            $table->point('coordinate');
-            $table->string('contact_person');
+            $table->unsignedBigInteger('id_shop');
             $table->string('contact');
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();
 
             /*
-            $table->foreign('id_distributor')
+            $table->foreign('id_shop')
                 ->references('id')
-                ->on('distributor');
+                ->on('distributor_shop');
             */
         });
     }
@@ -40,6 +37,6 @@ class CreateDistributorShopTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('distributor_shop');
+        Schema::dropIfExists('shop_technician');
     }
 }

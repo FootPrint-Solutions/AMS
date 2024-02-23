@@ -25,6 +25,7 @@ class MenuSeeder extends Seeder
             ['name' => 'Customer', 'id_parent' => 2, 'order' => 2, 'url' => '/customer', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Vehicle', 'id_parent' => 2, 'order' => 3, 'url' => '/vehicle', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Battery', 'id_parent' => 2, 'order' => 4, 'url' => '/battery', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Distributor', 'id_parent' => 2, 'order' => 5, 'url' => '/distributor', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Quick Quotation', 'id_parent' => 3, 'order' => 1, 'url' => '/quotation', 'hide' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }

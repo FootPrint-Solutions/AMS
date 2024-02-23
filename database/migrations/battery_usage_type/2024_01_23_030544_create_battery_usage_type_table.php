@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBatteryBrandTable extends Migration
+class CreateBatteryUsageTypeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateBatteryBrandTable extends Migration
      */
     public function up()
     {
-        Schema::create('battery_brand', function (Blueprint $table) {
+        Schema::create('battery_usage_type', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +28,6 @@ class CreateBatteryBrandTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battery_brand');
+        Schema::dropIfExists('battery_usage_type');
     }
 }

@@ -14,7 +14,7 @@ class AddNameAlternateToBatteryTable extends Migration
     public function up()
     {
         Schema::table('battery', function (Blueprint $table) {
-            $table->string('name_alternate')->nullable();
+            // $table->string('name_alternate')->nullable();
         });
     }
 

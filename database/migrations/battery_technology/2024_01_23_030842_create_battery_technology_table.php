@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBatterySubbrandCategoryTable extends Migration
+class CreateBatteryTechnologyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateBatterySubbrandCategoryTable extends Migration
      */
     public function up()
     {
-        Schema::create('battery_subbrand_category', function (Blueprint $table) {
+        Schema::create('battery_technology', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +28,6 @@ class CreateBatterySubbrandCategoryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('battery_subbrand_category');
+        Schema::dropIfExists('battery_technology');
     }
 }
