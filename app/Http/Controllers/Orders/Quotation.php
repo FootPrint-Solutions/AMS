@@ -42,8 +42,14 @@ class Quotation extends Controller
     function shareFormPersonalDetails(Request $request)
     {
         $url = "http://139.162.35.251:5001/send-message";
-        $vehicleCustomer = $request->input('VehicleCustomer');
-        $vehicleCustomerString = is_array($vehicleCustomer) ? implode(', ', $vehicleCustomer) : $vehicleCustomer;
+        $id = $request->input('VehicleCustomer');
+
+        $vehicleCustomerString = "";
+        $vehicleCustomer = VehicleModel::whereIn('id', $id)->get()->toArray();
+
+        foreach ($vehicleCustomer as $key => $value) {
+            $vehicleCustomerString .= $value['name'] . ", ";
+        }
 
         $template = $request->input('TemplateMessage');
         $text = str_replace(
