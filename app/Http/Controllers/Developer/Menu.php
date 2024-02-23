@@ -68,7 +68,7 @@ class Menu extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => MenuModel::find($id)->toArray(),
+                    "profile" => MenuModel::with("menuSubs")->find($id)->toArray(),
                     "menus" => MenuModel::all()->toArray(),
                     "menu_parents" => MenuParentModel::all()->toArray()
                 )
