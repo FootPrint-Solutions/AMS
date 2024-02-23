@@ -120,26 +120,28 @@
             {{-- Body --}}
             <div class="modal-body">
                 <ul class="list-group list-group-flush" id="list-submenu">
-                    @foreach($data['profile']['menu_subs'] as $submenu)
-                        <li class="list-group-item">
-                            <div class="row">
-                                {{-- Submenu Name --}}
-                                <div class="col">
-                                    <input type="text" class="form-control" name="submenuname[]" placeholder="Enter submenu name" value="{{ $submenu['name'] }}">
-                                </div>
+                    @isset ($data['profile'])
+                        @foreach($data['profile']['menu_subs'] as $submenu)
+                            <li class="list-group-item">
+                                <div class="row">
+                                    {{-- Submenu Name --}}
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="submenuname[]" placeholder="Enter submenu name" value="{{ $submenu['name'] }}">
+                                    </div>
 
-                                {{-- Submenu Url --}}
-                                <div class="col">
-                                    <input type="text" class="form-control" name="submenuurl[]" placeholder="Enter submenu url" value="{{ $submenu['url'] }}">
-                                </div>
+                                    {{-- Submenu Url --}}
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="submenuurl[]" placeholder="Enter submenu url" value="{{ $submenu['url'] }}">
+                                    </div>
 
-                                {{-- Remove button --}}
-                                <div class="col-sm-1">
-                                    <button class="btn btn-danger"><i class="fa fa-x"></i></button>
+                                    {{-- Remove button --}}
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-danger"><i class="fa fa-x"></i></button>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    @endforeach
+                            </li>
+                        @endforeach
+                    @endisset
                 </ul>
             </div>
         </div>
@@ -157,9 +159,38 @@
         });
 
         $("#menu").on("select2:select", function (e) {
+            // Check if user has selected 'Clear menu selection'.
             if (e.params.data.id === "clear") {
+                // Clear current selection.
                 $(this).val(null).trigger("change");
             }
+        });
+
+        $("#menu-parent").on("select2:select", function (e) {
+            // Obtain selected parent id.
+            let parentId = e.params.data.id;
+
+            // Get the list of menus inside the selected parent.
+            $.ajax({
+                url: "/menu/get/parent/" + parentId,
+                method: "GET",
+                success: function(response) {
+                    // Clear current options and value.
+                    $("#menu").empty().val(null).trigger("change");
+
+                    let emptyOption = new Option("", "", false, false);
+                    $("#menu").append(emptyOption).trigger("change");
+
+                    response.forEach(function(menu) {
+                        // Append new options.
+                        let newOption = new Option(menu.name, menu.id, false, false);
+                        $("#menu").append(newOption).trigger("change");
+                    });
+
+                    let clearOption = new Option("Clear menu selection", "clear", false, false);
+                    $("#menu").append(clearOption).trigger("change");
+                }
+            });
         });
 
         $("#btn-add-submenu").on("click", function() {
