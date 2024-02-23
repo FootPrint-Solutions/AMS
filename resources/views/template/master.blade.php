@@ -165,18 +165,19 @@
      * @param {string} destination - The destination view
      */
     function goToPage(destination) {
-        $.ajax({
-            url: destination,
-            beforeSend: function() {
-                $("#loading-overlay").show();
-                $("#loading-indicator").show();
-            },
-            success: function(response) {
-                $("#loading-overlay").hide();
-                $("#loading-indicator").hide();
-                $("#main-wrapper").html(response);
-            }
-        });
+        window.location.href = destination;
+        // $.ajax({
+        //     url: destination,
+        //     beforeSend: function() {
+        //         $("#loading-overlay").show();
+        //         $("#loading-indicator").show();
+        //     },
+        //     success: function(response) {
+        //         $("#loading-overlay").hide();
+        //         $("#loading-indicator").hide();
+        //         $("#main-wrapper").html(response);
+        //     }
+        // });
     }
 
     /**
