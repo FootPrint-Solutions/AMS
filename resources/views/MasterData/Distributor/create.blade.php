@@ -139,7 +139,7 @@
     </div>
 
     {{-- Address Modal --}}
-    @include('Maps.AddressModal')
+    @include('maps.addressmodal')
 
     <script>
         $(document).ready(function() {
