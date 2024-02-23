@@ -166,7 +166,6 @@ class DistributorShop extends Controller
         $shop->note = $request->note;
         $shop->latitude = $request->Latitude;
         $shop->longitude = $request->Longitude;
-        $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
         $status = $shop->save();
 
         // Set a new response data to be sent.
@@ -195,7 +194,6 @@ class DistributorShop extends Controller
         $shop->note = $request->note;
         $shop->latitude = $request->Latitude;
         $shop->longitude = $request->Longitude;
-        $shop->coordinate = DB::raw("POINT({$request->Latitude}, {$request->Longitude})");
         $status = $shop->save();
 
         // Set a new response data to be sent.

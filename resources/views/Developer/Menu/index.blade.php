@@ -56,9 +56,8 @@
                     targets: [0],
                     orderable: false
                 }],
-                dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
-                language: getDatatablesLanguangeConfigurations("Menu"),
+                buttons: [],
+                dom: "lBrtp",
                 select: true,
             });
 
