@@ -199,8 +199,7 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
-
-
+    Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
 });
 
 // Auth

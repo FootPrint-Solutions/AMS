@@ -46,7 +46,7 @@ class Menu extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "menus" => MenuModel::all()->toArray(),
+                    "menus" => [],
                     "menu_parents" => MenuParentModel::all()->toArray()
                 )
             )
@@ -61,6 +61,9 @@ class Menu extends Controller
      */
     public function edit($id)
     {
+        // Retrieve menu profile data (separated to retrieve its id_parent).
+        $profile = MenuModel::with("menuSubs")->find($id)->toArray();
+
         return view(
             'Developer.Menu.create',
             getIndexData(
@@ -68,8 +71,8 @@ class Menu extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => MenuModel::with("menuSubs")->find($id)->toArray(),
-                    "menus" => MenuModel::all()->toArray(),
+                    "profile" => $profile,
+                    "menus" => MenuModel::where("id_parent", $profile["id_parent"])->get()->toArray(),
                     "menu_parents" => MenuParentModel::all()->toArray()
                 )
             )
@@ -189,5 +192,16 @@ class Menu extends Controller
             $status,
             $status ? "The new menu was successfully updated!" : "Failed to update the new menu!"
         );
+    }
+
+    /**
+     * Obtain the list of menu belongs to submitted parent.
+     *
+     * @param  int  $idParent
+     * @return \Illuminate\Http\Response
+     */
+    public function getMenu($idParent)
+    {
+        return MenuModel::where("id_parent", $idParent)->get()->toArray();
     }
 }
