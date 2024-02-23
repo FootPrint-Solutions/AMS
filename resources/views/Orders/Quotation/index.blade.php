@@ -146,8 +146,10 @@
                                                 <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
                                                     class="form-select" aria-label="Default select example">
                                                     @foreach ($data['Vehicle'] as $vehicle)
+
                                                         <option value="{{ $vehicle['id'] }}">
                                                             {{ trim($vehicle['name']) }}
+
                                                         </option>
                                                     @endforeach
 
