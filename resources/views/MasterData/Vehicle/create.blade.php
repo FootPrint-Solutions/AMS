@@ -113,6 +113,8 @@
 </div>
 
 <script>
+    let indexUrl = "/vehicle";
+
     $(document).ready(function() {
         $('#brand').select2({
             placeholder: "Enter vehicle brand"
@@ -139,45 +141,21 @@
         $("#vehicle-form").on("submit", function(event) {
             event.preventDefault();
 
-            // Get current display mode (Update or Create).
-            let mode = $("#btn-save").attr("value");
-            let url = "/vehicle/store";
-            if (mode == "update") {
-                url = "/vehicle/update";
-            }
+            let mode = $("#btn-save").attr("value"); // update || create
+            let url = (mode == "update") ? "/vehicle/update" : "/vehicle/store";
 
-            // Get form data.
+            // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
             
-            // Send form data to Vehicle controller using AJAX.
-            $.ajax({
-                url: url,
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    // Get response data (in JSON).
-                    let responseData = JSON.parse(response);
-
-                    // Check response data status.
-                    // Status indicates the success status of vehicle creating porcess.
-                    if (responseData.status) {
-                        // Creating or updating process was succeeded.
-                        showSuccessToast(responseData.message);
-                    } else {
-                        // Creating or updating process was failed.
-                        showErrorToast(responseData.message);
-                    }
-
-                    // Redirect to index page.
-                    goToPage("/vehicle");
-                }
+            // Send submit POST request via AJAX.
+            sendSubmitRequest(url, formData, function() {
+                // Redirect to index page.
+                goToPage(indexUrl);
             });
         });
 
         $("#vehicle-form").on("reset", function() {
-            goToPage("/vehicle");
+            goToPage(indexUrl);
         });
     });
 </script>

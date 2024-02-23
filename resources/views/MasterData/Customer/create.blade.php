@@ -117,6 +117,8 @@
     @include('maps.addressmodal')
 
     <script>
+        let indexUrl = "/customer";
+
         $(document).ready(function() {
             $('#vehicle').select2({
                 placeholder: "Customer owned vehicles"
@@ -125,44 +127,21 @@
             $("#customer-form").on("submit", function(event) {
                 event.preventDefault();
 
-                let mode = $("#btn-save").attr("value"); // Update or Create
-                let url = "/customer/store";
-                if (mode == "update") {
-                    url = "/customer/update";
-                }
+                let mode = $("#btn-save").attr("value"); // update || create
+                let url = (mode == "update") ? "/customer/update" : "/customer/store";
 
-                // Get customer form data.
+                // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
 
-                // Send customer form data to Customer controller using AJAX.
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Check response data status.
-                        // Status indicates the success status of customer creating porcess.
-                        if (responseData.status) {
-                            // Creating new customer was succeeded.
-                            showSuccessToast(responseData.message);
-                        } else {
-                            // Creating new customer was failed.
-                            showErrorToast(responseData.message);
-                        }
-
-                        // Redirect to Customer index page.
-                        goToPage("/customer");
-                    }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage(indexUrl);
                 });
             });
 
             $("#customer-form").on("reset", function() {
-                goToPage("/customer");
+                goToPage(indexUrl);
             });
         });
     </script>

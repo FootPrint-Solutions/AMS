@@ -50,49 +50,27 @@
     </div>
 
     <script>
+        let indexUrl = "/vehicle/brand";
+
         $(document).ready(function() {
             $("#vehicle-brand-form").on("submit", function(event) {
                 event.preventDefault();
+                
+                let mode = $("#btn-save").attr("value"); // update || create
+                let url = (mode == "update") ? "/vehicle/brand/update" : "/vehicle/brand/store";
 
-                // Get current display mode (Update or Create).
-                let mode = $("#btn-save").attr("value");
-                let url = "/vehicle/brand/store";
-                if (mode == "update") {
-                    url = "/vehicle/brand/update";
-                }
-
-                // Get vehicle brand form data.
+                // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
 
-                // Send vehicle brand form data to VehicleBrand controller using AJAX.
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Check response data status.
-                        // Status indicates the success status of vehicle creating porcess.
-                        if (responseData.status) {
-                            // Creating new vehicle was succeeded.
-                            showSuccessToast(responseData.message);
-                        } else {
-                            // Creating new vehicle was failed.
-                            showErrorToast(responseData.message);
-                        }
-
-                        // Redirect to Vehicle index page.
-                        goToPage("/vehicle/brand");
-                    }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage(indexUrl);
                 });
             });
 
             $("#vehicle-brand-form").on("reset", function() {
-                goToPage("/vehicle/brand");
+                goToPage(indexUrl);
             });
         });
     </script>
