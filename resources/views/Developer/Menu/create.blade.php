@@ -69,11 +69,16 @@
                             @foreach ($data['menus'] as $menu)
                                 <option value="{{ $menu['id'] }}" @if (isset($data['profile']) && $data['profile']['order'] == $menu['order'] - 1) selected @endif>{{ $menu['name'] }}</option>
                             @endforeach
-                            <option value="new">Clear menu selection</option>
+                            <option value="clear">Clear menu selection</option>
                         </select>
                     </div>
                 </div>
             </div>
+
+            {{-- SubMenu --}}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-submenu">
+                Manage submenus
+            </button>
 
             {{-- Hidden Inputs --}}
             @isset($data['profile'])
@@ -101,6 +106,46 @@
     </div>
 </div>
 
+{{-- SubMenu Modal --}}
+<div id="modal-submenu" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            {{-- Header --}}
+            <div class="modal-header">
+                <h4 class="modal-title" id="standard-modalLabel">Manage Submenus</h4>
+                <button class="btn btn-primary mx-2" id="btn-add-submenu">Add</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            {{-- Body --}}
+            <div class="modal-body">
+                <ul class="list-group list-group-flush" id="list-submenu">
+                    @foreach($data['profile']['menu_subs'] as $submenu)
+                        <li class="list-group-item">
+                            <div class="row">
+                                {{-- Submenu Name --}}
+                                <div class="col">
+                                    <input type="text" class="form-control" name="submenuname[]" placeholder="Enter submenu name" value="{{ $submenu['name'] }}">
+                                </div>
+
+                                {{-- Submenu Url --}}
+                                <div class="col">
+                                    <input type="text" class="form-control" name="submenuurl[]" placeholder="Enter submenu url" value="{{ $submenu['url'] }}">
+                                </div>
+
+                                {{-- Remove button --}}
+                                <div class="col-sm-1">
+                                    <button class="btn btn-danger"><i class="fa fa-x"></i></button>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         $('#menu').select2({
@@ -112,12 +157,31 @@
         });
 
         $("#menu").on("select2:select", function (e) {
-            if (e.params.data.id === "new") {
-                $('#menu option:selected').removeAttr('selected');
-                $('#menu').val('');
-                $('#menu').text('');
-                // $(this).val("");
+            if (e.params.data.id === "clear") {
+                $(this).val(null).trigger("change");
             }
+        });
+
+        $("#btn-add-submenu").on("click", function() {
+            let newSubmenuList = "<li class='list-group-item'>" +
+                                    "<div class='row'>" +
+                                        // Submenu name
+                                        "<div class='col'>" +
+                                            "<input type='text' class='form-control' name='submenuname[]' placeholder='Enter submenu name' value=''>" +
+                                        "</div>" +
+
+                                        // Submenu url
+                                        "<div class='col'>" +
+                                            "<input type='text' class='form-control' name='submenuurl[]' placeholder='Enter submenu url' value=''>" +
+                                        "</div>" +
+
+                                        // Remove button
+                                        "<div class='col-sm-1'>" +
+                                            "<button class='btn btn-danger'><i class='fa-solid fa-x'></i></button>" +
+                                        "</div>" +
+                                    "</div>" +
+                                "</li>";
+            $("#list-submenu").append(newSubmenuList);
         });
 
         $("#menu-form").on("submit", function(event) {

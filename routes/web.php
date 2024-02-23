@@ -183,6 +183,7 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
+
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
         $idIdx = request()->input('idIdx');
@@ -198,6 +199,8 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
+
+
 });
 
 // Auth
