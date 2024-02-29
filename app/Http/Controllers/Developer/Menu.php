@@ -97,9 +97,9 @@ class Menu extends Controller
         $orderColumnIndex = $request->input("order.0.column");
 
         $query = MenuModel::query()
-            ->join('menu_parent', 'menu_parent.id', '=', 'menu.parent_id');
+            ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
 
-        $selectColumns = ['menu.id', 'menu.name AS menu_name', 'menu_parent.name AS menu_parent_name'];
+        $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
         $query->select($selectColumns);
 
         if ($searchValue != null) {
@@ -118,8 +118,8 @@ class Menu extends Controller
         }
 
         $ListData = $query
-            ->orderBy("menu_parent.order", "asc")
-            ->orderBy("menu.order")
+            ->orderBy("menu_parents.order", "asc")
+            ->orderBy("menus.order")
             ->skip($start)
             ->take($length)
             ->get();
