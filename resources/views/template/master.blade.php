@@ -166,18 +166,6 @@
      */
     function goToPage(destination) {
         window.location.href = destination;
-        // $.ajax({
-        //     url: destination,
-        //     beforeSend: function() {
-        //         $("#loading-overlay").show();
-        //         $("#loading-indicator").show();
-        //     },
-        //     success: function(response) {
-        //         $("#loading-overlay").hide();
-        //         $("#loading-indicator").hide();
-        //         $("#main-wrapper").html(response);
-        //     }
-        // });
     }
 
     /**
@@ -216,7 +204,7 @@
                         showResponseToast(responseData.status, responseData.message);
 
                         // Call the callback table reload act (or any other acts after the deletion process is complete).
-                        if (callbakc !== null && typeof callback === "function") {
+                        if (callback !== null && typeof callback === "function") {
                             callback();
                         }
                     }
@@ -248,7 +236,7 @@
 
                 // Call the callback redirect act.
                 if (callback !== null && typeof callback === "function") {
-                    callback();
+                    setTimeout(callback, 0.5 * 1000);
                 }
             }
         });
