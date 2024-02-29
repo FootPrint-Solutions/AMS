@@ -87,78 +87,47 @@ class Vehicle extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display all resources.
      *
-     * @param  int  $id
-     * @return string
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
     {
+        // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
         $length = $request->input("length");
         $searchValue = $request->input("search.value");
         $orderColumn = $request->input("order.0.column");
         $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
 
-        $query = VehicleModel::with(['brand' => function ($query) {
-            $query->withTrashed();
-        }]);
+        // Get vehicle data (rows and count).
+        $data = VehicleModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
 
-        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
-        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy("name", "asc")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in vehicle table.
+        $rows = [];
         $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? '-';
             $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal  = VehicleModel::count();
-
-
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => VehicleModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
-     * Store a newly created Vehicle resource in database.
+     * Store a newly created resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
@@ -203,7 +172,7 @@ class Vehicle extends Controller
     }
 
     /**
-     * Update the specified Vehicle resource in storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -268,6 +237,9 @@ class Vehicle extends Controller
         );
     }
 
+    /**
+     * 
+     */
     public function import(Request $request)
     {
         $request->validate([

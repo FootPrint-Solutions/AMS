@@ -44,6 +44,7 @@ class CustomerModel extends Model
      * @param string $searchValue The search filter value.
      * @param int $orderColumn The column index for ordering.
      * @param int $orderDirection Ascending or descending order.
+     * @return array Associative array containing data for DataTables display.
      */
     public static function allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection)
     {
