@@ -18,7 +18,7 @@ class Menu extends Model
      *
      * @var string
      */
-    protected $table = 'menu';
+    protected $table = 'menus';
     protected $fillable = ['order'];
 
     /**
@@ -26,7 +26,7 @@ class Menu extends Model
      */
     public function menuParent()
     {
-        return $this->belongsTo(MenuParent::class, 'id_parent', 'id');
+        return $this->belongsTo(MenuParent::class, 'parent_id', 'id');
     }
 
     /**
@@ -34,7 +34,7 @@ class Menu extends Model
      */
     public function menuSubs(): HasMany
     {
-        return $this->hasMany(MenuSub::class, "id_menu", "id");
+        return $this->hasMany(MenuSub::class, "menu_id", "id");
     }
 
     /**
@@ -49,7 +49,7 @@ class Menu extends Model
     {
         if (is_null($menuId)) {
             // Get latest menu position in current menu parent.
-            $lastRow = self::where("id_parent", $parentId)
+            $lastRow = self::where("parent_id", $parentId)
                 ->orderBy("order", "DESC")
                 ->first();
 
@@ -59,7 +59,7 @@ class Menu extends Model
 
                 while ($currentOrder <= $lastRow->order) {
                     // Get current menu based on order.
-                    $current = self::where("id_parent", $parentId)
+                    $current = self::where("parent_id", $parentId)
                         ->where("order", $currentOrder)
                         ->first();
 
@@ -85,7 +85,7 @@ class Menu extends Model
 
                     while ($currentOrder < $originalOrder) {
                         // Get current menu based on order.
-                        $current = self::where("id_parent", $parentId)
+                        $current = self::where("parent_id ", $parentId)
                             ->where("order", $currentOrder);
                         if ($currentId !== null) {
                             $current->whereNotIn("id", [$currentId]);
@@ -104,7 +104,7 @@ class Menu extends Model
 
                     while ($currentOrder < $destinationPosition->order) {
                         // Get current menu based on order.
-                        $current = self::where("id_parent", $parentId)
+                        $current = self::where("parent_id", $parentId)
                             ->where("order", $currentOrder)
                             ->first();
 

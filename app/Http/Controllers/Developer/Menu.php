@@ -61,7 +61,7 @@ class Menu extends Controller
      */
     public function edit($id)
     {
-        // Retrieve menu profile data (separated to retrieve its id_parent).
+        // Retrieve menu profile data (separated to retrieve its parent_id).
         $profile = MenuModel::with("menuSubs")->find($id)->toArray();
 
         return view(
@@ -72,7 +72,7 @@ class Menu extends Controller
                 $this->submenu,
                 array(
                     "profile" => $profile,
-                    "menus" => MenuModel::where("id_parent", $profile["id_parent"])->get()->toArray(),
+                    "menus" => MenuModel::where("parent_id", $profile["parent_id"])->get()->toArray(),
                     "menu_parents" => MenuParentModel::all()->toArray()
                 )
             )
@@ -97,7 +97,7 @@ class Menu extends Controller
         $orderColumnIndex = $request->input("order.0.column");
 
         $query = MenuModel::query()
-            ->join('menu_parent', 'menu_parent.id', '=', 'menu.id_parent');
+            ->join('menu_parent', 'menu_parent.id', '=', 'menu.parent_id');
 
         $selectColumns = ['menu.id', 'menu.name AS menu_name', 'menu_parent.name AS menu_parent_name'];
         $query->select($selectColumns);
@@ -159,7 +159,7 @@ class Menu extends Controller
     {
         $menu = new MenuModel();
         $menu->name = $request->name;
-        $menu->id_parent = $request->menuparent;
+        $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent);
         $menu->url = $request->url;
         $status = $menu->save();
@@ -182,7 +182,7 @@ class Menu extends Controller
     {
         $menu = MenuModel::find($request->id);
         $menu->name = $request->name;
-        $menu->id_parent = $request->menuparent;
+        $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
         $menu->url = $request->url;
         $status = $menu->save();
@@ -202,6 +202,6 @@ class Menu extends Controller
      */
     public function getMenu($idParent)
     {
-        return MenuModel::where("id_parent", $idParent)->get()->toArray();
+        return MenuModel::where("parent_id", $idParent)->get()->toArray();
     }
 }

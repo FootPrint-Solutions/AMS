@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
-class CreateMenuTable extends Migration
+class CreateMenuSubsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,23 +14,20 @@ class CreateMenuTable extends Migration
      */
     public function up()
     {
-        Schema::create('menu', function (Blueprint $table) {
+        Schema::create('menu_subs', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('id_parent');
+            $table->unsignedBigInteger('menu_id');
             $table->integer('order');
             $table->string('url');
             $table->boolean('hide')->default(0);
             $table->timestamps();
 
-            /*
-            $table->foreign('id_parent')
+            // Set foreign key.
+            $table->foreign('menu_id')
                 ->references('id')
-                ->on('menu_parent');
-            */
+                ->on('menus');
         });
-
-        // Artisan::call('db:seed', array('--class' => 'MenuSeeder'));
     }
 
     /**
@@ -40,6 +37,6 @@ class CreateMenuTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('menu');
+        Schema::dropIfExists('menu_subs');
     }
 }

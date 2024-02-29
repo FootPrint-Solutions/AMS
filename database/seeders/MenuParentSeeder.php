@@ -16,12 +16,12 @@ class MenuParentSeeder extends Seeder
     {
         // Clear existing data in menu_parent table.
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        DB::table('menu_parent')->truncate();
+        DB::table('menu_parents')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
 
         // Insert menu parent data to menu_parent table.
-        DB::table('menu_parent')->insert([
+        DB::table('menu_parents')->insert([
             ['name' => 'Dashboard', 'order' => 1, 'url' => '/', 'hide' => 0, 'icon' => 'fas fa-dashboard', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Master Data', 'order' => 2, 'url' => '#', 'hide' => 0, 'icon' => 'fas fa-book', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Orders', 'order' => 3, 'url' => '#', 'hide' => 0, 'icon' => 'fas fa-receipt', 'created_at' => now(), 'updated_at' => now()],

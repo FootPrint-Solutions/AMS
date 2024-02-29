@@ -18,14 +18,14 @@ class MenuParent extends Model
      *
      * @var string
      */
-    protected $table = 'menu_parent';
+    protected $table = 'menu_parents';
 
     /**
      * Get the menu parent that includes the menu.
      */
     public function menus()
     {
-        return $this->hasMany(Menu::class, 'id_parent', 'id');
+        return $this->hasMany(Menu::class, 'parent_id', 'id');
     }
 
     /**
@@ -33,6 +33,6 @@ class MenuParent extends Model
      */
     public function menuSubs(): HasManyThrough
     {
-        return $this->hasManyThrough(MenuSub::class, Menu::class, "id_parent", "id_menu");
+        return $this->hasManyThrough(MenuSub::class, Menu::class, "parent_id", "menu_id");
     }
 }

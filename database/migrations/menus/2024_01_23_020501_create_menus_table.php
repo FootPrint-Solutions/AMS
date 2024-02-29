@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMenuParentTable extends Migration
+class CreateMenusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,17 +14,20 @@ class CreateMenuParentTable extends Migration
      */
     public function up()
     {
-        Schema::create('menu_parent', function (Blueprint $table) {
+        Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('parent_id');
             $table->integer('order');
-            $table->string('url')->nullable();
+            $table->string('url');
             $table->boolean('hide')->default(0);
-            $table->string('icon');
             $table->timestamps();
-        });
 
-        // Artisan::call('db:seed', array('--class' => 'MenuParentSeeder'));
+            // Set foreign key.
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on('menu_parents');
+        });
     }
 
     /**
@@ -34,6 +37,6 @@ class CreateMenuParentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('menu_parent');
+        Schema::dropIfExists('menus');
     }
 }
