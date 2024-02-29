@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// TRAITS
+use App\Traits\DataTablesTrait;
+
 class VehicleBrandModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DataTablesTrait;
 
     /**
      * The table associated with the model.
@@ -34,32 +37,6 @@ class VehicleBrandModel extends Model
      */
     public static function allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection)
     {
-        $query = self::query();
-        $query->select(self::$selectColumns);
-
-        // Searching process.
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue) {
-                foreach (self::$selectColumns as $column) {
-                    $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        // Ordering process.
-        if ($orderColumn !== null) {
-            $columnName = self::$selectColumns[$orderColumn] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        return array(
-            "count" => $query->count(),
-            "row" => $query->orderBy("name", "ASC")
-                ->skip($start)
-                ->take($length)
-                ->get(),
-        );
+        return self::getAllRows($start, $length, $searchValue, $orderColumn, $orderDirection, self::$selectColumns);
     }
 }

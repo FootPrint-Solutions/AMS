@@ -82,67 +82,37 @@ class DistributorShopTechnician extends Controller
      */
     public function show(Request $request)
     {
-        // DataTables configuration data.
+        // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
         $length = $request->input("length");
         $searchValue = $request->input("search.value");
         $orderColumn = $request->input("order.0.column");
         $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
 
-        $query = DistributorShopTechnicianModel::with(["shop" => function ($query) {
-            $query->withTrashed();
-        }]);
+        // Get technician data (rows and count).
+        $data = DistributorShopTechnicianModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
 
-        $selectColumns = ['id', 'name', 'distributor_shop_id', 'contact', 'email'];
-        $query->select($selectColumns);
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy("name", "asc")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in technician table.
+        $rows = [];
         $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
-            $row[] = $key->name; // Name
-            $row[] = $key->shop->name ?? "-"; // Shop
-            $row[] = "<span class='text-secondary'>+62</span> " . $key->contact; // Contact
-            $row[] = $key->email ?? "-"; // Email
+            $row[] = $key->name;
+            $row[] = $key->shop->name ?? "-";
+            $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
+            $row[] = $key->email ?? "-";
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal  = DistributorShopTechnicianModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => DistributorShopTechnicianModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
