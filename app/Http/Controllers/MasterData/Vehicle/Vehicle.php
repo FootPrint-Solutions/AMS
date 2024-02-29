@@ -79,8 +79,8 @@ class Vehicle extends Controller
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('id_battery')->first(),
-                    'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('id_battery')->toArray(),
+                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->first(),
+                    'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('battery_id')->toArray(),
                 )
             )
         );
@@ -175,9 +175,9 @@ class Vehicle extends Controller
             $brand->name = $request->newbrand;
             $status = $brand->save();
 
-            $vehicle->id_brand = $brand->id;
+            $vehicle->brand_id = $brand->id;
         } else {
-            $vehicle->id_brand = $request->brand;
+            $vehicle->brand_id = $request->brand;
         }
 
         $vehicle->url = $request->url;
@@ -212,7 +212,19 @@ class Vehicle extends Controller
     {
         $vehicle = VehicleModel::find($request->id);
         $vehicle->name = $request->name;
-        $vehicle->id_brand = $request->brand;
+
+        // Check if the brand is newly added or not.
+        if ($request->brand === "new") {
+            // Store the newly added vehicle brand.
+            $brand = new VehicleBrandModel();
+            $brand->name = $request->newbrand;
+            $status = $brand->save();
+
+            $vehicle->brand_id = $brand->id;
+        } else {
+            $vehicle->brand_id = $request->brand;
+        }
+
         $vehicle->url = $request->url;
         $status = $vehicle->save();
 

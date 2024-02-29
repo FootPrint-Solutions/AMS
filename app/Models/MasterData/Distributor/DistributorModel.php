@@ -15,5 +15,5 @@ class DistributorModel extends Model
      *
      * @var string
      */
-    protected $table = 'distributor';
+    protected $table = 'distributors';
 }

@@ -190,9 +190,9 @@ class Battery extends Controller
             $brand->name = $request->newbrand;
             $status = $brand->save();
 
-            $battery->id_brand = $brand->id;
+            $battery->brand_id = $brand->id;
         } else {
-            $battery->id_brand = $request->brand;
+            $battery->brand_id = $request->brand;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -202,9 +202,9 @@ class Battery extends Controller
             $subbrand->name = $request->newsubbrandcategory;
             $status = $subbrand->save();
 
-            $battery->id_subbrand_category = $subbrand->id;
+            $battery->subbrand_category_id = $subbrand->id;
         } else {
-            $battery->id_subbrand_category = $request->subbrandcategory;
+            $battery->subbrand_category_id = $request->subbrandcategory;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -214,9 +214,9 @@ class Battery extends Controller
             $usagetype->name = $request->newusagetype;
             $status = $usagetype->save();
 
-            $battery->id_usage_type = $usagetype->id;
+            $battery->usage_type_id = $usagetype->id;
         } else {
-            $battery->id_usage_type = $request->usagetype;
+            $battery->usage_type_id = $request->usagetype;
         }
 
         // Check if the technology is newly added or not.
@@ -226,9 +226,9 @@ class Battery extends Controller
             $technology->name = $request->newtechnology;
             $status = $technology->save();
 
-            $battery->id_technology = $technology->id;
+            $battery->technology_id = $technology->id;
         } else {
-            $battery->id_technology = $request->technology;
+            $battery->technology_id = $request->technology;
         }
 
         // Check if the size category is newly added or not.
@@ -238,9 +238,9 @@ class Battery extends Controller
             $size->name = $request->newsize;
             $status = $size->save();
 
-            $battery->id_size_category = $size->id;
+            $battery->size_category_id = $size->id;
         } else {
-            $battery->id_size_category = $request->size;
+            $battery->size_category_id = $request->size;
         }
 
         $battery->dimension_length = $request->dimension[0];
@@ -285,9 +285,9 @@ class Battery extends Controller
             $brand->name = $request->newbrand;
             $status = $brand->save();
 
-            $battery->id_brand = $brand->id;
+            $battery->brand_id = $brand->id;
         } else {
-            $battery->id_brand = $request->brand;
+            $battery->brand_id = $request->brand;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -297,9 +297,9 @@ class Battery extends Controller
             $subbrand->name = $request->newsubbrandcategory;
             $status = $subbrand->save();
 
-            $battery->id_subbrand_category = $subbrand->id;
+            $battery->subbrand_category_id = $subbrand->id;
         } else {
-            $battery->id_subbrand_category = $request->subbrandcategory;
+            $battery->subbrand_category_id = $request->subbrandcategory;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -309,9 +309,9 @@ class Battery extends Controller
             $usagetype->name = $request->newusagetype;
             $status = $usagetype->save();
 
-            $battery->id_usage_type = $usagetype->id;
+            $battery->usage_type_id = $usagetype->id;
         } else {
-            $battery->id_usage_type = $request->usagetype;
+            $battery->usage_type_id = $request->usagetype;
         }
 
         // Check if the technology is newly added or not.
@@ -321,9 +321,9 @@ class Battery extends Controller
             $technology->name = $request->newtechnology;
             $status = $technology->save();
 
-            $battery->id_technology = $technology->id;
+            $battery->technology_id = $technology->id;
         } else {
-            $battery->id_technology = $request->technology;
+            $battery->technology_id = $request->technology;
         }
 
         // Check if the size category is newly added or not.
@@ -333,9 +333,9 @@ class Battery extends Controller
             $size->name = $request->newsize;
             $status = $size->save();
 
-            $battery->id_size_category = $size->id;
+            $battery->size_category_id = $size->id;
         } else {
-            $battery->id_size_category = $request->size;
+            $battery->size_category_id = $request->size;
         }
 
         $battery->dimension_length = $request->dimension[0];

@@ -18,7 +18,7 @@ class CustomerModel extends Model
      *
      * @var string
      */
-    protected $table = 'customer';
+    protected $table = 'customers';
 
     protected $fillable = [
         'id', 'name', 'address', 'contact', 'email',
@@ -30,7 +30,7 @@ class CustomerModel extends Model
      */
     public function vehicles()
     {
-        return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'id_customer', 'id_vehicle')
+        return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'customer_id', 'vehicle_id')
             ->withTimestamps();
     }
 

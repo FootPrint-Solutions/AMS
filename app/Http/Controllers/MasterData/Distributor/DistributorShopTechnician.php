@@ -4,15 +4,14 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
-use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 
-class DistributorShop extends Controller
+class DistributorShopTechnician extends Controller
 {
-    private $title = "Distributor Shop";
+    private $title = "Shop Technician";
     private $menu = 2;
     private $submenu = 5;
 
@@ -24,7 +23,7 @@ class DistributorShop extends Controller
     public function index()
     {
         return view(
-            'MasterData.Distributor.Shop.index',
+            'MasterData.Distributor.Technician.index',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -41,13 +40,13 @@ class DistributorShop extends Controller
     public function create()
     {
         return view(
-            'MasterData.Distributor.Shop.create',
+            'MasterData.Distributor.Technician.create',
             getIndexData(
                 $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
-                    "distributors" => DistributorModel::all()->toArray()
+                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
                 )
             )
         );
@@ -62,14 +61,14 @@ class DistributorShop extends Controller
     public function edit($id)
     {
         return view(
-            'MasterData.Distributor.Shop.create',
+            'MasterData.Distributor.Technician.create',
             getIndexData(
                 $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => DistributorShopModel::find($id)->toArray(),
-                    "distributors" => DistributorModel::all()->toArray()
+                    "profile" => DistributorShopTechnicianModel::find($id)->toArray(),
+                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
                 )
             )
         );
@@ -92,11 +91,11 @@ class DistributorShop extends Controller
         $orderDirection = $request->input("order.0.dir");
         $orderColumnIndex = $request->input("order.0.column");
 
-        $query = DistributorShopModel::with(["distributor" => function ($query) {
+        $query = DistributorShopTechnicianModel::with(["shop" => function ($query) {
             $query->withTrashed();
         }]);
 
-        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email', 'distributor_id'];
+        $selectColumns = ['id', 'name', 'distributor_shop_id', 'contact', 'email'];
         $query->select($selectColumns);
 
         if ($searchValue != null) {
@@ -126,16 +125,14 @@ class DistributorShop extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->name; // Name
-            $row[] = $key->distributor->name ?? '-'; // Distributor
-            $row[] = $key->address; // Address
-            $row[] = $key->contact_person; // Contact Person
+            $row[] = $key->shop->name ?? "-"; // Shop
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact; // Contact
             $row[] = $key->email ?? "-"; // Email
             $row[] = $key->id;
             $data[] = $row;
         }
 
-        $recordTotal  = DistributorShopModel::count();
+        $recordTotal  = DistributorShopTechnicianModel::count();
         $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
 
         $output = [
@@ -156,22 +153,18 @@ class DistributorShop extends Controller
      */
     public function store(Request $request)
     {
-        $shop = new DistributorShopModel();
-        $shop->name = $request->name;
-        $shop->distributor_id = $request->distributor;
-        $shop->address = $request->address;
-        $shop->contact_person = $request->contactperson;
-        $shop->contact = $request->contact;
-        $shop->email = $request->email;
-        $shop->note = $request->note;
-        $shop->latitude = $request->Latitude;
-        $shop->longitude = $request->Longitude;
-        $status = $shop->save();
+        $technician = new DistributorShopTechnicianModel();
+        $technician->name = $request->name;
+        $technician->distributor_shop_id = $request->shop;
+        $technician->contact = $request->contact;
+        $technician->email = $request->email;
+        $technician->note = $request->note;
+        $status = $technician->save();
 
         // Set a new response data to be sent.
         return getResponseData(
             $status,
-            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+            $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
         );
     }
 
@@ -184,22 +177,18 @@ class DistributorShop extends Controller
      */
     public function update(Request $request)
     {
-        $shop = DistributorShopModel::find($request->id);
-        $shop->name = $request->name;
-        $shop->distributor_id = $request->distributor;
-        $shop->address = $request->address;
-        $shop->contact_person = $request->contactperson;
-        $shop->contact = $request->contact;
-        $shop->email = $request->email;
-        $shop->note = $request->note;
-        $shop->latitude = $request->Latitude;
-        $shop->longitude = $request->Longitude;
-        $status = $shop->save();
+        $technician = DistributorShopTechnicianModel::find($request->id);
+        $technician->name = $request->name;
+        $technician->id_shop = $request->shop;
+        $technician->contact = $request->contact;
+        $technician->email = $request->email;
+        $technician->note = $request->note;
+        $status = $technician->save();
 
         // Set a new response data to be sent.
         return getResponseData(
             $status,
-            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+            $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
         );
     }
 
@@ -211,13 +200,13 @@ class DistributorShop extends Controller
      */
     public function destroy(Request $request)
     {
-        $shop = DistributorShopModel::find($request->id);
-        $status = $shop->delete();
+        $technician = DistributorShopTechnicianModel::find($request->id);
+        $status = $technician->delete();
 
         // Set a new response data to be sent.
         return getResponseData(
             $status,
-            $status ? "The selected shop was successfully deleted!" : "Failed to delete the selected shop!"
+            $status ? "The new technician was successfully deleted!" : "Failed to delete the new technician!"
         );
     }
 }

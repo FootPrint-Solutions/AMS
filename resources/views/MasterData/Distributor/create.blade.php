@@ -24,8 +24,8 @@
                     <input type="text" class="form-control" id="distributor-name" name="name"
                         placeholder="Enter distributor name" required
                         @isset($data['profile'])
-                    value="{{ $data['profile']['name'] }}"
-                @endisset>
+                            value="{{ $data['profile']['name'] }}"
+                        @endisset>
                 </div>
 
                 {{-- Address and Is Shop --}}
@@ -54,86 +54,86 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     {{-- Is Shop --}}
                     <div class="col-sm-1">
                         <input class="form-check-input" type="checkbox" value="" id="isshop"
-                            @if (isset($data['profile']) && $data['profile']['is_shop'] == 1) checked
-                    @endisset
-                    >
-                    <label class="form-check-label" for="isshop">
-                        Is shop
-                    </label>
-                </div>
-            </div>
-
-            {{-- Contact Person, Contact and Email --}}
-            <div class="row">
-                {{-- Contact Person --}}
-                <div class="col">
-                    <div class="form-group local-forms">
-                        <label for="distributor-contact-person">Contact Person <span class="login-danger">*</span></label>
-                        <input type="text" class="form-control" id="distributor-contact-person" name="contactperson" placeholder="Enter distributor contact person name" required
-                        @isset($data['profile'])
-                            value="{{ $data['profile']['address'] }}"
-                        @endisset
+                            @if (isset($data['profile']) && $data['profile']['is_shop'] == 1)
+                                checked
+                            @endif
                         >
+                        <label class="form-check-label" for="isshop">
+                            Is shop
+                        </label>
                     </div>
                 </div>
-                
-                {{-- Contact --}}
-                <div class="col">
-                    <div class="form-group local-forms">
-                        <label for="distributor-contact">Contact <span class="login-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text border-end country-code">+62</span>
-                            <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact" name="contact" placeholder="Enter distributor contact" required
+
+                <div class="row">
+                    {{-- Contact Person --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="distributor-contact-person">Contact Person <span class="login-danger">*</span></label>
+                            <input type="text" class="form-control" id="distributor-contact-person" name="contactperson" placeholder="Enter distributor contact person name" required
                             @isset($data['profile'])
-                                value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
+                                value="{{ $data['profile']['address'] }}"
+                            @endisset
+                            >
+                        </div>
+                    </div>
+                    
+                    {{-- Contact --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="distributor-contact">Contact <span class="login-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text border-end country-code">+62</span>
+                                <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact" name="contact" placeholder="Enter distributor contact" required
+                                @isset($data['profile'])
+                                    value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
+                                @endisset
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- E-mail --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="distributor-email">E-mail</label>
+                            <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail"
+                            @isset($data['profile'])
+                                value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
                             @endisset
                             >
                         </div>
                     </div>
                 </div>
 
-                {{-- E-mail --}}
-                <div class="col">
-                    <div class="form-group local-forms">
-                        <label for="distributor-email">E-mail</label>
-                        <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail"
-                        @isset($data['profile'])
-                            value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
-                        @endisset
-                        >
-                    </div>
+                {{-- Note --}}
+                <div class="form-group local-forms">
+                    <label for="note">Note</label>
+                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the distributor">@if (isset($data['profile']) && !empty($data['profile']['note'])) {{ $data['profile']['note'] }} @endif</textarea>
                 </div>
-            </div>
 
-            {{-- Note --}}
-            <div class="form-group local-forms">
-                <label for="note">Note</label>
-                <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the distributor">@if (isset($data['profile']) && !empty($data['profile']['note'])) {{ $data['profile']['note'] }} @endif</textarea>
-                    </div>
+                {{-- Hidden Inputs --}}
+                @isset($data['profile'])
+                    <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+                @endisset
 
-                    {{-- Hidden Inputs --}}
-                    @isset($data['profile'])
-                        <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
-                    @endisset
+                {{-- Buttons --}}
+                <div class="d-flex flex-row-reverse">
+                    {{-- Create Button --}}
+                    <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                        @if (isset($data['profile'])) value="update">
+                    Update
+                @else
+                    value="create">
+                    Create @endif
+                        Distributor </button>
 
-                    {{-- Buttons --}}
-                    <div class="d-flex flex-row-reverse">
-                        {{-- Create Button --}}
-                        <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                            @if (isset($data['profile'])) value="update">
-                        Update
-                    @else
-                        value="create">
-                        Create @endif
-                            Distributor </button>
-
-                            {{-- Cancel Button --}}
-                            <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
-                    </div>
+                        {{-- Cancel Button --}}
+                        <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
@@ -153,6 +153,7 @@
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
+                formData.append('isshop', $("#isshop").is(':checked') ? 1 : 0);
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {

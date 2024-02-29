@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DistributorShopModel extends Model
+class DistributorShopTechnicianModel extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -16,13 +16,13 @@ class DistributorShopModel extends Model
      *
      * @var string
      */
-    protected $table = 'distributor_shops';
+    protected $table = 'distributor_shop_technicians';
 
     /**
-     * Get distributor shop.
+     * Get technicians' shop.
      */
-    public function distributor(): BelongsTo
+    public function shop(): BelongsTo
     {
-        return $this->belongsTo(DistributorModel::class, 'distributor_id');
+        return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
     }
 }

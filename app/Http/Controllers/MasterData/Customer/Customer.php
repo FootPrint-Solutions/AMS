@@ -68,7 +68,7 @@ class Customer extends Controller
                 $this->submenu,
                 array(
                     "profile" => CustomerModel::find($id)->toArray(),
-                    "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray(),
+                    "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray(),
                     "vehicles" => VehicleModel::all()->toArray()
                 )
             )

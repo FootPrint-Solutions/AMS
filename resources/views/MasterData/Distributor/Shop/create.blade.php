@@ -38,7 +38,7 @@
                                 <option></option>
                                 @foreach ($data['distributors'] as $distributor)
                                     <option value="{{ $distributor['id'] }}"
-                                        @if (isset($data['profile']) && $data['profile']['id_distributor'] == $distributor['id']) selected @endif>{{ $distributor['name'] }}
+                                        @if (isset($data['profile']) && $data['profile']['distributor_id'] == $distributor['id']) selected @endif>{{ $distributor['name'] }}
                                     </option>
                                 @endforeach
                             </select>

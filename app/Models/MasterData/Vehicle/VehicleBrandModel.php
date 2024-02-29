@@ -15,7 +15,7 @@ class VehicleBrandModel extends Model
      *
      * @var string
      */
-    protected $table = 'vehicle_brand';
+    protected $table = 'vehicle_brands';
 
     protected $fillable = [
         'id',

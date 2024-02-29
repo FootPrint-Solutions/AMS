@@ -164,7 +164,7 @@ class Distributor extends Controller
             // Add a new shop for the distributor.
             $shop = new DistributorShopModel();
             $shop->name = "Distributor Main Shop";
-            $shop->id_distributor = $distributor->id;
+            $shop->distributor_id = $distributor->id;
             $shop->type = 1;
             $shop->address = $request->address;
             $shop->contact_person = $request->contactperson;
@@ -176,7 +176,7 @@ class Distributor extends Controller
             $status &= $shop->save();
         } else {
             // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if ($shop) {
                 $shop->delete();
             }
@@ -210,12 +210,12 @@ class Distributor extends Controller
 
         // Check if is shop is checked or not.
         if ($request->isshop == 1) {
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if (!$shop) {
                 // Add a new shop for the distributor.
                 $shop = new DistributorShopModel();
                 $shop->name = "Distributor Main Shop";
-                $shop->id_distributor = $distributor->id;
+                $shop->distributor_id = $distributor->id;
                 $shop->type = 1;
                 $shop->address = $request->address;
                 $shop->contact_person = $request->contactperson;
@@ -228,7 +228,7 @@ class Distributor extends Controller
             }
         } else {
             // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if ($shop) {
                 $shop->delete();
             }

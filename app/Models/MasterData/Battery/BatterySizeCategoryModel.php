@@ -15,7 +15,7 @@ class BatterySizeCategoryModel extends Model
      *
      * @var string
      */
-    protected $table = 'battery_size_category';
+    protected $table = 'battery_size_categories';
 
     protected $fillable = [
         'name',

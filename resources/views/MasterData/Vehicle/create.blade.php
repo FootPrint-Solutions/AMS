@@ -44,7 +44,7 @@
                 <select class="form-control" id="brand" name="brand" required>
                     <option></option>
                     @foreach ($data['brands'] as $brand)
-                        <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
+                        <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['brand_id'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                     @endforeach
                     <option value="new">Quick add new brand&hellip;</option>
                 </select>

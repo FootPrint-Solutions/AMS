@@ -38,7 +38,7 @@
                             <select class="form-control" id="shop" name="shop" required>
                                 <option></option>
                                 @foreach ($data['shops'] as $shop)
-                                    <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['id_shop'] == $shop['id']) selected @endif>
+                                    <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
                                         {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}</option>
                                 @endforeach
                             </select>
