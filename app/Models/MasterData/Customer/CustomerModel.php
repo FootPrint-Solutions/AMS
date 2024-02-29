@@ -20,9 +20,11 @@ class CustomerModel extends Model
      */
     protected $table = 'customers';
 
-    protected $fillable = [
-        'id', 'name', 'address', 'contact', 'email',
-        // Add other fillable columns here if any
+    /**
+     * The list of columns in the associated table.
+     */
+    private static $selectColumns = [
+        'id', 'name', 'address', 'contact', 'email'
     ];
 
     /**
@@ -34,8 +36,43 @@ class CustomerModel extends Model
             ->withTimestamps();
     }
 
-    public static function getFillableColumns()
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param int $start The starting index of rows.
+     * @param int $length The number of rows to be returned.
+     * @param string $searchValue The search filter value.
+     * @param int $orderColumn The column index for ordering.
+     * @param int $orderDirection Ascending or descending order.
+     */
+    public static function allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection)
     {
-        return (new static())->getFillable();
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        // Searching process.
+        if ($searchValue != null) {
+            $query->where(function ($query) use ($searchValue) {
+                foreach (self::$selectColumns as $column) {
+                    $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
+                }
+            });
+        }
+
+        // Ordering process.
+        if ($orderColumn !== null) {
+            $columnName = self::$selectColumns[$orderColumn] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        }
+
+        return array(
+            "count" => $query->count(),
+            "row" => $query->orderBy("name", "ASC")
+                ->skip($start)
+                ->take($length)
+                ->get(),
+        );
     }
 }
