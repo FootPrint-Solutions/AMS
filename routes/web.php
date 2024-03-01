@@ -25,10 +25,10 @@ use App\Http\Controllers\Orders\Quotation;
 
 // DEVELOPER
 use App\Http\Controllers\Developer\Menu;
+use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -200,6 +200,8 @@ Route::middleware(['developer'])->group(function () {
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
     Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
+    Route::get('/menu/parent/create', [MenuParent::class, 'create']);
+    Route::post('/menu/parent/store', [MenuParent::class, 'store']);
 });
 
 // Auth
