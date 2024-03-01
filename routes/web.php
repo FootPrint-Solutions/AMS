@@ -23,6 +23,9 @@ use App\Http\Controllers\MasterData\Distributor\DistributorShopTechnician;
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
+// ADMIN
+use App\Http\Controllers\Admin\User;
+
 // DEVELOPER
 use App\Http\Controllers\Developer\Menu;
 use App\Http\Controllers\Developer\MenuParent;
@@ -172,6 +175,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
     Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
     Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
+
+    // Admin
+    // User Manager
+    Route::get('/user', [User::class, 'index']);
+    Route::get('/user/show', [User::class, 'show']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
