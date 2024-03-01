@@ -179,7 +179,8 @@ Route::middleware(['auth'])->group(function () {
     // Admin
     // User Manager
     Route::get('/user', [User::class, 'index']);
-    Route::get('/user/show', [User::class, 'show']);
+    Route::post('/user/show', [User::class, 'show']);
+    Route::get('/user/edit/{id}', [User::class, 'edit']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

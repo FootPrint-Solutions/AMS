@@ -42,7 +42,7 @@
                 serverSide: true,
                 order: [],
                 ajax: {
-                    url: "/menu/show",
+                    url: "/user/show",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}"
@@ -72,7 +72,7 @@
         });
 
         function edit(id) {
-            goToPage("/menu/edit/" + id);
+            goToPage("/user/edit/" + id);
         }
     </script>
 @endsection
