@@ -82,13 +82,9 @@ class Distributor extends Controller
         // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
 
         // Get distributor data (rows and count).
-        $data = DistributorModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
+        $data = DistributorModel::allForDataTables($request);
 
         // Set rows to be displayed in table.
         $rows = [];

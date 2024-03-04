@@ -65,13 +65,9 @@ class User extends Controller
         // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
 
         // Get customer data (rows and count).
-        $data = UserModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
+        $data = UserModel::allForDataTables($request);
 
         // Set rows to be displayed in customer table.
         $rows = [];

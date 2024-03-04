@@ -59,15 +59,15 @@ class VehicleModel extends Model
     /**
      * Get all data for DataTables.
      * 
-     * @param int $start The starting index of rows.
-     * @param int $length The number of rows to be returned.
-     * @param string $searchValue The search filter value.
-     * @param int $orderColumn The column index for ordering.
-     * @param int $orderDirection Ascending or descending order.
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
      * @return array Associative array containing data for DataTables display.
      */
-    public static function allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection)
+    public static function allForDataTables($request)
     {
-        return self::getAllRows($start, $length, $searchValue, $orderColumn, $orderDirection, self::$selectColumns);
+        // Build the query to obtain all rows.
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }

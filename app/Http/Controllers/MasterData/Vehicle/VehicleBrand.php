@@ -80,14 +80,9 @@ class VehicleBrand extends Controller
         // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
 
         // Get vehicle brand data (rows and count).
-        $data = VehicleBrandModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
+        $data = VehicleBrandModel::allForDataTables($request);
 
         // Set rows to be displayed in vehicle brand table.
         $rows = [];

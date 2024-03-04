@@ -79,13 +79,9 @@ class BatteryUsage extends Controller
         // Get all DataTables requests.
         $draw = $request->input('draw');
         $start = $request->input('start');
-        $length = $request->input('length');
-        $searchValue = $request->input('search.value');
-        $orderColumn = $request->input('order.0.column');
-        $orderDirection = $request->input('order.0.dir');
 
         // Get battery usage data (rows and count).
-        $data = BatteryUsageTypeModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
+        $data = BatteryUsageTypeModel::allForDataTables($request);
 
         // Set rows to be displayed in battery usage table.
         $rows = [];

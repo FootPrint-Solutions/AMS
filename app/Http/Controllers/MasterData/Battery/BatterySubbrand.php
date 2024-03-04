@@ -80,13 +80,9 @@ class BatterySubbrand extends Controller
         // Get all DataTables requests.
         $draw = $request->input('draw');
         $start = $request->input('start');
-        $length = $request->input('length');
-        $searchValue = $request->input('search.value');
-        $orderColumn = $request->input('order.0.column');
-        $orderDirection = $request->input('order.0.dir');
 
         // Get battery subbrand data (rows and count).
-        $data = BatterySubbrandCategoryModel::allForDataTables($start, $length, $searchValue, $orderColumn, $orderDirection);
+        $data = BatterySubbrandCategoryModel::allForDataTables($request);
 
         // Set rows to be displayed in battery subbrand table.
         $rows = [];

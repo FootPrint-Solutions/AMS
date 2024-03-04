@@ -7,18 +7,19 @@ trait DataTablesTrait
     /**
      * Get all data for DataTables.
      * 
-     * @param int $start The starting index of rows.
-     * @param int $length The number of rows to be returned.
-     * @param string $searchValue The search filter value.
-     * @param int $orderColumn The column index for ordering.
-     * @param int $orderDirection Ascending or descending order.
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @param Illuminate\Database\Query\Builder $query Query built to obtain rows in table.
      * @param array $selectColumns The list of columns to be displayed.
      * @return array Associative array containing data for DataTables display.
      */
-    public static function getAllRows($start, $length, $searchValue, $orderColumn, $orderDirection, $selectColumns)
+    public static function getAllRows($request, $query, $selectColumns)
     {
-        $query = self::query();
-        $query->select($selectColumns);
+        // Get DataTables configuration request.
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
 
         // Searching process.
         if ($searchValue != null) {
