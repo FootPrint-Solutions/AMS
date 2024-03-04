@@ -43,6 +43,28 @@ class BatteryModel extends Model
     ];
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'brand_id',
+        'subbrand_category_id',
+        'usage_type_id',
+        'size_category_id',
+        'technology_id',
+        'dimension_length',
+        'dimension_width',
+        'dimension_height',
+        'standard_cca',
+        'capacity',
+        'warranty',
+        'price_retail',
+        'name_alternate'
+    ];
+
+    /**
      * Get battery brand.
      */
     public function brand(): BelongsTo

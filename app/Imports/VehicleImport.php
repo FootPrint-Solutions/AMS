@@ -30,8 +30,8 @@ class VehicleImport implements ToModel, WithStartRow
         $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
 
         $vehicle = VehicleModel::create([
-            'name' => trim($row[0]),
-            'id_brand' => $brand->id,
+            'name' =>  $brand->name,
+            'brand_id' => $brand->id,
             'url' => $row[6],
         ]);
 

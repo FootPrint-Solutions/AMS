@@ -31,6 +31,13 @@ class VehicleModel extends Model
     private static $selectColumns = ['id', 'name', 'brand_id', 'url'];
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['name', 'brand_id', 'url'];
+
+    /**
      * Get vehicle brand.
      */
     public function brand(): BelongsTo
