@@ -26,6 +26,13 @@ class VehicleBrandModel extends Model
     private static $selectColumns = ['id', 'name'];
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['name'];
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
