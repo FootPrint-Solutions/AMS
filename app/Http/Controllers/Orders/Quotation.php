@@ -85,7 +85,7 @@ class Quotation extends Controller
     public function findVehicleByIdCustomer(Request $request)
     {
         $id = $request->input('id');
-        $results = CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray();
+        $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
         return response()->json($results);
     }
 
