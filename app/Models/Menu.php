@@ -9,24 +9,40 @@ use App\Models\MenuParent;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
+// TRAITS
+use App\Traits\DataTablesTrait;
+
 class Menu extends Model
 {
-    use HasFactory;
+    use HasFactory, DataTablesTrait;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'menu';
+    protected $table = 'menus';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = ['order'];
+
+    /**
+     * The list of columns in the associated table.
+     * 
+     * @var array<string>
+     */
+    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
 
     /**
      * Get the menu parent that includes the menu.
      */
     public function menuParent()
     {
-        return $this->belongsTo(MenuParent::class, 'id_parent', 'id');
+        return $this->belongsTo(MenuParent::class, 'parent_id', 'id');
     }
 
     /**
@@ -34,7 +50,7 @@ class Menu extends Model
      */
     public function menuSubs(): HasMany
     {
-        return $this->hasMany(MenuSub::class, "id_menu", "id");
+        return $this->hasMany(MenuSub::class, "menu_id", "id");
     }
 
     /**
@@ -49,7 +65,7 @@ class Menu extends Model
     {
         if (is_null($menuId)) {
             // Get latest menu position in current menu parent.
-            $lastRow = self::where("id_parent", $parentId)
+            $lastRow = self::where("parent_id", $parentId)
                 ->orderBy("order", "DESC")
                 ->first();
 
@@ -59,7 +75,7 @@ class Menu extends Model
 
                 while ($currentOrder <= $lastRow->order) {
                     // Get current menu based on order.
-                    $current = self::where("id_parent", $parentId)
+                    $current = self::where("parent_id", $parentId)
                         ->where("order", $currentOrder)
                         ->first();
 
@@ -85,7 +101,7 @@ class Menu extends Model
 
                     while ($currentOrder < $originalOrder) {
                         // Get current menu based on order.
-                        $current = self::where("id_parent", $parentId)
+                        $current = self::where("parent_id ", $parentId)
                             ->where("order", $currentOrder);
                         if ($currentId !== null) {
                             $current->whereNotIn("id", [$currentId]);
@@ -104,7 +120,7 @@ class Menu extends Model
 
                     while ($currentOrder < $destinationPosition->order) {
                         // Get current menu based on order.
-                        $current = self::where("id_parent", $parentId)
+                        $current = self::where("parent_id", $parentId)
                             ->where("order", $currentOrder)
                             ->first();
 
@@ -127,5 +143,21 @@ class Menu extends Model
             // Add new menu to the position.
             return $destinationPosition->order;
         }
+    }
+
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @return array Associative array containing data for DataTables display.
+     */
+    public static function allForDataTables($request)
+    {
+        // Build the query to obtain all rows.
+        $query = self::query()
+            ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }

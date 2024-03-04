@@ -14,5 +14,5 @@ class MenuSub extends Model
      *
      * @var string
      */
-    protected $table = 'menu_sub';
+    protected $table = 'menu_subs';
 }

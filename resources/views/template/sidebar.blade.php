@@ -27,7 +27,7 @@
                         <ul style="@if ($isActive) display: block; @endif">
                             @foreach ($menu['menus'] as $menu_child)
                                 @php
-                                    $active_child_menu = isset($active_child) && $active_child === $menu_child['id'] && $active === $menu_child['id_parent'];
+                                    $active_child_menu = isset($active_child) && $active_child === $menu_child['id'] && $active === $menu_child['parent_id'];
                                 @endphp
 
                                 <li @if (!empty(session('submenu')[$menu_child['id']])) class="submenu" @endif>

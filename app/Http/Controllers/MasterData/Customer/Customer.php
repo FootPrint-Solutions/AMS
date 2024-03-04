@@ -68,7 +68,7 @@ class Customer extends Controller
                 $this->submenu,
                 array(
                     "profile" => CustomerModel::find($id)->toArray(),
-                    "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("id_vehicle")->toArray(),
+                    "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray(),
                     "vehicles" => VehicleModel::all()->toArray()
                 )
             )
@@ -76,51 +76,25 @@ class Customer extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display all resources.
      *
-     * @param  int  $id
-     * @return string
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
     {
+        // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
 
-        $query = CustomerModel::query();  //// tinggal custom disini jika ada relasi atau kondisi lain yang diperlukan, jika tidak ada langsung di panggil saja, seperti contoh dibawah ini :
-        /// kalo pengen rapih bisa di pindahin ke model :) 
+        // Get customer data (rows and count).
+        $data = CustomerModel::allForDataTables($request);
 
-        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
-        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy("name", "asc")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in customer table.
+        $rows = [];
         $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
+            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
@@ -128,26 +102,19 @@ class Customer extends Controller
             $row[] = $key->email;
             $row[] = $key->address;
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-
-        $recordTotal = CustomerModel::count();
-
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => CustomerModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
-     * Store a newly created Customer resource in database.
+     * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
@@ -177,7 +144,6 @@ class Customer extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -202,7 +168,7 @@ class Customer extends Controller
     }
 
     /**
-     * Remove the specified Customer resource from storage.
+     * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

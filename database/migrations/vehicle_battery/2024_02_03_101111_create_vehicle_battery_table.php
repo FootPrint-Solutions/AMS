@@ -15,18 +15,18 @@ class CreateVehicleBatteryTable extends Migration
     {
         Schema::create('vehicle_battery', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_vehicle');
-            $table->unsignedBigInteger('id_battery');
+            $table->unsignedBigInteger('vehicle_id');
+            $table->unsignedBigInteger('battery_id');
+            $table->tinyInteger('type')->default('0')->comment('0: secondary, 1: primary');
             $table->timestamps();
 
-            /*
-            $table->foreign('id_vehicle')
+            // Set foreign key.
+            $table->foreign('vehicle_id')
                 ->references('id')
-                ->on('vehicle');
-            $table->foreign('id_battery')
+                ->on('vehicles');
+            $table->foreign('battery_id')
                 ->references('id')
-                ->on('battery');
-            */
+                ->on('batteries');
         });
     }
 

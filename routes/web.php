@@ -18,17 +18,20 @@ use App\Http\Controllers\MasterData\Battery\BatteryUsage;
 use App\Http\Controllers\MasterData\Battery\BatterySize;
 use App\Http\Controllers\MasterData\Distributor\Distributor;
 use App\Http\Controllers\MasterData\Distributor\DistributorShop;
-use App\Http\Controllers\MasterData\Distributor\ShopTechnician;
+use App\Http\Controllers\MasterData\Distributor\DistributorShopTechnician;
 
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
 
+// ADMIN
+use App\Http\Controllers\Admin\User;
+
 // DEVELOPER
 use App\Http\Controllers\Developer\Menu;
+use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -155,13 +158,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
 
     // Shop Technician
-    Route::get('/distributor/technician', [ShopTechnician::class, 'index']);
-    Route::post('/distributor/technician/show', [ShopTechnician::class, 'show']);
-    Route::get('/distributor/technician/create', [ShopTechnician::class, 'create']);
-    Route::get('/distributor/technician/edit/{id}', [ShopTechnician::class, 'edit']);
-    Route::post('/distributor/technician/store', [ShopTechnician::class, 'store']);
-    Route::post('/distributor/technician/update', [ShopTechnician::class, 'update']);
-    Route::post('/distributor/technician/destroy', [ShopTechnician::class, 'destroy']);
+    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);
+    Route::post('/distributor/technician/show', [DistributorShopTechnician::class, 'show']);
+    Route::get('/distributor/technician/create', [DistributorShopTechnician::class, 'create']);
+    Route::get('/distributor/technician/edit/{id}', [DistributorShopTechnician::class, 'edit']);
+    Route::post('/distributor/technician/store', [DistributorShopTechnician::class, 'store']);
+    Route::post('/distributor/technician/update', [DistributorShopTechnician::class, 'update']);
+    Route::post('/distributor/technician/destroy', [DistributorShopTechnician::class, 'destroy']);
 
     // Orders
     // Quick Quotation
@@ -172,6 +175,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
     Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
     Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
+
+    // Admin
+    // User Manager
+    Route::get('/user', [User::class, 'index']);
+    Route::post('/user/show', [User::class, 'show']);
+    Route::get('/user/edit/{id}', [User::class, 'edit']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
@@ -200,6 +209,8 @@ Route::middleware(['developer'])->group(function () {
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
     Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
+    Route::get('/menu/parent/create', [MenuParent::class, 'create']);
+    Route::post('/menu/parent/store', [MenuParent::class, 'store']);
 });
 
 // Auth

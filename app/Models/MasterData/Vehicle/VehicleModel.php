@@ -11,30 +11,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 
+// TRAITS
+use App\Traits\DataTablesTrait;
+
 class VehicleModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DataTablesTrait;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'vehicle';
+    protected $table = 'vehicles';
 
-    protected $fillable = [
-        'id',
-        'name',
-        'id_brand',
-        'url',
-    ];
+    /**
+     * The list of columns in the associated table.
+     */
+    private static $selectColumns = ['id', 'name', 'brand_id', 'url'];
 
     /**
      * Get vehicle brand.
      */
     public function brand(): BelongsTo
     {
-        return $this->belongsTo(VehicleBrandModel::class, 'id_brand');
+        return $this->belongsTo(VehicleBrandModel::class, 'brand_id');
     }
 
     /**
@@ -42,7 +43,7 @@ class VehicleModel extends Model
      */
     public function customers()
     {
-        return $this->belongsToMany(CustomerModel::class, 'customer_vehicle', 'id_vehicle', 'id_customer')
+        return $this->belongsToMany(CustomerModel::class, 'customer_vehicle', 'vehicle_id', 'customer_id')
             ->withTimestamps();
     }
 
@@ -51,7 +52,22 @@ class VehicleModel extends Model
      */
     public function batteries()
     {
-        return $this->belongsToMany(BatteryModel::class, 'vehicle_battery', 'id_vehicle', 'id_battery')
+        return $this->belongsToMany(BatteryModel::class, 'vehicle_battery', 'vehicle_id', 'battery_id')
             ->withTimestamps();
+    }
+
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @return array Associative array containing data for DataTables display.
+     */
+    public static function allForDataTables($request)
+    {
+        // Build the query to obtain all rows.
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }

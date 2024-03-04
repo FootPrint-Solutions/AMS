@@ -79,44 +79,17 @@ class Distributor extends Controller
      */
     public function show(Request $request)
     {
-        // DataTables configuration data.
+        // Get all DataTables requests.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
 
-        $query = DistributorModel::query();
+        // Get distributor data (rows and count).
+        $data = DistributorModel::allForDataTables($request);
 
-        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email'];
-        $query->select($selectColumns);
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy("name", "asc")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in table.
+        $rows = [];
         $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
@@ -125,20 +98,15 @@ class Distributor extends Controller
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
             $row[] = $key->email ?? "-";
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal  = DistributorModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => DistributorModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
@@ -164,7 +132,7 @@ class Distributor extends Controller
             // Add a new shop for the distributor.
             $shop = new DistributorShopModel();
             $shop->name = "Distributor Main Shop";
-            $shop->id_distributor = $distributor->id;
+            $shop->distributor_id = $distributor->id;
             $shop->type = 1;
             $shop->address = $request->address;
             $shop->contact_person = $request->contactperson;
@@ -176,7 +144,7 @@ class Distributor extends Controller
             $status &= $shop->save();
         } else {
             // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if ($shop) {
                 $shop->delete();
             }
@@ -210,12 +178,12 @@ class Distributor extends Controller
 
         // Check if is shop is checked or not.
         if ($request->isshop == 1) {
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if (!$shop) {
                 // Add a new shop for the distributor.
                 $shop = new DistributorShopModel();
                 $shop->name = "Distributor Main Shop";
-                $shop->id_distributor = $distributor->id;
+                $shop->distributor_id = $distributor->id;
                 $shop->type = 1;
                 $shop->address = $request->address;
                 $shop->contact_person = $request->contactperson;
@@ -228,7 +196,7 @@ class Distributor extends Controller
             }
         } else {
             // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('id_distributor', $distributor->id)->where("type", 1)->first();
+            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
             if ($shop) {
                 $shop->delete();
             }

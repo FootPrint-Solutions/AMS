@@ -6,27 +6,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+
+// TRAITS
+use App\Traits\DataTablesTrait;
 
 class BatteryModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DataTablesTrait;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'battery';
+    protected $table = 'batteries';
 
-    protected $fillable = [
+    /**
+     * The list of columns in the associated table.
+     */
+    private static $selectColumns = [
         'id',
         'name',
-        'id_brand',
-        'id_subbrand_category',
-        'id_usage_type',
-        'id_size_category',
-        'id_technology',
+        'brand_id',
+        'subbrand_category_id',
+        'usage_type_id',
+        'size_category_id',
+        'technology_id',
         'dimension_length',
         'dimension_width',
         'dimension_height',
@@ -42,7 +47,7 @@ class BatteryModel extends Model
      */
     public function brand(): BelongsTo
     {
-        return $this->belongsTo(BatteryBrandModel::class, 'id_brand');
+        return $this->belongsTo(BatteryBrandModel::class, 'brand_id');
     }
 
     /**
@@ -50,7 +55,7 @@ class BatteryModel extends Model
      */
     public function subbrandCategory(): BelongsTo
     {
-        return $this->belongsTo(BatterySubbrandCategoryModel::class, 'id_subbrand_category');
+        return $this->belongsTo(BatterySubbrandCategoryModel::class, 'subbrand_category_id');
     }
 
     /**
@@ -58,7 +63,7 @@ class BatteryModel extends Model
      */
     public function usageType(): BelongsTo
     {
-        return $this->belongsTo(BatteryUsageTypeModel::class, 'id_usage_type');
+        return $this->belongsTo(BatteryUsageTypeModel::class, 'usage_type_id');
     }
 
     /**
@@ -66,7 +71,7 @@ class BatteryModel extends Model
      */
     public function sizeCategory(): BelongsTo
     {
-        return $this->belongsTo(BatterySizeCategoryModel::class, 'id_size_category');
+        return $this->belongsTo(BatterySizeCategoryModel::class, 'size_category_id');
     }
 
     /**
@@ -74,6 +79,21 @@ class BatteryModel extends Model
      */
     public function technology(): BelongsTo
     {
-        return $this->belongsTo(BatteryTechnologyModel::class, 'id_technology');
+        return $this->belongsTo(BatteryTechnologyModel::class, 'technology_id');
+    }
+
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @return array Associative array containing data for DataTables display.
+     */
+    public static function allForDataTables($request)
+    {
+        // Build the query to obtain all rows.
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }

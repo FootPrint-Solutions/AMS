@@ -61,7 +61,7 @@ class Menu extends Controller
      */
     public function edit($id)
     {
-        // Retrieve menu profile data (separated to retrieve its id_parent).
+        // Retrieve menu profile data (separated to retrieve its parent_id).
         $profile = MenuModel::with("menuSubs")->find($id)->toArray();
 
         return view(
@@ -72,7 +72,7 @@ class Menu extends Controller
                 $this->submenu,
                 array(
                     "profile" => $profile,
-                    "menus" => MenuModel::where("id_parent", $profile["id_parent"])->get()->toArray(),
+                    "menus" => MenuModel::where("parent_id", $profile["parent_id"])->get()->toArray(),
                     "menu_parents" => MenuParentModel::all()->toArray()
                 )
             )
@@ -82,71 +82,31 @@ class Menu extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
     {
-        // DataTables configuration data.
-        $draw = $request->input("draw");
-        $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
+        // Get menu data (rows and count).
+        $data = MenuModel::allForDataTables($request);
 
-        $query = MenuModel::query()
-            ->join('menu_parent', 'menu_parent.id', '=', 'menu.id_parent');
-
-        $selectColumns = ['menu.id', 'menu.name AS menu_name', 'menu_parent.name AS menu_parent_name'];
-        $query->select($selectColumns);
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query
-            ->orderBy("menu_parent.order", "asc")
-            ->orderBy("menu.order")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
-        $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        $rows = [];
+        $no = $request->input("start") + 1;
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
             $row[] = $key->menu_parent_name;
             $row[] = $key->menu_name;
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal  = MenuModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
-            "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+        return response()->json(array(
+            "draw" => $request->input("draw"),
+            "recordsTotal" => MenuModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
@@ -159,7 +119,7 @@ class Menu extends Controller
     {
         $menu = new MenuModel();
         $menu->name = $request->name;
-        $menu->id_parent = $request->menuparent;
+        $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent);
         $menu->url = $request->url;
         $status = $menu->save();
@@ -182,7 +142,7 @@ class Menu extends Controller
     {
         $menu = MenuModel::find($request->id);
         $menu->name = $request->name;
-        $menu->id_parent = $request->menuparent;
+        $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
         $menu->url = $request->url;
         $status = $menu->save();
@@ -202,6 +162,6 @@ class Menu extends Controller
      */
     public function getMenu($idParent)
     {
-        return MenuModel::where("id_parent", $idParent)->get()->toArray();
+        return MenuModel::where("parent_id", $idParent)->get()->toArray();
     }
 }

@@ -54,7 +54,7 @@
                         <select class="form-control" id="brand" name="brand">
                             <option></option>
                             @foreach ($data['brands'] as $brand)
-                                <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['id_brand'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
+                                <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['brand_id'] == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new brand&hellip;</option>
                         </select>
@@ -68,7 +68,7 @@
                         <select class="form-control" id="subbrand-category" name="subbrandcategory">
                             <option></option>
                             @foreach ($data['subbrand_categories'] as $category)
-                                <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['id_subbrand_category'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
+                                <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['subbrand_category_id'] == $category['id']) selected @endif>{{ $category['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new subbrand&hellip;</option>
                         </select>
@@ -104,7 +104,7 @@
                         <select class="form-control" id="usagetype" name="usagetype">
                             <option></option>
                             @foreach ($data['usage_types'] as $usage)
-                                <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['id_usage_type'] == $usage['id']) selected @endif>{{ $usage['name'] }}</option>
+                                <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['usage_type_id'] == $usage['id']) selected @endif>{{ $usage['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new usage type&hellip;</option>
                         </select>
@@ -118,7 +118,7 @@
                         <select class="form-control" id="technology" name="technology">
                             <option></option>
                             @foreach ($data['technologies'] as $tech)
-                                <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['id_technology'] == $tech['id']) selected @endif>{{ $tech['name'] }}</option>
+                                <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['technology_id'] == $tech['id']) selected @endif>{{ $tech['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new technology&hellip;</option>
                         </select>
@@ -132,7 +132,7 @@
                         <select class="form-control" id="size" name="size">
                             <option></option>
                             @foreach ($data['sizes'] as $size)
-                                <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['id_size_category'] == $size['id']) selected @endif>{{ $size['name'] }}</option>
+                                <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['size_category_id'] == $size['id']) selected @endif>{{ $size['name'] }}</option>
                             @endforeach
                             <option value="new">Quick add new size category&hellip;</option>
                         </select>

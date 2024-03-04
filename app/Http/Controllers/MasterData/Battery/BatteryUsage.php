@@ -76,64 +76,34 @@ class BatteryUsage extends Controller
      */
     public function show(Request $request)
     {
+        // Get all DataTables requests.
         $draw = $request->input('draw');
         $start = $request->input('start');
-        $length = $request->input('length');
-        $searchValue = $request->input('search.value');
-        $orderColumn = $request->input('order.0.column');
-        $orderDirection = $request->input('order.0.dir');
-        $orderColumnIndex = $request->input('order.0.column');
 
-        $query = BatteryUsageTypeModel::select('*');
-        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
-        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, 'like', '%' . $searchValue . '%');
-                }
-            });
-        }
+        // Get battery usage data (rows and count).
+        $data = BatteryUsageTypeModel::allForDataTables($request);
 
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy('name', 'asc')
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in battery usage table.
+        $rows = [];
         $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
             $row = [];
-            $row[] = $no;
+            $row[] = $no++;
             $row[] = $key->name;
             $row[] = $key->id;
-            $data[] = $row;
-            $no++;
+            $rows[] = $row;
         }
 
-        $recordTotal =  BatteryUsageTypeModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => BatteryUsageTypeModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
-     * Store a newly created Battery Usage Type resource in database.
+     * Store a newly created resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
@@ -152,7 +122,7 @@ class BatteryUsage extends Controller
     }
 
     /**
-     * Update the specified Battery Usage Type resource in storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

@@ -103,44 +103,17 @@ class Battery extends Controller
      */
     public function show(Request $request)
     {
+        // Get all DataTables requests.
         $draw = $request->input('draw');
         $start = $request->input('start');
-        $length = $request->input('length');
-        $searchValue = $request->input('search.value');
-        $orderColumn = $request->input('order.0.column');
-        $orderDirection = $request->input('order.0.dir');
-        $orderColumnIndex = $request->input('order.0.column');
 
+        // Get battery data (rows and count).
+        $data = BatteryModel::allForDataTables($request);
 
-        $query = BatteryModel::with(["brand", "subbrandCategory", "usageType", "sizeCategory", "technology"]);
-        $selectColumns = $query->getModel()->getFillable(); // ini udah otomatis ambil fillable dari model / query yang di panggil
-        $query->select($selectColumns); // ini udah otomatis ambil fillable dari model / query yang di panggil
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, 'like', '%' . $searchValue . '%');
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query->orderBy('name', 'asc')
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
+        // Set rows to be displayed in battery table.
+        $rows = [];
         $no = $start + 1;
-
-
-        foreach ($ListData as $key) {
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
@@ -155,24 +128,19 @@ class Battery extends Controller
             $row[] = $key->warranty;
             $row[] = number_format($key->price_retail);
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal = BatteryModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
+        return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+            "recordsTotal" => BatteryModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
-     * Store a newly created Customer resource in database.
+     * Store a newly created resource in database.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
@@ -190,9 +158,9 @@ class Battery extends Controller
             $brand->name = $request->newbrand;
             $status = $brand->save();
 
-            $battery->id_brand = $brand->id;
+            $battery->brand_id = $brand->id;
         } else {
-            $battery->id_brand = $request->brand;
+            $battery->brand_id = $request->brand;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -202,9 +170,9 @@ class Battery extends Controller
             $subbrand->name = $request->newsubbrandcategory;
             $status = $subbrand->save();
 
-            $battery->id_subbrand_category = $subbrand->id;
+            $battery->subbrand_category_id = $subbrand->id;
         } else {
-            $battery->id_subbrand_category = $request->subbrandcategory;
+            $battery->subbrand_category_id = $request->subbrandcategory;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -214,9 +182,9 @@ class Battery extends Controller
             $usagetype->name = $request->newusagetype;
             $status = $usagetype->save();
 
-            $battery->id_usage_type = $usagetype->id;
+            $battery->usage_type_id = $usagetype->id;
         } else {
-            $battery->id_usage_type = $request->usagetype;
+            $battery->usage_type_id = $request->usagetype;
         }
 
         // Check if the technology is newly added or not.
@@ -226,9 +194,9 @@ class Battery extends Controller
             $technology->name = $request->newtechnology;
             $status = $technology->save();
 
-            $battery->id_technology = $technology->id;
+            $battery->technology_id = $technology->id;
         } else {
-            $battery->id_technology = $request->technology;
+            $battery->technology_id = $request->technology;
         }
 
         // Check if the size category is newly added or not.
@@ -238,9 +206,9 @@ class Battery extends Controller
             $size->name = $request->newsize;
             $status = $size->save();
 
-            $battery->id_size_category = $size->id;
+            $battery->size_category_id = $size->id;
         } else {
-            $battery->id_size_category = $request->size;
+            $battery->size_category_id = $request->size;
         }
 
         $battery->dimension_length = $request->dimension[0];
@@ -285,9 +253,9 @@ class Battery extends Controller
             $brand->name = $request->newbrand;
             $status = $brand->save();
 
-            $battery->id_brand = $brand->id;
+            $battery->brand_id = $brand->id;
         } else {
-            $battery->id_brand = $request->brand;
+            $battery->brand_id = $request->brand;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -297,9 +265,9 @@ class Battery extends Controller
             $subbrand->name = $request->newsubbrandcategory;
             $status = $subbrand->save();
 
-            $battery->id_subbrand_category = $subbrand->id;
+            $battery->subbrand_category_id = $subbrand->id;
         } else {
-            $battery->id_subbrand_category = $request->subbrandcategory;
+            $battery->subbrand_category_id = $request->subbrandcategory;
         }
 
         // Check if the subbrand category is newly added or not.
@@ -309,9 +277,9 @@ class Battery extends Controller
             $usagetype->name = $request->newusagetype;
             $status = $usagetype->save();
 
-            $battery->id_usage_type = $usagetype->id;
+            $battery->usage_type_id = $usagetype->id;
         } else {
-            $battery->id_usage_type = $request->usagetype;
+            $battery->usage_type_id = $request->usagetype;
         }
 
         // Check if the technology is newly added or not.
@@ -321,9 +289,9 @@ class Battery extends Controller
             $technology->name = $request->newtechnology;
             $status = $technology->save();
 
-            $battery->id_technology = $technology->id;
+            $battery->technology_id = $technology->id;
         } else {
-            $battery->id_technology = $request->technology;
+            $battery->technology_id = $request->technology;
         }
 
         // Check if the size category is newly added or not.
@@ -333,9 +301,9 @@ class Battery extends Controller
             $size->name = $request->newsize;
             $status = $size->save();
 
-            $battery->id_size_category = $size->id;
+            $battery->size_category_id = $size->id;
         } else {
-            $battery->id_size_category = $request->size;
+            $battery->size_category_id = $request->size;
         }
 
         $battery->dimension_length = $request->dimension[0];
@@ -360,7 +328,7 @@ class Battery extends Controller
     }
 
     /**
-     * Remove the specified Battery resource from storage.
+     * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

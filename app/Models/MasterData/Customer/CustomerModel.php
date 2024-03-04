@@ -9,20 +9,25 @@ use Illuminate\Database\Eloquent\Model;
 // Models
 use App\Models\MasterData\Vehicle\VehicleModel;
 
+// Trait
+use App\Traits\DataTablesTrait;
+
 class CustomerModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DataTablesTrait;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'customer';
+    protected $table = 'customers';
 
-    protected $fillable = [
-        'id', 'name', 'address', 'contact', 'email',
-        // Add other fillable columns here if any
+    /**
+     * The list of columns in the associated table.
+     */
+    private static $selectColumns = [
+        'id', 'name', 'address', 'contact', 'email'
     ];
 
     /**
@@ -30,12 +35,22 @@ class CustomerModel extends Model
      */
     public function vehicles()
     {
-        return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'id_customer', 'id_vehicle')
+        return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'customer_id', 'vehicle_id')
             ->withTimestamps();
     }
 
-    public static function getFillableColumns()
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @return array Associative array containing data for DataTables display.
+     */
+    public static function allForDataTables($request)
     {
-        return (new static())->getFillable();
+        // Build the query to obtain all rows.
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }

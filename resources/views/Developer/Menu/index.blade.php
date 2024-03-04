@@ -11,8 +11,8 @@
                         <h3 class="page-title">Menu Manager</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Menu</button>
+                        <button id="btn-add-parent" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Add New Menu Parent</button>
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New Menu</button>
                     </div>
                 </div>
             </div>
@@ -64,9 +64,14 @@
             // Load DataTables toolbar component.
             appendDatatablesToolbar(3);
 
-            // Add New distributor button
+            // Add New Menu button
             $("#btn-add").on("click", function() {
                 goToPage("/menu/create");
+            });
+
+            // Add New Menu Parent button
+            $("#btn-add-parent").on("click", function() {
+                goToPage("/menu/parent/create");
             });
         });
 

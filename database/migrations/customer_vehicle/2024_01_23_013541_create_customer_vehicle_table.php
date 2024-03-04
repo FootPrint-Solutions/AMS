@@ -15,18 +15,17 @@ class CreateCustomerVehicleTable extends Migration
     {
         Schema::create('customer_vehicle', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_customer');
-            $table->unsignedBigInteger('id_vehicle');
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('vehicle_id');
             $table->timestamps();
 
-            /*
-            $table->foreign('id_customer')
+            // Set foreign key references.
+            $table->foreign('customer_id')
                 ->references('id')
-                ->on('customer');
-            $table->foreign('id_vehicle')
+                ->on('customers');
+            $table->foreign('vehicle_id')
                 ->references('id')
-                ->on('vehicle');
-            */
+                ->on('vehicles');
         });
     }
 
