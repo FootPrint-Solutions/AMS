@@ -82,71 +82,31 @@ class Menu extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
     {
-        // DataTables configuration data.
-        $draw = $request->input("draw");
-        $start = $request->input("start");
-        $length = $request->input("length");
-        $searchValue = $request->input("search.value");
-        $orderColumn = $request->input("order.0.column");
-        $orderDirection = $request->input("order.0.dir");
-        $orderColumnIndex = $request->input("order.0.column");
+        // Get menu data (rows and count).
+        $data = MenuModel::allForDataTables($request);
 
-        $query = MenuModel::query()
-            ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
-
-        $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
-        $query->select($selectColumns);
-
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
-                    $query->orWhere($column, "like", "%" . $searchValue . "%");
-                }
-            });
-        }
-
-        if ($orderColumn !== null) {
-            $columnName = $selectColumns[$orderColumnIndex] ?? null;
-            if ($columnName !== null) {
-                $query->orderBy($columnName, $orderDirection);
-            }
-        }
-
-        $ListData = $query
-            ->orderBy("menu_parents.order", "asc")
-            ->orderBy("menus.order")
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        $data = [];
-        $no = $start + 1;
-
-        foreach ($ListData as $key) {
+        $rows = [];
+        $no = $request->input("start") + 1;
+        foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
             $row[] = $key->menu_parent_name;
             $row[] = $key->menu_name;
             $row[] = $key->id;
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        $recordTotal  = MenuModel::count();
-        $recordFiltered = ($searchValue != null) ? $query->count() : $recordTotal;
-
-        $output = [
-            "draw" => $draw,
-            "recordsTotal" => $recordTotal,
-            "recordsFiltered" => $recordFiltered,
-            "data" => $data
-        ];
-
-        return response()->json($output);
+        return response()->json(array(
+            "draw" => $request->input("draw"),
+            "recordsTotal" => MenuModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**

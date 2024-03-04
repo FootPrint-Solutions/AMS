@@ -40,8 +40,7 @@ trait DataTablesTrait
 
         return array(
             "count" => $query->count(),
-            "row" => $query->orderBy("name", "ASC")
-                ->skip($start)
+            "row" => $query->skip($start)
                 ->take($length)
                 ->get(),
         );

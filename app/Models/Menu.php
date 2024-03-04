@@ -9,9 +9,12 @@ use App\Models\MenuParent;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
+// TRAITS
+use App\Traits\DataTablesTrait;
+
 class Menu extends Model
 {
-    use HasFactory;
+    use HasFactory, DataTablesTrait;
 
     /**
      * The table associated with the model.
@@ -19,7 +22,20 @@ class Menu extends Model
      * @var string
      */
     protected $table = 'menus';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = ['order'];
+
+    /**
+     * The list of columns in the associated table.
+     * 
+     * @var array<string>
+     */
+    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
 
     /**
      * Get the menu parent that includes the menu.
@@ -127,5 +143,21 @@ class Menu extends Model
             // Add new menu to the position.
             return $destinationPosition->order;
         }
+    }
+
+    /**
+     * Get all data for DataTables.
+     * 
+     * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
+     * @return array Associative array containing data for DataTables display.
+     */
+    public static function allForDataTables($request)
+    {
+        // Build the query to obtain all rows.
+        $query = self::query()
+            ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
+        $query->select(self::$selectColumns);
+
+        return self::getAllRows($request, $query, self::$selectColumns);
     }
 }
