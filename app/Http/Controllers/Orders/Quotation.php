@@ -41,7 +41,7 @@ class Quotation extends Controller
 
     function shareFormPersonalDetails(Request $request)
     {
-        $url = "http://139.162.35.251:5001/send-message";
+        $url = "http://185.199.52.172:5001/send-message";
         $id = $request->input('VehicleCustomer');
 
         $vehicleCustomerString = "";
@@ -127,7 +127,7 @@ class Quotation extends Controller
 
     public function shareBattery(Request $request)
     {
-        $url = "http://139.162.35.251:5001/send-image";
+        $url = "http://185.199.52.172:5001/send-image";
         $ids = $request->input('Battery');
         $results = BatteryModel::where('id', $ids)->get()->toArray();
 
