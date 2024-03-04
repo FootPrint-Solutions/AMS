@@ -18,7 +18,7 @@ class Profile extends Controller
     public function index()
     {
         try {
-            $response = Http::get('http://139.162.35.251:5001/start-session-json', [
+            $response = Http::get('http://185.199.52.172:5001/start-session-json', [
                 'session' => auth()->user()->username,
                 'scan' => 'true',
             ]);
@@ -127,7 +127,7 @@ class Profile extends Controller
     public function deleteSessionWhatsapp()
     {
         try {
-            $response = Http::get('http://172.104.32.164:5001/delete-session', [
+            $response = Http::get('http://185.199.52.172:5001/delete-session', [
                 'session' => auth()->user()->username,
             ]);
 
