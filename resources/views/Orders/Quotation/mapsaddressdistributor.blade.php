@@ -3,6 +3,61 @@
         width: 100%;
         height: 350px;
     }
+
+    .info-window {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        font-family: Arial, sans-serif;
+    }
+
+    .info-window h4 {
+        margin: 0 0 5px;
+        font-size: 18px;
+    }
+
+    .info-window p {
+        margin: 0 0 10px;
+        font-size: 14px;
+    }
+
+    .info-window a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .info-window a:hover {
+        text-decoration: underline;
+    }
+
+    .copy-button {
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .copy-button:hover {
+        background-color: #0056b3;
+    }
+
+    .copy-button-green {
+        margin-top: 10px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .copy-button-green:hover {
+        background-color: #218838;
+    }
 </style>
 
 <h6>Our Distributor Partner</h6>
@@ -75,7 +130,7 @@
             }
         });
 
-        var contentString = '<div><h4>' + name + '</h4><p>' + address + '</p>';
+        var contentString = '<div class="info-window"><h4>' + name + '</h4><p>' + address + '</p>';
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
@@ -85,13 +140,25 @@
                 .getPosition());
             var distanceInKm = (distance / 1000).toFixed(2);
             var infoContent = contentString + '<p>Distance to customer location : ' + distanceInKm +
-                ' km</p> Contact Distributor : <a href=' + DisributorPhone +
-                ' target=_blank>Contact Here </a> </div>';
+                ' km</p> Contact Distributor :  62' + DisributorPhone +
+                '&nbsp;&nbsp;</div><button class="copy-button" onclick="copyInfo()"><i class="fa fa-copy"></i> Copy Info</button>&nbsp;&nbsp;<a href="62' +
+                DisributorPhone +
+                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>';
             infowindow.setContent(infoContent);
             infowindow.open(map, marker);
         });
 
         return marker;
+    }
+
+    function copyInfo() {
+        var range = document.createRange();
+        range.selectNode(document.querySelector('.info-window'));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        alert('Info copied to clipboard!');
     }
 </script>
 <script async defer
