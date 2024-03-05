@@ -74,7 +74,7 @@
                                     </div>
                                 </a>
                             </li>
-                            <li class="nav-item" id="InvoiceDisplay">
+                            <li class="nav-item" id="CheckoutDisplay">
                                 <a href="#company-document" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="Company Document">
@@ -146,7 +146,6 @@
                                                 <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
                                                     class="form-select" aria-label="Default select example">
                                                     @foreach ($data['Vehicle'] as $vehicle)
-
                                                         <option value="{{ $vehicle['id'] }}">
                                                             {{ trim($vehicle['name']) }}
 
@@ -232,155 +231,27 @@
                                         <div class="col text-end">
                                             <button id='BtnShareBattery' class="btn btn-success"> Share <i
                                                     class="fa-brands fa-whatsapp"></i></button>
-                                            <a href="javascript: void(0);" class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a>
+                                            <a href="javascript: void(0);" class="btn btn-primary product-next-btn">Next
+                                                <i class="bx bx-chevron-right ms-1"></i>
+                                            </a>
+                                            <a id="btnNextStep3" href="javascript: void(0);"
+                                                class="btn btn-primary seller-next-btn d-none">
+                                                Next
+                                                <i class="bx bx-chevron-right ms-1"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <!-- tab pane -->
-                            <div class="tab-pane" id="company-document">
+                            <div class="tab-pane" id="checkout">
+
                                 <div>
                                     <div class="mb-4">
                                         <h5>Enter Your Order Detail</h5>
                                     </div>
+                                    <div id="CheckoutPreview"></div>
 
-                                    <form>
-                                        {{-- Customer --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-customer" class="col-sm-2 col-form-label">Customer</label>
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control" id="order-customer"
-                                                    value="Azunyan #3">
-                                            </div>
-                                        </div>
-
-                                        {{-- Customer Vehicle --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-customer-vehicle" class="col-sm-2 col-form-label">Customer
-                                                Vehicle</label>
-                                            <div class="col-sm-10">
-                                                <div class="border rounded p-2">
-                                                    <span class="btn btn-primary">Toyota Avanza</span>
-                                                    <span class="btn btn-primary">Azunyan #2</span>
-                                                    <span class="btn btn-primary">Hohoho</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Battery --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-battery" class="col-sm-2 col-form-label">Battery</label>
-                                            <div class="col-sm-9">
-                                                <input type="text" class="form-control" id="order-battery"
-                                                    value="Amaron GO 95D31R">
-                                            </div>
-                                            <div class="col-sm-1">
-                                                <input type="number" class="form-control" id="order-battery"
-                                                    value="1" min="1">
-                                            </div>
-                                        </div>
-
-                                        {{-- Battery Retail Price --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-battery-price" class="col-sm-2 col-form-label">Battery
-                                                Retail Price</label>
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control" id="order-battery"
-                                                    value="1670000" readonly>
-                                            </div>
-                                        </div>
-
-                                        {{-- Battery Discount --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-battery-price" class="col-sm-2 col-form-label">Battery
-                                                Discounted Price</label>
-                                            <div class="col-sm-5">
-                                                <input type="number" class="form-control" id="order-battery"
-                                                    value="0">
-                                            </div>
-
-                                            <label for="order-battery-price" class="col-sm-2 col-form-label">Extra
-                                                Discount</label>
-                                            <div class="col-sm-3">
-                                                <input type="number" class="form-control" id="order-battery"
-                                                    value="0">
-                                            </div>
-                                        </div>
-
-                                        {{-- Trade In --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-tradein" class="col-sm-2 col-form-label">Trade
-                                                In</label>
-                                            <div class="col-sm-5">
-                                                <input type="radio" id="order-tradein-yes" name="order-tradein"
-                                                    value="1">
-                                                <label for="order-tradein-yes">Yes</label><br>
-                                            </div>
-                                            <div class="col-sm-5">
-                                                <input type="radio" id="order-tradein-no" name="order-tradein"
-                                                    value="0">
-                                                <label for="order-tradein-no">No</label><br>
-                                            </div>
-                                        </div>
-
-                                        {{-- Trade In Type --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-tradein-type" class="col-sm-2 col-form-label">Trade
-                                                In
-                                                Type</label>
-                                            <div class="col-sm-10">
-                                                <input type="number" class="form-control" id="order-tradein-type"
-                                                    value="0">
-                                            </div>
-                                        </div>
-
-                                        {{-- Trade In Value --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-tradein-value" class="col-sm-2 col-form-label">Trade
-                                                In
-                                                Value</label>
-                                            <div class="col-sm-10">
-                                                <input type="number" class="form-control" id="order-tradein-value"
-                                                    value="0">
-                                            </div>
-                                        </div>
-
-                                        {{-- Delivery Cost --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-delivery-cost" class="col-sm-2 col-form-label">Delivery
-                                                Cost</label>
-                                            <div class="col-sm-10">
-                                                <input type="number" class="form-control" id="order-delivery-cost"
-                                                    value="0">
-                                            </div>
-                                        </div>
-
-                                        {{-- Installation --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-installation"
-                                                class="col-sm-2 col-form-label">Installation</label>
-                                            <div class="col-sm-5">
-                                                <input type="radio" id="order-installation-yes"
-                                                    name="order-installation" value="1">
-                                                <label for="order-installation-yes">Yes</label><br>
-                                            </div>
-                                            <div class="col-sm-5">
-                                                <input type="radio" id="order-installation-no"
-                                                    name="order-installation" value="0">
-                                                <label for="order-installation-no">No</label><br>
-                                            </div>
-                                        </div>
-
-                                        {{-- Total --}}
-                                        <div class="form-group row mb-3">
-                                            <label for="order-delivery-cost" class="col-sm-2 col-form-label">Total</label>
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control" id="order-delivery-cost"
-                                                    value="1670000" readonly>
-                                            </div>
-                                        </div>
-                                    </form>
                                     <div class="row">
                                         <div class="col">
                                             <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
@@ -388,10 +259,13 @@
                                         </div>
 
                                         <div class="col text-end">
-                                            <a href="javascript: void(0);" class="btn btn-success"> Share <i
-                                                    class="fa-brands fa-whatsapp"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a>
+                                            <!-- <a href="javascript: void(0);" class="btn btn-success"> Share
+                                                                                                            <i class="fa-brands fa-whatsapp"></i></a> -->
+                                            <a id="btnNextStep4" href="javascript: void(0);"
+                                                class="btn btn-primary seller-next-btn ">
+                                                Next
+                                                <i class="bx bx-chevron-right ms-1"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -402,76 +276,7 @@
                                     <div class="mb-4">
                                         <h5>Payment Details</h5>
                                     </div>
-                                    <form>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="basicpill-namecard-input" class="form-label">Name
-                                                        on
-                                                        Card</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-namecard-input">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Credit Card Type</label>
-                                                    <select class="form-select">
-                                                        <option selected>Select Card Type</option>
-                                                        <option value="AE">American Express</option>
-                                                        <option value="VI">Visa</option>
-                                                        <option value="MC">MasterCard</option>
-                                                        <option value="DI">Discover</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="basicpill-cardno-input" class="form-label">Credit
-                                                        Card
-                                                        Number</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-cardno-input">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="basicpill-card-verification-input" class="form-label">Card
-                                                        Verification Number</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-card-verification-input">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="basicpill-expiration-input" class="form-label">Expiration
-                                                        Date</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-expiration-input">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    {{-- <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-
-                                        <li class="float-end">
-                                            <a href="javascript: void(0);" class="btn btn-success"> Share <i
-                                                    class="fa-brands fa-whatsapp"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-primary" data-bs-toggle="modal"
-                                                data-bs-target=".confirmModal">Save
-                                                Changes</a>
-                                        </li>
-                                        
-                                    </ul> --}}
+                                    <div id="PaymentPreview"></div>
 
                                     <div class="row">
                                         <div class="col">
@@ -831,7 +636,7 @@
                                 html += '<label>';
                                 html +=
                                     '<input type="checkbox" name="CheckBattery[]" value=' +
-                                    vehicle.id + '> Send To Customer';
+                                    vehicle.id + '> Share To Customer';
                                 html += '</label>';
                                 html += '</div>';
                                 html += '</div>';
@@ -989,6 +794,107 @@
                 });
             });
 
+            $(".product-next-btn").on('click', function() {
+                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (Battery.length == 0) {
+                    swal.fire("Error!", "Please select battery", "error");
+                    return;
+                }
+
+                $('#btnNextStep3').trigger('click');
+
+                if ($('#CheckoutDisplay').hasClass('active')) {
+                    var FullName = $("#FullName").val();
+                    var EmailCustomer = $("#EmailCustomer").val();
+                    var ContactNumber = $("#ContactNumber").val();
+                    var AddressCustomer = $("#AddressCustomer").val();
+                    var VehicleCustomer = $("#VehicleCustomer").val();
+                    var TemplateMessage = $("#TemplateMessage").val();
+                    var Latitude = $("#Latitude").val();
+                    var Longitude = $("#Longitude").val();
+                    var IdCustomer = $("#IdCustomer").val();
+                    var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                        return $(this).val();
+                    }).get();
+
+                    var data = {
+                        FullName: FullName,
+                        EmailCustomer: EmailCustomer,
+                        ContactNumber: ContactNumber,
+                        AddressCustomer: AddressCustomer,
+                        VehicleCustomer: VehicleCustomer,
+                        TemplateMessage: TemplateMessage,
+                        Latitude: Latitude,
+                        Longitude: Longitude,
+                        IdCustomer: IdCustomer,
+                        Battery: Battery,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    };
+
+                    $.ajax({
+                        url: "/get-checkout-preview",
+                        type: "GET",
+                        data: data,
+                        success: function(data) {
+                            $("#CheckoutPreview").html(data);
+                        }
+                    });
+                }
+            });
+
+
+            $("#btnNextStep4").on('click', function() {
+                // $('#btnNextStep4').trigger('click');
+
+                if ($('#PaymentDisplay').hasClass('active')) {
+                    var FullName = $("#FullName").val();
+                    var EmailCustomer = $("#EmailCustomer").val();
+                    var ContactNumber = $("#ContactNumber").val();
+                    var AddressCustomer = $("#AddressCustomer").val();
+                    var VehicleCustomer = $("#VehicleCustomer").val();
+                    var TemplateMessage = $("#TemplateMessage").val();
+                    var Latitude = $("#Latitude").val();
+                    var Longitude = $("#Longitude").val();
+                    var IdCustomer = $("#IdCustomer").val();
+                    var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                        return $(this).val();
+                    }).get();
+                    var TotalAmount = $("#TotalAmountHidden").val();
+                    var tax = $("#tax").val();
+                    var Discount = $("#Discount").val();
+                    var ExtraDiscount = $("#ExtraDiscount").val();
+
+                    var data = {
+                        FullName: FullName,
+                        EmailCustomer: EmailCustomer,
+                        ContactNumber: ContactNumber,
+                        AddressCustomer: AddressCustomer,
+                        VehicleCustomer: VehicleCustomer,
+                        TemplateMessage: TemplateMessage,
+                        Latitude: Latitude,
+                        Longitude: Longitude,
+                        IdCustomer: IdCustomer,
+                        Battery: Battery,
+                        TotalAmount: TotalAmount,
+                        tax: tax,
+                        Discount: Discount,
+                        ExtraDiscount: ExtraDiscount,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    };
+
+                    $.ajax({
+                        url: "/get-payment-preview",
+                        type: "GET",
+                        data: data,
+                        success: function(data) {
+                            $("#PaymentPreview").html(data);
+                        }
+                    });
+                }
+            });
 
         });
     </script>

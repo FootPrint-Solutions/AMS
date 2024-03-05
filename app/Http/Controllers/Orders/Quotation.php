@@ -15,6 +15,10 @@ use App\Models\MasterData\Customer\CustomerVehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 
+
+// Midtrans 
+use App\Services\Midtrans\CreateSnapTokenService;
+
 class Quotation extends Controller
 {
     public function index()
@@ -161,5 +165,67 @@ class Quotation extends Controller
                 return getResponseData(false, "Failed to send message => " . $e->getMessage());
             }
         }
+    }
+
+    public function getCheckoutPreview(Request $request)
+    {
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
+        $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
+
+        $data = [
+            'Fullname' => $Fullname,
+            'AddressCustomer' => $AddressCustomer,
+            'EmailCustomer' => $EmailCustomer,
+            'ContactNumber' => $ContactNumber,
+            'VehicleCustomer' => $VehicleCustomer,
+            'VehicleCustomerString' => implode(', ', $VehicleCustomer),
+            'Battery' => $BatteryData,
+            'BatteryString' => implode(', ', $Battery),
+            'Latitude' => $request->input('Latitude'),
+            'Longitude' => $request->input('Longitude'),
+        ];
+
+        return view('Orders.Quotation.checkoutpreview', $data);
+    }
+
+    public function getPaymentPreview(Request $request)
+    {
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
+        $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
+        $TotalAmount = $request->input('TotalAmount');
+
+        $InvoiceNumber = "INV" . date('YmdHis') . rand(1000, 9999);
+
+        $data = [
+            'Fullname' => $Fullname,
+            'AddressCustomer' => $AddressCustomer,
+            'EmailCustomer' => $EmailCustomer,
+            'ContactNumber' => $ContactNumber,
+            'VehicleCustomer' => $VehicleCustomer,
+            'VehicleCustomerString' => implode(', ', $VehicleCustomer),
+            'Battery' => $BatteryData,
+            'BatteryString' => implode(', ', $Battery),
+            'Latitude' => $request->input('Latitude'),
+            'Longitude' => $request->input('Longitude'),
+            'InvoiceNumber' => $InvoiceNumber,
+            'TotalAmount' => $TotalAmount
+        ];
+
+        $midtrans = new CreateSnapTokenService($InvoiceNumber);
+        $snapToken = $midtrans->getSnapTokenUrl($data);
+
+        $data['snapToken'] = $snapToken;
+
+        return view('Orders.Quotation.paymentpreview', $data);
     }
 }
