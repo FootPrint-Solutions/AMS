@@ -53,9 +53,7 @@
                             <label for="distributor-address">Address <span class="login-danger">*</span></label>
                             <input readonly type="text" class="form-control" id="AddressSearchColumn" name="address"
                                 placeholder="Enter distributor address" required
-                                @isset($data['profile'])
-                            value="{{ $data['profile']['address'] }}"
-                        @endisset>
+                                @isset($data['profile']) value="{{ $data['profile']['address'] }}" @endisset>
 
                             <input type="hidden" id="Latitude" name="Latitude"
                                 @if (isset($data['profile'])) value="{{ $data['profile']['latitude'] }}" @endif>
@@ -80,9 +78,7 @@
                             <label for="contact-person">Contact Person <span class="login-danger">*</span></label>
                             <input type="text" class="form-control" id="contact-person" name="contactperson"
                                 placeholder="Enter shop contact person name" required
-                                @isset($data['profile'])
-                            value="{{ $data['profile']['address'] }}"
-                        @endisset>
+                                @isset($data['profile']) value="{{ $data['profile']['address'] }}" @endisset>
                         </div>
                     </div>
 
@@ -94,9 +90,7 @@
                                 <span class="input-group-text border-end country-code">+62</span>
                                 <input type="tel" pattern="[0-9]+" class="form-control" id="contact" name="contact"
                                     placeholder="Enter shop contact" required
-                                    @isset($data['profile'])
-                                value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
-                            @endisset>
+                                    @isset($data['profile']) value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}" @endisset>
                             </div>
                         </div>
                     </div>
@@ -107,9 +101,7 @@
                             <label for="email">E-mail</label>
                             <input type="email" class="form-control" id="email" name="email"
                                 placeholder="Enter shop e-mail"
-                                @isset($data['profile'])
-                            value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
-                        @endisset>
+                                @isset($data['profile']) value="{{ $data['profile'] ? $data['profile']['email'] : '' }}" @endisset>
                         </div>
                     </div>
                 </div>
@@ -117,7 +109,12 @@
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
-                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the shop">@if (isset($data['profile']) && !empty($data['profile']['note'])){{ $data['profile']['note'] }}@endif</textarea>
+                    <textarea type="text" class="form-control" id="note" name="note"
+                        placeholder="Enter some notes regarding the shop">
+@if (isset($data['profile']) && !empty($data['profile']['note']))
+{{ $data['profile']['note'] }}
+@endif
+</textarea>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -130,10 +127,10 @@
                     {{-- Create Button --}}
                     <button type="submit" class="btn btn-success mx-1" id="btn-save"
                         @if (isset($data['profile'])) value="update">
-                        Update
+                    Update
                     @else
-                        value="create">
-                        Create @endif
+                    value="create">
+                    Create @endif
                         Shop </button>
 
                         {{-- Cancel Button --}}
@@ -156,7 +153,11 @@
 
             $("#distributor-shop-form").on("submit", function(event) {
                 event.preventDefault();
-                
+                if ($("#AddressSearchColumn").val() == "") {
+                    swal.fire("Error!", "Please Fill The Address Column", "error");
+                    $("#AddressSearchColumn").focus();
+                    return;
+                }
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/distributor/shop/update" : "/distributor/shop/store";
 
