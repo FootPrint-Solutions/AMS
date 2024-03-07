@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Role;
 use Illuminate\Support\Facades\Route;
 
 // DASHBOARD
@@ -178,11 +179,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-checkout-preview', [Quotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
     Route::get('/get-payment-preview', [Quotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
 
-    // Admin
-    // User Manager
-    Route::get('/user', [User::class, 'index']);
-    Route::post('/user/show', [User::class, 'show']);
-    Route::get('/user/edit/{id}', [User::class, 'edit']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
