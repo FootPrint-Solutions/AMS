@@ -127,6 +127,11 @@
             $("#customer-form").on("submit", function(event) {
                 event.preventDefault();
 
+                if ($("#AddressSearchColumn").val() == "") {
+                    swal.fire("Error!", "Please Fill The Address Column", "error");
+                    $("#AddressSearchColumn").focus();
+                    return;
+                }
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/customer/update" : "/customer/store";
 
