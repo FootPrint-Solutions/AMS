@@ -24,7 +24,8 @@
                 <div class="row align-items-center">
                     <div class="col-8">
                         <div class="input-group">
-                            <input type="file" name="file" class="form-control form-control-sm">
+                            <input type="file" name="file" class="form-control form-control-sm" required
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                             <button type="submit" class="btn btn-outline-success btn-sm"><i
                                     class="fa-solid fa-file-import"></i> Import Vehicle</button>
                             <a href="{{ asset('template/excel/SampleImportVehicle.xlsx') }}"
