@@ -25,9 +25,10 @@
                 <div class="row align-items-center">
                     <div class="col-8">
                         <div class="input-group">
-                            <input type="file" name="file" class="form-control form-control-sm">
-                            <button type="submit" class="btn btn-outline-success btn-sm"><i
-                                    class="fa-solid fa-file-import"></i> Import Battery Data</button>
+                            <input type="file" name="file" class="form-control form-control-sm" required
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                            <button type="submit" class="btn btn-outline-success btn-sm" id='btn-import'>
+                                <i class="fa-solid fa-file-import"></i> Import Battery Data</button>
                             <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
                                 Download Sample Import Data</a>
@@ -94,7 +95,7 @@
 
             // Load DataTables toolbar component.
             appendDatatablesToolbar(12);
-            
+
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");
             });
@@ -116,6 +117,11 @@
             });
 
             $("#form-import").on("submit", function(e) {
+                $("#btn-import").attr("disabled", true);
+                var button = $("#btn-import");
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
                 e.preventDefault();
                 var formData = new FormData(this);
                 $.ajax({
@@ -134,10 +140,18 @@
                             // Company profile update was succeeded.
                             showSuccessToast(responseData.message);
                             $("#form-import")[0].reset();
+                            $("#btn-import").attr("disabled", false);
+                            button.html(
+                                '<i class="fa-solid fa-file-import"></i> Import Battery Data'
+                            );
                         } else {
                             // Company profile update was failed.
                             showErrorToast(responseData.message);
                             $("#form-import")[0].reset();
+                            $("#btn-import").attr("disabled", false);
+                            button.html(
+                                '<i class="fa-solid fa-file-import"></i> Import Battery Data'
+                            );
                         }
 
                         // Reload table with updated rows.
