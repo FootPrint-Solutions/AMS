@@ -79,11 +79,11 @@
             goToPage("/menu/edit/" + id);
         }
 
-        // function destroy(id) {
-        //     sendDestroyRequest(id, "/distributor/destroy", function() {
-        //         // Reload the index table.
-        //         table.ajax.reload();
-        //     });
-        // }
+        function destroy(id) {
+            sendDestroyRequest(id, "/menu/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
+        }
     </script>
 @endsection

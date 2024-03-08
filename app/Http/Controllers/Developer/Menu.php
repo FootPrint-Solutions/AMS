@@ -155,6 +155,29 @@ class Menu extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $menu = MenuModel::find($request->id);
+        $parent_id = $menu->parent_id;
+        $order = $menu->order;
+        $status = $menu->delete();
+
+        // Update menu order.
+        MenuModel::updateOrder($parent_id, $order);
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected menu was successfully deleted!" : "Failed to deleted the selected menu!"
+        );
+    }
+
+    /**
      * Obtain the list of menu belongs to submitted parent.
      *
      * @param  int  $idParent

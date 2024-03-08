@@ -206,6 +206,7 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
+    Route::post('/menu/destroy', [Menu::class, 'destroy']);
     Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
     Route::get('/menu/parent/create', [MenuParent::class, 'create']);
     Route::post('/menu/parent/store', [MenuParent::class, 'store']);
