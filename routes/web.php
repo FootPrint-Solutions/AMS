@@ -178,7 +178,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
     Route::get('/get-checkout-preview', [Quotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
     Route::get('/get-payment-preview', [Quotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
-
+    Route::post('/get-battery-copy-detail', [Quotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

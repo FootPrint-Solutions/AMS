@@ -96,203 +96,19 @@
 
                         <div class="tab-content twitter-bs-wizard-tab-content">
                             <div class="tab-pane active" id="seller-details">
-                                <div class="mb-4">
-                                    <h5>Enter Your Personal Details</h5>
-                                </div>
-                                <form id='FormPersonalDetails'>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
-                                                <label for="company-name">Full Name <span
-                                                        class="login-danger">*</span></label>
-                                                <input type="text" class="form-control" id="FullName" name="FullName"
-                                                    placeholder="Enter Full Name" value="" required
-                                                    autocomplete="off">
-                                                <div id="AutoCompleteFullNameCustomer"></div>
-                                                <span class="badge bg-success" id="UserExist" style='display:none;'>User
-                                                    Exist</span>
-                                                <span class="badge bg-warning" id="UserNotExist" style='display:none;'>New
-                                                    User</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
-                                                <label for="company-name">Email <span class="login-danger">*</span></label>
-                                                <input type="text" class="form-control" id="EmailCustomer"
-                                                    name="EmailCustomer" placeholder="Enter Email" value="" required
-                                                    autocomplete="off">
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
-                                                <div class="input-group">
-                                                    <span class="input-group-text border-end country-code">+62</span>
-                                                    <label for="company-name">Contact Number <span
-                                                            class="login-danger">*</span></label>
-                                                    <input type="number" class="form-control" id="ContactNumber"
-                                                        name="ContactNumber" placeholder="Enter Contract Number"
-                                                        value="" required autocomplete="off">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
-                                                <label for="company-name">Vehicle Customer <span
-                                                        class="login-danger">*</span></label>
-                                                <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer'
-                                                    class="form-select" aria-label="Default select example">
-                                                    @foreach ($data['Vehicle'] as $vehicle)
-                                                        <option value="{{ $vehicle['id'] }}">
-                                                            {{ trim($vehicle['name']) }}
-
-                                                        </option>
-                                                    @endforeach
-
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-group local-forms">
-                                                <label for="company-contact">Address Customer <span
-                                                        class="login-danger">*</span></label>
-
-
-                                                {{-- <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
-                                                    value="" required autocomplete="off"></textarea> --}}
-
-                                                <input type="text" class="form-control" id="AddressCustomer"
-                                                    name="AddressCustomer">
-                                            </div>
-
-                                            <div class="form-group local-forms">
-                                                <label for="company-contact">Template Message <span
-                                                        class="login-danger">*</span></label>
-
-
-                                                <textarea class="form-control" id="TemplateMessage" name="TemplateMessage" placeholder="Enter Addres Customer"
-                                                    required autocomplete="off">Hello, <NAME> here is your address : <ADDRESS> and your email : <EMAIL> and your vehicle is <VEHICLE>          
-                                                </textarea>
-
-                                            </div>
-
-                                            <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
-                                            <input type="hidden" name="Latitude" id="Latitude" value="">
-                                            <input type="hidden" name="Longitude" id="Longitude" value="">
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div id="map"></div>
-                                        </div>
-                                        <div class="col-lg-6">
-
-                                        </div>
-                                    </div>
-                                </form>
-                                <div class="row">
-                                    <div class="col text-end">
-                                        <a id="btnCopyAddress" class="btn clip-btn btn-primary" href="javascript:;"
-                                            data-clipboard-action="copy" data-clipboard-target="#CopyPersonalDetails"><i
-                                                class="far fa-copy"></i>
-                                            Copy from Input</a>
-                                        <button id='BtnShareFormPersonalDetails' class="btn btn-success"> Share <i
-                                                class="fa-brands fa-whatsapp"></i></button>
-                                        <a href="javascript: void(0);" class="btn btn-primary seller-next-btn-check">
-                                            Next
-                                            <i class="bx bx-chevron-right ms-1"></i></a>
-                                        <a id="btnNextStep2" href="javascript: void(0);"
-                                            class="btn btn-primary seller-next-btn d-none">
-                                            Next
-                                            <i class="bx bx-chevron-right ms-1"></i></a>
-                                    </div>
-                                </div>
+                                @include('Orders.Quotation.step-1')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="product-display">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Enter Your Order Detail</h5>
-                                    </div>
-
-                                    <div id="MapsDistributorRecomendation">
-                                    </div>
-
-                                    <h6 class="mt-3">Our Battery Recommendation</h6>
-                                    <div class="row" id="ResultRecommendationBattery">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a>
-                                        </div>
-
-                                        <div class="col text-end">
-                                            <button id='BtnShareBattery' class="btn btn-success"> Share <i
-                                                    class="fa-brands fa-whatsapp"></i></button>
-                                            <a href="javascript: void(0);" class="btn btn-primary product-next-btn">Next
-                                                <i class="bx bx-chevron-right ms-1"></i>
-                                            </a>
-                                            <a id="btnNextStep3" href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn d-none">
-                                                Next
-                                                <i class="bx bx-chevron-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                                @include('Orders.Quotation.step-2')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="checkout">
-
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Enter Your Order Detail</h5>
-                                    </div>
-                                    <div id="CheckoutPreview"></div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a>
-                                        </div>
-
-                                        <div class="col text-end">
-                                            <!-- <a href="javascript: void(0);" class="btn btn-success"> Share
-                                                                                                            <i class="fa-brands fa-whatsapp"></i></a> -->
-                                            <a id="btnNextStep4" href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn ">
-                                                Next
-                                                <i class="bx bx-chevron-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                                @include('Orders.Quotation.step-3')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="bank-detail">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Payment Details</h5>
-                                    </div>
-                                    <div id="PaymentPreview"></div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a>
-                                        </div>
-
-                                        <div class="col text-end">
-                                            <a href="javascript: void(0);" class="btn btn-success"> Share <i
-                                                    class="fa-brands fa-whatsapp"></i></a>
-                                            <a href="javascript: void(0);" class="btn btn-primary" data-bs-toggle="modal"
-                                                data-bs-target=".confirmModal">Save
-                                                Changes</a>
-                                        </div>
-                                    </div>
-                                </div>
+                                @include('Orders.Quotation.step-4')
                             </div>
                             <!-- tab pane -->
                         </div>
@@ -314,7 +130,11 @@
             $('#VehicleCustomer').select2();
 
             $('#BtnShareFormPersonalDetails').on('click', function() {
-
+                var button = $(this);
+                button.prop('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
                 let FullName = $('#FullName').val();
                 let ContactNumber = $('#ContactNumber').val();
                 let AddressCustomer = $('#AddressCustomer').val();
@@ -395,6 +215,11 @@
                                         text: ResponseData.message,
                                         icon: "success",
                                     });
+
+                                    button.prop('disabled', false);
+                                    button.html(
+                                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                                    );
                                 } else {
                                     Swal.fire({
                                         title: "Error",
@@ -402,6 +227,11 @@
                                             "Something went wrong, please try again later",
                                         icon: "error",
                                     });
+
+                                    button.prop('disabled', false);
+                                    button.html(
+                                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                                    );
                                 };
                             }
                         });
@@ -599,7 +429,7 @@
                                     '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
                                 html += '<div class="blog grid-blog flex-fill">';
                                 html += '<div class="blog-image">';
-                                html += '<a href="blog-details.html">';
+                                html += '<a href="#!">';
                                 if (vehicle.image == null) {
 
                                     vehicle.image =
@@ -618,7 +448,7 @@
                                 html += '</div>';
                                 html += '<div class="blog-content">';
                                 html +=
-                                    '<h3 class="blog-title"><a href="blog-details.html">' +
+                                    '<h3 class="blog-title"><a href="#!">' +
                                     vehicle.name + '</a></h3>';
                                 html += '<p>Details & Specification :</p>';
                                 html += '<ul class="list-group list-group-flush">';
@@ -626,24 +456,32 @@
                                     vehicle.warranty + ' Months</li>';
 
                                 html += '<li class="list-group-item">Price : Rp. ' +
-                                    vehicle.price_retail + '</li>';
+                                    Number(vehicle.price_retail).toLocaleString(
+                                        'id-ID') + '</li>';
                                 html += '</ul>';
-                                html += '</div>';
+                                html +=
+                                    '</div>';
                                 html += '<div class="row">';
-                                html += '<div class="edit-options">';
-                                html += '<div class="text-end inactive-style mt-3">';
-                                html += '<div class="checkbox">';
+                                html +=
+                                    '<div class="edit-options">';
+                                html +=
+                                    '<div class="text-end inactive-style mt-3">';
+                                html +=
+                                    '<div class="checkbox">';
                                 html += '<label>';
                                 html +=
                                     '<input type="checkbox" name="CheckBattery[]" value=' +
                                     vehicle.id + '> Share To Customer';
-                                html += '</label>';
+                                html +=
+                                    '</label>';
                                 html += '</div>';
                                 html += '</div>';
+                                html +=
+                                    '</div>';
                                 html += '</div>';
                                 html += '</div>';
-                                html += '</div>';
-                                html += '</div>';
+                                html +=
+                                    '</div>';
                             });
                             $('#ResultRecommendationBattery').html(html);
                             getMapsNearAddressCustomer();
@@ -674,8 +512,11 @@
             });
 
             $("#BtnShareBattery").click(function() {
-
-                $("#BtnShareBattery").prop('disabled', true);
+                var button = $(this);
+                button.prop('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
@@ -688,6 +529,7 @@
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
+                var TemplateMessageStep2 = $("#TemplateMessageStep2").val();
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -732,6 +574,16 @@
                     return;
                 }
 
+                if (TemplateMessageStep2.includes('<BATTERYNAME>') == false || TemplateMessageStep2
+                    .includes('<BATTERYCAPACITY>') == false || TemplateMessageStep2
+                    .includes('<BATTERYPRICE>') == false || TemplateMessageStep2
+                    .includes('<BATTERYWARRANTY>') == false) {
+                    swal.fire("Error!",
+                        "Template Message must contain BATTERYNAME, BATTERYPRICE, BATTERYWARRANTY",
+                        "error");
+                    return;
+                }
+
                 var data = {
                     FullName: FullName,
                     EmailCustomer: EmailCustomer,
@@ -743,6 +595,7 @@
                     Longitude: Longitude,
                     IdCustomer: IdCustomer,
                     Battery: Battery,
+                    TemplateMessageStep2: TemplateMessageStep2,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -762,6 +615,7 @@
                         Longitude: Longitude,
                         IdCustomer: IdCustomer,
                         Battery: battery,
+                        TemplateMessageStep2: TemplateMessageStep2,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -777,8 +631,10 @@
                                     text: ResponseData.message,
                                     icon: "success",
                                 });
-
-                                $("#BtnShareBattery").prop('disabled', false);
+                                button.prop('disabled', false);
+                                button.html(
+                                    "<i class='fa-brands fa-whatsapp'></i> Share"
+                                );
                             } else {
                                 Swal.fire({
                                     title: "Error",
@@ -786,8 +642,10 @@
                                         "Something went wrong, please try again later",
                                     icon: "error",
                                 });
-
-                                $("#BtnShareBattery").prop('disabled', false);
+                                button.prop('disabled', false);
+                                button.html(
+                                    "<i class='fa-brands fa-whatsapp'></i> Share"
+                                );
                             };
                         }
                     });
