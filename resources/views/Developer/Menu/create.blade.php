@@ -1,6 +1,12 @@
 @extends('template.master')
 
 @section('content')
+<style>
+    .row-double {
+        padding-right: 15px;
+    }
+</style>
+
 {{-- Form --}}
 <div class="card">
     <div class="card-body">
@@ -32,16 +38,37 @@
                     </div>
                 </div>
 
-                {{-- URL --}}
+                {{-- URL & Hidden --}}
                 <div class="col">
-                    <div class="form-group local-forms">
-                        <label for="url">URL <span class="login-danger">*</span></label>
-                        <input type="text" class="form-control" id="url" name="url" placeholder="Enter menu url" required
-                        @isset($data['profile'])
-                            value="{{ $data['profile']['url'] }}"
-                        @endisset
-                        >
+                    <div class="row row-double">
+                        {{-- URL --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="url">URL <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" id="url" name="url" placeholder="Enter menu url" required
+                                @isset($data['profile'])
+                                    value="{{ $data['profile']['url'] }}"
+                                @endisset
+                                >
+                            </div>
+                        </div>
+
+                        {{-- Hidden --}}
+                        <div class="col-sm-1">
+                            @if($data['profile'] && $data['profile']['hide'] == 0)
+                                {{-- Shown --}}
+                                <button class="btn btn-light" id="btn-hide" data-hide="0" data-toggle="tooltip" data-placement="top" title="Menu is shown">
+                                    <i class="fa fa-eye" id="btn-hide-icon" aria-hidden="true"></i>
+                                </button>
+                            @else
+                                {{-- Hidden --}}
+                                <button class="btn btn-dark" id="btn-hide" data-hide="1" data-toggle="tooltip" data-placement="top" title="Menu is hidden">
+                                    <i class="fa fa-eye-slash" id="btn-hide-icon" aria-hidden="true"></i>
+                                </button>
+                            @endif
+                        </div>
                     </div>
+                    
                 </div>
             </div>
 
@@ -158,6 +185,28 @@
             placeholder: "Enter menu parent"
         });
 
+        $('#btn-hide').on("click", function(e) {
+            e.preventDefault();
+
+            if ($(this).data("hide") == 0) {
+                $('#btn-hide-icon').removeClass();
+                $('#btn-hide-icon').addClass("fa fa-eye-slash");
+
+                $(this).removeClass();
+                $(this).addClass("btn btn-dark");
+                $(this).data("hide", 1);
+                $(this).attr("title", "Menu is hidden");
+            } else {
+                $('#btn-hide-icon').removeClass();
+                $('#btn-hide-icon').addClass("fa fa-eye");
+
+                $(this).removeClass();
+                $(this).addClass("btn btn-light");
+                $(this).data("hide", 0);
+                $(this).attr("title", "Menu is shown");
+            }
+        });
+
         $("#menu").on("select2:select", function (e) {
             // Check if user has selected 'Clear menu selection'.
             if (e.params.data.id === "clear") {
@@ -227,6 +276,7 @@
 
             // Get form data.
             let formData = new FormData($(this)[0]);
+            formData.append('hide', $("#btn-hide").data("hide"));
             
             // Send form data to Vehicle controller using AJAX.
             $.ajax({

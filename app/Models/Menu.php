@@ -35,7 +35,7 @@ class Menu extends Model
      * 
      * @var array<string>
      */
-    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
+    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name', 'menus.hide'];
 
     /**
      * Get the menu parent that includes the menu.

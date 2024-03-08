@@ -59,6 +59,12 @@
                 buttons: [],
                 dom: "lBrtp",
                 select: true,
+                rowCallback: function(row, data) {
+                    console.log(data, data[4]);
+                    if (data[4] == "1") {
+                        $(row).addClass("bg-secondary");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.

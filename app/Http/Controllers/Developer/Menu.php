@@ -98,6 +98,7 @@ class Menu extends Controller
             $row[] = $key->menu_parent_name;
             $row[] = $key->menu_name;
             $row[] = $key->id;
+            $row[] = $key->hide;
             $rows[] = $row;
         }
 
@@ -122,6 +123,7 @@ class Menu extends Controller
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent);
         $menu->url = $request->url;
+        $menu->hide = $request->hide;
         $status = $menu->save();
 
         // Set a new response data to be sent.
@@ -145,6 +147,7 @@ class Menu extends Controller
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
         $menu->url = $request->url;
+        $menu->hide = $request->hide;
         $status = $menu->save();
 
         // Set a new response data to be sent.
