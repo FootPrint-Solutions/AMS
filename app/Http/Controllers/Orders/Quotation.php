@@ -115,6 +115,7 @@ class Quotation extends Controller
                 'name' => $value['name'],
                 'address' => $value['address'],
                 'contact' => $value['contact'],
+                'id' => $value['id']
             ];
         }
 
@@ -186,6 +187,7 @@ class Quotation extends Controller
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
         $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
+        $distributorChecked = DistributorShopModel::find($request->input('distributorChecked'));
 
         $data = [
             'Fullname' => $Fullname,
@@ -198,6 +200,7 @@ class Quotation extends Controller
             'BatteryString' => implode(', ', $Battery),
             'Latitude' => $request->input('Latitude'),
             'Longitude' => $request->input('Longitude'),
+            'Distributor' => $distributorChecked
         ];
 
         return view('Orders.Quotation.step-3-checkoutpreview', $data);

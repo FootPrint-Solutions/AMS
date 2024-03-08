@@ -662,6 +662,15 @@
                     return;
                 }
 
+                var distributorChecked = $("input[name='CheckDistributor[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (distributorChecked.length > 1) {
+                    swal.fire("Error!", "Please select only one distributor", "error");
+                    return;
+                }
+
                 $('#btnNextStep3').trigger('click');
 
                 if ($('#CheckoutDisplay').hasClass('active')) {
@@ -689,7 +698,8 @@
                         Longitude: Longitude,
                         IdCustomer: IdCustomer,
                         Battery: Battery,
-                        _token: $('meta[name="csrf-token"]').attr('content')
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        distributorChecked: distributorChecked
                     };
 
                     $.ajax({

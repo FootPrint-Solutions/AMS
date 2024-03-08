@@ -143,7 +143,8 @@
                 ' km</p> Contact Distributor :  62' + DisributorPhone +
                 '&nbsp;&nbsp;</div><button class="copy-button" onclick="copyInfo()"><i class="fa fa-copy"></i> Copy Info</button>&nbsp;&nbsp;<a href="62' +
                 DisributorPhone +
-                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="CheckDistributor[]" value="' + Id + '"> Choose this distributor </label>';
+                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="CheckDistributor[]" value="' +
+                Id + '"> Choose this distributor </label>';
             infowindow.setContent(infoContent);
             infowindow.open(map, marker);
         });
@@ -161,5 +162,6 @@
         alert('Info copied to clipboard!');
     }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=geometry&callback=initMap">
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=geometry&callback=initMap">
 </script>
