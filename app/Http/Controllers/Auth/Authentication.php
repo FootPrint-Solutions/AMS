@@ -24,7 +24,6 @@ class Authentication extends Controller
             }])->get()->mapWithKeys(function ($menu) {
                 return [$menu->id => $menu->menuSubs->toArray()];
             })->toArray()
-
         ]);
 
         return view(

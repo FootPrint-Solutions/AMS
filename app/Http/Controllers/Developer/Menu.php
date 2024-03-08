@@ -190,4 +190,18 @@ class Menu extends Controller
     {
         return MenuModel::where("parent_id", $idParent)->get()->toArray();
     }
+
+    public function refresh()
+    {
+        session([
+            'menu' => MenuParentModel::with(['menus' => function ($query) {
+                $query->orderBy('order');
+            }])->orderBy('order')->get()->toArray(),
+            'submenu' => MenuModel::with(['menuSubs' => function ($query) {
+                $query->orderBy('order');
+            }])->get()->mapWithKeys(function ($menu) {
+                return [$menu->id => $menu->menuSubs->toArray()];
+            })->toArray()
+        ]);
+    }
 }
