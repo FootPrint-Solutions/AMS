@@ -62,23 +62,12 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(2);
+            appendDatatablesToolbar(2, "/battery/technology/edit/", "/battery/technology/destroy");
 
             // Add New Battery Technology button
             $("#btn-add").on("click", function() {
                 goToPage("/battery/technology/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/battery/technology/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/battery/technology/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

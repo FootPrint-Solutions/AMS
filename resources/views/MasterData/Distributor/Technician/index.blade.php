@@ -36,7 +36,7 @@
     <script>
         var table;
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             table = $("#table-technician").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
@@ -64,23 +64,12 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5);
+            appendDatatablesToolbar(5, "/distributor/technician/edit/", "/distributor/technician/destroy");
 
             // Add New Technician button
             $("#btn-add").on("click", function() {
                 goToPage("/distributor/technician/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/distributor/technician/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/distributor/technician/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

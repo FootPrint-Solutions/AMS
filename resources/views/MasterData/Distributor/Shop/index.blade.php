@@ -67,23 +67,12 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(7);
+            appendDatatablesToolbar(7, "/distributor/shop/edit/", "/distributor/shop/destroy");
 
             // Add New Store button
             $("#btn-add").on("click", function() {
                 goToPage("/distributor/shop/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/distributor/shop/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/distributor/shop/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

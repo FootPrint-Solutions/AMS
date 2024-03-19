@@ -130,7 +130,8 @@
                 });
                 return;
             }
-            let id = selectedRows[0][$(this).attr("data-id")];
+            let id = selectedRows[0][$(this).data("id")];
+            goToPage($(this).data("url") + id);
             edit(id);
         });
 
@@ -150,7 +151,11 @@
                 });
                 return;
             }
-            let ids = selectedRows.map(row => row[$(this).attr("data-id")]);
+            let ids = selectedRows.map(row => row[$(this).data("id")]);
+            sendDestroyRequest(ids, $(this).data("url"), function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
             destroy(ids);
         });
         // End of OnClick Event Listener
@@ -243,10 +248,14 @@
      * Append a custom toolbar component into DataTables table.
      * 
      * @param {int} idIdx - The index of data id.
+     * @param {string} editUrl - The url of edit page.
+     * @param {string} deleteUrl - The url of delete page.
      */
-    function appendDatatablesToolbar(idIdx) {
+    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl) {
         $.get("/datatables/toolbar", {
-            idIdx: idIdx
+            idIdx: idIdx,
+            editUrl: editUrl,
+            deleteUrl: deleteUrl
         }, function(data) {
             $(".dt-buttons").append(data);
         });

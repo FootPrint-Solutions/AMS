@@ -62,23 +62,12 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(2);
+            appendDatatablesToolbar(2, "/vehicle/brand/edit/", "/vehicle/brand/destroy");
 
             // Add New Vehicle brand button
             $("#btn-add").on("click", function() {
                 goToPage("/vehicle/brand/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/vehicle/brand/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/vehicle/brand/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

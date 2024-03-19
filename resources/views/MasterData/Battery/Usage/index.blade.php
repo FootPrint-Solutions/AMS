@@ -62,23 +62,12 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(2);
+            appendDatatablesToolbar(2, "/battery/usage/edit/", "/battery/usage/destroy");
 
             // Add New Vehicle brand button
             $("#btn-add").on("click", function() {
                 goToPage("/battery/usage/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/battery/usage/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/battery/usage/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

@@ -82,29 +82,13 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4);
+            appendDatatablesToolbar(4, "/vehicle/edit/", "/vehicle/destroy");
 
             // Add New Vehicle button
             $("#btn-add").on("click", function() {
                 goToPage("/vehicle/create");
             });
-
-            // Add New Brand button
-            $("#btn-add-brand").on("click", function() {
-                goToPage("/vehicle/brand/create");
-            });
         });
-
-        function edit(id) {
-            goToPage("/vehicle/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/vehicle/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
 
         $("#form-import").on("submit", function(e) {
             e.preventDefault();

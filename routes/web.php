@@ -193,8 +193,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
+        $editUrl = request()->input('editUrl');
+        $deleteUrl = request()->input('deleteUrl');
         $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl))->render();
     });
 });
 
