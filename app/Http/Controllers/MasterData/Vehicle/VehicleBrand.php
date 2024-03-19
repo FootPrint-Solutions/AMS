@@ -150,8 +150,13 @@ class VehicleBrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $vehicle = VehicleBrandModel::find($request->id);
-        $status = $vehicle->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $vehicle = VehicleBrandModel::find($id);
+            $status = $vehicle->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

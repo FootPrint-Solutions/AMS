@@ -175,13 +175,18 @@ class Customer extends Controller
      */
     public function destroy(Request $request)
     {
-        $customer = CustomerModel::find($request->id);
+        $status = true;
+        $ids = $request->id;
 
-        // Detach associated vehicles from the pivot table
-        $customer->vehicles()->detach();
+        foreach ($ids as $id) {
+            $customer = CustomerModel::find($id);
 
-        // Delete customer data in storage.
-        $status = $customer->delete();
+            // Detach associated vehicles from the pivot table
+            $customer->vehicles()->detach();
+
+            // Delete customer data in storage.
+            $status &= $customer->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

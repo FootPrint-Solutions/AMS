@@ -148,8 +148,13 @@ class BatteryUsage extends Controller
      */
     public function destroy(Request $request)
     {
-        $usage = BatteryUsageTypeModel::find($request->id);
-        $status = $usage->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $usage = BatteryUsageTypeModel::find($id);
+            $status = $usage->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

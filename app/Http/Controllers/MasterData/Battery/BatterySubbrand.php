@@ -149,8 +149,13 @@ class BatterySubbrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $subbrand = BatterySubbrandCategoryModel::find($request->id);
-        $status = $subbrand->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $subbrand = BatterySubbrandCategoryModel::find($id);
+            $status = $subbrand->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

@@ -150,8 +150,13 @@ class BatteryBrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $brand = BatteryBrandModel::find($request->id);
-        $status = $brand->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $brand = BatteryBrandModel::find($id);
+            $status = $brand->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

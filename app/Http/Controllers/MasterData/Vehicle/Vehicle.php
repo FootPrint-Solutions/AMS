@@ -220,11 +220,17 @@ class Vehicle extends Controller
      */
     public function destroy(Request $request)
     {
-        $vehicle = VehicleModel::find($request->id);
-        $status = $vehicle->delete();
+        $status = true;
+        $ids = $request->id;
 
-        // Detach suitable batteries from the pivot table
-        $vehicle->batteries()->detach();
+        foreach ($ids as $id) {
+            // Delete the specific vehicle.
+            $vehicle = VehicleModel::find($id);
+            $status &= $vehicle->delete();
+
+            // Detach suitable batteries from the pivot table
+            $vehicle->batteries()->detach();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

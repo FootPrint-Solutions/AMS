@@ -217,8 +217,13 @@ class Distributor extends Controller
      */
     public function destroy(Request $request)
     {
-        $distributor = DistributorModel::find($request->id);
-        $status = $distributor->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $distributor = DistributorModel::find($id);
+            $status = $distributor->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

@@ -335,10 +335,13 @@ class Battery extends Controller
      */
     public function destroy(Request $request)
     {
-        $battery = BatteryModel::find($request->id);
+        $status = true;
+        $ids = $request->id;
 
-        // Delete customer data in storage.
-        $status = $battery->delete();
+        foreach ($ids as $id) {
+            $battery = BatteryModel::find($id);
+            $status &= $battery->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(
