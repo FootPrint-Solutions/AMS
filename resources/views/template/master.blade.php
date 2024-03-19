@@ -122,17 +122,15 @@
                 selected: true
             }).data().toArray();
 
-            if (selectedRows.length === 0) {
+            if (selectedRows.length !== 1) {
                 Swal.fire({
                     title: "Error",
-                    text: "Please select at least one row to edit.",
+                    text: "Please select a single row for editing.",
                     icon: "error",
                 });
                 return;
             }
-
-            var selectedRow = selectedRows[0];
-            var id = selectedRow[$(this).attr("data-id")];
+            let id = selectedRows[0][$(this).attr("data-id")];
             edit(id);
         });
 
@@ -147,14 +145,13 @@
             if (selectedRows.length === 0) {
                 Swal.fire({
                     title: "Error",
-                    text: "Please select at least one row to delete.",
+                    text: "Please select at least one row for deleting.",
                     icon: "error",
                 });
                 return;
             }
-            var selectedRow = selectedRows[0];
-            var id = selectedRow[$(this).attr("data-id")];
-            destroy(id);
+            let ids = selectedRows.map(row => row[$(this).attr("data-id")]);
+            destroy(ids);
         });
         // End of OnClick Event Listener
     });
