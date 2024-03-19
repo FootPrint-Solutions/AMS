@@ -132,7 +132,6 @@
             }
             let id = selectedRows[0][$(this).data("id")];
             goToPage($(this).data("url") + id);
-            edit(id);
         });
 
         /**
@@ -156,7 +155,6 @@
                 // Reload the index table.
                 table.ajax.reload();
             });
-            destroy(ids);
         });
         // End of OnClick Event Listener
     });
