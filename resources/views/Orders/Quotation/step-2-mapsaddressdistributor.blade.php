@@ -90,7 +90,7 @@
             var lng = parseFloat(distributorData[i].longitude);
             var latLng = new google.maps.LatLng(lat, lng);
             var marker = createMarker(latLng, distributorData[i].name, distributorData[i].address, '',
-                distributorData[i].contact);
+                distributorData[i].contact, distributorData[i].id);
             markers.push(marker);
         }
 
@@ -119,7 +119,7 @@
         });
     }
 
-    function createMarker(latlng, name, address, iconUrl, DisributorPhone) {
+    function createMarker(latlng, name, address, iconUrl, DisributorPhone, Id) {
         var marker = new google.maps.Marker({
             position: latlng,
             map: map,
@@ -143,7 +143,8 @@
                 ' km</p> Contact Distributor :  62' + DisributorPhone +
                 '&nbsp;&nbsp;</div><button class="copy-button" onclick="copyInfo()"><i class="fa fa-copy"></i> Copy Info</button>&nbsp;&nbsp;<a href="62' +
                 DisributorPhone +
-                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>';
+                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="CheckDistributor[]" value="' +
+                Id + '"> Choose this distributor </label>';
             infowindow.setContent(infoContent);
             infowindow.open(map, marker);
         });

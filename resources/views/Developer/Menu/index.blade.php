@@ -37,9 +37,21 @@
         $(document).ready(function() {
             // DataTables configuration
             table = $("#table-menu").DataTable({
-                lengthMenu: [
-                    [5, 10, 25],
-                    [5, 10, 25]
+                dom: "Brtp",
+                buttons: [
+                    {
+                        text: 'Refresh Menu',
+                        className: "btn btn-outline-primary btn-sm",
+                        action: function () {
+                            $.ajax({
+                                url: '/menu/refresh',
+                                type: 'GET',
+                                success: function(response) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                    }
                 ],
                 responsive: true,
                 processing: true,
@@ -56,9 +68,13 @@
                     targets: [0],
                     orderable: false
                 }],
-                buttons: [],
-                dom: "lBrtp",
                 select: true,
+                rowCallback: function(row, data) {
+                    console.log(data, data[4]);
+                    if (data[4] == "1") {
+                        $(row).addClass("bg-secondary");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
@@ -79,11 +95,11 @@
             goToPage("/menu/edit/" + id);
         }
 
-        // function destroy(id) {
-        //     sendDestroyRequest(id, "/distributor/destroy", function() {
-        //         // Reload the index table.
-        //         table.ajax.reload();
-        //     });
-        // }
+        function destroy(id) {
+            sendDestroyRequest(id, "/menu/destroy", function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
+        }
     </script>
 @endsection

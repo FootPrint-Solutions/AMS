@@ -35,7 +35,7 @@ class Menu extends Model
      * 
      * @var array<string>
      */
-    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name'];
+    private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name', 'menus.hide'];
 
     /**
      * Get the menu parent that includes the menu.
@@ -159,5 +159,31 @@ class Menu extends Model
         $query->select(self::$selectColumns);
 
         return self::getAllRows($request, $query, self::$selectColumns);
+    }
+
+    /**
+     * Update order of all menus which is ordered after the deleted menu inside its menu parent.
+     * 
+     * @param int $parentId Id of the menu parent.
+     * @param int $originalOrder The order of the deleted menu.
+     */
+    public static function updateOrder($parentId, $originalOrder)
+    {
+        $maxOrder = self::where("parent_id", $parentId)
+            ->orderBy('order', 'desc')
+            ->first()
+            ->order;
+        $currentOrder = $originalOrder + 1;
+
+        while ($currentOrder <= $maxOrder) {
+            // Get current menu based on order.
+            $current = self::where("parent_id", $parentId)
+                ->where("order", $currentOrder)
+                ->first();
+
+            // Update the current menu order.
+            $current->update(["order" => $currentOrder - 1]);
+            $currentOrder = $currentOrder + 1;
+        }
     }
 }

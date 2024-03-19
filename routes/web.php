@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Role;
 use Illuminate\Support\Facades\Route;
 
 // DASHBOARD
@@ -177,12 +178,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
     Route::get('/get-checkout-preview', [Quotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
     Route::get('/get-payment-preview', [Quotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
-
-    // Admin
-    // User Manager
-    Route::get('/user', [User::class, 'index']);
-    Route::post('/user/show', [User::class, 'show']);
-    Route::get('/user/edit/{id}', [User::class, 'edit']);
+    Route::post('/get-battery-copy-detail', [Quotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
@@ -210,6 +206,8 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
     Route::post('/menu/store', [Menu::class, 'store']);
     Route::post('/menu/update', [Menu::class, 'update']);
+    Route::post('/menu/destroy', [Menu::class, 'destroy']);
+    Route::get('/menu/refresh', [Menu::class, 'refresh']);
     Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
     Route::get('/menu/parent/create', [MenuParent::class, 'create']);
     Route::post('/menu/parent/store', [MenuParent::class, 'store']);

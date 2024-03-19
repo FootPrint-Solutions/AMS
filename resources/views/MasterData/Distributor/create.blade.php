@@ -54,14 +54,11 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     {{-- Is Shop --}}
                     <div class="col-sm-1">
                         <input class="form-check-input" type="checkbox" value="" id="isshop"
-                            @if (isset($data['profile']) && $data['profile']['is_shop'] == 1)
-                                checked
-                            @endif
-                        >
+                            @if (isset($data['profile']) && $data['profile']['is_shop'] == 1) checked @endif>
                         <label class="form-check-label" for="isshop">
                             Is shop
                         </label>
@@ -72,26 +69,27 @@
                     {{-- Contact Person --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="distributor-contact-person">Contact Person <span class="login-danger">*</span></label>
-                            <input type="text" class="form-control" id="distributor-contact-person" name="contactperson" placeholder="Enter distributor contact person name" required
-                            @isset($data['profile'])
+                            <label for="distributor-contact-person">Contact Person <span
+                                    class="login-danger">*</span></label>
+                            <input type="text" class="form-control" id="distributor-contact-person" name="contactperson"
+                                placeholder="Enter distributor contact person name" required
+                                @isset($data['profile'])
                                 value="{{ $data['profile']['address'] }}"
-                            @endisset
-                            >
+                            @endisset>
                         </div>
                     </div>
-                    
+
                     {{-- Contact --}}
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="distributor-contact">Contact <span class="login-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text border-end country-code">+62</span>
-                                <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact" name="contact" placeholder="Enter distributor contact" required
-                                @isset($data['profile'])
+                                <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact"
+                                    name="contact" placeholder="Enter distributor contact" required
+                                    @isset($data['profile'])
                                     value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
-                                @endisset
-                                >
+                                @endisset>
                             </div>
                         </div>
                     </div>
@@ -100,11 +98,11 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="distributor-email">E-mail</label>
-                            <input type="email" class="form-control" id="distributor-email" name="email" placeholder="Enter distributor e-mail"
-                            @isset($data['profile'])
+                            <input type="email" class="form-control" id="distributor-email" name="email"
+                                placeholder="Enter distributor e-mail"
+                                @isset($data['profile'])
                                 value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
-                            @endisset
-                            >
+                            @endisset>
                         </div>
                     </div>
                 </div>
@@ -112,7 +110,12 @@
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
-                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the distributor">@if (isset($data['profile']) && !empty($data['profile']['note'])) {{ $data['profile']['note'] }} @endif</textarea>
+                    <textarea type="text" class="form-control" id="note" name="note"
+                        placeholder="Enter some notes regarding the distributor">
+@if (isset($data['profile']) && !empty($data['profile']['note']))
+{{ $data['profile']['note'] }}
+@endif
+</textarea>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -147,7 +150,11 @@
         $(document).ready(function() {
             $("#distributor-form").on("submit", function(event) {
                 event.preventDefault();
-
+                if ($("#AddressSearchColumn").val() == "") {
+                    swal.fire("Error!", "Please Fill The Address Column", "error");
+                    $("#AddressSearchColumn").focus();
+                    return;
+                }
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/distributor/update" : "/distributor/store";
 

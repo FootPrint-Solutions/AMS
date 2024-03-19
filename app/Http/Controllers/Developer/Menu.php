@@ -98,6 +98,7 @@ class Menu extends Controller
             $row[] = $key->menu_parent_name;
             $row[] = $key->menu_name;
             $row[] = $key->id;
+            $row[] = $key->hide;
             $rows[] = $row;
         }
 
@@ -122,6 +123,7 @@ class Menu extends Controller
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent);
         $menu->url = $request->url;
+        $menu->hide = $request->hide;
         $status = $menu->save();
 
         // Set a new response data to be sent.
@@ -145,12 +147,36 @@ class Menu extends Controller
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
         $menu->url = $request->url;
+        $menu->hide = $request->hide;
         $status = $menu->save();
 
         // Set a new response data to be sent.
         return getResponseData(
             $status,
             $status ? "The new menu was successfully updated!" : "Failed to update the new menu!"
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $menu = MenuModel::find($request->id);
+        $parent_id = $menu->parent_id;
+        $order = $menu->order;
+        $status = $menu->delete();
+
+        // Update menu order.
+        MenuModel::updateOrder($parent_id, $order);
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected menu was successfully deleted!" : "Failed to deleted the selected menu!"
         );
     }
 
@@ -163,5 +189,19 @@ class Menu extends Controller
     public function getMenu($idParent)
     {
         return MenuModel::where("parent_id", $idParent)->get()->toArray();
+    }
+
+    public function refresh()
+    {
+        session([
+            'menu' => MenuParentModel::with(['menus' => function ($query) {
+                $query->orderBy('order');
+            }])->orderBy('order')->get()->toArray(),
+            'submenu' => MenuModel::with(['menuSubs' => function ($query) {
+                $query->orderBy('order');
+            }])->get()->mapWithKeys(function ($menu) {
+                return [$menu->id => $menu->menuSubs->toArray()];
+            })->toArray()
+        ]);
     }
 }

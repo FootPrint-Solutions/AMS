@@ -9,7 +9,8 @@
         z-index: 10000 !important;
     }
 </style>
-<div class="modal fade" id="modalAddressFinder" tabindex="-1" aria-labelledby="myLargeModalLabel" style="display: none;" aria-hidden="true">
+<div class="modal fade" id="modalAddressFinder" tabindex="-1" aria-labelledby="myLargeModalLabel" style="display: none;"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,11 +18,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input type="text" class="form-control mb-1" placeholder="Search your address here..." name="AddressSearchColumnModal" id="AddressSearchColumnModal">
+                <input type="text" class="form-control mb-1" placeholder="Search your address here..."
+                    name="AddressSearchColumnModal" id="AddressSearchColumnModal">
                 <div id="MapsAddressFinderModal"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnCloseModalAddresFinder" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                <button type="button" id="btnCloseModalAddresFinder" class="btn btn-success"
+                    data-bs-dismiss="modal">Save</button>
             </div>
         </div>
     </div>
@@ -110,6 +113,9 @@
 
     function openAddressModal() {
         $('#modalAddressFinder').modal('show');
+        setTimeout(function() {
+            $("#AddressSearchColumnModal").focus();
+        }, 3000);
     }
 
     $("#AddressSearchColumn").on("click", function() {
@@ -120,5 +126,6 @@
         openAddressModal();
     });
 </script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
 </script>

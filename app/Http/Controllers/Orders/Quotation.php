@@ -115,6 +115,7 @@ class Quotation extends Controller
                 'name' => $value['name'],
                 'address' => $value['address'],
                 'contact' => $value['contact'],
+                'id' => $value['id']
             ];
         }
 
@@ -126,7 +127,7 @@ class Quotation extends Controller
             'datalatlong' => $datalatlong
         ];
 
-        return view('Orders.Quotation.mapsaddressdistributor', $data);
+        return view('Orders.Quotation.step-2-mapsaddressdistributor', $data);
     }
 
     public function shareBattery(Request $request)
@@ -142,11 +143,21 @@ class Quotation extends Controller
             } else {
                 $value['image'] = null;
             }
+
+            $template = $request->input('TemplateMessageStep2');
+            $text = str_replace(
+                ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
+                [
+                    $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n"
+                ],
+                $template
+            );
+
             $data = [
                 'to' => "62" . $request->input('ContactNumber'),
                 'session' => auth()->user()->username,
                 'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
-                'caption' => "Battery Name : " . $value['name'] . "\n" . "Battery Capacity : " . $value['capacity'] . "\n" . "Battery Price : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\n" . "Battery Warranty : " . $value['warranty'] . "\n" . "\n",
+                'caption' => $text,
             ];
 
             try {
@@ -176,6 +187,7 @@ class Quotation extends Controller
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
         $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
+        $distributorChecked = DistributorShopModel::find($request->input('distributorChecked'));
 
         $data = [
             'Fullname' => $Fullname,
@@ -188,9 +200,10 @@ class Quotation extends Controller
             'BatteryString' => implode(', ', $Battery),
             'Latitude' => $request->input('Latitude'),
             'Longitude' => $request->input('Longitude'),
+            'Distributor' => $distributorChecked
         ];
 
-        return view('Orders.Quotation.checkoutpreview', $data);
+        return view('Orders.Quotation.step-3-checkoutpreview', $data);
     }
 
     public function getPaymentPreview(Request $request)
@@ -226,6 +239,30 @@ class Quotation extends Controller
 
         $data['snapToken'] = $snapToken;
 
-        return view('Orders.Quotation.paymentpreview', $data);
+        return view('Orders.Quotation.step-4-paymentpreview', $data);
+    }
+
+    public function getBatteryCopyDetail(Request $request)
+    {
+        $BatteryId = $request->input('Battery');
+        try {
+            $Battery = BatteryModel::whereIn('id', $BatteryId)->get()->toArray();
+            $Message = "";
+            $template = $request->input('TemplateMessageStep2');
+
+            foreach ($Battery as $value) {
+                $text = str_replace(
+                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
+                    [
+                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n\n"
+                    ],
+                    $template
+                );
+                $Message = $text;
+            }
+            return getResponseData(true, $Message);
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to get battery detail" . $th->getMessage());
+        }
     }
 }
