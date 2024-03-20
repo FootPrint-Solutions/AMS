@@ -72,6 +72,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                scrollX: true,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -86,6 +87,9 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [8, 9, 10, 11],
+                    className: 'dt-body-right'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),

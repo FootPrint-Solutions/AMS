@@ -75,36 +75,33 @@ class BatterySize extends Controller
      * @param  int  $id
      * @return string
      */
-    public function show(Request $request, $id = null)
+    public function show(Request $request)
     {
-        if ($id == null) {
-            $result = BatterySizeCategoryModel::get()->toArray();
+        // Get all DataTables requests.
+        $draw = $request->input('draw');
+        $start = $request->input('start');
 
-            // Set a new array for table rows.
-            $tableRows = array();
-            $number = 1;
+        // Get battery size category data (rows and count).
+        $data = BatterySizeCategoryModel::allForDataTables($request);
 
-            // Iterate through each row in table.
-            foreach ($result as $i) {
-                // Set a new row for the table.
-                $row = array();
-                $row[] = number_format($number, 0); // #
-                $row[] = $i["name"]; // Name
-                $row[] = "<a type='button' class='btn btn-primary' onclick=edit(" . $i["id"] . ")><i class='fa-solid fa-pencil'></i></a>"; // Edit
-                $row[] = "<a type='button' class='btn btn-danger' onclick=destroy(" . $i["id"] . ")><i class='fa-solid fa-trash'></i></a>"; // Delete
-                $tableRows[] = $row;
-                $number++;
-            }
-
-            // Save data in array.
-            $output = array(
-                // "draw" => $_POST['draw'],
-                "data" => $tableRows,
-            );
-
-            // Output data in JSON.
-            return json_encode($output);
+        // Set rows to be displayed in battery brand table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            // Set an array for each row.
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name;
+            $row[] = $key->id;
+            $rows[] = $row;
         }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => BatterySizeCategoryModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
