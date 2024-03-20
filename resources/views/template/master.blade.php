@@ -262,10 +262,11 @@
     /**
      * Get a list of custom DataTables button configurations in DataTables table.
      * 
+     * @param {Array} A list of extra buttons (for specific cases).
      * @returns {Array} A list of button configurations DataTables.
      */
-    function getDatatablesButtonConfigurations() {
-        return [{
+    function getDatatablesButtonConfigurations(extraButtons = null) {
+        var buttons = [{
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
                 className: "btn btn-outline-danger btn-sm",
@@ -283,6 +284,13 @@
                 className: "btn btn-outline-primary btn-sm",
             },
         ];
+
+        // Append extra buttons if any is provided.
+        if (extraButtons !== null) {
+            buttons.push(extraButtons);
+        }
+
+        return buttons;
     }
 
     /**

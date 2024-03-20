@@ -35,8 +35,35 @@
         </div>
     </div>
 
+    {{-- Detail Modal --}}
+    <div class="modal fade" id="shop-detail-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Items Detail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <table class="table table-striped" id="table-distributor-shop-detail">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">URL</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var table;
+        var tableDetail;
 
         $(document).ready(function() {
             // DataTables configuration
@@ -61,7 +88,25 @@
                     orderable: false
                 }],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
+                buttons: getDatatablesButtonConfigurations([{
+                    text: "<i class='fas fa-eye'></i> View Detail",
+                    action: function(e, dt, node, config) {
+                        // Show popup modal.
+                        $('#shop-detail-modal').modal("show");
+
+                        // Set detail table inside modal.
+                        tableDetail = $("#table-distributor-shop-detail").DataTable({
+                            ajax: {
+                                url: "/distributor/shop/show",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                }
+                            },
+                        });
+                    },
+                    className: "btn btn-outline-info btn-sm",
+                }]),
                 language: getDatatablesLanguangeConfigurations("Distributor Shop"),
                 select: true,
             });
