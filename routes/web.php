@@ -23,6 +23,7 @@ use App\Http\Controllers\MasterData\Distributor\DistributorShopTechnician;
 use App\Http\Controllers\MasterData\Distributor\DistributorShopBattery;
 
 // ORDERS
+use App\Http\Controllers\Orders\QuickQuotation;
 use App\Http\Controllers\Orders\Quotation;
 
 // ADMIN
@@ -34,6 +35,7 @@ use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
+
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -177,16 +179,18 @@ Route::middleware(['auth'])->group(function () {
 
     // Orders
     // Quick Quotation
+    Route::get('/quotation/quick', [QuickQuotation::class, 'index']);
+    Route::get('/find-customer', [QuickQuotation::class, 'findCustomer'])->name('quotation.findCustomer');
+    Route::post('/share-form-personal-details', [QuickQuotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
+    Route::get('/find-vehicle-by-id', [QuickQuotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
+    Route::get('/find-vehicle-by-id-vehicle', [QuickQuotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
+    Route::get('/get-maps-near-address-customer', [QuickQuotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
+    Route::post('/share-battery', [QuickQuotation::class, 'shareBattery'])->name('quotation.shareBattery');
+    Route::get('/get-checkout-preview', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
+    Route::get('/get-payment-preview', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
+    Route::post('/get-battery-copy-detail', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
+
     Route::get('/quotation', [Quotation::class, 'index']);
-    Route::get('/find-customer', [Quotation::class, 'findCustomer'])->name('quotation.findCustomer');
-    Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
-    Route::get('/find-vehicle-by-id', [Quotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
-    Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
-    Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
-    Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
-    Route::get('/get-checkout-preview', [Quotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
-    Route::get('/get-payment-preview', [Quotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
-    Route::post('/get-battery-copy-detail', [Quotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
