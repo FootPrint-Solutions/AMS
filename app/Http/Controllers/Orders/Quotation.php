@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers\Orders;
 
-use App\Http\Controllers\Controller;;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
-use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
-use App\Models\MasterData\Customer\CustomerVehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\MasterData\Battery\BatteryImport;
 
 
 // Midtrans 
@@ -186,14 +184,14 @@ class Quotation extends Controller
         $EmailCustomer = $request->input('EmailCustomer');
         $ContactNumber = $request->input('ContactNumber');
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
-        $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
-        $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
         if ($request->input('DistributorShopId') != null) {
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'));
             $distributorChecked = DistributorShopModel::find($request->input('DistributorShopId'))->toArray();
             $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
         } else {
             $distributorChecked = "";
             $distributorTechnician = "";
+            $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
         }
 
         $data = [
@@ -204,7 +202,6 @@ class Quotation extends Controller
             'VehicleCustomer' => $VehicleCustomer,
             'VehicleCustomerString' => implode(', ', $VehicleCustomer),
             'Battery' => $BatteryData,
-            'BatteryString' => implode(', ', $Battery),
             'Latitude' => $request->input('Latitude'),
             'Longitude' => $request->input('Longitude'),
             'Distributor' => $distributorChecked,

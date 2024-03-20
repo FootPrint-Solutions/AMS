@@ -38,7 +38,7 @@
                     <tr>
                         <td>
                             <input type="text" name="BatteryNameCheckout[]" class="form-control"
-                                value="{{ $battery['name'] }}" readonly>
+                                value="{{ $battery->name }}" readonly>
                         </td>
                         <td>
                             <input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout"
@@ -46,7 +46,7 @@
                         </td>
                         <td>
                             <input type="number" name="PriceCheckout[]" id="PriceCheckout"
-                                class="form-control PriceCheckout" value="{{ $battery['price_retail'] }}">
+                                class="form-control PriceCheckout" value="{{ $battery->price_retail }}">
                         </td>
                     </tr>
                 @endforeach
@@ -149,14 +149,36 @@
     </div>
 </div>
 
+@if (isset($Distributor) && !empty($Distributor))
+    <div class="form-group local-forms">
+        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
+        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
+            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT> and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>   Thank you for your order, we will process your order as soon as possible.
+        </textarea>
+    </div>
+@else
+    <div class="form-group local-forms">
+        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
+        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
+            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT>   Thank you for your order, we will process your order as soon as possible.
+        </textarea>
+    </div>
+@endif
+
+<div class="clipboard visually-hidden">
+    <textarea cols="30" rows="10" id="CopyOrderDetail" name="CopyOrderDetail"></textarea>
+</div>
+
 
 <script>
     $(document).ready(function() {
-        document.getElementById('techniciansName').addEventListener('change', function() {
-            var selectedOption = this.options[this.selectedIndex];
-            var techniciansPhone = selectedOption.getAttribute('data-phone');
-            document.getElementById('techniciansPhone').value = techniciansPhone;
-        });
+        @if (isset($Distributor) && !empty($Distributor))
+            document.getElementById('techniciansName').addEventListener('change', function() {
+                var selectedOption = this.options[this.selectedIndex];
+                var techniciansPhone = selectedOption.getAttribute('data-phone');
+                document.getElementById('techniciansPhone').value = techniciansPhone;
+            });
+        @endif
 
         function calculateTotalAmount() {
             var total = 0;
