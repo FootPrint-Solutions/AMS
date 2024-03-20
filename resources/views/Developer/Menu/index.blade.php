@@ -11,8 +11,10 @@
                         <h3 class="page-title">Menu Manager</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add-parent" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Add New Menu Parent</button>
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New Menu</button>
+                        <button id="btn-add-parent" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Add New Menu
+                            Parent</button>
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New
+                            Menu</button>
                     </div>
                 </div>
             </div>
@@ -38,21 +40,19 @@
             // DataTables configuration
             table = $("#table-menu").DataTable({
                 dom: "Brtp",
-                buttons: [
-                    {
-                        text: 'Refresh Menu',
-                        className: "btn btn-outline-primary btn-sm",
-                        action: function () {
-                            $.ajax({
-                                url: '/menu/refresh',
-                                type: 'GET',
-                                success: function(response) {
-                                    location.reload();
-                                }
-                            });
-                        }
+                buttons: [{
+                    text: 'Refresh Menu',
+                    className: "btn btn-outline-primary btn-sm",
+                    action: function() {
+                        $.ajax({
+                            url: '/menu/refresh',
+                            type: 'GET',
+                            success: function(response) {
+                                location.reload();
+                            }
+                        });
                     }
-                ],
+                }],
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -78,7 +78,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(3);
+            appendDatatablesToolbar(3, "/menu/edit/", "/menu/destroy");
 
             // Add New Menu button
             $("#btn-add").on("click", function() {
@@ -90,16 +90,5 @@
                 goToPage("/menu/parent/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/menu/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/menu/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection
