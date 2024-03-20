@@ -136,7 +136,7 @@
                 });
             });
 
-            $("#distributor-shop-form").on("reset", function() {
+            $("#distributor-shop-battery-form").on("reset", function() {
                 goToPage(indexUrl);
             });
 
