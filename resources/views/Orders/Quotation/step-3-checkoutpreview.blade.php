@@ -113,9 +113,10 @@
     </div>
     <div class="col-lg-5 col-md-6">
         <div class="invoice-total-card">
-            <h4 class="invoice-total-title">Summary</h4>
+
             <div class="invoice-total-box">
                 <div class="invoice-total-inner">
+                    <h4 class="invoice-total-title">Summary</h4>
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
