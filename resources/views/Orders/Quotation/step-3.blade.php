@@ -11,8 +11,12 @@
         </div>
 
         <div class="col text-end">
-            <!-- <a href="javascript: void(0);" class="btn btn-success"> Share
-                                                                                                                                                                            <i class="fa-brands fa-whatsapp"></i></a> -->
+            <a id="btnCopyInvoice" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy"
+                data-clipboard-target="#CopyDetailInvoice">
+                <i class="far fa-copy"></i>
+                Copy from Input
+            </a>
+            <button id='BtnShareInvoice' class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></button>
             <a id="btnNextStep4" href="javascript: void(0);" class="btn btn-primary seller-next-btn ">
                 Next
                 <i class="bx bx-chevron-right ms-1"></i>

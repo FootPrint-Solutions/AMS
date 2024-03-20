@@ -60,4 +60,9 @@ class DistributorShopModel extends Model
 
         return self::getAllRows($request, $query, self::$selectColumns);
     }
+
+    public function technicians()
+    {
+        return $this->hasMany(DistributorShopTechnicianModel::class, 'distributor_shop_id', 'id');
+    }
 }

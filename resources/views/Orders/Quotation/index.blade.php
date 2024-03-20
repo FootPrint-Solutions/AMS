@@ -43,7 +43,6 @@
         }
     </style>
     {{-- Title --}}
-    <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
 
 
 
@@ -144,31 +143,55 @@
 
                 if (FullName == '') {
                     swal.fire("Error!", "Full Name is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
                 if (ContactNumber == '') {
                     swal.fire("Error!", "Contact Number is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
                 if (AddressCustomer == '') {
                     swal.fire("Error!", "Address Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
                 if (VehicleCustomer == '') {
                     swal.fire("Error!", "Vehicle Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
                 if (EmailCustomer == '') {
                     swal.fire("Error!", "Email Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
                 if (ContactNumber.substring(0, 1) != '8') {
                     swal.fire("Error!", "Contact Number must start with 8", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
@@ -177,6 +200,10 @@
                         '<VEHICLE>') == false) {
                     swal.fire("Error!",
                         "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
@@ -235,6 +262,11 @@
                                 };
                             }
                         });
+                    } else {
+                        button.prop('disabled', false);
+                        button.html(
+                            "<i class='fa-brands fa-whatsapp'></i> Share "
+                        );
                     };
                 });
 
@@ -424,67 +456,76 @@
                         },
                         success: function(data) {
                             var html = '';
-                            data.forEach(function(vehicle) {
-                                html +=
-                                    '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
-                                html += '<div class="blog grid-blog flex-fill">';
-                                html += '<div class="blog-image">';
-                                html += '<a href="#!">';
-                                if (vehicle.image == null) {
+                            // jika data kosong
+                            if (data.length === 0) {
+                                html =
+                                    '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Battery Found</div>';
+                                $('#ResultRecommendationBattery').html(html);
+                                return;
+                            } else {
+                                data.forEach(function(vehicle) {
+                                    html +=
+                                        '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
+                                    html += '<div class="blog grid-blog flex-fill">';
+                                    html += '<div class="blog-image">';
+                                    html += '<a href="#!">';
+                                    if (vehicle.image == null) {
 
-                                    vehicle.image =
-                                        'https://via.placeholder.com/210x210';
-                                    html += '<img class="img-fluid" src="' + vehicle
-                                        .image + '" alt="Post Image">';
-                                } else {
-                                    var baseUrl =
-                                        "{{ asset('storage/image/battery/') }}";
-                                    vehicle.image = vehicle.image;
-                                    html += '<img class="img-fluid" src="' + baseUrl +
-                                        '/' + vehicle.image +
-                                        '" alt="Post Image">';
-                                }
-                                html += '</a>';
-                                html += '</div>';
-                                html += '<div class="blog-content">';
-                                html +=
-                                    '<h3 class="blog-title"><a href="#!">' +
-                                    vehicle.name + '</a></h3>';
-                                html += '<p>Details & Specification :</p>';
-                                html += '<ul class="list-group list-group-flush">';
-                                html += '<li class="list-group-item">Warranty : ' +
-                                    vehicle.warranty + ' Months</li>';
+                                        vehicle.image =
+                                            'https://via.placeholder.com/210x210';
+                                        html += '<img class="img-fluid" src="' + vehicle
+                                            .image + '" alt="Post Image">';
+                                    } else {
+                                        var baseUrl =
+                                            "{{ asset('storage/image/battery/') }}";
+                                        vehicle.image = vehicle.image;
+                                        html += '<img class="img-fluid" src="' +
+                                            baseUrl +
+                                            '/' + vehicle.image +
+                                            '" alt="Post Image">';
+                                    }
+                                    html += '</a>';
+                                    html += '</div>';
+                                    html += '<div class="blog-content">';
+                                    html +=
+                                        '<h3 class="blog-title"><a href="#!">' +
+                                        vehicle.name + '</a></h3>';
+                                    html += '<p>Details & Specification :</p>';
+                                    html += '<ul class="list-group list-group-flush">';
+                                    html += '<li class="list-group-item">Warranty : ' +
+                                        vehicle.warranty + ' Months</li>';
 
-                                html += '<li class="list-group-item">Price : Rp. ' +
-                                    Number(vehicle.price_retail).toLocaleString(
-                                        'id-ID') + '</li>';
-                                html += '</ul>';
-                                html +=
-                                    '</div>';
-                                html += '<div class="row">';
-                                html +=
-                                    '<div class="edit-options">';
-                                html +=
-                                    '<div class="text-end inactive-style mt-3">';
-                                html +=
-                                    '<div class="checkbox">';
-                                html += '<label>';
-                                html +=
-                                    '<input type="checkbox" name="CheckBattery[]" value=' +
-                                    vehicle.id + '> Share To Customer';
-                                html +=
-                                    '</label>';
-                                html += '</div>';
-                                html += '</div>';
-                                html +=
-                                    '</div>';
-                                html += '</div>';
-                                html += '</div>';
-                                html +=
-                                    '</div>';
-                            });
-                            $('#ResultRecommendationBattery').html(html);
-                            getMapsNearAddressCustomer();
+                                    html += '<li class="list-group-item">Price : Rp. ' +
+                                        Number(vehicle.price_retail).toLocaleString(
+                                            'id-ID') + '</li>';
+                                    html += '</ul>';
+                                    html +=
+                                        '</div>';
+                                    html += '<div class="row">';
+                                    html +=
+                                        '<div class="edit-options">';
+                                    html +=
+                                        '<div class="text-end inactive-style mt-3">';
+                                    html +=
+                                        '<div class="checkbox">';
+                                    html += '<label>';
+                                    html +=
+                                        '<input type="checkbox" name="CheckBattery[]" value=' +
+                                        vehicle.id + '> Share To Customer';
+                                    html +=
+                                        '</label>';
+                                    html += '</div>';
+                                    html += '</div>';
+                                    html +=
+                                        '</div>';
+                                    html += '</div>';
+                                    html += '</div>';
+                                    html +=
+                                        '</div>';
+                                });
+                                $('#ResultRecommendationBattery').html(html);
+                                getMapsNearAddressCustomer();
+                            }
                         }
                     });
                 }
@@ -533,36 +574,64 @@
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (FullName == '') {
                     swal.fire("Error!", "Full Name is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (EmailCustomer == '') {
                     swal.fire("Error!", "Email Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (ContactNumber == '') {
                     swal.fire("Error!", "Contact Number is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (AddressCustomer == '') {
                     swal.fire("Error!", "Address Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (VehicleCustomer == '') {
                     swal.fire("Error!", "Vehicle Customer is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
                 if (Latitude == '' || Longitude == '') {
                     swal.fire("Error!", "Latitude and Longitude is required", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
@@ -571,6 +640,10 @@
                         '<VEHICLE>') == false) {
                     swal.fire("Error!",
                         "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
@@ -581,6 +654,10 @@
                     swal.fire("Error!",
                         "Template Message must contain BATTERYNAME, BATTERYPRICE, BATTERYWARRANTY",
                         "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
                     return;
                 }
 
@@ -686,6 +763,7 @@
                     var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                         return $(this).val();
                     }).get();
+                    var DistributorShopId = $("#DistributorShopId").val();
 
                     var data = {
                         FullName: FullName,
@@ -699,7 +777,7 @@
                         IdCustomer: IdCustomer,
                         Battery: Battery,
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        distributorChecked: distributorChecked
+                        DistributorShopId: DistributorShopId
                     };
 
                     $.ajax({
@@ -851,8 +929,6 @@
     </script>
 
 
-    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
-    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/prettify.js') }}"></script>
-    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.js') }}"></script>
+
     <br><br><br><br><br>
 @endsection

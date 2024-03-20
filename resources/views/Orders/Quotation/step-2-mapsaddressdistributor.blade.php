@@ -60,8 +60,26 @@
     }
 </style>
 
-<h6>Our Distributor Partner</h6>
+
+<div class="row">
+    <div class="col">
+        <div class="form-group">
+            <h6>Our Distributor Partner</h6>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group">
+            <select class="form-select" id="shop_id" name="shop_id" required>
+                <option value="">-- Choose Distributor --</option>
+                @foreach ($distributor as $d)
+                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+</div>
 <div id="MapShowMarkerDistributor"></div>
+<input type="hidden" name="DistributorShopId" id="DistributorShopId">
 <script>
     var map;
     var markers = [];
@@ -143,7 +161,7 @@
                 ' km</p> Contact Distributor :  62' + DisributorPhone +
                 '&nbsp;&nbsp;</div><button class="copy-button" onclick="copyInfo()"><i class="fa fa-copy"></i> Copy Info</button>&nbsp;&nbsp;<a href="62' +
                 DisributorPhone +
-                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="CheckDistributor[]" value="' +
+                '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" onclick="checkDistributorShop()" type="checkbox" name="CheckDistributor[]" value="' +
                 Id + '"> Choose this distributor </label>';
             infowindow.setContent(infoContent);
             infowindow.open(map, marker);
@@ -161,6 +179,26 @@
         window.getSelection().removeAllRanges();
         alert('Info copied to clipboard!');
     }
+
+    function checkDistributorShop() {
+        var Distributor = $("input[name='CheckDistributor[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+        if (Distributor.length > 1) {
+            swal.fire("Error!", "Please select only one distributor", "error");
+            return;
+        } else {
+            $("#shop_id").val(Distributor[0]);
+            $("#DistributorShopId").val(Distributor[0]);
+        }
+    }
+
+    $(document).ready(function() {
+        $("#shop_id").on("change", function() {
+            var id = $(this).val();
+            $("#DistributorShopId").val(id);
+        });
+    });
 </script>
 <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=geometry&callback=initMap">

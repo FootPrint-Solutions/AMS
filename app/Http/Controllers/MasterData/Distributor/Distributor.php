@@ -45,7 +45,10 @@ class Distributor extends Controller
             getIndexData(
                 $this->title,
                 $this->menu,
-                $this->submenu
+                $this->submenu,
+                array(
+                    "shops" => DistributorShopModel::where("type", 1)->get()->toArray()
+                )
             )
         );
     }

@@ -46,6 +46,9 @@
 
     {{-- Bootstrap Core JS --}}
     <script src="{{ asset('/js/bootstrap.bundle.min.js') }}"></script>
+
+    {{-- Boostrap Form Wizard --}}
+    <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
 </head>
 
 <body>
@@ -109,6 +112,11 @@
 
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>
+
+    {{-- Bootstrap Form Wizard --}}
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/prettify.js') }}"></script>
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.js') }}"></script>
 </body>
 
 <script>

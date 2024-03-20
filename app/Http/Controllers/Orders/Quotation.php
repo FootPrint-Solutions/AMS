@@ -14,6 +14,7 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Customer\CustomerVehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 
 
 // Midtrans 
@@ -187,7 +188,13 @@ class Quotation extends Controller
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
         $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
-        $distributorChecked = DistributorShopModel::find($request->input('distributorChecked'));
+        if ($request->input('DistributorShopId') != null) {
+            $distributorChecked = DistributorShopModel::find($request->input('DistributorShopId'))->toArray();
+            $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+        } else {
+            $distributorChecked = "";
+            $distributorTechnician = "";
+        }
 
         $data = [
             'Fullname' => $Fullname,
@@ -200,7 +207,8 @@ class Quotation extends Controller
             'BatteryString' => implode(', ', $Battery),
             'Latitude' => $request->input('Latitude'),
             'Longitude' => $request->input('Longitude'),
-            'Distributor' => $distributorChecked
+            'Distributor' => $distributorChecked,
+            'DistributorTechnician' => $distributorTechnician,
         ];
 
         return view('Orders.Quotation.step-3-checkoutpreview', $data);

@@ -41,11 +41,11 @@
                                 value="{{ $battery['name'] }}" readonly>
                         </td>
                         <td>
-                            <input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control"
+                            <input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout"
                                 value="1">
                         </td>
                         <td>
-                            <input type="text" name="PriceCheckout[]" id="PriceCheckout"
+                            <input type="number" name="PriceCheckout[]" id="PriceCheckout"
                                 class="form-control PriceCheckout" value="{{ $battery['price_retail'] }}">
                         </td>
                     </tr>
@@ -58,52 +58,56 @@
 <div class="row mb-5">
     <div class="col-lg-7 col-md-6">
         <div class="invoice-fields">
-
-            <div class="field-box">
-                <h4 class="field-title">Partner Details</h4>
-                <div class="form-group mb-0">
-                    <label class="custom_check w-100">
-                        <input type="checkbox" id="partnerCheck" name="invoice">
-                        <span class="checkmark"></span> Enable Partner
-                    </label>
-                </div>
-                <div class="form-group row mb-3">
-                    <label for="order-customer" class="col-sm-5 col-form-label">Distributor / Shop Name</label>
-                    <div class="col-sm-7">
-                        <input readonly type="text" class="form-control" id="distributorshopcheckout"
-                            name="distributorshopcheckout" value="" placeholder="Type Distributor Here...">
-                        <div id="AutoCompleteDistibutorCheckout"></div>
+            @if (isset($Distributor) && !empty($Distributor))
+                <div class="field-box">
+                    <h4 class="field-title">Partner Details</h4>
+                    <div class="form-group row mb-3">
+                        <label for="order-customer" class="col-sm-5 col-form-label">Distributor Shop Name</label>
+                        <div class="col-sm-7">
+                            <input readonly type="text" class="form-control" id="distributorshopcheckout"
+                                name="distributorshopcheckout" value="{{ $Distributor['name'] ?? '' }}"
+                                placeholder="Type Distributor Here...">
+                            <div id="AutoCompleteDistibutorCheckout"></div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group row mb-3">
-                    <label for="order-customer" class="col-sm-5 col-form-label">Address Distributor / Shop</label>
-                    <div class="col-sm-7">
-                        <input readonly type="text" class="form-control" id="distributorshopcheckout"
-                            name="distributorshopcheckout" value="" placeholder="">
-                        <div id="AutoCompleteDistibutorCheckout"></div>
+                    <div class="form-group row mb-3">
+                        <label for="order-customer" class="col-sm-5 col-form-label">Address Distributor / Shop</label>
+                        <div class="col-sm-7">
+                            <input readonly type="text" class="form-control" id="distributorshopcheckout"
+                                name="distributorshopcheckout" value="{{ $Distributor['address'] ?? '' }}"
+                                placeholder="">
+                            <div id="AutoCompleteDistibutorCheckout"></div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group row mb-3">
-                    <label for="order-customer" class="col-sm-5 col-form-label">Mechanic Name</label>
-                    <div class="col-sm-7">
-                        <input readonly type="text" class="form-control" id="distributorshopcheckout"
-                            name="distributorshopcheckout" value="" placeholder="Type Mechanic Name Here...">
-                        <div id="AutoCompleteDistibutorCheckout"></div>
+                    <div class="form-group row mb-3">
+                        <label for="order-customer" class="col-sm-5 col-form-label">Technicians Name</label>
+                        <div class="col-sm-7">
+                            <select name="techniciansName" id="techniciansName" class="form-control">
+                                <option value="">-- Select Technicians --</option>
+                                @foreach ($DistributorTechnician as $technician)
+                                    <option data-phone="{{ $technician['contact'] }}" value="{{ $technician['id'] }}">
+                                        {{ $technician['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group row mb-3">
-                    <label for="order-customer" class="col-sm-5 col-form-label">Mechanic Phone</label>
-                    <div class="col-sm-7">
-                        <input readonly type="text" class="form-control" id="distributorshopcheckout"
-                            name="distributorshopcheckout" value="" placeholder="">
-                        <div id="AutoCompleteDistibutorCheckout"></div>
+                    <div class="form-group row mb-3">
+                        <label for="order-customer" class="col-sm-5 col-form-label">Mechanic Phone</label>
+                        <div class="col-sm-7">
+                            <input readonly type="text" class="form-control" id="techniciansPhone"
+                                name="techniciansPhone" value="" placeholder="">
+                        </div>
                     </div>
-                </div>
 
-            </div>
+                </div>
+            @else
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Distributor Not Found
+                </div>
+            @endif
         </div>
 
     </div>
@@ -115,24 +119,22 @@
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
-                            <input readonly type="text" class="form-control" id="tax" name="tax"
-                                value="">
+                            <input type="number" class="form-control" id="tax" name="tax" value="">
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
-                            <input readonly type="text" class="form-control" id="discount" name="discount"
-                                value="">
+                            <input type="number" class="form-control" id="discount" name="discount" value="">
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Extra Discount</label>
                         <div class="col-sm-7">
-                            <input readonly type="text" class="form-control" id="Extradiscount"
-                                name="Extradiscount" value="">
+                            <input type="number" class="form-control" id="Extradiscount" name="Extradiscount"
+                                value="">
                         </div>
                     </div>
 
@@ -150,116 +152,57 @@
 
 <script>
     $(document).ready(function() {
-        calculateTotalAmount();
-
-        // new AutoNumeric('#tax', {
-        //     currencySymbol: "Rp. ",
-        //     digitGroupSeparator: ".",
-        //     decimalCharacter: ",",
-        //     minimumValue: '0'
-        // });
-
-        // new AutoNumeric('#discount', {
-        //     currencySymbol: "Rp. ",
-        //     digitGroupSeparator: ".",
-        //     decimalCharacter: ",",
-        //     minimumValue: '0'
-        // });
-
-        // new AutoNumeric('#Extradiscount', {
-        //     currencySymbol: "Rp. ",
-        //     digitGroupSeparator: ".",
-        //     decimalCharacter: ",",
-        //     minimumValue: '0'
-        // });
-
-        // new AutoNumeric('#PriceCheckout', {
-        //     currencySymbol: "Rp. ",
-        //     digitGroupSeparator: ".",
-        //     decimalCharacter: ",",
-        //     minimumValue: '0',
-        // });
-    });
-
-    function calculateTotalAmount() {
-        var subtotal = 0;
-        var tax = getRawValue(document.getElementById('tax').value) || 0;
-        var discount = getRawValue(document.getElementById('discount').value) || 0;
-        var extraDiscount = getRawValue(document.getElementById('Extradiscount').value) || 0;
-
-        var tax = parseFloat(tax);
-        var discount = parseFloat(discount);
-        var extraDiscount = parseFloat(extraDiscount);
-
-        var rows = document.querySelectorAll('.add-table-items tbody tr');
-        rows.forEach(function(row) {
-            var price = row.querySelector('input[name="PriceCheckout[]"]').value || 0;
-            var qty = row.querySelector('input[name="QtyCheckout[]"]').value || 0;
-            price = getRawValue(price);
-            subtotal += price * qty;
+        document.getElementById('techniciansName').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var techniciansPhone = selectedOption.getAttribute('data-phone');
+            document.getElementById('techniciansPhone').value = techniciansPhone;
         });
 
-        var totalAmount = (subtotal + tax) - (discount + extraDiscount);
+        function calculateTotalAmount() {
+            var total = 0;
 
-        document.getElementById('TotalAmount')
-            .innerText = totalAmount.toLocaleString('id-ID', {
+
+            $(".add-table-items tbody tr").each(function() {
+                var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                var price = $(this).find("input[name='PriceCheckout[]']").val();
+
+
+                var subtotal = quantity * price;
+                total += subtotal;
+            });
+
+            var tax = $("#tax").val();
+            var taxValue = (total * tax) / 100;
+            var discount = $("#discount").val();
+            var discountValue = (total * discount) / 100;
+            var extraDiscount = $("#Extradiscount").val();
+            var extraDiscountValue = (total * extraDiscount) / 100;
+            var finalTotal = (total + taxValue) - (discountValue + extraDiscountValue);
+
+            $("#tax").val(tax);
+            $("#discount").val(discount);
+            $("#Extradiscount").val(extraDiscount);
+            $("#TotalAmount").text(finalTotal.toLocaleString('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
+            }));
+            $("#TotalAmountHidden").val(
+                finalTotal);
+        }
+
+        // Panggil fungsi calculateTotalAmount() setiap kali ada perubahan dalam input kuantitas atau harga
+        $(".add-table-items tbody").on("input",
+            "input[name='QtyCheckout[]'], input[name='PriceCheckout[]']",
+            function() {
+                calculateTotalAmount();
             });
-        document.getElementById('TotalAmountHidden').value = totalAmount;
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        calculateTotalAmount();
-
-        var inputs = document.querySelectorAll('.add-table-items tbody input');
-        inputs.forEach(function(input) {
-            input.addEventListener('change', calculateTotalAmount);
+        $("#tax, #discount, #Extradiscount").on("input", function() {
+            calculateTotalAmount();
         });
 
-        var discountInputs = document.querySelectorAll('.invoice-total-box input');
-        discountInputs.forEach(function(input) {
-            input.addEventListener('input', calculateTotalAmount);
-        });
-    });
-
-    $("#QtyCheckout").on('keyup', function() {
         calculateTotalAmount();
     });
-
-    $("#tax").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    $("#discount").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    $("#Extradiscount").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    $("#PriceCheckout").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    $(".PriceCheckout").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    $(".form-control").on('keyup', function() {
-        calculateTotalAmount();
-    });
-
-    function getRawValue(val) {
-        var result = val.replace(/\./g, "").replace(/\,/g, ".").replace("Rp. ", "").trim();
-        var result = result.replace("Rp", "").trim();
-        return result;
-    }
-
-    function formatCurrency(amount) {
-        return "Rp. " + amount.toFixed(2).replace(/\./g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',00';
-    }
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"
     integrity="sha512-EGJ6YGRXzV3b1ouNsqiw4bI8wxwd+/ZBN+cjxbm6q1vh3i3H19AJtHVaICXry109EVn4pLBGAwaVJLQhcazS2w=="
