@@ -23,7 +23,7 @@ class QuickQuotation extends Controller
     public function index()
     {
         return view(
-            'Orders/Quotation/index',
+            'Orders.QuickQuotation.index',
             getIndexData(
                 'Quick Quotation',
                 3,
@@ -126,7 +126,7 @@ class QuickQuotation extends Controller
             'datalatlong' => $datalatlong
         ];
 
-        return view('Orders.Quotation.step-2-mapsaddressdistributor', $data);
+        return view('Orders.QuickQuotation.step-2-mapsaddressdistributor', $data);
     }
 
     public function shareBattery(Request $request)
@@ -208,7 +208,7 @@ class QuickQuotation extends Controller
             'DistributorTechnician' => $distributorTechnician,
         ];
 
-        return view('Orders.Quotation.step-3-checkoutpreview', $data);
+        return view('Orders.QuickQuotation.step-3-checkoutpreview', $data);
     }
 
     public function getPaymentPreview(Request $request)
@@ -244,7 +244,7 @@ class QuickQuotation extends Controller
 
         $data['snapToken'] = $snapToken;
 
-        return view('Orders.Quotation.step-4-paymentpreview', $data);
+        return view('Orders.QuickQuotation.step-4-paymentpreview', $data);
     }
 
     public function getBatteryCopyDetail(Request $request)
