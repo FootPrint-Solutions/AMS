@@ -36,21 +36,19 @@
     </div>
 
     {{-- Detail Modal --}}
-    <div class="modal fade" id="shop-detail-modal">
+    <div class="modal modal-lg fade" id="shop-detail-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Items Detail</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
 
                 <div class="modal-body">
-                    <table class="table table-striped" id="table-distributor-shop-detail">
+                    <table class="table table-striped w-100" id="table-distributor-shop-detail">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
+                                <th scope="col">Battery Name</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">URL</th>
                             </tr>
@@ -91,18 +89,44 @@
                 buttons: getDatatablesButtonConfigurations([{
                     text: "<i class='fas fa-eye'></i> View Detail",
                     action: function(e, dt, node, config) {
+                        // Get the selected row's id.
+                        let selectedRows = table.rows({
+                            selected: true
+                        }).data().toArray();
+                        if (selectedRows.length !== 1) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Please select a single row for viewing details.",
+                                icon: "error",
+                            });
+                            return;
+                        }
+
                         // Show popup modal.
                         $('#shop-detail-modal').modal("show");
 
-                        // Set detail table inside modal.
+                        // Destroy previous set DataTables.
+                        if ($.fn.DataTable.isDataTable("#table-distributor-shop-detail")) {
+                            $("#table-distributor-shop-detail").DataTable().destroy();
+                        }
+
+                        // Set new DataTables.
                         tableDetail = $("#table-distributor-shop-detail").DataTable({
+                            dom: "t",
+                            processing: true,
+                            serverSide: true,
                             ajax: {
-                                url: "/distributor/shop/show",
+                                url: "/distributor/shop/battery/show",
                                 type: "POST",
                                 data: {
                                     _token: "{{ csrf_token() }}",
+                                    id: selectedRows[0][7]
                                 }
                             },
+                            columnDefs: [{
+                                targets: [0],
+                                orderable: false
+                            }],
                         });
                     },
                     className: "btn btn-outline-info btn-sm",

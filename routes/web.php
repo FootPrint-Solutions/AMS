@@ -20,6 +20,7 @@ use App\Http\Controllers\MasterData\Battery\BatterySize;
 use App\Http\Controllers\MasterData\Distributor\Distributor;
 use App\Http\Controllers\MasterData\Distributor\DistributorShop;
 use App\Http\Controllers\MasterData\Distributor\DistributorShopTechnician;
+use App\Http\Controllers\MasterData\Distributor\DistributorShopBattery;
 
 // ORDERS
 use App\Http\Controllers\Orders\Quotation;
@@ -157,6 +158,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
     Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
     Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
+    Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
 
     // Shop Technician
     Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);
