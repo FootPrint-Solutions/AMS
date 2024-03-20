@@ -103,6 +103,7 @@ class DistributorShop extends Controller
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
             $row[] = $key->email ?? "-";
             $row[] = $key->id;
+            $row[] = $key->distributor_id;
             $rows[] = $row;
         }
 

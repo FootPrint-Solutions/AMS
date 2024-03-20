@@ -11,8 +11,7 @@
                         <h3 class="page-title">Shop</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Shop</button>
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New Shop</button>
                     </div>
                 </div>
             </div>
@@ -37,10 +36,12 @@
 
     {{-- Detail Modal --}}
     <div class="modal modal-lg fade" id="shop-detail-modal">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Items Detail</h5>
+                    <h5 class="modal-title" id="shop-detail-modal-title"></h5>
+                    <button id="btn-add-detail" class="btn btn-outline-info"><i class="fas fa-plus"></i> Add New
+                        Detail</button>
                 </div>
 
                 <div class="modal-body">
@@ -105,6 +106,10 @@
                         // Show popup modal.
                         $('#shop-detail-modal').modal("show");
 
+                        // Set modal title.
+                        $("#shop-detail-modal-title").text("Item Details (" + selectedRows[
+                            0][2] + "/" + selectedRows[0][1] + ")");
+
                         // Destroy previous set DataTables.
                         if ($.fn.DataTable.isDataTable("#table-distributor-shop-detail")) {
                             $("#table-distributor-shop-detail").DataTable().destroy();
@@ -124,9 +129,14 @@
                                 }
                             },
                             columnDefs: [{
-                                targets: [0],
-                                orderable: false
-                            }],
+                                    targets: [0],
+                                    orderable: false
+                                },
+                                {
+                                    targets: [2],
+                                    className: 'dt-body-right'
+                                }
+                            ],
                         });
                     },
                     className: "btn btn-outline-info btn-sm",
@@ -141,6 +151,18 @@
             // Add New Store button
             $("#btn-add").on("click", function() {
                 goToPage("/distributor/shop/create");
+            });
+
+            // Add New Detail (modal) button
+            $("#btn-add-detail").on("click", function() {
+                // Get selected row's id.
+                let selectedRows = table.rows({
+                    selected: true
+                }).data().toArray();
+
+                goToPage("/distributor/shop/battery/create/" + selectedRows[0][7] + "/" + selectedRows[0][
+                    8
+                ]);
             });
         });
     </script>

@@ -159,6 +159,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
     Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
     Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
+    Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
+    Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store']);
+    Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update']);
 
     // Shop Technician
     Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);
