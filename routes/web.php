@@ -160,8 +160,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
     Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
     Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
+    Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit']);
     Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store']);
     Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update']);
+    Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
 
     // Shop Technician
     Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);

@@ -65,7 +65,7 @@
                                 <span class="input-group-text border-end">IDR</span>
                                 <input type="text" min="0" class="form-control" id="price" name="price"
                                     placeholder="Enter battery price retail" required
-                                    @if (isset($data['profile'])) value="{{ $data['profile']['price_retail'] }}" @endif>
+                                    @if (isset($data['profile'])) value="{{ $data['profile']['price'] }}" @endif>
                             </div>
                             <small id="price-warning-number" class="form-text text-danger" style="display: none;">Please
                                 enter a valid numeric value for the price.</small>
@@ -77,10 +77,16 @@
                         <div class="form-group local-forms">
                             <label for="url">Battery URL</label>
                             <input type="url" pattern="https?://.+" class="form-control" id="url" name="url"
-                                placeholder="Enter battery product url">
+                                placeholder="Enter battery product url"
+                                @if (isset($data['profile'])) value="{{ $data['profile']['url'] }}" @endif>
                         </div>
                     </div>
                 </div>
+
+                {{-- Hidden Inputs --}}
+                @isset($data['profile'])
+                    <input type="hidden" name="id" value="{{ $data['profile']['id'] }}">
+                @endisset
 
                 {{-- Buttons --}}
                 <div class="d-flex flex-row-reverse">
@@ -107,6 +113,8 @@
         let indexUrl = "/distributor/shop";
 
         $(document).ready(function() {
+            formatPrice($("#price"), $("#price-warning-number"));
+
             $('#battery').select2({
                 placeholder: "Select battery product"
             });

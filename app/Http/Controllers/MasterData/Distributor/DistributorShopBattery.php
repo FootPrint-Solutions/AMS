@@ -44,6 +44,36 @@ class DistributorShopBattery extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $profile = DistributorShopBatteryModel::find($id)->toArray();
+        $shopId = $profile["distributor_shop_id"];
+        $distributorId = DistributorShopModel::find($shopId)->toArray()["id"];
+
+        return view(
+            'MasterData.Distributor.Shop.Battery.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => $profile,
+                    "shop" => DistributorShopModel::find($shopId)->toArray(),
+                    "shopId" => $shopId,
+                    "distributor" => DistributorModel::find($distributorId)->toArray(),
+                    "distributorId" => $distributorId,
+                    "batteries" => BatteryModel::all()->toArray(),
+                )
+            )
+        );
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -98,6 +128,52 @@ class DistributorShopBattery extends Controller
         return getResponseData(
             $status,
             $status ? "The new battery detail was successfully created!" : "Failed to create the new battery detail!"
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $shopDetail = DistributorShopBatteryModel::find($request->id);
+        $shopDetail->distributor_shop_id = $request->shopid;
+        $shopDetail->battery_id = $request->battery;
+        $shopDetail->price = (float) str_replace(",", "", $request->price);
+        $shopDetail->url = $request->url;
+        $status = $shopDetail->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected battery detail was successfully updated!" : "Failed to update the selected battery detail!"
+        );
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $distributor = DistributorShopBatteryModel::find($id);
+            $status = $distributor->delete();
+        }
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected battery detail was successfully deleted!" : "Failed to delete the selected battery detail!"
         );
     }
 }

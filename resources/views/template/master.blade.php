@@ -248,14 +248,19 @@
      * @param {int} idIdx - The index of data id.
      * @param {string} editUrl - The url of edit page.
      * @param {string} deleteUrl - The url of delete page.
+     * @param {string} parentId - The parent div id of the DataTables.
      */
-    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl) {
+    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, parentId = null) {
         $.get("/datatables/toolbar", {
             idIdx: idIdx,
             editUrl: editUrl,
             deleteUrl: deleteUrl
         }, function(data) {
-            $(".dt-buttons").append(data);
+            var querySelector = ".dt-buttons";
+            if (parentId !== null) {
+                querySelector = parentId + " " + querySelector;
+            }
+            $(querySelector).append(data);
         });
     }
 

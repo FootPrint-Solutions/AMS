@@ -40,7 +40,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="shop-detail-modal-title"></h5>
-                    <button id="btn-add-detail" class="btn btn-outline-info"><i class="fas fa-plus"></i> Add New
+                    <button id="btn-add-detail" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New
                         Detail</button>
                 </div>
 
@@ -62,7 +62,7 @@
 
     <script>
         var table;
-        var tableDetail;
+        var tableTmp;
 
         $(document).ready(function() {
             // DataTables configuration
@@ -116,10 +116,12 @@
                         }
 
                         // Set new DataTables.
-                        tableDetail = $("#table-distributor-shop-detail").DataTable({
-                            dom: "t",
+                        tableTmp = table;
+                        table = $("#table-distributor-shop-detail").DataTable({
+                            dom: "Bt",
                             processing: true,
                             serverSide: true,
+                            buttons: [],
                             ajax: {
                                 url: "/distributor/shop/battery/show",
                                 type: "POST",
@@ -137,7 +139,11 @@
                                     className: 'dt-body-right'
                                 }
                             ],
+                            select: true,
                         });
+                        appendDatatablesToolbar(4, "/distributor/shop/battery/edit/",
+                            "/distributor/shop/battery/destroy",
+                            "#table-distributor-shop-detail_wrapper");
                     },
                     className: "btn btn-outline-info btn-sm",
                 }]),
@@ -147,6 +153,10 @@
 
             // Load DataTables toolbar component.
             appendDatatablesToolbar(7, "/distributor/shop/edit/", "/distributor/shop/destroy");
+
+            $('#shop-detail-modal').on('hidden.bs.modal', function(e) {
+                table = tableTmp;
+            });
 
             // Add New Store button
             $("#btn-add").on("click", function() {
