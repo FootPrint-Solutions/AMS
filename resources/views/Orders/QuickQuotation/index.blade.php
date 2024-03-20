@@ -95,19 +95,19 @@
 
                         <div class="tab-content twitter-bs-wizard-tab-content">
                             <div class="tab-pane active" id="seller-details">
-                                @include('Orders.Quotation.step-1')
+                                @include('Orders.QuickQuotation.step-1')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="product-display">
-                                @include('Orders.Quotation.step-2')
+                                @include('Orders.QuickQuotation.step-2')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="checkout">
-                                @include('Orders.Quotation.step-3')
+                                @include('Orders.QuickQuotation.step-3')
                             </div>
                             <!-- tab pane -->
                             <div class="tab-pane" id="bank-detail">
-                                @include('Orders.Quotation.step-4')
+                                @include('Orders.QuickQuotation.step-4')
                             </div>
                             <!-- tab pane -->
                         </div>
