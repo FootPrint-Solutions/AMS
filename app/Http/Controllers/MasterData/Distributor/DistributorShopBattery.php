@@ -132,23 +132,38 @@ class DistributorShopBattery extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store batch created resources in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $shopId Id of the shop.
      * @return \Illuminate\Http\Response
      */
-    public function storeBatch($shopId)
+    public function storeBatch(Request $request, $shopId)
     {
         $status = true;
         $batteries = BatteryModel::all();
 
-        // Iterate through each batteries and store them in Distributor Shop Battery.
         foreach ($batteries as $battery) {
-            $shopDetail = new DistributorShopBatteryModel();
-            $shopDetail->distributor_shop_id = $shopId;
-            $shopDetail->battery_id = $battery->id;
-            $shopDetail->price = $battery->price_retail;
-            $status &= $shopDetail->save();
+            // Check if a record already exists
+            $existingRecord = DistributorShopBatteryModel::where('battery_id', $battery->id)
+                ->where('distributor_shop_id', $shopId)
+                ->first();
+
+            if (!$existingRecord) {
+                $shopDetail = new DistributorShopBatteryModel();
+                $shopDetail->battery_id = $battery->id;
+                $shopDetail->distributor_shop_id = $shopId;
+                $shopDetail->price = $battery->price_retail;
+                $status &= $shopDetail->save();
+            } else {
+                if ($request->replace == '1') {
+                    // Replace all
+                    $existingRecord->battery_id = $battery->id;
+                    $existingRecord->distributor_shop_id = $shopId;
+                    $existingRecord->price = $battery->price_retail;
+                    $existingRecord->url = null;
+                    $status &= $existingRecord->save();
+                }
+            }
         }
 
         // Set a new response data to be sent.

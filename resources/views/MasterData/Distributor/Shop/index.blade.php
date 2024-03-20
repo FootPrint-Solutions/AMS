@@ -188,20 +188,44 @@
                     selected: true
                 }).data().toArray();
 
-                // Send POST request to add all batteries.
-                $.ajax({
-                    url: "/distributor/shop/battery/store/batch/" + selectedRows[0][7],
-                    method: "POST",
-                    data: {
-                        "_token": "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        // Get response data from url (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Show Toast message based on responseData.
-                        showResponseToast(responseData.status, responseData.message);
+                // Show an alert asking whether to replace all batteries or not.
+                Swal.fire({
+                    title: "Do you want to replace all previously added batteries?",
+                    icon: "question",
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: "Add only new batteries",
+                    denyButtonText: "Replace all"
+                }).then((result) => {
+                    var replaceStatus;
+                    if (result.isConfirmed) {
+                        // Add only new batteries
+                        replaceStatus = 0;
+                    } else if (result.isDenied) {
+                        // Replace all
+                        replaceStatus = 1;
                     }
+
+                    // Send POST request to add all batteries.
+                    $.ajax({
+                        url: "/distributor/shop/battery/store/batch/" + selectedRows[0][7],
+                        method: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "replace": replaceStatus
+                        },
+                        success: function(response) {
+                            // Get response data from url (in JSON).
+                            let responseData = JSON.parse(response);
+
+                            // Show Toast message based on responseData.
+                            showResponseToast(responseData.status, responseData
+                                .message);
+
+                            // Reload the detail table.
+                            table.ajax.reload();
+                        }
+                    });
                 });
             });
         });

@@ -97,7 +97,7 @@
                     @else
                     value="create">
                     Create @endif
-                        Shop </button>
+                        Detail </button>
 
                         {{-- Cancel Button --}}
                         <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>

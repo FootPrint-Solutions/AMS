@@ -20,6 +20,13 @@ class DistributorShopBatteryModel extends Model
     protected $table = 'distributor_shop_battery';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['battery_id', 'distributor_shop_id'];
+
+    /**
      * The list of columns in the associated table.
      */
     private static $selectColumns = [
