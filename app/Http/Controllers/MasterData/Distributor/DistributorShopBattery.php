@@ -96,7 +96,7 @@ class DistributorShopBattery extends Controller
             $row[] = $no++;
             $row[] = "<a href='javascript:void(0)'>$key->name</a>";
             $row[] = number_format($key->price);
-            $row[] = $key->url;
+            $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
             $row[] = $key->id;
             $rows[] = $row;
         }
@@ -128,6 +128,33 @@ class DistributorShopBattery extends Controller
         return getResponseData(
             $status,
             $status ? "The new battery detail was successfully created!" : "Failed to create the new battery detail!"
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeBatch($shopId)
+    {
+        $status = true;
+        $batteries = BatteryModel::all();
+
+        // Iterate through each batteries and store them in Distributor Shop Battery.
+        foreach ($batteries as $battery) {
+            $shopDetail = new DistributorShopBatteryModel();
+            $shopDetail->distributor_shop_id = $shopId;
+            $shopDetail->battery_id = $battery->id;
+            $shopDetail->price = $battery->price_retail;
+            $status &= $shopDetail->save();
+        }
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The batch job was successful!" : "Failed to do the batch job!"
         );
     }
 

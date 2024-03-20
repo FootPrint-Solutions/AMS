@@ -162,6 +162,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
     Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit']);
     Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store']);
+    Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBattery::class, 'storeBatch']);
     Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update']);
     Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
 

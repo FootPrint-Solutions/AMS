@@ -40,8 +40,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="shop-detail-modal-title"></h5>
-                    <button id="btn-add-detail" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New
-                        Detail</button>
+
+                    <div class="btn-group">
+                        <button id="btn-add-detail-all" class="btn btn-info btn-sm"><i class="fas fa-search-plus"></i> Add
+                            All
+                            Available Batteries</button>
+                        <button id="btn-add-detail" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New
+                            Detail</button>
+                    </div>
                 </div>
 
                 <div class="modal-body">
@@ -118,7 +124,7 @@
                         // Set new DataTables.
                         tableTmp = table;
                         table = $("#table-distributor-shop-detail").DataTable({
-                            dom: "Bt",
+                            dom: "Btp",
                             processing: true,
                             serverSide: true,
                             buttons: [],
@@ -166,13 +172,37 @@
             // Add New Detail (modal) button
             $("#btn-add-detail").on("click", function() {
                 // Get selected row's id.
-                let selectedRows = table.rows({
+                let selectedRows = tableTmp.rows({
                     selected: true
                 }).data().toArray();
 
                 goToPage("/distributor/shop/battery/create/" + selectedRows[0][7] + "/" + selectedRows[0][
                     8
                 ]);
+            });
+
+            // Add All Available Batteries (modal) button
+            $("#btn-add-detail-all").on("click", function() {
+                // Get selected row's id.
+                let selectedRows = tableTmp.rows({
+                    selected: true
+                }).data().toArray();
+
+                // Send POST request to add all batteries.
+                $.ajax({
+                    url: "/distributor/shop/battery/store/batch/" + selectedRows[0][7],
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        // Get response data from url (in JSON).
+                        let responseData = JSON.parse(response);
+
+                        // Show Toast message based on responseData.
+                        showResponseToast(responseData.status, responseData.message);
+                    }
+                });
             });
         });
     </script>
