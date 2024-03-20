@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData\Distributor;
 
+use App\Models\MasterData\Battery\BatteryModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,15 @@ class DistributorShopModel extends Model
     public function distributor(): BelongsTo
     {
         return $this->belongsTo(DistributorModel::class, 'distributor_id');
+    }
+
+    /**
+     * Get all of the specific batteries of the distributor shop.
+     */
+    public function batteries()
+    {
+        return $this->belongsToMany(BatteryModel::class, 'distributor_shop_model', 'distributor_shop_id', 'battery_id')
+            ->withTimestamps();
     }
 
     /**
