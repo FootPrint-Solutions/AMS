@@ -190,7 +190,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-payment-preview', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
     Route::post('/get-battery-copy-detail', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
 
+    // Quotation
     Route::get('/quotation', [Quotation::class, 'index']);
+    Route::post('/quotation/show', [Quotation::class, 'show']);
+    Route::get('/quotation/create', [Quotation::class, 'create']);
+    Route::get('/quotation/edit/{id}', [Quotation::class, 'edit']);
+    Route::post('/quotation/store', [Quotation::class, 'store']);
+    Route::post('/quotation/update', [Quotation::class, 'update']);
+    Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
