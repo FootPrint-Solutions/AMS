@@ -124,7 +124,7 @@
                         // Set new DataTables.
                         tableTmp = table;
                         table = $("#table-distributor-shop-detail").DataTable({
-                            dom: "Btp",
+                            dom: "fBtp",
                             processing: true,
                             serverSide: true,
                             buttons: [],

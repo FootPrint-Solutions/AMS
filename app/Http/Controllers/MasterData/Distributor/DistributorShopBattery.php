@@ -55,7 +55,8 @@ class DistributorShopBattery extends Controller
     {
         $profile = DistributorShopBatteryModel::find($id)->toArray();
         $shopId = $profile["distributor_shop_id"];
-        $distributorId = DistributorShopModel::find($shopId)->toArray()["id"];
+        $shop = DistributorShopModel::find($shopId)->toArray();
+        $distributorId = $shop["distributor_id"];
 
         return view(
             'MasterData.Distributor.Shop.Battery.create',
@@ -65,7 +66,7 @@ class DistributorShopBattery extends Controller
                 $this->submenu,
                 array(
                     "profile" => $profile,
-                    "shop" => DistributorShopModel::find($shopId)->toArray(),
+                    "shop" => $shop,
                     "shopId" => $shopId,
                     "distributor" => DistributorModel::find($distributorId)->toArray(),
                     "distributorId" => $distributorId,
