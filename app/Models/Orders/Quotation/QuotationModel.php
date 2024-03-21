@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use Illuminate\Support\Facades\DB;
 
 class QuotationModel extends Model
 {
@@ -18,7 +19,7 @@ class QuotationModel extends Model
      *
      * @var string
      */
-    protected $table = 'quotations_view';
+    protected $table = 'quotations';
 
     /**
      * The list of columns in the associated table.
@@ -34,8 +35,9 @@ class QuotationModel extends Model
     public static function allForDataTables($request)
     {
         // Build the query to obtain all rows.
-        $query = self::query();
+        $query = DB::table('quotations_view');
         $query->select(self::$selectColumns);
+        $query->whereNull("deleted_at");
 
         return self::getAllRows($request, $query, self::$selectColumns);
     }

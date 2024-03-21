@@ -79,4 +79,46 @@ class Quotation extends Controller
             "data" => $rows
         ));
     }
+
+    /**
+     * Update the specified resource status in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request)
+    {
+        $quotation = QuotationModel::find($request->id);
+        $quotation->status = $request->status;
+        $status = $quotation->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
+        );
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $quotation = QuotationModel::find($id);
+            $status &= $quotation->delete();
+        }
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
+        );
+    }
 }

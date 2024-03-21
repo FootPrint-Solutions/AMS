@@ -197,6 +197,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/edit/{id}', [Quotation::class, 'edit']);
     Route::post('/quotation/store', [Quotation::class, 'store']);
     Route::post('/quotation/update', [Quotation::class, 'update']);
+    Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
     Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
 
     //profile
