@@ -58,6 +58,7 @@
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Price (IDR)</th>
+                                <th scope="col">Total Price (IDR)</th>
                             </tr>
                         </thead>
                     </table>
@@ -146,7 +147,7 @@
                                     orderable: false
                                 },
                                 {
-                                    targets: [2, 3],
+                                    targets: [2, 3, 4],
                                     className: 'dt-body-right'
                                 }
                             ],
