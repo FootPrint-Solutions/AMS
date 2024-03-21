@@ -194,8 +194,8 @@
                     icon: "question",
                     showDenyButton: true,
                     showCancelButton: true,
-                    confirmButtonText: "Add only new batteries",
-                    denyButtonText: "Replace all"
+                    confirmButtonText: "Add non-existing batteries",
+                    denyButtonText: "Replace all existing batteries"
                 }).then((result) => {
                     var replaceStatus;
                     if (result.isConfirmed) {
