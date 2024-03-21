@@ -18,7 +18,7 @@ class CreateQuotationsTable extends Migration
             $table->string('quotation_number')->unique();
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('distributor_shop_id');
-            $table->unsignedBigInteger('distributor_shop_technician_id');
+            $table->unsignedBigInteger('distributor_shop_technician_id')->nullable();
             $table->decimal('tax', 5, 2)->default(0);
             $table->decimal('discount', 5, 2)->default(0);
             $table->decimal('extra_discount', 5, 2)->default(0);

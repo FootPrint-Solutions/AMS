@@ -208,6 +208,7 @@ Route::middleware(['auth'])->group(function () {
     // Settings
     // Message Template
     Route::get('/template/message', [MessageTemplate::class, 'index']);
+    Route::post('/template/message/update', [MessageTemplate::class, 'update']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
