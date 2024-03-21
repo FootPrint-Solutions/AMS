@@ -185,7 +185,7 @@ class QuickQuotation extends Controller
         $ContactNumber = $request->input('ContactNumber');
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         if ($request->input('DistributorShopId') != null) {
-            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'));
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
             $distributorChecked = DistributorShopModel::find($request->input('DistributorShopId'))->toArray();
             $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
         } else {
@@ -221,8 +221,38 @@ class QuickQuotation extends Controller
         $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
         $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
         $TotalAmount = $request->input('TotalAmount');
-
         $InvoiceNumber = "INV" . date('YmdHis') . rand(1000, 9999);
+        $BatteryNameTabel = $request->input('BatteryNameTabel');
+        $QtyTabel = $request->input('QtyTabel');
+        $PriceTabel = $request->input('PriceTabel');
+        $tax = $request->input('tax') ?? 0;
+        $Discount = $request->input('Discount') ?? 0;
+        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        if ($request->input('DistributorShopId') != null) {
+            $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
+            $dataProduct = [];
+            foreach ($BatteryData as $key => $value) {
+                $dataProduct[] = [
+                    'name' => $value->name,
+                    'qty' => $QtyTabel[$key],
+                    'price' => $value->price_retail,
+                    'link' => $value->url
+                ];
+            }
+        } else {
+            $DistibutorShop = "";
+            $dataProduct = [];
+            foreach ($BatteryNameTabel as $key => $value) {
+                $dataProduct[] = [
+                    'name' => $value,
+                    'qty' => $QtyTabel[$key],
+                    'price' => $PriceTabel[$key],
+                    'link' => ''
+                ];
+            }
+        }
+
 
         $data = [
             'Fullname' => $Fullname,
@@ -236,7 +266,12 @@ class QuickQuotation extends Controller
             'Latitude' => $request->input('Latitude'),
             'Longitude' => $request->input('Longitude'),
             'InvoiceNumber' => $InvoiceNumber,
-            'TotalAmount' => $TotalAmount
+            'TotalAmount' => $TotalAmount,
+            'dataProduct' => $dataProduct,
+            'tax' => $tax,
+            'Discount' => $Discount,
+            'ExtraDiscount' => $ExtraDiscount,
+            'DistributorShop' => $DistibutorShop,
         ];
 
         $midtrans = new CreateSnapTokenService($InvoiceNumber);
@@ -296,9 +331,9 @@ class QuickQuotation extends Controller
         $Prices = implode(', ', $PriceTabel);
 
         $text = str_replace(
-            ['<NAME>', '<BATTERYNAME>', '<QUANTITY>', '<BATTERYPRICE>', '<TOTALAMOUNT>', '<TAX>', '<DISCOUNT>', '<EXTRADISCOUNT>'],
+            ['<NAME>', '<BATTERYNAME>', '<QUANTITY>', '<BATTERYPRICE>', '<TOTALAMOUNT>', '<TAX>', '<DISCOUNT>', '<EXTRADISCOUNT>', 'and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>', '<PHONETECHNICIAN>'],
             [
-                $Fullname, $BatteryNames, $Qtys, $Prices, "Rp. " . number_format($TotalAmount, 0, "", "."), $tax, $Discount, $ExtraDiscount
+                $Fullname, $BatteryNames, $Qtys, $Prices, "Rp. " . number_format($TotalAmount, 0, "", "."), $tax, $Discount, $ExtraDiscount, ''
             ],
             $template
         );
@@ -318,11 +353,19 @@ class QuickQuotation extends Controller
         } else {
             return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
         }
-        // } else {
-        //     return getResponseData(false, "Failed to send message");
-        // }
-        // } catch (\Exception $e) {
-        //     return getResponseData(false, "Failed to send message => " . $e->getMessage());
-        // }
+    }
+
+    public static function sharePaymentDetails(Request $request)
+    {
+        $url = "http://185.199.52.172:5001/send-message";
+        $template = $request->input('TemplateMessage');
+        $Fullname = $request->input('FullName');
+        $ContactNumber = $request->input('ContactNumber');
+
+        $text = str_replace(
+            ['<NAME>', '<PAYMENTLINK>'],
+            [$Fullname, 'https://www.google.com'],
+            $template
+        );
     }
 }

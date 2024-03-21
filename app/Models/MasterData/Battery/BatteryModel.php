@@ -120,12 +120,13 @@ class BatteryModel extends Model
         return self::getAllRows($request, $query, self::$selectColumns);
     }
 
-    public static function getBatteryDistributor($selectedBatteryIds)
+    public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
     {
         $batteryData = DB::table('batteries')
-            ->select('batteries.id', 'batteries.name', 'distributor_shop_battery.distributor_shop_id', 'distributor_shop_battery.price as price_retail')
+            ->select('batteries.id', 'batteries.name', 'distributor_shop_battery.distributor_shop_id', 'distributor_shop_battery.price as price_retail', 'distributor_shop_battery.url')
             ->join('distributor_shop_battery', 'batteries.id', '=', 'distributor_shop_battery.battery_id', 'left')
             ->whereIn('batteries.id', $selectedBatteryIds)
+            ->where('distributor_shop_battery.distributor_shop_id', $distributorShopId)
             ->get();
 
         return $batteryData;

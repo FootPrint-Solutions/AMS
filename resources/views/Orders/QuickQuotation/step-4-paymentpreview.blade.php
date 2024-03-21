@@ -3,9 +3,6 @@
         <div class="invoice-item invoice-item-one">
             <div class="row">
                 <div class="col-md-6">
-                    <!-- <div class="invoice-logo">
-                        <img src="assets/img/logo.png" alt="logo">
-                    </div> -->
                     <div class="invoice-head">
                         <h2>Invoice</h2>
                         <p>Invoice Number : {{ $InvoiceNumber }}</p>
@@ -13,13 +10,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="invoice-info">
-                        {{-- <strong class="customer-text-one">Invoice From</strong>
-                        <h6 class="invoice-name">Company Name</h6>
-                        <p class="invoice-details">
-                            9087484288 <br>
-                            Address line 1, Address line 2<br>
-                            Zip code ,City - Country
-                        </p> --}}
+                        {{-- Billed to --}}
                     </div>
                 </div>
             </div>
@@ -39,38 +30,10 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="invoice-info invoice-info2">
-                        {{-- <strong class="customer-text-one">Payment Details</strong>
-                        <p class="invoice-details">
-                            Debit Card <br>
-                            XXXXXXXXXXXX-2541 <br>
-                            HDFC Bank
-                        </p>
-                        <div class="invoice-item-box">
-                            <p>Recurring : 15 Months</p>
-                            <p class="mb-0">PO Number : 54515454</p>
-                        </div> --}}
-                    </div>
+                    {{-- Payment Details --}}
                 </div>
             </div>
         </div>
-
-
-        <div class="invoice-issues-box">
-            <div class="row">
-                <div class="col-lg-2 col-md-4">
-                    <div class="invoice-issues-date">
-                        <p>Payment Link : </p>
-                    </div>
-                </div>
-                <div class="col-lg-10 col-md-4">
-                    <div class="invoice-issues-date">
-                        <p>{{ $snapToken }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         <div class="invoice-item invoice-table-wrap">
             <div class="row">
@@ -82,23 +45,27 @@
                                     <th>Battery</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
+                                    <th>Link Tokopedia</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($Battery as $battery)
+                                @foreach ($dataProduct as $data)
                                     <tr>
                                         <td>
                                             <input type="text" name="BatteryNameCheckout[]" class="form-control"
-                                                value="{{ $battery['name'] }}" readonly>
+                                                value="{{ $data['name'] }}" readonly>
                                         </td>
                                         <td>
-                                            <input readonly type="number" name="QtyCheckout[]" id="QtyCheckout"
-                                                class="form-control" value="1">
+                                            <input readonly type="number" name="QtyCheckout[]"
+                                                class="form-control QtyCheckout" value="{{ $data['qty'] }}">
                                         </td>
                                         <td>
-                                            <input readonly type="text" name="PriceCheckout[]" id="PriceCheckout"
-                                                class="form-control PriceCheckout"
-                                                value="{{ $battery['price_retail'] }}">
+                                            <input readonly type="text" name="PriceCheckout[]"
+                                                class="form-control PriceCheckout" value="{{ $data['price'] }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="LinkPayment[]" class="form-control LinkPayment"
+                                                value="{{ $data['link'] }}" readonly>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -111,22 +78,30 @@
 
         <div class="row align-items-center justify-content-center">
             <div class="col-lg-6 col-md-6">
-                <div class="invoice-terms">
-                    <h6>Mechanic Name :</h6>
-                    <p class="mb-0">mechanic's name will appear here</p>
+                <div class="invoice-total-card">
+                    <div class="invoice-total-box">
+                        <div class="invoice-total-inner">
+                            <label class="custom_check w-100">
+                                <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans">
+                                <span class="checkmark"></span> Use Payment Link Midtrans
+                            </label>
+                            <p>Payment Link : </p>
+                            <p>{{ $snapToken }}</p>
+                            <input class="linkMidtrans" type="hidden" name="LinkPaymentMidtrans"
+                                value="{{ $snapToken }}">
+                        </div>
+                        {{-- Total Amount --}}
+                    </div>
                 </div>
-                <div class="invoice-terms">
-                    <h6>Mechanic Phone Number :</h6>
-                    <p class="mb-0">mechanic's phone number will appear here</p>
-                </div>
+
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
-                            <p>Tax <span>Rp. 0</span></p>
-                            <p>Discount <span>Rp. 0</span></p>
-                            <p>Extra Discount <span>Rp. 0</span></p>
+                            <p>Tax <span>{{ $tax }}</span></p>
+                            <p>Discount <span>{{ $Discount }}</span></p>
+                            <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p>
                         </div>
                         <div class="invoice-total-footer">
                             <h4>Total Amount <span>Rp. {{ number_format($TotalAmount, 0, ',', '.') }}</span></h4>
@@ -136,8 +111,56 @@
             </div>
         </div>
         <div class="invoice-sign text-end">
-            {{-- <img class="img-fluid d-inline-block" src="assets/img/signature.png" alt="sign">
-            <span class="d-block">Harristemp</span> --}}
+            <div class="form-group local-forms">
+                <label for="company-contact">Template Message <span class="login-danger">*</span></label>
+                <textarea class="form-control TemplateMessageStep4" name="TemplateMessageStep4" placeholder="Enter Addres Customer"
+                    required autocomplete="off">Hello, <NAME> this is your Payment Link : <PAYMENTLINK> Please make a payment and confirm the payment to us. Thank you.
+                </textarea>
+            </div>
         </div>
     </div>
 </div>
+
+<div class="clipboard visually-hidden">
+    <textarea cols="30" rows="10" class="CopyPaymentDetails" name="CopyPaymentDetails"></textarea>
+</div>
+
+<script>
+    function updateCopyPaymentDetails() {
+        var FullName = $("#FullName").val();
+        var links = []; // Mendefinisikan variabel links di luar event handler
+
+        $("#CheckMidtrans").change(function() {
+            links = []; // Mengosongkan links setiap kali status checkbox berubah
+            if ($(this).prop("checked")) {
+                var linkMidtrans = $("#LinkPaymentMidtrans").val();
+                links.push(linkMidtrans);
+            } else {
+                $(".LinkPayment").each(function() {
+                    var value = $(this).val();
+                    links.push(value);
+                });
+            }
+
+            // Pemrosesan link harus dilakukan di dalam event handler change
+            // untuk memastikan bahwa nilai links telah diperbarui
+            var TemplateMessage = $(".TemplateMessageStep4").val();
+            var copyPaymentDetails = TemplateMessage.replace("<NAME>", FullName);
+            var linksString = links.join(", "); // implode link menggunakan koma
+            copyPaymentDetails = copyPaymentDetails.replace("<PAYMENTLINK>", linksString);
+
+            // Memperbarui HTML elemen dengan class CopyPaymentDetails
+            $(".CopyPaymentDetails").html(copyPaymentDetails);
+        });
+    }
+
+    // Panggil fungsi updateCopyPaymentDetails saat dokumen siap
+    $(document).ready(function() {
+        updateCopyPaymentDetails();
+    });
+
+    $("#btnCopyPaymentDetails").on("click", function() {
+        updateCopyPaymentDetails();
+        swal.fire("Success", "Payment Detail Copied", "success");
+    });
+</script>

@@ -810,8 +810,26 @@
                     }).get();
                     var TotalAmount = $("#TotalAmountHidden").val();
                     var tax = $("#tax").val();
-                    var Discount = $("#Discount").val();
-                    var ExtraDiscount = $("#ExtraDiscount").val();
+                    var Discount = $("#discount").val();
+                    var ExtraDiscount = $("#Extradiscount").val();
+                    var QtyTabel = [];
+                    var PriceTabel = [];
+                    var BatteryNameTabel = [];
+                    $(".QtyCheckout").each(function() {
+                        var value = $(this).val();
+                        QtyTabel.push(value);
+                    });
+
+                    $(".PriceCheckout").each(function() {
+                        var value = $(this).val();
+                        PriceTabel.push(value);
+                    });
+
+                    $(".BatteryNameCheckout").each(function() {
+                        var value = $(this).val();
+                        BatteryNameTabel.push(value);
+                    });
+                    var DistributorShopId = $("#DistributorShopId").val();
 
                     var data = {
                         FullName: FullName,
@@ -828,6 +846,10 @@
                         tax: tax,
                         Discount: Discount,
                         ExtraDiscount: ExtraDiscount,
+                        BatteryNameTabel: BatteryNameTabel,
+                        QtyTabel: QtyTabel,
+                        PriceTabel: PriceTabel,
+                        DistributorShopId: DistributorShopId,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -965,6 +987,171 @@
 
                 $.ajax({
                     url: "/quotation/share-invoice",
+                    type: "POST",
+                    data: data,
+                    success: function(data) {
+                        let ResponseData = JSON.parse(data);
+                        if (ResponseData.status) {
+                            Swal.fire({
+                                title: "Success",
+                                text: ResponseData.message,
+                                icon: "success",
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: ResponseData.message ||
+                                    "Something went wrong, please try again later",
+                                icon: "error",
+                            });
+                        }
+                    },
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(
+                            "<i class='fa-brands fa-whatsapp'></i> Share"
+                        );
+                    }
+                });
+            });
+
+            $("#BtnSharePaymentDetails").on('click', function() {
+                var button = $(this);
+                button.prop('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                var FullName = $("#FullName").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var templateMessage = $("#TemplateMessageStep4").val();
+
+                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
+                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
+                    swal.fire("Error!", "Please fill in all required fields", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
+                        '<PAYMENTLINK>') == false) {
+                    swal.fire("Error!",
+                        "Template Message must contain NAME, PAYMENTLINK ", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                var data = {
+                    FullName: FullName,
+                    ContactNumber: ContactNumber,
+                    TemplateMessage: templateMessage,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                $.ajax({
+                    url: "/quotation/share-payment-details",
+                    type: "POST",
+                    data: data,
+                    success: function(data) {
+                        let ResponseData = JSON.parse(data);
+                        if (ResponseData.status) {
+                            Swal.fire({
+                                title: "Success",
+                                text: ResponseData.message,
+                                icon: "success",
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: ResponseData.message ||
+                                    "Something went wrong, please try again later",
+                                icon: "error",
+                            });
+                        }
+                    },
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(
+                            "<i class='fa-brands fa-whatsapp'></i> Share"
+                        );
+                    }
+                });
+            });
+
+            $("#ButtonSaveData").on('click', function() {
+                var button = $(this);
+                button.prop('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var IdCustomer = $("#IdCustomer").val();
+                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                var TotalAmount = $("#TotalAmountHidden").val();
+                var tax = $("#tax").val();
+                var Discount = $("#Discount").val();
+                var ExtraDiscount = $("#ExtraDiscount").val();
+
+                var QtyTabel = [];
+                var PriceTabel = [];
+                var BatteryNameTabel = [];
+                $(".QtyCheckout").each(function() {
+                    var value = $(this).val();
+                    QtyTabel.push(value);
+                });
+
+                $(".PriceCheckout").each(function() {
+                    var value = $(this).val();
+                    PriceTabel.push(value);
+                });
+
+                $(".BatteryNameCheckout").each(function() {
+                    var value = $(this).val();
+                    BatteryNameTabel.push(value);
+                });
+
+                var DistributorShopId = $("#DistributorShopId").val();
+
+                var data = {
+                    FullName: FullName,
+                    EmailCustomer: EmailCustomer,
+                    ContactNumber: ContactNumber,
+                    AddressCustomer: AddressCustomer,
+                    VehicleCustomer: VehicleCustomer,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    IdCustomer: IdCustomer,
+                    Battery: Battery,
+                    TotalAmount: TotalAmount,
+                    tax: tax,
+                    Discount: Discount,
+                    ExtraDiscount: ExtraDiscount,
+                    BatteryNameTabel: BatteryNameTabel,
+                    QtyTabel: QtyTabel,
+                    PriceTabel: PriceTabel,
+                    Discount: Discount,
+                    ExtraDiscount: ExtraDiscount,
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    DistributorShopId: DistributorShopId
+                };
+
+                $.ajax({
+                    url: "/quotation/save-data",
                     type: "POST",
                     data: data,
                     success: function(data) {

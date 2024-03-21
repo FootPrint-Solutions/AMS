@@ -193,6 +193,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-payment-preview', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
     Route::post('/get-battery-copy-detail', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
     Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice');
+    Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails');
 
     // Quotation
     Route::get('/quotation', [Quotation::class, 'index']);
