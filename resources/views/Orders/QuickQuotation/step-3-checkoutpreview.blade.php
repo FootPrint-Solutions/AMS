@@ -37,8 +37,8 @@
                 @foreach ($Battery as $battery)
                     <tr>
                         <td>
-                            <input type="text" name="BatteryNameCheckout[]" class="form-control"
-                                value="{{ $battery->name }}" readonly>
+                            <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
+                                class="form-control BatteryNameCheckout" value="{{ $battery->name }}" readonly>
                         </td>
                         <td>
                             <input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout"
@@ -88,7 +88,8 @@
                                 <option value="">-- Select Technicians --</option>
                                 @foreach ($DistributorTechnician as $technician)
                                     <option data-phone="{{ $technician['contact'] }}" value="{{ $technician['id'] }}">
-                                        {{ $technician['name'] }}</option>
+                                        {{ $technician['name'] }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -170,17 +171,20 @@
     <textarea cols="30" rows="10" id="CopyOrderDetail" name="CopyOrderDetail"></textarea>
 </div>
 
-
-<script>
-    $(document).ready(function() {
-        @if (isset($Distributor) && !empty($Distributor))
+@if (isset($Distributor) && !empty($Distributor))
+    <script>
+        $(document).ready(function() {
             document.getElementById('techniciansName').addEventListener('change', function() {
                 var selectedOption = this.options[this.selectedIndex];
                 var techniciansPhone = selectedOption.getAttribute('data-phone');
                 document.getElementById('techniciansPhone').value = techniciansPhone;
             });
-        @endif
+        });
+    </script>
+@endif
 
+<script>
+    $(document).ready(function() {
         function calculateTotalAmount() {
             var total = 0;
 

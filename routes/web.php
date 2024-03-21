@@ -189,6 +189,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-checkout-preview', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
     Route::get('/get-payment-preview', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
     Route::post('/get-battery-copy-detail', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
+    Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice');
 
     // Quotation
     Route::get('/quotation', [Quotation::class, 'index']);

@@ -270,4 +270,59 @@ class QuickQuotation extends Controller
             return getResponseData(false, "Failed to get battery detail" . $th->getMessage());
         }
     }
+
+    public function shareInvoice(Request $request)
+    {
+        $url = "http://185.199.52.172:5001/send-message";
+        $template = $request->input('TemplateMessage');
+        $BatteryNameTabel = $request->input('BatteryNameTabel');
+        $QtyTabel = $request->input('QtyTabel');
+        $PriceTabel = $request->input('PriceTabel');
+        $TotalAmount = $request->input('TotalAmount');
+        $tax = $request->input('tax') ?? 0;
+        $Discount = $request->input('Discount') ?? 0;
+        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        $Fullname = $request->input('FullName');
+        $ContactNumber = $request->input('ContactNumber');
+
+        foreach ($BatteryNameTabel as $key => $value) {
+            $BatteryNameTabel[$key] = $value . "";
+            $QtyTabel[$key] = $QtyTabel[$key] . "";
+            $PriceTabel[$key] = "Rp. " . number_format($PriceTabel[$key], 0, "", ".") . "";
+        }
+
+        $BatteryNames = implode(', ', $BatteryNameTabel);
+        $Qtys = implode(', ', $QtyTabel);
+        $Prices = implode(', ', $PriceTabel);
+
+        $text = str_replace(
+            ['<NAME>', '<BATTERYNAME>', '<QUANTITY>', '<BATTERYPRICE>', '<TOTALAMOUNT>', '<TAX>', '<DISCOUNT>', '<EXTRADISCOUNT>'],
+            [
+                $Fullname, $BatteryNames, $Qtys, $Prices, "Rp. " . number_format($TotalAmount, 0, "", "."), $tax, $Discount, $ExtraDiscount
+            ],
+            $template
+        );
+
+        $text = trim($text);
+        $data = [
+            'to' => "62" . $ContactNumber,
+            'session' => auth()->user()->username,
+            'text' => "$text",
+        ];
+
+        $response = Http::post($url, $data);
+        $responseData = $response->json();
+
+        if (isset($responseData['data']['status']) && $responseData['data']['status'] == true) {
+            return getResponseData(true, "Message sent successfully");
+        } else {
+            return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
+        }
+        // } else {
+        //     return getResponseData(false, "Failed to send message");
+        // }
+        // } catch (\Exception $e) {
+        //     return getResponseData(false, "Failed to send message => " . $e->getMessage());
+        // }
+    }
 }

@@ -842,6 +842,156 @@
                 }
             });
 
+
+            $("#BtnShareInvoice").on('click', function() {
+                var button = $(this);
+                button.prop('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var IdCustomer = $("#IdCustomer").val();
+                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                var TotalAmount = $("#TotalAmountHidden").val();
+                var tax = $("#tax").val();
+                var Discount = $("#Discount").val();
+                var ExtraDiscount = $("#ExtraDiscount").val();
+
+                var QtyTabel = [];
+                var PriceTabel = [];
+                var BatteryNameTabel = [];
+                $(".QtyCheckout").each(function() {
+                    var value = $(this).val();
+                    QtyTabel.push(value);
+                });
+
+                $(".PriceCheckout").each(function() {
+                    var value = $(this).val();
+                    PriceTabel.push(value);
+                });
+
+                $(".BatteryNameCheckout").each(function() {
+                    var value = $(this).val();
+                    BatteryNameTabel.push(value);
+                });
+
+                var templateMessage = $("#TemplateMessageStep3").val();
+
+                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
+                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
+                    swal.fire("Error!", "Please fill in all required fields", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
+                        '<BATTERYNAME>') == false || templateMessage.includes('<QUANTITY>') == false ||
+                    templateMessage.includes('<BATTERYPRICE>') == false || templateMessage.includes(
+                        '<TAX>') == false || templateMessage.includes('<DISCOUNT>') == false ||
+                    templateMessage
+                    .includes('<EXTRADISCOUNT>') == false || templateMessage.includes('<TOTALAMOUNT>') ==
+                    false) {
+                    swal.fire("Error!",
+                        "Template Message must contain NAME, BATTERYNAME, QUANTITY, BATTERYPRICE, TAX, DISCOUNT, EXTRADISCOUNT, TOTALAMOUNT",
+                        "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                if (BatteryNameTabel == '') {
+                    swal.fire("Error!", "Please select battery", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                if (QtyTabel == '' || QtyTabel <= 0) {
+                    swal.fire("Error!", "Please insert quantity", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                if (PriceTabel == '' || PriceTabel <= 0) {
+                    swal.fire("Error!", "Please insert price", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                    return;
+                }
+
+                var data = {
+                    FullName: FullName,
+                    EmailCustomer: EmailCustomer,
+                    ContactNumber: ContactNumber,
+                    AddressCustomer: AddressCustomer,
+                    VehicleCustomer: VehicleCustomer,
+                    TemplateMessage: templateMessage,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    IdCustomer: IdCustomer,
+                    Battery: Battery,
+                    TotalAmount: TotalAmount,
+                    tax: tax,
+                    Discount: Discount,
+                    ExtraDiscount: ExtraDiscount,
+                    BatteryNameTabel: BatteryNameTabel,
+                    QtyTabel: QtyTabel,
+                    PriceTabel: PriceTabel,
+                    Discount: Discount,
+                    ExtraDiscount: ExtraDiscount,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                $.ajax({
+                    url: "/quotation/share-invoice",
+                    type: "POST",
+                    data: data,
+                    success: function(data) {
+                        let ResponseData = JSON.parse(data);
+                        if (ResponseData.status) {
+                            Swal.fire({
+                                title: "Success",
+                                text: ResponseData.message,
+                                icon: "success",
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: ResponseData.message ||
+                                    "Something went wrong, please try again later",
+                                icon: "error",
+                            });
+                        }
+                    },
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(
+                            "<i class='fa-brands fa-whatsapp'></i> Share"
+                        );
+                    }
+                });
+            });
         });
     </script>
 
