@@ -35,7 +35,7 @@ class DistributorShopBattery extends Controller
                 array(
                     "shop" => DistributorShopModel::find($shopId)->toArray(),
                     "shopId" => $shopId,
-                    "distributor" => DistributorModel::find($shopId)->toArray(),
+                    "distributor" => DistributorShopModel::find($shopId)->toArray(),
                     "distributorId" => $distributorId,
                     "batteries" => BatteryModel::all()->toArray(),
                 )
