@@ -60,7 +60,7 @@
                             <li class="nav-item active">
                                 <a href="#seller-details" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Seller Details">
+                                        title="Personal Detail">
                                         <i class="far fa-user"></i>
                                     </div>
                                 </a>
@@ -68,7 +68,7 @@
                             <li class="nav-item" id="ProductDisplay">
                                 <a href="#product-display" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Company Document">
+                                        title="Product Recomendation Display">
                                         <i class="fa-solid fa-boxes-stacked"></i>
                                     </div>
                                 </a>
@@ -76,7 +76,7 @@
                             <li class="nav-item" id="CheckoutDisplay">
                                 <a href="#company-document" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Company Document">
+                                        title="Checkout Page">
                                         <i class="fas fa-file-invoice"></i>
                                     </div>
                                 </a>
@@ -85,7 +85,7 @@
                             <li class="nav-item" id="PaymentDisplay">
                                 <a href="#bank-detail" class="nav-link" data-toggle="tab">
                                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Bank Details">
+                                        title="Payment Details">
                                         <i class="fas fa-credit-card"></i>
                                     </div>
                                 </a>

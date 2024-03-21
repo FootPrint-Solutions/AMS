@@ -1,16 +1,18 @@
 <div>
     <div class="mb-4">
-        <h5>Enter Your Order Detail</h5>
+        <h5>Chechout Page</h5>
     </div>
     <div id="CheckoutPreview"></div>
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
-            <a id="btnCopyOrderDetail" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy" data-clipboard-target="#CopyOrderDetail">
+            <a id="btnCopyOrderDetail" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy"
+                data-clipboard-target="#CopyOrderDetail">
                 <i class="far fa-copy"></i>
                 Copy from Input
             </a>

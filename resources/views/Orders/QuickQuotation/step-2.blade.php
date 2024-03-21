@@ -1,6 +1,6 @@
 <div>
     <div class="mb-4">
-        <h5>Enter Your Order Detail</h5>
+        <h5>Product Recomendation Display</h5>
     </div>
 
     <div id="MapsDistributorRecomendation">
