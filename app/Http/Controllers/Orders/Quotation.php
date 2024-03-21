@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Company\CompanyModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -45,7 +46,8 @@ class Quotation extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => QuotationModel::find($id)->toArray()
+                    "profile" => QuotationModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
+                    "company" => CompanyModel::first(),
                 )
             )
         );
@@ -83,7 +85,7 @@ class Quotation extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->quotation_number;
-            $row[] = "<a href='javascript:void()'>$key->customer_name</a>";
+            $row[] = "<a href='javascript:void()'>$key->customer_name</a><button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
             $row[] = "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>";
             $row[] = "<a href='javascript:void()'>$key->technician_name</a>";
             $row[] = number_format($key->total);
