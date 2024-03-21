@@ -27,6 +27,9 @@ use App\Http\Controllers\Orders\QuickQuotation;
 use App\Http\Controllers\Orders\Quotation;
 use App\Http\Controllers\Orders\QuotationBattery;
 
+// SETTINGS
+use App\Http\Controllers\Settings\MessageTemplate;
+
 // ADMIN
 use App\Http\Controllers\Admin\User;
 
@@ -201,6 +204,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
     Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
     Route::post('/quotation/battery/show', [QuotationBattery::class, 'show']);
+
+    // Settings
+    // Message Template
+    Route::get('/template/message', [MessageTemplate::class, 'index']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
