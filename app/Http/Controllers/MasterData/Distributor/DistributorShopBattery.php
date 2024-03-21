@@ -26,6 +26,8 @@ class DistributorShopBattery extends Controller
      */
     public function create($shopId, $distributorId)
     {
+        $shop = DistributorShopModel::find($shopId)->toArray();
+
         return view(
             'MasterData.Distributor.Shop.Battery.create',
             getIndexData(
@@ -33,9 +35,9 @@ class DistributorShopBattery extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "shop" => DistributorShopModel::find($shopId)->toArray(),
+                    "shop" => $shop,
                     "shopId" => $shopId,
-                    "distributor" => DistributorShopModel::find($shopId)->toArray(),
+                    "distributor" => DistributorModel::find($shop['distributor_id'])->toArray(),
                     "distributorId" => $distributorId,
                     "batteries" => BatteryModel::all()->toArray(),
                 )
