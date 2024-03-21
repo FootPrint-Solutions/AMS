@@ -197,6 +197,7 @@ Route::middleware(['auth'])->group(function () {
     // Quotation
     Route::get('/quotation', [Quotation::class, 'index']);
     Route::post('/quotation/show', [Quotation::class, 'show']);
+    Route::get('/quotation/invoice/{id}', [Quotation::class, 'invoice']);
     Route::get('/quotation/create', [Quotation::class, 'create']);
     Route::get('/quotation/edit/{id}', [Quotation::class, 'edit']);
     Route::post('/quotation/store', [Quotation::class, 'store']);

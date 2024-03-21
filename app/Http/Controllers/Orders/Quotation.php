@@ -32,6 +32,26 @@ class Quotation extends Controller
     }
 
     /**
+     * Show the invoice for specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function invoice($id)
+    {
+        return view(
+            'Orders.Quotation.invoice',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => QuotationModel::find($id)->toArray()
+                )
+            )
+        );
+    }
+
+    /**
      * Display all resources.
      *
      * @param  \Illuminate\Http\Request  $request

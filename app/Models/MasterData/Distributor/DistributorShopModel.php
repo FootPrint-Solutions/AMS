@@ -38,6 +38,14 @@ class DistributorShopModel extends Model
     }
 
     /**
+     * Get all of the technicians worked in the distributor shop.
+     */
+    public function technicians()
+    {
+        return $this->hasMany(DistributorShopTechnicianModel::class, 'distributor_shop_id', 'id');
+    }
+
+    /**
      * Get all of the specific batteries of the distributor shop.
      */
     public function batteries()
@@ -59,10 +67,5 @@ class DistributorShopModel extends Model
         $query->select(self::$selectColumns);
 
         return self::getAllRows($request, $query, self::$selectColumns);
-    }
-
-    public function technicians()
-    {
-        return $this->hasMany(DistributorShopTechnicianModel::class, 'distributor_shop_id', 'id');
     }
 }

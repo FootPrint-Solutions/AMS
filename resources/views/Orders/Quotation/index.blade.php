@@ -101,61 +101,83 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
-                    text: "<i class='fas fa-eye'></i> View Detail",
-                    action: function(e, dt, node, config) {
-                        // Get the selected row's id.
-                        let selectedRows = table.rows({
-                            selected: true
-                        }).data().toArray();
-                        if (selectedRows.length !== 1) {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Please select a single row for viewing details.",
-                                icon: "error",
-                            });
-                            return;
-                        }
+                        text: "<i class='fas fa-file-text'></i> View Invoice",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for viewing invoice.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
 
-                        // Show popup modal.
-                        $('#quotation-detail-modal').modal("show");
-
-                        // Set modal title.
-                        $("#quotation-detail-modal-title").text("Item Details (" +
-                            selectedRows[0][1] + ")");
-
-                        // Destroy previous set DataTables.
-                        if ($.fn.DataTable.isDataTable("#table-quotation-detail")) {
-                            $("#table-quotation-detail").DataTable().destroy();
-                        }
-
-                        // Set new DataTables.
-                        tableTmp = table;
-                        table = $("#table-quotation-detail").DataTable({
-                            dom: "tp",
-                            processing: true,
-                            serverSide: true,
-                            ajax: {
-                                url: "/quotation/battery/show",
-                                type: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    id: selectedRows[0][7]
-                                }
-                            },
-                            columnDefs: [{
-                                    targets: [0],
-                                    orderable: false
-                                },
-                                {
-                                    targets: [2, 3, 4],
-                                    className: 'dt-body-right'
-                                }
-                            ],
-                            select: true,
-                        });
+                            // Go to page invoice.
+                            goToPage("/quotation/invoice/" + selectedRows[0][7])
+                        },
+                        className: "btn btn-outline-secondary btn-sm",
                     },
-                    className: "btn btn-outline-info btn-sm",
-                }]),
+                    {
+                        text: "<i class='fas fa-eye'></i> View Detail",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for viewing details.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // Show popup modal.
+                            $('#quotation-detail-modal').modal("show");
+
+                            // Set modal title.
+                            $("#quotation-detail-modal-title").text("Item Details (" +
+                                selectedRows[0][1] + ")");
+
+                            // Destroy previous set DataTables.
+                            if ($.fn.DataTable.isDataTable("#table-quotation-detail")) {
+                                $("#table-quotation-detail").DataTable().destroy();
+                            }
+
+                            // Set new DataTables.
+                            tableTmp = table;
+                            table = $("#table-quotation-detail").DataTable({
+                                dom: "tp",
+                                processing: true,
+                                serverSide: true,
+                                ajax: {
+                                    url: "/quotation/battery/show",
+                                    type: "POST",
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id: selectedRows[0][7]
+                                    }
+                                },
+                                columnDefs: [{
+                                        targets: [0],
+                                        orderable: false
+                                    },
+                                    {
+                                        targets: [2, 3, 4],
+                                        className: 'dt-body-right'
+                                    }
+                                ],
+                                select: true,
+                            });
+                        },
+                        className: "btn btn-outline-info btn-sm",
+                    },
+                ]),
                 language: getDatatablesLanguangeConfigurations("Quotation"),
                 select: true,
             });
