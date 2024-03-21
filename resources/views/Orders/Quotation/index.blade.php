@@ -22,6 +22,7 @@
                         <th scope="col">Quotation Number</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Distributor/Shop</th>
+                        <th scope="col">Technician</th>
                         <th scope="col">Total</th>
                         <th scope="col">Status</th>
                     </tr>
@@ -55,6 +56,12 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [5],
+                    className: 'dt-body-right'
+                }, {
+                    targets: [6],
+                    className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),

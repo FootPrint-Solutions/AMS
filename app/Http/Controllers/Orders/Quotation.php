@@ -51,9 +51,9 @@ class Quotation extends Controller
         $no = $start + 1;
         foreach ($data["row"] as $key) {
             // Set the status badge class name depending on the status.
-            if ($key->status == "PAID") {
+            if ($key->status == "paid") {
                 $statusBadgeClass = "badge-success";
-            } else if ($key->status == "PENDING") {
+            } else if ($key->status == "pending") {
                 $statusBadgeClass = "badge-warning";
             } else {
                 $statusBadgeClass = "badge-danger";
@@ -64,7 +64,7 @@ class Quotation extends Controller
             $row[] = $no++;
             $row[] = $key->quotation_number;
             $row[] = "<a href='javascript:void()'>$key->customer_name</a>";
-            $row[] = "<a href='javascript:void()'>$key->shop_name</a>";
+            $row[] = "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>";
             $row[] = "<a href='javascript:void()'>$key->technician_name</a>";
             $row[] = number_format($key->total);
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
