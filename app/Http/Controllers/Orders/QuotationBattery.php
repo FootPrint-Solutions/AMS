@@ -34,6 +34,7 @@ class QuotationBattery extends Controller
             $row[] = "<a href='javascript:void(0)'>$key->battery_name</a>";
             $row[] = number_format($key->quantity);
             $row[] = number_format($key->battery_price);
+            $row[] = number_format($key->quantity * $key->battery_price);
             $row[] = $key->id;
             $rows[] = $row;
         }
