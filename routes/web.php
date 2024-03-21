@@ -25,6 +25,7 @@ use App\Http\Controllers\MasterData\Distributor\DistributorShopBattery;
 // ORDERS
 use App\Http\Controllers\Orders\QuickQuotation;
 use App\Http\Controllers\Orders\Quotation;
+use App\Http\Controllers\Orders\QuotationBattery;
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -35,7 +36,6 @@ use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -199,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/update', [Quotation::class, 'update']);
     Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
     Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
+    Route::post('/quotation/battery/show', [QuotationBattery::class, 'show']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

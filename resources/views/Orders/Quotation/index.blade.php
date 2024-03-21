@@ -23,7 +23,7 @@
                         <th scope="col">Customer</th>
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
-                        <th scope="col">Total</th>
+                        <th scope="col">Total (IDR)</th>
                         <th scope="col">Status</th>
                     </tr>
                 </thead>
@@ -57,7 +57,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Quantity</th>
-                                <th scope="col">Price</th>
+                                <th scope="col">Price (IDR)</th>
                             </tr>
                         </thead>
                     </table>
@@ -72,7 +72,6 @@
 
         $(document).ready(function() {
             // DataTables configuration
-
             table = $("#table-quotation").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
@@ -135,7 +134,7 @@
                             processing: true,
                             serverSide: true,
                             ajax: {
-                                url: "/distributor/shop/battery/show",
+                                url: "/quotation/battery/show",
                                 type: "POST",
                                 data: {
                                     _token: "{{ csrf_token() }}",
@@ -147,7 +146,7 @@
                                     orderable: false
                                 },
                                 {
-                                    targets: [2],
+                                    targets: [2, 3],
                                     className: 'dt-body-right'
                                 }
                             ],
