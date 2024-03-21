@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             {{-- Title --}}
-            <div class="card-title h2">
+            <div class="card-title h5">
                 @if (isset($data['profile']))
                     Edit Shop
                 @else

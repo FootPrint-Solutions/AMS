@@ -149,8 +149,13 @@ class BatteryTechnology extends Controller
      */
     public function destroy(Request $request)
     {
-        $technology = BatteryTechnologyModel::find($request->id);
-        $status = $technology->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $technology = BatteryTechnologyModel::find($id);
+            $status = $technology->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

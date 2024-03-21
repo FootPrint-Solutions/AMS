@@ -81,22 +81,11 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5);
+            appendDatatablesToolbar(5, "/customer/edit/", "/customer/destroy");
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/customer/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/customer/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

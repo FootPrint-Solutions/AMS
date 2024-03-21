@@ -46,6 +46,9 @@
 
     {{-- Bootstrap Core JS --}}
     <script src="{{ asset('/js/bootstrap.bundle.min.js') }}"></script>
+
+    {{-- Boostrap Form Wizard --}}
+    <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
 </head>
 
 <body>
@@ -109,6 +112,11 @@
 
     {{-- Custom JS --}}
     <script src="{{ asset('/js/script.js') }}"></script>
+
+    {{-- Bootstrap Form Wizard --}}
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/prettify.js') }}"></script>
+    <script src="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.js') }}"></script>
 </body>
 
 <script>
@@ -122,18 +130,16 @@
                 selected: true
             }).data().toArray();
 
-            if (selectedRows.length === 0) {
+            if (selectedRows.length !== 1) {
                 Swal.fire({
                     title: "Error",
-                    text: "Please select at least one row to edit.",
+                    text: "Please select a single row for editing.",
                     icon: "error",
                 });
                 return;
             }
-
-            var selectedRow = selectedRows[0];
-            var id = selectedRow[$(this).attr("data-id")];
-            edit(id);
+            let id = selectedRows[0][$(this).data("id")];
+            goToPage($(this).data("url") + id);
         });
 
         /**
@@ -147,14 +153,16 @@
             if (selectedRows.length === 0) {
                 Swal.fire({
                     title: "Error",
-                    text: "Please select at least one row to delete.",
+                    text: "Please select at least one row for deleting.",
                     icon: "error",
                 });
                 return;
             }
-            var selectedRow = selectedRows[0];
-            var id = selectedRow[$(this).attr("data-id")];
-            destroy(id);
+            let ids = selectedRows.map(row => row[$(this).data("id")]);
+            sendDestroyRequest(ids, $(this).data("url"), function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
         });
         // End of OnClick Event Listener
     });
@@ -246,22 +254,32 @@
      * Append a custom toolbar component into DataTables table.
      * 
      * @param {int} idIdx - The index of data id.
+     * @param {string} editUrl - The url of edit page.
+     * @param {string} deleteUrl - The url of delete page.
+     * @param {string} parentId - The parent div id of the DataTables.
      */
-    function appendDatatablesToolbar(idIdx) {
+    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, parentId = null) {
         $.get("/datatables/toolbar", {
-            idIdx: idIdx
+            idIdx: idIdx,
+            editUrl: editUrl,
+            deleteUrl: deleteUrl
         }, function(data) {
-            $(".dt-buttons").append(data);
+            var querySelector = ".dt-buttons";
+            if (parentId !== null) {
+                querySelector = parentId + " " + querySelector;
+            }
+            $(querySelector).append(data);
         });
     }
 
     /**
      * Get a list of custom DataTables button configurations in DataTables table.
      * 
+     * @param {Array} A list of extra buttons (for specific cases).
      * @returns {Array} A list of button configurations DataTables.
      */
-    function getDatatablesButtonConfigurations() {
-        return [{
+    function getDatatablesButtonConfigurations(extraButtons = null) {
+        var buttons = [{
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
                 className: "btn btn-outline-danger btn-sm",
@@ -279,6 +297,13 @@
                 className: "btn btn-outline-primary btn-sm",
             },
         ];
+
+        // Append extra buttons if any is provided.
+        if (extraButtons !== null) {
+            buttons.push(extraButtons);
+        }
+
+        return buttons;
     }
 
     /**

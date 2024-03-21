@@ -20,9 +20,15 @@ use App\Http\Controllers\MasterData\Battery\BatterySize;
 use App\Http\Controllers\MasterData\Distributor\Distributor;
 use App\Http\Controllers\MasterData\Distributor\DistributorShop;
 use App\Http\Controllers\MasterData\Distributor\DistributorShopTechnician;
+use App\Http\Controllers\MasterData\Distributor\DistributorShopBattery;
 
 // ORDERS
+use App\Http\Controllers\Orders\QuickQuotation;
 use App\Http\Controllers\Orders\Quotation;
+use App\Http\Controllers\Orders\QuotationBattery;
+
+// SETTINGS
+use App\Http\Controllers\Settings\MessageTemplate;
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -157,6 +163,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
     Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
     Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
+    Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
+    Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
+    Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit']);
+    Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store']);
+    Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBattery::class, 'storeBatch']);
+    Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update']);
+    Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
 
     // Shop Technician
     Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);
@@ -169,16 +182,35 @@ Route::middleware(['auth'])->group(function () {
 
     // Orders
     // Quick Quotation
+    Route::get('/quotation/quick', [QuickQuotation::class, 'index']);
+    Route::get('/find-customer', [QuickQuotation::class, 'findCustomer'])->name('quotation.findCustomer');
+    Route::post('/share-form-personal-details', [QuickQuotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
+    Route::get('/find-vehicle-by-id', [QuickQuotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
+    Route::get('/find-vehicle-by-id-vehicle', [QuickQuotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
+    Route::get('/get-maps-near-address-customer', [QuickQuotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
+    Route::post('/share-battery', [QuickQuotation::class, 'shareBattery'])->name('quotation.shareBattery');
+    Route::get('/get-checkout-preview', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
+    Route::get('/get-payment-preview', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
+    Route::post('/get-battery-copy-detail', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
+    Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice');
+    Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails');
+
+    // Quotation
     Route::get('/quotation', [Quotation::class, 'index']);
-    Route::get('/find-customer', [Quotation::class, 'findCustomer'])->name('quotation.findCustomer');
-    Route::post('/share-form-personal-details', [Quotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
-    Route::get('/find-vehicle-by-id', [Quotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
-    Route::get('/find-vehicle-by-id-vehicle', [Quotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
-    Route::get('/get-maps-near-address-customer', [Quotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
-    Route::post('/share-battery', [Quotation::class, 'shareBattery'])->name('quotation.shareBattery');
-    Route::get('/get-checkout-preview', [Quotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
-    Route::get('/get-payment-preview', [Quotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
-    Route::post('/get-battery-copy-detail', [Quotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
+    Route::post('/quotation/show', [Quotation::class, 'show']);
+    Route::get('/quotation/invoice/{id}', [Quotation::class, 'invoice']);
+    Route::get('/quotation/create', [Quotation::class, 'create']);
+    Route::get('/quotation/edit/{id}', [Quotation::class, 'edit']);
+    Route::post('/quotation/store', [Quotation::class, 'store']);
+    Route::post('/quotation/update', [Quotation::class, 'update']);
+    Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
+    Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
+    Route::post('/quotation/battery/show', [QuotationBattery::class, 'show']);
+
+    // Settings
+    // Message Template
+    Route::get('/template/message', [MessageTemplate::class, 'index']);
+    Route::post('/template/message/update', [MessageTemplate::class, 'update']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
@@ -193,8 +225,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
+        $editUrl = request()->input('editUrl');
+        $deleteUrl = request()->input('deleteUrl');
         $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx))->render();
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl))->render();
     });
 });
 

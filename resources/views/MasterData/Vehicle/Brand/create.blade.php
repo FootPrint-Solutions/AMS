@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             {{-- Title --}}
-            <div class="card-title h2">
+            <div class="card-title h5">
                 @isset($data['profile'])
                     Edit
                 @else
@@ -55,7 +55,7 @@
         $(document).ready(function() {
             $("#vehicle-brand-form").on("submit", function(event) {
                 event.preventDefault();
-                
+
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/vehicle/brand/update" : "/vehicle/brand/store";
 

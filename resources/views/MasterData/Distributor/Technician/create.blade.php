@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             {{-- Title --}}
-            <div class="card-title h2">
+            <div class="card-title h5">
                 @if (isset($data['profile']))
                     Edit
                 @else
@@ -25,8 +25,8 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="name">Name <span class="login-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                placeholder="Enter vehicle name" required
+                            <input autocomplete="off" type="text" class="form-control" id="name" name="name"
+                                placeholder="Enter Technicians name" required
                                 @if (isset($data['profile'])) value="{{ $data['profile']['name'] }}" @endif>
                         </div>
                     </div>
@@ -38,8 +38,12 @@
                             <select class="form-control" id="shop" name="shop" required>
                                 <option></option>
                                 @foreach ($data['shops'] as $shop)
-                                    <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
-                                        {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}</option>
+                                    <option value="{{ $shop['id'] }}" @if (isset($data['profile']) &&
+                                            isset($data['profile']['distributor_shop_id']) &&
+                                            $data['profile']['distributor_shop_id'] == $shop['id']
+                                    ) selected @endif>
+                                        {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -54,11 +58,9 @@
                             <label for="contact">Contact <span class="login-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text border-end country-code">+62</span>
-                                <input type="tel" pattern="[0-9]+" class="form-control" id="contact" name="contact"
-                                    placeholder="Enter technician contact" required
-                                    @isset($data['profile'])
-                                value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
-                            @endisset>
+                                <input autocomplete="off" type="tel" pattern="[0-9]+" class="form-control"
+                                    id="contact" name="contact" placeholder="Enter technician contact" required
+                                    @isset($data['profile']) value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}" @endisset>
                             </div>
                         </div>
                     </div>
@@ -67,11 +69,9 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="email">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email"
+                            <input autocomplete="off" type="email" class="form-control" id="email" name="email"
                                 placeholder="Enter technician e-mail"
-                                @isset($data['profile'])
-                            value="{{ $data['profile'] ? $data['profile']['email'] : '' }}"
-                        @endisset>
+                                @isset($data['profile']) value="{{ $data['profile'] ? $data['profile']['email'] : '' }}" @endisset>
                         </div>
                     </div>
                 </div>
@@ -79,7 +79,12 @@
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
-                    <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter some notes regarding the technician">@if (isset($data['profile']) && !empty($data['profile']['note'])){{ $data['profile']['note'] }}@endif</textarea>
+                    <textarea type="text" class="form-control" id="note" name="note"
+                        placeholder="Enter some notes regarding the technician">
+@if (isset($data['profile']) && !empty($data['profile']['note']))
+{{ $data['profile']['note'] }}
+@endif
+</textarea>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -91,10 +96,10 @@
                     {{-- Create Button --}}
                     <button type="submit" class="btn btn-success mx-1" id="btn-save"
                         @if (isset($data['profile'])) value="update">
-                        Update
+                    Update
                     @else
-                        value="create">
-                        Create @endif
+                    value="create">
+                    Create @endif
                         Technician </button>
 
                         {{-- Cancel Button --}}
@@ -116,7 +121,8 @@
                 event.preventDefault();
 
                 let mode = $("#btn-save").attr("value"); // update || create
-                let url = (mode == "update") ? "/distributor/technician/update" : "/distributor/technician/store";
+                let url = (mode == "update") ? "/distributor/technician/update" :
+                    "/distributor/technician/store";
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);

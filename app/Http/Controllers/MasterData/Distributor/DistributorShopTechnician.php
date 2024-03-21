@@ -166,8 +166,13 @@ class DistributorShopTechnician extends Controller
      */
     public function destroy(Request $request)
     {
-        $technician = DistributorShopTechnicianModel::find($request->id);
-        $status = $technician->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $technician = DistributorShopTechnicianModel::find($id);
+            $status = $technician->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

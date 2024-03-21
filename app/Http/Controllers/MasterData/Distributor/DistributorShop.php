@@ -103,6 +103,7 @@ class DistributorShop extends Controller
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
             $row[] = $key->email ?? "-";
             $row[] = $key->id;
+            $row[] = $key->distributor_id;
             $rows[] = $row;
         }
 
@@ -177,8 +178,13 @@ class DistributorShop extends Controller
      */
     public function destroy(Request $request)
     {
-        $shop = DistributorShopModel::find($request->id);
-        $status = $shop->delete();
+        $status = true;
+        $ids = $request->id;
+
+        foreach ($ids as $id) {
+            $shop = DistributorShopModel::find($id);
+            $status = $shop->delete();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(

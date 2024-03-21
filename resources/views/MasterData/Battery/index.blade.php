@@ -72,6 +72,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                scrollX: true,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -86,6 +87,9 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [8, 9, 10, 11],
+                    className: 'dt-body-right'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
@@ -94,26 +98,10 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(12);
+            appendDatatablesToolbar(12, "/battery/edit/", "/battery/destroy");
 
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");
-            });
-
-            $("#btn-add-brand").on("click", function() {
-                goToPage("/battery/brand/create");
-            });
-
-            $("#btn-add-subbrand").on("click", function() {
-                goToPage("/battery/subbrand/create");
-            });
-
-            $("#btn-add-usage").on("click", function() {
-                goToPage("/battery/usage/create");
-            });
-
-            $("#btn-add-tech").on("click", function() {
-                goToPage("/battery/technology/create");
             });
 
             $("#form-import").on("submit", function(e) {
@@ -162,16 +150,5 @@
 
 
         });
-
-        function edit(id) {
-            goToPage("/battery/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/battery/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection

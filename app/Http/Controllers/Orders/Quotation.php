@@ -2,267 +2,145 @@
 
 namespace App\Http\Controllers\Orders;
 
-use App\Http\Controllers\Controller;;
-
+use App\Http\Controllers\Controller;
+use App\Models\MasterData\Company\CompanyModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 // MODELS
-use App\Models\MasterData\Customer\CustomerModel;
-use App\Models\MasterData\Vehicle\VehicleBrandModel;
-use App\Models\MasterData\Vehicle\VehicleModel;
-use App\Models\MasterData\Customer\CustomerVehicleModel;
-use App\Models\MasterData\Distributor\DistributorShopModel;
-use App\Models\MasterData\Battery\BatteryModel;
-
-
-// Midtrans 
-use App\Services\Midtrans\CreateSnapTokenService;
+use App\Models\Orders\Quotation\QuotationModel;
 
 class Quotation extends Controller
 {
+    private $title = "Quotation";
+    private $menu = 4;
+    private $submenu = 1;
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         return view(
-            'Orders/Quotation/index',
+            'Orders.Quotation.index',
             getIndexData(
-                'Quick Quotation',
-                3,
-                5,
+                $this->title,
+                $this->menu,
+                $this->submenu
+            )
+        );
+    }
+
+    /**
+     * Show the invoice for specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function invoice($id)
+    {
+        return view(
+            'Orders.Quotation.invoice',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
                 array(
-                    'Vehicle' => VehicleModel::all()->toArray()
+                    "profile" => QuotationModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
+                    "company" => CompanyModel::first(),
                 )
             )
         );
     }
 
-    public function findCustomer(Request $request)
+    /**
+     * Display all resources.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
     {
-        $query = $request->input('input');
-        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
-        return response()->json($results);
-    }
+        // Get all DataTables requests.
+        $draw = $request->input("draw");
+        $start = $request->input("start");
 
-    function shareFormPersonalDetails(Request $request)
-    {
-        $url = "http://185.199.52.172:5001/send-message";
-        $id = $request->input('VehicleCustomer');
+        // Get customer data (rows and count).
+        $data = QuotationModel::allForDataTables($request);
 
-        $vehicleCustomerString = "";
-        $vehicleCustomer = VehicleModel::whereIn('id', $id)->get()->toArray();
+        // Set rows to be displayed in customer table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            // Set the status badge class name depending on the status.
+            if ($key->status == "paid") {
+                $statusBadgeClass = "badge-success";
+            } else if ($key->status == "pending") {
+                $statusBadgeClass = "badge-warning";
+            } else {
+                $statusBadgeClass = "badge-danger";
+            }
 
-        foreach ($vehicleCustomer as $key => $value) {
-            $vehicleCustomerString .= $value['name'] . ", ";
+            // Set an array for each row.
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->quotation_number;
+            $row[] = "<a href='javascript:void()'>$key->customer_name</a><button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
+            $row[] = "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>";
+            $row[] = "<a href='javascript:void()'>$key->technician_name</a>";
+            $row[] = number_format($key->total);
+            $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
+            $row[] = $key->id;
+            $rows[] = $row;
         }
 
-        $template = $request->input('TemplateMessage');
-        $text = str_replace(
-            ['<NAME>', '<ADDRESS>', '<EMAIL>', '<VEHICLE>'],
-            [$request->input('FullName'), $request->input('AddressCustomer'), $request->input('EmailCustomer'), $vehicleCustomerString],
-            $template
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => QuotationModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
+
+    /**
+     * Update the specified resource status in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request)
+    {
+        $quotation = QuotationModel::find($request->id);
+        $quotation->status = $request->status;
+        $status = $quotation->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
         );
-
-
-        $data = [
-            'to' => "62" . $request->input('ContactNumber'),
-            'session' => auth()->user()->username,
-            'text' => $text,
-        ];
-
-        try {
-            $response = Http::post($url, $data);
-            if ($response->successful()) {
-                $responseData = $response->json();
-                if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
-                    return getResponseData(true, "Message sent successfully");
-                } else {
-                    return getResponseData(false, "Failed to send message");
-                }
-            } else {
-                return getResponseData(false, "Failed to send message");
-            }
-        } catch (\Exception $e) {
-            return getResponseData(false, "Failed to send message => " . $e->getMessage());
-        }
     }
 
-    public function findVehicleByIdCustomer(Request $request)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
     {
-        $id = $request->input('id');
-        $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
-        return response()->json($results);
-    }
+        $status = true;
+        $ids = $request->id;
 
-    public function findVehicleByIdVehicle(Request $request)
-    {
-        $ids = $request->input('id');
-        $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
-        return response()->json($results);
-    }
-
-    public function getMapsNearAddressCustomer(Request $request)
-    {
-        $address = $request->input('address');
-        $latitude = $request->input('latitude');
-        $longitude = $request->input('longitude');
-        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->get()->toArray();
-
-        $datalatlong = [];
-        foreach ($Distibutor as $key => $value) {
-            $datalatlong[] = [
-                'latitude' => $value['latitude'],
-                'longitude' => $value['longitude'],
-                'name' => $value['name'],
-                'address' => $value['address'],
-                'contact' => $value['contact'],
-                'id' => $value['id']
-            ];
+        foreach ($ids as $id) {
+            $quotation = QuotationModel::find($id);
+            $status &= $quotation->delete();
         }
 
-        $data = [
-            'address' => $address,
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'distributor' => $Distibutor,
-            'datalatlong' => $datalatlong
-        ];
-
-        return view('Orders.Quotation.step-2-mapsaddressdistributor', $data);
-    }
-
-    public function shareBattery(Request $request)
-    {
-        $url = "http://185.199.52.172:5001/send-image";
-        $ids = $request->input('Battery');
-        $results = BatteryModel::where('id', $ids)->get()->toArray();
-
-
-        foreach ($results as $key => $value) {
-            if ($value['image'] != null) {
-                $value['image'] = asset('storage/image/battery/' . $value['image']);
-            } else {
-                $value['image'] = null;
-            }
-
-            $template = $request->input('TemplateMessageStep2');
-            $text = str_replace(
-                ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                [
-                    $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n"
-                ],
-                $template
-            );
-
-            $data = [
-                'to' => "62" . $request->input('ContactNumber'),
-                'session' => auth()->user()->username,
-                'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
-                'caption' => $text,
-            ];
-
-            try {
-                $response = Http::post($url, $data);
-                if ($response->successful()) {
-                    $responseData = $response->json();
-                    if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
-                        return getResponseData(true, "Message sent successfully");
-                    } else {
-                        return getResponseData(false, "Failed to send message");
-                    }
-                } else {
-                    return getResponseData(false, "Failed to send message");
-                }
-            } catch (\Exception $e) {
-                return getResponseData(false, "Failed to send message => " . $e->getMessage());
-            }
-        }
-    }
-
-    public function getCheckoutPreview(Request $request)
-    {
-        $Fullname = $request->input('FullName');
-        $AddressCustomer = $request->input('AddressCustomer');
-        $EmailCustomer = $request->input('EmailCustomer');
-        $ContactNumber = $request->input('ContactNumber');
-        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
-        $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
-        $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
-        $distributorChecked = DistributorShopModel::find($request->input('distributorChecked'));
-
-        $data = [
-            'Fullname' => $Fullname,
-            'AddressCustomer' => $AddressCustomer,
-            'EmailCustomer' => $EmailCustomer,
-            'ContactNumber' => $ContactNumber,
-            'VehicleCustomer' => $VehicleCustomer,
-            'VehicleCustomerString' => implode(', ', $VehicleCustomer),
-            'Battery' => $BatteryData,
-            'BatteryString' => implode(', ', $Battery),
-            'Latitude' => $request->input('Latitude'),
-            'Longitude' => $request->input('Longitude'),
-            'Distributor' => $distributorChecked
-        ];
-
-        return view('Orders.Quotation.step-3-checkoutpreview', $data);
-    }
-
-    public function getPaymentPreview(Request $request)
-    {
-        $Fullname = $request->input('FullName');
-        $AddressCustomer = $request->input('AddressCustomer');
-        $EmailCustomer = $request->input('EmailCustomer');
-        $ContactNumber = $request->input('ContactNumber');
-        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
-        $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
-        $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
-        $TotalAmount = $request->input('TotalAmount');
-
-        $InvoiceNumber = "INV" . date('YmdHis') . rand(1000, 9999);
-
-        $data = [
-            'Fullname' => $Fullname,
-            'AddressCustomer' => $AddressCustomer,
-            'EmailCustomer' => $EmailCustomer,
-            'ContactNumber' => $ContactNumber,
-            'VehicleCustomer' => $VehicleCustomer,
-            'VehicleCustomerString' => implode(', ', $VehicleCustomer),
-            'Battery' => $BatteryData,
-            'BatteryString' => implode(', ', $Battery),
-            'Latitude' => $request->input('Latitude'),
-            'Longitude' => $request->input('Longitude'),
-            'InvoiceNumber' => $InvoiceNumber,
-            'TotalAmount' => $TotalAmount
-        ];
-
-        $midtrans = new CreateSnapTokenService($InvoiceNumber);
-        $snapToken = $midtrans->getSnapTokenUrl($data);
-
-        $data['snapToken'] = $snapToken;
-
-        return view('Orders.Quotation.step-4-paymentpreview', $data);
-    }
-
-    public function getBatteryCopyDetail(Request $request)
-    {
-        $BatteryId = $request->input('Battery');
-        try {
-            $Battery = BatteryModel::whereIn('id', $BatteryId)->get()->toArray();
-            $Message = "";
-            $template = $request->input('TemplateMessageStep2');
-
-            foreach ($Battery as $value) {
-                $text = str_replace(
-                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                    [
-                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n\n"
-                    ],
-                    $template
-                );
-                $Message = $text;
-            }
-            return getResponseData(true, $Message);
-        } catch (\Throwable $th) {
-            return getResponseData(false, "Failed to get battery detail" . $th->getMessage());
-        }
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
+        );
     }
 }

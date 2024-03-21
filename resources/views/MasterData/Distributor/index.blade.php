@@ -66,7 +66,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(6);
+            appendDatatablesToolbar(6, "/distributor/edit/", "/distributor/destroy");
 
             // Add New distributor button
             $("#btn-add").on("click", function() {
@@ -78,16 +78,5 @@
                 goToPage("/distributor/brand/create");
             });
         });
-
-        function edit(id) {
-            goToPage("/distributor/edit/" + id);
-        }
-
-        function destroy(id) {
-            sendDestroyRequest(id, "/distributor/destroy", function() {
-                // Reload the index table.
-                table.ajax.reload();
-            });
-        }
     </script>
 @endsection
