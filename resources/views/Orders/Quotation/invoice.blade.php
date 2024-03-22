@@ -2,7 +2,7 @@
 
 <style>
     @page {
-        size: "A5";
+        size: A5;
     }
 </style>
 
@@ -109,3 +109,9 @@
         </tr>
     </tfoot>
 </table>
+
+<script>
+    window.onload = function() {
+        window.print();
+    }
+</script>

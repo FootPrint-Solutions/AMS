@@ -171,10 +171,16 @@
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
      *
      * @param {string} destination - The destination view
+     * @param {boolean} openInNewWindow - Specifies whether to open the destination in a new window (true) or the current window (false). Default is false.
      */
-    function goToPage(destination) {
-        window.location.href = destination;
+    function goToPage(destination, openInNewWindow = false) {
+        if (openInNewWindow) {
+            window.open(destination, '_blank');
+        } else {
+            window.location.href = destination;
+        }
     }
+
 
     /**
      * Send a POST request to destroy an item in database.

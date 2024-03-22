@@ -117,7 +117,7 @@
                             }
 
                             // Go to page invoice.
-                            goToPage("/quotation/invoice/" + selectedRows[0][7])
+                            goToPage("/quotation/invoice/" + selectedRows[0][7], true)
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },
