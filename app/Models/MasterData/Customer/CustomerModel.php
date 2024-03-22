@@ -24,6 +24,15 @@ class CustomerModel extends Model
     protected $table = 'customers';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'address', 'contact', 'email', 'latitude', 'longitude'
+    ];
+
+    /**
      * The list of columns in the associated table.
      */
     private static $selectColumns = [

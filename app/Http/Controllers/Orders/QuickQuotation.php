@@ -373,12 +373,13 @@ class QuickQuotation extends Controller
 
     public static function saveData(Request $request)
     {
-        $QuotationNumber = "QUO" . date('YmdHis') . rand(1000, 9999);
+        $QuotationNumber = "QUO" . date('YmdHis') . rand(99, 999);
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
         $total = $request->input('TotalAmount');
         $status = "Pending";
+        $vehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         if ($request->input('CheckMidtrans') == 1) {
             $payment_methode = "midtrans";
             $midtransInvoice = $request->input('invoiceNumber');
@@ -390,6 +391,7 @@ class QuickQuotation extends Controller
 
         if ($request->input('IdCustomer') != null) {
             $Customer = CustomerModel::find($request->input('IdCustomer'));
+            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
         } else {
             $Customer = CustomerModel::firstOrCreate(
                 ['email' => $request->input('EmailCustomer')],
@@ -401,6 +403,8 @@ class QuickQuotation extends Controller
                     'longitude' => $request->input('Longitude')
                 ]
             );
+
+            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
         }
 
         if ($request->input('DistributorShopId') != null) {
