@@ -128,32 +128,66 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>
-                                @component('components.autocomplete', [
-                                    'url' => '/battery/get/',
-                                    'placeholder' => 'Enter item name',
-                                    'targets' => json_encode(['battery-price-1', 'battery-price-2']),
-                                ])
-                                @endcomponent
-                            </td>
-                            <td><input type="number" class="form-control" name="batteriesqty[]" min="0"
-                                    placeholder="Enter item quantity"></td>
-                            <td><input type="text" class="form-control" id="battery-price-1" name="batteriesprice[]"
-                                    placeholder="Enter item price"></td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control" value="0" readonly>
-                                    </div>
+                        @php
+                            $items = ['Heh'];
+                        @endphp
+                        @isset($data['profile'])
+                            @php
+                                $items = $data['profile']['batteries'];
+                            @endphp
+                        @endisset
 
-                                    <div class="col-sm-2">
-                                        <button type="button" class="btn btn-danger btn-sm"><i
-                                                class="fas fa-xmark"></i></button>
+                        @foreach ($items as $item)
+                            <tr>
+                                {{-- Name --}}
+                                <td>
+                                    @component('components.autocomplete', [
+                                        'id' => 'battery-name-1',
+                                        'class' => 'battery-name',
+                                        'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
+                                        'name' => 'batteriesname[]',
+                                        'url' => '/battery/get/',
+                                        'placeholder' => 'Enter item name',
+                                        'targets' => json_encode(['battery-price-1']),
+                                    ])
+                                    @endcomponent
+                                </td>
+
+                                {{-- Quantity --}}
+                                <td><input type="number" class="form-control battery-qty" id="battery-qty-1"
+                                        name="batteriesqty[]" min="0" placeholder="Enter item quantity"
+                                        @isset($data['profile']['batteries'])
+                                            value="{{ $item['quantity'] }}"
+                                        @endisset>
+                                </td>
+
+                                {{-- Price --}}
+                                <td><input type="text" class="form-control battery-price" id="battery-price-1"
+                                        name="batteriesprice[]" placeholder="Enter item price"
+                                        @isset($data['profile']['batteries'])
+                                            value="{{ $item['battery_price'] }}"
+                                        @endisset>
+                                </td>
+
+                                {{-- Total --}}
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control battery-total" id="battery-total-1"
+                                                @isset($data['profile']['batteries'])
+                                                    value="{{ $item['battery_price'] * $item['quantity'] }}"
+                                                @endisset
+                                                readonly>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <button type="button" class="btn btn-danger btn-sm"><i
+                                                    class="fas fa-xmark"></i></button>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
 
                     <tfoot>
@@ -163,7 +197,10 @@
                             <td>
                                 <div class="row">
                                     <div class="col">
-                                        <input type="text" class="form-control" name="tax" value="0" required>
+                                        <input type="text" class="form-control" name="tax" required
+                                            @isset($data['profile'])
+                                            value="{{ $data['profile']['tax'] }}"
+                                        @endisset>
                                     </div>
 
                                     <div class="col-sm-2 status-toggle">
@@ -180,7 +217,10 @@
                             <td>
                                 <div class="row">
                                     <div class="col">
-                                        <input type="text" class="form-control" name="discount" value="0" required>
+                                        <input type="text" class="form-control" name="discount" required
+                                            @isset($data['profile'])
+                                            value="{{ $data['profile']['discount'] }}"
+                                        @endisset>
                                     </div>
 
                                     <div class="col-sm-2 status-toggle">
@@ -197,8 +237,10 @@
                             <td>
                                 <div class="row">
                                     <div class="col">
-                                        <input type="text" class="form-control" name="extradiscount" value="0"
-                                            required>
+                                        <input type="text" class="form-control" name="extradiscount" required
+                                            @isset($data['profile'])
+                                            value="{{ $data['profile']['extra_discount'] }}"
+                                        @endisset>
                                     </div>
 
                                     <div class="col-sm-2 status-toggle">
@@ -213,8 +255,10 @@
                             <td colspan="2"></td>
                             <td class="text-end">Total</td>
                             <td>
-                                <input type="text" class="form-control" name="total" value="0" required
-                                    readonly>
+                                <input type="text" class="form-control" name="total" required readonly
+                                    @isset($data['profile'])
+                                    value="{{ $data['profile']['total'] }}"
+                                @endisset>
                             </td>
                         </tr>
 

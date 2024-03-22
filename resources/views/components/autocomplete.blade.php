@@ -15,9 +15,12 @@
 </style>
 
 <div style="position: relative;">
-    <input type="text" class="form-control autocomplete" data-url="{{ $url }}"
-        data-targets="{{ $targets }}" placeholder="{{ $placeholder }}">
-    <ul class="list-group autocomplete-list"></ul>
+    <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }}
+        name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}"
+        placeholder="{{ $placeholder }}" @if ($value !== '')
+    value="{{ $value }}"
+@endempty>
+<ul class="list-group autocomplete-list"></ul>
 </div>
 
 <script>

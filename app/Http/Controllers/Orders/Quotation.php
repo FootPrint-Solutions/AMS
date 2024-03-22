@@ -7,6 +7,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\Orders\Quotation\QuotationBatteryModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -49,6 +50,28 @@ class Quotation extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
+                    "customers" => CustomerModel::all()->toArray(),
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'Orders.Quotation.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => QuotationModel::with(["batteries"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
                 )
@@ -164,6 +187,8 @@ class Quotation extends Controller
         $quotation->extra_discount = $request->extradiscount;
         $quotation->total = $request->total;
         $status = $quotation->save();
+
+        // Save quotation detail.
 
         // Set a new response data to be sent.
         return getResponseData(
