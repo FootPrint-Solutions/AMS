@@ -13,6 +13,8 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
+use App\Models\Orders\Quotation\QuotationModel;
+use App\Models\Orders\Quotation\QuotationBatteryModel;
 
 
 // Midtrans 
@@ -367,5 +369,98 @@ class QuickQuotation extends Controller
             [$Fullname, 'https://www.google.com'],
             $template
         );
+    }
+
+    public static function saveData(Request $request)
+    {
+        $QuotationNumber = "QUO" . date('YmdHis') . rand(99, 999);
+        $tax = $request->input('tax') ?? 0;
+        $Discount = $request->input('Discount') ?? 0;
+        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        $total = $request->input('TotalAmount');
+        $status = "Pending";
+        $vehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        if ($request->input('CheckMidtrans') == 1) {
+            $payment_methode = "midtrans";
+            $midtransInvoice = $request->input('invoiceNumber');
+            $midtransPaymentLink = $request->input('paymentLink');
+        } else {
+            $payment_methode = "tokopedia";
+        }
+
+
+        if ($request->input('IdCustomer') != null) {
+            $Customer = CustomerModel::find($request->input('IdCustomer'));
+            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+        } else {
+            $Customer = CustomerModel::firstOrCreate(
+                ['email' => $request->input('EmailCustomer')],
+                [
+                    'name' => $request->input('FullName'),
+                    'address' => $request->input('AddressCustomer'),
+                    'contact' => $request->input('ContactNumber'),
+                    'latitude' => $request->input('Latitude'),
+                    'longitude' => $request->input('Longitude')
+                ]
+            );
+
+            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+        }
+
+        if ($request->input('DistributorShopId') != null) {
+            $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
+            $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+        } else {
+            $DistributorShop = null;
+        }
+
+        $data = [
+            'quotation_number' => $QuotationNumber,
+            'customer_id' => $Customer->id,
+            'distributor_shop_id' => $DistributorShop->id ?? null,
+            'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
+            'total' => $total,
+            'tax' => $tax,
+            'discount' => $Discount,
+            'extra_discount' => $ExtraDiscount,
+            'payment_methode' => $payment_methode,
+            'midtrans_invoice' => $midtransInvoice ?? null,
+            'midtrans_payment_link' => $midtransPaymentLink ?? null,
+            'status' => $status,
+            'address' => $request->input('AddressCustomer'),
+            'latitude' => $request->input('Latitude'),
+            'longitude' => $request->input('Longitude')
+        ];
+
+        $Quotation = QuotationModel::create($data);
+
+        if ($request->input('DistributorShopId') != null) {
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
+            $dataProduct = [];
+            foreach ($BatteryData as $key => $value) {
+                $dataProduct[] = [
+                    'quotation_id' => $Quotation->id,
+                    'battery_id' => $value->id,
+                    'battery_name' => $value->name,
+                    'quantity' => $request->input('QtyTabel')[$key],
+                    'battery_price' => $value->price_retail,
+                ];
+            }
+        } else {
+            $dataProduct = [];
+            foreach ($request->input('BatteryNameTabel') as $key => $value) {
+                $dataProduct[] = [
+                    'quotation_id' => $Quotation->id,
+                    'battery_id' => $request->input('Battery')[$key],
+                    'battery_name' => $value,
+                    'quantity' => $request->input('QtyTabel')[$key],
+                    'battery_price' => $request->input('PriceTabel')[$key],
+                ];
+            }
+        }
+
+        $QuuotationBattery = QuotationBatteryModel::insert($dataProduct);
+
+        return getResponseData(true, "Data saved successfully");
     }
 }

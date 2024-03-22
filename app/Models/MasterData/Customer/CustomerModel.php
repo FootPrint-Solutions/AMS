@@ -24,6 +24,15 @@ class CustomerModel extends Model
     protected $table = 'customers';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'address', 'contact', 'email', 'latitude', 'longitude'
+    ];
+
+    /**
      * The list of columns in the associated table.
      */
     private static $selectColumns = [
@@ -52,5 +61,10 @@ class CustomerModel extends Model
         $query->select(self::$selectColumns);
 
         return self::getAllRows($request, $query, self::$selectColumns);
+    }
+
+    public static function quotations()
+    {
+        return self::hasMany(QuotationModel::class, 'customer_id', 'id');
     }
 }

@@ -72,7 +72,7 @@
             <select class="form-select" id="shop_id" name="shop_id" required>
                 <option value="">-- Choose Distributor --</option>
                 @foreach ($distributor as $d)
-                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                 @endforeach
             </select>
         </div>
@@ -81,7 +81,7 @@
 <div id="MapShowMarkerDistributor"></div>
 <input type="hidden" name="DistributorShopId" id="DistributorShopId">
 <script>
-    var map;
+    var map2;
     var markers = [];
     var infoWindow;
     var locationSelect;
@@ -90,7 +90,7 @@
     var customerMarker; // ini buat marker customer
     var circle;
 
-    function initMap() {
+    function initMap2() {
         var myOptions = {
             zoom: 13,
             center: {
@@ -99,7 +99,7 @@
             },
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        map = new google.maps.Map(document.getElementById("MapShowMarkerDistributor"), myOptions);
+        map2 = new google.maps.Map(document.getElementById("MapShowMarkerDistributor"), myOptions);
         infoWindow = new google.maps.InfoWindow();
 
         var distributorData = <?php echo json_encode($datalatlong); ?>;
@@ -116,7 +116,7 @@
         var customerLatLng = new google.maps.LatLng(latititudeCustomer, longitudeCustomer);
         customerMarker = new google.maps.Marker({
             position: customerLatLng,
-            map: map,
+            map: map2,
             icon: {
                 url: 'https://i.ibb.co/dprhv35/image-removebg-preview-1.png',
                 scaledSize: new google.maps.Size(60, 60)
@@ -131,7 +131,7 @@
             strokeWeight: 2,
             fillColor: '#FF0000',
             fillOpacity: 0.35,
-            map: map,
+            map: map2,
             center: customerLatLng,
             radius: 2000
         });
@@ -140,7 +140,7 @@
     function createMarker(latlng, name, address, iconUrl, DisributorPhone, Id) {
         var marker = new google.maps.Marker({
             position: latlng,
-            map: map,
+            map: map2,
             icon: {
                 url: iconUrl ||
                     'https://i.ibb.co/59CPMMK/png-transparent-white-and-green-house-house-symbol-home-icon-green-marker-s-building-text-triangle-1.png',
@@ -164,7 +164,7 @@
                 '"  target="_blank" class="copy-button-green"><i class="fa fa-phone"></i> Contact</a>&nbsp;&nbsp;<label><input class="form-check-input" onclick="checkDistributorShop()" type="checkbox" name="CheckDistributor[]" value="' +
                 Id + '"> Choose this distributor </label>';
             infowindow.setContent(infoContent);
-            infowindow.open(map, marker);
+            infowindow.open(map2, marker);
         });
 
         return marker;
@@ -198,8 +198,7 @@
             var id = $(this).val();
             $("#DistributorShopId").val(id);
         });
+
+        initMap2();
     });
-</script>
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=geometry&callback=initMap">
 </script>

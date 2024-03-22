@@ -20,6 +20,19 @@ class QuotationBatteryModel extends Model
     protected $table = 'quotation_battery';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'quotation_id',
+        'battery_id',
+        'battery_name',
+        'battery_price',
+        'quantity'
+    ];
+
+    /**
      * The list of columns in the associated table.
      */
     private static $selectColumns = ['quotation_id', 'battery_id', 'battery_name', 'battery_price', 'quantity'];

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterData\Company\CompanyModel;
+use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -28,6 +30,27 @@ class Quotation extends Controller
                 $this->title,
                 $this->menu,
                 $this->submenu
+            )
+        );
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view(
+            'Orders.Quotation.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "customers" => CustomerModel::all()->toArray(),
+                    "shops" => DistributorShopModel::all()->toArray()
+                )
             )
         );
     }
@@ -86,9 +109,10 @@ class Quotation extends Controller
             $row[] = $no++;
             $row[] = $key->quotation_number;
             $row[] = "<a href='javascript:void()'>$key->customer_name</a><button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
-            $row[] = "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>";
-            $row[] = "<a href='javascript:void()'>$key->technician_name</a>";
+            $row[] = $key->shop_name ? "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>" : "<p class='text-center'>-</p>";
+            $row[] = $key->technician_name ? "<a href='javascript:void()'>$key->technician_name</a>" : "<p class='text-center'>-</p>";
             $row[] = number_format($key->total);
+            $row[] = ucwords($key->payment_method);
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $rows[] = $row;

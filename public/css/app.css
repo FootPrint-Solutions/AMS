@@ -25,3 +25,7 @@
 .dataTables_length {
     margin-right: 5px;
 }
+
+table.dataTable thead tr th {
+    text-align: center;
+}

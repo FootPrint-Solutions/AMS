@@ -6,6 +6,7 @@
                     <div class="invoice-head">
                         <h2>Invoice</h2>
                         <p>Invoice Number : {{ $InvoiceNumber }}</p>
+                        <input type="hidden" name="invoiceNumber" id="invoiceNumber" value="{{ $InvoiceNumber }}">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -52,16 +53,17 @@
                                 @foreach ($dataProduct as $data)
                                     <tr>
                                         <td>
-                                            <input type="text" name="BatteryNameCheckout[]" class="form-control"
+                                            <input type="text" name="BatteryNamePaymentDetails[]"
+                                                class="form-control BatteryNamePaymentDetails"
                                                 value="{{ $data['name'] }}" readonly>
                                         </td>
                                         <td>
-                                            <input readonly type="number" name="QtyCheckout[]"
-                                                class="form-control QtyCheckout" value="{{ $data['qty'] }}">
+                                            <input readonly type="number" name="QtyPaymentDetails[]"
+                                                class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
                                         </td>
                                         <td>
-                                            <input readonly type="text" name="PriceCheckout[]"
-                                                class="form-control PriceCheckout" value="{{ $data['price'] }}">
+                                            <input readonly type="text" name="PricePaymentDetails[]"
+                                                class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
                                         </td>
                                         <td>
                                             <input type="text" name="LinkPayment[]" class="form-control LinkPayment"
@@ -87,8 +89,8 @@
                             </label>
                             <p>Payment Link : </p>
                             <p>{{ $snapToken }}</p>
-                            <input class="linkMidtrans" type="hidden" name="LinkPaymentMidtrans"
-                                value="{{ $snapToken }}">
+                            <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden"
+                                name="LinkPaymentMidtrans" value="{{ $snapToken }}">
                         </div>
                         {{-- Total Amount --}}
                     </div>
