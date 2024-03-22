@@ -53,4 +53,9 @@ class CustomerModel extends Model
 
         return self::getAllRows($request, $query, self::$selectColumns);
     }
+
+    public static function quotations()
+    {
+        return self::hasMany(QuotationModel::class, 'customer_id', 'id');
+    }
 }

@@ -29,6 +29,30 @@ class QuotationModel extends Model
     protected $table = 'quotations';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'quotation_number',
+        'customer_id',
+        'distributor_shop_id',
+        'distributor_shop_technician_id',
+        'tax',
+        'discount',
+        'extra_discount',
+        'total',
+        'status',
+        'address',
+        'latitude',
+        'longitude',
+        'status',
+        'payment_method',
+        'midtrans_invoice_number',
+        'midtrans_payment_link'
+    ];
+
+    /**
      * The list of columns in the associated table.
      */
     private static $selectColumns = ['*'];

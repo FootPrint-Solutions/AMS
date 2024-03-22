@@ -1104,8 +1104,16 @@
                 }).get();
                 var TotalAmount = $("#TotalAmountHidden").val();
                 var tax = $("#tax").val();
-                var Discount = $("#Discount").val();
-                var ExtraDiscount = $("#ExtraDiscount").val();
+                var Discount = $("#discount").val();
+                var ExtraDiscount = $("#Extradiscount").val();
+                var invoiceNumber = $("#invoiceNumber").val();
+                var techniciansName = $("#techniciansName").val();
+                if ($('.CheckMidtrans').is(':checked')) {
+                    var CheckMidtrans = 1;
+                    var linkPayment = $("#LinkPaymentMidtrans").val();
+                } else {
+                    var CheckMidtrans = 0;
+                }
 
                 var QtyTabel = [];
                 var PriceTabel = [];
@@ -1147,7 +1155,10 @@
                     Discount: Discount,
                     ExtraDiscount: ExtraDiscount,
                     _token: $('meta[name="csrf-token"]').attr('content'),
-                    DistributorShopId: DistributorShopId
+                    DistributorShopId: DistributorShopId,
+                    invoiceNumber: invoiceNumber,
+                    techniciansName: techniciansName,
+                    CheckMidtrans: CheckMidtrans
                 };
 
                 $.ajax({
@@ -1162,6 +1173,9 @@
                                 text: ResponseData.message,
                                 icon: "success",
                             });
+                            setTimeout(function() {
+                                window.location.href = "/quotation";
+                            }, 2000);
                         } else {
                             Swal.fire({
                                 title: "Error",
@@ -1174,7 +1188,7 @@
                     complete: function() {
                         button.prop('disabled', false);
                         button.html(
-                            "<i class='fa-brands fa-whatsapp'></i> Share"
+                            "Save Changes"
                         );
                     }
                 });
