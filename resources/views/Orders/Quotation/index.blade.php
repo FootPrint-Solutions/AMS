@@ -10,6 +10,11 @@
                     <div class="col">
                         <h3 class="page-title">Quotation</h3>
                     </div>
+
+                    <div class="col-auto text-end float-end ms-auto download-grp">
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
+                            New Quotation</button>
+                    </div>
                 </div>
             </div>
             <br>
@@ -24,6 +29,7 @@
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
                         <th scope="col">Total (IDR)</th>
+                        <th scope="col">Payment Method</th>
                         <th scope="col">Status</th>
                     </tr>
                 </thead>
@@ -96,7 +102,7 @@
                     targets: [5],
                     className: 'dt-body-right'
                 }, {
-                    targets: [6],
+                    targets: [7],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
@@ -117,7 +123,7 @@
                             }
 
                             // Go to page invoice.
-                            goToPage("/quotation/invoice/" + selectedRows[0][7], true)
+                            goToPage("/quotation/invoice/" + selectedRows[0][8], true)
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },
@@ -160,7 +166,7 @@
                                     type: "POST",
                                     data: {
                                         _token: "{{ csrf_token() }}",
-                                        id: selectedRows[0][7]
+                                        id: selectedRows[0][8]
                                     }
                                 },
                                 columnDefs: [{
@@ -183,10 +189,14 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(7, "/quotation/edit/", "/quotation/destroy");
+            appendDatatablesToolbar(8, "/quotation/edit/", "/quotation/destroy");
 
             $('#quotation-detail-modal').on('hidden.bs.modal', function(e) {
                 table = tableTmp;
+            });
+
+            $('#btn-add').on('click', function() {
+                goToPage("/quotation/create");
             });
 
             $("#btn-update").on("click", function() {
@@ -201,7 +211,7 @@
                     method: "POST",
                     data: {
                         "_token": "{{ csrf_token() }}",
-                        "id": selectedRows[0][7],
+                        "id": selectedRows[0][8],
                         "status": $("#quotation-status-select").val(),
                     },
                     success: function(response) {
