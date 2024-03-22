@@ -378,6 +378,6 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
-        return BatteryModel::where("name", "like", "%{$keyword}%")->take(5)->get()->toArray();
+        return BatteryModel::allForAutocomplete($keyword, ["price_retail"]);
     }
 }

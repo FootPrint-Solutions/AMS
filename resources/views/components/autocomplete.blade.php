@@ -16,7 +16,7 @@
 
 <div style="position: relative;">
     <input type="text" class="form-control autocomplete" data-url="{{ $url }}"
-        placeholder="{{ $placeholder }}">
+        data-targets="{{ $targets }}" placeholder="{{ $placeholder }}">
     <ul class="list-group autocomplete-list"></ul>
 </div>
 
@@ -35,20 +35,28 @@
                 method: "GET",
                 success: function(response) {
                     response.forEach(function(item) {
+                        let data = Object.values(item);
+
                         var listItem = $(
                             "<li class='list-group-item list-item' data-id='" +
-                            item.id + "'>" + item
-                            .name + "</li>");
+                            data[0] + "'>" + data[1] + "</li>");
 
                         // Add onclick event function.
                         listItem.click(function() {
+                            // Set target input values based on target.
+                            let targets = autocomplete.data("targets");
+                            var index = 2;
+                            targets.forEach(function(target) {
+                                $("#" + target).val(data[index]);
+                                index++;
+                            });
+
                             // Set input value.
-                            autocomplete.val(item.name);
+                            autocomplete.val(data[1]);
 
                             // Hide current autocomplete item list.
                             autocompleteList.empty();
                         });
-
                         autocompleteList.append(listItem);
                     });
                 }

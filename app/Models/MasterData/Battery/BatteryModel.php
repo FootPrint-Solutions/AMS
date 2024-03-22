@@ -120,6 +120,25 @@ class BatteryModel extends Model
         return self::getAllRows($request, $query, self::$selectColumns);
     }
 
+    /**
+     * Get rows for autocomplete.
+     * 
+     * @param string $keyword The autocomplete keyword.
+     * @param array $extraColumn The list of other columns except id and name to obtain.
+     * @param int $limit The limit number of rows returned.
+     */
+    public static function allForAutocomplete($keyword, $extraColumn, $limit = 5)
+    {
+        $columns = ["id", "name"];
+        $query = self::select(array_merge($columns, $extraColumn))
+            ->where("name", "like", "%{$keyword}%")
+            ->take($limit)
+            ->get()
+            ->toArray();
+
+        return $query;
+    }
+
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
     {
         $batteryData = DB::table('batteries')

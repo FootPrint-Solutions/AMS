@@ -130,12 +130,16 @@
                     <tbody>
                         <tr>
                             <td>
-                                @component('components.autocomplete', ['url' => '/battery/get/', 'placeholder' => 'Enter item name'])
+                                @component('components.autocomplete', [
+                                    'url' => '/battery/get/',
+                                    'placeholder' => 'Enter item name',
+                                    'targets' => json_encode(['battery-price-1', 'battery-price-2']),
+                                ])
                                 @endcomponent
                             </td>
                             <td><input type="number" class="form-control" name="batteriesqty[]" min="0"
                                     placeholder="Enter item quantity"></td>
-                            <td><input type="text" class="form-control" name="batteriesqty[]"
+                            <td><input type="text" class="form-control" id="battery-price-1" name="batteriesprice[]"
                                     placeholder="Enter item price"></td>
                             <td>
                                 <div class="row">
@@ -155,7 +159,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="2"></td>
-                            <td>Tax</td>
+                            <td class="text-end">Tax</td>
                             <td>
                                 <div class="row">
                                     <div class="col">
@@ -172,7 +176,7 @@
 
                         <tr>
                             <td colspan="2"></td>
-                            <td>Discount</td>
+                            <td class="text-end">Discount</td>
                             <td>
                                 <div class="row">
                                     <div class="col">
@@ -189,7 +193,7 @@
 
                         <tr>
                             <td colspan="2"></td>
-                            <td>Extra Discount</td>
+                            <td class="text-end">Extra Discount</td>
                             <td>
                                 <div class="row">
                                     <div class="col">
@@ -207,9 +211,22 @@
 
                         <tr>
                             <td colspan="2"></td>
-                            <td>Total</td>
-                            <td><input type="text" class="form-control" name="discount" value="0" required
+                            <td class="text-end">Total</td>
+                            <td>
+                                <input type="text" class="form-control" name="total" value="0" required
                                     readonly>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Payment method</td>
+                            <td>
+                                <select name="paymentmethod" id="payment-method" class="form-control">
+                                    <option value="tokopedia">Cash</option>
+                                    <option value="tokopedia">Tokopedia</option>
+                                    <option value="midtrans">Midtrans</option>
+                                </select>
                             </td>
                         </tr>
                     </tfoot>

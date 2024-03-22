@@ -147,6 +147,32 @@ class Quotation extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function store(Request $request)
+    {
+        $quotation = new QuotationModel();
+        $quotation->quotation_number = $request->quotationnumber;
+        $quotation->customer_id = $request->customer;
+        $quotation->distributor_shop_id = $request->shop;
+        $quotation->distributor_shop_technician_id = $request->technician;
+        $quotation->tax = $request->tax;
+        $quotation->discount = $request->discount;
+        $quotation->extra_discount = $request->extradiscount;
+        $quotation->total = $request->total;
+        $status = $quotation->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
