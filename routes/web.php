@@ -57,6 +57,7 @@ use App\Http\Controllers\Profile;
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
     Route::get('/', [Dashboard::class, 'index']);
+    Route::get('/dashboard', [Dashboard::class, 'index']);
 
     // MASTER DATA
     // Company
@@ -100,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
     Route::post('/battery/destroy', [Battery::class, 'destroy'])->name('battery.destroy');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
+    Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
 
     // Battery Brand
     Route::get('/battery/brand', [BatteryBrand::class, 'index']);
@@ -207,6 +209,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
     Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
     Route::post('/quotation/battery/show', [QuotationBattery::class, 'show']);
+    Route::get('/quotation/get/technician/{shopId}', [Quotation::class, 'getTechnicianByShop']);
 
     // Settings
     // Message Template

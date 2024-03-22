@@ -1,6 +1,22 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        #table-battery-detail th:nth-child(1),
+        #table-battery-detail td:nth-child(1),
+        #table-battery-detail th:nth-child(3),
+        #table-battery-detail td:nth-child(3),
+        #table-battery-detail th:nth-child(4),
+        #table-battery-detail td:nth-child(4) {
+            width: 30%;
+        }
+
+        #table-battery-detail th:nth-child(2),
+        #table-battery-detail td:nth-child(2) {
+            width: 10%;
+        }
+    </style>
+
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
@@ -39,8 +55,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
-                            <input type="date" class="form-control datetimepicker" id="quotation-date" name="date"
-                                required
+                            <input type="date" class="form-control" id="quotation-date" name="date" required
                                 @isset($data['profile'])
                             value="{{ $data['profile']['created_at'] }}"
                         @else
@@ -69,7 +84,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-1">
+                            <div class="col-sm-2">
                                 <button type="button" class="btn btn-primary"><i class="fas fa-location-dot"></i></button>
                             </div>
                         </div>
@@ -83,7 +98,7 @@
                                 <option></option>
                                 @foreach ($data['shops'] as $shop)
                                     <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
-                                        {{ $shop['name'] }}</option>
+                                        {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -95,107 +110,190 @@
                             <label for="technician">Technician</label>
                             <select class="form-control" id="technician" name="technician">
                                 <option></option>
+                                <option disabled>Select a distributor to select a technician</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 {{-- Details --}}
-                <table class="table mb-2" id="table-battery-detail">
-                    <thead>
-                        <tr>
-                            <td colspan="4" class="h5 text-center">
-                                Item <button type="button" id="btn-add-row"
-                                    class="btn btn-primary btn-sm rounded-circle mx-2"><i class="fas fa-plus"></i></button>
-                            </td>
-                        </tr>
-                    </thead>
+                @if (!isset($data['profile']['batteries']))
+                    <table class="table mb-2" id="table-battery-detail">
+                        <thead>
+                            <tr>
+                                <td colspan="4" class="h5 text-center">
+                                    Item <button type="button" id="btn-add-row"
+                                        class="btn btn-primary btn-sm rounded-circle mx-2"><i
+                                            class="fas fa-plus"></i></button>
+                                </td>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        <tr>
-                            <td><input type="text" class="form-control" name="batteriesname[]"
-                                    placeholder="Enter item name"></td>
-                            <td><input type="number" class="form-control" name="batteriesqty[]"
-                                    placeholder="Enter item quantity"></td>
-                            <td><input type="text" class="form-control" name="batteriesqty[]"
-                                    placeholder="Enter item price"></td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control" value="0" readonly>
+                        <tbody>
+                            @php
+                                $counter = 1;
+                                $items = ['Heh'];
+                            @endphp
+
+                            @foreach ($items as $item)
+                                <tr>
+                                    {{-- Name --}}
+                                    <td>
+                                        @component('components.autocomplete', [
+                                            'id' => 'battery-name-' . $counter,
+                                            'class' => 'battery-name',
+                                            'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
+                                            'name' => 'batteriesname[]',
+                                            'url' => '/battery/get/',
+                                            'placeholder' => 'Enter item name',
+                                            'targets' => json_encode(['battery-price-@php$counter @endphp']),
+                                        ])
+                                        @endcomponent
+                                    </td>
+
+                                    {{-- Quantity --}}
+                                    <td><input type="number" class="form-control battery-qty"
+                                            id="battery-qty-@php$counter @endphp" name="batteriesqty[]" min="0"
+                                            placeholder="Enter item quantity"
+                                            @isset($data['profile']['batteries'])
+                                            value="{{ $item['quantity'] }}"
+                                        @endisset>
+                                    </td>
+
+                                    {{-- Price --}}
+                                    <td><input type="text" class="form-control text-end battery-price"
+                                            id="battery-price-@php$counter @endphp" name="batteriesprice[]"
+                                            placeholder="Enter item price"
+                                            @isset($data['profile']['batteries'])
+                                            value="{{ $item['battery_price'] }}"
+                                        @endisset>
+                                    </td>
+
+                                    {{-- Total --}}
+                                    <td>
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="text" class="form-control text-end battery-total"
+                                                    id="battery-total-@php$counter @endphp"
+                                                    @isset($data['profile']['batteries'])
+                                                    value="{{ $item['battery_price'] * $item['quantity'] }}"
+                                                @endisset
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-danger btn-sm"><i
+                                                        class="fas fa-xmark"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="text-end">Tax</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control text-end" name="tax" required
+                                                @isset($data['profile'])
+                                            value="{{ $data['profile']['tax'] }}"
+                                            @else
+                                            value="0.0"
+                                        @endisset>
+                                        </div>
+
+                                        <div class="col-sm-2 status-toggle">
+                                            <input type="checkbox" id="tax-check" class="check">
+                                            <label for="tax-check" class="checktoggle">checkbox</label>
+                                        </div>
                                     </div>
+                                </td>
+                            </tr>
 
-                                    <div class="col-sm-2">
-                                        <button type="button" class="btn btn-danger btn-sm"><i
-                                                class="fas fa-xmark"></i></button>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="text-end">Discount</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control text-end" name="discount" required
+                                                @isset($data['profile'])
+                                            value="{{ $data['profile']['discount'] }}"
+                                            @else
+                                            value="0.0"
+                                        @endisset>
+                                        </div>
+
+                                        <div class="col-sm-2 status-toggle">
+                                            <input type="checkbox" id="discount-check" class="check">
+                                            <label for="discount-check" class="checktoggle">checkbox</label>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
+                                </td>
+                            </tr>
 
-                    <tfoot>
-                        <tr>
-                            <td colspan="2"></td>
-                            <td>Tax</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control" name="tax" value="0" required>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="text-end">Extra Discount</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control text-end" name="extradiscount"
+                                                required
+                                                @isset($data['profile'])
+                                            value="{{ $data['profile']['extra_discount'] }}"
+                                            @else
+                                            value="0.0"
+                                        @endisset>
+                                        </div>
+
+                                        <div class="col-sm-2 status-toggle">
+                                            <input type="checkbox" id="extra-discount-check" class="check">
+                                            <label for="extra-discount-check" class="checktoggle">checkbox</label>
+                                        </div>
                                     </div>
+                                </td>
+                            </tr>
 
-                                    <div class="col-sm-2 status-toggle">
-                                        <input type="checkbox" id="tax-check" class="check">
-                                        <label for="tax-check" class="checktoggle">checkbox</label>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="text-end">Total</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control text-end" id="total"
+                                                name="total" required readonly
+                                                @isset($data['profile'])
+                                    value="{{ $data['profile']['total'] }}"
+                                    @else
+                                    value="0"
+                                @endisset>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <td colspan="2"></td>
-                            <td>Discount</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control" name="discount" value="0" required>
-                                    </div>
-
-                                    <div class="col-sm-2 status-toggle">
-                                        <input type="checkbox" id="discount-check" class="check">
-                                        <label for="discount-check" class="checktoggle">checkbox</label>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td colspan="2"></td>
-                            <td>Extra Discount</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control" name="extradiscount" value="0"
-                                            required>
-                                    </div>
-
-                                    <div class="col-sm-2 status-toggle">
-                                        <input type="checkbox" id="extra-discount-check" class="check">
-                                        <label for="extra-discount-check" class="checktoggle">checkbox</label>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td colspan="2"></td>
-                            <td>Total</td>
-                            <td><input type="text" class="form-control" name="discount" value="0" required
-                                    readonly>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="text-end">Payment method</td>
+                                <td>
+                                    <select name="paymentmethod" id="payment-method" class="form-control">
+                                        <option value="tokopedia">Cash</option>
+                                        <option value="tokopedia">Tokopedia</option>
+                                        <option value="midtrans">Midtrans</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                @endif
                 <br>
 
                 {{-- Hidden Inputs --}}
@@ -222,15 +320,44 @@
     </div>
 
     <script>
-        let indexUrl = "/distributor";
+        let indexUrl = "/quotation";
 
         $(document).ready(function() {
+            // formatPrice($(".battery-price"));
+            // formatPrice($(".battery-total"));
+            // formatPrice($("#total"));
+
             $('#customer').select2({
                 placeholder: "Enter customer"
             });
 
             $('#shop').select2({
                 placeholder: "Enter distributor shop"
+            });
+
+            $("#shop").on("select2:select", function(e) {
+                // Obtain selected parent id.
+                let parentId = e.params.data.id;
+
+                // Get the list of menus inside the selected parent.
+                $.ajax({
+                    url: "/quotation/get/technician/" + parentId,
+                    method: "GET",
+                    success: function(response) {
+                        // Clear current options and value.
+                        $("#technician").empty().val(null).trigger("change");
+
+                        let emptyOption = new Option("", "", false, false);
+                        $("#technician").append(emptyOption).trigger("change");
+
+                        response.forEach(function(menu) {
+                            // Append new options.
+                            let newOption = new Option(menu.name, menu.id, false,
+                                false);
+                            $("#technician").append(newOption).trigger("change");
+                        });
+                    }
+                });
             });
 
             $('#technician').select2({
@@ -279,7 +406,7 @@
                 });
             });
 
-            $("#distributor-form").on("reset", function() {
+            $("#quotation-form").on("reset", function() {
                 goToPage(indexUrl);
             });
         });

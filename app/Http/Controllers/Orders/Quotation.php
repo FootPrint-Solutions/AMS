@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\Orders\Quotation\QuotationBatteryModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -49,7 +51,29 @@ class Quotation extends Controller
                 $this->submenu,
                 array(
                     "customers" => CustomerModel::all()->toArray(),
-                    "shops" => DistributorShopModel::all()->toArray()
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        return view(
+            'Orders.Quotation.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => QuotationModel::with(["batteries"])->find($id)->toArray(),
+                    "customers" => CustomerModel::all()->toArray(),
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
                 )
             )
         );
@@ -146,6 +170,34 @@ class Quotation extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function store(Request $request)
+    {
+        $quotation = new QuotationModel();
+        $quotation->quotation_number = $request->quotationnumber;
+        $quotation->customer_id = $request->customer;
+        $quotation->distributor_shop_id = $request->shop;
+        $quotation->distributor_shop_technician_id = $request->technician;
+        $quotation->tax = $request->tax;
+        $quotation->discount = $request->discount;
+        $quotation->extra_discount = $request->extradiscount;
+        $quotation->total = $request->total;
+        $status = $quotation->save();
+
+        // Save quotation detail.
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -166,5 +218,15 @@ class Quotation extends Controller
             $status,
             $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
         );
+    }
+
+    /**
+     * Get the list of technicians based on selectd shop.
+     * 
+     * @param  int  $shopId The id of the selected shop
+     */
+    public function getTechnicianByShop($shopId)
+    {
+        return DistributorShopTechnicianModel::where("distributor_shop_id", $shopId)->get()->toArray();
     }
 }
