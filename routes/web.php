@@ -57,6 +57,7 @@ use App\Http\Controllers\Profile;
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
     Route::get('/', [Dashboard::class, 'index']);
+    Route::get('/dashboard', [Dashboard::class, 'index']);
 
     // MASTER DATA
     // Company
