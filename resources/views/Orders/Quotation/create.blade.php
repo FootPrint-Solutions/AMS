@@ -1,6 +1,22 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        #table-battery-detail th:nth-child(1),
+        #table-battery-detail td:nth-child(1),
+        #table-battery-detail th:nth-child(3),
+        #table-battery-detail td:nth-child(3),
+        #table-battery-detail th:nth-child(4),
+        #table-battery-detail td:nth-child(4) {
+            width: 30%;
+        }
+
+        #table-battery-detail th:nth-child(2),
+        #table-battery-detail td:nth-child(2) {
+            width: 10%;
+        }
+    </style>
+
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
@@ -39,8 +55,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
-                            <input type="date" class="form-control datetimepicker" id="quotation-date" name="date"
-                                required
+                            <input type="date" class="form-control" id="quotation-date" name="date" required
                                 @isset($data['profile'])
                             value="{{ $data['profile']['created_at'] }}"
                         @else
@@ -69,7 +84,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-1">
+                            <div class="col-sm-2">
                                 <button type="button" class="btn btn-primary"><i class="fas fa-location-dot"></i></button>
                             </div>
                         </div>
@@ -83,7 +98,7 @@
                                 <option></option>
                                 @foreach ($data['shops'] as $shop)
                                     <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
-                                        {{ $shop['name'] }}</option>
+                                        {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -95,6 +110,7 @@
                             <label for="technician">Technician</label>
                             <select class="form-control" id="technician" name="technician">
                                 <option></option>
+                                <option disabled>Select a distributor to select a technician</option>
                             </select>
                         </div>
                     </div>
@@ -113,9 +129,11 @@
 
                     <tbody>
                         <tr>
-                            <td><input type="text" class="form-control" name="batteriesname[]"
-                                    placeholder="Enter item name"></td>
-                            <td><input type="number" class="form-control" name="batteriesqty[]"
+                            <td>
+                                @component('components.autocomplete', ['url' => '/battery/get/', 'placeholder' => 'Enter item name'])
+                                @endcomponent
+                            </td>
+                            <td><input type="number" class="form-control" name="batteriesqty[]" min="0"
                                     placeholder="Enter item quantity"></td>
                             <td><input type="text" class="form-control" name="batteriesqty[]"
                                     placeholder="Enter item price"></td>
@@ -222,7 +240,7 @@
     </div>
 
     <script>
-        let indexUrl = "/distributor";
+        let indexUrl = "/quotation";
 
         $(document).ready(function() {
             $('#customer').select2({
@@ -231,6 +249,31 @@
 
             $('#shop').select2({
                 placeholder: "Enter distributor shop"
+            });
+
+            $("#shop").on("select2:select", function(e) {
+                // Obtain selected parent id.
+                let parentId = e.params.data.id;
+
+                // Get the list of menus inside the selected parent.
+                $.ajax({
+                    url: "/quotation/get/technician/" + parentId,
+                    method: "GET",
+                    success: function(response) {
+                        // Clear current options and value.
+                        $("#technician").empty().val(null).trigger("change");
+
+                        let emptyOption = new Option("", "", false, false);
+                        $("#technician").append(emptyOption).trigger("change");
+
+                        response.forEach(function(menu) {
+                            // Append new options.
+                            let newOption = new Option(menu.name, menu.id, false,
+                                false);
+                            $("#technician").append(newOption).trigger("change");
+                        });
+                    }
+                });
             });
 
             $('#technician').select2({
@@ -279,7 +322,7 @@
                 });
             });
 
-            $("#distributor-form").on("reset", function() {
+            $("#quotation-form").on("reset", function() {
                 goToPage(indexUrl);
             });
         });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -49,7 +50,7 @@ class Quotation extends Controller
                 $this->submenu,
                 array(
                     "customers" => CustomerModel::all()->toArray(),
-                    "shops" => DistributorShopModel::all()->toArray()
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
                 )
             )
         );
@@ -166,5 +167,15 @@ class Quotation extends Controller
             $status,
             $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
         );
+    }
+
+    /**
+     * Get the list of technicians based on selectd shop.
+     * 
+     * @param  int  $shopId The id of the selected shop
+     */
+    public function getTechnicianByShop($shopId)
+    {
+        return DistributorShopTechnicianModel::where("distributor_shop_id", $shopId)->get()->toArray();
     }
 }

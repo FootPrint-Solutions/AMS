@@ -95,6 +95,27 @@ class Battery extends Controller
         );
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+        $path1 = $request->file('file')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
+        try {
+            Excel::import(new BatteryImport, $path);
+            return getResponseData(
+                true,
+                "Data imported successfully!"
+            );
+        } catch (\Exception $e) {
+            return getResponseData(
+                false,
+                "Error importing data: " . $e->getMessage()
+            );
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -350,24 +371,13 @@ class Battery extends Controller
         );
     }
 
-    public function import(Request $request)
+    /**
+     * Get the list of batteries based on keyword.
+     * 
+     * @param  int  $keyword The search keyword
+     */
+    public function getBatteriesByKeyword($keyword)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
-        ]);
-        $path1 = $request->file('file')->store('temp');
-        $path = storage_path('app') . '/' . $path1;
-        try {
-            Excel::import(new BatteryImport, $path);
-            return getResponseData(
-                true,
-                "Data imported successfully!"
-            );
-        } catch (\Exception $e) {
-            return getResponseData(
-                false,
-                "Error importing data: " . $e->getMessage()
-            );
-        }
+        return BatteryModel::where("name", "like", "%{$keyword}%")->take(5)->get()->toArray();
     }
 }
