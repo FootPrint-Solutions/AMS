@@ -26,7 +26,7 @@ class SalesOrderModel extends Model
      *
      * @var string
      */
-    protected $table = 'quotations';
+    protected $table = 'sales_orders';
 
     /**
      * The attributes that are mass assignable.
@@ -98,7 +98,7 @@ class SalesOrderModel extends Model
     public static function allForDataTables($request)
     {
         // Build the query to obtain all rows.
-        $query = DB::table('quotations_view');
+        $query = DB::table('sales_orders_view');
         $query->select(self::$selectColumns);
         $query->whereNull("deleted_at");
 

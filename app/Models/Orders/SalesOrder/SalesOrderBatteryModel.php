@@ -17,7 +17,7 @@ class SalesOrderBatteryModel extends Model
      *
      * @var string
      */
-    protected $table = 'quotation_battery';
+    protected $table = 'sales_order_battery';
 
     /**
      * The attributes that are mass assignable.
