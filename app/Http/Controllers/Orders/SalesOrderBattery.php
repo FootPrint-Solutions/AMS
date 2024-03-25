@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\Orders\Quotation\QuotationBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
-class QuotationBattery extends Controller
+class SalesOrderBattery extends Controller
 {
     /**
      * Display the specified resource.
@@ -23,7 +23,7 @@ class QuotationBattery extends Controller
         $start = $request->input("start");
 
         // Get shop data (rows and count).
-        $data = QuotationBatteryModel::whereForDataTables($request);
+        $data = SalesOrderBatteryModel::whereForDataTables($request);
 
         // Set rows to be displayed in table.
         $rows = [];
@@ -41,7 +41,7 @@ class QuotationBattery extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => QuotationBatteryModel::count(),
+            "recordsTotal" => SalesOrderBatteryModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Orders\Quotation;
+namespace App\Models\Orders\SalesOrder;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 // TRAITS
 use App\Traits\DataTablesTrait;
 
-class QuotationBatteryModel extends Model
+class SalesOrderBatteryModel extends Model
 {
     use HasFactory, DataTablesTrait;
 

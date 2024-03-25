@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+// MODELS
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
-use App\Models\Orders\Quotation\QuotationBatteryModel;
-use Illuminate\Http\Request;
 
-// MODELS
-use App\Models\Orders\Quotation\QuotationModel;
-
-class Quotation extends Controller
+class SalesOrder extends Controller
 {
     private $title = "Quotation";
     private $menu = 4;
@@ -27,7 +27,7 @@ class Quotation extends Controller
     public function index()
     {
         return view(
-            'Orders.Quotation.index',
+            'Orders.SalesOrder.index',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -44,7 +44,7 @@ class Quotation extends Controller
     public function create()
     {
         return view(
-            'Orders.Quotation.create',
+            'Orders.SalesOrder.create',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -65,13 +65,13 @@ class Quotation extends Controller
     public function edit($id)
     {
         return view(
-            'Orders.Quotation.create',
+            'Orders.SalesOrder.create',
             getIndexData(
                 $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => QuotationModel::with(["batteries"])->find($id)->toArray(),
+                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
                 )
@@ -87,13 +87,13 @@ class Quotation extends Controller
     public function invoice($id)
     {
         return view(
-            'Orders.Quotation.invoice',
+            'Orders.SalesOrder.invoice',
             getIndexData(
                 $this->title,
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => QuotationModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
+                    "profile" => SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
                     "company" => CompanyModel::first(),
                 )
             )
@@ -113,7 +113,7 @@ class Quotation extends Controller
         $start = $request->input("start");
 
         // Get customer data (rows and count).
-        $data = QuotationModel::allForDataTables($request);
+        $data = SalesOrderModel::allForDataTables($request);
 
         // Set rows to be displayed in customer table.
         $rows = [];
@@ -144,7 +144,7 @@ class Quotation extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => QuotationModel::count(),
+            "recordsTotal" => SalesOrderModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
@@ -158,7 +158,7 @@ class Quotation extends Controller
      */
     public function updateStatus(Request $request)
     {
-        $quotation = QuotationModel::find($request->id);
+        $quotation = SalesOrderModel::find($request->id);
         $quotation->status = $request->status;
         $status = $quotation->save();
 
@@ -177,7 +177,7 @@ class Quotation extends Controller
      */
     public function store(Request $request)
     {
-        $quotation = new QuotationModel();
+        $quotation = new SalesOrderModel();
         $quotation->quotation_number = $request->quotationnumber;
         $quotation->customer_id = $request->customer;
         $quotation->distributor_shop_id = $request->shop;
@@ -209,7 +209,7 @@ class Quotation extends Controller
         $ids = $request->id;
 
         foreach ($ids as $id) {
-            $quotation = QuotationModel::find($id);
+            $quotation = SalesOrderModel::find($id);
             $status &= $quotation->delete();
         }
 

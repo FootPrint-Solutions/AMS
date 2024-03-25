@@ -307,7 +307,7 @@
     </div>
 
     <script>
-        let indexUrl = "/quotation";
+        let indexUrl = "/sales-order";
 
         $(document).ready(function() {
             // formatPrice($(".battery-price"));
@@ -375,7 +375,7 @@
                 event.preventDefault();
 
                 let mode = $("#btn-save").attr("value"); // update || create
-                let url = (mode == "update") ? "/quotation/update" : "/quotation/store";
+                let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);

@@ -89,7 +89,7 @@
                 serverSide: true,
                 order: [],
                 ajax: {
-                    url: "/quotation/show",
+                    url: "/sales-order/show",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}"
@@ -123,7 +123,7 @@
                             }
 
                             // Go to page invoice.
-                            goToPage("/quotation/invoice/" + selectedRows[0][8], true)
+                            goToPage("/sales-order/invoice/" + selectedRows[0][8], true)
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },
@@ -162,7 +162,7 @@
                                 processing: true,
                                 serverSide: true,
                                 ajax: {
-                                    url: "/quotation/battery/show",
+                                    url: "/sales-order/battery/show",
                                     type: "POST",
                                     data: {
                                         _token: "{{ csrf_token() }}",
@@ -189,14 +189,14 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(8, "/quotation/edit/", "/quotation/destroy");
+            appendDatatablesToolbar(8, "/sales-order/edit/", "/sales-order/destroy");
 
             $('#quotation-detail-modal').on('hidden.bs.modal', function(e) {
                 table = tableTmp;
             });
 
             $('#btn-add').on('click', function() {
-                goToPage("/quotation/create");
+                goToPage("/sales-order/create");
             });
 
             $("#btn-update").on("click", function() {
@@ -207,7 +207,7 @@
 
                 // Send POST request to add all batteries.
                 $.ajax({
-                    url: "/quotation/update/status",
+                    url: "/sales-order/update/status",
                     method: "POST",
                     data: {
                         "_token": "{{ csrf_token() }}",

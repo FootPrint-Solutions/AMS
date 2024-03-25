@@ -24,8 +24,8 @@ use App\Http\Controllers\MasterData\Distributor\DistributorShopBattery;
 
 // ORDERS
 use App\Http\Controllers\Orders\QuickQuotation;
-use App\Http\Controllers\Orders\Quotation;
-use App\Http\Controllers\Orders\QuotationBattery;
+use App\Http\Controllers\Orders\SalesOrder;
+use App\Http\Controllers\Orders\SalesOrderBattery;
 
 // SETTINGS
 use App\Http\Controllers\Settings\MessageTemplate;
@@ -199,17 +199,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/save-data', [QuickQuotation::class, 'saveData'])->name('quotation.saveData');
 
     // Quotation
-    Route::get('/quotation', [Quotation::class, 'index']);
-    Route::post('/quotation/show', [Quotation::class, 'show']);
-    Route::get('/quotation/invoice/{id}', [Quotation::class, 'invoice']);
-    Route::get('/quotation/create', [Quotation::class, 'create']);
-    Route::get('/quotation/edit/{id}', [Quotation::class, 'edit']);
-    Route::post('/quotation/store', [Quotation::class, 'store']);
-    Route::post('/quotation/update', [Quotation::class, 'update']);
-    Route::post('/quotation/update/status', [Quotation::class, 'updateStatus']);
-    Route::post('/quotation/destroy', [Quotation::class, 'destroy']);
-    Route::post('/quotation/battery/show', [QuotationBattery::class, 'show']);
-    Route::get('/quotation/get/technician/{shopId}', [Quotation::class, 'getTechnicianByShop']);
+    Route::get('/sales-order', [SalesOrder::class, 'index']);
+    Route::post('/sales-order/show', [SalesOrder::class, 'show']);
+    Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice']);
+    Route::get('/sales-order/create', [SalesOrder::class, 'create']);
+    Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit']);
+    Route::post('/sales-order/store', [SalesOrder::class, 'store']);
+    Route::post('/sales-order/update', [SalesOrder::class, 'update']);
+    Route::post('/sales-order/update/status', [SalesOrder::class, 'updateStatus']);
+    Route::post('/sales-order/destroy', [SalesOrder::class, 'destroy']);
+    Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
+    Route::get('/sales-order/get/technician/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
 
     // Settings
     // Message Template

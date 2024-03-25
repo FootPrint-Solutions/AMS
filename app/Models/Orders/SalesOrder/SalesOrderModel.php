@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Orders\Quotation;
+namespace App\Models\Orders\SalesOrder;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +17,7 @@ use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 
-class QuotationModel extends Model
+class SalesOrderModel extends Model
 {
     use HasFactory, SoftDeletes, DataTablesTrait;
 
@@ -86,7 +86,7 @@ class QuotationModel extends Model
      */
     public function batteries(): HasMany
     {
-        return $this->hasMany(QuotationBatteryModel::class, "quotation_id");
+        return $this->hasMany(SalesOrderBatteryModel::class, "quotation_id");
     }
 
     /**

@@ -13,8 +13,8 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
-use App\Models\Orders\Quotation\QuotationModel;
-use App\Models\Orders\Quotation\QuotationBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
 
 // Midtrans 
@@ -432,7 +432,7 @@ class QuickQuotation extends Controller
             'longitude' => $request->input('Longitude')
         ];
 
-        $Quotation = QuotationModel::create($data);
+        $Quotation = SalesOrderModel::create($data);
 
         if ($request->input('DistributorShopId') != null) {
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
@@ -459,7 +459,7 @@ class QuickQuotation extends Controller
             }
         }
 
-        $QuuotationBattery = QuotationBatteryModel::insert($dataProduct);
+        $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
 
         return getResponseData(true, "Data saved successfully");
     }
