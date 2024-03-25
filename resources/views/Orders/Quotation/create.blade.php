@@ -154,18 +154,12 @@
 
                                 {{-- Quantity --}}
                                 <td><input type="number" class="form-control battery-qty" id="battery-qty-1"
-                                        name="batteriesqty[]" min="0" placeholder="Enter item quantity"
-                                        @isset($data['profile']['batteries'])
-                                            value="{{ $item['quantity'] }}"
-                                        @endisset>
+                                        name="batteriesqty[]" min="0" placeholder="Enter item quantity">
                                 </td>
 
                                 {{-- Price --}}
                                 <td><input type="text" class="form-control text-end battery-price" id="battery-price-1"
-                                        name="batteriesprice[]" placeholder="Enter item price"
-                                        @isset($data['profile']['batteries'])
-                                            value="{{ $item['battery_price'] }}"
-                                        @endisset>
+                                        name="batteriesprice[]" placeholder="Enter item price">
                                 </td>
 
                                 {{-- Total --}}
@@ -173,11 +167,7 @@
                                     <div class="row">
                                         <div class="col">
                                             <input type="text" class="form-control text-end battery-total"
-                                                id="battery-total-1"
-                                                @isset($data['profile']['batteries'])
-                                                    value="{{ $item['battery_price'] * $item['quantity'] }}"
-                                                @endisset
-                                                readonly>
+                                                id="battery-total-1" value="0" readonly>
                                         </div>
 
                                         <div class="col-sm-2">
@@ -219,12 +209,10 @@
                                 <td>
                                     <div class="row">
                                         <div class="col">
-                                            <input type="text" class="form-control text-end" name="discount" required
-                                                @isset($data['profile'])
-                                            value="{{ $data['profile']['discount'] }}"
-                                            @else
-                                            value="0.0"
-                                        @endisset>
+                                            <input type="text" class="form-control text-end" id="discount-percentage"
+                                                name="discount" value="0.0" required>
+                                            <input type="hidden" class="form-control text-end" id="discount-price"
+                                                value="10" required>
                                         </div>
 
                                         <div class="col-sm-2 status-toggle">
@@ -383,24 +371,20 @@
                 $('#table-battery-detail tbody').append(newRow);
             });
 
-            $("#distributor-form").on("submit", function(event) {
+            $("#quotation-form").on("submit", function(event) {
                 event.preventDefault();
-                if ($("#AddressSearchColumn").val() == "") {
-                    swal.fire("Error!", "Please Fill The Address Column", "error");
-                    $("#AddressSearchColumn").focus();
-                    return;
-                }
+
                 let mode = $("#btn-save").attr("value"); // update || create
-                let url = (mode == "update") ? "/distributor/update" : "/distributor/store";
+                let url = (mode == "update") ? "/quotation/update" : "/quotation/store";
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
-                formData.append('isshop', $("#isshop").is(':checked') ? 1 : 0);
+                console.log("🚀 ~ $ ~ formData:", formData)
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
-                    goToPage(indexUrl);
+                    // goToPage(indexUrl);
                 });
             });
 
@@ -410,7 +394,33 @@
         });
 
         $(document).on("click", ".btn-delete-row", function() {
-            $(this).closest("tr").remove();
+            let count = $(".table-battery-detail-row").length;
+            if (count > 1) {
+                $(this).closest("tr").remove();
+            }
+        });
+
+        $(document).on("input", ".battery-qty, .battery-price", function() {
+            // Get a total price for an item.
+            let quantity = $(this).hasClass("battery-qty") ? parseInt($(this).val()) : parseInt($(this).closest(
+                "tr").find(".battery-qty").val());
+            let price = $(this).hasClass("battery-price") ? parseInt($(this).val()) : parseInt($(this).closest("tr")
+                .find(".battery-price").val());
+            let total = 0;
+            if (!isNaN(quantity) && !isNaN(price)) {
+                total = quantity * price;
+            }
+            $(this).closest("tr").find(".battery-total").val(total);
+
+            // Set total price value.
+            let totalSum = 0;
+            $(".battery-total").each(function() {
+                let value = parseInt($(this).val());
+                if (!isNaN(value)) {
+                    totalSum += value;
+                }
+            });
+            $("#total").val(totalSum);
         });
     </script>
 @endsection
