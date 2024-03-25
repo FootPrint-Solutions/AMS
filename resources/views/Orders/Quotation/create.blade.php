@@ -119,6 +119,7 @@
                 {{-- Details --}}
                 @if (!isset($data['profile']['batteries']))
                     <table class="table mb-2" id="table-battery-detail">
+                        {{-- Header --}}
                         <thead>
                             <tr>
                                 <td colspan="4" class="h5 text-center">
@@ -129,68 +130,66 @@
                             </tr>
                         </thead>
 
+                        {{-- Body (Items) --}}
                         <tbody>
-                            @php
-                                $counter = 1;
-                                $items = ['Heh'];
-                            @endphp
+                            <tr class="table-battery-detail-row">
+                                {{-- Name --}}
+                                <td>
+                                    @php
+                                        $targets = ['battery-price-1'];
+                                        $encodedTargets = json_encode($targets);
+                                    @endphp
 
-                            @foreach ($items as $item)
-                                <tr>
-                                    {{-- Name --}}
-                                    <td>
-                                        @component('components.autocomplete', [
-                                            'id' => 'battery-name-' . $counter,
-                                            'class' => 'battery-name',
-                                            'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
-                                            'name' => 'batteriesname[]',
-                                            'url' => '/battery/get/',
-                                            'placeholder' => 'Enter item name',
-                                            'targets' => json_encode(['battery-price-@php$counter @endphp']),
-                                        ])
-                                        @endcomponent
-                                    </td>
+                                    @component('components.autocomplete', [
+                                        'id' => 'battery-name-1',
+                                        'class' => 'battery-name',
+                                        'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
+                                        'name' => 'batteriesname[]',
+                                        'url' => '/battery/get/',
+                                        'placeholder' => 'Enter item name',
+                                        'targets' => $encodedTargets,
+                                    ])
+                                    @endcomponent
+                                </td>
 
-                                    {{-- Quantity --}}
-                                    <td><input type="number" class="form-control battery-qty"
-                                            id="battery-qty-@php$counter @endphp" name="batteriesqty[]" min="0"
-                                            placeholder="Enter item quantity"
-                                            @isset($data['profile']['batteries'])
+                                {{-- Quantity --}}
+                                <td><input type="number" class="form-control battery-qty" id="battery-qty-1"
+                                        name="batteriesqty[]" min="0" placeholder="Enter item quantity"
+                                        @isset($data['profile']['batteries'])
                                             value="{{ $item['quantity'] }}"
                                         @endisset>
-                                    </td>
+                                </td>
 
-                                    {{-- Price --}}
-                                    <td><input type="text" class="form-control text-end battery-price"
-                                            id="battery-price-@php$counter @endphp" name="batteriesprice[]"
-                                            placeholder="Enter item price"
-                                            @isset($data['profile']['batteries'])
+                                {{-- Price --}}
+                                <td><input type="text" class="form-control text-end battery-price" id="battery-price-1"
+                                        name="batteriesprice[]" placeholder="Enter item price"
+                                        @isset($data['profile']['batteries'])
                                             value="{{ $item['battery_price'] }}"
                                         @endisset>
-                                    </td>
+                                </td>
 
-                                    {{-- Total --}}
-                                    <td>
-                                        <div class="row">
-                                            <div class="col">
-                                                <input type="text" class="form-control text-end battery-total"
-                                                    id="battery-total-@php$counter @endphp"
-                                                    @isset($data['profile']['batteries'])
+                                {{-- Total --}}
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control text-end battery-total"
+                                                id="battery-total-1"
+                                                @isset($data['profile']['batteries'])
                                                     value="{{ $item['battery_price'] * $item['quantity'] }}"
                                                 @endisset
-                                                    readonly>
-                                            </div>
-
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-danger btn-sm"><i
-                                                        class="fas fa-xmark"></i></button>
-                                            </div>
+                                                readonly>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+
+                                        <div class="col-sm-2">
+                                            <button type="button" class="btn btn-danger btn-sm btn-delete-row"><i
+                                                    class="fas fa-xmark"></i></button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
 
+                        {{-- Footer (Tax, Discount, Total) --}}
                         <tfoot>
                             <tr>
                                 <td colspan="2"></td>
@@ -365,24 +364,23 @@
             });
 
             $("#btn-add-row").on("click", function() {
-                var newRow = `
-                    <tr>
-                        <td><input type="text" class="form-control" name="batteriesname[]" placeholder="Enter item name"></td>
-                        <td><input type="number" class="form-control" name="batteriesqty[]" placeholder="Enter item quantity"></td>
-                        <td><input type="text" class="form-control" name="batteriesqty[]" placeholder="Enter item price"></td>
-                        <td>
-                            <div class="row">
-                                <div class="col">
-                                    <input type="text" class="form-control" value="0" readonly>
-                                </div>
-                                <div class="col-sm-2">
-                                    <button type="button" class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                $("#table-battery-detail tbody").append(newRow);
+                // Clone the latest row.
+                var newRow = $('.table-battery-detail-row').last().clone();
+                newRow.find('input[type="text"]').val('');
+
+                // Set new id to each elements inside.
+                let number;
+                newRow.find('*[id]').each(function() {
+                    let id = $(this).attr("id");
+                    let parts = id.split('-');
+                    number = parseInt(parts[parts.length - 1]) + 1;
+                    $(this).attr("id", parts[0] + '-' + parts[1] + '-' + number);
+                });
+
+                var targets = JSON.stringify(["battery-price-" + number]);
+                newRow.find(".autocomplete").attr("data-targets", targets);
+
+                $('#table-battery-detail tbody').append(newRow);
             });
 
             $("#distributor-form").on("submit", function(event) {
@@ -409,6 +407,10 @@
             $("#quotation-form").on("reset", function() {
                 goToPage(indexUrl);
             });
+        });
+
+        $(document).on("click", ".btn-delete-row", function() {
+            $(this).closest("tr").remove();
         });
     </script>
 @endsection
