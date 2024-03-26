@@ -155,24 +155,34 @@
 
                                 {{-- Quantity --}}
                                 <td><input type="number" class="form-control battery-qty" id="battery-qty-1"
-                                        name="batteriesqty[]" min="0" placeholder="Enter item quantity">
+                                        name="batteriesqty[]" min="0" value=0 placeholder="Enter item quantity">
                                 </td>
 
                                 {{-- Price --}}
-                                <td><input type="text" class="form-control text-end battery-price" id="battery-price-1"
-                                        name="batteriesprice[]" placeholder="Enter item price">
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text"pattern="[0-9,]+" class="form-control text-end battery-price"
+                                            id="battery-price-1" name="batteriesprice[]" placeholder="Enter item price">
+                                    </div>
                                 </td>
 
                                 {{-- Total --}}
                                 <td>
                                     <div class="row">
                                         <div class="col">
-                                            <input type="text" class="form-control text-end battery-total"
-                                                id="battery-total-1" value="0" readonly>
+                                            <div class="col">
+                                                <div class="input-group">
+                                                    <span class="input-group-text border-end">IDR</span>
+                                                    <input type="text"pattern="[0-9,]+"
+                                                        class="form-control text-end battery-total" id="battery-total-1"
+                                                        value="0" readonly>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm btn-delete-row"><i
+                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"><i
                                                     class="fas fa-xmark"></i></button>
                                         </div>
                                     </div>
@@ -182,99 +192,67 @@
 
                         {{-- Footer (Tax, Discount, Total) --}}
                         <tfoot>
+                            {{-- Tax --}}
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="text-end">Tax</td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control text-end" name="tax" required
-                                                @isset($data['profile'])
-                                            value="{{ $data['profile']['tax'] }}"
-                                            @else
-                                            value="0.0"
-                                        @endisset>
-                                        </div>
-
-                                        <div class="col-sm-2 status-toggle">
-                                            <input type="checkbox" id="tax-check" class="check">
-                                            <label for="tax-check" class="checktoggle">checkbox</label>
-                                        </div>
+                                    <div class="input-group">
+                                        <input type="text" pattern="[0-9]+" class="form-control text-end" id="tax"
+                                            name="tax" value="0" required>
+                                        <span class="input-group-text border-end">%</span>
                                     </div>
                                 </td>
                             </tr>
 
+                            {{-- Discount --}}
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="text-end">Discount</td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control text-end" id="discount-percentage"
-                                                name="discount" value="0.0" required>
-                                            <input type="hidden" class="form-control text-end" id="discount-price"
-                                                value="10" required>
-                                        </div>
-
-                                        <div class="col-sm-2 status-toggle">
-                                            <input type="checkbox" id="discount-check" class="check">
-                                            <label for="discount-check" class="checktoggle">checkbox</label>
-                                        </div>
+                                    <div class="input-group">
+                                        <input type="text" pattern="[0-9]+" class="form-control text-end"
+                                            id="discount" name="discount" value="0" required>
+                                        <span class="input-group-text border-end">%</span>
                                     </div>
                                 </td>
                             </tr>
 
+                            {{-- Extra Discount --}}
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="text-end">Extra Discount</td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control text-end" name="extradiscount"
-                                                required
-                                                @isset($data['profile'])
-                                            value="{{ $data['profile']['extra_discount'] }}"
-                                            @else
-                                            value="0.0"
-                                        @endisset>
-                                        </div>
-
-                                        <div class="col-sm-2 status-toggle">
-                                            <input type="checkbox" id="extra-discount-check" class="check">
-                                            <label for="extra-discount-check" class="checktoggle">checkbox</label>
-                                        </div>
+                                    <div class="input-group">
+                                        <input type="text" pattern="[0-9]+" class="form-control text-end"
+                                            id="extra-discount" name="extradiscount" value="0" required>
+                                        <span class="input-group-text border-end">%</span>
                                     </div>
                                 </td>
                             </tr>
 
+                            {{-- Total --}}
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="text-end">Total</td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control text-end" id="total"
-                                                name="total" required readonly
-                                                @isset($data['profile'])
-                                    value="{{ $data['profile']['total'] }}"
-                                    @else
-                                    value="0"
-                                @endisset>
-                                        </div>
-
-                                        <div class="col-sm-2">
-                                        </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" pattern="[0-9,]+" class="form-control text-end"
+                                            id="total" name="total" value="0" required readonly>
                                     </div>
                                 </td>
                             </tr>
 
+                            {{-- Payment Method & Status --}}
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="text-end">Payment method</td>
                                 <td>
                                     <div class="row">
                                         <div class="col">
-                                            <select name="paymentmethod" id="payment-method" class="form-control">
+                                            <select name="paymentmethod" id="payment-method" class="form-control"
+                                                required>
                                                 <option value="cash" selected>Cash</option>
                                                 <option value="tokopedia">Tokopedia</option>
                                                 <option value="midtrans">Midtrans</option>
@@ -282,8 +260,8 @@
                                         </div>
 
                                         <div class="col-5">
-                                            <select name="status" id="status" class="form-control">
-                                                <option value="paid">Paid</option>
+                                            <select name="status" id="status" class="form-control" required>
+                                                <option value="paid" class="text-success">Paid</option>
                                                 <option value="pending">Pending</option>
                                                 <option value="failed">Failed</option>
                                             </select>
@@ -320,14 +298,9 @@
         </div>
     </div>
 
+    {{-- Select2 Configurations --}}
     <script>
-        let indexUrl = "/sales-order";
-
         $(document).ready(function() {
-            // formatPrice($(".battery-price"));
-            // formatPrice($(".battery-total"));
-            // formatPrice($("#total"));
-
             $('#customer').select2({
                 placeholder: "Enter customer"
             });
@@ -335,6 +308,10 @@
             $('#shop').select2({
                 placeholder: "Enter distributor shop"
             });
+
+            $('#payment-method').select2({});
+
+            $('#status').select2({});
 
             $("#shop").on("select2:select", function(e) {
                 // Obtain selected parent id.
@@ -364,11 +341,23 @@
             $('#technician').select2({
                 placeholder: "Enter technician"
             });
+        })
+    </script>
 
+    <script>
+        let indexUrl = "/sales-order";
+
+        $(document).ready(function() {
             $("#btn-add-row").on("click", function() {
-                // Clone the latest row.
-                var newRow = $('.table-battery-detail-row').last().clone();
-                newRow.find('input[type="text"]').val('');
+                // Enable the delete row button as a new row is to be appended.
+                $(".btn-delete-row").removeClass("disabled");
+
+                // Clone the last row.
+                let newRow = $('.table-battery-detail-row').last().clone();
+                newRow.find('input').val('');
+                newRow.find('.battery-qty').val('0');
+                newRow.find('.battery-total').val('0');
+                newRow.find('.btn-delete-row').removeClass('disabled');
 
                 // Set new id to each elements inside.
                 let number;
@@ -383,6 +372,17 @@
                 newRow.find(".autocomplete").attr("data-targets", targets);
 
                 $('#table-battery-detail tbody').append(newRow);
+            });
+
+            $("#tax, #discount, #extra-discount").on("change", function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                // Recalculate total value.
+                $("#total").val(calculateTotal());
             });
 
             $("#quotation-form").on("submit", function(event) {
@@ -406,14 +406,23 @@
             });
         });
 
+        // Attach a click event handler to all delete row buttons.
         $(document).on("click", ".btn-delete-row", function() {
             let count = $(".table-battery-detail-row").length;
             if (count > 1) {
                 $(this).closest("tr").remove();
+                $(".btn-delete-row").removeClass("disabled");
+
+                // Check whether the number of rows is exactly two.
+                // If it is and one of them is about to be deleted, disable the delete row.
+                if (count === 2) {
+                    $(".btn-delete-row").addClass("disabled");
+                }
             }
         });
 
-        $(document).on("input", ".battery-qty, .battery-price", function() {
+        // Attach an input event handler for each battery quantity and price fields.
+        $(document).on("change", ".battery-qty, .battery-price", function() {
             // Get a total price for an item.
             let quantity = $(this).hasClass("battery-qty") ? parseInt($(this).val()) : parseInt($(this).closest(
                 "tr").find(".battery-qty").val());
@@ -426,14 +435,29 @@
             $(this).closest("tr").find(".battery-total").val(total);
 
             // Set total price value.
-            let totalSum = 0;
+            $("#total").val(calculateTotal());
+        });
+
+        /**
+         * Calculate the total price for the sales order.
+         */
+        function calculateTotal() {
+            // Calculate subtotal based on each items' total price.
+            let subtotal = 0;
             $(".battery-total").each(function() {
                 let value = parseInt($(this).val());
                 if (!isNaN(value)) {
-                    totalSum += value;
+                    subtotal += value;
                 }
             });
-            $("#total").val(totalSum);
-        });
+
+            // Obtain tax, discount and extra discount.
+            let tax = subtotal * parseFloat($("#tax").val()) / 100;
+            let discount = subtotal * parseFloat($("#discount").val()) / 100;
+            let extraDiscount = subtotal * parseFloat($("#extra-discount").val()) / 100;
+
+            // Calculate total price and set value to total price.
+            return (subtotal - discount - extraDiscount) + tax;
+        }
     </script>
 @endsection

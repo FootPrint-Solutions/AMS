@@ -170,7 +170,7 @@ class SalesOrder extends Controller
         $salesOrder->tax = $request->tax;
         $salesOrder->discount = $request->discount;
         $salesOrder->extra_discount = $request->extradiscount;
-        $salesOrder->total = $request->total;
+        $salesOrder->total = (float) str_replace(",", "", $request->total);
         $salesOrder->payment_method = $request->paymentmethod;
         $salesOrder->status = $request->status;
         $status = $salesOrder->save();
@@ -181,7 +181,7 @@ class SalesOrder extends Controller
             $battery->sales_order_id = $salesOrder->id;
             $battery->battery_id = $request->batteriesid[$i];
             $battery->battery_name = $request->batteriesname[$i];
-            $battery->battery_price = $request->batteriesprice[$i];
+            $battery->battery_price = (float) str_replace(",", "", $request->batteriesprice[$i]);
             $battery->quantity = $request->batteriesqty[$i];
             $status &= $battery->save();
         }
