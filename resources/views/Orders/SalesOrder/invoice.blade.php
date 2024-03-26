@@ -4,13 +4,26 @@
     @page {
         size: A5;
     }
+
+    #invoice-company-logo {
+        width: 8em;
+        height: 8em;
+    }
 </style>
 
 <div class="head">
-    <div class="h1">INVOICE</div>
-    {{ $data['company']['name'] }}<br>
-    {{ $data['company']['address'] }}<br>
-    {{ $data['company']['contact'] }} | {{ $data['company']['email'] }}
+    <div class="row">
+        <div class="col">
+            <div class="h1">INVOICE</div>
+            {{ $data['company']['name'] }}<br>
+            {{ $data['company']['address'] }}<br>
+            {{ $data['company']['contact'] }} | {{ $data['company']['email'] }}
+        </div>
+
+        <div class="col text-end">
+            <img src="/img/logos/logo.png" id="invoice-company-logo">
+        </div>
+    </div>
 </div>
 <hr>
 
