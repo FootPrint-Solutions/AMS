@@ -12,6 +12,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use Exception;
 
 class SalesOrder extends Controller
 {
@@ -158,40 +159,45 @@ class SalesOrder extends Controller
      */
     public function store(Request $request)
     {
-        // Store sales order data.
-        $salesOrder = new SalesOrderModel();
-        $salesOrder->quotation_number = $request->quotationnumber;
-        $salesOrder->date = $request->date;
-        $salesOrder->customer_id = $request->customer;
-        $salesOrder->address = '';
-        $salesOrder->latitude = '';
-        $salesOrder->longitude = '';
-        $salesOrder->distributor_shop_id = $request->shop;
-        $salesOrder->distributor_shop_technician_id = $request->technician;
-        $salesOrder->tax = $request->tax;
-        $salesOrder->discount = $request->discount;
-        $salesOrder->extra_discount = $request->extradiscount;
-        $salesOrder->total = (float) str_replace(",", "", $request->total);
-        $salesOrder->payment_method = $request->paymentmethod;
-        $salesOrder->status = $request->status;
-        $status = $salesOrder->save();
+        try {
+            // Store sales order data.
+            $salesOrder = new SalesOrderModel();
+            $salesOrder->quotation_number = $request->quotationnumber;
+            $salesOrder->date = $request->date;
+            $salesOrder->customer_id = $request->customer;
+            $salesOrder->address = '';
+            $salesOrder->latitude = '';
+            $salesOrder->longitude = '';
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->tax = $request->tax;
+            $salesOrder->discount = $request->discount;
+            $salesOrder->extra_discount = $request->extradiscount;
+            $salesOrder->total = (float) str_replace(",", "", $request->total);
+            $salesOrder->payment_method = $request->paymentmethod;
+            $salesOrder->status = $request->status;
+            $status = $salesOrder->save();
 
-        // Store sales order detail data.
-        for ($i = 0; $i < count($request->batteriesid); $i++) {
-            $battery = new SalesOrderBatteryModel();
-            $battery->sales_order_id = $salesOrder->id;
-            $battery->battery_id = $request->batteriesid[$i];
-            $battery->battery_name = $request->batteriesname[$i];
-            $battery->battery_price = (float) str_replace(",", "", $request->batteriesprice[$i]);
-            $battery->quantity = $request->batteriesqty[$i];
-            $status &= $battery->save();
+            // Store sales order detail data.
+            for ($i = 0; $i < count($request->batteriesid); $i++) {
+                $battery = new SalesOrderBatteryModel();
+                $battery->sales_order_id = $salesOrder->id;
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_price = (float) str_replace(",", "", $request->batteriesprice[$i]);
+                $battery->quantity = $request->batteriesqty[$i];
+                $status &= $battery->save();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
-        );
     }
 
     /**
@@ -202,22 +208,27 @@ class SalesOrder extends Controller
      */
     public function update(Request $request)
     {
-        // Update sales order data.
-        $salesOrder = SalesOrderModel::find($request->id);
-        $salesOrder->date = $request->date;
-        $salesOrder->customer_id = $request->customer;
-        $salesOrder->address = '';
-        $salesOrder->latitude = '';
-        $salesOrder->longitude = '';
-        $salesOrder->distributor_shop_id = $request->shop;
-        $salesOrder->distributor_shop_technician_id = $request->technician;
-        $status = $salesOrder->save();
+        try {
+            // Update sales order data.
+            $salesOrder = SalesOrderModel::find($request->id);
+            $salesOrder->date = $request->date;
+            $salesOrder->customer_id = $request->customer;
+            $salesOrder->address = '';
+            $salesOrder->latitude = '';
+            $salesOrder->longitude = '';
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $status = $salesOrder->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -228,19 +239,24 @@ class SalesOrder extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $salesOrder = SalesOrderModel::find($id);
-            $status &= $salesOrder->delete();
+            foreach ($ids as $id) {
+                $salesOrder = SalesOrderModel::find($id);
+                $status &= $salesOrder->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
-        );
     }
 
     /**
@@ -251,15 +267,20 @@ class SalesOrder extends Controller
      */
     public function updateStatus(Request $request)
     {
-        $quotation = SalesOrderModel::find($request->id);
-        $quotation->status = $request->status;
-        $status = $quotation->save();
+        try {
+            $quotation = SalesOrderModel::find($request->id);
+            $quotation->status = $request->status;
+            $status = $quotation->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
