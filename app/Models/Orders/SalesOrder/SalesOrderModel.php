@@ -35,6 +35,7 @@ class SalesOrderModel extends Model
      */
     protected $fillable = [
         'quotation_number',
+        'date',
         'customer_id',
         'distributor_shop_id',
         'distributor_shop_technician_id',

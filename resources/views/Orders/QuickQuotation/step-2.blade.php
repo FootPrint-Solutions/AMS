@@ -11,20 +11,17 @@
     </div>
     <div class="form-group local-forms">
         <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-        <textarea class="form-control" id="TemplateMessageStep2" name="TemplateMessageStep2" placeholder="Enter Addres Customer"
-            required autocomplete="off">Hello, <NAME> Hello, this is our recommended battery according to your vehicle type : Battery Name : <BATTERYNAME> <ENTER> Battery Capacity : <BATTERYCAPACITY> <ENTER> Battery Price : <BATTERYPRICE> <ENTER> Battery Warranty : <BATTERYWARRANTY>
+        <textarea class="form-control" id="TemplateMessageStep2" name="TemplateMessageStep2" placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME>, this is our recommended battery according to your vehicle type : <LOOPING> Battery Name : <BATTERYNAME> <ENTER> Battery Capacity : <BATTERYCAPACITY> <ENTER> Battery Price : <BATTERYPRICE> <ENTER> Battery Warranty : <BATTERYWARRANTY>
         </textarea>
 
     </div>
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
-            <a id="btnCopyDetailProduct" class="btn clip-btn btn-primary" href="javascript:;"
-                data-clipboard-action="copy" data-clipboard-target="#CopyDetailProduct">
+            <a id="btnCopyDetailProduct" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy" data-clipboard-target="#CopyDetailProduct">
                 <i class="far fa-copy"></i>
                 Copy from Input
             </a>
@@ -52,9 +49,20 @@
         }).get();
 
         var TemplateMessageStep2 = $('#TemplateMessageStep2').val();
+        var FullName = $("#FullName").val();
 
         if (Battery.length == 0) {
             swal.fire("Error!", "Please select battery", "error");
+            return;
+        }
+
+        if (TemplateMessageStep2.includes('<NAME>') == false) {
+            swal.fire("Error!", "Template Message must contain NAME", "error");
+            return;
+        }
+
+        if (TemplateMessageStep2.includes('<LOOPING>') == false) {
+            swal.fire("Error!", "Template Message must contain LOOPING", "error");
             return;
         }
 
@@ -71,6 +79,7 @@
         var data = {
             'Battery': Battery,
             'TemplateMessageStep2': TemplateMessageStep2,
+            'FullName': FullName,
             _token: $('meta[name="csrf-token"]').attr('content')
         };
 
@@ -82,6 +91,11 @@
                 let ResponseData = JSON.parse(response);
                 if (ResponseData.status == true) {
                     $('#CopyDetailProduct').val(ResponseData.message);
+                    // trigger copy button 
+                    var copyText = document.getElementById("CopyDetailProduct");
+                    copyText.select();
+                    copyText.setSelectionRange(0, 99999);
+                    document.execCommand("copy");
                 } else {
                     swal.fire("Error!", response.message, "error");
                 }

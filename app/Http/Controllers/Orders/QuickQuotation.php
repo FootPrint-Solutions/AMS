@@ -77,10 +77,11 @@ class QuickQuotation extends Controller
                 if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
                     return getResponseData(true, "Message sent successfully");
                 } else {
-                    return getResponseData(false, "Failed to send message");
+                    return getResponseData(false, "Failed to send message : " . $responseData['data']['message']);
                 }
             } else {
-                return getResponseData(false, "Failed to send message");
+                $responseData = $response->json();
+                return getResponseData(false, "Failed to send message : " . $responseData['message']);
             }
         } catch (\Exception $e) {
             return getResponseData(false, "Failed to send message => " . $e->getMessage());
@@ -97,7 +98,11 @@ class QuickQuotation extends Controller
     public function findVehicleByIdVehicle(Request $request)
     {
         $ids = $request->input('id');
-        $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+        if ($request->input('shop_id')) {
+            $results = VehicleModel::getBatteryRecomendationWithDistributor($ids, $request->input('shop_id'));
+        } else {
+            $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+        }
         return response()->json($results);
     }
 
@@ -137,44 +142,48 @@ class QuickQuotation extends Controller
         $ids = $request->input('Battery');
         $results = BatteryModel::where('id', $ids)->get()->toArray();
 
-
-        foreach ($results as $key => $value) {
-            if ($value['image'] != null) {
-                $value['image'] = asset('storage/image/battery/' . $value['image']);
-            } else {
-                $value['image'] = null;
-            }
-
-            $template = $request->input('TemplateMessageStep2');
-            $text = str_replace(
-                ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                [
-                    $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n"
-                ],
-                $template
-            );
-
-            $data = [
-                'to' => "62" . $request->input('ContactNumber'),
-                'session' => auth()->user()->username,
-                'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
-                'caption' => $text,
-            ];
-
-            try {
-                $response = Http::post($url, $data);
-                if ($response->successful()) {
-                    $responseData = $response->json();
-                    if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
-                        return getResponseData(true, "Message sent successfully");
-                    } else {
-                        return getResponseData(false, "Failed to send message");
-                    }
+        if ($results == null) {
+            return getResponseData(false, "Battery not found");
+        } else {
+            foreach ($results as $key => $value) {
+                if ($value['image'] != null) {
+                    $value['image'] = asset('storage/image/battery/' . $value['image']);
                 } else {
-                    return getResponseData(false, "Failed to send message");
+                    $value['image'] = null;
                 }
-            } catch (\Exception $e) {
-                return getResponseData(false, "Failed to send message => " . $e->getMessage());
+
+                $template = $request->input('TemplateMessageStep2');
+                $text = str_replace(
+                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>', '<LOOPING>'],
+                    [
+                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n", ""
+                    ],
+                    $template
+                );
+
+                $data = [
+                    'to' => "62" . $request->input('ContactNumber'),
+                    'session' => auth()->user()->username,
+                    'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
+                    'caption' => $text,
+                ];
+
+                try {
+                    $response = Http::post($url, $data);
+                    if ($response->successful()) {
+                        $responseData = $response->json();
+                        if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
+                            return getResponseData(true, "Message sent successfully");
+                        } else {
+                            return getResponseData(false, "Failed to send message");
+                        }
+                    } else {
+                        $responseData = $response->json();
+                        return getResponseData(false, "Failed to send message : " . $responseData['message']);
+                    }
+                } catch (\Exception $e) {
+                    return getResponseData(false, "Failed to send message => " . $e->getMessage());
+                }
             }
         }
     }
@@ -286,27 +295,35 @@ class QuickQuotation extends Controller
 
     public function getBatteryCopyDetail(Request $request)
     {
-        $BatteryId = $request->input('Battery');
+        $batteryIds = $request->input('Battery');
         try {
-            $Battery = BatteryModel::whereIn('id', $BatteryId)->get()->toArray();
-            $Message = "";
-            $template = $request->input('TemplateMessageStep2');
+            $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
+            $message = "Hello, " . $request->input('FullName') . ", this is our recommended battery according to your vehicle type :\n\n";
 
-            foreach ($Battery as $value) {
+            $template = $request->input('TemplateMessageStep2');
+            $startIndex = strpos($template, '<LOOPING>');
+            if ($startIndex !== false) {
+                $template = substr($template, $startIndex + 9);
+                // $teks_awal = substr($template, 0, $startIndex);
+            }
+            $template = substr($template, strpos($template, '<LOOPING>') + 9);
+
+            foreach ($batteries as $battery) {
                 $text = str_replace(
                     ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
                     [
-                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n\n"
+                        $request->input('FullName'), $battery->name, $battery->capacity, $battery->price_retail, $battery->warranty, "\n\n"
                     ],
-                    $template
+                    $template // Menggunakan template yang telah dimodifikasi
                 );
-                $Message = $text;
+                $message .= $text;
             }
-            return getResponseData(true, $Message);
+            return getResponseData(true, $message);
         } catch (\Throwable $th) {
-            return getResponseData(false, "Failed to get battery detail" . $th->getMessage());
+            return getResponseData(false, "Failed to get battery detail: " . $th->getMessage());
         }
     }
+
 
     public function shareInvoice(Request $request)
     {
@@ -429,7 +446,8 @@ class QuickQuotation extends Controller
             'status' => $status,
             'address' => $request->input('AddressCustomer'),
             'latitude' => $request->input('Latitude'),
-            'longitude' => $request->input('Longitude')
+            'longitude' => $request->input('Longitude'),
+            'date' => date('Y-m-d')
         ];
 
         $Quotation = SalesOrderModel::create($data);
@@ -449,13 +467,17 @@ class QuickQuotation extends Controller
         } else {
             $dataProduct = [];
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
-                $dataProduct[] = [
-                    'quotation_id' => $Quotation->id,
-                    'battery_id' => $request->input('Battery')[$key],
-                    'battery_name' => $value,
-                    'quantity' => $request->input('QtyTabel')[$key],
-                    'battery_price' => $request->input('PriceTabel')[$key],
-                ];
+                /// loop berdasarkan qty
+                for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
+                    $dataProduct[] = [
+                        'quotation_id' => $Quotation->quotation_number,
+                        'sales_order_id' => $Quotation->id,
+                        'battery_id' => $request->input('Battery')[$key],
+                        'battery_name' => $value,
+                        'quantity' => 1,
+                        'battery_price' => $request->input('PriceTabel')[$key],
+                    ];
+                }
             }
         }
 
