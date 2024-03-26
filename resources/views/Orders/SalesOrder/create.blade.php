@@ -136,7 +136,7 @@
                                 {{-- Name --}}
                                 <td>
                                     @php
-                                        $targets = ['battery-price-1'];
+                                        $targets = ['battery-price-1', 'battery-qty-1'];
                                         $encodedTargets = json_encode($targets);
                                     @endphp
 
@@ -145,11 +145,13 @@
                                         'class' => 'battery-name',
                                         'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
                                         'name' => 'batteriesname[]',
+                                        'nameHiddenId' => 'batteriesid[]',
                                         'url' => '/battery/get/',
                                         'placeholder' => 'Enter item name',
                                         'targets' => $encodedTargets,
                                     ])
                                     @endcomponent
+                                    <input type="hidden" name="batteriesid[]" id="battery-id-1">
                                 </td>
 
                                 {{-- Quantity --}}
@@ -271,11 +273,24 @@
                                 <td colspan="2"></td>
                                 <td class="text-end">Payment method</td>
                                 <td>
-                                    <select name="paymentmethod" id="payment-method" class="form-control">
-                                        <option value="tokopedia">Cash</option>
-                                        <option value="tokopedia">Tokopedia</option>
-                                        <option value="midtrans">Midtrans</option>
-                                    </select>
+                                    <div class="row">
+                                        <div class="col">
+                                            <select name="paymentmethod" id="payment-method" class="form-control">
+                                                <option value="cash" selected>Cash</option>
+                                                <option value="tokopedia">Tokopedia</option>
+                                                <option value="midtrans">Midtrans</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-5">
+                                            <select name="status" id="status" class="form-control">
+                                                <option value="paid">Paid</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="failed">Failed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </td>
                             </tr>
                         </tfoot>
@@ -379,7 +394,6 @@
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
-                console.log("🚀 ~ $ ~ formData:", formData)
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {

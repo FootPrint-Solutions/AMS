@@ -15,6 +15,7 @@
 </style>
 
 <div style="position: relative;">
+    <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }}>
     <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }}
         name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}"
         placeholder="{{ $placeholder }}" @if ($value !== '')
@@ -27,6 +28,7 @@
     $(document).on("input", ".autocomplete", function() {
         let autocomplete = $(this);
         let autocompleteList = autocomplete.closest("div").find(".autocomplete-list");
+        let idInput = autocomplete.closest("div").find(".hidden-id-input");
 
         // Clear current autocomplete item list.
         autocompleteList.empty();
@@ -55,6 +57,7 @@
 
                         // Set input value.
                         autocomplete.val(data[1]);
+                        idInput.val(data[0]);
 
                         // Hide current autocomplete item list.
                         autocompleteList.empty();

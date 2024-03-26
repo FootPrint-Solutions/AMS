@@ -177,18 +177,25 @@ class SalesOrder extends Controller
      */
     public function store(Request $request)
     {
-        $quotation = new SalesOrderModel();
-        $quotation->quotation_number = $request->quotationnumber;
-        $quotation->customer_id = $request->customer;
-        $quotation->distributor_shop_id = $request->shop;
-        $quotation->distributor_shop_technician_id = $request->technician;
-        $quotation->tax = $request->tax;
-        $quotation->discount = $request->discount;
-        $quotation->extra_discount = $request->extradiscount;
-        $quotation->total = $request->total;
-        $status = $quotation->save();
+        $salesOrder = new SalesOrderModel();
+        $salesOrder->quotation_number = $request->quotationnumber;
+        $salesOrder->customer_id = $request->customer;
+        $salesOrder->address = '';
+        $salesOrder->latitude = '';
+        $salesOrder->longitude = '';
+        $salesOrder->distributor_shop_id = $request->shop;
+        $salesOrder->distributor_shop_technician_id = $request->technician;
+        $salesOrder->tax = $request->tax;
+        $salesOrder->discount = $request->discount;
+        $salesOrder->extra_discount = $request->extradiscount;
+        $salesOrder->total = $request->total;
+        $salesOrder->payment_method = $request->paymentmethod;
+        $salesOrder->status = $request->status;
+        // $status = $salesOrder->save();
+        $status = true;
 
         // Save quotation detail.
+        var_dump($request->batteriesname);
 
         // Set a new response data to be sent.
         return getResponseData(
@@ -209,8 +216,8 @@ class SalesOrder extends Controller
         $ids = $request->id;
 
         foreach ($ids as $id) {
-            $quotation = SalesOrderModel::find($id);
-            $status &= $quotation->delete();
+            $salesOrder = SalesOrderModel::find($id);
+            $status &= $salesOrder->delete();
         }
 
         // Set a new response data to be sent.
