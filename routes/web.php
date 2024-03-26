@@ -210,7 +210,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales-order/destroy', [SalesOrder::class, 'destroy']);
     Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
     Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
-    Route::get('/sales-order/get/technician/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
+    Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
 
     // Settings
     // Message Template

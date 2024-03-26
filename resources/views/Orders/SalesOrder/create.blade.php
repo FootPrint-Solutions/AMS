@@ -319,9 +319,10 @@
 
                 // Get the list of menus inside the selected parent.
                 $.ajax({
-                    url: "/quotation/get/technician/" + parentId,
+                    url: "/sales-order/technician/get/" + parentId,
                     method: "GET",
                     success: function(response) {
+                        console.log(response);
                         // Clear current options and value.
                         $("#technician").empty().val(null).trigger("change");
 
