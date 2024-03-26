@@ -23,27 +23,6 @@ class BatteryModel extends Model
     protected $table = 'batteries';
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'id',
-        'name',
-        'brand_id',
-        'subbrand_category_id',
-        'usage_type_id',
-        'size_category_id',
-        'technology_id',
-        'dimension_length',
-        'dimension_width',
-        'dimension_height',
-        'standard_cca',
-        'capacity',
-        'warranty',
-        'price_retail',
-        'name_alternate'
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -113,11 +92,34 @@ class BatteryModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = [
+            'id',
+            'name',
+            'brand_id',
+            'subbrand_category_id',
+            'usage_type_id',
+            'size_category_id',
+            'technology_id',
+            'dimension_length',
+            'dimension_width',
+            'dimension_height',
+            'standard_cca',
+            'capacity',
+            'warranty',
+            'price_retail',
+            'name_alternate'
+        ];
+        $searchColumns = [
+            'name',
+            'name_alternate'
+        ];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 
     /**

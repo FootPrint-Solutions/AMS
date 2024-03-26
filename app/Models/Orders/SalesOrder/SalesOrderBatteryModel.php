@@ -45,11 +45,14 @@ class SalesOrderBatteryModel extends Model
      */
     public static function whereForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'sales_order_id', 'battery_id', 'battery_name', 'battery_price', 'quantity', 'battery_production_code'];
+
         // Build the query to obtain all rows.
         $query = self::query()
             ->where('sales_order_id', $request->id);
         $query->select(self::$selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $selectColumns);
     }
 }

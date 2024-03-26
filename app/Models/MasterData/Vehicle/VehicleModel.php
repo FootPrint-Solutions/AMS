@@ -26,11 +26,6 @@ class VehicleModel extends Model
     protected $table = 'vehicles';
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = ['id', 'name', 'brand_id', 'url'];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -71,10 +66,14 @@ class VehicleModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'name', 'brand_id', 'url'];
+        $searchColumns = ['name'];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }

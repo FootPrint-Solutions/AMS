@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 // Models
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 // Trait
 use App\Traits\DataTablesTrait;
@@ -33,19 +34,20 @@ class CustomerModel extends Model
     ];
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'id', 'name', 'address', 'contact', 'email'
-    ];
-
-    /**
      * Get all of the vehicles owned by the customer.
      */
     public function vehicles()
     {
         return $this->belongsToMany(VehicleModel::class, 'customer_vehicle', 'customer_id', 'vehicle_id')
             ->withTimestamps();
+    }
+
+    /**
+     * Get all of the customers' sales orders.
+     */
+    public static function salesOrders()
+    {
+        return self::hasMany(SalesOrderModel::class, 'customer_id', 'id');
     }
 
     /**
@@ -56,15 +58,14 @@ class CustomerModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'name', 'address', 'contact', 'email'];
+        $searchColumns = ['name', 'address', 'contact', 'email'];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
-    }
-
-    public static function quotations()
-    {
-        return self::hasMany(QuotationModel::class, 'customer_id', 'id');
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }

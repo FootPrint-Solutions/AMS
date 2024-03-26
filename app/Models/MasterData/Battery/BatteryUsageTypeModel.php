@@ -21,14 +21,6 @@ class BatteryUsageTypeModel extends Model
     protected $table = 'battery_usage_types';
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'id',
-        'name',
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -43,10 +35,14 @@ class BatteryUsageTypeModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'name'];
+        $searchColumns = ['name'];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }

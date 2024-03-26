@@ -10,9 +10,10 @@ trait DataTablesTrait
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
      * @param Illuminate\Database\Query\Builder $query Query built to obtain rows in table.
      * @param array $selectColumns The list of columns to be displayed.
+     * @param array $searchColumns The list of columns to be searchable.
      * @return array Associative array containing data for DataTables display.
      */
-    public static function getAllRows($request, $query, $selectColumns)
+    public static function getAllRows($request, $query, $selectColumns, $searchColumns = null)
     {
         // Get DataTables configuration request.
         $start = $request->input("start");
@@ -22,9 +23,9 @@ trait DataTablesTrait
         $orderDirection = $request->input("order.0.dir");
 
         // Searching process.
-        if ($searchValue != null) {
-            $query->where(function ($query) use ($searchValue, $selectColumns) {
-                foreach ($selectColumns as $column) {
+        if ($searchColumns != null && $searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $searchColumns) {
+                foreach ($searchColumns as $column) {
                     $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
                 }
             });

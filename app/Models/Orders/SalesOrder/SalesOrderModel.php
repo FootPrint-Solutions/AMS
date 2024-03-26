@@ -53,11 +53,6 @@ class SalesOrderModel extends Model
     ];
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = ['*'];
-
-    /**
      * Get the customer of the quotations.
      */
     public function customer(): BelongsTo
@@ -97,11 +92,15 @@ class SalesOrderModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['*'];
+        $searchColumns = [];
+
         // Build the query to obtain all rows.
         $query = DB::table('sales_orders_view');
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
         $query->whereNull("deleted_at");
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $selectColumns);
     }
 }

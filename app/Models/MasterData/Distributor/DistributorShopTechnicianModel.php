@@ -22,13 +22,6 @@ class DistributorShopTechnicianModel extends Model
     protected $table = 'distributor_shop_technicians';
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'id', 'name', 'distributor_shop_id', 'contact', 'email'
-    ];
-
-    /**
      * Get technicians' shop.
      */
     public function shop(): BelongsTo
@@ -44,10 +37,14 @@ class DistributorShopTechnicianModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'name', 'distributor_shop_id', 'contact', 'email'];
+        $searchColumns = ['name', 'contact', 'email'];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }
