@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleModel;
@@ -130,41 +131,46 @@ class Vehicle extends Controller
      */
     public function store(Request $request)
     {
-        $vehicle = new VehicleModel();
-        $vehicle->name = $request->name;
+        try {
+            $vehicle = new VehicleModel();
+            $vehicle->name = $request->name;
 
-        // Check if the brand is newly added or not.
-        if ($request->brand === "new") {
-            // Store the newly added vehicle brand.
-            $brand = new VehicleBrandModel();
-            $brand->name = $request->newbrand;
-            $status = $brand->save();
+            // Check if the brand is newly added or not.
+            if ($request->brand === "new") {
+                // Store the newly added vehicle brand.
+                $brand = new VehicleBrandModel();
+                $brand->name = $request->newbrand;
+                $status = $brand->save();
 
-            $vehicle->brand_id = $brand->id;
-        } else {
-            $vehicle->brand_id = $request->brand;
-        }
-
-        $vehicle->url = $request->url;
-        $status = $vehicle->save();
-
-        // Store the list of all vehicles' suitable battery.
-        // Set primary battery type to 1.
-        $batteries[$request->batteryprimary] = ["type" => "1"];
-
-        // Set secondary battery type to 0.
-        if (!is_null($request->batterysecondary)) {
-            foreach ($request->batterysecondary as $battery) {
-                $batteries[$battery] = ["type" => "0"];
+                $vehicle->brand_id = $brand->id;
+            } else {
+                $vehicle->brand_id = $request->brand;
             }
-        }
-        $vehicle->batteries()->attach($batteries);
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
-        );
+            $vehicle->url = $request->url;
+            $status = $vehicle->save();
+
+            // Store the list of all vehicles' suitable battery.
+            // Set primary battery type to 1.
+            $batteries[$request->batteryprimary] = ["type" => "1"];
+
+            // Set secondary battery type to 0.
+            if (!is_null($request->batterysecondary)) {
+                foreach ($request->batterysecondary as $battery) {
+                    $batteries[$battery] = ["type" => "0"];
+                }
+            }
+            $vehicle->batteries()->attach($batteries);
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -175,41 +181,46 @@ class Vehicle extends Controller
      */
     public function update(Request $request)
     {
-        $vehicle = VehicleModel::find($request->id);
-        $vehicle->name = $request->name;
+        try {
+            $vehicle = VehicleModel::find($request->id);
+            $vehicle->name = $request->name;
 
-        // Check if the brand is newly added or not.
-        if ($request->brand === "new") {
-            // Store the newly added vehicle brand.
-            $brand = new VehicleBrandModel();
-            $brand->name = $request->newbrand;
-            $status = $brand->save();
+            // Check if the brand is newly added or not.
+            if ($request->brand === "new") {
+                // Store the newly added vehicle brand.
+                $brand = new VehicleBrandModel();
+                $brand->name = $request->newbrand;
+                $status = $brand->save();
 
-            $vehicle->brand_id = $brand->id;
-        } else {
-            $vehicle->brand_id = $request->brand;
-        }
-
-        $vehicle->url = $request->url;
-        $status = $vehicle->save();
-
-        // Update the list of all vehicles' suitable batteries.
-        // Set primary battery type to 1.
-        $batteries[$request->batteryprimary] = ["type" => "1"];
-
-        // Set secondary battery type to 0.
-        if (!is_null($request->batterysecondary)) {
-            foreach ($request->batterysecondary as $battery) {
-                $batteries[$battery] = ["type" => "0"];
+                $vehicle->brand_id = $brand->id;
+            } else {
+                $vehicle->brand_id = $request->brand;
             }
-        }
-        $vehicle->batteries()->sync($batteries);
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
-        );
+            $vehicle->url = $request->url;
+            $status = $vehicle->save();
+
+            // Update the list of all vehicles' suitable batteries.
+            // Set primary battery type to 1.
+            $batteries[$request->batteryprimary] = ["type" => "1"];
+
+            // Set secondary battery type to 0.
+            if (!is_null($request->batterysecondary)) {
+                foreach ($request->batterysecondary as $battery) {
+                    $batteries[$battery] = ["type" => "0"];
+                }
+            }
+            $vehicle->batteries()->sync($batteries);
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -220,23 +231,28 @@ class Vehicle extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            // Delete the specific vehicle.
-            $vehicle = VehicleModel::find($id);
-            $status &= $vehicle->delete();
+            foreach ($ids as $id) {
+                // Delete the specific vehicle.
+                $vehicle = VehicleModel::find($id);
+                $status &= $vehicle->delete();
 
-            // Detach suitable batteries from the pivot table
-            $vehicle->batteries()->detach();
+                // Detach suitable batteries from the pivot table
+                $vehicle->batteries()->detach();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
-        );
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
@@ -121,23 +122,28 @@ class Customer extends Controller
      */
     public function store(Request $request)
     {
-        $customer = new CustomerModel();
-        $customer->name = $request->name;
-        $customer->address = $request->address;
-        $customer->contact = $request->contact;
-        $customer->email = $request->email;
-        $customer->latitude = $request->Latitude;
-        $customer->longitude = $request->Longitude;
-        $status = $customer->save();
+        try {
+            $customer = new CustomerModel();
+            $customer->name = $request->name;
+            $customer->address = $request->address;
+            $customer->contact = $request->contact;
+            $customer->email = $request->email;
+            $customer->latitude = $request->Latitude;
+            $customer->longitude = $request->Longitude;
+            $status = $customer->save();
 
-        // Store the list of customers" owned vehicles.
-        $customer->vehicles()->attach($request->vehicle);
+            // Store the list of customers" owned vehicles.
+            $customer->vehicles()->attach($request->vehicle);
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -148,23 +154,28 @@ class Customer extends Controller
      */
     public function update(Request $request)
     {
-        $customer = CustomerModel::find($request->id);
-        $customer->name = $request->name;
-        $customer->address = $request->address;
-        $customer->contact = $request->contact;
-        $customer->email = $request->email;
-        $customer->latitude = $request->Latitude;
-        $customer->longitude = $request->Longitude;
-        $status = $customer->save();
+        try {
+            $customer = CustomerModel::find($request->id);
+            $customer->name = $request->name;
+            $customer->address = $request->address;
+            $customer->contact = $request->contact;
+            $customer->email = $request->email;
+            $customer->latitude = $request->Latitude;
+            $customer->longitude = $request->Longitude;
+            $status = $customer->save();
 
-        // Update the list of customers" owned vehicles.
-        $customer->vehicles()->sync($request->vehicle);
+            // Update the list of customers" owned vehicles.
+            $customer->vehicles()->sync($request->vehicle);
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The customer was successfully updated!" : "Failed to update the customer!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The customer was successfully updated!" : "Failed to update the customer!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -175,23 +186,28 @@ class Customer extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $customer = CustomerModel::find($id);
+            foreach ($ids as $id) {
+                $customer = CustomerModel::find($id);
 
-            // Detach associated vehicles from the pivot table
-            $customer->vehicles()->detach();
+                // Detach associated vehicles from the pivot table
+                $customer->vehicles()->detach();
 
-            // Delete customer data in storage.
-            $status &= $customer->delete();
+                // Delete customer data in storage.
+                $status &= $customer->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
-        );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
@@ -111,15 +112,20 @@ class BatteryTechnology extends Controller
      */
     public function store(Request $request)
     {
-        $technology = new BatteryTechnologyModel();
-        $technology->name = $request->name;
-        $status = $technology->save();
+        try {
+            $technology = new BatteryTechnologyModel();
+            $technology->name = $request->name;
+            $status = $technology->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new battery technology was successfully created!" : "Failed to create the new battery technology!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new battery technology was successfully created!" : "Failed to create the new battery technology!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -130,15 +136,20 @@ class BatteryTechnology extends Controller
      */
     public function update(Request $request)
     {
-        $technology = BatteryTechnologyModel::find($request->id);
-        $technology->name = $request->name;
-        $status = $technology->save();
+        try {
+            $technology = BatteryTechnologyModel::find($request->id);
+            $technology->name = $request->name;
+            $status = $technology->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The battery technology was successfully updated!" : "Failed to update the battery technology!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The battery technology was successfully updated!" : "Failed to update the battery technology!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -149,18 +160,23 @@ class BatteryTechnology extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $technology = BatteryTechnologyModel::find($id);
-            $status = $technology->delete();
+            foreach ($ids as $id) {
+                $technology = BatteryTechnologyModel::find($id);
+                $status = $technology->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected technology was successfully deleted!" : "Failed to delete the selected technology!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected technology was successfully deleted!" : "Failed to delete the selected technology!"
-        );
     }
 }

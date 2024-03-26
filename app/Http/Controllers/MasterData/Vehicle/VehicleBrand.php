@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
@@ -112,15 +113,20 @@ class VehicleBrand extends Controller
      */
     public function store(Request $request)
     {
-        $brand = new VehicleBrandModel();
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = new VehicleBrandModel();
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -131,15 +137,20 @@ class VehicleBrand extends Controller
      */
     public function update(Request $request)
     {
-        $brand = VehicleBrandModel::find($request->id);
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = VehicleBrandModel::find($request->id);
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -150,18 +161,23 @@ class VehicleBrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $vehicle = VehicleBrandModel::find($id);
-            $status = $vehicle->delete();
+            foreach ($ids as $id) {
+                $vehicle = VehicleBrandModel::find($id);
+                $status = $vehicle->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? 'The selected brand was successfully deleted!' : 'Failed to delete the selected brand!'
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? 'The selected brand was successfully deleted!' : 'Failed to delete the selected brand!'
-        );
     }
 }

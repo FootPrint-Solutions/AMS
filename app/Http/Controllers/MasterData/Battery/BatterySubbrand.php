@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
@@ -111,15 +112,20 @@ class BatterySubbrand extends Controller
      */
     public function store(Request $request)
     {
-        $subbrand = new BatterySubbrandCategoryModel();
-        $subbrand->name = $request->name;
-        $status = $subbrand->save();
+        try {
+            $subbrand = new BatterySubbrandCategoryModel();
+            $subbrand->name = $request->name;
+            $status = $subbrand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new battery subbrand category was successfully created!" : "Failed to create the new battery subbrand category!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new battery subbrand category was successfully created!" : "Failed to create the new battery subbrand category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -130,15 +136,20 @@ class BatterySubbrand extends Controller
      */
     public function update(Request $request)
     {
-        $subbrand = BatterySubbrandCategoryModel::find($request->id);
-        $subbrand->name = $request->name;
-        $status = $subbrand->save();
+        try {
+            $subbrand = BatterySubbrandCategoryModel::find($request->id);
+            $subbrand->name = $request->name;
+            $status = $subbrand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The battery subbrand category was successfully updated!" : "Failed to update the battery subbrand category!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The battery subbrand category was successfully updated!" : "Failed to update the battery subbrand category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -149,18 +160,23 @@ class BatterySubbrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $subbrand = BatterySubbrandCategoryModel::find($id);
-            $status = $subbrand->delete();
+            foreach ($ids as $id) {
+                $subbrand = BatterySubbrandCategoryModel::find($id);
+                $status = $subbrand->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected subbrand category was successfully deleted!" : "Failed to delete the selected subbrand category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected subbrand category was successfully deleted!" : "Failed to delete the selected subbrand category!"
-        );
     }
 }

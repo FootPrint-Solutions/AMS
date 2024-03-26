@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
@@ -119,19 +120,24 @@ class DistributorShopTechnician extends Controller
      */
     public function store(Request $request)
     {
-        $technician = new DistributorShopTechnicianModel();
-        $technician->name = $request->name;
-        $technician->distributor_shop_id = $request->shop;
-        $technician->contact = $request->contact;
-        $technician->email = $request->email;
-        $technician->note = $request->note;
-        $status = $technician->save();
+        try {
+            $technician = new DistributorShopTechnicianModel();
+            $technician->name = $request->name;
+            $technician->distributor_shop_id = $request->shop;
+            $technician->contact = $request->contact;
+            $technician->email = $request->email;
+            $technician->note = $request->note;
+            $status = $technician->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -143,19 +149,24 @@ class DistributorShopTechnician extends Controller
      */
     public function update(Request $request)
     {
-        $technician = DistributorShopTechnicianModel::find($request->id);
-        $technician->name = $request->name;
-        $technician->id_shop = $request->shop;
-        $technician->contact = $request->contact;
-        $technician->email = $request->email;
-        $technician->note = $request->note;
-        $status = $technician->save();
+        try {
+            $technician = DistributorShopTechnicianModel::find($request->id);
+            $technician->name = $request->name;
+            $technician->id_shop = $request->shop;
+            $technician->contact = $request->contact;
+            $technician->email = $request->email;
+            $technician->note = $request->note;
+            $status = $technician->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -166,18 +177,23 @@ class DistributorShopTechnician extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $technician = DistributorShopTechnicianModel::find($id);
-            $status = $technician->delete();
+            foreach ($ids as $id) {
+                $technician = DistributorShopTechnicianModel::find($id);
+                $status = $technician->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new technician was successfully deleted!" : "Failed to delete the new technician!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new technician was successfully deleted!" : "Failed to delete the new technician!"
-        );
     }
 }
