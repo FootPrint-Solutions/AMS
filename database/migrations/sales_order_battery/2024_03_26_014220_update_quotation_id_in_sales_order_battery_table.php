@@ -14,7 +14,7 @@ class UpdateQuotationIdInSalesOrderBatteryTable extends Migration
     public function up()
     {
         Schema::table('sales_order_battery', function (Blueprint $table) {
-            $table->dropForeign('quotation_id');
+            // $table->dropForeign('quotation_id');
             $table->unsignedBigInteger('sales_order_id')->after('id');
 
             // Set foreign key.

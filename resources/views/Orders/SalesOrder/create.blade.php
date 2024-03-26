@@ -57,7 +57,7 @@
                             <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
                             <input type="date" class="form-control" id="quotation-date" name="date" required
                                 @isset($data['profile'])
-                            value="{{ $data['profile']['created_at'] }}"
+                            value="{{ $data['profile']['date'] }}"
                         @else
                             value="{{ date('Y-m-d') }}"
                         @endisset>
@@ -451,7 +451,9 @@
     {{--  --}}
     <script>
         /**
-         * Calculate the total price for the sales order.
+         * Calculate the total price with tax, discount, and extra discount included.
+         * 
+         * @returns {number} The total price after applying tax, discount, and extra discount.
          */
         function calculateTotal() {
             // Calculate subtotal based on each items' total price.
@@ -463,7 +465,7 @@
                 }
             });
 
-            // Obtain tax, discount and extra discount.
+            // Obtain tax, discount and extra discount value (in percentage).
             let tax = subtotal * parseFloat($("#tax").val()) / 100;
             let discount = subtotal * parseFloat($("#discount").val()) / 100;
             let extraDiscount = subtotal * parseFloat($("#extra-discount").val()) / 100;

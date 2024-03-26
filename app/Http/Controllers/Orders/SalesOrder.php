@@ -161,6 +161,7 @@ class SalesOrder extends Controller
         // Store sales order data.
         $salesOrder = new SalesOrderModel();
         $salesOrder->quotation_number = $request->quotationnumber;
+        $salesOrder->date = $request->date;
         $salesOrder->customer_id = $request->customer;
         $salesOrder->address = '';
         $salesOrder->latitude = '';
@@ -203,6 +204,7 @@ class SalesOrder extends Controller
     {
         // Update sales order data.
         $salesOrder = SalesOrderModel::find($request->id);
+        $salesOrder->date = $request->date;
         $salesOrder->customer_id = $request->customer;
         $salesOrder->address = '';
         $salesOrder->latitude = '';
