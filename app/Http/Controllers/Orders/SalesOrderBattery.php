@@ -29,9 +29,15 @@ class SalesOrderBattery extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set production code field.
+            $productionCodeField = 'Click to assign production code';
+            if ($key->battery_production_code && !empty($key->battery_production_code))
+                $productionCodeField = $key->battery_production_code;
+
             $row = [];
             $row[] = $no++;
-            $row[] = "<a href='javascript:void(0)'>$key->battery_name</a>";
+            $row[] =  "<a href='javascript:void(0)' class='battery-production-code' data-id='$key->id' data-code='$key->battery_production_code' data-toggle='tooltip' data-placement='bottom' title='Edit battery production code'>$productionCodeField</a>";
+            $row[] = $key->battery_name;
             $row[] = number_format($key->quantity);
             $row[] = number_format($key->battery_price);
             $row[] = number_format($key->quantity * $key->battery_price);
@@ -45,5 +51,18 @@ class SalesOrderBattery extends Controller
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
+    }
+
+    public function updateProductionCode(Request $request)
+    {
+        $battery = SalesOrderBatteryModel::find($request->id);
+        $battery->battery_production_code = $request->productioncode;
+        $status = $battery->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The battery production code was successfully updated!" : "Failed to update the battery production code!"
+        );
     }
 }

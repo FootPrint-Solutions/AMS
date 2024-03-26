@@ -198,7 +198,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails');
     Route::post('/quotation/save-data', [QuickQuotation::class, 'saveData'])->name('quotation.saveData');
 
-    // Quotation
+    // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);
     Route::post('/sales-order/show', [SalesOrder::class, 'show']);
     Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice']);
@@ -209,6 +209,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales-order/update/status', [SalesOrder::class, 'updateStatus']);
     Route::post('/sales-order/destroy', [SalesOrder::class, 'destroy']);
     Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
+    Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
     Route::get('/sales-order/get/technician/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
 
     // Settings

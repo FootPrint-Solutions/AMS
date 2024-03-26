@@ -61,6 +61,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
+                                <th scope="col">Production Code</th>
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Price (IDR)</th>
@@ -174,11 +175,11 @@
                                         orderable: false
                                     },
                                     {
-                                        targets: [2, 3, 4],
+                                        targets: [3, 4, 5],
                                         className: 'dt-body-right'
                                     }
                                 ],
-                                select: true,
+                                select: false,
                             });
                         },
                         className: "btn btn-outline-info btn-sm",
@@ -227,6 +228,48 @@
                 // Reload the table.
                 tableTmp.ajax.reload();
             });
+        });
+
+        $(document).on('click', '.battery-production-code', function() {
+            // Obtain the id and code of sales order's battery.
+            let id = $(this).data("id");
+            let code = $(this).data("code");
+
+            // Generate a new input element for production code.
+            let element =
+                "<input type='text' class='form-control form-control-sm' placeholder='Enter production code'";
+            if (code !== "") {
+                element = element + " value='" + code + "'";
+            }
+            element = element + ">";
+
+            let inputElement = $(element);
+            inputElement.on("keyup", function() {
+                if (event.keyCode === 13) {
+                    $.ajax({
+                        url: "/sales-order/battery/update/production-code",
+                        method: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "id": id,
+                            "productioncode": $(this).val()
+                        },
+                        success: function(response) {
+                            // Get response data from url (in JSON).
+                            let responseData = JSON.parse(response);
+
+                            // Show Toast message based on responseData.
+                            showResponseToast(responseData.status, responseData
+                                .message);
+
+                            table.ajax.reload();
+                        }
+                    });
+                }
+            });
+
+            // Replace current element with generated input element.
+            $(this).replaceWith(inputElement);
         });
     </script>
 @endsection

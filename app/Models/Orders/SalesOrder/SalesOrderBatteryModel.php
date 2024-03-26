@@ -35,7 +35,7 @@ class SalesOrderBatteryModel extends Model
     /**
      * The list of columns in the associated table.
      */
-    private static $selectColumns = ['sales_order_id', 'battery_id', 'battery_name', 'battery_price', 'quantity'];
+    private static $selectColumns = ['id', 'sales_order_id', 'battery_id', 'battery_name', 'battery_price', 'quantity', 'battery_production_code'];
 
     /**
      * Get all data for DataTables.

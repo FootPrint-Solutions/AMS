@@ -133,9 +133,9 @@ class SalesOrder extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->quotation_number;
-            $row[] = "<a href='javascript:void()'>$key->customer_name</a><button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
-            $row[] = $key->shop_name ? "<a href='javascript:void()'>$key->distributor_name</a>/<a href='javascript:void()'>$key->shop_name</a>" : "<p class='text-center'>-</p>";
-            $row[] = $key->technician_name ? "<a href='javascript:void()'>$key->technician_name</a>" : "<p class='text-center'>-</p>";
+            $row[] = "$key->customer_name<button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
+            $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = number_format($key->total);
             $row[] = ucwords($key->payment_method);
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
