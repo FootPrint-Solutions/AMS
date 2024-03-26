@@ -151,25 +151,6 @@ class SalesOrder extends Controller
     }
 
     /**
-     * Update the specified resource status in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function updateStatus(Request $request)
-    {
-        $quotation = SalesOrderModel::find($request->id);
-        $quotation->status = $request->status;
-        $status = $quotation->save();
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
-        );
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -177,6 +158,7 @@ class SalesOrder extends Controller
      */
     public function store(Request $request)
     {
+        // Store sales order data.
         $salesOrder = new SalesOrderModel();
         $salesOrder->quotation_number = $request->quotationnumber;
         $salesOrder->customer_id = $request->customer;
@@ -191,11 +173,18 @@ class SalesOrder extends Controller
         $salesOrder->total = $request->total;
         $salesOrder->payment_method = $request->paymentmethod;
         $salesOrder->status = $request->status;
-        // $status = $salesOrder->save();
-        $status = true;
+        $status = $salesOrder->save();
 
-        // Save quotation detail.
-        var_dump($request->batteriesname);
+        // Store sales order detail data.
+        for ($i = 0; $i < count($request->batteriesid); $i++) {
+            $battery = new SalesOrderBatteryModel();
+            $battery->sales_order_id = $salesOrder->id;
+            $battery->battery_id = $request->batteriesid[$i];
+            $battery->battery_name = $request->batteriesname[$i];
+            $battery->battery_price = $request->batteriesprice[$i];
+            $battery->quantity = $request->batteriesqty[$i];
+            $status &= $battery->save();
+        }
 
         // Set a new response data to be sent.
         return getResponseData(
@@ -224,6 +213,25 @@ class SalesOrder extends Controller
         return getResponseData(
             $status,
             $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
+        );
+    }
+
+    /**
+     * Update the specified resource status in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request)
+    {
+        $quotation = SalesOrderModel::find($request->id);
+        $quotation->status = $request->status;
+        $status = $quotation->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
         );
     }
 

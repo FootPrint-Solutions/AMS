@@ -151,7 +151,6 @@
                                         'targets' => $encodedTargets,
                                     ])
                                     @endcomponent
-                                    <input type="hidden" name="batteriesid[]" id="battery-id-1">
                                 </td>
 
                                 {{-- Quantity --}}
@@ -398,7 +397,7 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
-                    // goToPage(indexUrl);
+                    goToPage(indexUrl);
                 });
             });
 

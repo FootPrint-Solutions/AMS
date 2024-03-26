@@ -25,7 +25,7 @@ class SalesOrderBatteryModel extends Model
      * @var array
      */
     protected $fillable = [
-        'quotation_id',
+        'sales_order_id',
         'battery_id',
         'battery_name',
         'battery_price',
@@ -35,7 +35,7 @@ class SalesOrderBatteryModel extends Model
     /**
      * The list of columns in the associated table.
      */
-    private static $selectColumns = ['quotation_id', 'battery_id', 'battery_name', 'battery_price', 'quantity'];
+    private static $selectColumns = ['sales_order_id', 'battery_id', 'battery_name', 'battery_price', 'quantity'];
 
     /**
      * Get all data for DataTables.
@@ -47,7 +47,7 @@ class SalesOrderBatteryModel extends Model
     {
         // Build the query to obtain all rows.
         $query = self::query()
-            ->where('quotation_id', $request->id);
+            ->where('sales_order_id', $request->id);
         $query->select(self::$selectColumns);
 
         return self::getAllRows($request, $query, self::$selectColumns);
