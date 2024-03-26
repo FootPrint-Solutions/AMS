@@ -12,12 +12,12 @@
 
         <div class="col text-end">
             <a id="btnCopyPaymentDetails" class="btn clip-btn btn-primary" href="javascript:;"
-                data-clipboard-action="copy" data-clipboard-target="#TemplateMessageStep4">
+                data-clipboard-action="copy" data-clipboard-target="#CopyPaymentDetails">
                 <i class="far fa-copy"></i>
                 Copy from Input
             </a>
-            {{-- <button id='BtnSharePaymentDetails' class="btn btn-success"> Share <i
-                    class="fa-brands fa-whatsapp"></i></button> --}}
+            <button id='BtnSharePaymentDetails' class="btn btn-success"> Share <i
+                    class="fa-brands fa-whatsapp"></i></button>
             <button class="btn btn-primary" id="ButtonSaveData">Save Changes</button>
         </div>
     </div>

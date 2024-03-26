@@ -231,7 +231,7 @@
                 }).then(function(e) {
                     if (e.value === true) {
                         $.ajax({
-                            url: "/share-form-personal-details",
+                            url: "/quotation/customer/share",
                             type: "POST",
                             data: data,
                             success: function(data) {
@@ -276,7 +276,7 @@
                 var input = $(this).val();
                 if (input.length > 0) {
                     $.ajax({
-                        url: "/find-customer",
+                        url: "/quotation/customer/find",
                         type: "GET",
                         data: {
                             input: input
@@ -350,7 +350,7 @@
 
                         // get vehcile by  id 
                         $.ajax({
-                            url: "/find-vehicle-by-id",
+                            url: "/quotation/customer/vehicle/find",
                             type: "GET",
                             data: {
                                 id: IdCustomer,
@@ -449,7 +449,7 @@
                 // check jika button next step 2 berhasil di click
                 if ($('#ProductDisplay').hasClass('active')) {
                     $.ajax({
-                        url: "/find-vehicle-by-id-vehicle",
+                        url: "/quotation/vehicle/find",
                         type: "GET",
                         data: {
                             id: VehicleCustomer,
@@ -542,7 +542,7 @@
                     };
 
                     $.ajax({
-                        url: "/get-maps-near-address-customer",
+                        url: "/quotation/customer/maps/near",
                         type: "GET",
                         data: data,
                         success: function(data) {
@@ -697,7 +697,7 @@
                     };
 
                     $.ajax({
-                        url: "/share-battery",
+                        url: "/quotation/battery/share",
                         type: "POST",
                         data: data,
                         success: function(data) {
@@ -781,7 +781,7 @@
                     };
 
                     $.ajax({
-                        url: "/get-checkout-preview",
+                        url: "/quotation/checkout",
                         type: "GET",
                         data: data,
                         success: function(data) {
@@ -854,7 +854,7 @@
                     };
 
                     $.ajax({
-                        url: "/get-payment-preview",
+                        url: "/quotation/payment",
                         type: "GET",
                         data: data,
                         success: function(data) {

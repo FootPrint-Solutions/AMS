@@ -75,7 +75,7 @@
         };
 
         $.ajax({
-            url: "/get-battery-copy-detail",
+            url: "/quotation/battery/copy",
             type: "POST",
             data: data,
             success: function(response) {
