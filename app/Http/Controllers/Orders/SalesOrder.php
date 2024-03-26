@@ -16,8 +16,8 @@ use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 class SalesOrder extends Controller
 {
     private $title = "Quotation";
-    private $menu = 4;
-    private $submenu = 1;
+    private $menu = 3;
+    private $submenu = 2;
 
     /**
      * Display a listing of the resource.
@@ -190,6 +190,31 @@ class SalesOrder extends Controller
         return getResponseData(
             $status,
             $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        // Update sales order data.
+        $salesOrder = SalesOrderModel::find($request->id);
+        $salesOrder->customer_id = $request->customer;
+        $salesOrder->address = '';
+        $salesOrder->latitude = '';
+        $salesOrder->longitude = '';
+        $salesOrder->distributor_shop_id = $request->shop;
+        $salesOrder->distributor_shop_technician_id = $request->technician;
+        $status = $salesOrder->save();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
         );
     }
 

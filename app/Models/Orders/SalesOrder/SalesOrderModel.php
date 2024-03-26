@@ -86,7 +86,7 @@ class SalesOrderModel extends Model
      */
     public function batteries(): HasMany
     {
-        return $this->hasMany(SalesOrderBatteryModel::class, "quotation_id");
+        return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id");
     }
 
     /**

@@ -344,9 +344,33 @@
         })
     </script>
 
+    {{-- Form Handler --}}
     <script>
         let indexUrl = "/sales-order";
 
+        $("#quotation-form").on("submit", function(event) {
+            event.preventDefault();
+
+            let mode = $("#btn-save").attr("value"); // update || create
+            let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
+
+            // Obtain submitted form data.
+            let formData = new FormData($(this)[0]);
+
+            // Send submit POST request via AJAX.
+            sendSubmitRequest(url, formData, function() {
+                // Redirect to index page.
+                goToPage(indexUrl);
+            });
+        });
+
+        $("#quotation-form").on("reset", function() {
+            goToPage(indexUrl);
+        });
+    </script>
+
+    {{-- Click Event Handler --}}
+    <script>
         $(document).ready(function() {
             $("#btn-add-row").on("click", function() {
                 // Enable the delete row button as a new row is to be appended.
@@ -373,37 +397,6 @@
 
                 $('#table-battery-detail tbody').append(newRow);
             });
-
-            $("#tax, #discount, #extra-discount").on("change", function() {
-                // Validate input value.
-                let value = parseInt($(this).val(), 10);
-                if (isNaN(value)) {
-                    $(this).val("0");
-                }
-
-                // Recalculate total value.
-                $("#total").val(calculateTotal());
-            });
-
-            $("#quotation-form").on("submit", function(event) {
-                event.preventDefault();
-
-                let mode = $("#btn-save").attr("value"); // update || create
-                let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
-
-                // Obtain submitted form data.
-                let formData = new FormData($(this)[0]);
-
-                // Send submit POST request via AJAX.
-                sendSubmitRequest(url, formData, function() {
-                    // Redirect to index page.
-                    goToPage(indexUrl);
-                });
-            });
-
-            $("#quotation-form").on("reset", function() {
-                goToPage(indexUrl);
-            });
         });
 
         // Attach a click event handler to all delete row buttons.
@@ -419,6 +412,22 @@
                     $(".btn-delete-row").addClass("disabled");
                 }
             }
+        });
+    </script>
+
+    {{-- Change Event Handler --}}
+    <script>
+        $(document).ready(function() {
+            $("#tax, #discount, #extra-discount").on("change", function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                // Recalculate total value.
+                $("#total").val(calculateTotal());
+            });
         });
 
         // Attach an input event handler for each battery quantity and price fields.
@@ -437,7 +446,10 @@
             // Set total price value.
             $("#total").val(calculateTotal());
         });
+    </script>
 
+    {{--  --}}
+    <script>
         /**
          * Calculate the total price for the sales order.
          */
