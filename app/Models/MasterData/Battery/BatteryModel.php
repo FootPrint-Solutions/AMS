@@ -152,4 +152,15 @@ class BatteryModel extends Model
 
         return $batteryData;
     }
+
+    public static function getBatteryWithSize()
+    {
+        $batteryData = DB::table('batteries')
+            ->select('batteries.*', 'battery_size_categories.name as size_category_name')
+            ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
+            ->get()
+            ->toArray();
+
+        return $batteryData;
+    }
 }

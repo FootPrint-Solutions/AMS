@@ -56,7 +56,7 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::all()->toArray()
+                    'batteries' => BatteryModel::getBatteryWithSize(),
                 )
             )
         );
@@ -78,9 +78,9 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::all()->toArray(),
+                    'batteries' => BatteryModel::getBatteryWithSize(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->first(),
+                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->toArray(),
                     'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('battery_id')->toArray(),
                 )
             )
@@ -167,7 +167,7 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -217,7 +217,7 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -249,7 +249,7 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

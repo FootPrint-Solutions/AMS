@@ -61,8 +61,8 @@
                             <select class="form-control" id="battery-primary" name="batteryprimary" required>
                                 <option></option>
                                 @foreach ($data['batteries'] as $battery)
-                                    <option value="{{ $battery['id'] }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery['id']) selected @endif>
-                                        {{ $battery['name'] }}</option>
+                                    <option value="{{ $battery->id }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery->id) selected @endif>
+                                        {{ $battery->name }} - {{ $battery->size_category_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -75,8 +75,8 @@
                             <select class="form-control" id="battery-secondary" name="batterysecondary[]"
                                 multiple="multiple">
                                 @foreach ($data['batteries'] as $battery)
-                                    <option value="{{ $battery['id'] }}" @if (isset($data['secondary_batteries']) && in_array($battery['id'], $data['secondary_batteries'])) selected @endif>
-                                        {{ $battery['name'] }}</option>
+                                    <option value="{{ $battery->id }}" @if (isset($data['secondary_batteries']) && in_array($battery->id, $data['secondary_batteries'])) selected @endif>
+                                        {{ $battery->name }} - {{ $battery->size_category_name }}</option>
                                 @endforeach
                             </select>
                         </div>
