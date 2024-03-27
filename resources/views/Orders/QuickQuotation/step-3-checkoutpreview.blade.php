@@ -129,7 +129,7 @@
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="tax" name="tax" value="">
+                            <input type="number" class="form-control" id="tax" name="tax" value="0">
                         </div>
                     </div>
 
@@ -137,7 +137,7 @@
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
                             <input type="number" class="form-control" id="discount" name="discount"
-                                value="">
+                                value="0">
                         </div>
                     </div>
 
@@ -145,7 +145,7 @@
                         <label for="order-customer" class="col-sm-5 col-form-label">Extra Discount</label>
                         <div class="col-sm-7">
                             <input type="number" class="form-control" id="Extradiscount" name="Extradiscount"
-                                value="">
+                                value="0">
                         </div>
                     </div>
 

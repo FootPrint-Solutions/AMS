@@ -157,7 +157,7 @@ class QuickQuotation extends Controller
                 $text = str_replace(
                     ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>', '<LOOPING>'],
                     [
-                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n", ""
+                        $request->input('FullName'), $value['name'], $value['capacity'], "Rp. " . number_format($value['price_retail'], 0, "", "."), $value['warranty'], "\n", ""
                     ],
                     $template
                 );
@@ -314,7 +314,7 @@ class QuickQuotation extends Controller
                 $text = str_replace(
                     ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
                     [
-                        $request->input('FullName'), $battery->name, $battery->capacity, $battery->price_retail, $battery->warranty, "\n\n"
+                        $request->input('FullName'), $battery->name, $battery->capacity, "Rp. " . number_format($battery->price_retail, 0, "", "."), $battery->warranty, "\n\n"
                     ],
                     $template // Menggunakan template yang telah dimodifikasi
                 );
@@ -473,6 +473,8 @@ class QuickQuotation extends Controller
                         'battery_name' => $value->name,
                         // 'quantity' => 1,
                         'battery_price' => $value->price_retail,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -486,6 +488,8 @@ class QuickQuotation extends Controller
                         'battery_name' => $value,
                         // 'quantity' => 1,
                         'battery_price' => $request->input('PriceTabel')[$key],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
                     ];
                 }
             }

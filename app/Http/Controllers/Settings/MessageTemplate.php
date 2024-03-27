@@ -26,7 +26,14 @@ class MessageTemplate extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "templates" => MessageTemplateModel::all()->pluck("message", "name")->toArray()
+                    "templates" => MessageTemplateModel::all()->map(function ($template) {
+                        return [
+                            "message" => $template->message,
+                            "name" => $template->name,
+                            "opening_message" => $template->opening_message,
+                            "closing_message" => $template->closing_message,
+                        ];
+                    })->toArray()
                 )
             )
         );
@@ -45,22 +52,26 @@ class MessageTemplate extends Controller
 
         // Personal Details
         $template = MessageTemplateModel::where('name', 'personal_details')->first();
-        $template->message = $request->personaldetail;
+        $template->opening_message = $request->openingpersonaldetail;
+        $template->closing_message = $request->closingpersonaldetail;
         $status &= $template->save();
 
         // Product Recommendation
         $template = MessageTemplateModel::where('name', 'product_recommendation')->first();
-        $template->message = $request->productrecommendation;
+        $template->opening_message = $request->openingproductrecommendation;
+        $template->closing_message = $request->closingproductrecommendation;
         $status &= $template->save();
 
         // Checkout Page
         $template = MessageTemplateModel::where('name', 'checkout_page')->first();
-        $template->message = $request->checkoutpage;
+        $template->opening_message = $request->openingcheckoutpage;
+        $template->closing_message = $request->closingcheckoutpage;
         $status &= $template->save();
 
         // Payment Details
         $template = MessageTemplateModel::where('name', 'payment_details')->first();
-        $template->message = $request->paymentdetails;
+        $template->opening_message = $request->openingpaymentdetails;
+        $template->closing_message = $request->closingpaymentdetails;
         $status &= $template->save();
 
         // Set a new response data to be sent.
