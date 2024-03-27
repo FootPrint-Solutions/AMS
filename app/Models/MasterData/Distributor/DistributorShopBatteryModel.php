@@ -27,13 +27,6 @@ class DistributorShopBatteryModel extends Model
     protected $fillable = ['battery_id', 'distributor_shop_id'];
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'distributor_shop_battery.id', 'batteries.name', 'price', 'url'
-    ];
-
-    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
@@ -41,13 +34,16 @@ class DistributorShopBatteryModel extends Model
      */
     public static function whereForDataTables($request)
     {
+        $selectColumns = ['distributor_shop_battery.id', 'batteries.name', 'price', 'url'];
+        $searchColumns = ['batteries.name'];
+
         // Build the query to obtain all rows.
         $query = self::query()
             ->join('distributor_shops', 'distributor_shops.id', '=', 'distributor_shop_battery.distributor_shop_id')
             ->join('batteries', 'batteries.id', '=', 'distributor_shop_battery.battery_id')
             ->where('distributor_shop_id', $request->id);
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }
