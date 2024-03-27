@@ -40,11 +40,11 @@
                     {{-- Quotation Number --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="quotation-number">Sales Order Number <span class="login-danger">*</span></label>
-                            <input type="text" class="form-control" id="quotation-number" name="quotationnumber"
+                            <label for="sales-order-number">Sales Order Number <span class="login-danger">*</span></label>
+                            <input type="text" class="form-control" id="sales-order-number" name="salesordernumber"
                                 placeholder="Enter distributor name" required readonly
                                 @isset($data['profile'])
-                            value="{{ $data['profile']['quotation_number'] }}"
+                            value="{{ $data['profile']['sales_order_number'] }}"
                         @else
                             value="{{ $data['number'] }}"
                         @endisset>
@@ -133,8 +133,14 @@
                         {{-- Body (Items) --}}
                         <tbody>
                             <tr class="table-battery-detail-row">
-                                {{-- Name --}}
+                                {{-- Production Code --}}
                                 <td>
+                                    <input type="text" class="form-control battery-code" id="battery-production-code"
+                                        name="batteriescode[]" placeholder="Enter item production code">
+                                </td>
+
+                                {{-- Name --}}
+                                <td colspan="2">
                                     @php
                                         $targets = ['battery-price-1', 'battery-qty-1'];
                                         $encodedTargets = json_encode($targets);
@@ -153,38 +159,13 @@
                                     @endcomponent
                                 </td>
 
-                                {{-- Quantity --}}
-                                <td><input type="number" class="form-control battery-qty" id="battery-qty-1"
-                                        name="batteriesqty[]" min="0" value=0 placeholder="Enter item quantity">
-                                </td>
-
                                 {{-- Price --}}
                                 <td>
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
                                         <input type="text"pattern="[0-9,]+" class="form-control text-end battery-price"
-                                            id="battery-price-1" name="batteriesprice[]" placeholder="Enter item price">
-                                    </div>
-                                </td>
-
-                                {{-- Total --}}
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="col">
-                                                <div class="input-group">
-                                                    <span class="input-group-text border-end">IDR</span>
-                                                    <input type="text"pattern="[0-9,]+"
-                                                        class="form-control text-end battery-total" id="battery-total-1"
-                                                        value="0" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"><i
-                                                    class="fas fa-xmark"></i></button>
-                                        </div>
+                                            id="battery-price-1" name="batteriesprice[]" placeholder="Enter item price"
+                                            required>
                                     </div>
                                 </td>
                             </tr>
@@ -211,8 +192,8 @@
                                 <td class="text-end">Discount</td>
                                 <td>
                                     <div class="input-group">
-                                        <input type="text" pattern="[0-9]+" class="form-control text-end"
-                                            id="discount" name="discount" value="0" required>
+                                        <input type="text" pattern="[0-9]+" class="form-control text-end" id="discount"
+                                            name="discount" value="0" required>
                                         <span class="input-group-text border-end">%</span>
                                     </div>
                                 </td>
@@ -432,18 +413,8 @@
         });
 
         // Attach an input event handler for each battery quantity and price fields.
-        $(document).on("change", ".battery-qty, .battery-price", function() {
-            // Get a total price for an item.
-            let quantity = $(this).hasClass("battery-qty") ? parseInt($(this).val()) : parseInt($(this).closest(
-                "tr").find(".battery-qty").val());
-            let price = $(this).hasClass("battery-price") ? parseInt($(this).val()) : parseInt($(this).closest("tr")
-                .find(".battery-price").val());
-            let total = 0;
-            if (!isNaN(quantity) && !isNaN(price)) {
-                total = quantity * price;
-            }
-            $(this).closest("tr").find(".battery-total").val(total);
-
+        $(document).on("change", ".battery-price", function() {
+            alert("Heh");
             // Set total price value.
             $("#total").val(calculateTotal());
         });
@@ -459,7 +430,7 @@
         function calculateTotal() {
             // Calculate subtotal based on each items' total price.
             let subtotal = 0;
-            $(".battery-total").each(function() {
+            $(".battery-price").each(function() {
                 let value = parseInt($(this).val());
                 if (!isNaN(value)) {
                     subtotal += value;

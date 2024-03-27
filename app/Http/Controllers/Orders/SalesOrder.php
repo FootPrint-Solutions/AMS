@@ -133,7 +133,7 @@ class SalesOrder extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->quotation_number;
+            $row[] = $key->sales_order_number;
             $row[] = "$key->customer_name<button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
@@ -163,7 +163,7 @@ class SalesOrder extends Controller
         try {
             // Store sales order data.
             $salesOrder = new SalesOrderModel();
-            $salesOrder->quotation_number = $request->quotationnumber;
+            $salesOrder->sales_order_number = $request->salesordernumber;
             $salesOrder->date = $request->date;
             $salesOrder->customer_id = $request->customer;
             $salesOrder->address = '';
@@ -186,7 +186,7 @@ class SalesOrder extends Controller
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
                 $battery->battery_price = (float) str_replace(",", "", $request->batteriesprice[$i]);
-                $battery->quantity = $request->batteriesqty[$i];
+                $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }
 
