@@ -92,8 +92,8 @@ class SalesOrderModel extends Model
     {
         // Get the latest added code.
         $latestCode = self::query()
-            ->latest()
-            ->first()?->value("sales_order_number") ?? null;
+            ->orderByDesc('created_at')
+            ->first()?->sales_order_number ?? null;
 
         // Generate the new sales order code.
         $year = substr($latestCode, 2, 2);
@@ -128,13 +128,24 @@ class SalesOrderModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['*'];
+        $selectColumns = [
+            'sales_orders.*',
+            'customers.name AS customer_name',
+            'shops.name AS shop_name',
+            'distributors.id AS distributor_id',
+            'distributors.name AS distributor_name',
+            'technicians.name AS technician_name'
+        ];
         $searchColumns = [];
 
         // Build the query to obtain all rows.
-        $query = DB::table('sales_orders_view');
+        $query = self::query();
+        $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
+        $query->leftJoin("distributor_shops AS shops", "sales_orders.distributor_shop_id", "=", "shops.id");
+        $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
+        $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->select($selectColumns);
-        $query->whereNull("deleted_at");
+        // $query->whereNull("deleted_at");
 
         return self::getAllRows($request, $query, $selectColumns, $selectColumns);
     }
