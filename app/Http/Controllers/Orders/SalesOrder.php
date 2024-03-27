@@ -219,10 +219,12 @@ class SalesOrder extends Controller
             $salesOrder->longitude = '';
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->payment_method = $request->paymentmethod;
+            $salesOrder->status = $request->status;
             $status = $salesOrder->save();
 
             // Store sales order detail data.
-            for ($i = 0; $i < count($request->batteriesid); $i++) {
+            for ($i = 0; $i < count($request->batteriesprice); $i++) {
                 $battery = SalesOrderBatteryModel::find($request->detailid[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();

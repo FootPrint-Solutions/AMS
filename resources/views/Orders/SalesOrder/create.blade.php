@@ -205,8 +205,10 @@
                             <td class="text-end">Tax</td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" pattern="[0-9]+" class="form-control text-end" id="tax"
-                                        name="tax" value="0" required>
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
+                                        name="tax"
+                                        value="@isset($data['profile']){{ $data['profile']['tax'] }}@else 0.00 @endisset"
+                                        required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -218,8 +220,10 @@
                             <td class="text-end">Discount</td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" pattern="[0-9]+" class="form-control text-end" id="discount"
-                                        name="discount" value="0" required>
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
+                                        name="discount"
+                                        value="@isset($data['profile']){{ $data['profile']['discount'] }}@else 0.00 @endisset"
+                                        required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -231,8 +235,10 @@
                             <td class="text-end">Extra Discount</td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" pattern="[0-9]+" class="form-control text-end"
-                                        id="extra-discount" name="extradiscount" value="0" required>
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                        id="extra-discount" name="extradiscount"
+                                        value="@isset($data['profile']){{ $data['profile']['extra_discount'] }}@else 0.00 @endisset"
+                                        required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -246,7 +252,9 @@
                                 <div class="input-group">
                                     <span class="input-group-text border-end">IDR</span>
                                     <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
-                                        name="total" value="0" required readonly>
+                                        name="total"
+                                        value="@isset($data['profile']){{ $data['profile']['total'] }}@else 0 @endisset"
+                                        required readonly>
                                 </div>
                             </td>
                         </tr>
@@ -259,17 +267,23 @@
                                 <div class="row">
                                     <div class="col">
                                         <select name="paymentmethod" id="payment-method" class="form-control" required>
-                                            <option value="cash" selected>Cash</option>
-                                            <option value="tokopedia">Tokopedia</option>
-                                            <option value="midtrans">Midtrans</option>
+                                            <option value="cash" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'cash') selected @endif>Cash
+                                            </option>
+                                            <option value="tokopedia" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'tokopedia') selected @endif>
+                                                Tokopedia</option>
+                                            <option value="midtrans" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'midtrans') selected @endif>
+                                                Midtrans</option>
                                         </select>
                                     </div>
 
                                     <div class="col-5">
                                         <select name="status" id="status" class="form-control" required>
-                                            <option value="paid" class="text-success">Paid</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="failed">Failed</option>
+                                            <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
+                                            </option>
+                                            <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
+                                                Pending</option>
+                                            <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
+                                                Failed</option>
                                         </select>
                                     </div>
                                 </div>
@@ -366,7 +380,7 @@
             // Send submit POST request via AJAX.
             sendSubmitRequest(url, formData, function() {
                 // Redirect to index page.
-                // goToPage(indexUrl);
+                goToPage(indexUrl);
             });
         });
 
