@@ -1174,7 +1174,7 @@
                                 icon: "success",
                             });
                             setTimeout(function() {
-                                window.location.href = "/quotation";
+                                window.location.href = "/sales-order";
                             }, 2000);
                         } else {
                             Swal.fire({

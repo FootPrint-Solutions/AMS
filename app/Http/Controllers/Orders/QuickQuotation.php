@@ -456,21 +456,21 @@ class QuickQuotation extends Controller
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
             $dataProduct = [];
             foreach ($BatteryData as $key => $value) {
-                $dataProduct[] = [
-                    'quotation_id' => $Quotation->id,
-                    'battery_id' => $value->id,
-                    'battery_name' => $value->name,
-                    'quantity' => $request->input('QtyTabel')[$key],
-                    'battery_price' => $value->price_retail,
-                ];
+                for ($i = 0; $i <  $request->input('QtyTabel')[$key]; $i++) {
+                    $dataProduct[] = [
+                        'sales_order_id' => $Quotation->id,
+                        'battery_id' => $value->id,
+                        'battery_name' => $value->name,
+                        'quantity' => 1,
+                        'battery_price' => $value->price_retail,
+                    ];
+                }
             }
         } else {
             $dataProduct = [];
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
-                /// loop berdasarkan qty
                 for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
                     $dataProduct[] = [
-                        'quotation_id' => $Quotation->quotation_number,
                         'sales_order_id' => $Quotation->id,
                         'battery_id' => $request->input('Battery')[$key],
                         'battery_name' => $value,
@@ -482,7 +482,10 @@ class QuickQuotation extends Controller
         }
 
         $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
-
-        return getResponseData(true, "Data saved successfully");
+        if (!$QuuotationBattery) {
+            return getResponseData(false, "Failed to save data");
+        } else {
+            return getResponseData(true, "Data saved successfully");
+        }
     }
 }

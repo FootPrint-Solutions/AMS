@@ -194,7 +194,7 @@ class SalesOrder extends Controller
                 $status,
                 $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -225,7 +225,7 @@ class SalesOrder extends Controller
                 $status,
                 $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -253,7 +253,7 @@ class SalesOrder extends Controller
                 $status,
                 $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -277,7 +277,7 @@ class SalesOrder extends Controller
                 $status,
                 $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
