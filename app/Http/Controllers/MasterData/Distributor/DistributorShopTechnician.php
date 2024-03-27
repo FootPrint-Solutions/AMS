@@ -152,7 +152,7 @@ class DistributorShopTechnician extends Controller
         try {
             $technician = DistributorShopTechnicianModel::find($request->id);
             $technician->name = $request->name;
-            $technician->id_shop = $request->shop;
+            $technician->distributor_shop_id = $request->shop;
             $technician->contact = $request->contact;
             $technician->email = $request->email;
             $technician->note = $request->note;
