@@ -265,8 +265,12 @@
                             html += '<li class="list-group-item">Price : Rp. ' +
                                 Number(vehicle.battery_distributor_price).toLocaleString(
                                     'id-ID') + '</li>  ';
-                            html += '<li class="list-group-item">Link Tokopedia : ' +
-                                vehicle.battery_distributor_link + '</li>';
+                            if (vehicle.battery_distributor_link != null) {
+                                html += '<li class="list-group-item">Link Tokopedia : ' +
+                                    vehicle.battery_distributor_link + '</li>';
+                            } else {
+
+                            }
                         } else {
                             html += '<li class="list-group-item">Price : Rp. ' +
                                 Number(vehicle.price_retail).toLocaleString(

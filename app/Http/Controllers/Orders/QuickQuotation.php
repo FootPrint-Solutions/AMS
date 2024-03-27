@@ -236,6 +236,7 @@ class QuickQuotation extends Controller
         $BatteryNameTabel = $request->input('BatteryNameTabel');
         $QtyTabel = $request->input('QtyTabel');
         $PriceTabel = $request->input('PriceTabel');
+        $Link = $request->input('LinkTokopedia');
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
@@ -248,7 +249,7 @@ class QuickQuotation extends Controller
                     'name' => $value->name,
                     'qty' => $QtyTabel[$key],
                     'price' => $value->price_retail,
-                    'link' => $value->url
+                    'link' => $Link[$key],
                 ];
             }
         } else {
@@ -259,7 +260,7 @@ class QuickQuotation extends Controller
                     'name' => $value,
                     'qty' => $QtyTabel[$key],
                     'price' => $PriceTabel[$key],
-                    'link' => ''
+                    'link' => $Link[$key],
                 ];
             }
         }
@@ -390,13 +391,12 @@ class QuickQuotation extends Controller
 
     public static function saveData(Request $request)
     {
-        $QuotationNumber = "QUO" . date('YmdHis') . rand(99, 999);
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
         $total = $request->input('TotalAmount');
         $status = "Pending";
-        $vehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+
         if ($request->input('CheckMidtrans') == 1) {
             $payment_methode = "midtrans";
             $midtransInvoice = $request->input('invoiceNumber');
@@ -432,7 +432,7 @@ class QuickQuotation extends Controller
         }
 
         $data = [
-            'quotation_number' => $QuotationNumber,
+            'sales_orders_number' => SalesOrderModel::newCode(),
             'customer_id' => $Customer->id,
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
@@ -461,7 +461,7 @@ class QuickQuotation extends Controller
                         'sales_order_id' => $Quotation->id,
                         'battery_id' => $value->id,
                         'battery_name' => $value->name,
-                        'quantity' => 1,
+                        // 'quantity' => 1,
                         'battery_price' => $value->price_retail,
                     ];
                 }
@@ -474,7 +474,7 @@ class QuickQuotation extends Controller
                         'sales_order_id' => $Quotation->id,
                         'battery_id' => $request->input('Battery')[$key],
                         'battery_name' => $value,
-                        'quantity' => 1,
+                        // 'quantity' => 1,
                         'battery_price' => $request->input('PriceTabel')[$key],
                     ];
                 }

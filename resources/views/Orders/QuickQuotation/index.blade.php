@@ -815,6 +815,7 @@
                     var QtyTabel = [];
                     var PriceTabel = [];
                     var BatteryNameTabel = [];
+                    var LinkTokopedia = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -828,6 +829,11 @@
                     $(".BatteryNameCheckout").each(function() {
                         var value = $(this).val();
                         BatteryNameTabel.push(value);
+                    });
+
+                    $(".LinkTokopedia").each(function() {
+                        var value = $(this).val();
+                        LinkTokopedia.push(value);
                     });
                     var DistributorShopId = $("#DistributorShopId").val();
 
@@ -850,6 +856,7 @@
                         QtyTabel: QtyTabel,
                         PriceTabel: PriceTabel,
                         DistributorShopId: DistributorShopId,
+                        LinkTokopedia: LinkTokopedia,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
