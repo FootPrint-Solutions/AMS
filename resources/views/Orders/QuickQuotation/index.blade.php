@@ -444,6 +444,15 @@
                     return;
                 }
 
+                if (ContactNumber.substring(0, 1) != '8') {
+                    swal.fire("Error!", "Contact Number must start with 8", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
+                    return;
+                }
+
                 $('#btnNextStep2').trigger('click');
 
                 // check jika button next step 2 berhasil di click
