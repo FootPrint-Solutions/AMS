@@ -86,6 +86,40 @@ class SalesOrderModel extends Model
     }
 
     /**
+     * 
+     */
+    public static function newCode()
+    {
+        // Get the latest added code.
+        $latestCode = self::query()
+            ->latest()
+            ->first()?->value("quotation_number") ?? null;
+
+        // Generate the new sales order code.
+        $year = substr($latestCode, 2, 2);
+        $month = substr($latestCode, 4, 2);
+        $currentYear = date('y');
+        $currentMonth = date('m');
+
+        $newCode = "AK";
+        if ($year == $currentYear) {
+            if ($month == $currentMonth) {
+                // Generate new code with new iteration only.
+                $iteration = substr($latestCode, 6);
+                $nextIteration = str_pad((int)$iteration + 1, strlen($iteration), '0', STR_PAD_LEFT);
+                $newCode .= $year . $month . $nextIteration;
+            } else {
+                // Generate new code with new month.
+                $newCode .= $year . $currentMonth . '00001';
+            }
+        } else {
+            // Generate new code with new year and new month.
+            $newCode .= $currentYear . $currentMonth . '00001';
+        }
+        return $newCode;
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).

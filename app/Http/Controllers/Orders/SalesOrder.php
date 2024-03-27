@@ -51,6 +51,7 @@ class SalesOrder extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
+                    "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
                 )

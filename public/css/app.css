@@ -17,6 +17,10 @@
     left: 50%;
 }
 
+input[readonly] {
+    background-color: #f4f4f4;
+}
+
 /* DataTables */
 .dataTables_filter {
     margin-top: -30px;

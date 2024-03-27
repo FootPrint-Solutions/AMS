@@ -27,7 +27,7 @@
                 @else
                     Add New
                 @endif
-                Quotation
+                Sales Order
             </div>
             <br>
 
@@ -40,13 +40,13 @@
                     {{-- Quotation Number --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="quotation-number">Quotation Number <span class="login-danger">*</span></label>
+                            <label for="quotation-number">Sales Order Number <span class="login-danger">*</span></label>
                             <input type="text" class="form-control" id="quotation-number" name="quotationnumber"
                                 placeholder="Enter distributor name" required readonly
                                 @isset($data['profile'])
                             value="{{ $data['profile']['quotation_number'] }}"
                         @else
-                            value="{{ 'QUO' . date('YmdHis') . rand(99, 999) }}"
+                            value="{{ $data['number'] }}"
                         @endisset>
                         </div>
                     </div>
