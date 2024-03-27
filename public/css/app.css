@@ -17,7 +17,8 @@
     left: 50%;
 }
 
-input[readonly] {
+input[readonly],
+input[readonly]:focus {
     background-color: #f4f4f4;
 }
 

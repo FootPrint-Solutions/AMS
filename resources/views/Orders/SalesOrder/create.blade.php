@@ -117,46 +117,60 @@
                 </div>
 
                 {{-- Details --}}
-                @if (!isset($data['profile']['batteries']))
-                    <table class="table mb-2" id="table-battery-detail">
-                        {{-- Header --}}
-                        <thead>
-                            <tr>
-                                <td colspan="4" class="h5 text-center">
-                                    Item <button type="button" id="btn-add-row"
+                <table class="table mb-2" id="table-battery-detail">
+                    {{-- Header --}}
+                    <thead>
+                        <tr>
+                            <td colspan="4" class="h5 text-center">
+                                Item @if (!isset($data['profile']))
+                                    <button type="button" id="btn-add-row"
                                         class="btn btn-primary btn-sm rounded-circle mx-2"><i
                                             class="fas fa-plus"></i></button>
-                                </td>
-                            </tr>
-                        </thead>
+                                @endif
+                            </td>
+                        </tr>
+                    </thead>
 
-                        {{-- Body (Items) --}}
-                        <tbody>
+                    {{-- Body (Items) --}}
+                    <tbody>
+                        @php
+                            $batteries = isset($data['profile']['batteries']) ? $data['profile']['batteries'] : [''];
+                            $counter = 1;
+                        @endphp
+
+                        @foreach ($batteries as $battery)
                             <tr class="table-battery-detail-row">
                                 {{-- Production Code --}}
                                 <td>
                                     <input type="text" class="form-control battery-code" id="battery-production-code"
-                                        name="batteriescode[]" placeholder="Enter item production code">
+                                        name="batteriescode[]" placeholder="Enter item production code"
+                                        @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
                                 </td>
 
                                 {{-- Name --}}
                                 <td colspan="2">
                                     @php
-                                        $targets = ['battery-price-1', 'battery-qty-1'];
+                                        $targets = ["battery-price-$counter"];
                                         $encodedTargets = json_encode($targets);
                                     @endphp
 
-                                    @component('components.autocomplete', [
-                                        'id' => 'battery-name-1',
-                                        'class' => 'battery-name',
-                                        'value' => isset($data['profile']['batteries']) ? $item['battery_name'] : '',
-                                        'name' => 'batteriesname[]',
-                                        'nameHiddenId' => 'batteriesid[]',
-                                        'url' => '/battery/get/',
-                                        'placeholder' => 'Enter item name',
-                                        'targets' => $encodedTargets,
-                                    ])
-                                    @endcomponent
+                                    @isset($data['profile'])
+                                        <input type="text" class="form-control" required
+                                            @isset($data['profile']['batteries']) readonly @endisset
+                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
+                                    @else
+                                        @component('components.autocomplete', [
+                                            'id' => "battery-name-$counter",
+                                            'class' => 'battery-name',
+                                            'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
+                                            'name' => 'batteriesname[]',
+                                            'nameHiddenId' => 'batteriesid[]',
+                                            'url' => '/battery/get/',
+                                            'placeholder' => 'Enter item name',
+                                            'targets' => $encodedTargets,
+                                        ])
+                                        @endcomponent
+                                    @endisset
                                 </td>
 
                                 {{-- Price --}}
@@ -164,96 +178,106 @@
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
                                         <input type="text"pattern="[0-9,]+" class="form-control text-end battery-price"
-                                            id="battery-price-1" name="batteriesprice[]" placeholder="Enter item price"
-                                            required>
+                                            id="battery-price-{{ $counter }}" name="batteriesprice[]"
+                                            placeholder="Enter item price" required
+                                            @isset($data['profile']['batteries']) readonly @endisset
+                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
                                     </div>
                                 </td>
-                            </tr>
-                        </tbody>
 
-                        {{-- Footer (Tax, Discount, Total) --}}
-                        <tfoot>
-                            {{-- Tax --}}
-                            <tr>
-                                <td colspan="2"></td>
-                                <td class="text-end">Tax</td>
-                                <td>
-                                    <div class="input-group">
-                                        <input type="text" pattern="[0-9]+" class="form-control text-end" id="tax"
-                                            name="tax" value="0" required>
-                                        <span class="input-group-text border-end">%</span>
+                                {{-- Hidden Inputs --}}
+                                @isset($data['profile']['batteries'])
+                                    <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+                                @endisset
+                            </tr>
+
+                            @php
+                                $counter++;
+                            @endphp
+                        @endforeach
+                    </tbody>
+
+                    {{-- Footer (Tax, Discount, Total) --}}
+                    <tfoot>
+                        {{-- Tax --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Tax</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" pattern="[0-9]+" class="form-control text-end" id="tax"
+                                        name="tax" value="0" required>
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Discount --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Discount</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" pattern="[0-9]+" class="form-control text-end" id="discount"
+                                        name="discount" value="0" required>
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Extra Discount --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Extra Discount</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" pattern="[0-9]+" class="form-control text-end"
+                                        id="extra-discount" name="extradiscount" value="0" required>
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Total --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Total</td>
+                            <td>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end">IDR</span>
+                                    <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
+                                        name="total" value="0" required readonly>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Payment Method & Status --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Payment method</td>
+                            <td>
+                                <div class="row">
+                                    <div class="col">
+                                        <select name="paymentmethod" id="payment-method" class="form-control" required>
+                                            <option value="cash" selected>Cash</option>
+                                            <option value="tokopedia">Tokopedia</option>
+                                            <option value="midtrans">Midtrans</option>
+                                        </select>
                                     </div>
-                                </td>
-                            </tr>
 
-                            {{-- Discount --}}
-                            <tr>
-                                <td colspan="2"></td>
-                                <td class="text-end">Discount</td>
-                                <td>
-                                    <div class="input-group">
-                                        <input type="text" pattern="[0-9]+" class="form-control text-end" id="discount"
-                                            name="discount" value="0" required>
-                                        <span class="input-group-text border-end">%</span>
+                                    <div class="col-5">
+                                        <select name="status" id="status" class="form-control" required>
+                                            <option value="paid" class="text-success">Paid</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="failed">Failed</option>
+                                        </select>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
 
-                            {{-- Extra Discount --}}
-                            <tr>
-                                <td colspan="2"></td>
-                                <td class="text-end">Extra Discount</td>
-                                <td>
-                                    <div class="input-group">
-                                        <input type="text" pattern="[0-9]+" class="form-control text-end"
-                                            id="extra-discount" name="extradiscount" value="0" required>
-                                        <span class="input-group-text border-end">%</span>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            {{-- Total --}}
-                            <tr>
-                                <td colspan="2"></td>
-                                <td class="text-end">Total</td>
-                                <td>
-                                    <div class="input-group">
-                                        <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" pattern="[0-9,]+" class="form-control text-end"
-                                            id="total" name="total" value="0" required readonly>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            {{-- Payment Method & Status --}}
-                            <tr>
-                                <td colspan="2"></td>
-                                <td class="text-end">Payment method</td>
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <select name="paymentmethod" id="payment-method" class="form-control"
-                                                required>
-                                                <option value="cash" selected>Cash</option>
-                                                <option value="tokopedia">Tokopedia</option>
-                                                <option value="midtrans">Midtrans</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-5">
-                                            <select name="status" id="status" class="form-control" required>
-                                                <option value="paid" class="text-success">Paid</option>
-                                                <option value="pending">Pending</option>
-                                                <option value="failed">Failed</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                @endif
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
                 <br>
 
                 {{-- Hidden Inputs --}}
@@ -342,7 +366,7 @@
             // Send submit POST request via AJAX.
             sendSubmitRequest(url, formData, function() {
                 // Redirect to index page.
-                goToPage(indexUrl);
+                // goToPage(indexUrl);
             });
         });
 
