@@ -103,6 +103,14 @@
                     <tfoot>
                         <tr>
                             <td></td>
+                            <th style="text-align: right">Subtotal</th>
+                            <td style="text-align: right">
+                                {{ number_format($data['profile']['subtotal']) }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
                             <th style="text-align: right">Tax</th>
                             <td style="text-align: right">
                                 {{ number_format(($data['profile']['subtotal'] * $data['profile']['tax']) / 100) }}
