@@ -21,13 +21,6 @@
     </div>
 </div>
 
-<?php
-
-echo '<pre>';
-print_r($Battery);
-echo '</pre>';
-
-?>
 <div class=" invoice-add-table">
     <h4>Item Details</h4>
     <div class="table-responsive">
@@ -37,7 +30,9 @@ echo '</pre>';
                     <th>Battery</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Link Tokopedia</th>
+                    @if (isset($Distributor) && !empty($Distributor))
+                        <th>Link Tokopedia</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -55,10 +50,12 @@ echo '</pre>';
                             <input type="number" name="PriceCheckout[]" id="PriceCheckout"
                                 class="form-control PriceCheckout" value="{{ $battery->price_retail }}">
                         </td>
-                        <td>
-                            <input type="text" name="LinkTokopedia[]" id="LinkTokopedia"
-                                class="form-control LinkTokopedia" value="{{ $battery->url }}">
-                        </td>
+                        @if (isset($Distributor) && !empty($Distributor))
+                            <td>
+                                <input type="text" name="LinkTokopedia[]" id="LinkTokopedia"
+                                    class="form-control LinkTokopedia" value="{{ $battery->url }}">
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

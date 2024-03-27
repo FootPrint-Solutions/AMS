@@ -34,7 +34,7 @@ class SalesOrderModel extends Model
      * @var array
      */
     protected $fillable = [
-        'sales_orders_number',
+        'sales_order_number',
         'date',
         'customer_id',
         'distributor_shop_id',
@@ -93,7 +93,7 @@ class SalesOrderModel extends Model
         // Get the latest added code.
         $latestCode = self::query()
             ->latest()
-            ->first()?->value("sales_orders_number") ?? null;
+            ->first()?->value("sales_order_number") ?? null;
 
         // Generate the new sales order code.
         $year = substr($latestCode, 2, 2);

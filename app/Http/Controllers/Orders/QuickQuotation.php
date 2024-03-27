@@ -13,6 +13,7 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
+use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
@@ -260,7 +261,7 @@ class QuickQuotation extends Controller
                     'name' => $value,
                     'qty' => $QtyTabel[$key],
                     'price' => $PriceTabel[$key],
-                    'link' => $Link[$key],
+                    'link' => ''
                 ];
             }
         }
@@ -427,12 +428,21 @@ class QuickQuotation extends Controller
         if ($request->input('DistributorShopId') != null) {
             $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+
+            $link = $request->input('linkPayment');
+            // update link to databse 
+            foreach ($link as $key => $value) {
+                $data = [
+                    'url' => $value
+                ];
+                DistributorShopBatteryModel::where('distributor_shop_id', $request->input('DistributorShopId'))->where('battery_id', $request->input('Battery')[$key])->update($data);
+            }
         } else {
             $DistributorShop = null;
         }
 
         $data = [
-            'sales_orders_number' => SalesOrderModel::newCode(),
+            'sales_order_number' => SalesOrderModel::newCode(),
             'customer_id' => $Customer->id,
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,

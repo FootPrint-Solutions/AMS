@@ -46,7 +46,9 @@
                                     <th>Battery</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
-                                    <th>Link Tokopedia</th>
+                                    @if (isset($DistributorShop) && !empty($DistributorShop))
+                                        <th>Link Tokopedia</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -65,10 +67,13 @@
                                             <input readonly type="text" name="PricePaymentDetails[]"
                                                 class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
                                         </td>
-                                        <td>
-                                            <input type="text" name="LinkPayment[]" class="form-control LinkPayment"
-                                                value="{{ $data['link'] }}" readonly>
-                                        </td>
+                                        @if (isset($DistributorShop) && !empty($DistributorShop))
+                                            <td>
+                                                <input type="text" name="LinkPayment[]"
+                                                    class="form-control LinkPayment" value="{{ $data['link'] }}"
+                                                    readonly>
+                                            </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
