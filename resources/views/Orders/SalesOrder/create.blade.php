@@ -199,6 +199,21 @@
 
                     {{-- Footer (Tax, Discount, Total) --}}
                     <tfoot>
+                        {{-- Subtotal --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Subtotal</td>
+                            <td>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end">IDR</span>
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="subtotal"
+                                        name="subtotal"
+                                        @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
+                                        readonly required>
+                                </div>
+                            </td>
+                        </tr>
+
                         {{-- Tax --}}
                         <tr>
                             <td colspan="2"></td>
@@ -207,8 +222,23 @@
                                 <div class="input-group">
                                     <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
                                         name="tax"
-                                        value="@isset($data['profile']){{ $data['profile']['tax'] }}@else 0.00 @endisset"
-                                        required>
+                                        @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0.00" @endisset
+                                        @isset($data['profile']['tax']) readonly @endisset required>
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Tax --}}
+                        <tr>
+                            <td colspan="2"></td>
+                            <td class="text-end">Tax</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
+                                        name="tax"
+                                        @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0.00" @endisset
+                                        @isset($data['profile']['tax']) readonly @endisset required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -222,8 +252,8 @@
                                 <div class="input-group">
                                     <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
                                         name="discount"
-                                        value="@isset($data['profile']){{ $data['profile']['discount'] }}@else 0.00 @endisset"
-                                        required>
+                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0.00" @endisset
+                                        @isset($data['profile']['discount']) readonly @endisset required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -237,8 +267,8 @@
                                 <div class="input-group">
                                     <input type="text" pattern="[0-9.]+" class="form-control text-end"
                                         id="extra-discount" name="extradiscount"
-                                        value="@isset($data['profile']){{ $data['profile']['extra_discount'] }}@else 0.00 @endisset"
-                                        required>
+                                        @isset($data['profile'])value="{{ $data['profile']['extra_discount'] }}" @else value="0.00" @endisset
+                                        @isset($data['profile']['extra_discount']) readonly @endisset required>
                                     <span class="input-group-text border-end">%</span>
                                 </div>
                             </td>
@@ -253,7 +283,7 @@
                                     <span class="input-group-text border-end">IDR</span>
                                     <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
                                         name="total"
-                                        value="@isset($data['profile']){{ $data['profile']['total'] }}@else 0 @endisset"
+                                        @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
                                         required readonly>
                                 </div>
                             </td>
@@ -474,6 +504,7 @@
                     subtotal += value;
                 }
             });
+            $("#subtotal").val(subtotal);
 
             // Obtain tax, discount and extra discount value (in percentage).
             let tax = subtotal * parseFloat($("#tax").val()) / 100;

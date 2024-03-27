@@ -174,6 +174,7 @@ class SalesOrder extends Controller
             $salesOrder->tax = $request->tax;
             $salesOrder->discount = $request->discount;
             $salesOrder->extra_discount = $request->extradiscount;
+            $salesOrder->subtotal = $request->subtotal;
             $salesOrder->total = (float) str_replace(",", "", $request->total);
             $salesOrder->payment_method = $request->paymentmethod;
             $salesOrder->status = $request->status;

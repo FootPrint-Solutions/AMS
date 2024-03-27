@@ -42,6 +42,7 @@ class SalesOrderModel extends Model
         'tax',
         'discount',
         'extra_discount',
+        'subtotal',
         'total',
         'status',
         'address',
@@ -91,7 +92,7 @@ class SalesOrderModel extends Model
     public static function newCode()
     {
         // Get the latest added code.
-        $latestCode = self::query()
+        $latestCode = self::withTrashed()
             ->orderByDesc('created_at')
             ->first()?->sales_order_number ?? null;
 
@@ -136,7 +137,7 @@ class SalesOrderModel extends Model
             'distributors.name AS distributor_name',
             'technicians.name AS technician_name'
         ];
-        $searchColumns = [];
+        $searchColumns = ['sales_order_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
         // Build the query to obtain all rows.
         $query = self::query();
@@ -147,6 +148,6 @@ class SalesOrderModel extends Model
         $query->select($selectColumns);
         // $query->whereNull("deleted_at");
 
-        return self::getAllRows($request, $query, $selectColumns, $selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }
