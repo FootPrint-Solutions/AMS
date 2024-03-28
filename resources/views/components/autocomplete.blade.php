@@ -61,6 +61,9 @@
 
                         // Hide current autocomplete item list.
                         autocompleteList.empty();
+
+                        // Do a function after the autocomplete process.
+                        {{ $callback }}();
                     });
                     autocompleteList.append(listItem);
                 });

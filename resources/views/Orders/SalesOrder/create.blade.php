@@ -169,6 +169,7 @@
                                             'url' => '/battery/get/',
                                             'placeholder' => 'Enter item name',
                                             'targets' => $encodedTargets,
+                                            'callback' => 'calculateTotal',
                                         ])
                                         @endcomponent
                                     @endisset
@@ -236,8 +237,8 @@
                                         <div class="input-group" id="tax-percentage">
                                             <input type="text" pattern="[0-9.]+" class="form-control text-end"
                                                 id="tax" name="tax"
-                                                @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0" @endisset
-                                                @isset($data['profile']['tax']) readonly @endisset required>
+                                                @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="{{ $data['tax'] }}" @endisset
+                                                readonly required>
                                             <span class="input-group-text border-end">%</span>
                                         </div>
 
@@ -519,7 +520,7 @@
         });
 
         // Attach an input event handler for each battery quantity and price fields.
-        $(document).on("change", ".battery-price", function() {
+        $(document).on("autocompletechange", ".battery-price", function() {
             // Set total price value.
             calculateTotal();
         });

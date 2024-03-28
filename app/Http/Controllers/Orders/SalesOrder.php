@@ -13,6 +13,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\Settings\TaxModel;
 
 class SalesOrder extends Controller
 {
@@ -53,7 +54,8 @@ class SalesOrder extends Controller
                 array(
                     "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
-                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                    "tax" => TaxModel::where('status', 'active')->first()->percentage ?? "0.00",
                 )
             )
         );
