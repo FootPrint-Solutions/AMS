@@ -197,6 +197,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice');
     Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails');
     Route::post('/quotation/save-data', [QuickQuotation::class, 'saveData'])->name('quotation.saveData');
+    Route::post('/quotation/customer/copy', [QuickQuotation::class, 'getCustomerCopyDetail'])->name('quotation.getCustomerCopyDetail');
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);

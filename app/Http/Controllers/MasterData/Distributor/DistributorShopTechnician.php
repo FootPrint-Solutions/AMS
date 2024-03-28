@@ -134,7 +134,7 @@ class DistributorShopTechnician extends Controller
                 $status,
                 $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -163,7 +163,7 @@ class DistributorShopTechnician extends Controller
                 $status,
                 $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -191,7 +191,7 @@ class DistributorShopTechnician extends Controller
                 $status,
                 $status ? "The new technician was successfully deleted!" : "Failed to delete the new technician!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

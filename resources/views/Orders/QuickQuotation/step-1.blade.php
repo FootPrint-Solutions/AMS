@@ -63,16 +63,6 @@
                     <input type="text" class="form-control" id="AddressCustomer" name="AddressCustomer">
                 </div>
 
-                <div class="form-group local-forms">
-                    <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-
-
-                    <textarea class="form-control" id="TemplateMessage" name="TemplateMessage" placeholder="Enter Addres Customer" required
-                        autocomplete="off">Hello, <NAME> here is your address : <ADDRESS> and your email : <EMAIL> and your vehicle is <VEHICLE>          
-                                                </textarea>
-
-                </div>
-
                 <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
                 <input type="hidden" name="Latitude" id="Latitude" value="">
                 <input type="hidden" name="Longitude" id="Longitude" value="">
@@ -87,9 +77,8 @@
     </form>
     <div class="row">
         <div class="col text-end">
-            <a id="btnCopyAddress" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy"
-                data-clipboard-target="#CopyPersonalDetails"><i class="far fa-copy"></i>
-                Copy from Input</a>
+            <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
+                Copy from Input</button>
             <button id='BtnShareFormPersonalDetails' class="btn btn-success">
                 <i class="fa-brands fa-whatsapp"></i>
                 Share
