@@ -2,8 +2,9 @@
     {{-- Logo --}}
     <div class="header-left">
         <a href="/" class="logo">
-            <h1>AMS</h1>
+            <h1><img src="/img/logos/128x128.png"> AMS</h1>
         </a>
+
         <a href="/" class="logo logo-small">
             <h3>AMS</h3>
         </a>
@@ -36,7 +37,7 @@
             <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
                 <img src="{{ asset('/img/icons/header-icon-05.svg') }}" alt="">
             </a>
-            
+
             {{-- Notification Dropdown Menu --}}
             <div class="dropdown-menu notifications">
                 {{-- Header --}}
@@ -53,7 +54,8 @@
                                 <div class="media d-flex">
                                     {{-- Profile Picture --}}
                                     <span class="avatar avatar-sm flex-shrink-0">
-                                        <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                                        <img class="rounded-circle" alt="User Image"
+                                            src="{{ asset('/img/profiles/default_profile.png') }}">
                                     </span>
 
                                     {{-- Info --}}
@@ -73,7 +75,7 @@
                 </div>
             </div>
         </li>
-        
+
         {{-- Zoom --}}
         <li class="nav-item zoom-screen me-2">
             <a href="#" class="nav-link header-nav-list win-maximize">
@@ -88,9 +90,11 @@
                 <div class="user-img">
                     {{-- Profile Picture --}}
                     @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
-                        <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                        <img class="rounded-circle" alt="User Image"
+                            src="{{ asset('/img/profiles/default_profile.png') }}">
                     @else
-                        <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                        <img class="rounded-circle" alt="User Image"
+                            src="{{ asset('storage/image/profile/' . auth()->user()->image) }}">
                     @endif
 
                     {{-- Name & Role --}}
@@ -109,12 +113,14 @@
                 <div class="user-header">
                     <div class="avatar avatar-sm">
                         @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
-                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                            <img class="rounded-circle" alt="User Image"
+                                src="{{ asset('/img/profiles/default_profile.png') }}">
                         @else
-                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                            <img class="rounded-circle" alt="User Image"
+                                src="{{ asset('storage/image/profile/' . auth()->user()->image) }}">
                         @endif
                     </div>
-                    
+
                     <div class="user-text">
                         @auth
                             <h6>{{ Auth::user()->name }}</h6>
