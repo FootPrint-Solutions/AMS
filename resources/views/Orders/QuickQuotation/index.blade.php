@@ -562,17 +562,11 @@
                 );
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
                 var VehicleCustomer = $("#VehicleCustomer").val();
-                var TemplateMessage = $("#TemplateMessage").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
-                var TemplateMessageStep2 = $("#TemplateMessageStep2").val();
+                var contactNumber = $("#ContactNumber").val();
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -592,109 +586,11 @@
                     return;
                 }
 
-                if (EmailCustomer == '') {
-                    swal.fire("Error!", "Email Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (ContactNumber == '') {
-                    swal.fire("Error!", "Contact Number is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (AddressCustomer == '') {
-                    swal.fire("Error!", "Address Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (VehicleCustomer == '') {
-                    swal.fire("Error!", "Vehicle Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (Latitude == '' || Longitude == '') {
-                    swal.fire("Error!", "Latitude and Longitude is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
-                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (TemplateMessageStep2.includes('<BATTERYNAME>') == false || TemplateMessageStep2
-                    .includes('<BATTERYCAPACITY>') == false || TemplateMessageStep2
-                    .includes('<BATTERYPRICE>') == false || TemplateMessageStep2
-                    .includes('<BATTERYWARRANTY>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain BATTERYNAME, BATTERYPRICE, BATTERYWARRANTY",
-                        "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                var data = {
-                    FullName: FullName,
-                    EmailCustomer: EmailCustomer,
-                    ContactNumber: ContactNumber,
-                    AddressCustomer: AddressCustomer,
-                    VehicleCustomer: VehicleCustomer,
-                    TemplateMessage: TemplateMessage,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    IdCustomer: IdCustomer,
-                    Battery: Battery,
-                    TemplateMessageStep2: TemplateMessageStep2,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                };
-
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-
                 Battery.forEach(function(battery) {
                     var data = {
                         FullName: FullName,
-                        EmailCustomer: EmailCustomer,
-                        ContactNumber: ContactNumber,
-                        AddressCustomer: AddressCustomer,
-                        VehicleCustomer: VehicleCustomer,
-                        TemplateMessage: TemplateMessage,
-                        Latitude: Latitude,
-                        Longitude: Longitude,
-                        IdCustomer: IdCustomer,
                         Battery: battery,
-                        TemplateMessageStep2: TemplateMessageStep2,
+                        ContactNumber: contactNumber,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 

@@ -158,32 +158,45 @@ $arrayVehicle";
     {
         $url = "http://185.199.52.172:5001/send-image";
         $ids = $request->input('Battery');
+        $Fullname = $request->input('FullName');
         $results = BatteryModel::where('id', $ids)->get()->toArray();
 
         if ($results == null) {
             return getResponseData(false, "Battery not found");
         } else {
+            $arrayBattery = "";
             foreach ($results as $key => $value) {
+                $arrayBattery .= "*Name* : " . $value['name'] . "\r";
+                $arrayBattery .= "*Capacity* : " . $value['capacity'] . "\r";
+                $arrayBattery .= "*Price* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                $arrayBattery .= "*Warranty* : " . $value['warranty'] . " Bulan";
+
+
+                $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
+
+                $opening_message = str_replace(
+                    ["<FULLNAME>", "<B>", "<ENTER>"],
+                    [$Fullname, "*", "\n"],
+                    $TemplateMessagePersonalDetails['opening_message']
+                );
+
+                $content_message = "
+$arrayBattery
+";
+
+                $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+
                 if ($value['image'] != null) {
                     $value['image'] = asset('storage/image/battery/' . $value['image']);
                 } else {
                     $value['image'] = null;
                 }
 
-                $template = $request->input('TemplateMessageStep2');
-                $text = str_replace(
-                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>', '<LOOPING>'],
-                    [
-                        $request->input('FullName'), $value['name'], $value['capacity'], "Rp. " . number_format($value['price_retail'], 0, "", "."), $value['warranty'], "\n", ""
-                    ],
-                    $template
-                );
-
                 $data = [
                     'to' => "62" . $request->input('ContactNumber'),
                     'session' => auth()->user()->username,
                     'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
-                    'caption' => $text,
+                    'caption' => $message,
                 ];
 
                 try {
@@ -315,32 +328,33 @@ $arrayVehicle";
     public function getBatteryCopyDetail(Request $request)
     {
         $batteryIds = $request->input('Battery');
-        try {
-            $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
-            $message = "Hello, " . $request->input('FullName') . ", this is our recommended battery according to your vehicle type :\n\n";
+        $Fullname = $request->input('FullName');
+        $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
 
-            $template = $request->input('TemplateMessageStep2');
-            $startIndex = strpos($template, '<LOOPING>');
-            if ($startIndex !== false) {
-                $template = substr($template, $startIndex + 9);
-                // $teks_awal = substr($template, 0, $startIndex);
-            }
-            $template = substr($template, strpos($template, '<LOOPING>') + 9);
-
-            foreach ($batteries as $battery) {
-                $text = str_replace(
-                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                    [
-                        $request->input('FullName'), $battery->name, $battery->capacity, "Rp. " . number_format($battery->price_retail, 0, "", "."), $battery->warranty, "\n\n"
-                    ],
-                    $template // Menggunakan template yang telah dimodifikasi
-                );
-                $message .= $text;
-            }
-            return getResponseData(true, $message);
-        } catch (\Throwable $th) {
-            return getResponseData(false, "Failed to get battery detail: " . $th->getMessage());
+        $arrayBattery = "";
+        foreach ($batteries as $battery) {
+            $arrayBattery .= "*Name* : " . $battery->name . "\r";
+            $arrayBattery .= "*Capacity* : " . $battery->capacity . "\r";
+            $arrayBattery .= "*Price* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*Warranty* : " . $battery->warranty . " Bulan\r";
+            $arrayBattery .= "\r";
         }
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "
+$arrayBattery
+";
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+
+        return getResponseData(true, $message);
     }
 
 
