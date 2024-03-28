@@ -81,10 +81,10 @@
     <table class="table table-sm" id="table-detail">
         <thead>
             <tr>
-                <th style="width: 2%; font-size: 2em;">No</th>
-                <th style="width: 48%">Name</th>
-                <th style="width: 30%">Production Code</th>
-                <th style="width: 20%; text-align: right;">Price (IDR)</th>
+                <th style="width: 2%; font-size: 1.2em">No</th>
+                <th style="width: 48%; font-size: 1.2em">Name</th>
+                <th style="width: 30%; font-size: 1.2em">Production Code</th>
+                <th style="width: 20%; text-align: right; font-size: 1.2em">Price (IDR)</th>
             </tr>
         </thead>
 
@@ -128,7 +128,8 @@
                 </tr>
 
                 <tr>
-                    <td colspan="2"></td>
+                    <td colspan="2" class="fst-italic">{{ ucwords(convertToTerbilang($data['profile']['total'])) }}
+                    </td>
                     <th style="text-align: right">Total</th>
                     <td style="text-align: right">{{ number_format($data['profile']['total']) }}</td>
                 </tr>

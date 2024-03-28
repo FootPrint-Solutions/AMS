@@ -40,3 +40,33 @@ function getResponseData($status, $message = '')
         "message" => $message
     ));
 }
+
+/**
+ * Convert a numeric price into its Indonesian terbilang representation.
+ * Shout out to @cahsowan (https://gist.github.com/cahsowan/d315d54a59e4f14a6bab)!
+ * 
+ * @param int $price The numeric price to be converted into terbilang.
+ * 
+ * @return string The terbilang representation of the price in Bahasa Indonesia.
+ */
+function convertToTerbilang($price)
+{
+    $number = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+
+    if ($price < 12)
+        return " " . $number[$price];
+    else if ($price < 20)
+        return convertToTerbilang($price - 10) . " belas";
+    else if ($price < 100)
+        return convertToTerbilang($price / 10) . " puluh" . convertToTerbilang($price % 10);
+    else if ($price < 200)
+        return "seratus" . convertToTerbilang($price - 100);
+    else if ($price < 1000)
+        return convertToTerbilang($price / 100) . " ratus" . convertToTerbilang($price % 100);
+    else if ($price < 2000)
+        return "seribu" . convertToTerbilang($price - 1000);
+    else if ($price < 1000000)
+        return convertToTerbilang($price / 1000) . " ribu" . convertToTerbilang($price % 1000);
+    else if ($price < 1000000000)
+        return convertToTerbilang($price / 1000000) . " juta" . convertToTerbilang($price % 1000000);
+}
