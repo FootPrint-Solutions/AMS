@@ -1,6 +1,7 @@
 @extends('template.master')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
         #table-battery-detail th:nth-child(1),
         #table-battery-detail td:nth-child(1),
@@ -175,13 +176,23 @@
 
                                 {{-- Price --}}
                                 <td>
-                                    <div class="input-group">
-                                        <span class="input-group-text border-end">IDR</span>
-                                        <input type="text"pattern="[0-9,]+" class="form-control text-end battery-price"
-                                            id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                            placeholder="Enter item price" required
-                                            @isset($data['profile']['batteries']) readonly @endisset
-                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end">IDR</span>
+                                                <input type="text"pattern="[0-9,]+"
+                                                    class="form-control text-end battery-price"
+                                                    id="battery-price-{{ $counter }}" name="batteriesprice[]"
+                                                    placeholder="Enter item price" required
+                                                    @isset($data['profile']['batteries']) readonly @endisset
+                                                    @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
+                                                title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                        </div>
                                     </div>
                                 </td>
 
@@ -219,27 +230,31 @@
                             <td colspan="2"></td>
                             <td class="text-end">Tax</td>
                             <td>
-                                <div class="input-group">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
-                                        name="tax"
-                                        @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0.00" @endisset
-                                        @isset($data['profile']['tax']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
-                                </div>
-                            </td>
-                        </tr>
+                                <div class="row">
+                                    <div class="col">
+                                        {{-- Tax Percentage --}}
+                                        <div class="input-group" id="tax-percentage">
+                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                                id="tax" name="tax"
+                                                @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0" @endisset
+                                                @isset($data['profile']['tax']) readonly @endisset required>
+                                            <span class="input-group-text border-end">%</span>
+                                        </div>
 
-                        {{-- Tax --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Tax</td>
-                            <td>
-                                <div class="input-group">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
-                                        name="tax"
-                                        @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="0.00" @endisset
-                                        @isset($data['profile']['tax']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
+                                        {{-- Tax Price --}}
+                                        <div class="input-group d-none" id="tax-price">
+                                            <span class="input-group-text border-end">IDR</span>
+                                            <input type="text" class="form-control text-end" id="tax-price-value"
+                                                name="taxprice"
+                                                @isset($data['profile'])value="{{ $data['profile']['tax_price'] }}" @else value="0" @endisset
+                                                readonly required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <input type="checkbox" id="toggle-tax" data-toggle="toggle" data-size="sm"
+                                            data-offlabel="%" data-onlabel="IDR">
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -249,12 +264,31 @@
                             <td colspan="2"></td>
                             <td class="text-end">Discount</td>
                             <td>
-                                <div class="input-group">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
-                                        name="discount"
-                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0.00" @endisset
-                                        @isset($data['profile']['discount']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
+                                <div class="row">
+                                    <div class="col">
+                                        {{-- Discount Percentage --}}
+                                        <div class="input-group" id="discount-percentage">
+                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                                id="discount" name="discount"
+                                                @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                                @isset($data['profile']['discount']) readonly @endisset required>
+                                            <span class="input-group-text border-end">%</span>
+                                        </div>
+
+                                        {{-- Discount Price --}}
+                                        <div class="input-group d-none" id="discount-price">
+                                            <span class="input-group-text border-end">IDR</span>
+                                            <input type="text" class="form-control text-end" id="discount-price-value"
+                                                name="discountprice"
+                                                @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
+                                                readonly required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
+                                            data-offlabel="%" data-onlabel="IDR">
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -264,12 +298,31 @@
                             <td colspan="2"></td>
                             <td class="text-end">Extra Discount</td>
                             <td>
-                                <div class="input-group">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end"
-                                        id="extra-discount" name="extradiscount"
-                                        @isset($data['profile'])value="{{ $data['profile']['extra_discount'] }}" @else value="0.00" @endisset
-                                        @isset($data['profile']['extra_discount']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
+                                <div class="row">
+                                    <div class="col">
+                                        {{-- Extra Discount Percentage --}}
+                                        <div class="input-group" id="extra-discount-percentage">
+                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                                id="extra-discount" name="extradiscount"
+                                                @isset($data['profile'])value="{{ $data['profile']['extra_discount'] }}" @else value="0" @endisset
+                                                @isset($data['profile']['extra_discount']) readonly @endisset required>
+                                            <span class="input-group-text border-end">%</span>
+                                        </div>
+
+                                        {{-- Extra Discount Price --}}
+                                        <div class="input-group d-none" id="extra-discount-price">
+                                            <span class="input-group-text border-end">IDR</span>
+                                            <input type="text" class="form-control text-end"
+                                                id="extra-discount-price-value" name="extradiscountprice"
+                                                @isset($data['profile'])value="{{ $data['profile']['extra_discount_price'] }}" @else value="0" @endisset
+                                                readonly required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <input type="checkbox" id="toggle-extra-discount" data-toggle="toggle"
+                                            data-size="sm" data-offlabel="%" data-onlabel="IDR">
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -429,8 +482,6 @@
                 // Clone the last row.
                 let newRow = $('.table-battery-detail-row').last().clone();
                 newRow.find('input').val('');
-                newRow.find('.battery-qty').val('0');
-                newRow.find('.battery-total').val('0');
                 newRow.find('.btn-delete-row').removeClass('disabled');
 
                 // Set new id to each elements inside.
@@ -466,8 +517,39 @@
     </script>
 
     {{-- Change Event Handler --}}
+    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
     <script>
         $(document).ready(function() {
+            $('#toggle-tax').on("change", function() {
+                if ($(this).prop('checked')) {
+                    $("#tax-price").removeClass("d-none");
+                    $("#tax-percentage").addClass("d-none");
+                } else {
+                    $("#tax-price").addClass("d-none");
+                    $("#tax-percentage").removeClass("d-none");
+                }
+            });
+
+            $('#toggle-discount').on("change", function() {
+                if ($(this).prop('checked')) {
+                    $("#discount-price").removeClass("d-none");
+                    $("#discount-percentage").addClass("d-none");
+                } else {
+                    $("#discount-price").addClass("d-none");
+                    $("#discount-percentage").removeClass("d-none");
+                }
+            });
+
+            $('#toggle-extra-discount').on("change", function() {
+                if ($(this).prop('checked')) {
+                    $("#extra-discount-price").removeClass("d-none");
+                    $("#extra-discount-percentage").addClass("d-none");
+                } else {
+                    $("#extra-discount-price").addClass("d-none");
+                    $("#extra-discount-percentage").removeClass("d-none");
+                }
+            });
+
             $("#tax, #discount, #extra-discount").on("change", function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
@@ -476,7 +558,7 @@
                 }
 
                 // Recalculate total value.
-                $("#total").val(calculateTotal());
+                calculateTotal();
             });
         });
 
@@ -484,11 +566,11 @@
         $(document).on("change", ".battery-price", function() {
             alert("Heh");
             // Set total price value.
-            $("#total").val(calculateTotal());
+            calculateTotal();
         });
     </script>
 
-    {{--  --}}
+    {{-- JS functions --}}
     <script>
         /**
          * Calculate the total price with tax, discount, and extra discount included.
@@ -508,11 +590,15 @@
 
             // Obtain tax, discount and extra discount value (in percentage).
             let tax = subtotal * parseFloat($("#tax").val()) / 100;
+            $("#tax-price-value").val(tax);
             let discount = subtotal * parseFloat($("#discount").val()) / 100;
+            $("#discount-price-value").val(discount);
             let extraDiscount = subtotal * parseFloat($("#extra-discount").val()) / 100;
-
-            // Calculate total price and set value to total price.
-            return (subtotal - discount - extraDiscount) + tax;
+            console.log(extraDiscount);
+            $("#extra-discount-price-value").val(extraDiscount);
+            let total = (subtotal - discount - extraDiscount) + tax;
+            $("#total").val(total);
+            return total;
         }
     </script>
 @endsection
