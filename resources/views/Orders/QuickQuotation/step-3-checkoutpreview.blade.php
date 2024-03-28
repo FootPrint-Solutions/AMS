@@ -47,8 +47,11 @@
                                 value="1">
                         </td>
                         <td>
-                            <input type="number" name="PriceCheckout[]" id="PriceCheckout"
-                                class="form-control PriceCheckout" value="{{ $battery->price_retail }}">
+                            <div class="input-group">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="number" name="PriceCheckout[]" id="PriceCheckout"
+                                    class="form-control PriceCheckout text-end" value="{{ $battery->price_retail }}">
+                            </div>
                         </td>
                         @if (isset($Distributor) && !empty($Distributor))
                             <td>
@@ -127,9 +130,9 @@
                 <div class="invoice-total-inner">
                     <h4 class="invoice-total-title">Summary</h4>
                     <div class="form-group row mb-3">
-                        <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
+                        <label for="order-customer" class="col-sm-5 col-form-label">Subtotal</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="tax" name="tax" value="0">
+                            <input type="number" class="form-control" id="subtotal" name="subtotal" value="0">
                         </div>
                     </div>
 
@@ -142,9 +145,9 @@
                     </div>
 
                     <div class="form-group row mb-3">
-                        <label for="order-customer" class="col-sm-5 col-form-label">Extra Discount</label>
+                        <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="Extradiscount" name="Extradiscount"
+                            <input type="number" class="form-control" id="tax" name="tax"
                                 value="0">
                         </div>
                     </div>
@@ -152,7 +155,7 @@
 
                 </div>
                 <div class="invoice-total-footer">
-                    <h4>Total Amount <span id="TotalAmount"></span></h4>
+                    <h4>Grand Total <span id="TotalAmount"></span></h4>
                     <input type="hidden" name="TotalAmountHidden" id="TotalAmountHidden">
                 </div>
             </div>
@@ -207,23 +210,29 @@
                 total += subtotal;
             });
 
+            var subtotal = total;
+            $("#subtotal").val(subtotal);
+
             var tax = $("#tax").val();
-            var taxValue = (total * tax) / 100;
             var discount = $("#discount").val();
-            var discountValue = (total * discount) / 100;
-            var extraDiscount = $("#Extradiscount").val();
-            var extraDiscountValue = (total * extraDiscount) / 100;
-            var finalTotal = (total + taxValue) - (discountValue + extraDiscountValue);
+            if (tax == "") {
+                tax = 0;
+            }
+            if (discount == "") {
+                discount = 0;
+            }
+            var discountvalue = subtotal * (parseInt(discount) / 100);
+            var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+
+            var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
 
             $("#tax").val(tax);
             $("#discount").val(discount);
-            $("#Extradiscount").val(extraDiscount);
-            $("#TotalAmount").text(finalTotal.toLocaleString('id-ID', {
+            $("#TotalAmount").text(GrandTotal.toLocaleString('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
             }));
-            $("#TotalAmountHidden").val(
-                finalTotal);
+            $("#TotalAmountHidden").val(GrandTotal);
         }
 
         // Panggil fungsi calculateTotalAmount() setiap kali ada perubahan dalam input kuantitas atau harga
@@ -233,7 +242,7 @@
                 calculateTotalAmount();
             });
 
-        $("#tax, #discount, #Extradiscount").on("input", function() {
+        $("#tax, #discount, #subtotal").on("input", function() {
             calculateTotalAmount();
         });
 
