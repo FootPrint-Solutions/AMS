@@ -82,19 +82,24 @@ class Tax extends Controller
         $draw = $request->input("draw");
         $start = $request->input("start");
 
-        // Get customer data (rows and count).
+        // Get tax data (rows and count).
         $data = TaxModel::allForDataTables($request);
 
-        // Set rows to be displayed in customer table.
+        // Set rows to be displayed in tax table.
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            $statusBadgeClass = 'badge-danger';
+            if ($key->status === 'active') {
+                $statusBadgeClass = 'badge-success';
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->percentage;
             $row[] = $key->valid_until;
-            $row[] = $key->status;
+            $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $rows[] = $row;
         }
@@ -119,6 +124,7 @@ class Tax extends Controller
             $tax = new TaxModel();
             $tax->percentage = $request->percentage;
             $tax->valid_until = $request->validuntil;
+            $tax->status = $tax->status();
             $status = $tax->save();
 
             // Set a new response data to be sent.
@@ -144,6 +150,10 @@ class Tax extends Controller
             $tax = TaxModel::find($request->id);
             $tax->percentage = $request->percentage;
             $tax->valid_until = $request->validuntil;
+            if ($request->status === "active")
+                $tax->status = $tax->status();
+            else
+                $tax->status = $request->status;
             $status = $tax->save();
 
             // Set a new response data to be sent.

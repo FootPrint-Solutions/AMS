@@ -32,8 +32,10 @@
         </div>
     </div>
 
+    {{-- DataTables Configurations --}}
     <script>
         var table;
+
         $(document).ready(function() {
             // DataTables configuration
             table = $("#table-tax").DataTable({
@@ -55,6 +57,9 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [0, 3],
+                    className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
@@ -64,10 +69,13 @@
 
             // Load DataTables toolbar component.
             appendDatatablesToolbar(4, "/tax/edit/", "/tax/destroy");
+        });
+    </script>
 
-            $('#btn-add').on('click', function() {
-                goToPage("/tax/create");
-            });
+    {{-- Click Handler --}}
+    <script>
+        $('#btn-add').on('click', function() {
+            goToPage("/tax/create");
         });
     </script>
 @endsection

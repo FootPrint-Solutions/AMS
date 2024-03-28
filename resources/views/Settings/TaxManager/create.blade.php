@@ -39,6 +39,15 @@
                                 @if (isset($data['profile'])) value="{{ $data['profile']['valid_until'] }}" @endif>
                         </div>
                     </div>
+
+                    {{-- Status --}}
+                    <div class="col-sm-1 @if (!isset($data['profile'])) d-none @endif">
+                        <input class="form-check-input" type="checkbox" value="" id="isactive"
+                            @if (isset($data['profile']) && $data['profile']['status'] === 'active') checked @endif>
+                        <label class="form-check-label" for="isshop">
+                            Active
+                        </label>
+                    </div>
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -66,6 +75,7 @@
     {{-- Address Modal --}}
     @include('maps.addressmodal')
 
+    {{-- Form Hanlder --}}
     <script>
         let indexUrl = "/tax";
 
@@ -77,13 +87,49 @@
                 let url = (mode == "update") ? "/tax/update" : "/tax/store";
 
                 // Obtain submitted form data.
+                let message = "";
                 let formData = new FormData($(this)[0]);
+                if (mode == "update") {
+                    let status = $("#isactive").is(':checked') ? "active" :
+                        "inactive";
+                    formData.append("status", status);
 
-                // Send submit POST request via AJAX.
-                sendSubmitRequest(url, formData, function() {
-                    // Redirect to index page.
-                    goToPage(indexUrl);
-                });
+                    if (status === "active") {
+                        message =
+                            "When updating the status of a tax to active, all other taxes will be automatically set inactive.";
+                    }
+                } else {
+                    message =
+                        "When creating a new tax, all other taxes will be automatically set inactive.";
+                }
+
+                if (message === "") {
+                    // Send submit POST request via AJAX.
+                    sendSubmitRequest(url, formData, function() {
+                        // Redirect to index page.
+                        goToPage(indexUrl);
+                    });
+                } else {
+                    // Show an alert before storing an item.
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: message,
+                        icon: "question",
+                        showCancelButton: true,
+                        reverseButtons: true,
+                        confirmButtonText: "Yes, " + mode + "!",
+                        cancelButtonText: "No, cancel!"
+                    }).then(function(e) {
+                        // If user has confirmed, do the destroy process.
+                        if (e.value === true) {
+                            // Send submit POST request via AJAX.
+                            sendSubmitRequest(url, formData, function() {
+                                // Redirect to index page.
+                                goToPage(indexUrl);
+                            });
+                        }
+                    });
+                }
             });
 
             $("#tax-form").on("reset", function() {
