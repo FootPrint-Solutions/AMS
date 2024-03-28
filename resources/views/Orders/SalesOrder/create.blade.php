@@ -293,40 +293,6 @@
                             </td>
                         </tr>
 
-                        {{-- Extra Discount --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Extra Discount</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        {{-- Extra Discount Percentage --}}
-                                        <div class="input-group" id="extra-discount-percentage">
-                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
-                                                id="extra-discount" name="extradiscount"
-                                                @isset($data['profile'])value="{{ $data['profile']['extra_discount'] }}" @else value="0" @endisset
-                                                @isset($data['profile']['extra_discount']) readonly @endisset required>
-                                            <span class="input-group-text border-end">%</span>
-                                        </div>
-
-                                        {{-- Extra Discount Price --}}
-                                        <div class="input-group d-none" id="extra-discount-price">
-                                            <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end"
-                                                id="extra-discount-price-value" name="extradiscountprice"
-                                                @isset($data['profile'])value="{{ $data['profile']['extra_discount_price'] }}" @else value="0" @endisset
-                                                readonly required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" id="toggle-extra-discount" data-toggle="toggle"
-                                            data-size="sm" data-offlabel="%" data-onlabel="IDR">
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
                         {{-- Total --}}
                         <tr>
                             <td colspan="2"></td>
@@ -540,16 +506,6 @@
                 }
             });
 
-            $('#toggle-extra-discount').on("change", function() {
-                if ($(this).prop('checked')) {
-                    $("#extra-discount-price").removeClass("d-none");
-                    $("#extra-discount-percentage").addClass("d-none");
-                } else {
-                    $("#extra-discount-price").addClass("d-none");
-                    $("#extra-discount-percentage").removeClass("d-none");
-                }
-            });
-
             $("#tax, #discount, #extra-discount").on("change", function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
@@ -564,7 +520,6 @@
 
         // Attach an input event handler for each battery quantity and price fields.
         $(document).on("change", ".battery-price", function() {
-            alert("Heh");
             // Set total price value.
             calculateTotal();
         });
@@ -578,7 +533,7 @@
          * @returns {number} The total price after applying tax, discount, and extra discount.
          */
         function calculateTotal() {
-            // Calculate subtotal based on each items' total price.
+            // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
                 let value = parseInt($(this).val());
@@ -588,15 +543,14 @@
             });
             $("#subtotal").val(subtotal);
 
-            // Obtain tax, discount and extra discount value (in percentage).
-            let tax = subtotal * parseFloat($("#tax").val()) / 100;
-            $("#tax-price-value").val(tax);
-            let discount = subtotal * parseFloat($("#discount").val()) / 100;
+            // Obtain and calculate discount and tax value.
+            let discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
             $("#discount-price-value").val(discount);
-            let extraDiscount = subtotal * parseFloat($("#extra-discount").val()) / 100;
-            console.log(extraDiscount);
-            $("#extra-discount-price-value").val(extraDiscount);
-            let total = (subtotal - discount - extraDiscount) + tax;
+            let tax = Math.round((subtotal - discount) * parseFloat($("#tax").val()) / 100);
+            $("#tax-price-value").val(tax);
+
+            // Calculate total value.
+            let total = (subtotal - discount) + tax;
             $("#total").val(total);
             return total;
         }
