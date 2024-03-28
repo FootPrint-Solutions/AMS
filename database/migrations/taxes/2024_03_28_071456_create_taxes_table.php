@@ -15,7 +15,7 @@ class CreateTaxesTable extends Migration
     {
         Schema::create('taxes', function (Blueprint $table) {
             $table->id();
-            $table->decimal('tax', 5, 2)->default(0);
+            $table->decimal('percentage', 5, 2)->default(0);
             $table->date('valid_until')->nullable();
             $table->enum('status', ['active', 'inactive']);
             $table->timestamps();

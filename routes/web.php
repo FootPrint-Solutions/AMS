@@ -221,7 +221,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Message Template
     Route::get('/tax', [Tax::class, 'index']);
+    Route::post('/tax/show', [Tax::class, 'show']);
+    Route::get('/tax/create', [Tax::class, 'create']);
+    Route::get('/tax/edit/{id}', [Tax::class, 'edit']);
+    Route::post('/tax/store', [Tax::class, 'store']);
     Route::post('/tax/update', [Tax::class, 'update']);
+    Route::post('/tax/destroy', [Tax::class, 'destroy']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
