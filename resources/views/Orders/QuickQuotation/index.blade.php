@@ -139,7 +139,6 @@
                 let AddressCustomer = $('#AddressCustomer').val();
                 let VehicleCustomer = $('#VehicleCustomer').val();
                 let EmailCustomer = $('#EmailCustomer').val();
-                let templateMessage = $('#TemplateMessage').val();
 
                 if (FullName == '') {
                     swal.fire("Error!", "Full Name is required", "error");
@@ -195,27 +194,12 @@
                     return;
                 }
 
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes('<ADDRESS>') ==
-                    false || templateMessage.includes('<EMAIL>') == false || templateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share "
-                    );
-                    return;
-                }
-
-
-
                 let data = {
                     FullName: FullName,
                     ContactNumber: ContactNumber,
                     AddressCustomer: AddressCustomer,
                     VehicleCustomer: VehicleCustomer,
                     EmailCustomer: EmailCustomer,
-                    TemplateMessage: templateMessage,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -368,29 +352,47 @@
                 });
             }
 
-            function updateCopyPersonalDetails() {
-                var FullName = $("#FullName").val();
-                var AddressCustomer = $('#AddressCustomer').val();
-                var EmailCustomer = $('#EmailCustomer').val();
-                var vehicles = $('#VehicleCustomer').find('option:selected').map(function() {
-                    return $(this).text().trim();
-                }).get();
-                var VehicleCustomer = vehicles.join(", ");
-                var TemplateMessage = $('#TemplateMessage').val();
-
-                var CopyPersonalDetails = TemplateMessage.replace('<NAME>', FullName).replace('<ADDRESS>',
-                    AddressCustomer).replace('<EMAIL>', EmailCustomer).replace('<VEHICLE>',
-                    VehicleCustomer);
-                $('#CopyPersonalDetails').val(CopyPersonalDetails);
-            }
-
-            var ElementId =
-                "#FullName, #EmailCustomer, #ContactNumber, #AddressCustomer, #VehicleCustomer, #TemplateMessage, #AutoCompleteFullNameCustomer, .select2-selection__choice, #CopyPersonalDetails, #btnCopyAddress";
-            $(ElementId).on('click keyup', updateCopyPersonalDetails);
-
 
             $("#btnCopyAddress").on('click', function() {
-                swal.fire("Copied!", "Personal Details Copied", "success");
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+
+                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
+                    VehicleCustomer == '') {
+                    swal.fire("Error!", "Please fill in all required fields", "error");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/quotation/customer/copy",
+                    type: "POST",
+                    data: {
+                        FullName: FullName,
+                        EmailCustomer: EmailCustomer,
+                        ContactNumber: ContactNumber,
+                        AddressCustomer: AddressCustomer,
+                        VehicleCustomer: VehicleCustomer,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        let ResponseData = JSON.parse(data);
+                        if (ResponseData.status) {
+                            var copyText = ResponseData.message;
+                            var textArea = document.createElement("textarea");
+                            textArea.value = copyText;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            swal.fire("Copied!", "Personal Details Copied", "success");
+                        } else {
+                            swal.fire("Error!", "Failed to copy personal details", "error");
+                        }
+                    }
+                });
             });
 
 
@@ -401,7 +403,6 @@
                 var ContactNumber = $("#ContactNumber").val();
                 var AddressCustomer = $("#AddressCustomer").val();
                 var VehicleCustomer = $("#VehicleCustomer").val();
-                var TemplateMessage = $("#TemplateMessage").val();
                 var Latitude = $("#Latitude").val();
                 var Longitude = $("#Longitude").val();
                 var IdCustomer = $("#IdCustomer").val();
@@ -433,14 +434,6 @@
 
                 if (Latitude == '' || Longitude == '') {
                     swal.fire("Error!", "Latitude and Longitude is required", "error");
-                    return;
-                }
-
-                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
-                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
                     return;
                 }
 

@@ -16,8 +16,7 @@ use App\Models\MasterData\Battery\BatteryImport;
 use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
-
-
+use App\Models\Settings\MessageTemplateModel;
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
 
@@ -48,27 +47,45 @@ class QuickQuotation extends Controller
     function shareFormPersonalDetails(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $id = $request->input('VehicleCustomer');
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
 
-        $vehicleCustomerString = "";
-        $vehicleCustomer = VehicleModel::whereIn('id', $id)->get()->toArray();
-
-        foreach ($vehicleCustomer as $key => $value) {
-            $vehicleCustomerString .= $value['name'] . ", ";
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            $arrayVehicle .= "- " . $value . "\r";
         }
 
-        $template = $request->input('TemplateMessage');
-        $text = str_replace(
-            ['<NAME>', '<ADDRESS>', '<EMAIL>', '<VEHICLE>'],
-            [$request->input('FullName'), $request->input('AddressCustomer'), $request->input('EmailCustomer'), $vehicleCustomerString],
-            $template
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'personal_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
+
+        $content_message = "
+*Your address* :
+📍 $AddressCustomer 
+
+*Your email* :
+📧 $EmailCustomer
+
+*Your contact number* :
+📞 $ContactNumber
+
+*Your vehicle* :
+$arrayVehicle";
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
 
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
             'session' => auth()->user()->username,
-            'text' => $text,
+            'text' => $message,
         ];
 
         try {
@@ -501,5 +518,45 @@ class QuickQuotation extends Controller
         } else {
             return getResponseData(true, "Data saved successfully");
         }
+    }
+
+    public function getCustomerCopyDetail(Request $request)
+    {
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            $arrayVehicle .= "- " . $value . "\r";
+        }
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'personal_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "
+*Your address* :
+📍 $AddressCustomer 
+
+*Your email* :
+📧 $EmailCustomer
+
+*Your contact number* :
+📞 $ContactNumber
+
+*Your vehicle* :
+$arrayVehicle
+";
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+
+        return getResponseData(true, $message);
     }
 }
