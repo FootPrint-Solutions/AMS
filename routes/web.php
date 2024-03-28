@@ -28,6 +28,7 @@ use App\Http\Controllers\Orders\SalesOrder;
 use App\Http\Controllers\Orders\SalesOrderBattery;
 
 // SETTINGS
+use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 
 // ADMIN
@@ -217,6 +218,10 @@ Route::middleware(['auth'])->group(function () {
     // Message Template
     Route::get('/template/message', [MessageTemplate::class, 'index']);
     Route::post('/template/message/update', [MessageTemplate::class, 'update']);
+
+    // Message Template
+    Route::get('/tax', [Tax::class, 'index']);
+    Route::post('/tax/update', [Tax::class, 'update']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
