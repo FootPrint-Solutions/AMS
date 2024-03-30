@@ -871,33 +871,39 @@
 
                 var FullName = $("#FullName").val();
                 var ContactNumber = $("#ContactNumber").val();
-                var templateMessage = $("#TemplateMessageStep4").val();
-
-                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
-                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
-                    swal.fire("Error!", "Please fill in all required fields", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
-                        '<PAYMENTLINK>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, PAYMENTLINK ", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
+                var links = [];
+                var Battery = [];
+                var InvoiceNumber = $("#invoiceNumber").val();
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                });
+                var IsMidtrans = $("#CheckMidtrans").prop("checked");
+                if (IsMidtrans) {
+                    var linkMidtrans = $("#LinkPaymentMidtrans").val();
+                    links.push(linkMidtrans);
+                    var IsMidtrans = "midtrans";
+                } else {
+                    $(".LinkPayment").each(function() {
+                        var value = $(this).val();
+                        links.push(value);
+                    });
+                    var IsMidtrans = "not midtrans";
                 }
 
                 var data = {
                     FullName: FullName,
                     ContactNumber: ContactNumber,
-                    TemplateMessage: templateMessage,
+                    Battery: Battery,
+                    InvoiceNumber: InvoiceNumber,
+                    IsMidtrans: IsMidtrans,
+                    links: links,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 

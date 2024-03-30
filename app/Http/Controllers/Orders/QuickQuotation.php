@@ -426,15 +426,59 @@ $arrayBattery
     public static function sharePaymentDetails(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $template = $request->input('TemplateMessage');
-        $Fullname = $request->input('FullName');
-        $ContactNumber = $request->input('ContactNumber');
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $IsMidtrans = $request->input('IsMidtrans');
+        $InvoiceNumber = $request->input('InvoiceNumber');
+        $PaymentLinks = $request->input('links');
 
-        $text = str_replace(
-            ['<NAME>', '<PAYMENTLINK>'],
-            [$Fullname, 'https://www.google.com'],
-            $template
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        if ($IsMidtrans == "midtrans") {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+            foreach ($PaymentLinks as $link) {
+                $content_message .= "*$link*\r\n";
+            }
+        } else {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            foreach ($Battery as $index => $item) {
+                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            }
+        }
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        $data = [
+            'to' => "62" . $request->input('ContactNumber'),
+            'session' => auth()->user()->username,
+            'text' => $message,
+        ];
+
+        $response = Http::post($url, $data);
+        $responseData = $response->json();
+
+        if (isset($responseData['data']['status']) && $responseData['data']['status'] == true) {
+            return getResponseData(true, "Message sent successfully");
+        } else {
+            return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
+        }
     }
 
     public static function saveData(Request $request)
@@ -496,7 +540,6 @@ $arrayBattery
             'total' => $total,
             'tax' => $tax,
             'discount' => $Discount,
-            'extra_discount' => $ExtraDiscount,
             'payment_methode' => $payment_methode,
             'midtrans_invoice' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
@@ -516,6 +559,7 @@ $arrayBattery
                 for ($i = 0; $i <  $request->input('QtyTabel')[$key]; $i++) {
                     $dataProduct[] = [
                         'sales_order_id' => $Quotation->id,
+                        // 'quotation_id' => $Quotation->id,
                         'battery_id' => $value->id,
                         'battery_name' => $value->name,
                         // 'quantity' => 1,
@@ -531,6 +575,7 @@ $arrayBattery
                 for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
                     $dataProduct[] = [
                         'sales_order_id' => $Quotation->id,
+                        // 'quotation_id' => $Quotation->id,
                         'battery_id' => $request->input('Battery')[$key],
                         'battery_name' => $value,
                         // 'quantity' => 1,
@@ -631,6 +676,50 @@ $arrayVehicle
             ["\n", "*"],
             $TemplateMessagePersonalDetails['closing_message']
         );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
+    }
+
+    public function getPaymentDetailsCopyDetail(Request $request)
+    {
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $IsMidtrans = $request->input('IsMidtrans');
+        $InvoiceNumber = $request->input('InvoiceNumber');
+        $PaymentLinks = $request->input('Links');
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        if ($IsMidtrans == "midtrans") {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+            foreach ($PaymentLinks as $link) {
+                $content_message .= "*$link*\r\n";
+            }
+        } else {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            foreach ($Battery as $index => $item) {
+                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            }
+        }
 
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
 
