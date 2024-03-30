@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
@@ -110,15 +111,20 @@ class BatteryUsage extends Controller
      */
     public function store(Request $request)
     {
-        $usage = new BatteryUsageTypeModel();
-        $usage->name = $request->name;
-        $status = $usage->save();
+        try {
+            $usage = new BatteryUsageTypeModel();
+            $usage->name = $request->name;
+            $status = $usage->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new battery usage type was successfully created!" : "Failed to create the new battery usage type!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new battery usage type was successfully created!" : "Failed to create the new battery usage type!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -129,15 +135,20 @@ class BatteryUsage extends Controller
      */
     public function update(Request $request)
     {
-        $usage = BatteryUsageTypeModel::find($request->id);
-        $usage->name = $request->name;
-        $status = $usage->save();
+        try {
+            $usage = BatteryUsageTypeModel::find($request->id);
+            $usage->name = $request->name;
+            $status = $usage->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The battery usage type was successfully updated!" : "Failed to update the battery usage type!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The battery usage type was successfully updated!" : "Failed to update the battery usage type!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -148,18 +159,23 @@ class BatteryUsage extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $usage = BatteryUsageTypeModel::find($id);
-            $status = $usage->delete();
+            foreach ($ids as $id) {
+                $usage = BatteryUsageTypeModel::find($id);
+                $status = $usage->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected usage type was successfully deleted!" : "Failed to delete the selected usage type!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected usage type was successfully deleted!" : "Failed to delete the selected usage type!"
-        );
     }
 }

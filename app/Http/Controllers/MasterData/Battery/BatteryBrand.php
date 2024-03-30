@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryBrandModel;
@@ -112,15 +113,20 @@ class BatteryBrand extends Controller
      */
     public function store(Request $request)
     {
-        $brand = new BatteryBrandModel();
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = new BatteryBrandModel();
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -131,15 +137,20 @@ class BatteryBrand extends Controller
      */
     public function update(Request $request)
     {
-        $brand = BatteryBrandModel::find($request->id);
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = BatteryBrandModel::find($request->id);
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -150,18 +161,23 @@ class BatteryBrand extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $brand = BatteryBrandModel::find($id);
-            $status = $brand->delete();
+            foreach ($ids as $id) {
+                $brand = BatteryBrandModel::find($id);
+                $status = $brand->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
-        );
     }
 }

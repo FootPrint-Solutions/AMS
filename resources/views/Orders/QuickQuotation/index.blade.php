@@ -139,7 +139,6 @@
                 let AddressCustomer = $('#AddressCustomer').val();
                 let VehicleCustomer = $('#VehicleCustomer').val();
                 let EmailCustomer = $('#EmailCustomer').val();
-                let templateMessage = $('#TemplateMessage').val();
 
                 if (FullName == '') {
                     swal.fire("Error!", "Full Name is required", "error");
@@ -195,27 +194,12 @@
                     return;
                 }
 
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes('<ADDRESS>') ==
-                    false || templateMessage.includes('<EMAIL>') == false || templateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share "
-                    );
-                    return;
-                }
-
-
-
                 let data = {
                     FullName: FullName,
                     ContactNumber: ContactNumber,
                     AddressCustomer: AddressCustomer,
                     VehicleCustomer: VehicleCustomer,
                     EmailCustomer: EmailCustomer,
-                    TemplateMessage: templateMessage,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -231,7 +215,7 @@
                 }).then(function(e) {
                     if (e.value === true) {
                         $.ajax({
-                            url: "/share-form-personal-details",
+                            url: "/quotation/customer/share",
                             type: "POST",
                             data: data,
                             success: function(data) {
@@ -276,7 +260,7 @@
                 var input = $(this).val();
                 if (input.length > 0) {
                     $.ajax({
-                        url: "/find-customer",
+                        url: "/quotation/customer/find",
                         type: "GET",
                         data: {
                             input: input
@@ -350,7 +334,7 @@
 
                         // get vehcile by  id 
                         $.ajax({
-                            url: "/find-vehicle-by-id",
+                            url: "/quotation/customer/vehicle/find",
                             type: "GET",
                             data: {
                                 id: IdCustomer,
@@ -368,29 +352,47 @@
                 });
             }
 
-            function updateCopyPersonalDetails() {
-                var FullName = $("#FullName").val();
-                var AddressCustomer = $('#AddressCustomer').val();
-                var EmailCustomer = $('#EmailCustomer').val();
-                var vehicles = $('#VehicleCustomer').find('option:selected').map(function() {
-                    return $(this).text().trim();
-                }).get();
-                var VehicleCustomer = vehicles.join(", ");
-                var TemplateMessage = $('#TemplateMessage').val();
-
-                var CopyPersonalDetails = TemplateMessage.replace('<NAME>', FullName).replace('<ADDRESS>',
-                    AddressCustomer).replace('<EMAIL>', EmailCustomer).replace('<VEHICLE>',
-                    VehicleCustomer);
-                $('#CopyPersonalDetails').val(CopyPersonalDetails);
-            }
-
-            var ElementId =
-                "#FullName, #EmailCustomer, #ContactNumber, #AddressCustomer, #VehicleCustomer, #TemplateMessage, #AutoCompleteFullNameCustomer, .select2-selection__choice, #CopyPersonalDetails, #btnCopyAddress";
-            $(ElementId).on('click keyup', updateCopyPersonalDetails);
-
 
             $("#btnCopyAddress").on('click', function() {
-                swal.fire("Copied!", "Personal Details Copied", "success");
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+
+                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
+                    VehicleCustomer == '') {
+                    swal.fire("Error!", "Please fill in all required fields", "error");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/quotation/customer/copy",
+                    type: "POST",
+                    data: {
+                        FullName: FullName,
+                        EmailCustomer: EmailCustomer,
+                        ContactNumber: ContactNumber,
+                        AddressCustomer: AddressCustomer,
+                        VehicleCustomer: VehicleCustomer,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        let ResponseData = JSON.parse(data);
+                        if (ResponseData.status) {
+                            var copyText = ResponseData.message;
+                            var textArea = document.createElement("textarea");
+                            textArea.value = copyText;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            swal.fire("Copied!", "Personal Details Copied", "success");
+                        } else {
+                            swal.fire("Error!", "Failed to copy personal details", "error");
+                        }
+                    }
+                });
             });
 
 
@@ -401,7 +403,6 @@
                 var ContactNumber = $("#ContactNumber").val();
                 var AddressCustomer = $("#AddressCustomer").val();
                 var VehicleCustomer = $("#VehicleCustomer").val();
-                var TemplateMessage = $("#TemplateMessage").val();
                 var Latitude = $("#Latitude").val();
                 var Longitude = $("#Longitude").val();
                 var IdCustomer = $("#IdCustomer").val();
@@ -436,11 +437,12 @@
                     return;
                 }
 
-                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
-                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
+                if (ContactNumber.substring(0, 1) != '8') {
+                    swal.fire("Error!", "Contact Number must start with 8", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
                     return;
                 }
 
@@ -449,7 +451,7 @@
                 // check jika button next step 2 berhasil di click
                 if ($('#ProductDisplay').hasClass('active')) {
                     $.ajax({
-                        url: "/find-vehicle-by-id-vehicle",
+                        url: "/quotation/vehicle/find",
                         type: "GET",
                         data: {
                             id: VehicleCustomer,
@@ -542,7 +544,7 @@
                     };
 
                     $.ajax({
-                        url: "/get-maps-near-address-customer",
+                        url: "/quotation/customer/maps/near",
                         type: "GET",
                         data: data,
                         success: function(data) {
@@ -560,17 +562,11 @@
                 );
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
                 var VehicleCustomer = $("#VehicleCustomer").val();
-                var TemplateMessage = $("#TemplateMessage").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
-                var TemplateMessageStep2 = $("#TemplateMessageStep2").val();
+                var contactNumber = $("#ContactNumber").val();
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -590,114 +586,16 @@
                     return;
                 }
 
-                if (EmailCustomer == '') {
-                    swal.fire("Error!", "Email Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (ContactNumber == '') {
-                    swal.fire("Error!", "Contact Number is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (AddressCustomer == '') {
-                    swal.fire("Error!", "Address Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (VehicleCustomer == '') {
-                    swal.fire("Error!", "Vehicle Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (Latitude == '' || Longitude == '') {
-                    swal.fire("Error!", "Latitude and Longitude is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (TemplateMessage.includes('<NAME>') == false || TemplateMessage.includes('<ADDRESS>') ==
-                    false || TemplateMessage.includes('<EMAIL>') == false || TemplateMessage.includes(
-                        '<VEHICLE>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, ADDRESS, EMAIL, VEHICLE", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (TemplateMessageStep2.includes('<BATTERYNAME>') == false || TemplateMessageStep2
-                    .includes('<BATTERYCAPACITY>') == false || TemplateMessageStep2
-                    .includes('<BATTERYPRICE>') == false || TemplateMessageStep2
-                    .includes('<BATTERYWARRANTY>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain BATTERYNAME, BATTERYPRICE, BATTERYWARRANTY",
-                        "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                var data = {
-                    FullName: FullName,
-                    EmailCustomer: EmailCustomer,
-                    ContactNumber: ContactNumber,
-                    AddressCustomer: AddressCustomer,
-                    VehicleCustomer: VehicleCustomer,
-                    TemplateMessage: TemplateMessage,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    IdCustomer: IdCustomer,
-                    Battery: Battery,
-                    TemplateMessageStep2: TemplateMessageStep2,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                };
-
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-
                 Battery.forEach(function(battery) {
                     var data = {
                         FullName: FullName,
-                        EmailCustomer: EmailCustomer,
-                        ContactNumber: ContactNumber,
-                        AddressCustomer: AddressCustomer,
-                        VehicleCustomer: VehicleCustomer,
-                        TemplateMessage: TemplateMessage,
-                        Latitude: Latitude,
-                        Longitude: Longitude,
-                        IdCustomer: IdCustomer,
                         Battery: battery,
-                        TemplateMessageStep2: TemplateMessageStep2,
+                        ContactNumber: contactNumber,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
                     $.ajax({
-                        url: "/share-battery",
+                        url: "/quotation/battery/share",
                         type: "POST",
                         data: data,
                         success: function(data) {
@@ -781,7 +679,7 @@
                     };
 
                     $.ajax({
-                        url: "/get-checkout-preview",
+                        url: "/quotation/checkout",
                         type: "GET",
                         data: data,
                         success: function(data) {
@@ -815,6 +713,7 @@
                     var QtyTabel = [];
                     var PriceTabel = [];
                     var BatteryNameTabel = [];
+                    var LinkTokopedia = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -828,6 +727,11 @@
                     $(".BatteryNameCheckout").each(function() {
                         var value = $(this).val();
                         BatteryNameTabel.push(value);
+                    });
+
+                    $(".LinkTokopedia").each(function() {
+                        var value = $(this).val();
+                        LinkTokopedia.push(value);
                     });
                     var DistributorShopId = $("#DistributorShopId").val();
 
@@ -850,11 +754,12 @@
                         QtyTabel: QtyTabel,
                         PriceTabel: PriceTabel,
                         DistributorShopId: DistributorShopId,
+                        LinkTokopedia: LinkTokopedia,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
                     $.ajax({
-                        url: "/get-payment-preview",
+                        url: "/quotation/payment",
                         type: "GET",
                         data: data,
                         success: function(data) {
@@ -873,117 +778,61 @@
                 );
 
                 var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-                var TotalAmount = $("#TotalAmountHidden").val();
+                var Battery = [];
+                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                    PriceTabel.push(price); // Menambahkan harga ke dalam array
+                });
+
+                var subtotal = $("#subtotal").val();
                 var tax = $("#tax").val();
-                var Discount = $("#Discount").val();
-                var ExtraDiscount = $("#ExtraDiscount").val();
-
-                var QtyTabel = [];
-                var PriceTabel = [];
-                var BatteryNameTabel = [];
-                $(".QtyCheckout").each(function() {
-                    var value = $(this).val();
-                    QtyTabel.push(value);
-                });
-
-                $(".PriceCheckout").each(function() {
-                    var value = $(this).val();
-                    PriceTabel.push(value);
-                });
-
-                $(".BatteryNameCheckout").each(function() {
-                    var value = $(this).val();
-                    BatteryNameTabel.push(value);
-                });
-
-                var templateMessage = $("#TemplateMessageStep3").val();
-
-                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
-                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
-                    swal.fire("Error!", "Please fill in all required fields", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
-                        '<BATTERYNAME>') == false || templateMessage.includes('<QUANTITY>') == false ||
-                    templateMessage.includes('<BATTERYPRICE>') == false || templateMessage.includes(
-                        '<TAX>') == false || templateMessage.includes('<DISCOUNT>') == false ||
-                    templateMessage
-                    .includes('<EXTRADISCOUNT>') == false || templateMessage.includes('<TOTALAMOUNT>') ==
-                    false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, BATTERYNAME, QUANTITY, BATTERYPRICE, TAX, DISCOUNT, EXTRADISCOUNT, TOTALAMOUNT",
-                        "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (BatteryNameTabel == '') {
-                    swal.fire("Error!", "Please select battery", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (QtyTabel == '' || QtyTabel <= 0) {
-                    swal.fire("Error!", "Please insert quantity", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (PriceTabel == '' || PriceTabel <= 0) {
-                    swal.fire("Error!", "Please insert price", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
+                var discount = $("#discount").val();
+                var TotalAmountHidden = $("#TotalAmountHidden").val();
 
                 var data = {
                     FullName: FullName,
-                    EmailCustomer: EmailCustomer,
-                    ContactNumber: ContactNumber,
-                    AddressCustomer: AddressCustomer,
-                    VehicleCustomer: VehicleCustomer,
-                    TemplateMessage: templateMessage,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    IdCustomer: IdCustomer,
                     Battery: Battery,
-                    TotalAmount: TotalAmount,
-                    tax: tax,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
-                    BatteryNameTabel: BatteryNameTabel,
-                    QtyTabel: QtyTabel,
-                    PriceTabel: PriceTabel,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
+                    Subtotal: subtotal,
+                    Tax: tax,
+                    Discount: discount,
+                    TotalAmount: TotalAmountHidden,
+                    ContactNumber: ContactNumber,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
+
+                if (Battery.length === 0) { // Mengubah pengecekan Battery menjadi Battery.length
+                    swal.fire("Error!", "Please select battery", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
+
+                // Mengubah pengecekan QtyTabel dan PriceTabel
+                if (QtyTabel.some(qty => qty === '' || qty <= 0)) {
+                    swal.fire("Error!", "Please insert quantity", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
+
+                if (PriceTabel.some(price => price === '' || price <= 0)) {
+                    swal.fire("Error!", "Please insert price", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
 
                 $.ajax({
                     url: "/quotation/share-invoice",
@@ -1008,9 +857,7 @@
                     },
                     complete: function() {
                         button.prop('disabled', false);
-                        button.html(
-                            "<i class='fa-brands fa-whatsapp'></i> Share"
-                        );
+                        button.html("<i class='fa-brands fa-whatsapp'></i> Share");
                     }
                 });
             });
@@ -1024,33 +871,39 @@
 
                 var FullName = $("#FullName").val();
                 var ContactNumber = $("#ContactNumber").val();
-                var templateMessage = $("#TemplateMessageStep4").val();
-
-                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
-                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
-                    swal.fire("Error!", "Please fill in all required fields", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
-                        '<PAYMENTLINK>') == false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, PAYMENTLINK ", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
+                var links = [];
+                var Battery = [];
+                var InvoiceNumber = $("#invoiceNumber").val();
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                });
+                var IsMidtrans = $("#CheckMidtrans").prop("checked");
+                if (IsMidtrans) {
+                    var linkMidtrans = $("#LinkPaymentMidtrans").val();
+                    links.push(linkMidtrans);
+                    var IsMidtrans = "midtrans";
+                } else {
+                    $(".LinkPayment").each(function() {
+                        var value = $(this).val();
+                        links.push(value);
+                    });
+                    var IsMidtrans = "not midtrans";
                 }
 
                 var data = {
                     FullName: FullName,
                     ContactNumber: ContactNumber,
-                    TemplateMessage: templateMessage,
+                    Battery: Battery,
+                    InvoiceNumber: InvoiceNumber,
+                    IsMidtrans: IsMidtrans,
+                    links: links,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -1118,6 +971,8 @@
                 var QtyTabel = [];
                 var PriceTabel = [];
                 var BatteryNameTabel = [];
+                var LinkTokopedia = [];
+
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
                     QtyTabel.push(value);
@@ -1131,6 +986,11 @@
                 $(".BatteryNameCheckout").each(function() {
                     var value = $(this).val();
                     BatteryNameTabel.push(value);
+                });
+
+                $(".LinkTokopedia").each(function() {
+                    var value = $(this).val();
+                    LinkTokopedia.push(value);
                 });
 
                 var DistributorShopId = $("#DistributorShopId").val();
@@ -1158,7 +1018,8 @@
                     DistributorShopId: DistributorShopId,
                     invoiceNumber: invoiceNumber,
                     techniciansName: techniciansName,
-                    CheckMidtrans: CheckMidtrans
+                    CheckMidtrans: CheckMidtrans,
+                    linkPayment: LinkTokopedia,
                 };
 
                 $.ajax({
@@ -1174,7 +1035,7 @@
                                 icon: "success",
                             });
                             setTimeout(function() {
-                                window.location.href = "/quotation";
+                                window.location.href = "/sales-order";
                             }, 2000);
                         } else {
                             Swal.fire({

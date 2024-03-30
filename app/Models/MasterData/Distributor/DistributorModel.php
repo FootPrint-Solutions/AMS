@@ -21,13 +21,6 @@ class DistributorModel extends Model
     protected $table = 'distributors';
 
     /**
-     * The list of columns in the associated table.
-     */
-    private static $selectColumns = [
-        'id', 'name', 'address', 'contact_person', 'contact', 'email'
-    ];
-
-    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
@@ -35,10 +28,14 @@ class DistributorModel extends Model
      */
     public static function allForDataTables($request)
     {
+        // Set the list of select and search columns.
+        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email'];
+        $searchColumns = ['name', 'address', 'contact_person', 'contact', 'email'];
+
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }

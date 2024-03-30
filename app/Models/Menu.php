@@ -158,7 +158,7 @@ class Menu extends Model
             ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
         $query->select(self::$selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns);
+        return self::getAllRows($request, $query, self::$selectColumns, self::$selectColumns, ['column' => 'menu_parents.order', 'direction' => 'asc']);
     }
 
     /**

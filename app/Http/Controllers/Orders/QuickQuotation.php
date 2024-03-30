@@ -13,10 +13,11 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
-use App\Models\Orders\Quotation\QuotationModel;
-use App\Models\Orders\Quotation\QuotationBatteryModel;
-
-
+use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Settings\MessageTemplateModel;
+use App\Models\Settings\TaxModel;
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
 
@@ -47,27 +48,45 @@ class QuickQuotation extends Controller
     function shareFormPersonalDetails(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $id = $request->input('VehicleCustomer');
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
 
-        $vehicleCustomerString = "";
-        $vehicleCustomer = VehicleModel::whereIn('id', $id)->get()->toArray();
-
-        foreach ($vehicleCustomer as $key => $value) {
-            $vehicleCustomerString .= $value['name'] . ", ";
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            $arrayVehicle .= "- " . $value . "\r";
         }
 
-        $template = $request->input('TemplateMessage');
-        $text = str_replace(
-            ['<NAME>', '<ADDRESS>', '<EMAIL>', '<VEHICLE>'],
-            [$request->input('FullName'), $request->input('AddressCustomer'), $request->input('EmailCustomer'), $vehicleCustomerString],
-            $template
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'personal_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
+
+        $content_message = "
+*Alamat Anda* :
+📍 $AddressCustomer 
+
+*Email Anda* :
+📧 $EmailCustomer
+
+*Nomor kontak Anda* :
+📞 $ContactNumber
+
+*Kendaraan Anda* :
+$arrayVehicle";
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
 
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
             'session' => auth()->user()->username,
-            'text' => $text,
+            'text' => $message,
         ];
 
         try {
@@ -77,10 +96,11 @@ class QuickQuotation extends Controller
                 if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
                     return getResponseData(true, "Message sent successfully");
                 } else {
-                    return getResponseData(false, "Failed to send message");
+                    return getResponseData(false, "Failed to send message : " . $responseData['data']['message']);
                 }
             } else {
-                return getResponseData(false, "Failed to send message");
+                $responseData = $response->json();
+                return getResponseData(false, "Failed to send message : " . $responseData['message']);
             }
         } catch (\Exception $e) {
             return getResponseData(false, "Failed to send message => " . $e->getMessage());
@@ -97,7 +117,11 @@ class QuickQuotation extends Controller
     public function findVehicleByIdVehicle(Request $request)
     {
         $ids = $request->input('id');
-        $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+        if ($request->input('shop_id')) {
+            $results = VehicleModel::getBatteryRecomendationWithDistributor($ids, $request->input('shop_id'));
+        } else {
+            $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+        }
         return response()->json($results);
     }
 
@@ -135,46 +159,63 @@ class QuickQuotation extends Controller
     {
         $url = "http://185.199.52.172:5001/send-image";
         $ids = $request->input('Battery');
+        $Fullname = $request->input('FullName');
         $results = BatteryModel::where('id', $ids)->get()->toArray();
 
+        if ($results == null) {
+            return getResponseData(false, "Battery not found");
+        } else {
+            $arrayBattery = "";
+            foreach ($results as $key => $value) {
+                $arrayBattery .= "*Nama* : " . $value['name'] . "\r";
+                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . "\r";
+                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
-        foreach ($results as $key => $value) {
-            if ($value['image'] != null) {
-                $value['image'] = asset('storage/image/battery/' . $value['image']);
-            } else {
-                $value['image'] = null;
-            }
 
-            $template = $request->input('TemplateMessageStep2');
-            $text = str_replace(
-                ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                [
-                    $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n"
-                ],
-                $template
-            );
+                $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
 
-            $data = [
-                'to' => "62" . $request->input('ContactNumber'),
-                'session' => auth()->user()->username,
-                'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
-                'caption' => $text,
-            ];
+                $opening_message = str_replace(
+                    ["<FULLNAME>", "<B>", "<ENTER>"],
+                    [$Fullname, "*", "\n"],
+                    $TemplateMessagePersonalDetails['opening_message']
+                );
 
-            try {
-                $response = Http::post($url, $data);
-                if ($response->successful()) {
-                    $responseData = $response->json();
-                    if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
-                        return getResponseData(true, "Message sent successfully");
-                    } else {
-                        return getResponseData(false, "Failed to send message");
-                    }
+                $content_message = "
+$arrayBattery
+";
+
+                $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+
+                if ($value['image'] != null) {
+                    $value['image'] = asset('storage/image/battery/' . $value['image']);
                 } else {
-                    return getResponseData(false, "Failed to send message");
+                    $value['image'] = null;
                 }
-            } catch (\Exception $e) {
-                return getResponseData(false, "Failed to send message => " . $e->getMessage());
+
+                $data = [
+                    'to' => "62" . $request->input('ContactNumber'),
+                    'session' => auth()->user()->username,
+                    'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
+                    'caption' => $message,
+                ];
+
+                try {
+                    $response = Http::post($url, $data);
+                    if ($response->successful()) {
+                        $responseData = $response->json();
+                        if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
+                            return getResponseData(true, "Message sent successfully");
+                        } else {
+                            return getResponseData(false, "Failed to send message");
+                        }
+                    } else {
+                        $responseData = $response->json();
+                        return getResponseData(false, "Failed to send message : " . $responseData['message']);
+                    }
+                } catch (\Exception $e) {
+                    return getResponseData(false, "Failed to send message => " . $e->getMessage());
+                }
             }
         }
     }
@@ -195,6 +236,7 @@ class QuickQuotation extends Controller
             $distributorTechnician = "";
             $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
         }
+        $tax = TaxModel::where('status', 'active')->first()->percentage;
 
         $data = [
             'Fullname' => $Fullname,
@@ -208,6 +250,7 @@ class QuickQuotation extends Controller
             'Longitude' => $request->input('Longitude'),
             'Distributor' => $distributorChecked,
             'DistributorTechnician' => $distributorTechnician,
+            'tax' => $tax,
         ];
 
         return view('Orders.QuickQuotation.step-3-checkoutpreview', $data);
@@ -227,6 +270,7 @@ class QuickQuotation extends Controller
         $BatteryNameTabel = $request->input('BatteryNameTabel');
         $QtyTabel = $request->input('QtyTabel');
         $PriceTabel = $request->input('PriceTabel');
+        $Link = $request->input('LinkTokopedia');
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
@@ -239,7 +283,7 @@ class QuickQuotation extends Controller
                     'name' => $value->name,
                     'qty' => $QtyTabel[$key],
                     'price' => $value->price_retail,
-                    'link' => $value->url
+                    'link' => $Link[$key],
                 ];
             }
         } else {
@@ -286,65 +330,87 @@ class QuickQuotation extends Controller
 
     public function getBatteryCopyDetail(Request $request)
     {
-        $BatteryId = $request->input('Battery');
-        try {
-            $Battery = BatteryModel::whereIn('id', $BatteryId)->get()->toArray();
-            $Message = "";
-            $template = $request->input('TemplateMessageStep2');
+        $batteryIds = $request->input('Battery');
+        $Fullname = $request->input('FullName');
+        $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
 
-            foreach ($Battery as $value) {
-                $text = str_replace(
-                    ['<NAME>', '<BATTERYNAME>', '<BATTERYCAPACITY>', '<BATTERYPRICE>', '<BATTERYWARRANTY>', '<ENTER>'],
-                    [
-                        $request->input('FullName'), $value['name'], $value['capacity'], $value['price_retail'], $value['warranty'], "\n\n"
-                    ],
-                    $template
-                );
-                $Message = $text;
-            }
-            return getResponseData(true, $Message);
-        } catch (\Throwable $th) {
-            return getResponseData(false, "Failed to get battery detail" . $th->getMessage());
+        $arrayBattery = "";
+        foreach ($batteries as $battery) {
+            $arrayBattery .= "*Nama* : " . $battery->name . "\r";
+            $arrayBattery .= "*Kapasitas* : " . $battery->capacity . "\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
+            $arrayBattery .= "\r";
         }
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "
+$arrayBattery
+";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
     }
+
 
     public function shareInvoice(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $template = $request->input('TemplateMessage');
-        $BatteryNameTabel = $request->input('BatteryNameTabel');
-        $QtyTabel = $request->input('QtyTabel');
-        $PriceTabel = $request->input('PriceTabel');
-        $TotalAmount = $request->input('TotalAmount');
-        $tax = $request->input('tax') ?? 0;
-        $Discount = $request->input('Discount') ?? 0;
-        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
-        $Fullname = $request->input('FullName');
+        $FullName = $request->input('FullName');
         $ContactNumber = $request->input('ContactNumber');
+        $Battery = $request->input('Battery');
+        $Subtotal = $request->input('Subtotal');
+        $Tax = $request->input('Tax');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
 
-        foreach ($BatteryNameTabel as $key => $value) {
-            $BatteryNameTabel[$key] = $value . "";
-            $QtyTabel[$key] = $QtyTabel[$key] . "";
-            $PriceTabel[$key] = "Rp. " . number_format($PriceTabel[$key], 0, "", ".") . "";
-        }
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
 
-        $BatteryNames = implode(', ', $BatteryNameTabel);
-        $Qtys = implode(', ', $QtyTabel);
-        $Prices = implode(', ', $PriceTabel);
-
-        $text = str_replace(
-            ['<NAME>', '<BATTERYNAME>', '<QUANTITY>', '<BATTERYPRICE>', '<TOTALAMOUNT>', '<TAX>', '<DISCOUNT>', '<EXTRADISCOUNT>', 'and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>', '<PHONETECHNICIAN>'],
-            [
-                $Fullname, $BatteryNames, $Qtys, $Prices, "Rp. " . number_format($TotalAmount, 0, "", "."), $tax, $Discount, $ExtraDiscount, ''
-            ],
-            $template
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
 
-        $text = trim($text);
+        $content_message = "";
+        $no = 1;
+        foreach ($Battery as $item) {
+            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
+        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
+        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
         $data = [
             'to' => "62" . $ContactNumber,
             'session' => auth()->user()->username,
-            'text' => "$text",
+            'text' => "$message",
         ];
 
         $response = Http::post($url, $data);
@@ -360,26 +426,69 @@ class QuickQuotation extends Controller
     public static function sharePaymentDetails(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $template = $request->input('TemplateMessage');
-        $Fullname = $request->input('FullName');
-        $ContactNumber = $request->input('ContactNumber');
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $IsMidtrans = $request->input('IsMidtrans');
+        $InvoiceNumber = $request->input('InvoiceNumber');
+        $PaymentLinks = $request->input('links');
 
-        $text = str_replace(
-            ['<NAME>', '<PAYMENTLINK>'],
-            [$Fullname, 'https://www.google.com'],
-            $template
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        if ($IsMidtrans == "midtrans") {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+            foreach ($PaymentLinks as $link) {
+                $content_message .= "*$link*\r\n";
+            }
+        } else {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            foreach ($Battery as $index => $item) {
+                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            }
+        }
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        $data = [
+            'to' => "62" . $request->input('ContactNumber'),
+            'session' => auth()->user()->username,
+            'text' => $message,
+        ];
+
+        $response = Http::post($url, $data);
+        $responseData = $response->json();
+
+        if (isset($responseData['data']['status']) && $responseData['data']['status'] == true) {
+            return getResponseData(true, "Message sent successfully");
+        } else {
+            return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
+        }
     }
 
     public static function saveData(Request $request)
     {
-        $QuotationNumber = "QUO" . date('YmdHis') . rand(99, 999);
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
         $total = $request->input('TotalAmount');
         $status = "Pending";
-        $vehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+
         if ($request->input('CheckMidtrans') == 1) {
             $payment_methode = "midtrans";
             $midtransInvoice = $request->input('invoiceNumber');
@@ -410,57 +519,210 @@ class QuickQuotation extends Controller
         if ($request->input('DistributorShopId') != null) {
             $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+
+            $link = $request->input('linkPayment');
+            // update link to databse 
+            foreach ($link as $key => $value) {
+                $data = [
+                    'url' => $value
+                ];
+                DistributorShopBatteryModel::where('distributor_shop_id', $request->input('DistributorShopId'))->where('battery_id', $request->input('Battery')[$key])->update($data);
+            }
         } else {
             $DistributorShop = null;
         }
 
         $data = [
-            'quotation_number' => $QuotationNumber,
+            'sales_order_number' => SalesOrderModel::newCode(),
             'customer_id' => $Customer->id,
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
             'total' => $total,
             'tax' => $tax,
             'discount' => $Discount,
-            'extra_discount' => $ExtraDiscount,
             'payment_methode' => $payment_methode,
             'midtrans_invoice' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
             'status' => $status,
             'address' => $request->input('AddressCustomer'),
             'latitude' => $request->input('Latitude'),
-            'longitude' => $request->input('Longitude')
+            'longitude' => $request->input('Longitude'),
+            'date' => date('Y-m-d')
         ];
 
-        $Quotation = QuotationModel::create($data);
+        $Quotation = SalesOrderModel::create($data);
 
         if ($request->input('DistributorShopId') != null) {
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
             $dataProduct = [];
             foreach ($BatteryData as $key => $value) {
-                $dataProduct[] = [
-                    'quotation_id' => $Quotation->id,
-                    'battery_id' => $value->id,
-                    'battery_name' => $value->name,
-                    'quantity' => $request->input('QtyTabel')[$key],
-                    'battery_price' => $value->price_retail,
-                ];
+                for ($i = 0; $i <  $request->input('QtyTabel')[$key]; $i++) {
+                    $dataProduct[] = [
+                        'sales_order_id' => $Quotation->id,
+                        // 'quotation_id' => $Quotation->id,
+                        'battery_id' => $value->id,
+                        'battery_name' => $value->name,
+                        // 'quantity' => 1,
+                        'battery_price' => $value->price_retail,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ];
+                }
             }
         } else {
             $dataProduct = [];
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
-                $dataProduct[] = [
-                    'quotation_id' => $Quotation->id,
-                    'battery_id' => $request->input('Battery')[$key],
-                    'battery_name' => $value,
-                    'quantity' => $request->input('QtyTabel')[$key],
-                    'battery_price' => $request->input('PriceTabel')[$key],
-                ];
+                for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
+                    $dataProduct[] = [
+                        'sales_order_id' => $Quotation->id,
+                        // 'quotation_id' => $Quotation->id,
+                        'battery_id' => $request->input('Battery')[$key],
+                        'battery_name' => $value,
+                        // 'quantity' => 1,
+                        'battery_price' => $request->input('PriceTabel')[$key],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ];
+                }
             }
         }
 
-        $QuuotationBattery = QuotationBatteryModel::insert($dataProduct);
+        $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
+        if (!$QuuotationBattery) {
+            return getResponseData(false, "Failed to save data");
+        } else {
+            return getResponseData(true, "Data saved successfully");
+        }
+    }
 
-        return getResponseData(true, "Data saved successfully");
+    public function getCustomerCopyDetail(Request $request)
+    {
+        $Fullname = $request->input('FullName');
+        $AddressCustomer = $request->input('AddressCustomer');
+        $EmailCustomer = $request->input('EmailCustomer');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            $arrayVehicle .= "- " . $value . "\r";
+        }
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'personal_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<B>", "<ENTER>"],
+            [$Fullname, "*", "\n"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "
+*Alamat Anda* :
+📍 $AddressCustomer 
+
+*Email Anda* :
+📧 $EmailCustomer
+
+*Nomor kontak Anda* :
+📞 $ContactNumber
+
+*Kendaraan Anda* :
+$arrayVehicle
+";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
+    }
+
+    public function getCheckoutCopyDetail(Request $request)
+    {
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $Subtotal = $request->input('Subtotal');
+        $Tax = $request->input('Tax');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "";
+        $no = 1;
+        foreach ($Battery as $item) {
+            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
+        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
+        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
+    }
+
+    public function getPaymentDetailsCopyDetail(Request $request)
+    {
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $IsMidtrans = $request->input('IsMidtrans');
+        $InvoiceNumber = $request->input('InvoiceNumber');
+        $PaymentLinks = $request->input('Links');
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        if ($IsMidtrans == "midtrans") {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+            foreach ($PaymentLinks as $link) {
+                $content_message .= "*$link*\r\n";
+            }
+        } else {
+            $content_message = "";
+            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            foreach ($Battery as $index => $item) {
+                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            }
+        }
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorModel;
@@ -120,44 +120,49 @@ class Distributor extends Controller
      */
     public function store(Request $request)
     {
-        $distributor = new DistributorModel();
-        $distributor->name = $request->name;
-        $distributor->is_shop = $request->isshop;
-        $distributor->address = $request->address;
-        $distributor->contact_person = $request->contactperson;
-        $distributor->contact = $request->contact;
-        $distributor->email = $request->email;
-        $distributor->note = "";
-        $status = $distributor->save();
+        try {
+            $distributor = new DistributorModel();
+            $distributor->name = $request->name;
+            $distributor->is_shop = $request->isshop;
+            $distributor->address = $request->address;
+            $distributor->contact_person = $request->contactperson;
+            $distributor->contact = $request->contact;
+            $distributor->email = $request->email;
+            $distributor->note = "";
+            $status = $distributor->save();
 
-        // Check if is shop is checked or not.
-        if ($request->isshop == 1) {
-            // Add a new shop for the distributor.
-            $shop = new DistributorShopModel();
-            $shop->name = "Distributor Main Shop";
-            $shop->distributor_id = $distributor->id;
-            $shop->type = 1;
-            $shop->address = $request->address;
-            $shop->contact_person = $request->contactperson;
-            $shop->contact = $request->contact;
-            $shop->email = $request->email;
-            $shop->note = $request->note;
-            $shop->latitude = $request->Latitude;
-            $shop->longitude = $request->Longitude;
-            $status &= $shop->save();
-        } else {
-            // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
-            if ($shop) {
-                $shop->delete();
+            // Check if is shop is checked or not.
+            if ($request->isshop == 1) {
+                // Add a new shop for the distributor.
+                $shop = new DistributorShopModel();
+                $shop->name = "Distributor Main Shop";
+                $shop->distributor_id = $distributor->id;
+                $shop->type = 1;
+                $shop->address = $request->address;
+                $shop->contact_person = $request->contactperson;
+                $shop->contact = $request->contact;
+                $shop->email = $request->email;
+                $shop->note = $request->note;
+                $shop->latitude = $request->Latitude;
+                $shop->longitude = $request->Longitude;
+                $status &= $shop->save();
+            } else {
+                // Delete saved distributor shop.
+                $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
+                if ($shop) {
+                    $shop->delete();
+                }
             }
-        }
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new distributor was successfully created!" : "Failed to create the new distributor!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new distributor was successfully created!" : "Failed to create the new distributor!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -169,47 +174,52 @@ class Distributor extends Controller
      */
     public function update(Request $request)
     {
-        $distributor = DistributorModel::find($request->id);
-        $distributor->name = $request->name;
-        $distributor->is_shop = $request->isshop;
-        $distributor->address = $request->address;
-        $distributor->contact_person = $request->contactperson;
-        $distributor->contact = $request->contact;
-        $distributor->email = $request->email;
-        $distributor->note = $request->note;
-        $status = $distributor->save();
+        try {
+            $distributor = DistributorModel::find($request->id);
+            $distributor->name = $request->name;
+            $distributor->is_shop = $request->isshop;
+            $distributor->address = $request->address;
+            $distributor->contact_person = $request->contactperson;
+            $distributor->contact = $request->contact;
+            $distributor->email = $request->email;
+            $distributor->note = $request->note;
+            $status = $distributor->save();
 
-        // Check if is shop is checked or not.
-        if ($request->isshop == 1) {
-            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
-            if (!$shop) {
-                // Add a new shop for the distributor.
-                $shop = new DistributorShopModel();
-                $shop->name = "Distributor Main Shop";
-                $shop->distributor_id = $distributor->id;
-                $shop->type = 1;
-                $shop->address = $request->address;
-                $shop->contact_person = $request->contactperson;
-                $shop->contact = $request->contact;
-                $shop->email = $request->email;
-                $shop->note = "";
-                $shop->latitude = $request->Latitude;
-                $shop->longitude = $request->Longitude;
-                $status &= $shop->save();
+            // Check if is shop is checked or not.
+            if ($request->isshop == 1) {
+                $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
+                if (!$shop) {
+                    // Add a new shop for the distributor.
+                    $shop = new DistributorShopModel();
+                    $shop->name = "Distributor Main Shop";
+                    $shop->distributor_id = $distributor->id;
+                    $shop->type = 1;
+                    $shop->address = $request->address;
+                    $shop->contact_person = $request->contactperson;
+                    $shop->contact = $request->contact;
+                    $shop->email = $request->email;
+                    $shop->note = "";
+                    $shop->latitude = $request->Latitude;
+                    $shop->longitude = $request->Longitude;
+                    $status &= $shop->save();
+                }
+            } else {
+                // Delete saved distributor shop.
+                $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
+                if ($shop) {
+                    $shop->delete();
+                }
             }
-        } else {
-            // Delete saved distributor shop.
-            $shop = DistributorShopModel::where('distributor_id', $distributor->id)->where("type", 1)->first();
-            if ($shop) {
-                $shop->delete();
-            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected distributor was successfully updated!" : "Failed to update the selected distributor!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected distributor was successfully updated!" : "Failed to update the selected distributor!"
-        );
     }
 
     /**
@@ -220,18 +230,23 @@ class Distributor extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $distributor = DistributorModel::find($id);
-            $status = $distributor->delete();
+            foreach ($ids as $id) {
+                $distributor = DistributorModel::find($id);
+                $status = $distributor->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected distributor was successfully deleted!" : "Failed to delete the selected distributor!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected distributor was successfully deleted!" : "Failed to delete the selected distributor!"
-        );
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
@@ -123,23 +123,28 @@ class DistributorShop extends Controller
      */
     public function store(Request $request)
     {
-        $shop = new DistributorShopModel();
-        $shop->name = $request->name;
-        $shop->distributor_id = $request->distributor;
-        $shop->address = $request->address;
-        $shop->contact_person = $request->contactperson;
-        $shop->contact = $request->contact;
-        $shop->email = $request->email;
-        $shop->note = $request->note;
-        $shop->latitude = $request->Latitude;
-        $shop->longitude = $request->Longitude;
-        $status = $shop->save();
+        try {
+            $shop = new DistributorShopModel();
+            $shop->name = $request->name;
+            $shop->distributor_id = $request->distributor;
+            $shop->address = $request->address;
+            $shop->contact_person = $request->contactperson;
+            $shop->contact = $request->contact;
+            $shop->email = $request->email;
+            $shop->note = $request->note;
+            $shop->latitude = $request->Latitude;
+            $shop->longitude = $request->Longitude;
+            $status = $shop->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -151,23 +156,28 @@ class DistributorShop extends Controller
      */
     public function update(Request $request)
     {
-        $shop = DistributorShopModel::find($request->id);
-        $shop->name = $request->name;
-        $shop->distributor_id = $request->distributor;
-        $shop->address = $request->address;
-        $shop->contact_person = $request->contactperson;
-        $shop->contact = $request->contact;
-        $shop->email = $request->email;
-        $shop->note = $request->note;
-        $shop->latitude = $request->Latitude;
-        $shop->longitude = $request->Longitude;
-        $status = $shop->save();
+        try {
+            $shop = DistributorShopModel::find($request->id);
+            $shop->name = $request->name;
+            $shop->distributor_id = $request->distributor;
+            $shop->address = $request->address;
+            $shop->contact_person = $request->contactperson;
+            $shop->contact = $request->contact;
+            $shop->email = $request->email;
+            $shop->note = $request->note;
+            $shop->latitude = $request->Latitude;
+            $shop->longitude = $request->Longitude;
+            $status = $shop->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -178,18 +188,23 @@ class DistributorShop extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $shop = DistributorShopModel::find($id);
-            $status = $shop->delete();
+            foreach ($ids as $id) {
+                $shop = DistributorShopModel::find($id);
+                $status = $shop->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected shop was successfully deleted!" : "Failed to delete the selected shop!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected shop was successfully deleted!" : "Failed to delete the selected shop!"
-        );
     }
 }

@@ -8,7 +8,7 @@
     <title>{{ $title ?? '' }}</title>
 
     {{-- Favicon --}}
-    {{-- <link rel="shortcut icon" href="assets/img/favicon.png"> --}}
+    <link rel="shortcut icon" href="/img/logos/32x32.png">
 
     {{-- Fontfamily --}}
     <link

@@ -46,7 +46,9 @@
                                     <th>Battery</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
-                                    <th>Link Tokopedia</th>
+                                    @if (isset($DistributorShop) && !empty($DistributorShop))
+                                        <th>Link Tokopedia</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -65,10 +67,13 @@
                                             <input readonly type="text" name="PricePaymentDetails[]"
                                                 class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
                                         </td>
-                                        <td>
-                                            <input type="text" name="LinkPayment[]" class="form-control LinkPayment"
-                                                value="{{ $data['link'] }}" readonly>
-                                        </td>
+                                        @if (isset($DistributorShop) && !empty($DistributorShop))
+                                            <td>
+                                                <input type="text" name="LinkPayment[]"
+                                                    class="form-control LinkPayment" value="{{ $data['link'] }}"
+                                                    readonly>
+                                            </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -83,10 +88,19 @@
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
-                            <label class="custom_check w-100">
-                                <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans">
-                                <span class="checkmark"></span> Use Payment Link Midtrans
-                            </label>
+                            @if (isset($DistributorShop) && !empty($DistributorShop))
+                                <label class="custom_check w-100">
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans"
+                                        id="CheckMidtrans">
+                                    <span class="checkmark"></span> Use Payment Link Midtrans
+                                </label>
+                            @elseif (isset($DistributorShop) && empty($DistributorShop))
+                                <label class="custom_check w-100">
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans"
+                                        disabled checked>
+                                    <span class="checkmark"></span> Use Payment Link Midtrans
+                                </label>
+                            @endif
                             <p>Payment Link : </p>
                             <p>{{ $snapToken }}</p>
                             <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden"
@@ -112,57 +126,70 @@
                 </div>
             </div>
         </div>
-        <div class="invoice-sign text-end">
-            <div class="form-group local-forms">
-                <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-                <textarea class="form-control TemplateMessageStep4" name="TemplateMessageStep4" placeholder="Enter Addres Customer"
-                    required autocomplete="off">Hello, <NAME> this is your Payment Link : <PAYMENTLINK> Please make a payment and confirm the payment to us. Thank you.
-                </textarea>
-            </div>
-        </div>
     </div>
 </div>
 
-<div class="clipboard visually-hidden">
-    <textarea cols="30" rows="10" class="CopyPaymentDetails" name="CopyPaymentDetails"></textarea>
-</div>
-
 <script>
-    function updateCopyPaymentDetails() {
-        var FullName = $("#FullName").val();
-        var links = []; // Mendefinisikan variabel links di luar event handler
-
-        $("#CheckMidtrans").change(function() {
-            links = []; // Mengosongkan links setiap kali status checkbox berubah
-            if ($(this).prop("checked")) {
-                var linkMidtrans = $("#LinkPaymentMidtrans").val();
-                links.push(linkMidtrans);
-            } else {
-                $(".LinkPayment").each(function() {
-                    var value = $(this).val();
-                    links.push(value);
-                });
-            }
-
-            // Pemrosesan link harus dilakukan di dalam event handler change
-            // untuk memastikan bahwa nilai links telah diperbarui
-            var TemplateMessage = $(".TemplateMessageStep4").val();
-            var copyPaymentDetails = TemplateMessage.replace("<NAME>", FullName);
-            var linksString = links.join(", "); // implode link menggunakan koma
-            copyPaymentDetails = copyPaymentDetails.replace("<PAYMENTLINK>", linksString);
-
-            // Memperbarui HTML elemen dengan class CopyPaymentDetails
-            $(".CopyPaymentDetails").html(copyPaymentDetails);
-        });
-    }
-
-    // Panggil fungsi updateCopyPaymentDetails saat dokumen siap
-    $(document).ready(function() {
-        updateCopyPaymentDetails();
-    });
-
     $("#btnCopyPaymentDetails").on("click", function() {
-        updateCopyPaymentDetails();
-        swal.fire("Success", "Payment Detail Copied", "success");
+        var FullName = $("#FullName").val();
+        // check if midtrans is checked
+        var links = [];
+        var Battery = [];
+        var InvoiceNumber = $("#invoiceNumber").val();
+        $(".add-table-items tbody tr").each(function() {
+            var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+            var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+            var price = $(this).find("input[name='PriceCheckout[]']").val();
+            Battery.push({
+                batteryName: batteryName,
+                quantity: quantity,
+                price: price
+            });
+        });
+        var IsMidtrans = $("#CheckMidtrans").prop("checked");
+        if (IsMidtrans) {
+            var linkMidtrans = $("#LinkPaymentMidtrans").val();
+            links.push(linkMidtrans);
+            var IsMidtrans = "midtrans";
+        } else {
+            $(".LinkPayment").each(function() {
+                var value = $(this).val();
+                links.push(value);
+            });
+            var IsMidtrans = "not midtrans";
+        }
+
+        var data = {
+            FullName: FullName,
+            Links: links,
+            IsMidtrans: IsMidtrans,
+            Battery: Battery,
+            InvoiceNumber: InvoiceNumber,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/payment-details/copy",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                let ResponseData = JSON.parse(response);
+                if (ResponseData.status == true) {
+                    var copyText = ResponseData.message;
+                    var textArea = document.createElement("textarea");
+                    textArea.value = copyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    swal.fire("Copied!", "Personal Details Copied", "success");
+                } else {
+                    swal.fire("Error!", ResponseData.message, "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                swal.fire("Error!", error, "error");
+            }
+        });
     });
 </script>

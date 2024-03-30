@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
@@ -112,15 +113,20 @@ class BatterySize extends Controller
      */
     public function store(Request $request)
     {
-        $brand = new BatterySizeCategoryModel();
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = new BatterySizeCategoryModel();
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The new battery size category was successfully created!" : "Failed to create the new battery size category!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new battery size category was successfully created!" : "Failed to create the new battery size category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -131,15 +137,20 @@ class BatterySize extends Controller
      */
     public function update(Request $request)
     {
-        $brand = BatterySizeCategoryModel::find($request->id);
-        $brand->name = $request->name;
-        $status = $brand->save();
+        try {
+            $brand = BatterySizeCategoryModel::find($request->id);
+            $brand->name = $request->name;
+            $status = $brand->save();
 
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The battery size category was successfully updated!" : "Failed to update the battery size category!"
-        );
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The battery size category was successfully updated!" : "Failed to update the battery size category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -150,18 +161,23 @@ class BatterySize extends Controller
      */
     public function destroy(Request $request)
     {
-        $status = true;
-        $ids = $request->id;
+        try {
+            $status = true;
+            $ids = $request->id;
 
-        foreach ($ids as $id) {
-            $brand = BatterySizeCategoryModel::find($id);
-            $status = $brand->delete();
+            foreach ($ids as $id) {
+                $brand = BatterySizeCategoryModel::find($id);
+                $status = $brand->delete();
+            }
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected size category was successfully deleted!" : "Failed to delete the selected size category!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected size category was successfully deleted!" : "Failed to delete the selected size category!"
-        );
     }
 }

@@ -190,6 +190,7 @@
         } else {
             $("#shop_id").val(Distributor[0]);
             $("#DistributorShopId").val(Distributor[0]);
+            getBatteryRecomendation(Distributor[0]);
         }
     }
 
@@ -197,8 +198,119 @@
         $("#shop_id").on("change", function() {
             var id = $(this).val();
             $("#DistributorShopId").val(id);
+            getBatteryRecomendation(id);
         });
 
         initMap2();
     });
+
+    function getBatteryRecomendation(id) {
+        var VehicleCustomer = $("#VehicleCustomer").val();
+
+        $.ajax({
+            url: "/quotation/vehicle/find",
+            type: "GET",
+            data: {
+                id: VehicleCustomer,
+                shop_id: id
+            },
+            success: function(data) {
+                var html = '';
+                // jika data kosong
+                if (data.length === 0) {
+                    html =
+                        '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Battery Found</div>';
+                    $('#ResultRecommendationBattery').html(html);
+                    return;
+                } else {
+                    data.forEach(function(vehicle) {
+                        html +=
+                            '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
+                        html += '<div class="blog grid-blog flex-fill">';
+                        html += '<div class="blog-image">';
+                        html += '<a href="#!">';
+                        if (vehicle.image == null) {
+
+                            vehicle.image =
+                                'https://via.placeholder.com/210x210';
+                            html += '<img class="img-fluid" src="' + vehicle
+                                .image + '" alt="Post Image">';
+                        } else {
+                            var baseUrl =
+                                "{{ asset('storage/image/battery/') }}";
+                            vehicle.image = vehicle.image;
+                            html += '<img class="img-fluid" src="' +
+                                baseUrl +
+                                '/' + vehicle.image +
+                                '" alt="Post Image">';
+                        }
+                        html += '</a>';
+                        html += '</div>';
+                        html += '<div class="blog-content">';
+                        if (vehicle.battery_distributor_price != null) {
+                            html +=
+                                '<h3 class="blog-title"><a href="#!">' +
+                                vehicle.name + '</a> &nbsp <span class="badge badge-soft-secondary badge-border">Partner</span></h3> ';
+                        } else {
+                            html +=
+                                '<h3 class="blog-title"><a href="#!">' +
+                                vehicle.name + '</a></h3>';
+                        }
+                        html += '<p>Details & Specification :</p>';
+                        html += '<ul class="list-group list-group-flush">';
+                        html += '<li class="list-group-item">Warranty : ' +
+                            vehicle.warranty + ' Months</li>';
+
+                        if (vehicle.battery_distributor_price != null) {
+                            html += '<li class="list-group-item">Price : Rp. ' +
+                                Number(vehicle.battery_distributor_price).toLocaleString(
+                                    'id-ID') + '</li>  ';
+                            if (vehicle.battery_distributor_link != null) {
+                                html += '<li class="list-group-item">Link Tokopedia : ' +
+                                    vehicle.battery_distributor_link + '</li>';
+                            } else {
+
+                            }
+                        } else {
+                            html += '<li class="list-group-item">Price : Rp. ' +
+                                Number(vehicle.price_retail).toLocaleString(
+                                    'id-ID') + '</li>';
+                        }
+                        html += '</ul>';
+                        html +=
+                            '</div>';
+                        html += '<div class="row" style="margin-top: -0.75rem !important;">';
+                        html +=
+                            '<div class="edit-options">';
+                        html +=
+                            '<div class="text-end inactive-style mt-3">';
+                        html +=
+                            '<div class="checkbox">';
+                        html += '<label>';
+                        if (vehicle.battery_distributor_price != null) {
+                            html +=
+                                '<input type="checkbox" name="CheckBattery[]" value=' +
+                                vehicle.battery_id + '> Share To Customer';
+                        } else {
+                            html +=
+                                '<input type="checkbox" name="CheckBattery[]" value=' +
+                                vehicle.id + '> Share To Customer';
+                        }
+                        html +=
+                            '</label>';
+                        html += '</div>';
+                        html += '</div>';
+                        html +=
+                            '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                        html +=
+                            '</div>';
+                    });
+                    $('#ResultRecommendationBattery').html(html);
+                    getMapsNearAddressCustomer();
+                }
+            }
+        });
+    }
 </script>

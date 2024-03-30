@@ -21,7 +21,6 @@
     </div>
 </div>
 
-
 <div class=" invoice-add-table">
     <h4>Item Details</h4>
     <div class="table-responsive">
@@ -31,6 +30,9 @@
                     <th>Battery</th>
                     <th>Quantity</th>
                     <th>Price</th>
+                    @if (isset($Distributor) && !empty($Distributor))
+                        <th>Link Tokopedia</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -45,9 +47,18 @@
                                 value="1">
                         </td>
                         <td>
-                            <input type="number" name="PriceCheckout[]" id="PriceCheckout"
-                                class="form-control PriceCheckout" value="{{ $battery->price_retail }}">
+                            <div class="input-group">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="number" name="PriceCheckout[]" id="PriceCheckout"
+                                    class="form-control PriceCheckout text-end" value="{{ $battery->price_retail }}">
+                            </div>
                         </td>
+                        @if (isset($Distributor) && !empty($Distributor))
+                            <td>
+                                <input type="text" name="LinkTokopedia[]" id="LinkTokopedia"
+                                    class="form-control LinkTokopedia" value="{{ $battery->url }}">
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>
@@ -119,31 +130,32 @@
                 <div class="invoice-total-inner">
                     <h4 class="invoice-total-title">Summary</h4>
                     <div class="form-group row mb-3">
-                        <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
+                        <label for="order-customer" class="col-sm-5 col-form-label">Subtotal</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="tax" name="tax" value="">
+                            <input type="number" class="form-control" id="subtotal" name="subtotal" value="0">
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="discount" name="discount" value="">
+                            <input type="number" class="form-control" id="discount" name="discount"
+                                value="0">
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
-                        <label for="order-customer" class="col-sm-5 col-form-label">Extra Discount</label>
+                        <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="Extradiscount" name="Extradiscount"
-                                value="">
+                            <input type="number" class="form-control" id="tax" name="tax"
+                                value="{{ $tax }}">
                         </div>
                     </div>
 
 
                 </div>
                 <div class="invoice-total-footer">
-                    <h4>Total Amount <span id="TotalAmount"></span></h4>
+                    <h4>Grand Total <span id="TotalAmount"></span></h4>
                     <input type="hidden" name="TotalAmountHidden" id="TotalAmountHidden">
                 </div>
             </div>
@@ -151,25 +163,6 @@
     </div>
 </div>
 
-@if (isset($Distributor) && !empty($Distributor))
-    <div class="form-group local-forms">
-        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
-            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT> and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>   Thank you for your order, we will process your order as soon as possible.
-        </textarea>
-    </div>
-@else
-    <div class="form-group local-forms">
-        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
-            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT>   Thank you for your order, we will process your order as soon as possible.
-        </textarea>
-    </div>
-@endif
-
-<div class="clipboard visually-hidden">
-    <textarea cols="30" rows="10" id="CopyOrderDetail" name="CopyOrderDetail"></textarea>
-</div>
 
 @if (isset($Distributor) && !empty($Distributor))
     <script>
@@ -198,23 +191,29 @@
                 total += subtotal;
             });
 
+            var subtotal = total;
+            $("#subtotal").val(subtotal);
+
             var tax = $("#tax").val();
-            var taxValue = (total * tax) / 100;
             var discount = $("#discount").val();
-            var discountValue = (total * discount) / 100;
-            var extraDiscount = $("#Extradiscount").val();
-            var extraDiscountValue = (total * extraDiscount) / 100;
-            var finalTotal = (total + taxValue) - (discountValue + extraDiscountValue);
+            if (tax == "") {
+                tax = 0;
+            }
+            if (discount == "") {
+                discount = 0;
+            }
+            var discountvalue = subtotal * (parseInt(discount) / 100);
+            var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+
+            var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
 
             $("#tax").val(tax);
             $("#discount").val(discount);
-            $("#Extradiscount").val(extraDiscount);
-            $("#TotalAmount").text(finalTotal.toLocaleString('id-ID', {
+            $("#TotalAmount").text(GrandTotal.toLocaleString('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
             }));
-            $("#TotalAmountHidden").val(
-                finalTotal);
+            $("#TotalAmountHidden").val(GrandTotal);
         }
 
         // Panggil fungsi calculateTotalAmount() setiap kali ada perubahan dalam input kuantitas atau harga
@@ -224,7 +223,7 @@
                 calculateTotalAmount();
             });
 
-        $("#tax, #discount, #Extradiscount").on("input", function() {
+        $("#tax, #discount, #subtotal").on("input", function() {
             calculateTotalAmount();
         });
 
