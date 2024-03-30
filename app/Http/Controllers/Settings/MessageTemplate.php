@@ -50,34 +50,49 @@ class MessageTemplate extends Controller
     {
         $status = true;
 
-        // Personal Details
-        $template = MessageTemplateModel::where('name', 'personal_details')->first();
-        $template->opening_message = $request->openingpersonaldetail;
-        $template->closing_message = $request->closingpersonaldetail;
-        $status &= $template->save();
+        try {
+            // Personal Details
+            $template = MessageTemplateModel::firstOrCreate([
+                'name' => 'personal_details',
+                'message' => 'Personal Details',
+            ]);
+            $template->opening_message = $request->openingpersonaldetail;
+            $template->closing_message = $request->closingpersonaldetail;
+            $status &= $template->save();
 
-        // Product Recommendation
-        $template = MessageTemplateModel::where('name', 'product_recommendation')->first();
-        $template->opening_message = $request->openingproductrecommendation;
-        $template->closing_message = $request->closingproductrecommendation;
-        $status &= $template->save();
+            // Product Recommendation
+            $template = MessageTemplateModel::firstOrCreate([
+                'name' => 'product_recommendation',
+                'message' => 'Product Recommendation',
+            ]);
+            $template->opening_message = $request->openingproductrecommendation;
+            $template->closing_message = $request->closingproductrecommendation;
+            $status &= $template->save();
 
-        // Checkout Page
-        $template = MessageTemplateModel::where('name', 'checkout_page')->first();
-        $template->opening_message = $request->openingcheckoutpage;
-        $template->closing_message = $request->closingcheckoutpage;
-        $status &= $template->save();
+            // Checkout Page
+            $template = MessageTemplateModel::firstOrCreate([
+                'name' => 'checkout_page',
+                'message' => 'checkout_page Recommendation',
+            ]);
+            $template->opening_message = $request->openingcheckoutpage;
+            $template->closing_message = $request->closingcheckoutpage;
+            $status &= $template->save();
 
-        // Payment Details
-        $template = MessageTemplateModel::where('name', 'payment_details')->first();
-        $template->opening_message = $request->openingpaymentdetails;
-        $template->closing_message = $request->closingpaymentdetails;
-        $status &= $template->save();
+            // Payment Details
+            $template = MessageTemplateModel::firstOrCreate([
+                'name' => 'payment_details',
+                'message' => 'checkout_page Recommendation',
+            ]);
+            $template->opening_message = $request->openingpaymentdetails;
+            $template->closing_message = $request->closingpaymentdetails;
+            $status &= $template->save();
+        } catch (\Exception $e) {
+            $status = false;
+        }
 
-        // Set a new response data to be sent.
         return getResponseData(
             $status,
-            $status ? "All message templates was successfully updated!" : "Failed to update message templates!"
+            $status ? "All message templates were successfully updated!" : "Failed to update message templates!"
         );
     }
 }

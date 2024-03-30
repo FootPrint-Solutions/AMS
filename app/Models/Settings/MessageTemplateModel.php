@@ -15,4 +15,16 @@ class MessageTemplateModel extends Model
      * @var string
      */
     protected $table = 'message_templates';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'message',
+        'opening_message',
+        'closing_message',
+    ];
 }

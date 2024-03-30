@@ -17,6 +17,7 @@ use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Settings\MessageTemplateModel;
+use App\Models\Settings\TaxModel;
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
 
@@ -67,16 +68,16 @@ class QuickQuotation extends Controller
         );
 
         $content_message = "
-*Your address* :
+*Alamat Anda* :
 📍 $AddressCustomer 
 
-*Your email* :
+*Email Anda* :
 📧 $EmailCustomer
 
-*Your contact number* :
+*Nomor kontak Anda* :
 📞 $ContactNumber
 
-*Your vehicle* :
+*Kendaraan Anda* :
 $arrayVehicle";
 
         $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
@@ -166,10 +167,10 @@ $arrayVehicle";
         } else {
             $arrayBattery = "";
             foreach ($results as $key => $value) {
-                $arrayBattery .= "*Name* : " . $value['name'] . "\r";
-                $arrayBattery .= "*Capacity* : " . $value['capacity'] . "\r";
-                $arrayBattery .= "*Price* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
-                $arrayBattery .= "*Warranty* : " . $value['warranty'] . " Bulan";
+                $arrayBattery .= "*Nama* : " . $value['name'] . "\r";
+                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . "\r";
+                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -235,6 +236,7 @@ $arrayBattery
             $distributorTechnician = "";
             $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
         }
+        $tax = TaxModel::where('status', 'active')->first()->percentage;
 
         $data = [
             'Fullname' => $Fullname,
@@ -248,6 +250,7 @@ $arrayBattery
             'Longitude' => $request->input('Longitude'),
             'Distributor' => $distributorChecked,
             'DistributorTechnician' => $distributorTechnician,
+            'tax' => $tax,
         ];
 
         return view('Orders.QuickQuotation.step-3-checkoutpreview', $data);
@@ -333,10 +336,10 @@ $arrayBattery
 
         $arrayBattery = "";
         foreach ($batteries as $battery) {
-            $arrayBattery .= "*Name* : " . $battery->name . "\r";
-            $arrayBattery .= "*Capacity* : " . $battery->capacity . "\r";
-            $arrayBattery .= "*Price* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
-            $arrayBattery .= "*Warranty* : " . $battery->warranty . " Bulan\r";
+            $arrayBattery .= "*Nama* : " . $battery->name . "\r";
+            $arrayBattery .= "*Kapasitas* : " . $battery->capacity . "\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
             $arrayBattery .= "\r";
         }
 
@@ -352,7 +355,13 @@ $arrayBattery
 $arrayBattery
 ";
 
-        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
 
         return getResponseData(true, $message);
     }
@@ -361,40 +370,47 @@ $arrayBattery
     public function shareInvoice(Request $request)
     {
         $url = "http://185.199.52.172:5001/send-message";
-        $template = $request->input('TemplateMessage');
-        $BatteryNameTabel = $request->input('BatteryNameTabel');
-        $QtyTabel = $request->input('QtyTabel');
-        $PriceTabel = $request->input('PriceTabel');
-        $TotalAmount = $request->input('TotalAmount');
-        $tax = $request->input('tax') ?? 0;
-        $Discount = $request->input('Discount') ?? 0;
-        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
-        $Fullname = $request->input('FullName');
+        $FullName = $request->input('FullName');
         $ContactNumber = $request->input('ContactNumber');
+        $Battery = $request->input('Battery');
+        $Subtotal = $request->input('Subtotal');
+        $Tax = $request->input('Tax');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
 
-        foreach ($BatteryNameTabel as $key => $value) {
-            $BatteryNameTabel[$key] = $value . "";
-            $QtyTabel[$key] = $QtyTabel[$key] . "";
-            $PriceTabel[$key] = "Rp. " . number_format($PriceTabel[$key], 0, "", ".") . "";
-        }
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
 
-        $BatteryNames = implode(', ', $BatteryNameTabel);
-        $Qtys = implode(', ', $QtyTabel);
-        $Prices = implode(', ', $PriceTabel);
-
-        $text = str_replace(
-            ['<NAME>', '<BATTERYNAME>', '<QUANTITY>', '<BATTERYPRICE>', '<TOTALAMOUNT>', '<TAX>', '<DISCOUNT>', '<EXTRADISCOUNT>', 'and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>', '<PHONETECHNICIAN>'],
-            [
-                $Fullname, $BatteryNames, $Qtys, $Prices, "Rp. " . number_format($TotalAmount, 0, "", "."), $tax, $Discount, $ExtraDiscount, ''
-            ],
-            $template
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
         );
 
-        $text = trim($text);
+        $content_message = "";
+        $no = 1;
+        foreach ($Battery as $item) {
+            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
+        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
+        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
         $data = [
             'to' => "62" . $ContactNumber,
             'session' => auth()->user()->username,
-            'text' => "$text",
+            'text' => "$message",
         ];
 
         $response = Http::post($url, $data);
@@ -556,20 +572,67 @@ $arrayBattery
         );
 
         $content_message = "
-*Your address* :
+*Alamat Anda* :
 📍 $AddressCustomer 
 
-*Your email* :
+*Email Anda* :
 📧 $EmailCustomer
 
-*Your contact number* :
+*Nomor kontak Anda* :
 📞 $ContactNumber
 
-*Your vehicle* :
+*Kendaraan Anda* :
 $arrayVehicle
 ";
 
-        $message  = $opening_message . "\n" . $content_message . "\n" . $TemplateMessagePersonalDetails['closing_message'];
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
+
+        return getResponseData(true, $message);
+    }
+
+    public function getCheckoutCopyDetail(Request $request)
+    {
+        $FullName = $request->input('FullName');
+        $Battery = $request->input('Battery');
+        $Subtotal = $request->input('Subtotal');
+        $Tax = $request->input('Tax');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
+
+        $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
+
+        $opening_message = str_replace(
+            ["<FULLNAME>", "<ENTER>", "<B>"],
+            [$FullName, "\n", "*"],
+            $TemplateMessagePersonalDetails['opening_message']
+        );
+
+        $content_message = "";
+        $no = 1;
+        foreach ($Battery as $item) {
+            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
+        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
+        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $closing_message = str_replace(
+            ["<ENTER>", "<B>"],
+            ["\n", "*"],
+            $TemplateMessagePersonalDetails['closing_message']
+        );
+
+        $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
 
         return getResponseData(true, $message);
     }

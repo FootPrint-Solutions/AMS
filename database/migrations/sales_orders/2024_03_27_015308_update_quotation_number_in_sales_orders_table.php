@@ -16,7 +16,7 @@ class UpdateQuotationNumberInSalesOrdersTable extends Migration
         Schema::table('sales_orders', function (Blueprint $table) {
             $table->dropUnique('sales_orders_quotation_number_unique');
             $table->renameColumn('quotation_number', 'sales_order_number');
-            $table->unique('sales_orders_number');
+            $table->unique('sales_order_number');
         });
     }
 

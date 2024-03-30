@@ -778,117 +778,61 @@
                 );
 
                 var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-                var TotalAmount = $("#TotalAmountHidden").val();
+                var Battery = [];
+                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                    PriceTabel.push(price); // Menambahkan harga ke dalam array
+                });
+
+                var subtotal = $("#subtotal").val();
                 var tax = $("#tax").val();
-                var Discount = $("#Discount").val();
-                var ExtraDiscount = $("#ExtraDiscount").val();
-
-                var QtyTabel = [];
-                var PriceTabel = [];
-                var BatteryNameTabel = [];
-                $(".QtyCheckout").each(function() {
-                    var value = $(this).val();
-                    QtyTabel.push(value);
-                });
-
-                $(".PriceCheckout").each(function() {
-                    var value = $(this).val();
-                    PriceTabel.push(value);
-                });
-
-                $(".BatteryNameCheckout").each(function() {
-                    var value = $(this).val();
-                    BatteryNameTabel.push(value);
-                });
-
-                var templateMessage = $("#TemplateMessageStep3").val();
-
-                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
-                    VehicleCustomer == '' || Latitude == '' || Longitude == '' || templateMessage == '') {
-                    swal.fire("Error!", "Please fill in all required fields", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (templateMessage.includes('<NAME>') == false || templateMessage.includes(
-                        '<BATTERYNAME>') == false || templateMessage.includes('<QUANTITY>') == false ||
-                    templateMessage.includes('<BATTERYPRICE>') == false || templateMessage.includes(
-                        '<TAX>') == false || templateMessage.includes('<DISCOUNT>') == false ||
-                    templateMessage
-                    .includes('<EXTRADISCOUNT>') == false || templateMessage.includes('<TOTALAMOUNT>') ==
-                    false) {
-                    swal.fire("Error!",
-                        "Template Message must contain NAME, BATTERYNAME, QUANTITY, BATTERYPRICE, TAX, DISCOUNT, EXTRADISCOUNT, TOTALAMOUNT",
-                        "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (BatteryNameTabel == '') {
-                    swal.fire("Error!", "Please select battery", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (QtyTabel == '' || QtyTabel <= 0) {
-                    swal.fire("Error!", "Please insert quantity", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (PriceTabel == '' || PriceTabel <= 0) {
-                    swal.fire("Error!", "Please insert price", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
+                var discount = $("#discount").val();
+                var TotalAmountHidden = $("#TotalAmountHidden").val();
 
                 var data = {
                     FullName: FullName,
-                    EmailCustomer: EmailCustomer,
-                    ContactNumber: ContactNumber,
-                    AddressCustomer: AddressCustomer,
-                    VehicleCustomer: VehicleCustomer,
-                    TemplateMessage: templateMessage,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    IdCustomer: IdCustomer,
                     Battery: Battery,
-                    TotalAmount: TotalAmount,
-                    tax: tax,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
-                    BatteryNameTabel: BatteryNameTabel,
-                    QtyTabel: QtyTabel,
-                    PriceTabel: PriceTabel,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
+                    Subtotal: subtotal,
+                    Tax: tax,
+                    Discount: discount,
+                    TotalAmount: TotalAmountHidden,
+                    ContactNumber: ContactNumber,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
+
+                if (Battery.length === 0) { // Mengubah pengecekan Battery menjadi Battery.length
+                    swal.fire("Error!", "Please select battery", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
+
+                // Mengubah pengecekan QtyTabel dan PriceTabel
+                if (QtyTabel.some(qty => qty === '' || qty <= 0)) {
+                    swal.fire("Error!", "Please insert quantity", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
+
+                if (PriceTabel.some(price => price === '' || price <= 0)) {
+                    swal.fire("Error!", "Please insert price", "error");
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                    return;
+                }
 
                 $.ajax({
                     url: "/quotation/share-invoice",
@@ -913,9 +857,7 @@
                     },
                     complete: function() {
                         button.prop('disabled', false);
-                        button.html(
-                            "<i class='fa-brands fa-whatsapp'></i> Share"
-                        );
+                        button.html("<i class='fa-brands fa-whatsapp'></i> Share");
                     }
                 });
             });

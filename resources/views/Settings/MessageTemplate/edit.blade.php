@@ -118,12 +118,19 @@
         $(document).ready(function() {
             $("#message-template-form").on("submit", function(event) {
                 event.preventDefault();
+                $("#btn-save").prop("disabled", true);
+                $("#btn-save").html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                );
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest("/template/message/update", formData);
+
+                $("#btn-save").prop("disabled", false);
+                $("#btn-save").html("Save Message Templates");
             });
 
             $("#message-template-form").on("reset", function() {

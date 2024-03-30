@@ -88,10 +88,17 @@
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
-                            <label class="custom_check w-100">
-                                <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans">
-                                <span class="checkmark"></span> Use Payment Link Midtrans
-                            </label>
+                            @if (isset($DistributorShop) && !empty($DistributorShop))
+                                <label class="custom_check w-100">
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans">
+                                    <span class="checkmark"></span> Use Payment Link Midtrans
+                                </label>
+                            @elseif (isset($DistributorShop) && empty($DistributorShop))
+                                <label class="custom_check w-100">
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" disabled checked>
+                                    <span class="checkmark"></span> Use Payment Link Midtrans
+                                </label>
+                            @endif
                             <p>Payment Link : </p>
                             <p>{{ $snapToken }}</p>
                             <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden"

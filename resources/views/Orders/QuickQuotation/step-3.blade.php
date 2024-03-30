@@ -11,11 +11,10 @@
         </div>
 
         <div class="col text-end">
-            <a id="btnCopyOrderDetail" class="btn clip-btn btn-primary" href="javascript:;" data-clipboard-action="copy"
-                data-clipboard-target="#CopyOrderDetail">
+            <button id="btnCopyOrderDetail" class="btn clip-btn btn-primary">
                 <i class="far fa-copy"></i>
                 Copy from Input
-            </a>
+            </button>
             <button id='BtnShareInvoice' class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></button>
             <a id="btnNextStep4" href="javascript: void(0);" class="btn btn-primary seller-next-btn ">
                 Next
@@ -26,7 +25,8 @@
 </div>
 
 <script>
-    function updateCopyOrderDetail() {
+    $("#btnCopyOrderDetail").on("click", function() {
+        var FullName = $("#FullName").val();
         var Battery = [];
         $(".add-table-items tbody tr").each(function() {
             var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
@@ -38,35 +38,43 @@
                 price: price
             });
         });
-
-        var FullName = $("#FullName").val();
+        var subtotal = $("#subtotal").val();
         var tax = $("#tax").val();
         var discount = $("#discount").val();
-        var extraDiscount = $("#Extradiscount").val();
-        var totalAmount = $("#TotalAmount").text();
-        var techniciansName = $("#techniciansName option:selected").text();
-        var techniciansPhone = $("#techniciansPhone").val();
+        var TotalAmountHidden = $("#TotalAmountHidden").val();
 
-        var TemplateMessage = $("#TemplateMessageStep3").val();
-        var copyOrderDetail = TemplateMessage.replace("<NAME>", FullName);
-        Battery.forEach(function(battery) {
-            copyOrderDetail = copyOrderDetail.replace("<BATTERYNAME>", battery.batteryName);
-            copyOrderDetail = copyOrderDetail.replace("<QUANTITY>", battery.quantity);
-            copyOrderDetail = copyOrderDetail.replace("<BATTERYPRICE>", battery.price);
+        var data = {
+            FullName: FullName,
+            Battery: Battery,
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/checkout/copy",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                let ResponseData = JSON.parse(response);
+                if (ResponseData.status == true) {
+                    var copyText = ResponseData.message;
+                    var textArea = document.createElement("textarea");
+                    textArea.value = copyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    swal.fire("Copied!", "Personal Details Copied", "success");
+                } else {
+                    swal.fire("Error!", ResponseData.message, "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                swal.fire("Error!", error, "error");
+            }
         });
-        copyOrderDetail = copyOrderDetail.replace("<TAX>", tax);
-        copyOrderDetail = copyOrderDetail.replace("<DISCOUNT>", discount);
-        copyOrderDetail = copyOrderDetail.replace("<EXTRADISCOUNT>", extraDiscount);
-        copyOrderDetail = copyOrderDetail.replace("<TOTALAMOUNT>", totalAmount);
-        copyOrderDetail = copyOrderDetail.replace("<NAMETECHNICIAN>", techniciansName);
-        copyOrderDetail = copyOrderDetail.replace("<PHONETECHNICIAN>", techniciansPhone);
-
-        $("#CopyOrderDetail").val(copyOrderDetail);
-    }
-
-    $("#btnCopyOrderDetail").on("click", function() {
-        updateCopyOrderDetail();
-        var copyText = document.getElementById("CopyOrderDetail");
-        swal.fire("Success", "Order Detail Copied", "success");
     });
 </script>

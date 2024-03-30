@@ -148,7 +148,7 @@
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
                             <input type="number" class="form-control" id="tax" name="tax"
-                                value="0">
+                                value="{{ $tax }}">
                         </div>
                     </div>
 
@@ -163,25 +163,6 @@
     </div>
 </div>
 
-@if (isset($Distributor) && !empty($Distributor))
-    <div class="form-group local-forms">
-        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
-            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT> and your technician is <NAMETECHNICIAN>  the number : <PHONETECHNICIAN>   Thank you for your order, we will process your order as soon as possible.
-        </textarea>
-    </div>
-@else
-    <div class="form-group local-forms">
-        <label for="company-contact">Template Message <span class="login-danger">*</span></label>
-        <textarea class="form-control" id="TemplateMessageStep3" name="TemplateMessageStep3"
-            placeholder="Enter Addres Customer" required autocomplete="off">Hello, <NAME> this is your order detail : Battery Name : <BATTERYNAME>  Battery Quantity : <QUANTITY>  Battery Price : <BATTERYPRICE> Tax : <TAX>  Discount : <DISCOUNT>  Extra Discount : <EXTRADISCOUNT>  Total Amount : <TOTALAMOUNT>   Thank you for your order, we will process your order as soon as possible.
-        </textarea>
-    </div>
-@endif
-
-<div class="clipboard visually-hidden">
-    <textarea cols="30" rows="10" id="CopyOrderDetail" name="CopyOrderDetail"></textarea>
-</div>
 
 @if (isset($Distributor) && !empty($Distributor))
     <script>
