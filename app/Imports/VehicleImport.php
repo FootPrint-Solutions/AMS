@@ -72,7 +72,7 @@ class VehicleImport implements ToModel, WithStartRow
             VehicleBatteryModel::create([
                 'vehicle_id' => $vehicle->id,
                 'battery_id' => $altbattery2->id,
-                'type' => "2",
+                'type' => "1",
             ]);
         }
 
@@ -80,7 +80,7 @@ class VehicleImport implements ToModel, WithStartRow
             VehicleBatteryModel::create([
                 'vehicle_id' => $vehicle->id,
                 'battery_id' => $altbattery3->id,
-                'type' => "3",
+                'type' => "1",
             ]);
         }
 
