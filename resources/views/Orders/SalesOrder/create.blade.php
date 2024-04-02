@@ -178,193 +178,197 @@
                                 {{-- Price --}}
                                 <td>
                                     <div class="row">
-                                        <div class="col">
-                                            <div class="input-group">
-                                                <span class="input-group-text border-end">IDR</span>
-                                                <input type="text"pattern="[0-9,]+"
-                                                    class="form-control text-end battery-price"
-                                                    id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                                    placeholder="Enter item price" required
-                                                    @isset($data['profile']['batteries']) readonly @endisset
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
-                                            </div>
-                                        </div>
+                                        @if (!isset($data['profile']))
+                                            <div class="col">
+                                        @endif
 
-                                        <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
-                                                title="Delete Item"><i class="fas fa-xmark"></i></button>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {{-- Hidden Inputs --}}
-                                @isset($data['profile']['batteries'])
-                                    <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
-                                @endisset
-                            </tr>
-
-                            @php
-                                $counter++;
-                            @endphp
-                        @endforeach
-                    </tbody>
-
-                    {{-- Footer (Tax, Discount, Total) --}}
-                    <tfoot>
-                        {{-- Subtotal --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Subtotal</td>
-                            <td>
-                                <div class="input-group">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="subtotal"
-                                        name="subtotal"
-                                        @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
-                                        readonly required>
-                                </div>
-                            </td>
-                        </tr>
-
-                        {{-- Tax --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Tax</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        {{-- Tax Percentage --}}
-                                        <div class="input-group" id="tax-percentage">
-                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
-                                                id="tax" name="tax"
-                                                @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="{{ $data['tax'] }}" @endisset
-                                                readonly required>
-                                            <span class="input-group-text border-end">%</span>
-                                        </div>
-
-                                        {{-- Tax Price --}}
-                                        <div class="input-group d-none" id="tax-price">
+                                        <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end" id="tax-price-value"
-                                                name="taxprice"
-                                                @isset($data['profile'])value="{{ $data['profile']['tax_price'] }}" @else value="0" @endisset
-                                                readonly required>
+                                            <input type="text"pattern="[0-9,]+"
+                                                class="form-control text-end battery-price"
+                                                id="battery-price-{{ $counter }}" name="batteriesprice[]"
+                                                placeholder="Enter item price" required
+                                                @isset($data['profile']['batteries']) readonly @endisset
+                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
                                         </div>
+
+                                        @if (!isset($data['profile']))
                                     </div>
 
                                     <div class="col-sm-2">
-                                        <input type="checkbox" id="toggle-tax" data-toggle="toggle" data-size="sm"
-                                            data-offlabel="%" data-onlabel="IDR">
+                                        <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
+                                            title="Delete Item"><i class="fas fa-xmark"></i></button>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                        @endif
+        </div>
+        </td>
 
-                        {{-- Discount --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Discount</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        {{-- Discount Percentage --}}
-                                        <div class="input-group" id="discount-percentage">
-                                            <input type="text" pattern="[0-9.]+" class="form-control text-end"
-                                                id="discount" name="discount"
-                                                @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                                @isset($data['profile']['discount']) readonly @endisset required>
-                                            <span class="input-group-text border-end">%</span>
-                                        </div>
+        {{-- Hidden Inputs --}}
+        @isset($data['profile']['batteries'])
+            <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+        @endisset
+        </tr>
 
-                                        {{-- Discount Price --}}
-                                        <div class="input-group d-none" id="discount-price">
-                                            <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end" id="discount-price-value"
-                                                name="discountprice"
-                                                @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
-                                                readonly required>
-                                        </div>
-                                    </div>
+        @php
+            $counter++;
+        @endphp
+        @endforeach
+        </tbody>
 
-                                    <div class="col-sm-2">
-                                        <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                            data-offlabel="%" data-onlabel="IDR">
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+        {{-- Footer (Tax, Discount, Total) --}}
+        <tfoot>
+            {{-- Subtotal --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Subtotal</td>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-text border-end">IDR</span>
+                        <input type="text" pattern="[0-9.]+" class="form-control text-end" id="subtotal" name="subtotal"
+                            @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
+                            readonly required>
+                    </div>
+                </td>
+            </tr>
 
-                        {{-- Total --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Total</td>
-                            <td>
-                                <div class="input-group">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
-                                        name="total"
-                                        @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
-                                        required readonly>
-                                </div>
-                            </td>
-                        </tr>
+            {{-- Tax --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Tax</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            {{-- Tax Percentage --}}
+                            <div class="input-group" id="tax-percentage">
+                                <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
+                                    name="tax"
+                                    @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="{{ $data['tax'] }}" @endisset
+                                    readonly required>
+                                <span class="input-group-text border-end">%</span>
+                            </div>
 
-                        {{-- Payment Method & Status --}}
-                        <tr>
-                            <td colspan="2"></td>
-                            <td class="text-end">Payment method</td>
-                            <td>
-                                <div class="row">
-                                    <div class="col">
-                                        <select name="paymentmethod" id="payment-method" class="form-control" required>
-                                            <option value="cash" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'cash') selected @endif>Cash
-                                            </option>
-                                            <option value="tokopedia" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'tokopedia') selected @endif>
-                                                Tokopedia</option>
-                                            <option value="midtrans" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'midtrans') selected @endif>
-                                                Midtrans</option>
-                                        </select>
-                                    </div>
+                            {{-- Tax Price --}}
+                            <div class="input-group d-none" id="tax-price">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="text" class="form-control text-end" id="tax-price-value" name="taxprice"
+                                    @isset($data['profile'])value="{{ $data['profile']['tax_price'] }}" @else value="0" @endisset
+                                    readonly required>
+                            </div>
+                        </div>
 
-                                    <div class="col-5">
-                                        <select name="status" id="status" class="form-control" required>
-                                            <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
-                                            </option>
-                                            <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
-                                                Pending</option>
-                                            <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
-                                                Failed</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <div class="col-sm-2">
+                            <input type="checkbox" id="toggle-tax" data-toggle="toggle" data-size="sm"
+                                data-offlabel="%" data-onlabel="IDR">
+                        </div>
+                    </div>
+                </td>
+            </tr>
 
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-                <br>
+            {{-- Discount --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Discount</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            {{-- Discount Percentage --}}
+                            <div class="input-group" id="discount-percentage">
+                                <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
+                                    name="discount"
+                                    @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                    @isset($data['profile']['discount']) readonly @endisset required>
+                                <span class="input-group-text border-end">%</span>
+                            </div>
 
-                {{-- Hidden Inputs --}}
-                @isset($data['profile'])
-                    <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
-                @endisset
+                            {{-- Discount Price --}}
+                            <div class="input-group d-none" id="discount-price">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="text" class="form-control text-end" id="discount-price-value"
+                                    name="discountprice"
+                                    @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
+                                    readonly required>
+                            </div>
+                        </div>
 
-                {{-- Buttons --}}
-                <div class="d-flex flex-row-reverse">
-                    {{-- Create Button --}}
-                    <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                        @if (isset($data['profile'])) value="update">
+                        <div class="col-sm-2">
+                            <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
+                                data-offlabel="%" data-onlabel="IDR">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            {{-- Total --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Total</td>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-text border-end">IDR</span>
+                        <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
+                            name="total"
+                            @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
+                            required readonly>
+                    </div>
+                </td>
+            </tr>
+
+            {{-- Payment Method & Status --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Payment method</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            <select name="paymentmethod" id="payment-method" class="form-control" required>
+                                <option value="cash" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'cash') selected @endif>Cash
+                                </option>
+                                <option value="tokopedia" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'tokopedia') selected @endif>
+                                    Tokopedia</option>
+                                <option value="midtrans" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'midtrans') selected @endif>
+                                    Midtrans</option>
+                            </select>
+                        </div>
+
+                        <div class="col-5">
+                            <select name="status" id="status" class="form-control" required>
+                                <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
+                                </option>
+                                <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
+                                    Pending</option>
+                                <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
+                                    Failed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+        </tfoot>
+        </table>
+        <br>
+
+        {{-- Hidden Inputs --}}
+        @isset($data['profile'])
+            <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+        @endisset
+
+        {{-- Buttons --}}
+        <div class="d-flex flex-row-reverse">
+            {{-- Create Button --}}
+            <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                @if (isset($data['profile'])) value="update">
                     Update
                 @else
                     value="create">
                     Create @endif
-                        Quotation </button>
+                Quotation </button>
 
-                        {{-- Cancel Button --}}
-                        <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
-                </div>
-            </form>
+                {{-- Cancel Button --}}
+                <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
         </div>
+        </form>
+    </div>
     </div>
 
     {{-- Select2 Configurations --}}
