@@ -85,8 +85,9 @@
                             <label for="distributor-contact">Contact <span class="login-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text border-end country-code">+62</span>
-                                <input type="tel" pattern="[0-9]+" class="form-control" id="distributor-contact"
-                                    name="contact" placeholder="Enter distributor contact" required
+                                <input type="tel" pattern="[1-9][0-9]{7,}"
+                                    title="At least 8 digits with no leading zero" class="form-control"
+                                    id="distributor-contact" name="contact" placeholder="Enter distributor contact" required
                                     @isset($data['profile'])
                                     value="{{ $data['profile'] ? $data['profile']['contact'] : '' }}"
                                 @endisset>

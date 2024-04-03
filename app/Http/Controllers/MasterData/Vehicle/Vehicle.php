@@ -80,7 +80,7 @@ class Vehicle extends Controller
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'batteries' => BatteryModel::getBatteryWithSize(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->toArray(),
+                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->toArray()[0],
                     'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('battery_id')->toArray(),
                 )
             )
@@ -157,7 +157,8 @@ class Vehicle extends Controller
             // Set secondary battery type to 0.
             if (!is_null($request->batterysecondary)) {
                 foreach ($request->batterysecondary as $battery) {
-                    $batteries[$battery] = ["type" => "0"];
+                    if ($battery !== $request->batteryprimary)
+                        $batteries[$battery] = ["type" => "0"];
                 }
             }
             $vehicle->batteries()->attach($batteries);
@@ -207,7 +208,8 @@ class Vehicle extends Controller
             // Set secondary battery type to 0.
             if (!is_null($request->batterysecondary)) {
                 foreach ($request->batterysecondary as $battery) {
-                    $batteries[$battery] = ["type" => "0"];
+                    if ($battery !== $request->batteryprimary)
+                        $batteries[$battery] = ["type" => "0"];
                 }
             }
             $vehicle->batteries()->sync($batteries);
