@@ -47,7 +47,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="brand">Brand <span class="login-danger">*</span></label>
-                            <select class="form-control" id="brand" name="brand">
+                            <select class="form-control" id="brand" name="brand" required>
                                 <option></option>
                                 @foreach ($data['brands'] as $brand)
                                     <option value="{{ $brand['id'] }}" @if (isset($data['profile']) && $data['profile']['brand_id'] == $brand['id']) selected @endif>
@@ -62,7 +62,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="subbrand-category">Subbrand Category <span class="login-danger">*</span></label>
-                            <select class="form-control" id="subbrand-category" name="subbrandcategory">
+                            <select class="form-control" id="subbrand-category" name="subbrandcategory" required>
                                 <option></option>
                                 @foreach ($data['subbrand_categories'] as $category)
                                     <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['subbrand_category_id'] == $category['id']) selected @endif>
@@ -102,7 +102,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="usagetype">Usage Type <span class="login-danger">*</span></label>
-                            <select class="form-control" id="usagetype" name="usagetype">
+                            <select class="form-control" id="usagetype" name="usagetype" required>
                                 <option></option>
                                 @foreach ($data['usage_types'] as $usage)
                                     <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['usage_type_id'] == $usage['id']) selected @endif>
@@ -117,7 +117,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="technology">Technology <span class="login-danger">*</span></label>
-                            <select class="form-control" id="technology" name="technology">
+                            <select class="form-control" id="technology" name="technology" required>
                                 <option></option>
                                 @foreach ($data['technologies'] as $tech)
                                     <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['technology_id'] == $tech['id']) selected @endif>
@@ -132,7 +132,7 @@
                     <div class="col">
                         <div class="form-group local-forms">
                             <label for="size">Size Category <span class="login-danger">*</span></label>
-                            <select class="form-control" id="size" name="size">
+                            <select class="form-control" id="size" name="size" required>
                                 <option></option>
                                 @foreach ($data['sizes'] as $size)
                                     <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['size_category_id'] == $size['id']) selected @endif>
@@ -355,10 +355,10 @@
             $("#brand").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#brand-new-group").show();
-                    $("#brand-new-group").attr("required", true);
+                    $("#brand-new").attr("required", true);
                 } else {
                     $("#brand-new-group").hide();
-                    $("#brand-new-group").attr("required", false);
+                    $("#brand-new").attr("required", false);
                 }
             });
 
@@ -369,10 +369,10 @@
             $("#subbrand-category").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#subbrand-category-new-group").show();
-                    $("#subbrand-category-new-group").attr("required", true);
+                    $("#subbrand-category-new").attr("required", true);
                 } else {
                     $("#subbrand-category-new-group").hide();
-                    $("#subbrand-category-new-group").attr("required", false);
+                    $("#subbrand-category-new").attr("required", false);
                 }
             });
 
@@ -383,10 +383,10 @@
             $("#usagetype").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#usagetype-new-group").show();
-                    $("#usagetype-new-group").attr("required", true);
+                    $("#usagetype-new").attr("required", true);
                 } else {
                     $("#usagetype-new-group").hide();
-                    $("#usagetype-new-group").attr("required", false);
+                    $("#usagetype-new").attr("required", false);
                 }
             });
 
@@ -398,10 +398,10 @@
             $("#technology").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#technology-new-group").show();
-                    $("#technology-new-group").attr("required", true);
+                    $("#technology-new").attr("required", true);
                 } else {
                     $("#technology-new-group").hide();
-                    $("#technology-new-group").attr("required", false);
+                    $("#technology-new").attr("required", false);
                 }
             });
 
@@ -412,10 +412,10 @@
             $("#size").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#size-new-group").show();
-                    $("#size-new-group").attr("required", true);
+                    $("#size-new").attr("required", true);
                 } else {
                     $("#size-new-group").hide();
-                    $("#size-new-group").attr("required", false);
+                    $("#size-new").attr("required", false);
                 }
             });
 
