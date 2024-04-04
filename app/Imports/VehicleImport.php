@@ -29,62 +29,66 @@ class VehicleImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
-        $primarybattery = BatteryModel::where('name', $row[2])->firstOr(function () {
-            return '';
-        });
+        if ($row[0] == null) {
+            return null;
+        } else {
+            $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
+            $primarybattery = BatteryModel::where('name', $row[2])->firstOr(function () {
+                return '';
+            });
 
-        $altbattery1 = BatteryModel::where('name', $row[3])->firstOr(function () {
-            return '';
-        });
+            $altbattery1 = BatteryModel::where('name', $row[3])->firstOr(function () {
+                return '';
+            });
 
-        $altbattery2 = BatteryModel::where('name', $row[4])->firstOr(function () {
-            return '';
-        });
+            $altbattery2 = BatteryModel::where('name', $row[4])->firstOr(function () {
+                return '';
+            });
 
-        $altbattery3 = BatteryModel::where('name', $row[5])->firstOr(function () {
-            return '';
-        });
+            $altbattery3 = BatteryModel::where('name', $row[5])->firstOr(function () {
+                return '';
+            });
 
-        $vehicle = VehicleModel::create([
-            'name' => $row[0],
-            'brand_id' => $brand->id,
-            'url' => $row[6],
-        ]);
-
-        if ($primarybattery != '') {
-            VehicleBatteryModel::create([
-                'vehicle_id' => $vehicle->id,
-                'battery_id' => $primarybattery->id,
-                'type' => "0",
+            $vehicle = VehicleModel::create([
+                'name' => $row[0],
+                'brand_id' => $brand->id,
+                'url' => $row[6],
             ]);
-        }
 
-        if ($altbattery1 != '') {
-            VehicleBatteryModel::create([
-                'vehicle_id' => $vehicle->id,
-                'battery_id' => $altbattery1->id,
-                'type' => "1",
-            ]);
-        }
+            if ($primarybattery != '') {
+                VehicleBatteryModel::create([
+                    'vehicle_id' => $vehicle->id,
+                    'battery_id' => $primarybattery->id,
+                    'type' => "0",
+                ]);
+            }
 
-        if ($altbattery2 != '') {
-            VehicleBatteryModel::create([
-                'vehicle_id' => $vehicle->id,
-                'battery_id' => $altbattery2->id,
-                'type' => "1",
-            ]);
-        }
+            if ($altbattery1 != '') {
+                VehicleBatteryModel::create([
+                    'vehicle_id' => $vehicle->id,
+                    'battery_id' => $altbattery1->id,
+                    'type' => "1",
+                ]);
+            }
 
-        if ($altbattery3 != '') {
-            VehicleBatteryModel::create([
-                'vehicle_id' => $vehicle->id,
-                'battery_id' => $altbattery3->id,
-                'type' => "1",
-            ]);
-        }
+            if ($altbattery2 != '') {
+                VehicleBatteryModel::create([
+                    'vehicle_id' => $vehicle->id,
+                    'battery_id' => $altbattery2->id,
+                    'type' => "1",
+                ]);
+            }
 
-        return $vehicle;
+            if ($altbattery3 != '') {
+                VehicleBatteryModel::create([
+                    'vehicle_id' => $vehicle->id,
+                    'battery_id' => $altbattery3->id,
+                    'type' => "1",
+                ]);
+            }
+
+            return $vehicle;
+        }
     }
 
     private function validateRow(array $row): bool

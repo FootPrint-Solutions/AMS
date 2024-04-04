@@ -36,7 +36,12 @@ class BatteryImport implements ToModel, WithStartRow
         // }
 
         $brand = BatteryBrandModel::firstOrCreate(['name' => $row[2]]);
-        $sizeCategory = BatterySizeCategoryModel::firstOrCreate(['name' => $row[6]]);
+        if ($row['6'] == "" or $row['6'] == "-" or $row['6'] == NULL) {
+            $sizeCategoryId = NULL;
+        } else {
+            $sizeCategory = BatterySizeCategoryModel::firstOrCreate(['name' => $row[6]]);
+            $sizeCategoryId = $sizeCategory->id;
+        }
         $usageType = BatteryUsageTypeModel::firstOrCreate(['name' => $row[4]]);
         $technology = BatteryTechnologyModel::firstOrCreate(['name' => $row[5]]);
         $SubbrandCategory = BatterySubbrandCategoryModel::firstOrCreate(['name' => $row[3]]);
@@ -46,17 +51,27 @@ class BatteryImport implements ToModel, WithStartRow
         $warranty = $row[12] != '-' ? $row[12] : 0;
         $priceRetail = $row[13] != '-' ? $row[13] : null;
 
+        if ($standardCca == "-") {
+            $standardCca = 0;
+        }
+        $capacity = str_replace(",", ".", $capacity);
+        if ($row['12'] == "" or $row['12'] == "-" or $row['12'] == NULL) {
+            $warranty = 0;
+        } else {
+            $warranty = str_replace("bulan", "", $warranty);
+        }
+
         $Battery = BatteryModel::create([
             'name' => $row[0],
             'name_alternate' => $row[1] ?? '',
             'brand_id' => $brand->id,
             'subbrand_category_id' => $SubbrandCategory->id,
             'usage_type_id' => $usageType->id,
-            'size_category_id' => $sizeCategory->id,
+            'size_category_id' => $sizeCategoryId,
             'technology_id' => $technology->id,
-            'dimension_length' => $row[7] ?? null,
-            'dimension_width' => $row[8] ?? null,
-            'dimension_height' => $row[9] ?? null,
+            'dimension_length' => $row[7] ?? 0,
+            'dimension_width' => $row[8] ?? 0,
+            'dimension_height' => $row[9] ?? 0,
             'standard_cca' => $standardCca,
             'capacity' => $capacity,
             'warranty' => $warranty ?? 0,
