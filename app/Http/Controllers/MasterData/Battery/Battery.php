@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasterData\Battery\BatteryAlias;
-use App\Models\MasterData\Battery\BatteryBrandModel;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -14,6 +12,7 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
+use App\Models\MasterData\Battery\BatteryBrandModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
