@@ -276,7 +276,7 @@ class Vehicle extends Controller
         } catch (\Exception $e) {
             return getResponseData(
                 false,
-                "Error importing data: " . $e->getMessage()
+                "Error importing data excell format or data is not suitable"
             );
         }
     }

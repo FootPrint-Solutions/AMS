@@ -30,19 +30,19 @@ class VehicleImport implements ToModel, WithStartRow
     public function model(array $row)
     {
         $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
-        $primarybattery = BatteryModel::where('name_alternate', $row[2])->firstOr(function () {
+        $primarybattery = BatteryModel::where('name', $row[2])->firstOr(function () {
             return '';
         });
 
-        $altbattery1 = BatteryModel::where('name_alternate', $row[3])->firstOr(function () {
+        $altbattery1 = BatteryModel::where('name', $row[3])->firstOr(function () {
             return '';
         });
 
-        $altbattery2 = BatteryModel::where('name_alternate', $row[4])->firstOr(function () {
+        $altbattery2 = BatteryModel::where('name', $row[4])->firstOr(function () {
             return '';
         });
 
-        $altbattery3 = BatteryModel::where('name_alternate', $row[5])->firstOr(function () {
+        $altbattery3 = BatteryModel::where('name', $row[5])->firstOr(function () {
             return '';
         });
 

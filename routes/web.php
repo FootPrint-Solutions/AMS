@@ -263,6 +263,7 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
     Route::get('/menu/parent/create', [MenuParent::class, 'create']);
     Route::post('/menu/parent/store', [MenuParent::class, 'store']);
+    Route::get('/logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 });
 
 // Auth

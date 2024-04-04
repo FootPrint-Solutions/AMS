@@ -17,7 +17,9 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
-        "midtrans/midtrans-php": "^2.5"
+        "midtrans/midtrans-php": "^2.5",
+        "opcodesio/log-viewer": "^3.6",
+        "rap2hpoutre/laravel-log-viewer": "^2.4"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
