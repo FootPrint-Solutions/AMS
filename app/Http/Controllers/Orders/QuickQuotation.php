@@ -75,7 +75,7 @@ class QuickQuotation extends Controller
 📧 $EmailCustomer
 
 *Nomor kontak Anda* :
-📞 $ContactNumber
+📞 +62 $ContactNumber
 
 *Kendaraan Anda* :
 $arrayVehicle";
@@ -168,7 +168,7 @@ $arrayVehicle";
             $arrayBattery = "";
             foreach ($results as $key => $value) {
                 $arrayBattery .= "*Nama* : " . $value['name'] . "\r";
-                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . "\r";
+                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r";
                 $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
@@ -337,7 +337,7 @@ $arrayBattery
         $arrayBattery = "";
         foreach ($batteries as $battery) {
             $arrayBattery .= "*Nama* : " . $battery->name . "\r";
-            $arrayBattery .= "*Kapasitas* : " . $battery->capacity . "\r";
+            $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
             $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
             $arrayBattery .= "\r";
@@ -624,7 +624,7 @@ $arrayBattery
 📧 $EmailCustomer
 
 *Nomor kontak Anda* :
-📞 $ContactNumber
+📞 +62 $ContactNumber
 
 *Kendaraan Anda* :
 $arrayVehicle
