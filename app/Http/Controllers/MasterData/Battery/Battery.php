@@ -112,7 +112,7 @@ class Battery extends Controller
         } catch (\Exception $e) {
             return getResponseData(
                 false,
-                "Error importing data: " . $e->getMessage()
+                "Error importing data Error importing data excell format or data is not suitable"
             );
         }
     }
@@ -254,7 +254,7 @@ class Battery extends Controller
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -353,7 +353,7 @@ class Battery extends Controller
                 $status,
                 $status ? "The battery was successfully updated!" : "Failed to update the battery!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -381,7 +381,7 @@ class Battery extends Controller
                 $status,
                 $status ? "The selected battery was successfully deleted!" : "Failed to delete the selected battery!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
