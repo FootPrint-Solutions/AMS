@@ -187,7 +187,7 @@ class Battery extends Controller
             }
 
             // Check if the subbrand category is newly added or not.
-            if ($request->subbrandcategory === "new") {
+            if ($request->subbrandcategory === "new" && isset($request->newsubbrandcategory)) {
                 // Store the newly added vehicle brand.
                 $subbrand = new BatterySubbrandCategoryModel();
                 $subbrand->name = $request->newsubbrandcategory;
@@ -195,11 +195,12 @@ class Battery extends Controller
 
                 $battery->subbrand_category_id = $subbrand->id;
             } else {
-                $battery->subbrand_category_id = $request->subbrandcategory;
+                if (isset($request->subbrandcategory) && $request->subbrandcategory !== "new")
+                    $battery->subbrand_category_id = $request->subbrandcategory;
             }
 
             // Check if the subbrand category is newly added or not.
-            if ($request->usagetype === "new") {
+            if ($request->usagetype === "new" && isset($request->newusagetype)) {
                 // Store the newly added vehicle brand.
                 $usagetype = new BatteryUsageTypeModel();
                 $usagetype->name = $request->newusagetype;
@@ -207,11 +208,12 @@ class Battery extends Controller
 
                 $battery->usage_type_id = $usagetype->id;
             } else {
-                $battery->usage_type_id = $request->usagetype;
+                if (isset($request->usagetype) && $request->usagetype !== "new")
+                    $battery->usage_type_id = $request->usagetype;
             }
 
             // Check if the technology is newly added or not.
-            if ($request->technology === "new") {
+            if ($request->technology === "new" && isset($request->newtechnology)) {
                 // Store the newly added vehicle brand.
                 $technology = new BatteryTechnologyModel();
                 $technology->name = $request->newtechnology;
@@ -219,11 +221,12 @@ class Battery extends Controller
 
                 $battery->technology_id = $technology->id;
             } else {
-                $battery->technology_id = $request->technology;
+                if (isset($request->technology) && $request->technology !== "new")
+                    $battery->technology_id = $request->technology;
             }
 
             // Check if the size category is newly added or not.
-            if ($request->size === "new") {
+            if ($request->size === "new" && isset($request->newsize)) {
                 // Store the newly added vehicle brand.
                 $size = new BatterySizeCategoryModel();
                 $size->name = $request->newsize;
@@ -231,15 +234,22 @@ class Battery extends Controller
 
                 $battery->size_category_id = $size->id;
             } else {
-                $battery->size_category_id = $request->size;
+                if (isset($request->size) && $request->size !== "new")
+                    $battery->size_category_id = $request->size;
             }
 
             $battery->dimension_length = $request->dimension[0];
             $battery->dimension_width = $request->dimension[1];
             $battery->dimension_height = $request->dimension[2];
-            $battery->standard_cca = $request->standardcca;
+
+            if (isset($request->standardcca))
+                $battery->standard_cca = $request->standardcca;
+
             $battery->capacity = $request->capacity;
-            $battery->warranty = $request->warranty;
+
+            if (isset($request->warranty))
+                $battery->warranty = $request->warranty;
+
             $battery->price_retail = (float) str_replace(",", "", $request->price);
 
             // Check if an image has been uploaded or not.
@@ -287,7 +297,7 @@ class Battery extends Controller
             }
 
             // Check if the subbrand category is newly added or not.
-            if ($request->subbrandcategory === "new") {
+            if ($request->subbrandcategory === "new" && isset($request->newsubbrandcategory)) {
                 // Store the newly added vehicle brand.
                 $subbrand = new BatterySubbrandCategoryModel();
                 $subbrand->name = $request->newsubbrandcategory;
@@ -295,11 +305,12 @@ class Battery extends Controller
 
                 $battery->subbrand_category_id = $subbrand->id;
             } else {
-                $battery->subbrand_category_id = $request->subbrandcategory;
+                if (isset($request->subbrandcategory) && $request->subbrandcategory !== "new")
+                    $battery->subbrand_category_id = $request->subbrandcategory;
             }
 
             // Check if the subbrand category is newly added or not.
-            if ($request->usagetype === "new") {
+            if ($request->usagetype === "new" && isset($request->newusagetype)) {
                 // Store the newly added vehicle brand.
                 $usagetype = new BatteryUsageTypeModel();
                 $usagetype->name = $request->newusagetype;
@@ -307,11 +318,12 @@ class Battery extends Controller
 
                 $battery->usage_type_id = $usagetype->id;
             } else {
-                $battery->usage_type_id = $request->usagetype;
+                if (isset($request->usagetype) && $request->usagetype !== "new")
+                    $battery->usage_type_id = $request->usagetype;
             }
 
             // Check if the technology is newly added or not.
-            if ($request->technology === "new") {
+            if ($request->technology === "new" && isset($request->newtechnology)) {
                 // Store the newly added vehicle brand.
                 $technology = new BatteryTechnologyModel();
                 $technology->name = $request->newtechnology;
@@ -319,11 +331,12 @@ class Battery extends Controller
 
                 $battery->technology_id = $technology->id;
             } else {
-                $battery->technology_id = $request->technology;
+                if (isset($request->technology) && $request->technology !== "new")
+                    $battery->technology_id = $request->technology;
             }
 
             // Check if the size category is newly added or not.
-            if ($request->size === "new") {
+            if ($request->size === "new" && isset($request->newsize)) {
                 // Store the newly added vehicle brand.
                 $size = new BatterySizeCategoryModel();
                 $size->name = $request->newsize;
@@ -331,15 +344,20 @@ class Battery extends Controller
 
                 $battery->size_category_id = $size->id;
             } else {
-                $battery->size_category_id = $request->size;
+                if (isset($request->size) && $request->size !== "new")
+                    $battery->size_category_id = $request->size;
             }
 
             $battery->dimension_length = $request->dimension[0];
             $battery->dimension_width = $request->dimension[1];
             $battery->dimension_height = $request->dimension[2];
-            $battery->standard_cca = $request->standardcca;
+
+            if (isset($request->standardcca))
+                $battery->standard_cca = $request->standardcca;
             $battery->capacity = $request->capacity;
-            $battery->warranty = $request->warranty;
+
+            if (isset($request->warranty))
+                $battery->warranty = $request->warranty;
             $battery->price_retail = (float) str_replace(",", "", $request->price);
 
             // Check if an image has been uploaded or not.
