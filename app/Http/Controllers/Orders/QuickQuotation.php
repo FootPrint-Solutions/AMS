@@ -389,6 +389,7 @@ $arrayBattery
         $content_message = "";
         $no = 1;
         foreach ($Battery as $item) {
+            $item['price'] = str_replace(".", "", $item['price']);
             $content_message .= "🔋 Battery " . $no++ . "\r\n";
             $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
@@ -416,10 +417,21 @@ $arrayBattery
         $response = Http::post($url, $data);
         $responseData = $response->json();
 
-        if (isset($responseData['data']['status']) && $responseData['data']['status'] == true) {
-            return getResponseData(true, "Message sent successfully");
-        } else {
-            return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
+        try {
+            $response = Http::post($url, $data);
+            if ($response->successful()) {
+                $responseData = $response->json();
+                if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
+                    return getResponseData(true, "Message sent successfully");
+                } else {
+                    return getResponseData(false, "Failed to send message : " . $responseData['data']['message']);
+                }
+            } else {
+                $responseData = $response->json();
+                return getResponseData(false, "Failed to send message : " . $responseData['message']);
+            }
+        } catch (\Exception $e) {
+            return getResponseData(false, "Failed to send message => " . $e->getMessage());
         }
     }
 
@@ -474,10 +486,21 @@ $arrayBattery
         $response = Http::post($url, $data);
         $responseData = $response->json();
 
-        if (isset($responseData['data']['status']) && $responseData['data']['status'] == true) {
-            return getResponseData(true, "Message sent successfully");
-        } else {
-            return getResponseData(false, "Failed to send message => " . $responseData['data']['message']);
+        try {
+            $response = Http::post($url, $data);
+            if ($response->successful()) {
+                $responseData = $response->json();
+                if (isset($responseData['data']['status']) && $responseData['data']['status'] == 1) {
+                    return getResponseData(true, "Message sent successfully");
+                } else {
+                    return getResponseData(false, "Failed to send message : " . $responseData['data']['message']);
+                }
+            } else {
+                $responseData = $response->json();
+                return getResponseData(false, "Failed to send message : " . $responseData['message']);
+            }
+        } catch (\Exception $e) {
+            return getResponseData(false, "Failed to send message => " . $e->getMessage());
         }
     }
 
@@ -661,6 +684,7 @@ $arrayVehicle
         $content_message = "";
         $no = 1;
         foreach ($Battery as $item) {
+            $item['price'] = str_replace(".", "", $item['price']);
             $content_message .= "🔋 Battery " . $no++ . "\r\n";
             $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
