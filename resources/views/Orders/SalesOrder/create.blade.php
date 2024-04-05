@@ -184,8 +184,7 @@
 
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="text"pattern="[0-9,]+"
-                                                class="form-control text-end battery-price"
+                                            <input type="text" class="form-control text-end battery-price"
                                                 id="battery-price-{{ $counter }}" name="batteriesprice[]"
                                                 placeholder="Enter item price" required
                                                 @isset($data['profile']['batteries']) readonly @endisset
@@ -224,7 +223,7 @@
                 <td>
                     <div class="input-group">
                         <span class="input-group-text border-end">IDR</span>
-                        <input type="text" pattern="[0-9.]+" class="form-control text-end" id="subtotal" name="subtotal"
+                        <input type="text" class="form-control text-end" id="subtotal" name="subtotal"
                             @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
                             readonly required>
                     </div>
@@ -305,8 +304,7 @@
                 <td>
                     <div class="input-group">
                         <span class="input-group-text border-end">IDR</span>
-                        <input type="text" pattern="[0-9,]+" class="form-control text-end" id="total"
-                            name="total"
+                        <input type="text" class="form-control text-end" id="total" name="total"
                             @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
                             required readonly>
                     </div>
@@ -522,10 +520,13 @@
                 calculateTotal();
             });
         });
+    </script>
 
-        // Attach an input event handler for each battery quantity and price fields.
-        $(document).on("autocompletechange", ".battery-price", function() {
-            // Set total price value.
+    {{-- Keyup Event Handler --}}
+    <script>
+        // Attach a keyup event handler for each battery price fields.
+        $(document).on("keyup", ".battery-price", function() {
+            formatPrice($(this));
             calculateTotal();
         });
     </script>
@@ -541,10 +542,12 @@
             // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
-                let value = parseInt($(this).val());
+                let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     subtotal += value;
                 }
+
+                formatPrice($(this));
             });
             $("#subtotal").val(subtotal);
 
@@ -557,6 +560,13 @@
             // Calculate total value.
             let total = (subtotal - discount) + tax;
             $("#total").val(total);
+
+            // Format all price fields value.
+            formatPrice($("#subtotal"));
+            formatPrice($("#total"));
+            formatPrice($("#tax-price-value"));
+            formatPrice($("#discount-price-value"));
+
             return total;
         }
     </script>

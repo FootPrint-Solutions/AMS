@@ -426,7 +426,7 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
-                    // goToPage(indexUrl);
+                    goToPage(indexUrl);
                 });
             });
 

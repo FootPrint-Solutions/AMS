@@ -174,11 +174,11 @@ class SalesOrder extends Controller
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
             $salesOrder->tax = $request->tax;
-            $salesOrder->tax_price = $request->taxprice;
+            $salesOrder->tax_price = (float) str_replace(".", "", $request->taxprice);
             $salesOrder->discount = $request->discount;
-            $salesOrder->discount_price = $request->discountprice;
-            $salesOrder->subtotal = $request->subtotal;
-            $salesOrder->total = (float) str_replace(",", "", $request->total);
+            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesOrder->total = (float) str_replace(".", "", $request->total);
             $salesOrder->payment_method = $request->paymentmethod;
             $salesOrder->status = $request->status;
             $status = $salesOrder->save();
@@ -189,7 +189,7 @@ class SalesOrder extends Controller
                 $battery->sales_order_id = $salesOrder->id;
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
-                $battery->battery_price = (float) str_replace(",", "", $request->batteriesprice[$i]);
+                $battery->battery_price = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }
@@ -200,6 +200,7 @@ class SalesOrder extends Controller
                 $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
             );
         } catch (Exception $e) {
+            var_dump($e);
             // Set an error response data to be sent.
             return getResponseData(false);
         }

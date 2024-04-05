@@ -249,7 +249,7 @@ class Battery extends Controller
             if (isset($request->warranty))
                 $battery->warranty = $request->warranty;
 
-            $battery->price_retail = (float) str_replace(",", "", $request->price);
+            $battery->price_retail = (float) str_replace(".", "", $request->price);
 
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
@@ -357,7 +357,7 @@ class Battery extends Controller
 
             if (isset($request->warranty))
                 $battery->warranty = $request->warranty;
-            $battery->price_retail = (float) str_replace(",", "", $request->price);
+            $battery->price_retail = (float) str_replace(".", "", $request->price);
 
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
