@@ -19,7 +19,7 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label for="company-name">Email <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="EmailCustomer" name="EmailCustomer"
+                    <input type="email" class="form-control" id="EmailCustomer" name="EmailCustomer"
                         placeholder="Enter Email" value="" required autocomplete="off">
                 </div>
             </div>

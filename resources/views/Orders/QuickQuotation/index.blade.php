@@ -185,6 +185,15 @@
                     return;
                 }
 
+                if (!isValidEmail(EmailCustomer)) {
+                    swal.fire("Error!", "Email is not valid", "error");
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share "
+                    );
+                    return;
+                }
+
                 if (ContactNumber.substring(0, 1) != '8') {
                     swal.fire("Error!", "Contact Number must start with 8", "error");
                     button.prop('disabled', false);
@@ -255,6 +264,11 @@
                 });
 
             });
+
+            function isValidEmail(email) {
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
 
             $('#FullName').on('keyup', function() {
                 var input = $(this).val();
@@ -414,6 +428,11 @@
 
                 if (EmailCustomer == '') {
                     swal.fire("Error!", "Email Customer is required", "error");
+                    return;
+                }
+
+                if (!isValidEmail(EmailCustomer)) {
+                    swal.fire("Error!", "Email is not valid", "error");
                     return;
                 }
 

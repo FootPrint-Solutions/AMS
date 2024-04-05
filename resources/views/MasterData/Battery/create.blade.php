@@ -61,8 +61,8 @@
                     {{-- Subbrand Category --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="subbrand-category">Subbrand Category <span class="login-danger">*</span></label>
-                            <select class="form-control" id="subbrand-category" name="subbrandcategory" required>
+                            <label for="subbrand-category">Subbrand Category</label>
+                            <select class="form-control" id="subbrand-category" name="subbrandcategory">
                                 <option></option>
                                 @foreach ($data['subbrand_categories'] as $category)
                                     <option value="{{ $category['id'] }}" @if (isset($data['profile']) && $data['profile']['subbrand_category_id'] == $category['id']) selected @endif>
@@ -88,8 +88,7 @@
                     {{-- New Subbrand Category --}}
                     <div class="col">
                         <div id="subbrand-category-new-group" class="form-group local-forms" style="display: none;">
-                            <label for="subbrand-category-new">New Subbrand Category <span
-                                    class="login-danger">*</span></label>
+                            <label for="subbrand-category-new">New Subbrand Category</label>
                             <input type="text" class="form-control" id="subbrand-category-new" name="newsubbrandcategory"
                                 placeholder="Enter new battery subbrand category">
                         </div>
@@ -101,8 +100,8 @@
                     {{-- Usage Type --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="usagetype">Usage Type <span class="login-danger">*</span></label>
-                            <select class="form-control" id="usagetype" name="usagetype" required>
+                            <label for="usagetype">Usage Type</label>
+                            <select class="form-control" id="usagetype" name="usagetype">
                                 <option></option>
                                 @foreach ($data['usage_types'] as $usage)
                                     <option value="{{ $usage['id'] }}" @if (isset($data['profile']) && $data['profile']['usage_type_id'] == $usage['id']) selected @endif>
@@ -116,8 +115,8 @@
                     {{-- Battery Technology --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="technology">Technology <span class="login-danger">*</span></label>
-                            <select class="form-control" id="technology" name="technology" required>
+                            <label for="technology">Technology</label>
+                            <select class="form-control" id="technology" name="technology">
                                 <option></option>
                                 @foreach ($data['technologies'] as $tech)
                                     <option value="{{ $tech['id'] }}" @if (isset($data['profile']) && $data['profile']['technology_id'] == $tech['id']) selected @endif>
@@ -131,8 +130,8 @@
                     {{-- Size Category --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="size">Size Category <span class="login-danger">*</span></label>
-                            <select class="form-control" id="size" name="size" required>
+                            <label for="size">Size Category</label>
+                            <select class="form-control" id="size" name="size">
                                 <option></option>
                                 @foreach ($data['sizes'] as $size)
                                     <option value="{{ $size['id'] }}" @if (isset($data['profile']) && $data['profile']['size_category_id'] == $size['id']) selected @endif>
@@ -149,7 +148,7 @@
                     {{-- New Usage Type --}}
                     <div class="col">
                         <div id="usagetype-new-group" class="form-group local-forms" style="display: none;">
-                            <label for="usagetype-new">New Usage Type <span class="login-danger">*</span></label>
+                            <label for="usagetype-new">New Usage Type</label>
                             <input type="text" class="form-control" id="usagetype-new" name="newusagetype"
                                 placeholder="Enter new battery usage type">
                         </div>
@@ -158,7 +157,7 @@
                     {{-- New Technology --}}
                     <div class="col">
                         <div id="technology-new-group" class="form-group local-forms" style="display: none;">
-                            <label for="technology-new">New Technology <span class="login-danger">*</span></label>
+                            <label for="technology-new">New Technology</label>
                             <input type="text" class="form-control" id="technology-new" name="newtechnology"
                                 placeholder="Enter new battery technology">
                         </div>
@@ -167,7 +166,7 @@
                     {{-- Size Category --}}
                     <div class="col">
                         <div id="size-new-group" class="form-group local-forms" style="display: none;">
-                            <label for="size-new">New Size Category <span class="login-danger">*</span></label>
+                            <label for="size-new">New Size Category</label>
                             <input type="text" class="form-control" id="size-new" name="newsize"
                                 placeholder="Enter new size category">
                         </div>
@@ -221,10 +220,10 @@
                     {{-- Standard CCA --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="standard-cca">Standard CCA <span class="login-danger">*</span></label>
+                            <label for="standard-cca">Standard CCA</label>
                             <div class="input-group">
                                 <input type="number" min="0" class="form-control" id="standard-cca"
-                                    name="standardcca" placeholder="Enter battery standard CCA" required
+                                    name="standardcca" placeholder="Enter battery standard CCA"
                                     @if (isset($data['profile'])) value="{{ $data['profile']['standard_cca'] }}" @endif>
                                 <span class="input-group-text border-end">A</span>
                             </div>
@@ -250,10 +249,10 @@
                     {{-- Warranty --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="warranty">Warranty <span class="login-danger">*</span></label>
+                            <label for="warranty">Warranty</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="warranty" name="warranty"
-                                    placeholder="Enter battery warranty duration" required
+                                    placeholder="Enter battery warranty duration"
                                     @if (isset($data['profile'])) value="{{ $data['profile']['warranty'] }}" @endif>
                                 <span class="input-group-text border-end">month</span>
                             </div>
@@ -342,12 +341,9 @@
         </div>
     @endisset
 
+    {{-- Select2 Configurations --}}
     <script>
-        let indexUrl = "/battery";
-
         $(document).ready(function() {
-            formatPrice($("#price"), $("#price-warning-number"));
-
             $('#brand').select2({
                 placeholder: "Enter battery brand"
             });
@@ -369,10 +365,8 @@
             $("#subbrand-category").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#subbrand-category-new-group").show();
-                    $("#subbrand-category-new").attr("required", true);
                 } else {
                     $("#subbrand-category-new-group").hide();
-                    $("#subbrand-category-new").attr("required", false);
                 }
             });
 
@@ -383,10 +377,8 @@
             $("#usagetype").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#usagetype-new-group").show();
-                    $("#usagetype-new").attr("required", true);
                 } else {
                     $("#usagetype-new-group").hide();
-                    $("#usagetype-new").attr("required", false);
                 }
             });
 
@@ -398,10 +390,8 @@
             $("#technology").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#technology-new-group").show();
-                    $("#technology-new").attr("required", true);
                 } else {
                     $("#technology-new-group").hide();
-                    $("#technology-new").attr("required", false);
                 }
             });
 
@@ -412,17 +402,18 @@
             $("#size").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
                     $("#size-new-group").show();
-                    $("#size-new").attr("required", true);
                 } else {
                     $("#size-new-group").hide();
-                    $("#size-new").attr("required", false);
                 }
             });
+        });
+    </script>
 
-            $('#price').on("keyup", function() {
-                formatPrice($("#price"), $("#price-warning-number"));
-            });
+    {{-- Form Handler --}}
+    <script>
+        let indexUrl = "/battery";
 
+        $(document).ready(function() {
             $("#battery-form").on("submit", function(event) {
                 event.preventDefault();
 
@@ -435,12 +426,23 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
-                    goToPage(indexUrl);
+                    // goToPage(indexUrl);
                 });
             });
 
             $("#battery-form").on("reset", function() {
                 goToPage(indexUrl);
+            });
+        });
+    </script>
+
+    {{-- Keyup Event Handler --}}
+    <script>
+        $(document).ready(function() {
+            formatPrice($("#price"), $("#price-warning-number"));
+
+            $('#price').on("keyup", function() {
+                formatPrice($("#price"), $("#price-warning-number"));
             });
         });
     </script>
