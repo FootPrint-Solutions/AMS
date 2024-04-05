@@ -386,7 +386,7 @@
             if (warning !== null) {
                 warning.hide();
             }
-            inputField.val(n.toLocaleString());
+            inputField.val(n.toLocaleString("id-ID"));
         } else {
             if (warning !== null) {
                 warning.show();
@@ -394,7 +394,6 @@
             inputField.val("");
         }
     }
-
 
     if ($('.clipboard').length > 0) {
         var clipboard = new Clipboard('.btn');
