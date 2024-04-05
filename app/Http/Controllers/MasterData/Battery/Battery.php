@@ -147,7 +147,7 @@ class Battery extends Controller
             $row[] = $key->standard_cca;
             $row[] = $key->capacity;
             $row[] = $key->warranty;
-            $row[] = number_format($key->price_retail);
+            $row[] = formatPrice($key->price_retail);
             $row[] = $key->id;
             $rows[] = $row;
         }

@@ -99,7 +99,7 @@ class Customer extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
-            $row[] = $key->contact;
+            $row[] = "+62 $key->contact";
             $row[] = $key->email;
             $row[] = $key->address;
             $row[] = $key->id;
