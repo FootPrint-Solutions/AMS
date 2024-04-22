@@ -200,7 +200,6 @@ class SalesOrder extends Controller
                 $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
             );
         } catch (Exception $e) {
-            var_dump($e);
             // Set an error response data to be sent.
             return getResponseData(false);
         }
