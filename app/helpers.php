@@ -42,6 +42,18 @@ function getResponseData($status, $message = '')
 }
 
 /**
+ * Convert a numeric price value to Indonesian numeric format.
+ * 
+ * @param int $price The numeric price value to be converted.
+ * 
+ * @return string The price in Indonesian numeric format.
+ */
+function formatPrice($price)
+{
+    return number_format($price, 0, ',', '.');
+}
+
+/**
  * Convert a numeric price into its Indonesian terbilang representation.
  * Shout out to @cahsowan (https://gist.github.com/cahsowan/d315d54a59e4f14a6bab)!
  * 

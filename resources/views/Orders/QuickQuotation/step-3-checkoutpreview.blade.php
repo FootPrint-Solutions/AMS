@@ -49,7 +49,7 @@
                         <td>
                             <div class="input-group">
                                 <span class="input-group-text border-end">IDR</span>
-                                <input type="number" name="PriceCheckout[]" id="PriceCheckout"
+                                <input type="text" name="PriceCheckout[]" id="PriceCheckout"
                                     class="form-control PriceCheckout text-end" value="{{ $battery->price_retail }}">
                             </div>
                         </td>
@@ -184,7 +184,7 @@
 
             $(".add-table-items tbody tr").each(function() {
                 var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                var price = $(this).find("input[name='PriceCheckout[]']").val();
+                var price = $(this).find("input[name='PriceCheckout[]']").val().replace(/\D/g, '');
 
 
                 var subtotal = quantity * price;
@@ -228,6 +228,12 @@
         });
 
         calculateTotalAmount();
+
+        formatPrice($(".PriceCheckout"));
+
+        $('.PriceCheckout').on("keyup", function() {
+            formatPrice($(this));
+        });
     });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"

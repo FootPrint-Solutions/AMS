@@ -21,3 +21,7 @@ Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+.DS_Store
+resources/.DS_Store
+resources/views/.DS_Store
+resources/views/Orders/.DS_Store
