@@ -43,6 +43,7 @@
                         <th scope="col">Contact</th>
                         <th scope="col">E-mail</th>
                         <th scope="col">Address</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -72,15 +73,23 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [-1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Customer"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[7] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5, "/customer/edit/", null, "/customer/toggle/");
+            appendDatatablesToolbar(6, "/customer/edit/", null, "/customer/toggle/");
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");

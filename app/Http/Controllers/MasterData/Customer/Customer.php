@@ -95,6 +95,13 @@ class Customer extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
@@ -102,7 +109,9 @@ class Customer extends Controller
             $row[] = "+62 $key->contact";
             $row[] = $key->email;
             $row[] = $key->address;
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 

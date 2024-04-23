@@ -59,7 +59,7 @@ class CustomerModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'address', 'contact', 'email'];
+        $selectColumns = ['id', 'name', 'address', 'contact', 'email', 'status'];
         $searchColumns = ['name', 'address', 'contact', 'email'];
 
         // Build the query to obtain all rows.
