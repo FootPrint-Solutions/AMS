@@ -28,6 +28,7 @@
                         <th scope="col">Contact Person</th>
                         <th scope="col">Contact</th>
                         <th scope="col">E-mail</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -58,15 +59,23 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [-1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Distributor"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[8] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                },
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(6, "/distributor/edit/", "/distributor/destroy");
+            appendDatatablesToolbar(7, "/distributor/edit/", null, "/distributor/toggle");
 
             // Add New distributor button
             $("#btn-add").on("click", function() {

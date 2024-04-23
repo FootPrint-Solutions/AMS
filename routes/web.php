@@ -156,7 +156,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
     Route::post('/distributor/store', [Distributor::class, 'store']);
     Route::post('/distributor/update', [Distributor::class, 'update']);
-    Route::post('/distributor/destroy', [Distributor::class, 'destroy']);
+    Route::post('/distributor/toggle', [Distributor::class, 'updateStatus']);
 
     // Distributor Shop
     Route::get('/distributor/shop', [DistributorShop::class, 'index']);
