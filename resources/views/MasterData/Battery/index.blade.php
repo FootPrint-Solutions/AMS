@@ -55,6 +55,7 @@
                             <th scope="col">Capacity (AH)</th>
                             <th scope="col">Warranty (month)</th>
                             <th scope="col">Retail Price (IDR)</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                 </table>
@@ -90,15 +91,23 @@
                 }, {
                     targets: [8, 9, 10, 11],
                     className: 'dt-body-right'
+                }, {
+                    targets: [-1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[14] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(12, "/battery/edit/", "/battery/destroy");
+            appendDatatablesToolbar(13, "/battery/edit/", null, "/battery/toggle");
 
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");

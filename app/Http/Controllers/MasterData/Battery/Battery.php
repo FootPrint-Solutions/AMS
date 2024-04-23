@@ -135,6 +135,14 @@ class Battery extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
+            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
@@ -148,7 +156,9 @@ class Battery extends Controller
             $row[] = $key->capacity;
             $row[] = $key->warranty;
             $row[] = formatPrice($key->price_retail);
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -377,28 +387,24 @@ class Battery extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $battery = BatteryModel::find($id);
-                $status &= $battery->delete();
-            }
+            $battery = BatteryModel::find($request->id);
+            $battery->status = $battery->status ? 0 : 1;
+            $status = $battery->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The selected battery was successfully deleted!" : "Failed to delete the selected battery!"
+                $status ? "The selected battery was successfully updated!" : "Failed to update the selected battery!"
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

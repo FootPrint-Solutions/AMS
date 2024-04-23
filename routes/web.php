@@ -100,7 +100,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/battery/edit/{id}', [Battery::class, 'edit'])->name('battery.edit');
     Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store');
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
-    Route::post('/battery/destroy', [Battery::class, 'destroy'])->name('battery.destroy');
+    Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
 
