@@ -73,7 +73,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store');
     Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update');
     Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
-    Route::post('/customer/destroy', [Customer::class, 'destroy'])->name('customer.destroy');
 
     // Vehicle
     Route::get('/vehicle', [Vehicle::class, 'index']);

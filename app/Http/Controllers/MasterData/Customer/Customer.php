@@ -210,37 +210,4 @@ class Customer extends Controller
             return getResponseData(false);
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $customer = CustomerModel::find($id);
-
-                // Detach associated vehicles from the pivot table
-                $customer->vehicles()->detach();
-
-                // Delete customer data in storage.
-                $status &= $customer->delete();
-            }
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
-            );
-        } catch (Exception) {
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
 }
