@@ -4,13 +4,15 @@ namespace App\Models\MasterData\Distributor;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class DistributorShopBatteryModel extends Model
+class DistributorShopBatteryModel extends Model implements Auditable
 {
-    use HasFactory, DataTablesTrait;
+    use HasFactory, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.

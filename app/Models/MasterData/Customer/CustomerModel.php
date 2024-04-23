@@ -5,6 +5,7 @@ namespace App\Models\MasterData\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // Models
 use App\Models\MasterData\Vehicle\VehicleModel;
@@ -12,10 +13,11 @@ use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 // Trait
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class CustomerModel extends Model
+class CustomerModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.

@@ -2,14 +2,18 @@
 
 namespace App\Models\MasterData\Battery;
 
-use App\Traits\DataTablesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class BatterySizeCategoryModel extends Model
+// TRAITS
+use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+
+class BatterySizeCategoryModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
