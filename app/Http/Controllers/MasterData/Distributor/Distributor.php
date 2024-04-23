@@ -245,6 +245,15 @@ class Distributor extends Controller
             $distributor->status = $distributor->status ? 0 : 1;
             $status = $distributor->save();
 
+            // Update all distributor shops.
+            $shops = DistributorShopModel::where('distributor_id', $distributor->id)->get();
+            if ($shops->count() > 0) {
+                foreach ($shops as $shop) {
+                    $shop->status = $distributor->status;
+                    $status &= $shop->save();
+                }
+            }
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,

@@ -94,6 +94,14 @@ class DistributorShop extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
+            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
@@ -102,8 +110,10 @@ class DistributorShop extends Controller
             $row[] = $key->contact_person;
             $row[] = "<span class='text-secondary'>+62</span> " . $key->contact;
             $row[] = $key->email ?? "-";
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $row[] = $key->distributor_id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -181,27 +191,34 @@ class DistributorShop extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
+            $shop = DistributorShopModel::find($request->id);
 
-            foreach ($ids as $id) {
-                $shop = DistributorShopModel::find($id);
-                $status = $shop->delete();
+            // Check whether distributor is active or inactive.
+            $distributorStatus = DistributorModel::find($shop->distributor_id)->status;
+            if ($distributorStatus !== null && $distributorStatus == 0) {
+                // If inactive, the shop status cannot be changed.
+                return getResponseData(
+                    false,
+                    "Failed to update the selected shop status as the distributor is inactive!"
+                );
+            } else {
+                $shop->status = $shop->status ? 0 : 1;
+                $status = $shop->save();
+
+                // Set a new response data to be sent.
+                return getResponseData(
+                    $status,
+                    $status ? "The selected shop was successfully updated!" : "Failed to update the selected shop!"
+                );
             }
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The selected shop was successfully deleted!" : "Failed to delete the selected shop!"
-            );
         } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
