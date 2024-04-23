@@ -179,6 +179,30 @@ class Customer extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request)
+    {
+        try {
+            $customer = CustomerModel::find($request->id);
+            $customer->status = $customer->status ? 0 : 1;
+            $status = $customer->save();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected customer was successfully updated!" : "Failed to update the selected customer!"
+            );
+        } catch (Exception) {
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

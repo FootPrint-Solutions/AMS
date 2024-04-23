@@ -72,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/edit/{id}', [Customer::class, 'edit'])->name('customer.edit');
     Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store');
     Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update');
+    Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
     Route::post('/customer/destroy', [Customer::class, 'destroy'])->name('customer.destroy');
 
     // Vehicle
@@ -245,8 +246,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/datatables/toolbar', function () {
         $editUrl = request()->input('editUrl');
         $deleteUrl = request()->input('deleteUrl');
+        $toggleUrl = request()->input('toggleUrl');
         $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl))->render();
+        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl))->render();
     });
 });
 

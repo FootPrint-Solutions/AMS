@@ -164,6 +164,29 @@
                 table.ajax.reload();
             });
         });
+
+        /**
+         * Add a click listener to DataTables toggle button in custom toolbar.
+         */
+        $("#content-container").on("click", ".toggle-selected", function() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+
+            if (selectedRows.length !== 1) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select a single row for updating.",
+                    icon: "error",
+                });
+                return;
+            }
+            let id = selectedRows[0][$(this).data("id")];
+            sendToggleRequest(id, $(this).data("url"), function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
+        });
         // End of OnClick Event Listener
     });
 
@@ -228,6 +251,51 @@
     }
 
     /**
+     * Send a POST request to toggle an item in database.
+     *
+     * @param {int} id - The id of item to be toggled.
+     * @param {string} url - The url of the toggler function.
+     * @param {function|null} callback - The table reload function after toggle process.
+     */
+    function sendToggleRequest(id, url, callback = null) {
+        // Show an alert before destroying an item.
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to update the status of the selected item!",
+            icon: "warning",
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: "Yes, update it!",
+            cancelButtonText: "No, cancel!"
+        }).then(function(e) {
+            // If user has confirmed, do the toggle process.
+            if (e.value === true) {
+                // Send the toggle POST request to url.
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "id": id
+                    },
+                    success: function(response) {
+                        // Get response data from url (in JSON).
+                        let responseData = JSON.parse(response);
+
+                        // Show Toast message based on responseData.
+                        showResponseToast(responseData.status, responseData.message);
+
+                        // Call the callback table reload act (or any other acts after the toggle process is complete).
+                        if (callback !== null && typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Send a POST request to store or update an item in database.
      *
      * @param {string} url - The url of the storer or updater function.
@@ -262,13 +330,15 @@
      * @param {int} idIdx - The index of data id.
      * @param {string} editUrl - The url of edit page.
      * @param {string} deleteUrl - The url of delete page.
-     * @param {string} parentId - The parent div id of the DataTables.
+     * @param {string} toggleUrl  - (Optional) The url of toggle page.
+     * @param {string} parentId - (Optional) The parent div id of the DataTables (for Distributor Shop detail).
      */
-    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, parentId = null) {
+    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, toggleUrl = null, parentId = null) {
         $.get("/datatables/toolbar", {
             idIdx: idIdx,
             editUrl: editUrl,
-            deleteUrl: deleteUrl
+            deleteUrl: deleteUrl,
+            toggleUrl: toggleUrl
         }, function(data) {
             var querySelector = ".dt-buttons";
             if (parentId !== null) {

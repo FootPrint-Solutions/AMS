@@ -53,7 +53,6 @@
         var table;
         $(document).ready(function() {
             // DataTables configuration
-
             table = $("#table-customer").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
@@ -81,7 +80,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5, "/customer/edit/", "/customer/destroy");
+            appendDatatablesToolbar(5, "/customer/edit/", null, "/customer/toggle/");
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");

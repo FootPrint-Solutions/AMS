@@ -148,7 +148,7 @@
                             select: true,
                         });
                         appendDatatablesToolbar(4, "/distributor/shop/battery/edit/",
-                            "/distributor/shop/battery/destroy",
+                            "/distributor/shop/battery/destroy", null,
                             "#table-distributor-shop-detail_wrapper");
                     },
                     className: "btn btn-outline-info btn-sm",
