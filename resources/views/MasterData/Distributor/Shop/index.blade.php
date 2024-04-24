@@ -21,14 +21,14 @@
             <table class="table table-striped" id="table-distributor-shop">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Distributor</th>
                         <th scope="col">Address</th>
                         <th scope="col">Contact Person</th>
                         <th scope="col">Contact</th>
                         <th scope="col">E-mail</th>
-                        <th scope="col">Status</th>
+                        <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -55,7 +55,7 @@
                     <table class="table table-striped w-100" id="table-distributor-shop-detail">
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
+                                <th scope="col" class="table-col-no">#</th>
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">URL</th>
@@ -93,7 +93,7 @@
                     targets: [0],
                     orderable: false
                 }, {
-                    targets: [-1],
+                    targets: [0, -1],
                     className: 'text-center'
                 }],
                 dom: "lBfrtip",

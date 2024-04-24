@@ -43,7 +43,7 @@
                 <table class="table table-striped" id="table-battery">
                     <thead>
                         <tr>
-                            <th scope="col">#</th>
+                            <th scope="col" class="table-col-no">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Brand</th>
                             <th scope="col">Subbrand Category</th>
@@ -55,7 +55,7 @@
                             <th scope="col">Capacity (AH)</th>
                             <th scope="col">Warranty (month)</th>
                             <th scope="col">Retail Price (IDR)</th>
-                            <th scope="col">Status</th>
+                            <th scope="col" class="table-col-status">Status</th>
                         </tr>
                     </thead>
                 </table>
@@ -92,7 +92,7 @@
                     targets: [8, 9, 10, 11],
                     className: 'dt-body-right'
                 }, {
-                    targets: [-1],
+                    targets: [0, -1],
                     className: 'text-center'
                 }],
                 dom: "lBfrtip",

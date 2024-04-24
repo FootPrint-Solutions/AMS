@@ -23,7 +23,7 @@
             <table class="table table-striped" id="table-sales-order">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Sales Order Number</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Distributor/Shop</th>
@@ -61,13 +61,13 @@
                 },
                 columnDefs: [{
                     targets: [0],
-                    orderable: false
+                    orderable: false,
                 }, {
                     targets: [5],
                     className: 'dt-body-right'
                 }, {
-                    targets: [7],
-                    className: 'dt-body-center'
+                    targets: [0, 7],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{

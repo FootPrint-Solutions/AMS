@@ -40,11 +40,11 @@
             <table class="table table-striped" id="table-vehicle">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Brand</th>
                         <th scope="col">URL</th>
-                        <th scope="col">Status</th>
+                        <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -76,7 +76,7 @@
                     targets: [0],
                     orderable: false
                 }, {
-                    targets: [-1],
+                    targets: [0, -1],
                     className: 'text-center'
                 }],
                 dom: "lBfrtip",
