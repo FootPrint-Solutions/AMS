@@ -168,9 +168,9 @@ class SalesOrder extends Controller
             $salesOrder->sales_order_number = $request->salesordernumber;
             $salesOrder->date = $request->date;
             $salesOrder->customer_id = $request->customer;
-            $salesOrder->address = '';
-            $salesOrder->latitude = '';
-            $salesOrder->longitude = '';
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
             $salesOrder->tax = $request->tax;
@@ -218,9 +218,9 @@ class SalesOrder extends Controller
             $salesOrder = SalesOrderModel::find($request->id);
             $salesOrder->date = $request->date;
             $salesOrder->customer_id = $request->customer;
-            $salesOrder->address = '';
-            $salesOrder->latitude = '';
-            $salesOrder->longitude = '';
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
             $salesOrder->payment_method = $request->paymentmethod;
