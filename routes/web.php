@@ -247,7 +247,7 @@ Route::middleware(['auth'])->group(function () {
         $deleteUrl = request()->input('deleteUrl');
         $toggleUrl = request()->input('toggleUrl');
         $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl))->render();
+        return view('components.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl))->render();
     });
 });
 
