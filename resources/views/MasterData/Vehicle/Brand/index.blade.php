@@ -24,6 +24,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -54,15 +55,23 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [-1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Vehicle Brand"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[4] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(2, "/vehicle/brand/edit/", "/vehicle/brand/destroy");
+            appendDatatablesToolbar(3, "/vehicle/brand/edit/", null, "/vehicle/brand/toggle");
 
             // Add New Vehicle brand button
             $("#btn-add").on("click", function() {
