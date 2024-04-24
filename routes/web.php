@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit');
     Route::post('/vehicle/store', [Vehicle::class, 'store'])->name('vehicle.store');
     Route::post('/vehicle/update', [Vehicle::class, 'update'])->name('vehicle.update');
-    Route::post('/vehicle/destroy', [Vehicle::class, 'destroy'])->name('vehicle.destroy');
+    Route::post('/vehicle/toggle', [Vehicle::class, 'updateStatus'])->name('vehicle.toggle');
     Route::post('/vehicle/import', [Vehicle::class, 'import'])->name('vehicle.import');
 
     // Vehicle Brand

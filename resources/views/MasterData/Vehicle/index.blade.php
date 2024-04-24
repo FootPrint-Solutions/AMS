@@ -44,6 +44,7 @@
                         <th scope="col">Name</th>
                         <th scope="col">Brand</th>
                         <th scope="col">URL</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -74,15 +75,23 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [-1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Vehicle"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[6] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/vehicle/edit/", "/vehicle/destroy");
+            appendDatatablesToolbar(5, "/vehicle/edit/", null, "/vehicle/toggle");
 
             // Add New Vehicle button
             $("#btn-add").on("click", function() {

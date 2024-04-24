@@ -69,7 +69,7 @@ class VehicleModel extends Model implements Auditable
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'brand_id', 'url'];
+        $selectColumns = ['id', 'name', 'brand_id', 'url', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.

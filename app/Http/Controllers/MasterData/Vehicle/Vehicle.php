@@ -106,12 +106,22 @@ class Vehicle extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
+            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? '-';
-            $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
+            $row[] = "<a href='$key->url'>" . $key->url . "</a>";
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -226,32 +236,24 @@ class Vehicle extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                // Delete the specific vehicle.
-                $vehicle = VehicleModel::find($id);
-                $status &= $vehicle->delete();
-
-                // Detach suitable batteries from the pivot table
-                $vehicle->batteries()->detach();
-            }
+            $vehicle = VehicleModel::find($request->id);
+            $vehicle->status = $vehicle->status ? 0 : 1;
+            $status = $vehicle->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+                $status ? "The selected vehicle was successfully updated!" : "Failed to update the selected vehicle!"
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
