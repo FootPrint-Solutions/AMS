@@ -7,19 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\DB;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
 // CONTROLLER
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 
-class SalesOrderModel extends Model
+class SalesOrderModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
