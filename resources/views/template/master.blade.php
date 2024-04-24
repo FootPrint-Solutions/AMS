@@ -119,9 +119,9 @@
     <script src="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.js') }}"></script>
 </body>
 
+{{-- OnClick Event Handler --}}
 <script>
     $(document).ready(function() {
-        // OnClick Event Listener
         /**
          * Add a click listener to DataTables edit button in custom toolbar.
          */
@@ -189,22 +189,10 @@
         });
         // End of OnClick Event Listener
     });
+</script>
 
-    /**
-     * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
-     *
-     * @param {string} destination - The destination view
-     * @param {boolean} openInNewWindow - Specifies whether to open the destination in a new window (true) or the current window (false). Default is false.
-     */
-    function goToPage(destination, openInNewWindow = false) {
-        if (openInNewWindow) {
-            window.open(destination, '_blank');
-        } else {
-            window.location.href = destination;
-        }
-    }
-
-
+{{-- JS AJAX Functions --}}
+<script>
     /**
      * Send a POST request to destroy an item in database.
      *
@@ -323,7 +311,59 @@
             }
         });
     }
+</script>
 
+{{-- JS Toastr Configuration Functions --}}
+<script>
+    /**
+     * Displays a toast message using Toastr.
+     *
+     * @param {boolean} status - The proccess status.
+     * @param {string} message - The success message to be displayed.
+     */
+    function showResponseToast(status, message) {
+        if (status) {
+            // Show the success toast.
+            toastr.success(message, {
+                closeButton: true,
+                tapToDismiss: !1,
+            });
+        } else {
+            // Show the error toast.
+            toastr.error(message, {
+                closeButton: !0,
+                tapToDismiss: !1,
+            });
+        }
+    }
+
+    /**
+     * Displays a success toast message using Toastr.
+     *
+     * @param {string} message - The success message to be displayed.
+     */
+    function showSuccessToast(message) {
+        toastr.success(message, {
+            closeButton: true,
+            tapToDismiss: !1,
+        });
+    }
+
+    /**
+     * Displays an error toast message using Toastr.
+     *
+     * @param {string} message - The error message to be displayed.
+     */
+    function showErrorToast(message) {
+        toastr.error(message, {
+            closeButton: !0,
+            tapToDismiss: !1,
+        });
+    }
+</script>
+
+{{-- JS DataTables Configuration Functions --}}
+<script>
     /**
      * Append a custom toolbar component into DataTables table.
      * 
@@ -396,51 +436,22 @@
             lengthMenu: "_MENU_ entries | ",
         };
     }
+</script>
 
+{{-- JS Custom Functions --}}
+<script>
     /**
-     * Displays a toast message using Toastr.
+     * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
      *
-     * @param {boolean} status - The proccess status.
-     * @param {string} message - The success message to be displayed.
+     * @param {string} destination - The destination view
+     * @param {boolean} openInNewWindow - Specifies whether to open the destination in a new window (true) or the current window (false). Default is false.
      */
-    function showResponseToast(status, message) {
-        if (status) {
-            // Show the success toast.
-            toastr.success(message, {
-                closeButton: true,
-                tapToDismiss: !1,
-            });
+    function goToPage(destination, openInNewWindow = false) {
+        if (openInNewWindow) {
+            window.open(destination, '_blank');
         } else {
-            // Show the error toast.
-            toastr.error(message, {
-                closeButton: !0,
-                tapToDismiss: !1,
-            });
+            window.location.href = destination;
         }
-    }
-
-    /**
-     * Displays a success toast message using Toastr.
-     *
-     * @param {string} message - The success message to be displayed.
-     */
-    function showSuccessToast(message) {
-        toastr.success(message, {
-            closeButton: true,
-            tapToDismiss: !1,
-        });
-    }
-
-    /**
-     * Displays an error toast message using Toastr.
-     *
-     * @param {string} message - The error message to be displayed.
-     */
-    function showErrorToast(message) {
-        toastr.error(message, {
-            closeButton: !0,
-            tapToDismiss: !1,
-        });
     }
 
     /**
