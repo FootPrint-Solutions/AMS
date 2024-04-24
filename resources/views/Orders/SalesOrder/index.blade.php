@@ -96,7 +96,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(8, "/sales-order/edit/", null, null);
+            appendDatatablesToolbar(8, "/sales-order/edit/");
         });
     </script>
 

@@ -366,14 +366,15 @@
 <script>
     /**
      * Append a custom toolbar component into DataTables table.
+     * You have the option to select which buttons to display — whether it be for editing, deleting, or toggling — by specifying the values corresponding to the desired buttons.
      * 
      * @param {int} idIdx - The index of data id.
-     * @param {string} editUrl - The url of edit page.
-     * @param {string} deleteUrl - The url of delete page.
+     * @param {string} editUrl - (Optional) The url of edit page.
+     * @param {string} deleteUrl - (Optional) The url of delete page.
      * @param {string} toggleUrl  - (Optional) The url of toggle page.
-     * @param {string} parentId - (Optional) The parent div id of the DataTables (for Distributor Shop detail).
+     * @param {string} parentId - (Optional) The parent div id of the DataTables.
      */
-    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, toggleUrl = null, parentId = null) {
+    function appendDatatablesToolbar(idIdx, editUrl = null, deleteUrl = null, toggleUrl = null, parentId = null) {
         $.get("/datatables/toolbar", {
             idIdx: idIdx,
             editUrl: editUrl,
@@ -381,6 +382,9 @@
             toggleUrl: toggleUrl
         }, function(data) {
             var querySelector = ".dt-buttons";
+
+            // If a DataTables is implemented in a table view other than the main table, additional parentId is required.
+            // Current usage : Distributor Shop
             if (parentId !== null) {
                 querySelector = parentId + " " + querySelector;
             }
