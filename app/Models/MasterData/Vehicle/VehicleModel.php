@@ -10,6 +10,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 
 // TRAITS
@@ -52,11 +53,11 @@ class VehicleModel extends Model implements Auditable
     }
 
     /**
-     * Get all of the batteries suitable for the vehicle.
+     * Get all of the battery size categories suitable for the vehicle.
      */
-    public function batteries()
+    public function batterySizeCategories()
     {
-        return $this->belongsToMany(BatteryModel::class, 'vehicle_battery', 'vehicle_id', 'battery_id')
+        return $this->belongsToMany(BatterySizeCategoryModel::class, 'vehicle_battery_size_category', 'vehicle_id', 'battery_size_category_id')
             ->withTimestamps();
     }
 

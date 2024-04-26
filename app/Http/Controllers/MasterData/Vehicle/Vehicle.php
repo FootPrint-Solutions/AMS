@@ -10,6 +10,7 @@ use Exception;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 
 // IMPORT CLASS
 use App\Imports\VehicleImport;
@@ -56,7 +57,7 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::getBatteryWithSize(),
+                    'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                 )
             )
         );
@@ -78,10 +79,10 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::getBatteryWithSize(),
+                    'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->toArray()[0],
-                    'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('battery_id')->toArray(),
+                    'primary_battery' => VehicleModel::find($id)->batterySizeCategories()->where('type', 1)->pluck('battery_size_category_id')->toArray()[0],
+                    'secondary_batteries' => VehicleModel::find($id)->batterySizeCategories()->where('type', 0)->pluck('battery_size_category_id')->toArray(),
                 )
             )
         );
@@ -171,7 +172,7 @@ class Vehicle extends Controller
                         $batteries[$battery] = ["type" => "0"];
                 }
             }
-            $vehicle->batteries()->attach($batteries);
+            $vehicle->batterySizeCategories()->attach($batteries);
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -222,7 +223,7 @@ class Vehicle extends Controller
                         $batteries[$battery] = ["type" => "0"];
                 }
             }
-            $vehicle->batteries()->sync($batteries);
+            $vehicle->batterySizeCategories()->sync($batteries);
 
             // Set a new response data to be sent.
             return getResponseData(
