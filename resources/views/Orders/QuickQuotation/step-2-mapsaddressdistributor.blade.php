@@ -72,7 +72,7 @@
             <select class="form-select" id="shop_id" name="shop_id" required>
                 <option value="">-- Choose Distributor --</option>
                 @foreach ($distributor as $d)
-                <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                 @endforeach
             </select>
         </div>
@@ -250,7 +250,8 @@
                         if (vehicle.battery_distributor_price != null) {
                             html +=
                                 '<h3 class="blog-title"><a href="#!">' +
-                                vehicle.name + '</a> &nbsp <span class="badge badge-soft-secondary badge-border">Partner</span></h3> ';
+                                vehicle.name +
+                                '</a> &nbsp <span class="badge badge-soft-secondary badge-border">Partner</span></h3> ';
                         } else {
                             html +=
                                 '<h3 class="blog-title"><a href="#!">' +
@@ -276,6 +277,8 @@
                                 Number(vehicle.price_retail).toLocaleString(
                                     'id-ID') + '</li>';
                         }
+                        html += '<li class="list-group-item">Size : ' +
+                            vehicle.size_category + '</li>';
                         html += '</ul>';
                         html +=
                             '</div>';

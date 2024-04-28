@@ -71,6 +71,14 @@ class Vehicle extends Controller
      */
     public function edit($id)
     {
+        $batteryCategories = VehicleModel::find($id)->batterySizeCategories()->where('type', 1)->pluck('battery_size_category_id')->toArray();
+
+        if (!empty($batteryCategories)) {
+            $primaryBattery = $batteryCategories[0];
+        } else {
+            $primaryBattery = null;
+        }
+
         return view(
             'MasterData/Vehicle/create',
             getIndexData(
@@ -81,7 +89,7 @@ class Vehicle extends Controller
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batterySizeCategories()->where('type', 1)->pluck('battery_size_category_id')->toArray()[0],
+                    'primary_battery' => $primaryBattery,
                     'secondary_batteries' => VehicleModel::find($id)->batterySizeCategories()->where('type', 0)->pluck('battery_size_category_id')->toArray(),
                 )
             )
@@ -254,7 +262,7 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The selected vehicle was successfully updated!" : "Failed to update the selected vehicle!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

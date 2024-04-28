@@ -519,6 +519,8 @@
                                     html += '<li class="list-group-item">Price : Rp. ' +
                                         Number(vehicle.price_retail).toLocaleString(
                                             'id-ID') + '</li>';
+                                    html += '<li class="list-group-item">Size : ' +
+                                        vehicle.size_category + '</li>';
                                     html += '</ul>';
                                     html +=
                                         '</div>';
