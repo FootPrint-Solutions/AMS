@@ -152,7 +152,7 @@ class Customer extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);
@@ -187,7 +187,7 @@ class Customer extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);
@@ -214,7 +214,7 @@ class Customer extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::info($e->getMessage());
+            Log::error($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);

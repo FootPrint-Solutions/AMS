@@ -94,9 +94,9 @@
                             <div class="col-sm-2">
                                 <button type="button" class="btn btn-primary" id="btnAddress"><i
                                         class="fas fa-map-marker"></i></button>
-                                <input type="hidden" name="Address" id="AddressSearchColumn" value="">
-                                <input type="hidden" name="Latitude" id="Latitude" value="">
-                                <input type="hidden" name="Longitude" id="Longitude" value="">
+                                <input type="hidden" name="Address" id="AddressSearchColumn" value="" required>
+                                <input type="hidden" name="Latitude" id="Latitude" value="" required>
+                                <input type="hidden" name="Longitude" id="Longitude" value="" required>
                             </div>
                         </div>
                     </div>
