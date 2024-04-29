@@ -4,7 +4,6 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -122,10 +121,7 @@ class BatteryUsage extends Controller
                 $status,
                 $status ? "The new battery usage type was successfully created!" : "Failed to create the new battery usage type!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -149,10 +145,7 @@ class BatteryUsage extends Controller
                 $status,
                 $status ? "The battery usage type was successfully updated!" : "Failed to update the battery usage type!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -180,10 +173,7 @@ class BatteryUsage extends Controller
                 $status,
                 $status ? "The selected usage type was successfully deleted!" : "Failed to delete the selected usage type!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

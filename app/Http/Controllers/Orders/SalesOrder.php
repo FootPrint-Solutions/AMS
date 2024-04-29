@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -201,9 +200,6 @@ class SalesOrder extends Controller
                 $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
             );
         } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -244,9 +240,6 @@ class SalesOrder extends Controller
                 $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
             );
         } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -275,9 +268,6 @@ class SalesOrder extends Controller
                 $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
             );
         } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -302,9 +292,6 @@ class SalesOrder extends Controller
                 $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
             );
         } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
             // Set an error response data to be sent.
             return getResponseData(false);
         }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\MasterData\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -150,10 +149,7 @@ class Customer extends Controller
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -185,10 +181,7 @@ class Customer extends Controller
                 $status,
                 $status ? "The customer was successfully updated!" : "Failed to update the customer!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -212,10 +205,7 @@ class Customer extends Controller
                 $status,
                 $status ? "The selected customer was successfully updated!" : "Failed to update the selected customer!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

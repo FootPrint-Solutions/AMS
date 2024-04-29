@@ -4,7 +4,6 @@ namespace App\Http\Controllers\MasterData\Distributor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -152,10 +151,7 @@ class DistributorShop extends Controller
                 $status,
                 $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -188,10 +184,7 @@ class DistributorShop extends Controller
                 $status,
                 $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
             );
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -226,10 +219,7 @@ class DistributorShop extends Controller
                     $status ? "The selected shop was successfully updated!" : "Failed to update the selected shop!"
                 );
             }
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::info($e->getMessage());
-
+        } catch (Exception) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
