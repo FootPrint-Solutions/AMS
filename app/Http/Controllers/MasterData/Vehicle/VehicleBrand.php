@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -133,7 +134,10 @@ class VehicleBrand extends Controller
                 $status,
                 $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -157,7 +161,10 @@ class VehicleBrand extends Controller
                 $status,
                 $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -181,7 +188,10 @@ class VehicleBrand extends Controller
                 $status,
                 $status ? "The selected vehicle brand was successfully updated!" : "Failed to update the selected vehicle brand!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
