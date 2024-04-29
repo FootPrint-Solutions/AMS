@@ -125,7 +125,7 @@ class BatteryTechnology extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::error($e->getMessage());
+            Log::info($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);
@@ -152,7 +152,7 @@ class BatteryTechnology extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::error($e->getMessage());
+            Log::info($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);
@@ -183,7 +183,7 @@ class BatteryTechnology extends Controller
             );
         } catch (Exception $e) {
             // Logging error message.
-            Log::error($e->getMessage());
+            Log::info($e->getMessage());
 
             // Set an error response data to be sent.
             return getResponseData(false);
