@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -123,7 +124,10 @@ class BatteryBrand extends Controller
                 $status,
                 $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -147,7 +151,10 @@ class BatteryBrand extends Controller
                 $status,
                 $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -175,7 +182,10 @@ class BatteryBrand extends Controller
                 $status,
                 $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 // MODELS
@@ -188,6 +189,9 @@ class Vehicle extends Controller
                 $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
             );
         } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -239,6 +243,9 @@ class Vehicle extends Controller
                 $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
             );
         } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -263,6 +270,9 @@ class Vehicle extends Controller
                 $status ? "The selected vehicle was successfully updated!" : "Failed to update the selected vehicle!"
             );
         } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -285,6 +295,9 @@ class Vehicle extends Controller
                 "Data imported successfully!"
             );
         } catch (\Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             return getResponseData(
                 false,
                 "Error importing data excell format or data is not suitable"

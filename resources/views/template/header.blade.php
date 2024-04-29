@@ -17,12 +17,12 @@
     </div>
 
     {{-- Search Bar --}}
-    <div class="top-nav-search">
+    {{-- <div class="top-nav-search">
         <form>
             <input type="text" class="form-control" placeholder="Search here">
             <button class="btn" type="submit"><i class="fas fa-search"></i></button>
         </form>
-    </div>
+    </div> --}}
 
     {{-- Mobile Menu Toggle --}}
     <a class="mobile_btn" id="mobile_btn">
@@ -34,9 +34,9 @@
         {{-- Notifications --}}
         <li class="nav-item dropdown noti-dropdown me-2">
             {{-- Notification Logo --}}
-            <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
+            {{-- <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
                 <img src="{{ asset('/img/icons/header-icon-05.svg') }}" alt="">
-            </a>
+            </a> --}}
 
             {{-- Notification Dropdown Menu --}}
             <div class="dropdown-menu notifications">

@@ -39,13 +39,6 @@
             </thead>
             <tbody>
                 @foreach ($Battery as $battery)
-                    <?php
-                    
-                    echo '<pre>';
-                    print_r($battery->price_retail);
-                    echo '</pre>';
-                    
-                    ?>
                     <tr>
                         <td>
                             <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
