@@ -168,9 +168,9 @@ $arrayVehicle";
         } else {
             $arrayBattery = "";
             foreach ($results as $key => $value) {
-                $arrayBattery .= "*Nama* : " . $value['name'] . "\r";
-                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r";
-                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                $arrayBattery .= "*Nama* : " . $value['name'] . "\r\n";
+                $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
+                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
 
