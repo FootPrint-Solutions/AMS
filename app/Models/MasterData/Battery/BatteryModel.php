@@ -134,9 +134,10 @@ class BatteryModel extends Model implements Auditable
      */
     public static function allForAutocomplete($keyword, $extraColumn, $limit = 5)
     {
-        $columns = ["id", "name"];
+        $columns = ["batteries.id", "batteries.name"];
         $query = self::select(array_merge($columns, $extraColumn))
-            ->where("name", "like", "%{$keyword}%")
+            ->where("batteries.name", "like", "%{$keyword}%")
+            ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
             ->take($limit)
             ->get()
             ->toArray();

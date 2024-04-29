@@ -404,7 +404,7 @@ class Battery extends Controller
                 $status,
                 $status ? "The selected battery was successfully updated!" : "Failed to update the selected battery!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -417,6 +417,6 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
-        return BatteryModel::allForAutocomplete($keyword, ["price_retail"]);
+        return BatteryModel::allForAutocomplete($keyword, ["price_retail", "battery_size_categories.name as size_category_name"]);
     }
 }

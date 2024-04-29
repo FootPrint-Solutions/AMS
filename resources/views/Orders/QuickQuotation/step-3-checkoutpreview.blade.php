@@ -21,6 +21,8 @@
     </div>
 </div>
 
+
+
 <div class=" invoice-add-table">
     <h4>Item Details</h4>
     <div class="table-responsive">
@@ -37,6 +39,13 @@
             </thead>
             <tbody>
                 @foreach ($Battery as $battery)
+                    <?php
+                    
+                    echo '<pre>';
+                    print_r($battery->price_retail);
+                    echo '</pre>';
+                    
+                    ?>
                     <tr>
                         <td>
                             <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
@@ -50,7 +59,8 @@
                             <div class="input-group">
                                 <span class="input-group-text border-end">IDR</span>
                                 <input type="text" name="PriceCheckout[]" id="PriceCheckout"
-                                    class="form-control PriceCheckout text-end" value="{{ $battery->price_retail }}">
+                                    class="form-control PriceCheckout text-end"
+                                    value="{{ number_format($battery->price_retail, '0', ',', '.') }}">
                             </div>
                         </td>
                         @if (isset($Distributor) && !empty($Distributor))
@@ -184,7 +194,8 @@
 
             $(".add-table-items tbody tr").each(function() {
                 var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                var price = $(this).find("input[name='PriceCheckout[]']").val().replace(/\D/g, '');
+                var price = parseFloat($(this).find("input[name='PriceCheckout[]']").val().replace(
+                    /\./g, '').replace(',', '.'));
 
 
                 var subtotal = quantity * price;
@@ -209,10 +220,11 @@
 
             $("#tax").val(tax);
             $("#discount").val(discount);
-            $("#TotalAmount").text(GrandTotal.toLocaleString('id-ID', {
-                style: 'currency',
-                currency: 'IDR'
-            }));
+            $("#TotalAmount").text(GrandTotal
+                .toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                }));
             $("#TotalAmountHidden").val(GrandTotal);
         }
 
@@ -229,11 +241,13 @@
 
         calculateTotalAmount();
 
-        formatPrice($(".PriceCheckout"));
+        // formatPrice($(".PriceCheckout"));
 
         $('.PriceCheckout').on("keyup", function() {
             formatPrice($(this));
         });
+
+
     });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"
