@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/edit/{id}', [Customer::class, 'edit'])->name('customer.edit');
     Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store');
     Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update');
-    Route::post('/customer/destroy', [Customer::class, 'destroy'])->name('customer.destroy');
+    Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
 
     // Vehicle
     Route::get('/vehicle', [Vehicle::class, 'index']);
@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit');
     Route::post('/vehicle/store', [Vehicle::class, 'store'])->name('vehicle.store');
     Route::post('/vehicle/update', [Vehicle::class, 'update'])->name('vehicle.update');
-    Route::post('/vehicle/destroy', [Vehicle::class, 'destroy'])->name('vehicle.destroy');
+    Route::post('/vehicle/toggle', [Vehicle::class, 'updateStatus'])->name('vehicle.toggle');
     Route::post('/vehicle/import', [Vehicle::class, 'import'])->name('vehicle.import');
 
     // Vehicle Brand
@@ -91,7 +91,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('vehicle.brand.edit');
     Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store');
     Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update');
-    Route::post('/vehicle/brand/destroy', [VehicleBrand::class, 'destroy'])->name('vehicle.brand.destroy');
+    Route::post('/vehicle/brand/toggle', [VehicleBrand::class, 'updateStatus'])->name('vehicle.brand.toggle');
 
     // Battery
     Route::get('/battery', [Battery::class, 'index']);
@@ -100,7 +100,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/battery/edit/{id}', [Battery::class, 'edit'])->name('battery.edit');
     Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store');
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
-    Route::post('/battery/destroy', [Battery::class, 'destroy'])->name('battery.destroy');
+    Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
 
@@ -156,7 +156,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
     Route::post('/distributor/store', [Distributor::class, 'store']);
     Route::post('/distributor/update', [Distributor::class, 'update']);
-    Route::post('/distributor/destroy', [Distributor::class, 'destroy']);
+    Route::post('/distributor/toggle', [Distributor::class, 'updateStatus']);
 
     // Distributor Shop
     Route::get('/distributor/shop', [DistributorShop::class, 'index']);
@@ -165,7 +165,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/distributor/shop/edit/{id}', [DistributorShop::class, 'edit']);
     Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
     Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
-    Route::post('/distributor/shop/destroy', [DistributorShop::class, 'destroy']);
+    Route::post('/distributor/shop/toggle', [DistributorShop::class, 'updateStatus']);
     Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
     Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
     Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit']);
@@ -245,8 +245,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/datatables/toolbar', function () {
         $editUrl = request()->input('editUrl');
         $deleteUrl = request()->input('deleteUrl');
+        $toggleUrl = request()->input('toggleUrl');
         $idIdx = request()->input('idIdx');
-        return view('template.component.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl))->render();
+        return view('components.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl))->render();
     });
 });
 

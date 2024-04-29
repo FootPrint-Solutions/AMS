@@ -119,9 +119,9 @@
     <script src="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.js') }}"></script>
 </body>
 
+{{-- OnClick Event Handler --}}
 <script>
     $(document).ready(function() {
-        // OnClick Event Listener
         /**
          * Add a click listener to DataTables edit button in custom toolbar.
          */
@@ -164,24 +164,35 @@
                 table.ajax.reload();
             });
         });
+
+        /**
+         * Add a click listener to DataTables toggle button in custom toolbar.
+         */
+        $("#content-container").on("click", ".toggle-selected", function() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+
+            if (selectedRows.length !== 1) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select a single row for updating.",
+                    icon: "error",
+                });
+                return;
+            }
+            let id = selectedRows[0][$(this).data("id")];
+            sendToggleRequest(id, $(this).data("url"), function() {
+                // Reload the index table.
+                table.ajax.reload();
+            });
+        });
         // End of OnClick Event Listener
     });
+</script>
 
-    /**
-     * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
-     *
-     * @param {string} destination - The destination view
-     * @param {boolean} openInNewWindow - Specifies whether to open the destination in a new window (true) or the current window (false). Default is false.
-     */
-    function goToPage(destination, openInNewWindow = false) {
-        if (openInNewWindow) {
-            window.open(destination, '_blank');
-        } else {
-            window.location.href = destination;
-        }
-    }
-
-
+{{-- JS AJAX Functions --}}
+<script>
     /**
      * Send a POST request to destroy an item in database.
      *
@@ -228,6 +239,51 @@
     }
 
     /**
+     * Send a POST request to toggle an item in database.
+     *
+     * @param {int} id - The id of item to be toggled.
+     * @param {string} url - The url of the toggler function.
+     * @param {function|null} callback - The table reload function after toggle process.
+     */
+    function sendToggleRequest(id, url, callback = null) {
+        // Show an alert before destroying an item.
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to update the status of the selected item!",
+            icon: "warning",
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: "Yes, update it!",
+            cancelButtonText: "No, cancel!"
+        }).then(function(e) {
+            // If user has confirmed, do the toggle process.
+            if (e.value === true) {
+                // Send the toggle POST request to url.
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "id": id
+                    },
+                    success: function(response) {
+                        // Get response data from url (in JSON).
+                        let responseData = JSON.parse(response);
+
+                        // Show Toast message based on responseData.
+                        showResponseToast(responseData.status, responseData.message);
+
+                        // Call the callback table reload act (or any other acts after the toggle process is complete).
+                        if (callback !== null && typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Send a POST request to store or update an item in database.
      *
      * @param {string} url - The url of the storer or updater function.
@@ -255,22 +311,80 @@
             }
         });
     }
+</script>
+
+{{-- JS Toastr Configuration Functions --}}
+<script>
+    /**
+     * Displays a toast message using Toastr.
+     *
+     * @param {boolean} status - The proccess status.
+     * @param {string} message - The success message to be displayed.
+     */
+    function showResponseToast(status, message) {
+        if (status) {
+            // Show the success toast.
+            toastr.success(message, {
+                closeButton: true,
+                tapToDismiss: !1,
+            });
+        } else {
+            // Show the error toast.
+            toastr.error(message, {
+                closeButton: !0,
+                tapToDismiss: !1,
+            });
+        }
+    }
 
     /**
+     * Displays a success toast message using Toastr.
+     *
+     * @param {string} message - The success message to be displayed.
+     */
+    function showSuccessToast(message) {
+        toastr.success(message, {
+            closeButton: true,
+            tapToDismiss: !1,
+        });
+    }
+
+    /**
+     * Displays an error toast message using Toastr.
+     *
+     * @param {string} message - The error message to be displayed.
+     */
+    function showErrorToast(message) {
+        toastr.error(message, {
+            closeButton: !0,
+            tapToDismiss: !1,
+        });
+    }
+</script>
+
+{{-- JS DataTables Configuration Functions --}}
+<script>
+    /**
      * Append a custom toolbar component into DataTables table.
+     * You have the option to select which buttons to display — whether it be for editing, deleting, or toggling — by specifying the values corresponding to the desired buttons.
      * 
      * @param {int} idIdx - The index of data id.
-     * @param {string} editUrl - The url of edit page.
-     * @param {string} deleteUrl - The url of delete page.
-     * @param {string} parentId - The parent div id of the DataTables.
+     * @param {string} editUrl - (Optional) The url of edit page.
+     * @param {string} deleteUrl - (Optional) The url of delete page.
+     * @param {string} toggleUrl  - (Optional) The url of toggle page.
+     * @param {string} parentId - (Optional) The parent div id of the DataTables.
      */
-    function appendDatatablesToolbar(idIdx, editUrl, deleteUrl, parentId = null) {
+    function appendDatatablesToolbar(idIdx, editUrl = null, deleteUrl = null, toggleUrl = null, parentId = null) {
         $.get("/datatables/toolbar", {
             idIdx: idIdx,
             editUrl: editUrl,
-            deleteUrl: deleteUrl
+            deleteUrl: deleteUrl,
+            toggleUrl: toggleUrl
         }, function(data) {
             var querySelector = ".dt-buttons";
+
+            // If a DataTables is implemented in a table view other than the main table, additional parentId is required.
+            // Current usage : Distributor Shop
             if (parentId !== null) {
                 querySelector = parentId + " " + querySelector;
             }
@@ -326,51 +440,22 @@
             lengthMenu: "_MENU_ entries | ",
         };
     }
+</script>
 
+{{-- JS Custom Functions --}}
+<script>
     /**
-     * Displays a toast message using Toastr.
+     * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
      *
-     * @param {boolean} status - The proccess status.
-     * @param {string} message - The success message to be displayed.
+     * @param {string} destination - The destination view
+     * @param {boolean} openInNewWindow - Specifies whether to open the destination in a new window (true) or the current window (false). Default is false.
      */
-    function showResponseToast(status, message) {
-        if (status) {
-            // Show the success toast.
-            toastr.success(message, {
-                closeButton: true,
-                tapToDismiss: !1,
-            });
+    function goToPage(destination, openInNewWindow = false) {
+        if (openInNewWindow) {
+            window.open(destination, '_blank');
         } else {
-            // Show the error toast.
-            toastr.error(message, {
-                closeButton: !0,
-                tapToDismiss: !1,
-            });
+            window.location.href = destination;
         }
-    }
-
-    /**
-     * Displays a success toast message using Toastr.
-     *
-     * @param {string} message - The success message to be displayed.
-     */
-    function showSuccessToast(message) {
-        toastr.success(message, {
-            closeButton: true,
-            tapToDismiss: !1,
-        });
-    }
-
-    /**
-     * Displays an error toast message using Toastr.
-     *
-     * @param {string} message - The error message to be displayed.
-     */
-    function showErrorToast(message) {
-        toastr.error(message, {
-            closeButton: !0,
-            tapToDismiss: !1,
-        });
     }
 
     /**

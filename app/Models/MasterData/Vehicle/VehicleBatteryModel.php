@@ -4,10 +4,14 @@ namespace App\Models\MasterData\Vehicle;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class VehicleBatteryModel extends Model
+// TRAITS
+use OwenIt\Auditing\Auditable as AuditableTrait;
+
+class VehicleBatteryModel extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     /**
      * The table associated with the model.

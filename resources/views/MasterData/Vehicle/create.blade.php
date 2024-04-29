@@ -57,12 +57,13 @@
                     {{-- Primary Battery --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="battery-primary">Battery (primary) <span class="login-danger">*</span></label>
+                            <label for="battery-primary">Battery Size Category (primary) <span
+                                    class="login-danger">*</span></label>
                             <select class="form-control" id="battery-primary" name="batteryprimary" required>
                                 <option></option>
-                                @foreach ($data['batteries'] as $battery)
-                                    <option value="{{ $battery->id }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery->id) selected @endif>
-                                        {{ $battery->name }} - {{ $battery->size_category_name }}</option>
+                                @foreach ($data['battery_size_categories'] as $battery)
+                                    <option value="{{ $battery['id'] }}" @if (isset($data['primary_battery']) && $data['primary_battery'] == $battery['id']) selected @endif>
+                                        {{ $battery['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -71,12 +72,12 @@
                     {{-- Secondary Battery --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="battery-secondary">Battery (alternative)</label>
+                            <label for="battery-secondary">Battery Size Category (alternative)</label>
                             <select class="form-control" id="battery-secondary" name="batterysecondary[]"
                                 multiple="multiple">
-                                @foreach ($data['batteries'] as $battery)
-                                    <option value="{{ $battery->id }}" @if (isset($data['secondary_batteries']) && in_array($battery->id, $data['secondary_batteries'])) selected @endif>
-                                        {{ $battery->name }} - {{ $battery->size_category_name }}</option>
+                                @foreach ($data['battery_size_categories'] as $battery)
+                                    <option value="{{ $battery['id'] }}" @if (isset($data['secondary_batteries']) && in_array($battery['id'], $data['secondary_batteries'])) selected @endif>
+                                        {{ $battery['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -114,11 +115,11 @@
             });
 
             $('#battery-primary').select2({
-                placeholder: "Enter vehicle primary battery"
+                placeholder: "Enter vehicle primary battery size category"
             });
 
             $('#battery-secondary').select2({
-                placeholder: "Enter vehicle secondary battery"
+                placeholder: "Enter vehicle secondary battery size category"
             });
 
             $("#brand").on("select2:select", function(e) {

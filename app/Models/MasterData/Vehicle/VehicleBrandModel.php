@@ -5,13 +5,15 @@ namespace App\Models\MasterData\Vehicle;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class VehicleBrandModel extends Model
+class VehicleBrandModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
@@ -36,7 +38,7 @@ class VehicleBrandModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name'];
+        $selectColumns = ['id', 'name', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.

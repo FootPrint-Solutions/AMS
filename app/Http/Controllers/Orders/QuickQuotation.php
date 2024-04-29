@@ -120,7 +120,8 @@ $arrayVehicle";
         if ($request->input('shop_id')) {
             $results = VehicleModel::getBatteryRecomendationWithDistributor($ids, $request->input('shop_id'));
         } else {
-            $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+            // $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+            $results = VehicleModel::getBatteryRecomendationWithOutDistributor($ids, $request->input('shop_id'));
         }
         return response()->json($results);
     }

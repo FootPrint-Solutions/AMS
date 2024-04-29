@@ -17,6 +17,15 @@
     left: 50%;
 }
 
+.table-col-no {
+    width: 3%;
+}
+
+.table-col-status {
+    width: 5%;
+}
+
+/* Inputs */
 input[readonly],
 input[readonly]:focus {
     background-color: #f4f4f4;

@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class BatteryModel extends Model
+class BatteryModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
@@ -108,7 +110,8 @@ class BatteryModel extends Model
             'capacity',
             'warranty',
             'price_retail',
-            'name_alternate'
+            'name_alternate',
+            'status'
         ];
         $searchColumns = [
             'name',

@@ -5,13 +5,15 @@ namespace App\Models\MasterData\Distributor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class DistributorModel extends Model
+class DistributorModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
@@ -29,7 +31,7 @@ class DistributorModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email'];
+        $selectColumns = ['id', 'name', 'address', 'contact_person', 'contact', 'email', 'status'];
         $searchColumns = ['name', 'address', 'contact_person', 'contact', 'email'];
 
         // Build the query to obtain all rows.

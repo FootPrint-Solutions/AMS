@@ -95,6 +95,13 @@ class Customer extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
@@ -102,7 +109,9 @@ class Customer extends Controller
             $row[] = "+62 $key->contact";
             $row[] = $key->email;
             $row[] = $key->address;
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -179,31 +188,22 @@ class Customer extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $customer = CustomerModel::find($id);
-
-                // Detach associated vehicles from the pivot table
-                $customer->vehicles()->detach();
-
-                // Delete customer data in storage.
-                $status &= $customer->delete();
-            }
+            $customer = CustomerModel::find($request->id);
+            $customer->status = $customer->status ? 0 : 1;
+            $status = $customer->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+                $status ? "The selected customer was successfully updated!" : "Failed to update the selected customer!"
             );
         } catch (Exception) {
             // Set an error response data to be sent.

@@ -89,10 +89,20 @@ class VehicleBrand extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
+            // Set an array for each row.
             $row = [];
             $row[] = number_format($no, 0);
             $row[] = $key->name;
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
             $no++;
         }
@@ -154,26 +164,22 @@ class VehicleBrand extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $vehicle = VehicleBrandModel::find($id);
-                $status = $vehicle->delete();
-            }
+            $brand = VehicleBrandModel::find($request->id);
+            $brand->status = $brand->status ? 0 : 1;
+            $status = $brand->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? 'The selected brand was successfully deleted!' : 'Failed to delete the selected brand!'
+                $status ? "The selected vehicle brand was successfully updated!" : "Failed to update the selected vehicle brand!"
             );
         } catch (Exception) {
             // Set an error response data to be sent.

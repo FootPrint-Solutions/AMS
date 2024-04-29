@@ -6,17 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class VehicleModel extends Model
+class VehicleModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.
@@ -50,11 +53,11 @@ class VehicleModel extends Model
     }
 
     /**
-     * Get all of the batteries suitable for the vehicle.
+     * Get all of the battery size categories suitable for the vehicle.
      */
-    public function batteries()
+    public function batterySizeCategories()
     {
-        return $this->belongsToMany(BatteryModel::class, 'vehicle_battery', 'vehicle_id', 'battery_id')
+        return $this->belongsToMany(BatterySizeCategoryModel::class, 'vehicle_battery_size_category', 'vehicle_id', 'battery_size_category_id')
             ->withTimestamps();
     }
 
@@ -67,7 +70,7 @@ class VehicleModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'brand_id', 'url'];
+        $selectColumns = ['id', 'name', 'brand_id', 'url', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.
@@ -80,11 +83,24 @@ class VehicleModel extends Model
     public static function getBatteryRecomendationWithDistributor($ids, $distributor_id)
     {
         return self::whereIn('vehicles.id', $ids)
-            ->join('vehicle_battery', 'vehicles.id', '=', 'vehicle_battery.vehicle_id')
-            ->join('batteries', 'vehicle_battery.battery_id', '=', 'batteries.id')
+            ->join('vehicle_battery_size_category', 'vehicles.id', '=', 'vehicle_battery_size_category.vehicle_id')
+            ->join('batteries', 'vehicle_battery_size_category.battery_size_category_id', '=', 'batteries.size_category_id')
+            ->join('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
             ->join('distributor_shop_battery', 'batteries.id', '=', 'distributor_shop_battery.battery_id', 'left')
             ->where('distributor_shop_battery.distributor_shop_id', $distributor_id)
-            ->select('vehicles.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'distributor_shop_battery.battery_id as battery_distributor_id', 'distributor_shop_battery.price as battery_distributor_price', 'distributor_shop_battery.url as battery_distributor_link')
+            ->where('batteries.deleted_at', null)
+            ->select('vehicles.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'distributor_shop_battery.battery_id as battery_distributor_id', 'distributor_shop_battery.price as battery_distributor_price', 'distributor_shop_battery.url as battery_distributor_link', 'battery_size_categories.name as size_category')
+            ->get();
+    }
+
+    public static function getBatteryRecomendationWithOutDistributor($ids)
+    {
+        return self::whereIn('vehicles.id', $ids)
+            ->where('batteries.deleted_at', null)
+            ->join('vehicle_battery_size_category', 'vehicles.id', '=', 'vehicle_battery_size_category.vehicle_id')
+            ->leftjoin('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
+            ->join('batteries', 'vehicle_battery_size_category.battery_size_category_id', '=', 'batteries.size_category_id')
+            ->select('batteries.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'battery_size_categories.name as size_category')
             ->get();
     }
 }

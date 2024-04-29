@@ -16,6 +16,12 @@
         #table-battery-detail td:nth-child(2) {
             width: 10%;
         }
+
+        #MapsAddressFinder {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
     </style>
 
     {{-- Form --}}
@@ -86,7 +92,11 @@
                             </div>
 
                             <div class="col-sm-2">
-                                <button type="button" class="btn btn-primary"><i class="fas fa-location-dot"></i></button>
+                                <button type="button" class="btn btn-primary" id="btnAddress"><i
+                                        class="fas fa-map-marker"></i></button>
+                                <input type="hidden" name="Address" id="AddressSearchColumn" value="">
+                                <input type="hidden" name="Latitude" id="Latitude" value="">
+                                <input type="hidden" name="Longitude" id="Longitude" value="">
                             </div>
                         </div>
                     </div>
@@ -368,6 +378,9 @@
         </form>
     </div>
     </div>
+
+    {{-- Address Modal --}}
+    @include('maps.addressmodal')
 
     {{-- Select2 Configurations --}}
     <script>

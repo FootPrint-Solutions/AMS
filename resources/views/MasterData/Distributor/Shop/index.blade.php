@@ -21,13 +21,14 @@
             <table class="table table-striped" id="table-distributor-shop">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Distributor</th>
                         <th scope="col">Address</th>
                         <th scope="col">Contact Person</th>
                         <th scope="col">Contact</th>
                         <th scope="col">E-mail</th>
+                        <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -54,7 +55,7 @@
                     <table class="table table-striped w-100" id="table-distributor-shop-detail">
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
+                                <th scope="col" class="table-col-no">#</th>
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">URL</th>
@@ -91,6 +92,9 @@
                 columnDefs: [{
                     targets: [0],
                     orderable: false
+                }, {
+                    targets: [0, -1],
+                    className: 'text-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
@@ -148,17 +152,22 @@
                             select: true,
                         });
                         appendDatatablesToolbar(4, "/distributor/shop/battery/edit/",
-                            "/distributor/shop/battery/destroy",
+                            "/distributor/shop/battery/destroy", null,
                             "#table-distributor-shop-detail_wrapper");
                     },
                     className: "btn btn-outline-info btn-sm",
                 }]),
                 language: getDatatablesLanguangeConfigurations("Distributor Shop"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[10] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                },
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(7, "/distributor/shop/edit/", "/distributor/shop/destroy");
+            appendDatatablesToolbar(8, "/distributor/shop/edit/", null, "/distributor/shop/toggle");
 
             $('#shop-detail-modal').on('hidden.bs.modal', function(e) {
                 table = tableTmp;
@@ -176,8 +185,8 @@
                     selected: true
                 }).data().toArray();
 
-                goToPage("/distributor/shop/battery/create/" + selectedRows[0][7] + "/" + selectedRows[0][
-                    8
+                goToPage("/distributor/shop/battery/create/" + selectedRows[0][8] + "/" + selectedRows[0][
+                    9
                 ]);
             });
 

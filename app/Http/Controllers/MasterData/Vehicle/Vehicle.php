@@ -10,6 +10,7 @@ use Exception;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 
 // IMPORT CLASS
 use App\Imports\VehicleImport;
@@ -56,7 +57,7 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::getBatteryWithSize(),
+                    'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                 )
             )
         );
@@ -70,6 +71,14 @@ class Vehicle extends Controller
      */
     public function edit($id)
     {
+        $batteryCategories = VehicleModel::find($id)->batterySizeCategories()->where('type', 1)->pluck('battery_size_category_id')->toArray();
+
+        if (!empty($batteryCategories)) {
+            $primaryBattery = $batteryCategories[0];
+        } else {
+            $primaryBattery = null;
+        }
+
         return view(
             'MasterData/Vehicle/create',
             getIndexData(
@@ -78,10 +87,10 @@ class Vehicle extends Controller
                 $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
-                    'batteries' => BatteryModel::getBatteryWithSize(),
+                    'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
-                    'primary_battery' => VehicleModel::find($id)->batteries()->where('type', 1)->pluck('battery_id')->toArray()[0],
-                    'secondary_batteries' => VehicleModel::find($id)->batteries()->where('type', 0)->pluck('battery_id')->toArray(),
+                    'primary_battery' => $primaryBattery,
+                    'secondary_batteries' => VehicleModel::find($id)->batterySizeCategories()->where('type', 0)->pluck('battery_size_category_id')->toArray(),
                 )
             )
         );
@@ -106,12 +115,22 @@ class Vehicle extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+            // Set status indicator color based on status.
+            if ($key->status == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
+            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? '-';
-            $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
+            $row[] = "<a href='$key->url'>" . $key->url . "</a>";
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -161,7 +180,7 @@ class Vehicle extends Controller
                         $batteries[$battery] = ["type" => "0"];
                 }
             }
-            $vehicle->batteries()->attach($batteries);
+            $vehicle->batterySizeCategories()->attach($batteries);
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -212,7 +231,7 @@ class Vehicle extends Controller
                         $batteries[$battery] = ["type" => "0"];
                 }
             }
-            $vehicle->batteries()->sync($batteries);
+            $vehicle->batterySizeCategories()->sync($batteries);
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -226,30 +245,22 @@ class Vehicle extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function updateStatus(Request $request)
     {
         try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                // Delete the specific vehicle.
-                $vehicle = VehicleModel::find($id);
-                $status &= $vehicle->delete();
-
-                // Detach suitable batteries from the pivot table
-                $vehicle->batteries()->detach();
-            }
+            $vehicle = VehicleModel::find($request->id);
+            $vehicle->status = $vehicle->status ? 0 : 1;
+            $status = $vehicle->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The selected customer was successfully deleted!" : "Failed to delete the selected customer!"
+                $status ? "The selected vehicle was successfully updated!" : "Failed to update the selected vehicle!"
             );
         } catch (Exception $e) {
             // Set an error response data to be sent.
