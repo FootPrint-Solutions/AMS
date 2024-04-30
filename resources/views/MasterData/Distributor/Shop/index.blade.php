@@ -137,7 +137,7 @@
                                 type: "POST",
                                 data: {
                                     _token: "{{ csrf_token() }}",
-                                    id: selectedRows[0][7]
+                                    id: selectedRows[0][8]
                                 }
                             },
                             columnDefs: [{
@@ -217,7 +217,7 @@
 
                     // Send POST request to add all batteries.
                     $.ajax({
-                        url: "/distributor/shop/battery/store/batch/" + selectedRows[0][7],
+                        url: "/distributor/shop/battery/store/batch/" + selectedRows[0][8],
                         method: "POST",
                         data: {
                             "_token": "{{ csrf_token() }}",
