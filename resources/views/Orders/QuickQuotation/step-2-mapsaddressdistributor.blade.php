@@ -227,7 +227,7 @@
                         html +=
                             '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
                         html += '<div class="blog grid-blog flex-fill">';
-                        html += '<div class="blog-image">';
+                        html += '<div class="blog-imagex">';
                         html += '<a href="#!">';
                         if (vehicle.image == null) {
 
@@ -267,7 +267,7 @@
                                 Number(vehicle.battery_distributor_price).toLocaleString(
                                     'id-ID') + '</li>  ';
                             if (vehicle.battery_distributor_link != null) {
-                                html += '<li class="list-group-item">Link Tokopedia : ' +
+                                html += '<li class="list-group-item">Link E-Commerce : ' +
                                     vehicle.battery_distributor_link + '</li>';
                             } else {
 
@@ -293,11 +293,11 @@
                         if (vehicle.battery_distributor_price != null) {
                             html +=
                                 '<input type="checkbox" name="CheckBattery[]" value=' +
-                                vehicle.battery_id + '> Share To Customer';
+                                vehicle.battery_id + '> Add to Cart';
                         } else {
                             html +=
                                 '<input type="checkbox" name="CheckBattery[]" value=' +
-                                vehicle.id + '> Share To Customer';
+                                vehicle.id + '> Add to Cart';
                         }
                         html +=
                             '</label>';

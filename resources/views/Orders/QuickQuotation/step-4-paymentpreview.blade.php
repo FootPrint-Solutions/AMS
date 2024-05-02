@@ -47,7 +47,7 @@
                                     <th>Quantity</th>
                                     <th>Price</th>
                                     @if (isset($DistributorShop) && !empty($DistributorShop))
-                                        <th>Link Tokopedia</th>
+                                        <th>Link E-Commerce</th>
                                     @endif
                                 </tr>
                             </thead>
