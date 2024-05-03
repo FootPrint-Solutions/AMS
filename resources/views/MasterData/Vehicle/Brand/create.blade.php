@@ -56,6 +56,12 @@
             $("#vehicle-brand-form").on("submit", function(event) {
                 event.preventDefault();
 
+                // disable
+                $("#btn-save").attr("disabled", true);
+                $("#btn-save").html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/vehicle/brand/update" : "/vehicle/brand/store";
 
@@ -65,6 +71,11 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
+                    // enable 
+                    $("#btn-save").attr("disabled", false);
+                    $("#btn-save").html(
+                        (mode == "update") ? "Update Vehicle Brand" : "Create Vehicle Brand"
+                    );
                     goToPage(indexUrl);
                 });
             });

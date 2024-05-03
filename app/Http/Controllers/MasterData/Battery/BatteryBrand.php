@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryBrandModel;
@@ -56,8 +58,16 @@ class BatteryBrand extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) {
+            return redirect()->route("battery.brand.index");
+        }
+        $brand = BatteryBrandModel::find($id);
+        if ($brand == null) {
+            return redirect()->route("battery.brand.index");
+        }
+
         return view(
             "MasterData.Battery.Brand.create",
             getIndexData(
@@ -65,7 +75,7 @@ class BatteryBrand extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => BatteryBrandModel::find($id)->toArray(),
+                    "profile" => $brand->toArray()
                 )
             )
         );
@@ -115,8 +125,17 @@ class BatteryBrand extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Battery brand name is required!',
+                ]
+            );
+
             $brand = new BatteryBrandModel();
-            $brand->name = $request->name;
+            $brand->name = $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -124,6 +143,9 @@ class BatteryBrand extends Controller
                 $status,
                 $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -142,8 +164,18 @@ class BatteryBrand extends Controller
     public function update(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Battery brand name is required!',
+                ]
+            );
+
             $brand = BatteryBrandModel::find($request->id);
-            $brand->name = $request->name;
+            $brand->name = $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -151,6 +183,9 @@ class BatteryBrand extends Controller
                 $status,
                 $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
@@ -58,6 +60,9 @@ class BatteryTechnology extends Controller
      */
     public function edit($id)
     {
+        if ($id == null) return redirect()->route("Battery.Technology.index");
+        $technology = BatteryTechnologyModel::find($id);
+        if ($technology == null) return redirect()->route("Battery.Technology.index");
         return view(
             "MasterData.Battery.Technology.create",
             getIndexData(
@@ -65,7 +70,7 @@ class BatteryTechnology extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => BatteryTechnologyModel::find($id)->toArray(),
+                    "profile" => $technology->toArray()
                 )
             )
         );
@@ -114,8 +119,17 @@ class BatteryTechnology extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string|'
+                ],
+                [
+                    'name.required' => 'The battery technology name is required!',
+                    'name.string' => 'The battery technology name must be a string!'
+                ]
+            );
             $technology = new BatteryTechnologyModel();
-            $technology->name = $request->name;
+            $technology->name = $validatedData["name"];
             $status = $technology->save();
 
             // Set a new response data to be sent.
@@ -123,6 +137,9 @@ class BatteryTechnology extends Controller
                 $status,
                 $status ? "The new battery technology was successfully created!" : "Failed to create the new battery technology!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -141,8 +158,19 @@ class BatteryTechnology extends Controller
     public function update(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'The battery technology name is required!',
+                    'name.string' => 'The battery technology name must be a string!',
+                ]
+            );
+
             $technology = BatteryTechnologyModel::find($request->id);
-            $technology->name = $request->name;
+            $technology->name = $validatedData['name'];
             $status = $technology->save();
 
             // Set a new response data to be sent.
@@ -150,6 +178,9 @@ class BatteryTechnology extends Controller
                 $status,
                 $status ? "The battery technology was successfully updated!" : "Failed to update the battery technology!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

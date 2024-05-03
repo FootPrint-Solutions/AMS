@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
@@ -56,8 +58,16 @@ class VehicleBrand extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) {
+            return redirect()->route('vehicle.brand.index');
+        }
+        $brand = VehicleBrandModel::find($id);
+        if ($brand == null) {
+            return redirect()->route('vehicle.brand.index');
+        }
+
         return view(
             'MasterData.Vehicle.Brand.create',
             getIndexData(
@@ -65,7 +75,7 @@ class VehicleBrand extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    'profile' => VehicleBrandModel::find($id)->toArray(),
+                    'profile' => $brand->toArray(),
                 )
             )
         );
@@ -125,8 +135,18 @@ class VehicleBrand extends Controller
     public function store(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Vehicle brand name is required!',
+                ]
+            );
+
             $brand = new VehicleBrandModel();
-            $brand->name = $request->name;
+            $brand->name = $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -134,6 +154,9 @@ class VehicleBrand extends Controller
                 $status,
                 $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -152,8 +175,18 @@ class VehicleBrand extends Controller
     public function update(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Vehicle brand name is required!',
+                ]
+            );
+
             $brand = VehicleBrandModel::find($request->id);
-            $brand->name = $request->name;
+            $brand->name = $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -161,6 +194,9 @@ class VehicleBrand extends Controller
                 $status,
                 $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

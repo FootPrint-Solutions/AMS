@@ -55,6 +55,12 @@
             $("#battery-brand-form").on("submit", function(event) {
                 event.preventDefault();
 
+                // disable 
+                $("#btn-save").attr("disabled", true);
+                $("#btn-save").html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
                 // Get current display mode (Update or Create).
                 let mode = $("#btn-save").attr("value");
                 let url = "/battery/brand/store";
@@ -86,6 +92,11 @@
                         }
 
                         // Redirect to battery index page.
+                        // enable
+                        $("#btn-save").attr("disabled", false);
+                        $("#btn-save").html(
+                            '@isset($data['profile']) Update Battery Brand @else Create Battery Brand @endisset'
+                        );
                         goToPage("/battery/brand");
                     }
                 });
