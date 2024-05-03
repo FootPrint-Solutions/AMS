@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -45,6 +46,14 @@ class BatteryModel extends Model implements Auditable
         'price_retail',
         'name_alternate'
     ];
+
+    /**
+     * Get battery urls.
+     */
+    public function urls(): HasMany
+    {
+        return $this->hasMany(BatteryUrlModel::class, 'battery_id', 'id');
+    }
 
     /**
      * Get battery brand.
