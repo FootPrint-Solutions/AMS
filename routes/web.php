@@ -75,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
 
     // Vehicle
-    Route::get('/vehicle', [Vehicle::class, 'index']);
+    Route::get('/vehicle', [Vehicle::class, 'index'])->name('vehicle.index');
     Route::post('/vehicle/show', [Vehicle::class, 'show'])->name('vehicle.show');
     Route::get('/vehicle/create', [Vehicle::class, 'create']);
     Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit');
