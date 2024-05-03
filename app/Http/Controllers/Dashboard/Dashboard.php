@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 class Dashboard extends Controller
 {
@@ -26,7 +27,8 @@ class Dashboard extends Controller
             array(
                 'NumberOfCustomer' => CustomerModel::count(),
                 'NumberOfVehicle' => VehicleModel::count(),
-                'NumberOfBattery' => BatteryModel::count()
+                'NumberOfBattery' => BatteryModel::count(),
+                'TotalRevenue' => SalesOrderModel::sum('total'),
             )
         ));
     }

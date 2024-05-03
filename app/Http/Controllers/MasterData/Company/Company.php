@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Company\CompanyModel;
+
+
 
 class Company extends Controller
 {
@@ -63,35 +67,54 @@ class Company extends Controller
     public function update(Request $request)
     {
         try {
+            // Validasi input dari formulir
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                    'address' => 'required|string',
+                    'contact' => 'required|string',
+                    'email' => ['required', 'email'],
+                ],
+                [
+                    'name.required' => 'Company name is required!',
+                    'address.required' => 'Company address is required!',
+                    'contact.required' => 'Company contact is required!',
+                    'email.required' => 'Company email is required!',
+                    'email.email' => 'Company email must be a valid email address!',
+                ]
+            );
+
+            // Cek apakah data perusahaan sudah ada
             $company = CompanyModel::first();
 
             if ($company) {
-                // A company data is found therefore update the existing data.
-                $company->name = $request->name;
-                $company->address = $request->address;
-                $company->contact = $request->contact;
-                $company->email = $request->email;
+                // Data perusahaan ditemukan, maka perbarui data yang ada.
+                $company->name = $validatedData['name'];
+                $company->address = $validatedData['address'];
+                $company->contact = $validatedData['contact'];
+                $company->email = $validatedData['email'];
                 $status = $company->update();
             } else {
-                // A company data is not found therefore insert a new company data.
+                // Data perusahaan tidak ditemukan, maka buat data perusahaan baru.
                 $company = new CompanyModel();
-                $company->name = $request->name;
-                $company->address = $request->address;
-                $company->contact = $request->contact;
-                $company->email = $request->email;
+                $company->name = $validatedData['name'];
+                $company->address = $validatedData['address'];
+                $company->contact = $validatedData['contact'];
+                $company->email = $validatedData['email'];
                 $status = $company->save();
             }
 
-            // Set a new response data to be sent.
+            // Set data respons yang baru.
             return getResponseData(
                 $status,
                 $status ? "Company profile was successfully updated!" : "Failed to update company profile!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
-            // Logging error message.
+            // Tangani pengecualian lainnya
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
