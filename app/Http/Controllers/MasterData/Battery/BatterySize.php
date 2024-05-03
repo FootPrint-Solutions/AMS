@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
@@ -56,8 +58,11 @@ class BatterySize extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) return redirect()->route("battery.size.index");
+        $profile = BatterySizeCategoryModel::find($id);
+        if ($profile == null) return redirect()->route("battery.size.index");
         return view(
             "MasterData.Battery.Size.create",
             getIndexData(
@@ -65,7 +70,7 @@ class BatterySize extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => BatterySizeCategoryModel::find($id)->toArray(),
+                    "profile" => $profile->toArray()
                 )
             )
         );
@@ -115,8 +120,17 @@ class BatterySize extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Battery size category name is required!',
+                ]
+            );
+
             $brand = new BatterySizeCategoryModel();
-            $brand->name = $request->name;
+            $brand->name = $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -124,6 +138,9 @@ class BatterySize extends Controller
                 $status,
                 $status ? "The new battery size category was successfully created!" : "Failed to create the new battery size category!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -142,8 +159,17 @@ class BatterySize extends Controller
     public function update(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Battery size category name is required!',
+                ]
+            );
+
             $brand = BatterySizeCategoryModel::find($request->id);
-            $brand->name = $request->name;
+            $brand->name =  $validatedData['name'];
             $status = $brand->save();
 
             // Set a new response data to be sent.
@@ -151,6 +177,9 @@ class BatterySize extends Controller
                 $status,
                 $status ? "The battery size category was successfully updated!" : "Failed to update the battery size category!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
@@ -56,8 +58,11 @@ class BatterySubbrand extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) return redirect()->route("battery.subbrand.index");
+        $subbrand = BatterySubbrandCategoryModel::find($id);
+        if ($subbrand == null) return redirect()->route("battery.subbrand.index");
         return view(
             "MasterData.Battery.Subbrand.create",
             getIndexData(
@@ -65,7 +70,7 @@ class BatterySubbrand extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => BatterySubbrandCategoryModel::find($id)->toArray(),
+                    "profile" => $subbrand->toArray()
                 )
             )
         );
@@ -114,8 +119,17 @@ class BatterySubbrand extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string'
+                ],
+                [
+                    'name.required' => 'Subbrand name is required!'
+                ]
+            );
+
             $subbrand = new BatterySubbrandCategoryModel();
-            $subbrand->name = $request->name;
+            $subbrand->name = $validatedData['name'];
             $status = $subbrand->save();
 
             // Set a new response data to be sent.
@@ -123,6 +137,9 @@ class BatterySubbrand extends Controller
                 $status,
                 $status ? "The new battery subbrand category was successfully created!" : "Failed to create the new battery subbrand category!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -141,8 +158,17 @@ class BatterySubbrand extends Controller
     public function update(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                ],
+                [
+                    'name.required' => 'Subbrand name is required!',
+                ]
+            );
+
             $subbrand = BatterySubbrandCategoryModel::find($request->id);
-            $subbrand->name = $request->name;
+            $subbrand->name = $validatedData['name'];
             $status = $subbrand->save();
 
             // Set a new response data to be sent.
@@ -150,6 +176,9 @@ class BatterySubbrand extends Controller
                 $status,
                 $status ? "The battery subbrand category was successfully updated!" : "Failed to update the battery subbrand category!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

@@ -75,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
 
     // Vehicle
-    Route::get('/vehicle', [Vehicle::class, 'index']);
+    Route::get('/vehicle', [Vehicle::class, 'index'])->name('vehicle.index');
     Route::post('/vehicle/show', [Vehicle::class, 'show'])->name('vehicle.show');
     Route::get('/vehicle/create', [Vehicle::class, 'create']);
     Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit');
@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/vehicle/import', [Vehicle::class, 'import'])->name('vehicle.import');
 
     // Vehicle Brand
-    Route::get('/vehicle/brand', [VehicleBrand::class, 'index']);
+    Route::get('/vehicle/brand', [VehicleBrand::class, 'index'])->name('vehicle.brand.index');
     Route::post('/vehicle/brand/show', [VehicleBrand::class, 'show'])->name('vehicle.brand.show');
     Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create']);
     Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('vehicle.brand.edit');
@@ -105,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
 
     // Battery Brand
-    Route::get('/battery/brand', [BatteryBrand::class, 'index']);
+    Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');
     Route::post('/battery/brand/show', [BatteryBrand::class, 'show'])->name('battery.brand.show');
     Route::get('/battery/brand/create', [BatteryBrand::class, 'create']);
     Route::get('/battery/brand/edit/{id}', [BatteryBrand::class, 'edit'])->name('battery.brand.edit');
@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/brand/destroy', [BatteryBrand::class, 'destroy'])->name('battery.brand.destroy');
 
     // Battery Subbrand Category
-    Route::get('/battery/subbrand', [BatterySubbrand::class, 'index']);
+    Route::get('/battery/subbrand', [BatterySubbrand::class, 'index'])->name('battery.subbrand.index');
     Route::post('/battery/subbrand/show', [BatterySubbrand::class, 'show'])->name('battery.subbrand.show');
     Route::get('/battery/subbrand/create', [BatterySubbrand::class, 'create']);
     Route::get('/battery/subbrand/edit/{id}', [BatterySubbrand::class, 'edit'])->name('battery.subbrand.edit');
@@ -123,7 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy');
 
     // Battery Usage Type
-    Route::get('/battery/usage', [BatteryUsage::class, 'index']);
+    Route::get('/battery/usage', [BatteryUsage::class, 'index'])->name("battery.usage.index");
     Route::post('/battery/usage/show', [BatteryUsage::class, 'show'])->name('battery.usage.show');
     Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
     Route::get('/battery/usage/edit/{id}', [BatteryUsage::class, 'edit'])->name('battery.usage.edit');
@@ -132,7 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy');
 
     // Battery Technology
-    Route::get('/battery/technology', [BatteryTechnology::class, 'index']);
+    Route::get('/battery/technology', [BatteryTechnology::class, 'index'])->name("battery.Technology.index");
     Route::post('/battery/technology/show', [BatteryTechnology::class, 'show'])->name('battery.technology.show');
     Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
     Route::get('/battery/technology/edit/{id}', [BatteryTechnology::class, 'edit'])->name('battery.technology.edit');
@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy');
 
     // Battery Size Category
-    Route::get('/battery/size', [BatterySize::class, 'index']);
+    Route::get('/battery/size', [BatterySize::class, 'index'])->name("battery.size.index");
     Route::post('/battery/size/show', [BatterySize::class, 'show'])->name('battery.size.show');
     Route::get('/battery/size/create', [BatterySize::class, 'create']);
     Route::get('/battery/size/edit/{id}', [BatterySize::class, 'edit'])->name('battery.size.edit');

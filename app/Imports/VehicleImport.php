@@ -5,7 +5,9 @@ namespace App\Imports;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Vehicle\VehicleBatteryModel;
+use App\Models\MasterData\Vehicle\VehicleBatterySizeCategoryModel;
 
 
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -29,66 +31,33 @@ class VehicleImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        if ($row[0] == null) {
+        if (empty($row[0])) {
             return null;
-        } else {
-            $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
-            $primarybattery = BatteryModel::where('name', $row[2])->firstOr(function () {
-                return '';
-            });
-
-            $altbattery1 = BatteryModel::where('name', $row[3])->firstOr(function () {
-                return '';
-            });
-
-            $altbattery2 = BatteryModel::where('name', $row[4])->firstOr(function () {
-                return '';
-            });
-
-            $altbattery3 = BatteryModel::where('name', $row[5])->firstOr(function () {
-                return '';
-            });
-
-            $vehicle = VehicleModel::create([
-                'name' => $row[0],
-                'brand_id' => $brand->id,
-                'url' => $row[6],
-            ]);
-
-            if ($primarybattery != '') {
-                VehicleBatteryModel::create([
-                    'vehicle_id' => $vehicle->id,
-                    'battery_id' => $primarybattery->id,
-                    'type' => "0",
-                ]);
-            }
-
-            if ($altbattery1 != '') {
-                VehicleBatteryModel::create([
-                    'vehicle_id' => $vehicle->id,
-                    'battery_id' => $altbattery1->id,
-                    'type' => "1",
-                ]);
-            }
-
-            if ($altbattery2 != '') {
-                VehicleBatteryModel::create([
-                    'vehicle_id' => $vehicle->id,
-                    'battery_id' => $altbattery2->id,
-                    'type' => "1",
-                ]);
-            }
-
-            if ($altbattery3 != '') {
-                VehicleBatteryModel::create([
-                    'vehicle_id' => $vehicle->id,
-                    'battery_id' => $altbattery3->id,
-                    'type' => "1",
-                ]);
-            }
-
-            return $vehicle;
         }
+
+        $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
+
+        $altbatteries = [];
+        for ($i = 2; $i <= 5; $i++) {
+            if (!empty($row[$i])) {
+                $battery = BatterySizeCategoryModel::firstOrCreate(['name' => $row[$i]]);
+                $altbatteries[] = $battery;
+            }
+        }
+
+        $vehicle = VehicleModel::firstOrCreate(
+            ['name' => $row[0]], // cari berdasarkan nama ini dulu
+            ['brand_id' => $brand->id, 'url' => $row[6]]
+        );
+
+        foreach ($altbatteries as $battery) {
+            VehicleBatterySizeCategoryModel::firstOrCreate([
+                'vehicle_id' => $vehicle->id,
+                'battery_size_category_id' => $battery->id,
+            ]);
+        }
+
+        return $vehicle;
     }
 
     private function validateRow(array $row): bool

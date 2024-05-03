@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
@@ -55,8 +57,11 @@ class BatteryUsage extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) return redirect()->route("battery.usage.index");
+        $usage = BatteryUsageTypeModel::find($id);
+        if ($usage == null) return redirect()->route("battery.usage.index");
         return view(
             "MasterData.Battery.Usage.create",
             getIndexData(
@@ -64,7 +69,7 @@ class BatteryUsage extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => BatteryUsageTypeModel::find($id)->toArray(),
+                    "profile" => $usage->toArray()
                 )
             )
         );
@@ -113,8 +118,17 @@ class BatteryUsage extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string'
+                ],
+                [
+                    'name.required' => 'The battery usage type name is required!',
+                    'name.string' => 'The battery usage type name must be a string!',
+                ]
+            );
             $usage = new BatteryUsageTypeModel();
-            $usage->name = $request->name;
+            $usage->name = $validatedData['name'];
             $status = $usage->save();
 
             // Set a new response data to be sent.
@@ -122,6 +136,9 @@ class BatteryUsage extends Controller
                 $status,
                 $status ? "The new battery usage type was successfully created!" : "Failed to create the new battery usage type!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -140,8 +157,17 @@ class BatteryUsage extends Controller
     public function update(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string'
+                ],
+                [
+                    'name.required' => 'The battery usage type name is required!',
+                    'name.string' => 'The battery usage type name must be a string!',
+                ]
+            );
             $usage = BatteryUsageTypeModel::find($request->id);
-            $usage->name = $request->name;
+            $usage->name = $validatedData['name'];
             $status = $usage->save();
 
             // Set a new response data to be sent.
@@ -149,6 +175,9 @@ class BatteryUsage extends Controller
                 $status,
                 $status ? "The battery usage type was successfully updated!" : "Failed to update the battery usage type!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

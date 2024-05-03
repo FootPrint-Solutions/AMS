@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleModel;
@@ -70,12 +72,21 @@ class Vehicle extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
-        $batteryCategories = VehicleModel::find($id)->batterySizeCategories()->where('type', 1)->pluck('battery_size_category_id')->toArray();
+        $vehicle = VehicleModel::find($id);
+
+        if (is_null($vehicle)) {
+            return redirect()->route('vehicle.index');
+        }
+
+        if (is_null($id)) {
+            return redirect()->route('vehicle.index');
+        }
+        $batteryCategories = VehicleModel::find($id)->batterySizeCategories()->pluck('battery_size_category_id')->toArray();
 
         if (!empty($batteryCategories)) {
-            $primaryBattery = $batteryCategories[0];
+            $primaryBattery = $batteryCategories;
         } else {
             $primaryBattery = null;
         }
@@ -91,7 +102,6 @@ class Vehicle extends Controller
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
                     'primary_battery' => $primaryBattery,
-                    'secondary_batteries' => VehicleModel::find($id)->batterySizeCategories()->where('type', 0)->pluck('battery_size_category_id')->toArray(),
                 )
             )
         );
@@ -152,19 +162,32 @@ class Vehicle extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                    'brand' => 'required',
+                    'newbrand' => 'required_if:brand,new',
+                ],
+                [
+                    'name.required' => 'Vehicle name is required!',
+                    'brand.required' => 'Vehicle brand is required!',
+                    'newbrand.required_if' => 'Vehicle brand is required!'
+                ]
+            );
+
             $vehicle = new VehicleModel();
-            $vehicle->name = $request->name;
+            $vehicle->name = $validatedData['name'];
 
             // Check if the brand is newly added or not.
             if ($request->brand === "new") {
                 // Store the newly added vehicle brand.
                 $brand = new VehicleBrandModel();
-                $brand->name = $request->newbrand;
+                $brand->name = $validatedData['newbrand'];
                 $status = $brand->save();
 
                 $vehicle->brand_id = $brand->id;
             } else {
-                $vehicle->brand_id = $request->brand;
+                $vehicle->brand_id = $validatedData['brand'];
             }
 
             $vehicle->url = $request->url;
@@ -172,13 +195,11 @@ class Vehicle extends Controller
 
             // Store the list of all vehicles' suitable battery.
             // Set primary battery type to 1.
-            $batteries[$request->batteryprimary] = ["type" => "1"];
 
-            // Set secondary battery type to 0.
-            if (!is_null($request->batterysecondary)) {
-                foreach ($request->batterysecondary as $battery) {
-                    if ($battery !== $request->batteryprimary)
-                        $batteries[$battery] = ["type" => "0"];
+            if (!is_null($request->batteryprimary)) {
+                $batteries = [];
+                foreach ($request->batteryprimary as $battery) {
+                    $batteries[$battery] = [];
                 }
             }
             $vehicle->batterySizeCategories()->attach($batteries);
@@ -188,6 +209,9 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -206,33 +230,42 @@ class Vehicle extends Controller
     public function update(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                    'brand' => 'required',
+                    'newbrand' => 'required_if:brand,new',
+                ],
+                [
+                    'name.required' => 'Vehicle name is required!',
+                    'brand.required' => 'Vehicle brand is required!',
+                    'newbrand.required_if' => 'Vehicle brand is required!'
+                ]
+            );
+
             $vehicle = VehicleModel::find($request->id);
-            $vehicle->name = $request->name;
+            $vehicle->name = $validatedData['name'];
 
             // Check if the brand is newly added or not.
             if ($request->brand === "new") {
                 // Store the newly added vehicle brand.
                 $brand = new VehicleBrandModel();
-                $brand->name = $request->newbrand;
+                $brand->name = $validatedData['newbrand'];
                 $status = $brand->save();
 
                 $vehicle->brand_id = $brand->id;
             } else {
-                $vehicle->brand_id = $request->brand;
+                $vehicle->brand_id = $validatedData['brand'];
             }
 
             $vehicle->url = $request->url;
             $status = $vehicle->save();
 
             // Update the list of all vehicles' suitable batteries.
-            // Set primary battery type to 1.
-            $batteries[$request->batteryprimary] = ["type" => "1"];
-
-            // Set secondary battery type to 0.
-            if (!is_null($request->batterysecondary)) {
-                foreach ($request->batterysecondary as $battery) {
-                    if ($battery !== $request->batteryprimary)
-                        $batteries[$battery] = ["type" => "0"];
+            if (!is_null($request->batteryprimary)) {
+                $batteries = [];
+                foreach ($request->batteryprimary as $battery) {
+                    $batteries[$battery] = [];
                 }
             }
             $vehicle->batterySizeCategories()->sync($batteries);
@@ -242,6 +275,9 @@ class Vehicle extends Controller
                 $status,
                 $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

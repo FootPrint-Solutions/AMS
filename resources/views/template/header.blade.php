@@ -79,7 +79,7 @@
         {{-- Zoom --}}
         <li class="nav-item zoom-screen me-2">
             <a href="#" class="nav-link header-nav-list win-maximize">
-                <img src="{{ asset('/img/icons/header-icon-04.svg') }}" alt="">
+                <i class="fa fa-expand"></i>
             </a>
         </li>
 

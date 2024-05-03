@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
@@ -133,11 +135,28 @@ class Customer extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                    'address' => 'required|string',
+                    'contact' => 'required|string',
+                    'email' => ['required', 'email'],
+                ],
+                [
+                    'name.required' => 'Customer name is required!',
+                    'address.required' => 'Customer address is required!',
+                    'contact.required' => 'Customer contact is required!',
+                    'email.required' => 'Customer email is required!',
+                    'email.email' => 'Customer email must be a valid email address!',
+                ]
+            );
+
+
             $customer = new CustomerModel();
-            $customer->name = $request->name;
-            $customer->address = $request->address;
-            $customer->contact = $request->contact;
-            $customer->email = $request->email;
+            $customer->name = $validatedData['name'];
+            $customer->address = $validatedData['address'];
+            $customer->contact = $validatedData['contact'];
+            $customer->email = $validatedData['email'];
             $customer->latitude = $request->Latitude;
             $customer->longitude = $request->Longitude;
             $status = $customer->save();
@@ -150,11 +169,12 @@ class Customer extends Controller
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
-            // Logging error message.
+            // Tangani pengecualian lainnya
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
@@ -168,11 +188,28 @@ class Customer extends Controller
     public function update(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string',
+                    'address' => 'required|string',
+                    'contact' => 'required|string',
+                    'email' => ['required', 'email'],
+                ],
+                [
+                    'name.required' => 'Customer name is required!',
+                    'address.required' => 'Customer address is required!',
+                    'contact.required' => 'Customer contact is required!',
+                    'email.required' => 'Customer email is required!',
+                    'email.email' => 'Customer email must be a valid email address!',
+                ]
+            );
+
             $customer = CustomerModel::find($request->id);
-            $customer->name = $request->name;
-            $customer->address = $request->address;
-            $customer->contact = $request->contact;
-            $customer->email = $request->email;
+            $customer->name = $validatedData['name'];
+            $customer->address = $validatedData['address'];
+            $customer->contact = $validatedData['contact'];
+            $customer->email = $validatedData['email'];
             $customer->latitude = $request->Latitude;
             $customer->longitude = $request->Longitude;
             $status = $customer->save();
@@ -185,11 +222,12 @@ class Customer extends Controller
                 $status,
                 $status ? "The customer was successfully updated!" : "Failed to update the customer!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
-            // Logging error message.
+            // Tangani pengecualian lainnya
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
