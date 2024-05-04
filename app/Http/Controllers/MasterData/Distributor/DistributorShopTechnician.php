@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
@@ -60,8 +61,11 @@ class DistributorShopTechnician extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id = null)
     {
+        if ($id == null) return redirect()->route("distributor.technician.index");
+        $technician = DistributorShopTechnicianModel::find($id);
+        if ($technician == null) return redirect()->route("distributor.technician.index");
         return view(
             'MasterData.Distributor.Technician.create',
             getIndexData(
@@ -69,7 +73,7 @@ class DistributorShopTechnician extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => DistributorShopTechnicianModel::find($id)->toArray(),
+                    "profile" => $technician->toArray(),
                     "shops" => DistributorShopModel::with("distributor")->get()->toArray()
                 )
             )
@@ -122,11 +126,25 @@ class DistributorShopTechnician extends Controller
     public function store(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    "name" => "required",
+                    "contact" => "required",
+                    "email" => "email",
+                    "note" => "nullable"
+                ],
+                [
+                    "name.required" => "Please fill out the technician name!",
+                    "contact.required" => "Please fill out the contact number!",
+                    "email.email" => "Please fill out the correct email format!"
+                ]
+            );
+
             $technician = new DistributorShopTechnicianModel();
-            $technician->name = $request->name;
+            $technician->name = $validatedData["name"];
             $technician->distributor_shop_id = $request->shop;
-            $technician->contact = $request->contact;
-            $technician->email = $request->email;
+            $technician->contact = $validatedData["contact"];
+            $technician->email = $validatedData["email"];
             $technician->note = $request->note;
             $status = $technician->save();
 
@@ -135,6 +153,9 @@ class DistributorShopTechnician extends Controller
                 $status,
                 $status ? "The new technician was successfully created!" : "Failed to create the new technician!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -154,11 +175,25 @@ class DistributorShopTechnician extends Controller
     public function update(Request $request)
     {
         try {
+            $validatedData = $request->validate(
+                [
+                    "name" => "required",
+                    "contact" => "required",
+                    "email" => "email",
+                    "note" => "nullable"
+                ],
+                [
+                    "name.required" => "Please fill out the technician name!",
+                    "contact.required" => "Please fill out the contact number!",
+                    "email.email" => "Please fill out the correct email format!"
+                ]
+            );
+
             $technician = DistributorShopTechnicianModel::find($request->id);
-            $technician->name = $request->name;
+            $technician->name = $validatedData["name"];
             $technician->distributor_shop_id = $request->shop;
-            $technician->contact = $request->contact;
-            $technician->email = $request->email;
+            $technician->contact = $validatedData["contact"];
+            $technician->email = $validatedData["email"];
             $technician->note = $request->note;
             $status = $technician->save();
 
@@ -167,6 +202,9 @@ class DistributorShopTechnician extends Controller
                 $status,
                 $status ? "The new technician was successfully updated!" : "Failed to update the new technician!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

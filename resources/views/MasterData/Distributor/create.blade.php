@@ -151,6 +151,8 @@
         $(document).ready(function() {
             $("#distributor-form").on("submit", function(event) {
                 event.preventDefault();
+                $("#btn-save").attr("disabled", true);
+                $("#btn-save").html('<i class="fa fa-spinner fa-spin"></i> Loading...');
                 if ($("#AddressSearchColumn").val() == "") {
                     swal.fire("Error!", "Please Fill The Address Column", "error");
                     $("#AddressSearchColumn").focus();
@@ -166,6 +168,8 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
+                    $("#btn-save").attr("disabled", false);
+                    $("#btn-save").html('Create Distributor');
                     goToPage(indexUrl);
                 });
             });

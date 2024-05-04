@@ -40,13 +40,13 @@ class VehicleImport implements ToModel, WithStartRow
         $altbatteries = [];
         for ($i = 2; $i <= 5; $i++) {
             if (!empty($row[$i])) {
-                $battery = BatterySizeCategoryModel::firstOrCreate(['name' => $row[$i]]);
+                $battery = BatterySizeCategoryModel::firstOrCreate(['name' => trim($row[$i])]);
                 $altbatteries[] = $battery;
             }
         }
 
         $vehicle = VehicleModel::firstOrCreate(
-            ['name' => $row[0]], // cari berdasarkan nama ini dulu
+            ['name' => trim($row[0])], // cari berdasarkan nama ini dulu
             ['brand_id' => $brand->id, 'url' => $row[6]]
         );
 

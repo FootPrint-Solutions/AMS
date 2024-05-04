@@ -44,6 +44,7 @@
                         <th scope="col">Name</th>
                         <th scope="col">Brand</th>
                         <th scope="col">URL</th>
+                        <th scope="col">Battery Size</th>
                         <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
@@ -91,7 +92,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5, "/vehicle/edit/", null, "/vehicle/toggle");
+            appendDatatablesToolbar(6, "/vehicle/edit/", null, "/vehicle/toggle");
 
             // Add New Vehicle button
             $("#btn-add").on("click", function() {

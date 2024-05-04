@@ -103,4 +103,13 @@ class VehicleModel extends Model implements Auditable
             ->select('batteries.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'battery_size_categories.name as size_category')
             ->get();
     }
+
+    public static function FindSubBattery($ids)
+    {
+        return self::where('vehicles.id', $ids)
+            ->join('vehicle_battery_size_category', 'vehicles.id', '=', 'vehicle_battery_size_category.vehicle_id')
+            ->leftjoin('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
+            ->select('battery_size_categories.id', 'battery_size_categories.name as size_category')
+            ->get();
+    }
 }

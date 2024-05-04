@@ -275,6 +275,62 @@
                     </div>
                 </div>
 
+                {{-- URLs --}}
+                @php
+                    $urls =
+                        isset($data['profile']['urls']) && count($data['profile']['urls']) > 0
+                            ? $data['profile']['urls']
+                            : [''];
+                    $counter = 1;
+                @endphp
+
+                <label>URLs <button type="button" id="btn-add-row" class="btn btn-primary btn-sm rounded-circle mx-2"><i
+                            class="fas fa-plus"></i></button></label>
+                <ul class="list-group list-group-flush" id="battery-url-list">
+                    @foreach ($urls as $url)
+                        <li
+                            class="list-group-item battery-url-list-item @if ($urls == ['']) d-none @endif">
+                            <div class="row mt-1">
+                                {{-- Platform --}}
+                                <div class="col-sm-2">
+                                    <div class="form-group local-forms">
+                                        <label for="platform-{{ $counter }}">Platform</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control platform"
+                                                id="platform-{{ $counter }}" name="platform[]"
+                                                placeholder="Enter battery url platform"
+                                                @if (isset($data['profile']) && count($data['profile']['urls']) > 0) value="{{ $url['platform'] }}" @endif>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- URL --}}
+                                <div class="col">
+                                    <div class="form-group local-forms">
+                                        <label for="url-{{ $counter }}">URL</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control url" id="url-{{ $counter }}"
+                                                name="url[]" placeholder="Enter battery url"
+                                                @if (isset($data['profile']) && count($data['profile']['urls']) > 0) value="{{ $url['url'] }}" @endif>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Delete --}}
+                                <div class="col-sm-1">
+                                    <button type="button" class="btn btn-danger btn-sm btn-delete-row"
+                                        title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                </div>
+
+                                {{-- Hidden Input --}}
+                                @if (isset($data['profile']) && count($data['profile']['urls']) > 0)
+                                    <input type="hidden" name="url_id[]" value="{{ $url['id'] }}">
+                                @endif
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+
                 {{-- Image --}}
                 <label for="image" class="mb-1">Image</label>
                 <div class="form-group students-up-files">
@@ -433,6 +489,53 @@
             $("#battery-form").on("reset", function() {
                 goToPage(indexUrl);
             });
+        });
+    </script>
+
+    {{-- Click Event Handler --}}
+    <script>
+        $(document).ready(function() {
+            $("#btn-add-row").on("click", function() {
+                // Get the count of rows.
+                let count = $(".battery-url-list-item").length;
+
+                // Get the last row in list.
+                let newRow = $('.battery-url-list-item').last();
+
+                // Check if the last row has been unhidden.
+                // If it's been unhidden, clone it.
+                if (count >= 1 && !newRow.hasClass("d-none"))
+                    newRow = newRow.clone();
+                newRow.removeClass('d-none');
+                newRow.find('input').val('');
+
+                // Set new id to each elements inside.
+                let number;
+                newRow.find('*[id]').each(function() {
+                    let id = $(this).attr("id");
+                    let parts = id.split('-');
+                    number = parseInt(parts[parts.length - 1]) + 1;
+                    $(this).attr("id", parts[0] + '-' + parts[1] + '-' + number);
+                });
+
+                $('#battery-url-list').append(newRow);
+            });
+        });
+
+        // Attach a click event handler to all delete row buttons.
+        $(document).on("click", ".btn-delete-row", function() {
+            // Get the count of rows.
+            let count = $(".battery-url-list-item").length;
+
+            // Check if count of rows is one ore more.
+            // If it's the only row, add d-non instaed of removing it.
+            if (count > 1) {
+                $(this).closest("li").remove();
+            } else {
+                let row = $(this).closest("li");
+                row.addClass("d-none");
+                row.find('input').val('');
+            }
         });
     </script>
 

@@ -14,6 +14,7 @@ use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatteryBrandModel;
+use App\Models\MasterData\Battery\BatteryUrlModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
@@ -75,9 +76,6 @@ class Battery extends Controller
      */
     public function edit($id)
     {
-        // Get the specific battery profile.
-        $batteryProfile = BatteryModel::find($id);
-
         return view(
             'MasterData.Battery.create',
             getIndexData(
@@ -85,7 +83,7 @@ class Battery extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    'profile' => $batteryProfile->toArray(),
+                    'profile' => BatteryModel::with('urls')->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -269,6 +267,15 @@ class Battery extends Controller
 
             $status = $battery->save();
 
+            // Store the list of battery's urls.
+            for ($i = 0; $i < count($request->url); $i++) {
+                if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                    $battery->urls()->create([
+                        'platform' => $request->platform[$i],
+                        'url' => $request->url[$i],
+                    ]);
+            }
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
@@ -378,6 +385,37 @@ class Battery extends Controller
                 $battery->image = basename($request->file("image")->store("public/image/battery"));
             }
             $status = $battery->save();
+
+            // Delete rows that are not in the request.
+            if ($request->url_id != null) {
+                $urlsToDelete = $battery->urls->pluck('id')->diff($request->url_id);
+                if ($urlsToDelete->isNotEmpty()) {
+                    BatteryUrlModel::destroy($urlsToDelete);
+                }
+
+                // Store the list of battery's urls.
+                for ($i = 0; $i < count($request->url); $i++) {
+                    if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                        $battery->urls()->updateOrCreate(
+                            [
+                                'id' => $request->url_id[$i],
+                            ],
+                            [
+                                'platform' => $request->platform[$i],
+                                'url' => $request->url[$i],
+                            ]
+                        );
+                }
+            } else {
+                // Store the list of battery's urls.
+                for ($i = 0; $i < count($request->url); $i++) {
+                    if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                        $battery->urls()->create([
+                            'platform' => $request->platform[$i],
+                            'url' => $request->url[$i],
+                        ]);
+                }
+            }
 
             // Set a new response data to be sent.
             return getResponseData(

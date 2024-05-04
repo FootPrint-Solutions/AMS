@@ -488,7 +488,7 @@
                                     html +=
                                         '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
                                     html += '<div class="blog grid-blog flex-fill">';
-                                    html += '<div class="blog-image">';
+                                    html += '<div class="blog-imagex">';
                                     html += '<a href="#!">';
                                     if (vehicle.image == null) {
 
@@ -509,7 +509,7 @@
                                     html += '</div>';
                                     html += '<div class="blog-content">';
                                     html +=
-                                        '<h3 class="blog-title"><a href="#!">' +
+                                        '<h3 class="blog-title mt-3"><a href="#!">' +
                                         vehicle.name + '</a></h3>';
                                     html += '<p>Details & Specification :</p>';
                                     html += '<ul class="list-group list-group-flush">';
@@ -534,7 +534,7 @@
                                     html += '<label>';
                                     html +=
                                         '<input type="checkbox" name="CheckBattery[]" value=' +
-                                        vehicle.id + '> Share To Customer';
+                                        vehicle.id + '> Add to cart';
                                     html +=
                                         '</label>';
                                     html += '</div>';

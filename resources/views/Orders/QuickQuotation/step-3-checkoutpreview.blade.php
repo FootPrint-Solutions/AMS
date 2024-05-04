@@ -96,10 +96,10 @@
                     </div>
 
                     <div class="form-group row mb-3">
-                        <label for="order-customer" class="col-sm-5 col-form-label">Technicians Name</label>
+                        <label for="order-customer" class="col-sm-5 col-form-label">Technicians</label>
                         <div class="col-sm-7">
                             <select name="techniciansName" id="techniciansName" class="form-control">
-                                <option value="">-- Select Technicians --</option>
+                                <option value="">-- No Technician --</option>
                                 @foreach ($DistributorTechnician as $technician)
                                     <option data-phone="{{ $technician['contact'] }}" value="{{ $technician['id'] }}">
                                         {{ $technician['name'] }}
