@@ -288,7 +288,8 @@
                             class="fas fa-plus"></i></button></label>
                 <ul class="list-group list-group-flush" id="battery-url-list">
                     @foreach ($urls as $url)
-                        <li class="list-group-item battery-url-list-item">
+                        <li
+                            class="list-group-item battery-url-list-item @if ($urls == ['']) d-none @endif">
                             <div class="row mt-1">
                                 {{-- Platform --}}
                                 <div class="col-sm-2">
@@ -317,8 +318,7 @@
 
                                 {{-- Delete --}}
                                 <div class="col-sm-1">
-                                    <button type="button"
-                                        class="btn btn-danger btn-sm @if (count($urls) < 2) disabled @endif btn-delete-row"
+                                    <button type="button" class="btn btn-danger btn-sm btn-delete-row"
                                         title="Delete Item"><i class="fas fa-xmark"></i></button>
                                 </div>
 
@@ -482,7 +482,7 @@
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
                     // Redirect to index page.
-                    // goToPage(indexUrl);
+                    goToPage(indexUrl);
                 });
             });
 
@@ -496,13 +496,18 @@
     <script>
         $(document).ready(function() {
             $("#btn-add-row").on("click", function() {
-                // Enable the delete row button as a new row is to be appended.
-                $(".btn-delete-row").removeClass("disabled");
+                // Get the count of rows.
+                let count = $(".battery-url-list-item").length;
 
-                // Clone the last row.
-                let newRow = $('.battery-url-list-item').last().clone();
+                // Get the last row in list.
+                let newRow = $('.battery-url-list-item').last();
+
+                // Check if the last row has been unhidden.
+                // If it's been unhidden, clone it.
+                if (count >= 1 && !newRow.hasClass("d-none"))
+                    newRow = newRow.clone();
+                newRow.removeClass('d-none');
                 newRow.find('input').val('');
-                newRow.find('.btn-delete-row').removeClass('disabled');
 
                 // Set new id to each elements inside.
                 let number;
@@ -519,17 +524,17 @@
 
         // Attach a click event handler to all delete row buttons.
         $(document).on("click", ".btn-delete-row", function() {
+            // Get the count of rows.
             let count = $(".battery-url-list-item").length;
-            console.log(count);
+
+            // Check if count of rows is one ore more.
+            // If it's the only row, add d-non instaed of removing it.
             if (count > 1) {
                 $(this).closest("li").remove();
-                $(".btn-delete-row").removeClass("disabled");
-
-                // Check whether the number of rows is exactly two.
-                // If it is and one of them is about to be deleted, disable the delete row.
-                if (count === 2) {
-                    $(".btn-delete-row").addClass("disabled");
-                }
+            } else {
+                let row = $(this).closest("li");
+                row.addClass("d-none");
+                row.find('input').val('');
             }
         });
     </script>

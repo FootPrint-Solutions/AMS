@@ -269,10 +269,11 @@ class Battery extends Controller
 
             // Store the list of battery's urls.
             for ($i = 0; $i < count($request->url); $i++) {
-                $battery->urls()->create([
-                    'platform' => $request->platform[$i],
-                    'url' => $request->url[$i],
-                ]);
+                if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                    $battery->urls()->create([
+                        'platform' => $request->platform[$i],
+                        'url' => $request->url[$i],
+                    ]);
             }
 
             // Set a new response data to be sent.
@@ -386,22 +387,34 @@ class Battery extends Controller
             $status = $battery->save();
 
             // Delete rows that are not in the request.
-            $urlsToDelete = $battery->urls->pluck('id')->diff($request->url_id);
-            if ($urlsToDelete->isNotEmpty()) {
-                BatteryUrlModel::destroy($urlsToDelete);
-            }
+            if ($request->url_id != null) {
+                $urlsToDelete = $battery->urls->pluck('id')->diff($request->url_id);
+                if ($urlsToDelete->isNotEmpty()) {
+                    BatteryUrlModel::destroy($urlsToDelete);
+                }
 
-            // Store the list of battery's urls.
-            for ($i = 0; $i < count($request->url); $i++) {
-                $battery->urls()->updateOrCreate(
-                    [
-                        'id' => $request->url_id[$i],
-                    ],
-                    [
-                        'platform' => $request->platform[$i],
-                        'url' => $request->url[$i],
-                    ]
-                );
+                // Store the list of battery's urls.
+                for ($i = 0; $i < count($request->url); $i++) {
+                    if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                        $battery->urls()->updateOrCreate(
+                            [
+                                'id' => $request->url_id[$i],
+                            ],
+                            [
+                                'platform' => $request->platform[$i],
+                                'url' => $request->url[$i],
+                            ]
+                        );
+                }
+            } else {
+                // Store the list of battery's urls.
+                for ($i = 0; $i < count($request->url); $i++) {
+                    if ($request->platform[$i] != '' && $request->url[$i] !== '')
+                        $battery->urls()->create([
+                            'platform' => $request->platform[$i],
+                            'url' => $request->url[$i],
+                        ]);
+                }
             }
 
             // Set a new response data to be sent.
