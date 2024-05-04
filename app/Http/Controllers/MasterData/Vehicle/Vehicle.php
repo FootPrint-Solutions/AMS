@@ -133,12 +133,19 @@ class Vehicle extends Controller
                 $statusIndicatorColor = "text-success";
             }
 
+            $getBattery = VehicleModel::FindSubBattery($key->id);
+            $battery = "";
+            foreach ($getBattery as $b) {
+                $battery .= "<span class='badge badge-primary'>" . $b['size_category'] . "</span> ";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? '-';
             $row[] = "<a href='$key->url'>" . $key->url . "</a>";
+            $row[] = $battery;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $row[] = $key->status;
