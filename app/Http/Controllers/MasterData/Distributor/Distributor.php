@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorModel;
@@ -62,6 +64,9 @@ class Distributor extends Controller
      */
     public function edit($id = null)
     {
+        if ($id == null) return redirect()->route('distributor.index');
+        $distributor = DistributorModel::find($id);
+        if (!$distributor) return redirect()->route('distributor.index');
         return view(
             'MasterData.Distributor.create',
             getIndexData(
@@ -69,7 +74,7 @@ class Distributor extends Controller
                 $this->menu,
                 $this->submenu,
                 array(
-                    "profile" => DistributorModel::find($id)->toArray()
+                    "profile" => $distributor->toArray(),
                 )
             )
         );
@@ -132,13 +137,34 @@ class Distributor extends Controller
     public function store(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required',
+                    'address' => 'required',
+                    'contactperson' => 'required',
+                    'contact' => 'required',
+                    'email' => 'email',
+                    'note' => 'nullable',
+                    'Latitude' => 'nullable',
+                    'Longitude' => 'nullable',
+                ],
+                [
+                    'name.required' => 'Please fill out the distributor name!',
+                    'address.required' => 'Please fill out the distributor address!',
+                    'contactperson.required' => 'Please fill out the contact person!',
+                    'contact.required' => 'Please fill out the contact number!',
+                    'email.email' => 'Please fill out a valid email address!',
+                ]
+            );
+
             $distributor = new DistributorModel();
-            $distributor->name = $request->name;
+            $distributor->name = $validatedData['name'];
             $distributor->is_shop = $request->isshop;
-            $distributor->address = $request->address;
-            $distributor->contact_person = $request->contactperson;
-            $distributor->contact = $request->contact;
-            $distributor->email = $request->email;
+            $distributor->address = $validatedData['address'];
+            $distributor->contact_person = $validatedData['contactperson'];
+            $distributor->contact = $validatedData['contact'];
+            $distributor->email = $validatedData['email'];
             $distributor->note = "";
             $status = $distributor->save();
 
@@ -149,11 +175,11 @@ class Distributor extends Controller
                 $shop->name = "Distributor Main Shop";
                 $shop->distributor_id = $distributor->id;
                 $shop->type = 1;
-                $shop->address = $request->address;
-                $shop->contact_person = $request->contactperson;
-                $shop->contact = $request->contact;
-                $shop->email = $request->email;
-                $shop->note = $request->note;
+                $shop->address = $validatedData['address'];
+                $shop->contact_person = $validatedData['contactperson'];
+                $shop->contact = $validatedData['contact'];
+                $shop->email = $validatedData['email'];
+                $shop->note = $validatedData['note'];
                 $shop->latitude = $request->Latitude;
                 $shop->longitude = $request->Longitude;
                 $status &= $shop->save();
@@ -170,6 +196,9 @@ class Distributor extends Controller
                 $status,
                 $status ? "The new distributor was successfully created!" : "Failed to create the new distributor!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
@@ -189,13 +218,34 @@ class Distributor extends Controller
     public function update(Request $request)
     {
         try {
+
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required',
+                    'address' => 'required',
+                    'contactperson' => 'required',
+                    'contact' => 'required',
+                    'email' => 'email',
+                    'note' => 'nullable',
+                    'Latitude' => 'nullable',
+                    'Longitude' => 'nullable',
+                ],
+                [
+                    'name.required' => 'Please fill out the distributor name!',
+                    'address.required' => 'Please fill out the distributor address!',
+                    'contactperson.required' => 'Please fill out the contact person!',
+                    'contact.required' => 'Please fill out the contact number!',
+                    'email.email' => 'Please fill out a valid email address!',
+                ]
+            );
+
             $distributor = DistributorModel::find($request->id);
-            $distributor->name = $request->name;
+            $distributor->name = $validatedData['name'];
             $distributor->is_shop = $request->isshop;
-            $distributor->address = $request->address;
-            $distributor->contact_person = $request->contactperson;
-            $distributor->contact = $request->contact;
-            $distributor->email = $request->email;
+            $distributor->address = $validatedData['address'];
+            $distributor->contact_person = $validatedData['contactperson'];
+            $distributor->contact = $validatedData['contact'];
+            $distributor->email = $validatedData['email'];
             $distributor->note = $request->note;
             $status = $distributor->save();
 
@@ -208,10 +258,10 @@ class Distributor extends Controller
                     $shop->name = "Distributor Main Shop";
                     $shop->distributor_id = $distributor->id;
                     $shop->type = 1;
-                    $shop->address = $request->address;
-                    $shop->contact_person = $request->contactperson;
-                    $shop->contact = $request->contact;
-                    $shop->email = $request->email;
+                    $shop->address = $validatedData['address'];
+                    $shop->contact_person = $validatedData['contactperson'];
+                    $shop->contact = $validatedData['contact'];
+                    $shop->email = $validatedData['email'];
                     $shop->note = "";
                     $shop->latitude = $request->Latitude;
                     $shop->longitude = $request->Longitude;
@@ -230,6 +280,9 @@ class Distributor extends Controller
                 $status,
                 $status ? "The selected distributor was successfully updated!" : "Failed to update the selected distributor!"
             );
+        } catch (ValidationException $e) {
+            // Tangani pengecualian jika validasi gagal
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

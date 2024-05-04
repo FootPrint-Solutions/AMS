@@ -150,7 +150,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
 
     // Distributor
-    Route::get('/distributor', [Distributor::class, 'index']);
+    Route::get('/distributor', [Distributor::class, 'index'])->name("distributor.index");
     Route::post('/distributor/show', [Distributor::class, 'show']);
     Route::get('/distributor/create', [Distributor::class, 'create']);
     Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
@@ -175,7 +175,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
 
     // Shop Technician
-    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index']);
+    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index'])->name("distributor.technician.index");
     Route::post('/distributor/technician/show', [DistributorShopTechnician::class, 'show']);
     Route::get('/distributor/technician/create', [DistributorShopTechnician::class, 'create']);
     Route::get('/distributor/technician/edit/{id}', [DistributorShopTechnician::class, 'edit']);

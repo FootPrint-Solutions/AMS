@@ -72,7 +72,7 @@
             <select class="form-select" id="shop_id" name="shop_id" required>
                 <option value="">-- Choose Distributor --</option>
                 @foreach ($distributor as $d)
-                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                 @endforeach
             </select>
         </div>
@@ -249,12 +249,12 @@
                         html += '<div class="blog-content">';
                         if (vehicle.battery_distributor_price != null) {
                             html +=
-                                '<h3 class="blog-title"><a href="#!">' +
+                                '<h3 class="blog-title mt-3 "><a href="#!">' +
                                 vehicle.name +
                                 '</a> &nbsp <span class="badge badge-soft-secondary badge-border">Partner</span></h3> ';
                         } else {
                             html +=
-                                '<h3 class="blog-title"><a href="#!">' +
+                                '<h3 class="blog-title mt-3"><a href="#!">' +
                                 vehicle.name + '</a></h3>';
                         }
                         html += '<p>Details & Specification :</p>';
