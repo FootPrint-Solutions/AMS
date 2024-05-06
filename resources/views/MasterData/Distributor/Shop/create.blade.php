@@ -78,7 +78,7 @@
                             <label for="contact-person">Contact Person <span class="login-danger">*</span></label>
                             <input type="text" class="form-control" id="contact-person" name="contactperson"
                                 placeholder="Enter shop contact person name" required
-                                @isset($data['profile']) value="{{ $data['profile']['address'] }}" @endisset>
+                                @isset($data['profile']) value="{{ $data['profile']['contact_person'] }}" @endisset>
                         </div>
                     </div>
 
