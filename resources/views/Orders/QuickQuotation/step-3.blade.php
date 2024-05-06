@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
 <div>
     <div class="mb-4">
         <h5>Chechout Page</h5>
@@ -6,8 +7,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -23,7 +23,8 @@
         </div>
     </div>
 </div>
-
+<script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
+<script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
 <script>
     $("#btnCopyOrderDetail").on("click", function() {
         var FullName = $("#FullName").val();

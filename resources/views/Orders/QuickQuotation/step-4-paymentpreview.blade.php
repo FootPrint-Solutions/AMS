@@ -47,12 +47,21 @@
                                     <th>Quantity</th>
                                     <th>Price</th>
                                     @if (isset($DistributorShop) && !empty($DistributorShop))
+                                        <th style="width: 20%;">Platform</th>
                                         <th>Link E-Commerce</th>
                                     @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($dataProduct as $data)
+                                    <?php
+                                    if (isset($Distributor) && !empty($Distributor)) {
+                                        $batteryUrl = DB::table('battery_urls')
+                                            ->where('battery_id', $battery->id)
+                                            ->get()
+                                            ->toArray();
+                                    }
+                                    ?>
                                     <tr>
                                         <td>
                                             <input type="text" name="BatteryNamePaymentDetails[]"
@@ -63,11 +72,18 @@
                                             <input readonly type="number" name="QtyPaymentDetails[]"
                                                 class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
                                         </td>
-                                        <td>
-                                            <input readonly type="text" name="PricePaymentDetails[]"
+                                        <td> <input readonly type="text" name="PricePaymentDetails2[]"
+                                                class="form-control PricePaymentDetails2"
+                                                value="{{ number_format($data['price'], 0, '.', '.') }}">
+                                            <input readonly type="hidden" name="PricePaymentDetails[]"
                                                 class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
                                         </td>
                                         @if (isset($DistributorShop) && !empty($DistributorShop))
+                                            <td>
+                                                <input type="text" name="PlatformPayment[]"
+                                                    class="form-control PlatformPayment"
+                                                    value="{{ $data['platform'] }}" readonly>
+                                            </td>
                                             <td>
                                                 <input type="text" name="LinkPayment[]"
                                                     class="form-control LinkPayment" value="{{ $data['link'] }}"

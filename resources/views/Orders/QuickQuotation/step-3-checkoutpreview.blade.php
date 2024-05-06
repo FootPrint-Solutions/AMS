@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
 <div class="row">
     <div class="col-xl-4 col-lg-6 col-md-6">
         <div class="invoice-info">
@@ -33,12 +34,21 @@
                     <th>Quantity</th>
                     <th>Price</th>
                     @if (isset($Distributor) && !empty($Distributor))
+                        <th style="width: 20%;">Platform</th>
                         <th>Link E-Commerce</th>
                     @endif
                 </tr>
             </thead>
             <tbody>
                 @foreach ($Battery as $battery)
+                    <?php
+                    if (isset($Distributor) && !empty($Distributor)) {
+                        $batteryUrl = DB::table('battery_urls')
+                            ->where('battery_id', $battery->id)
+                            ->get()
+                            ->toArray();
+                    }
+                    ?>
                     <tr>
                         <td>
                             <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
@@ -58,8 +68,18 @@
                         </td>
                         @if (isset($Distributor) && !empty($Distributor))
                             <td>
+                                <select name="Platform[]" id="Platform" class="form-control Platform">
+                                    <option data-urlecommerce="" value="">-- Choose Platform --</option>
+                                    @foreach ($batteryUrl as $url)
+                                        <option data-urlecommerce="{{ $url->url }}" value="{{ $url->platform }}">
+                                            {{ $url->platform }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
                                 <input type="text" name="LinkTokopedia[]" id="LinkTokopedia"
-                                    class="form-control LinkTokopedia" value="{{ $battery->url }}">
+                                    class="form-control LinkTokopedia" value="{{ $battery->url }}" autocomplete="off">
                             </td>
                         @endif
                     </tr>
@@ -135,23 +155,32 @@
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Subtotal</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="subtotal" name="subtotal" value="0">
+                            <input type="text" class="form-control" id="subtotal2" name="subtotal2"
+                                value="0" readonly>
+                            <input type="hidden" class="form-control" id="subtotal" name="subtotal"
+                                value="0">
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="discount" name="discount"
-                                value="0">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="discount" name="discount"
+                                    value="0">
+                                <span class="input-group-text border-end">%</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="tax" name="tax"
-                                value="{{ $tax }}">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="tax" name="tax"
+                                    value="{{ $tax }}">
+                                <span class="input-group-text border-end">%</span>
+                            </div>
                         </div>
                     </div>
 
@@ -178,9 +207,15 @@
         });
     </script>
 @endif
-
+<script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
 <script>
     $(document).ready(function() {
+        $('.Platform').on('change', function() {
+            var selectedUrl = $(this).find('option:selected').data('urlecommerce');
+            var linkInput = $(this).closest('tr').find('.LinkTokopedia');
+            linkInput.val(selectedUrl);
+        });
+
         function calculateTotalAmount() {
             var total = 0;
 
@@ -197,6 +232,12 @@
 
             var subtotal = total;
             $("#subtotal").val(subtotal);
+            var formatedSubtotal = subtotal.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+            $("#subtotal2").val(formatedSubtotal);
+
 
             var tax = $("#tax").val();
             var discount = $("#discount").val();
