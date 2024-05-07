@@ -89,7 +89,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(6, "/customer/edit/", null, "/customer/toggle/");
+            appendDatatablesToolbar(6, "/customer/edit/", null, "/customer/toggle");
 
             $('#btn-add').on('click', function() {
                 goToPage("/customer/create");

@@ -503,7 +503,7 @@
                                         html += '<img class="img-fluid" src="' +
                                             baseUrl +
                                             '/' + vehicle.image +
-                                            '" alt="Post Image">';
+                                            '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
                                     }
                                     html += '</a>';
                                     html += '</div>';
@@ -734,6 +734,7 @@
                     var QtyTabel = [];
                     var PriceTabel = [];
                     var BatteryNameTabel = [];
+                    var Platform = [];
                     var LinkTokopedia = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
@@ -756,6 +757,11 @@
                     });
                     var DistributorShopId = $("#DistributorShopId").val();
 
+                    $(".Platform").each(function() {
+                        var value = $(this).val();
+                        Platform.push(value);
+                    });
+
                     var data = {
                         FullName: FullName,
                         EmailCustomer: EmailCustomer,
@@ -776,6 +782,7 @@
                         PriceTabel: PriceTabel,
                         DistributorShopId: DistributorShopId,
                         LinkTokopedia: LinkTokopedia,
+                        Platform: Platform,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 

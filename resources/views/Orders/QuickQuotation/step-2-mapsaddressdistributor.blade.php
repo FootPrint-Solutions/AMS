@@ -242,7 +242,7 @@
                             html += '<img class="img-fluid" src="' +
                                 baseUrl +
                                 '/' + vehicle.image +
-                                '" alt="Post Image">';
+                                '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
                         }
                         html += '</a>';
                         html += '</div>';

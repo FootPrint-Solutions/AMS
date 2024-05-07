@@ -18,6 +18,7 @@ use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Settings\MessageTemplateModel;
 use App\Models\Settings\TaxModel;
+use App\Models\MasterData\Battery\BatteryUrlModel;
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
 
@@ -272,6 +273,7 @@ $arrayBattery
         $QtyTabel = $request->input('QtyTabel');
         $PriceTabel = $request->input('PriceTabel');
         $Link = $request->input('LinkTokopedia');
+        $Platform = $request->input('Platform');
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
@@ -285,6 +287,7 @@ $arrayBattery
                     'qty' => $QtyTabel[$key],
                     'price' => $value->price_retail,
                     'link' => $Link[$key],
+                    'platform' => $Platform[$key]
                 ];
             }
         } else {

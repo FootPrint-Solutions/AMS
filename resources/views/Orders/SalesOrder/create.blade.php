@@ -438,6 +438,16 @@
 
             let mode = $("#btn-save").attr("value"); // update || create
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
+            var address = $("#AddressSearchColumn").val();
+            if (address == "") {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select address",
+                    icon: "error",
+                });
+                return;
+            }
+            calculateTotal();
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
@@ -460,7 +470,7 @@
             $("#btn-add-row").on("click", function() {
                 // Enable the delete row button as a new row is to be appended.
                 $(".btn-delete-row").removeClass("disabled");
-
+                calculateTotal();
                 // Clone the last row.
                 let newRow = $('.table-battery-detail-row').last().clone();
                 newRow.find('input').val('');
@@ -541,6 +551,10 @@
         $(document).on("keyup", ".battery-price", function() {
             formatPrice($(this));
             calculateTotal();
+        });
+
+        $(".list-group-item list-item").on("click", function() {
+            alert("clicked");
         });
     </script>
 
