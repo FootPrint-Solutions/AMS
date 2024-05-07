@@ -41,6 +41,8 @@ class SalesOrderModel extends Model implements Auditable
         'distributor_shop_id',
         'distributor_shop_technician_id',
         'tax',
+        'tax_price',
+        'discount_price',
         'discount',
         'extra_discount',
         'subtotal',

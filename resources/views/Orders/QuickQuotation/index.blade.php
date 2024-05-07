@@ -989,6 +989,7 @@
                 var ExtraDiscount = $("#Extradiscount").val();
                 var invoiceNumber = $("#invoiceNumber").val();
                 var techniciansName = $("#techniciansName").val();
+                var subtotal = $("#subtotal").val();
                 if ($('.CheckMidtrans').is(':checked')) {
                     var CheckMidtrans = 1;
                     var linkPayment = $("#LinkPaymentMidtrans").val();
@@ -1048,6 +1049,7 @@
                     techniciansName: techniciansName,
                     CheckMidtrans: CheckMidtrans,
                     linkPayment: LinkTokopedia,
+                    subtotal: subtotal
                 };
 
                 $.ajax({
