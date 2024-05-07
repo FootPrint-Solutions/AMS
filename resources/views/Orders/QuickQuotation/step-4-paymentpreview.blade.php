@@ -73,8 +73,7 @@
                                                 class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
                                         </td>
                                         <td> <input readonly type="text" name="PricePaymentDetails2[]"
-                                                class="form-control PricePaymentDetails2"
-                                                value="{{ number_format($data['price'], 0, '.', '.') }}">
+                                                class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
                                             <input readonly type="hidden" name="PricePaymentDetails[]"
                                                 class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
                                         </td>

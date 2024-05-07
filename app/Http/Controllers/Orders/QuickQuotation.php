@@ -513,6 +513,9 @@ $arrayBattery
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('Discount') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        $subtotal = $request->input('subtotal');
+        $tax_price = ($tax * $subtotal) / 100;
+        $discount_price = ($Discount * $subtotal) / 100;
         $total = $request->input('TotalAmount');
         $status = "Pending";
 
@@ -564,9 +567,12 @@ $arrayBattery
             'customer_id' => $Customer->id,
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
+            'subtotal' => $subtotal,
             'total' => $total,
             'tax' => $tax,
+            'tax_price' => $tax_price,
             'discount' => $Discount,
+            'discount_price' => $discount_price,
             'payment_methode' => $payment_methode,
             'midtrans_invoice' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
@@ -590,7 +596,7 @@ $arrayBattery
                         'battery_id' => $value->id,
                         'battery_name' => $value->name,
                         // 'quantity' => 1,
-                        'battery_price' => $value->price_retail,
+                        'battery_price' => str_replace(".", "", $value->price_retail),
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ];
@@ -606,7 +612,7 @@ $arrayBattery
                         'battery_id' => $request->input('Battery')[$key],
                         'battery_name' => $value,
                         // 'quantity' => 1,
-                        'battery_price' => $request->input('PriceTabel')[$key],
+                        'battery_price' => str_replace(".", "", $request->input('PriceTabel')[$key]),
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ];
