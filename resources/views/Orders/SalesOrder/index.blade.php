@@ -71,7 +71,7 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
-                    text: "<i class='fas fa-file-text'></i> View Invoice",
+                    text: "<i class='fas fa-file-text'></i> Invoice",
                     action: function(e, dt, node, config) {
                         // Get the selected row's id.
                         let selectedRows = table.rows({
@@ -80,14 +80,14 @@
                         if (selectedRows.length !== 1) {
                             Swal.fire({
                                 title: "Error",
-                                text: "Please select a single row for viewing invoice.",
+                                text: "Please select a single row for downloading invoice.",
                                 icon: "error",
                             });
                             return;
                         }
 
-                        // Go to page invoice.
-                        goToPage("/sales-order/invoice/" + selectedRows[0][8], true)
+                        // Download invoice as pdf.
+                        downloadPDF("/sales-order/invoice/" + selectedRows[0][8]);
                     },
                     className: "btn btn-outline-secondary btn-sm",
                 }, ]),

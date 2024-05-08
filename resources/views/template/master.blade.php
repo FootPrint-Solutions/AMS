@@ -443,6 +443,7 @@
 </script>
 
 {{-- JS Custom Functions --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
 <script>
     /**
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
@@ -456,6 +457,40 @@
         } else {
             window.location.href = destination;
         }
+    }
+
+    /**
+     * Download a pdf document based on the url.
+     *
+     * @param {string} url - The url view to be downloaded as pdf.
+     */
+    function downloadPDF(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            contentType: 'application/json',
+            responseType: 'document',
+            success: function(response) {
+                // Create an iframe element
+                var iframe = document.createElement('iframe');
+                iframe.style.visibility = 'hidden';
+
+                // Append the iframe to the document body
+                document.body.appendChild(iframe);
+
+                // Write the HTML content into the iframe
+                var doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(response);
+                doc.close();
+
+                // Wait for the content to load, then trigger the print dialog
+                iframe.onload = function() {
+                    iframe.contentWindow.print();
+                    document.body.removeChild(iframe);
+                };
+            }
+        });
     }
 
     /**

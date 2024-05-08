@@ -137,9 +137,3 @@
         </table>
     </table>
 </div>
-
-<script>
-    window.onload = function() {
-        window.print();
-    }
-</script>
