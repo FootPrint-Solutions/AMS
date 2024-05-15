@@ -94,11 +94,18 @@
                             <div class="col-sm-2">
                                 <button type="button" class="btn btn-primary" id="btnAddress"><i
                                         class="fas fa-map-marker"></i></button>
-                                <input type="hidden" name="Address" id="AddressSearchColumn" value="">
-                                <input type="hidden" name="Latitude" id="Latitude" value="">
-                                <input type="hidden" name="Longitude" id="Longitude" value="">
+                                <input type="hidden" name="Latitude" id="Latitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif">
+                                <input type="hidden" name="Longitude" id="Longitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif">
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col">
+                        <input type="text" class="form-control" name="Address" id="AddressSearchColumn"
+                            value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
+                            readonly>
                     </div>
 
                     {{-- Distributor Shop --}}
@@ -426,7 +433,32 @@
             $('#technician').select2({
                 placeholder: "Enter technician"
             });
+
+            loadDataForTechnician();
         })
+
+        function loadDataForTechnician() {
+            let parentId = $("#shop").val();
+            $.ajax({
+                url: "/sales-order/technician/get/" + parentId,
+                method: "GET",
+                success: function(response) {
+                    console.log(response);
+                    // Clear current options and value.
+                    $("#technician").empty().val(null).trigger("change");
+
+                    let emptyOption = new Option("", "", false, false);
+                    $("#technician").append(emptyOption).trigger("change");
+
+                    response.forEach(function(menu) {
+                        // Append new options.
+                        let newOption = new Option(menu.name, menu.id, false,
+                            false);
+                        $("#technician").append(newOption).trigger("change");
+                    });
+                }
+            });
+        }
     </script>
 
     {{-- Form Handler --}}

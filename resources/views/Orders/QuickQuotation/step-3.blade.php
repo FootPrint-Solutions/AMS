@@ -1,13 +1,14 @@
 <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
 <div>
     <div class="mb-4">
-        <h5>Chechout Page</h5>
+        <h5>Checkout Page</h5>
     </div>
     <div id="CheckoutPreview"></div>
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
