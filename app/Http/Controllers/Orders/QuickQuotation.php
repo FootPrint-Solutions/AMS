@@ -418,8 +418,6 @@ $arrayBattery
             'text' => "$message",
         ];
 
-        $response = Http::post($url, $data);
-        $responseData = $response->json();
 
         try {
             $response = Http::post($url, $data);
@@ -487,8 +485,6 @@ $arrayBattery
             'text' => $message,
         ];
 
-        $response = Http::post($url, $data);
-        $responseData = $response->json();
 
         try {
             $response = Http::post($url, $data);
