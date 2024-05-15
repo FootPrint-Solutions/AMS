@@ -762,6 +762,8 @@
                         Platform.push(value);
                     });
 
+                    var subtotal = $("#subtotal").val();
+
                     var data = {
                         FullName: FullName,
                         EmailCustomer: EmailCustomer,
@@ -783,6 +785,7 @@
                         DistributorShopId: DistributorShopId,
                         LinkTokopedia: LinkTokopedia,
                         Platform: Platform,
+                        subtotal: subtotal,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 

@@ -322,6 +322,7 @@ $arrayBattery
             'Discount' => $Discount,
             'ExtraDiscount' => $ExtraDiscount,
             'DistributorShop' => $DistibutorShop,
+            'Subtotal' => $request->input('subtotal') ?? 0,
         ];
 
         $midtrans = new CreateSnapTokenService($InvoiceNumber);
