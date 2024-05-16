@@ -130,6 +130,10 @@
                                 <option></option>
                                 <option disabled>Select a distributor to select a technician</option>
                             </select>
+                            @isset($data['profile'])
+                                <input type="hidden" id="technician_id"
+                                    value="{{ $data['profile']['distributor_shop_technician_id'] }}">
+                            @endisset
                         </div>
                     </div>
                 </div>
@@ -409,56 +413,15 @@
                 let parentId = e.params.data.id;
 
                 // Get the list of menus inside the selected parent.
-                $.ajax({
-                    url: "/sales-order/technician/get/" + parentId,
-                    method: "GET",
-                    success: function(response) {
-                        console.log(response);
-                        // Clear current options and value.
-                        $("#technician").empty().val(null).trigger("change");
-
-                        let emptyOption = new Option("", "", false, false);
-                        $("#technician").append(emptyOption).trigger("change");
-
-                        response.forEach(function(menu) {
-                            // Append new options.
-                            let newOption = new Option(menu.name, menu.id, false,
-                                false);
-                            $("#technician").append(newOption).trigger("change");
-                        });
-                    }
-                });
+                loadTechnicianData();
             });
 
             $('#technician').select2({
                 placeholder: "Enter technician"
             });
 
-            loadDataForTechnician();
+            loadTechnicianData();
         })
-
-        function loadDataForTechnician() {
-            let parentId = $("#shop").val();
-            $.ajax({
-                url: "/sales-order/technician/get/" + parentId,
-                method: "GET",
-                success: function(response) {
-                    console.log(response);
-                    // Clear current options and value.
-                    $("#technician").empty().val(null).trigger("change");
-
-                    let emptyOption = new Option("", "", false, false);
-                    $("#technician").append(emptyOption).trigger("change");
-
-                    response.forEach(function(menu) {
-                        // Append new options.
-                        let newOption = new Option(menu.name, menu.id, false,
-                            false);
-                        $("#technician").append(newOption).trigger("change");
-                    });
-                }
-            });
-        }
     </script>
 
     {{-- Form Handler --}}
@@ -588,6 +551,41 @@
 
     {{-- JS functions --}}
     <script>
+        /**
+         * Load technician select list data.
+         */
+        function loadTechnicianData() {
+            let parentId = $("#shop").val();
+            $.ajax({
+                url: "/sales-order/technician/get/" + parentId,
+                method: "GET",
+                success: function(response) {
+                    // Clear current options and value.
+                    $("#technician").empty().val(null).trigger("change");
+
+                    let emptyOption = new Option("", "", false, false);
+                    $("#technician").append(emptyOption).trigger("change");
+
+                    let mode = $("#btn-save").attr("value"); // update || create
+                    response.forEach(function(menu) {
+                        // Append new options.
+                        let selected = false;
+                        if (mode == 'update') {
+                            // Get saved technician id.
+                            let id = $("#technician_id").val();
+                            if (menu.id == id) {
+                                selected = true;
+                            }
+                        }
+
+                        let newOption = new Option(menu.name, menu.id, false,
+                            selected);
+                        $("#technician").append(newOption).trigger("change");
+                    });
+                }
+            });
+        }
+
         /**
          * Calculate the total price with tax, discount, and extra discount included.
          * 
