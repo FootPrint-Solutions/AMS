@@ -608,11 +608,12 @@
             $("#subtotal").val(subtotal);
 
             // Obtain and calculate discount and tax value.
+            let discount;
             if (!discountPriceIsChanged) {
-                let discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
+                discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
                 $("#discount-price-value").val(discount);
             } else {
-                let discount = $("#discount-price-value").val();
+                discount = $("#discount-price-value").val();
                 $("#discount").val(Math.round(discount / subtotal * 100));
             }
             let tax = Math.round((subtotal - discount) * parseFloat($("#tax").val()) / 100);
