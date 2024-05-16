@@ -96,7 +96,7 @@
                     className: 'table-col-price'
                 }, {
                     targets: [0, -1],
-                    className: 'text-center'
+                    className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),

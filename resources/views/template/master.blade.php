@@ -403,6 +403,15 @@
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
                 className: "btn btn-outline-danger btn-sm",
+                exportOptions: {
+                    format: {
+                        body: function(data, row, column, node) {
+                            let tempElement = document.createElement('div');
+                            tempElement.innerHTML = data;
+                            return tempElement.textContent.trim();
+                        }
+                    }
+                },
             },
             {
                 text: "<i class='fas fa-file-excel'></i> Export to Excel",
@@ -411,6 +420,10 @@
                 exportOptions: {
                     format: {
                         body: function(data, row, column, node) {
+                            let tempElement = document.createElement('div');
+                            tempElement.innerHTML = data;
+                            data = tempElement.textContent.trim();
+
                             // Check whether current column is a price column.
                             if (node.classList.contains("table-col-price")) {
                                 // If it is, remove any non-numeric characters.

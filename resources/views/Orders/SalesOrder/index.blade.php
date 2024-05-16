@@ -68,7 +68,7 @@
                     className: 'dt-body-right table-col-price'
                 }, {
                     targets: [0, 8],
-                    className: 'text-center'
+                    className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
