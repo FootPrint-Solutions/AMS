@@ -88,7 +88,7 @@
                         }
 
                         // Download invoice as pdf.
-                        downloadPDF("/sales-order/invoice/" + selectedRows[0][8]);
+                        downloadPDF("/sales-order/invoice/" + selectedRows[0][9]);
                     },
                     className: "btn btn-outline-secondary btn-sm",
                 }, ]),
@@ -97,7 +97,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(8, "/sales-order/edit/");
+            appendDatatablesToolbar(9, "/sales-order/edit/");
         });
     </script>
 
