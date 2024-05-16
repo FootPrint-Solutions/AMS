@@ -110,7 +110,7 @@ class Customer extends Controller
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = "+62 $key->contact";
-            $row[] = $key->email;
+            $row[] = $key->email ?? "-";
             $row[] = $key->address;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
@@ -135,22 +135,7 @@ class Customer extends Controller
     public function store(Request $request)
     {
         try {
-            $validatedData = $request->validate(
-                [
-                    'name' => 'required|string',
-                    'address' => 'required|string',
-                    'contact' => 'required|string',
-                    'email' => ['required', 'email'],
-                ],
-                [
-                    'name.required' => 'Customer name is required!',
-                    'address.required' => 'Customer address is required!',
-                    'contact.required' => 'Customer contact is required!',
-                    'email.required' => 'Customer email is required!',
-                    'email.email' => 'Customer email must be a valid email address!',
-                ]
-            );
-
+            $validatedData = $this->_validateData($request);
 
             $customer = new CustomerModel();
             $customer->name = $validatedData['name'];
@@ -188,22 +173,7 @@ class Customer extends Controller
     public function update(Request $request)
     {
         try {
-
-            $validatedData = $request->validate(
-                [
-                    'name' => 'required|string',
-                    'address' => 'required|string',
-                    'contact' => 'required|string',
-                    'email' => ['required', 'email'],
-                ],
-                [
-                    'name.required' => 'Customer name is required!',
-                    'address.required' => 'Customer address is required!',
-                    'contact.required' => 'Customer contact is required!',
-                    'email.required' => 'Customer email is required!',
-                    'email.email' => 'Customer email must be a valid email address!',
-                ]
-            );
+            $validatedData = $this->_validateData($request);
 
             $customer = CustomerModel::find($request->id);
             $customer->name = $validatedData['name'];
@@ -257,5 +227,29 @@ class Customer extends Controller
             // Set an error response data to be sent.
             return getResponseData(false);
         }
+    }
+
+    /**
+     * Validates the incoming request data for a customer.
+     * 
+     * @param Request $request The incoming input request to be validated.
+     * @return array The validated data..
+     */
+    private function _validateData(Request $request)
+    {
+        return $request->validate(
+            [
+                'name' => 'required|string',
+                'address' => 'required|string',
+                'contact' => 'required|string',
+                'email' => 'nullable|email',
+            ],
+            [
+                'name.required' => 'Customer name is required!',
+                'address.required' => 'Customer address is required!',
+                'contact.required' => 'Customer contact is required!',
+                'email.email' => 'Customer email must be a valid email address!',
+            ]
+        );
     }
 }
