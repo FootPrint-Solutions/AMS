@@ -408,6 +408,18 @@
                 text: "<i class='fas fa-file-excel'></i> Export to Excel",
                 extend: "excel",
                 className: "btn btn-outline-success btn-sm",
+                exportOptions: {
+                    format: {
+                        body: function(data, row, column, node) {
+                            // Check whether current column is a price column.
+                            if (node.classList.contains("table-col-price")) {
+                                // If it is, remove any non-numeric characters.
+                                return data.replace(/\./g, '');
+                            }
+                            return data;
+                        }
+                    }
+                },
             },
             {
                 text: "<i class='fas fa-sync-alt'></i> Refresh",

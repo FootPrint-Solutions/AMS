@@ -92,6 +92,9 @@
                     targets: [8, 9, 10, 11],
                     className: 'dt-body-right'
                 }, {
+                    targets: [11],
+                    className: 'table-col-price'
+                }, {
                     targets: [0, -1],
                     className: 'text-center'
                 }],

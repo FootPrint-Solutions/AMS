@@ -65,7 +65,7 @@
                     orderable: false,
                 }, {
                     targets: [6],
-                    className: 'dt-body-right'
+                    className: 'dt-body-right table-col-price'
                 }, {
                     targets: [0, 8],
                     className: 'text-center'
