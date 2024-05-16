@@ -137,6 +137,7 @@ class SalesOrder extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->sales_order_number;
+            $row[] = formatDate($key->date);
             $row[] = $key->customer_name;
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";

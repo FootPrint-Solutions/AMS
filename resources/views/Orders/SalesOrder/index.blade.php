@@ -25,6 +25,7 @@
                     <tr>
                         <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Sales Order Number</th>
+                        <th scope="col">Date</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
@@ -63,10 +64,10 @@
                     targets: [0],
                     orderable: false,
                 }, {
-                    targets: [5],
+                    targets: [6],
                     className: 'dt-body-right'
                 }, {
-                    targets: [0, 7],
+                    targets: [0, 8],
                     className: 'text-center'
                 }],
                 dom: "lBfrtip",
