@@ -111,8 +111,12 @@ $arrayVehicle";
     public function findVehicleByIdCustomer(Request $request)
     {
         $id = $request->input('id');
-        $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
-        return response()->json($results);
+        if (isset($id)) {
+            $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
+            return response()->json($results);
+        } else {
+            return response()->json([]);
+        }
     }
 
     public function findVehicleByIdVehicle(Request $request)
@@ -755,5 +759,19 @@ $arrayVehicle
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
 
         return getResponseData(true, $message);
+    }
+
+    public function findCustomerByContact(Request $request)
+    {
+        $query = $request->input('input');
+        $results = CustomerModel::where('contact', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
+        return response()->json($results);
+    }
+
+    public function findBattery(Request $request)
+    {
+        $query = $request->input('input');
+        $results = BatteryModel::wherein('id', $request->input('Battery'))->orderBy('name', 'asc')->limit(10)->get();
+        return response()->json($results);
     }
 }

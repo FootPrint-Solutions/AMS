@@ -11,6 +11,15 @@
             z-index: 999;
         }
 
+        #AutoCompleteFullNameCustomerContact {
+            position: absolute;
+            background-color: #f1f1f1;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            z-index: 999;
+        }
+
         .suggestion {
             padding: 10px;
             cursor: pointer;
@@ -270,383 +279,12 @@
                 return emailRegex.test(email);
             }
 
-            $('#FullName').on('keyup', function() {
-                var input = $(this).val();
-                if (input.length > 0) {
-                    $.ajax({
-                        url: "/quotation/customer/find",
-                        type: "GET",
-                        data: {
-                            input: input
-                        },
-                        success: function(data) {
-                            // let suggestions = data.map(item => item.name);
-                            if (data.length > 0) {
-                                displaySuggestions(data);
-                            } else {
-                                $('#AutoCompleteFullNameCustomer').html('');
-                                $("#EmailCustomer").val('');
-                                $("#ContactNumber").val('');
-                                $("#AddressCustomer").val('');
-                                $("#IdCustomer").val('');
-                                $("#Latitude").val('');
-                                $("#Longitude").val('');
-                                $('#UserExist').hide();
-                                $('#UserNotExist').show();
-                            }
-                        }
-                    });
-                } else {
-                    $('#AutoCompleteFullNameCustomer').html('');
-                    $("#EmailCustomer").val('');
-                    $("#ContactNumber").val('');
-                    $("#AddressCustomer").val('');
-                    $("#Latitude").val('');
-                    $("#Longitude").val('');
-                    $("#IdCustomer").val('');
-                    var IdCustomer = $("#IdCustomer").val();
-                    if (IdCustomer != '') {
-                        $('#UserExist').show();
-                        $('#UserNotExist').hide();
-                    } else {
-                        $('#UserExist').hide();
-                        $('#UserNotExist').show();
-                    }
-                }
-            });
-
-            function displaySuggestions(suggestions) {
-                $('#AutoCompleteFullNameCustomer').empty();
-
-                suggestions.forEach(function(item) {
-                    $('#AutoCompleteFullNameCustomer').append('<div class="suggestion">' + item.name +
-                        '</div>');
-                    // $("#EmailCustomer").val(item.email);
-                    // $("#ContactNumber").val(item.contact);
-                    // $("#AddressCustomer").val(item.address);
-                });
-
-                $('.suggestion').click(function() {
-                    var index = $(this).index();
-
-                    $('#FullName').val(suggestions[index].name);
-                    var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
-                    $('#ContactNumber').val(cleanNumber);
-                    $('#EmailCustomer').val(suggestions[index].email);
-                    $('#AddressCustomer').val(suggestions[index].address);
-                    $('#IdCustomer').val(suggestions[index].id);
-                    $("#Latitude").val(suggestions[index].latitude);
-                    $("#Longitude").val(suggestions[index].longitude);
-                    $('#AutoCompleteFullNameCustomer').empty();
-                    // call google maps
-                    initMap();
-
-                    var IdCustomer = $("#IdCustomer").val();
-                    if (IdCustomer != '') {
-                        $('#UserExist').show();
-                        $('#UserNotExist').hide();
-
-                        // get vehcile by  id 
-                        $.ajax({
-                            url: "/quotation/customer/vehicle/find",
-                            type: "GET",
-                            data: {
-                                id: IdCustomer,
-                            },
-                            success: function(data) {
-                                var vehicles = data;
-                                $('#VehicleCustomer').val(vehicles);
-                                $('#VehicleCustomer').trigger('change');
-                            }
-                        });
-                    } else {
-                        $('#UserExist').hide();
-                        $('#UserNotExist').show();
-                    }
-                });
-            }
 
 
-            $("#btnCopyAddress").on('click', function() {
-                var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-
-                if (FullName == '' || EmailCustomer == '' || ContactNumber == '' || AddressCustomer == '' ||
-                    VehicleCustomer == '') {
-                    swal.fire("Error!", "Please fill in all required fields", "error");
-                    return;
-                }
-
-                $.ajax({
-                    url: "/quotation/customer/copy",
-                    type: "POST",
-                    data: {
-                        FullName: FullName,
-                        EmailCustomer: EmailCustomer,
-                        ContactNumber: ContactNumber,
-                        AddressCustomer: AddressCustomer,
-                        VehicleCustomer: VehicleCustomer,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(data) {
-                        let ResponseData = JSON.parse(data);
-                        if (ResponseData.status) {
-                            var copyText = ResponseData.message;
-                            var textArea = document.createElement("textarea");
-                            textArea.value = copyText;
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                            swal.fire("Copied!", "Personal Details Copied", "success");
-                        } else {
-                            swal.fire("Error!", "Failed to copy personal details", "error");
-                        }
-                    }
-                });
-            });
 
 
-            // check 
-            $('.seller-next-btn-check').on('click', function() {
-                var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
 
-                if (FullName == '') {
-                    swal.fire("Error!", "Full Name is required", "error");
-                    return;
-                }
 
-                if (EmailCustomer == '') {
-                    swal.fire("Error!", "Email Customer is required", "error");
-                    return;
-                }
-
-                if (!isValidEmail(EmailCustomer)) {
-                    swal.fire("Error!", "Email is not valid", "error");
-                    return;
-                }
-
-                if (ContactNumber == '') {
-                    swal.fire("Error!", "Contact Number is required", "error");
-                    return;
-                }
-
-                if (AddressCustomer == '') {
-                    swal.fire("Error!", "Address Customer is required", "error");
-                    return;
-                }
-
-                if (VehicleCustomer == '') {
-                    swal.fire("Error!", "Vehicle Customer is required", "error");
-                    return;
-                }
-
-                if (Latitude == '' || Longitude == '') {
-                    swal.fire("Error!", "Latitude and Longitude is required", "error");
-                    return;
-                }
-
-                if (ContactNumber.substring(0, 1) != '8') {
-                    swal.fire("Error!", "Contact Number must start with 8", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share "
-                    );
-                    return;
-                }
-
-                $('#btnNextStep2').trigger('click');
-
-                // check jika button next step 2 berhasil di click
-                if ($('#ProductDisplay').hasClass('active')) {
-                    $.ajax({
-                        url: "/quotation/vehicle/find",
-                        type: "GET",
-                        data: {
-                            id: VehicleCustomer,
-                        },
-                        success: function(data) {
-                            var html = '';
-                            // jika data kosong
-                            if (data.length === 0) {
-                                html =
-                                    '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Battery Found</div>';
-                                $('#ResultRecommendationBattery').html(html);
-                                return;
-                            } else {
-                                data.forEach(function(vehicle) {
-                                    html +=
-                                        '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
-                                    html += '<div class="blog grid-blog flex-fill">';
-                                    html += '<div class="blog-imagex">';
-                                    html += '<a href="#!">';
-                                    if (vehicle.image == null) {
-
-                                        vehicle.image =
-                                            'https://via.placeholder.com/210x210';
-                                        html += '<img class="img-fluid" src="' + vehicle
-                                            .image + '" alt="Post Image">';
-                                    } else {
-                                        var baseUrl =
-                                            "{{ asset('storage/image/battery/') }}";
-                                        vehicle.image = vehicle.image;
-                                        html += '<img class="img-fluid" src="' +
-                                            baseUrl +
-                                            '/' + vehicle.image +
-                                            '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
-                                    }
-                                    html += '</a>';
-                                    html += '</div>';
-                                    html += '<div class="blog-content">';
-                                    html +=
-                                        '<h3 class="blog-title mt-3"><a href="#!">' +
-                                        vehicle.name + '</a></h3>';
-                                    html += '<p>Details & Specification :</p>';
-                                    html += '<ul class="list-group list-group-flush">';
-                                    html += '<li class="list-group-item">Warranty : ' +
-                                        vehicle.warranty + ' Months</li>';
-
-                                    html += '<li class="list-group-item">Price : Rp. ' +
-                                        Number(vehicle.price_retail).toLocaleString(
-                                            'id-ID') + '</li>';
-                                    html += '<li class="list-group-item">Size : ' +
-                                        vehicle.size_category + '</li>';
-                                    html += '</ul>';
-                                    html +=
-                                        '</div>';
-                                    html += '<div class="row">';
-                                    html +=
-                                        '<div class="edit-options">';
-                                    html +=
-                                        '<div class="text-end inactive-style mt-3">';
-                                    html +=
-                                        '<div class="checkbox">';
-                                    html += '<label>';
-                                    html +=
-                                        '<input type="checkbox" name="CheckBattery[]" value=' +
-                                        vehicle.id + '> Add to cart';
-                                    html +=
-                                        '</label>';
-                                    html += '</div>';
-                                    html += '</div>';
-                                    html +=
-                                        '</div>';
-                                    html += '</div>';
-                                    html += '</div>';
-                                    html +=
-                                        '</div>';
-                                });
-                                $('#ResultRecommendationBattery').html(html);
-                                getMapsNearAddressCustomer();
-                            }
-                        }
-                    });
-                }
-
-                function getMapsNearAddressCustomer() {
-                    var address = $('#AddressCustomer').val();
-                    var latitude = $('#Latitude').val();
-                    var longitude = $('#Longitude').val();
-                    var idCustomer = $('#IdCustomer').val();
-                    var data = {
-                        address: address,
-                        latitude: latitude,
-                        longitude: longitude,
-                    };
-
-                    $.ajax({
-                        url: "/quotation/customer/maps/near",
-                        type: "GET",
-                        data: data,
-                        success: function(data) {
-                            $("#MapsDistributorRecomendation").html(data);
-                        }
-                    });
-                }
-            });
-
-            $("#BtnShareBattery").click(function() {
-                var button = $(this);
-                button.prop('disabled', true);
-                button.html(
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
-                );
-                var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-                var contactNumber = $("#ContactNumber").val();
-
-                if (Battery.length == 0) {
-                    swal.fire("Error!", "Please select battery", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                if (FullName == '') {
-                    swal.fire("Error!", "Full Name is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share"
-                    );
-                    return;
-                }
-
-                Battery.forEach(function(battery) {
-                    var data = {
-                        FullName: FullName,
-                        Battery: battery,
-                        ContactNumber: contactNumber,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    };
-
-                    $.ajax({
-                        url: "/quotation/battery/share",
-                        type: "POST",
-                        data: data,
-                        success: function(data) {
-                            let ResponseData = JSON.parse(data);
-                            if (ResponseData.status) {
-                                Swal.fire({
-                                    title: "Success",
-                                    text: ResponseData.message,
-                                    icon: "success",
-                                });
-                                button.prop('disabled', false);
-                                button.html(
-                                    "<i class='fa-brands fa-whatsapp'></i> Share"
-                                );
-                            } else {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: ResponseData.message ||
-                                        "Something went wrong, please try again later",
-                                    icon: "error",
-                                });
-                                button.prop('disabled', false);
-                                button.html(
-                                    "<i class='fa-brands fa-whatsapp'></i> Share"
-                                );
-                            };
-                        }
-                    });
-                });
-            });
 
             $(".product-next-btn").on('click', function() {
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
@@ -1092,142 +730,142 @@
 
     {{-- GOOGLE MAPS JANGAN DIOTAK ATIK YA GESSS YAA  --}}
     <script>
-        var map;
-        var marker;
+        // var map;
+        // var marker;
 
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: {
-                    lat: -6.8837859188198784,
-                    lng: 107.5403487263912
-                },
-                zoom: 17
-            });
+        // function initMap() {
+        //     map = new google.maps.Map(document.getElementById('map'), {
+        //         center: {
+        //             lat: -6.8837859188198784,
+        //             lng: 107.5403487263912
+        //         },
+        //         zoom: 17
+        //     });
 
-            var input = document.getElementById('AddressCustomer');
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
+        //     var input = document.getElementById('AddressCustomer');
+        //     var autocomplete = new google.maps.places.Autocomplete(input);
+        //     autocomplete.bindTo('bounds', map);
 
-            marker = new google.maps.Marker({
-                map: map,
-                draggable: true
-            });
+        //     marker = new google.maps.Marker({
+        //         map: map,
+        //         draggable: true
+        //     });
 
-            autocomplete.addListener('place_changed', function() {
-                var place = autocomplete.getPlace();
-                if (!place.geometry) {
-                    console.error("Place details not found");
-                    return;
-                }
+        //     autocomplete.addListener('place_changed', function() {
+        //         var place = autocomplete.getPlace();
+        //         if (!place.geometry) {
+        //             console.error("Place details not found");
+        //             return;
+        //         }
 
-                var location = place.geometry.location;
-                if (isNaN(location.lat()) || isNaN(location.lng())) {
-                    console.error("Invalid coordinates");
-                    return;
-                }
+        //         var location = place.geometry.location;
+        //         if (isNaN(location.lat()) || isNaN(location.lng())) {
+        //             console.error("Invalid coordinates");
+        //             return;
+        //         }
 
-                if (place.geometry.viewport && place.geometry.viewport instanceof google.maps.LatLngBounds) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    if (place.geometry.location) {
-                        map.setCenter(location);
-                        map.setZoom(17);
-                    } else {
-                        console.error("Viewport not available");
-                    }
-                }
+        //         if (place.geometry.viewport && place.geometry.viewport instanceof google.maps.LatLngBounds) {
+        //             map.fitBounds(place.geometry.viewport);
+        //         } else {
+        //             if (place.geometry.location) {
+        //                 map.setCenter(location);
+        //                 map.setZoom(17);
+        //             } else {
+        //                 console.error("Viewport not available");
+        //             }
+        //         }
 
-                marker.setPosition(location);
-                marker.setVisible(true);
-
-
-                var address = place.formatted_address;
-                var latitude = parseFloat(place.geometry.location.lat());
-                var longitude = parseFloat(place.geometry.location.lng());
+        //         marker.setPosition(location);
+        //         marker.setVisible(true);
 
 
-                document.getElementById('AddressCustomer').value = address;
-                document.getElementById('Latitude').value = latitude;
-                document.getElementById('Longitude').value = longitude;
-            });
+        //         var address = place.formatted_address;
+        //         var latitude = parseFloat(place.geometry.location.lat());
+        //         var longitude = parseFloat(place.geometry.location.lng());
 
 
-            google.maps.event.addListener(marker, 'dragend', function() {
-                var position = marker.getPosition();
-                map.panTo(position);
+        //         document.getElementById('AddressCustomer').value = address;
+        //         document.getElementById('Latitude').value = latitude;
+        //         document.getElementById('Longitude').value = longitude;
+        //     });
 
 
-                var geocoder = new google.maps.Geocoder();
-                geocoder.geocode({
-                    'location': position
-                }, function(results, status) {
-                    if (status === 'OK') {
-                        if (results[0]) {
-                            var address = results[0].formatted_address;
-                            var latitude = position.lat();
-                            var longitude = position.lng();
+        //     google.maps.event.addListener(marker, 'dragend', function() {
+        //         var position = marker.getPosition();
+        //         map.panTo(position);
 
 
-                            document.getElementById('AddressCustomer').value = address;
-                            document.getElementById('Latitude').value = latitude;
-                            document.getElementById('Longitude').value = longitude;
-                        }
-                    } else {
-                        console.error('Geocoder failed due to: ' + status);
-                    }
-                });
-
-                // panggil auto complete
-                var input = document.getElementById('AddressCustomer');
-                var autocomplete = new google.maps.places.Autocomplete(input);
-                autocomplete.bindTo('bounds', map);
-
-                autocomplete.addListener('place_changed', function() {
-                    var place = autocomplete.getPlace();
-                    if (!place.geometry) {
-                        console.error("Place details not found");
-                        return;
-                    }
-
-                    var location = place.geometry.location;
-                    if (isNaN(location.lat()) || isNaN(location.lng())) {
-                        console.error("Invalid coordinates");
-                        return;
-                    }
-
-                    if (place.geometry.viewport && place.geometry.viewport instanceof google.maps
-                        .LatLngBounds) {
-                        map.fitBounds(place.geometry.viewport);
-                    } else {
-                        if (place.geometry.location) {
-                            map.setCenter(location);
-                            map.setZoom(17);
-                        } else {
-                            console.error("Viewport not available");
-                        }
-                    }
-
-                    marker.setPosition(location);
-                    marker.setVisible(true);
+        //         var geocoder = new google.maps.Geocoder();
+        //         geocoder.geocode({
+        //             'location': position
+        //         }, function(results, status) {
+        //             if (status === 'OK') {
+        //                 if (results[0]) {
+        //                     var address = results[0].formatted_address;
+        //                     var latitude = position.lat();
+        //                     var longitude = position.lng();
 
 
-                    var address = place.formatted_address;
-                    var latitude = parseFloat(place.geometry.location.lat());
-                    var longitude = parseFloat(place.geometry.location.lng());
+        //                     document.getElementById('AddressCustomer').value = address;
+        //                     document.getElementById('Latitude').value = latitude;
+        //                     document.getElementById('Longitude').value = longitude;
+        //                 }
+        //             } else {
+        //                 console.error('Geocoder failed due to: ' + status);
+        //             }
+        //         });
+
+        //         // panggil auto complete
+        //         var input = document.getElementById('AddressCustomer');
+        //         var autocomplete = new google.maps.places.Autocomplete(input);
+        //         autocomplete.bindTo('bounds', map);
+
+        //         autocomplete.addListener('place_changed', function() {
+        //             var place = autocomplete.getPlace();
+        //             if (!place.geometry) {
+        //                 console.error("Place details not found");
+        //                 return;
+        //             }
+
+        //             var location = place.geometry.location;
+        //             if (isNaN(location.lat()) || isNaN(location.lng())) {
+        //                 console.error("Invalid coordinates");
+        //                 return;
+        //             }
+
+        //             if (place.geometry.viewport && place.geometry.viewport instanceof google.maps
+        //                 .LatLngBounds) {
+        //                 map.fitBounds(place.geometry.viewport);
+        //             } else {
+        //                 if (place.geometry.location) {
+        //                     map.setCenter(location);
+        //                     map.setZoom(17);
+        //                 } else {
+        //                     console.error("Viewport not available");
+        //                 }
+        //             }
+
+        //             marker.setPosition(location);
+        //             marker.setVisible(true);
 
 
-                    document.getElementById('AddressCustomer').value = address;
-                    document.getElementById('Latitude').value = latitude;
-                    document.getElementById('Longitude').value = longitude;
+        //             var address = place.formatted_address;
+        //             var latitude = parseFloat(place.geometry.location.lat());
+        //             var longitude = parseFloat(place.geometry.location.lng());
 
 
-                });
-            });
-        }
+        //             document.getElementById('AddressCustomer').value = address;
+        //             document.getElementById('Latitude').value = latitude;
+        //             document.getElementById('Longitude').value = longitude;
+
+
+        //         });
+        //     });
+        // }
     </script>
-    <script async defer
+    {{-- <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
-    </script>
+    </script> --}}
 
 
 
