@@ -82,8 +82,8 @@
         <thead>
             <tr>
                 <th style="width: 2%; font-size: 1.2em">No</th>
-                <th style="width: 48%; font-size: 1.2em">Name</th>
                 <th style="width: 30%; font-size: 1.2em">Production Code</th>
+                <th style="width: 48%; font-size: 1.2em">Name</th>
                 <th style="width: 20%; text-align: right; font-size: 1.2em">Price (IDR)</th>
             </tr>
         </thead>
@@ -93,8 +93,8 @@
             @foreach ($data['profile']['batteries'] as $index => $battery)
                 <tr>
                     <td style="text-align: center">{{ $index + 1 }}</td>
-                    <td>{{ $battery['battery_name'] }}</td>
                     <td>{{ $battery['battery_production_code'] }}</td>
+                    <td>{{ $battery['battery_name'] }}</td>
                     <td style="text-align: right">{{ number_format($battery['battery_price']) }}</td>
                 </tr>
             @endforeach
@@ -137,9 +137,3 @@
         </table>
     </table>
 </div>
-
-<script>
-    window.onload = function() {
-        window.print();
-    }
-</script>

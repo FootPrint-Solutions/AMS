@@ -111,8 +111,12 @@ $arrayVehicle";
     public function findVehicleByIdCustomer(Request $request)
     {
         $id = $request->input('id');
-        $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
-        return response()->json($results);
+        if (isset($id)) {
+            $results = CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray();
+            return response()->json($results);
+        } else {
+            return response()->json([]);
+        }
     }
 
     public function findVehicleByIdVehicle(Request $request)
@@ -193,6 +197,15 @@ $arrayBattery
                     $value['image'] = asset('storage/image/battery/' . $value['image']);
                 } else {
                     $value['image'] = null;
+                }
+
+                // cek image exist
+                $head = @get_headers($value['image']);
+
+                if ($head && strpos($head[0], '200')) {
+                    $value['image'] = $value['image'];
+                } else {
+                    $value['image'] = "https://via.placeholder.com/210x210";
                 }
 
                 $data = [
@@ -322,6 +335,7 @@ $arrayBattery
             'Discount' => $Discount,
             'ExtraDiscount' => $ExtraDiscount,
             'DistributorShop' => $DistibutorShop,
+            'Subtotal' => $request->input('subtotal') ?? 0,
         ];
 
         $midtrans = new CreateSnapTokenService($InvoiceNumber);
@@ -418,8 +432,6 @@ $arrayBattery
             'text' => "$message",
         ];
 
-        $response = Http::post($url, $data);
-        $responseData = $response->json();
 
         try {
             $response = Http::post($url, $data);
@@ -487,8 +499,6 @@ $arrayBattery
             'text' => $message,
         ];
 
-        $response = Http::post($url, $data);
-        $responseData = $response->json();
 
         try {
             $response = Http::post($url, $data);
@@ -758,5 +768,24 @@ $arrayVehicle
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
 
         return getResponseData(true, $message);
+    }
+
+    public function findCustomerByContact(Request $request)
+    {
+        $query = $request->input('input');
+        $results = CustomerModel::where('contact', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
+        return response()->json($results);
+    }
+
+    public function findBattery(Request $request)
+    {
+        $query = $request->input('input');
+        $results = BatteryModel::whereIn('batteries.id', $request->input('Battery'))
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->orderBy('batteries.name', 'asc')
+            ->select('batteries.*', 'battery_size_categories.name as size_category')
+            ->limit(10)
+            ->get();
+        return response()->json($results);
     }
 }

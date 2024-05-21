@@ -94,11 +94,18 @@
                             <div class="col-sm-2">
                                 <button type="button" class="btn btn-primary" id="btnAddress"><i
                                         class="fas fa-map-marker"></i></button>
-                                <input type="hidden" name="Address" id="AddressSearchColumn" value="">
-                                <input type="hidden" name="Latitude" id="Latitude" value="">
-                                <input type="hidden" name="Longitude" id="Longitude" value="">
+                                <input type="hidden" name="Latitude" id="Latitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif">
+                                <input type="hidden" name="Longitude" id="Longitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif">
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col">
+                        <input type="text" class="form-control" name="Address" id="AddressSearchColumn"
+                            value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
+                            readonly>
                     </div>
 
                     {{-- Distributor Shop --}}
@@ -123,6 +130,10 @@
                                 <option></option>
                                 <option disabled>Select a distributor to select a technician</option>
                             </select>
+                            @isset($data['profile'])
+                                <input type="hidden" id="technician_id"
+                                    value="{{ $data['profile']['distributor_shop_technician_id'] }}">
+                            @endisset
                         </div>
                     </div>
                 </div>
@@ -240,6 +251,40 @@
                 </td>
             </tr>
 
+            {{-- Discount --}}
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-end">Discount</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            {{-- Discount Percentage --}}
+                            <div class="input-group" id="discount-percentage">
+                                <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
+                                    name="discount"
+                                    @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                    @isset($data['profile']['discount']) readonly @endisset required>
+                                <span class="input-group-text border-end">%</span>
+                            </div>
+
+                            {{-- Discount Price --}}
+                            <div class="input-group d-none" id="discount-price">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="text" class="form-control text-end" id="discount-price-value"
+                                    name="discountprice"
+                                    @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
+                                data-offlabel="%" data-onlabel="IDR">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
             {{-- Tax --}}
             <tr>
                 <td colspan="2"></td>
@@ -267,40 +312,6 @@
 
                         <div class="col-sm-2">
                             <input type="checkbox" id="toggle-tax" data-toggle="toggle" data-size="sm"
-                                data-offlabel="%" data-onlabel="IDR">
-                        </div>
-                    </div>
-                </td>
-            </tr>
-
-            {{-- Discount --}}
-            <tr>
-                <td colspan="2"></td>
-                <td class="text-end">Discount</td>
-                <td>
-                    <div class="row">
-                        <div class="col">
-                            {{-- Discount Percentage --}}
-                            <div class="input-group" id="discount-percentage">
-                                <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
-                                    name="discount"
-                                    @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                    @isset($data['profile']['discount']) readonly @endisset required>
-                                <span class="input-group-text border-end">%</span>
-                            </div>
-
-                            {{-- Discount Price --}}
-                            <div class="input-group d-none" id="discount-price">
-                                <span class="input-group-text border-end">IDR</span>
-                                <input type="text" class="form-control text-end" id="discount-price-value"
-                                    name="discountprice"
-                                    @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
-                                    readonly required>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
                                 data-offlabel="%" data-onlabel="IDR">
                         </div>
                     </div>
@@ -402,30 +413,14 @@
                 let parentId = e.params.data.id;
 
                 // Get the list of menus inside the selected parent.
-                $.ajax({
-                    url: "/sales-order/technician/get/" + parentId,
-                    method: "GET",
-                    success: function(response) {
-                        console.log(response);
-                        // Clear current options and value.
-                        $("#technician").empty().val(null).trigger("change");
-
-                        let emptyOption = new Option("", "", false, false);
-                        $("#technician").append(emptyOption).trigger("change");
-
-                        response.forEach(function(menu) {
-                            // Append new options.
-                            let newOption = new Option(menu.name, menu.id, false,
-                                false);
-                            $("#technician").append(newOption).trigger("change");
-                        });
-                    }
-                });
+                loadTechnicianData();
             });
 
             $('#technician').select2({
                 placeholder: "Enter technician"
             });
+
+            loadTechnicianData();
         })
     </script>
 
@@ -532,7 +527,7 @@
                 }
             });
 
-            $("#tax, #discount, #extra-discount").on("change", function() {
+            $("#tax, #discount, #discount-price-value, #extra-discount").on("change", function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
                 if (isNaN(value)) {
@@ -540,7 +535,7 @@
                 }
 
                 // Recalculate total value.
-                calculateTotal();
+                calculateTotal($(this).attr("id") === "discount-price-value");
             });
         });
     </script>
@@ -552,20 +547,52 @@
             formatPrice($(this));
             calculateTotal();
         });
-
-        $(".list-group-item list-item").on("click", function() {
-            alert("clicked");
-        });
     </script>
 
     {{-- JS functions --}}
     <script>
         /**
+         * Load technician select list data.
+         */
+        function loadTechnicianData() {
+            let parentId = $("#shop").val();
+            $.ajax({
+                url: "/sales-order/technician/get/" + parentId,
+                method: "GET",
+                success: function(response) {
+                    // Clear current options and value.
+                    $("#technician").empty().val(null).trigger("change");
+
+                    let emptyOption = new Option("", "", false, false);
+                    $("#technician").append(emptyOption).trigger("change");
+
+                    let mode = $("#btn-save").attr("value"); // update || create
+                    response.forEach(function(menu) {
+                        // Append new options.
+                        let selected = false;
+                        if (mode == 'update') {
+                            // Get saved technician id.
+                            let id = $("#technician_id").val();
+                            if (menu.id == id) {
+                                selected = true;
+                            }
+                        }
+
+                        let newOption = new Option(menu.name, menu.id, false,
+                            selected);
+                        $("#technician").append(newOption).trigger("change");
+                    });
+                }
+            });
+        }
+
+        /**
          * Calculate the total price with tax, discount, and extra discount included.
          * 
+         * @param {boolean} discountPrice - (Optional) Indicates if the discount price value has been changed..
          * @returns {number} The total price after applying tax, discount, and extra discount.
          */
-        function calculateTotal() {
+        function calculateTotal(discountPriceIsChanged = false) {
             // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
@@ -579,8 +606,14 @@
             $("#subtotal").val(subtotal);
 
             // Obtain and calculate discount and tax value.
-            let discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
-            $("#discount-price-value").val(discount);
+            let discount;
+            if (!discountPriceIsChanged) {
+                discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
+                $("#discount-price-value").val(discount);
+            } else {
+                discount = $("#discount-price-value").val();
+                $("#discount").val(Math.round(discount / subtotal * 100));
+            }
             let tax = Math.round((subtotal - discount) * parseFloat($("#tax").val()) / 100);
             $("#tax-price-value").val(tax);
 

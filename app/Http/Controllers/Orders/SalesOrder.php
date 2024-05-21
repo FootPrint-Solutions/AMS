@@ -137,7 +137,8 @@ class SalesOrder extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->sales_order_number;
-            $row[] = "$key->customer_name<button type='button' class='btn btn-sm btn-primary mx-2'><i class='fa fa-map-marker'></i></button>";
+            $row[] = formatDate($key->date);
+            $row[] = $key->customer_name;
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);

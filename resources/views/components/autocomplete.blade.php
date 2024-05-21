@@ -16,8 +16,11 @@
 
 <div style="position: relative;">
     <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }}>
-    <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }} name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}" required placeholder="{{ $placeholder }}" @if ($value !=='' ) value="{{ $value }}" @endempty>
-    <ul class="list-group autocomplete-list"></ul>
+    <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }}
+        name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}" required
+        placeholder="{{ $placeholder }}" @if ($value !== '')
+value="{{ $value }}" @endempty>
+<ul class="list-group autocomplete-list"></ul>
 </div>
 
 <script>
@@ -39,7 +42,7 @@
 
                     var listItem = $(
                         "<li class='list-group-item list-item' data-id='" +
-                        data[0] + "'>" + data[1] + " - " + data[3] + "</li>");
+                        data[0] + "'>" + data[1] + "</li>");
 
                     // Add onclick event function.
                     listItem.click(function() {
@@ -59,9 +62,7 @@
                         autocompleteList.empty();
 
                         // Do a function after the autocomplete process.
-                        if (typeof $callback === "function") {
-                            $callback();
-                        }
+                        {{ $callback }}();
                     });
                     autocompleteList.append(listItem);
                 });

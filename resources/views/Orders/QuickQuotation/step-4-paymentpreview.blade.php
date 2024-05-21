@@ -130,9 +130,10 @@
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
-                            <p>Tax <span>{{ $tax }}</span></p>
+                            <p>Subtotal <span>Rp. {{ number_format($Subtotal, 0, ',', '.') }}</span></p>
                             <p>Discount <span>{{ $Discount }}</span></p>
-                            <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p>
+                            <p>Tax <span>{{ $tax }}</span></p>
+                            {{-- <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p> --}}
                         </div>
                         <div class="invoice-total-footer">
                             <h4>Total Amount <span>Rp. {{ number_format($TotalAmount, 0, ',', '.') }}</span></h4>

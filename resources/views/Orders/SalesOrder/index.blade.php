@@ -25,6 +25,7 @@
                     <tr>
                         <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Sales Order Number</th>
+                        <th scope="col">Date</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
@@ -63,15 +64,15 @@
                     targets: [0],
                     orderable: false,
                 }, {
-                    targets: [5],
-                    className: 'dt-body-right'
+                    targets: [6],
+                    className: 'dt-body-right table-col-price'
                 }, {
-                    targets: [0, 7],
-                    className: 'text-center'
+                    targets: [0, 8],
+                    className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
-                    text: "<i class='fas fa-file-text'></i> View Invoice",
+                    text: "<i class='fas fa-file-text'></i> Invoice",
                     action: function(e, dt, node, config) {
                         // Get the selected row's id.
                         let selectedRows = table.rows({
@@ -80,14 +81,14 @@
                         if (selectedRows.length !== 1) {
                             Swal.fire({
                                 title: "Error",
-                                text: "Please select a single row for viewing invoice.",
+                                text: "Please select a single row for downloading invoice.",
                                 icon: "error",
                             });
                             return;
                         }
 
-                        // Go to page invoice.
-                        goToPage("/sales-order/invoice/" + selectedRows[0][8], true)
+                        // Download invoice as pdf.
+                        downloadPDF("/sales-order/invoice/" + selectedRows[0][9]);
                     },
                     className: "btn btn-outline-secondary btn-sm",
                 }, ]),
@@ -96,7 +97,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(8, "/sales-order/edit/");
+            appendDatatablesToolbar(9, "/sales-order/edit/");
         });
     </script>
 

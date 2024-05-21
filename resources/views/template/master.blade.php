@@ -403,11 +403,36 @@
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
                 className: "btn btn-outline-danger btn-sm",
+                exportOptions: {
+                    format: {
+                        body: function(data, row, column, node) {
+                            let tempElement = document.createElement('div');
+                            tempElement.innerHTML = data;
+                            return tempElement.textContent.trim();
+                        }
+                    }
+                },
             },
             {
                 text: "<i class='fas fa-file-excel'></i> Export to Excel",
                 extend: "excel",
                 className: "btn btn-outline-success btn-sm",
+                exportOptions: {
+                    format: {
+                        body: function(data, row, column, node) {
+                            let tempElement = document.createElement('div');
+                            tempElement.innerHTML = data;
+                            data = tempElement.textContent.trim();
+
+                            // Check whether current column is a price column.
+                            if (node.classList.contains("table-col-price")) {
+                                // If it is, remove any non-numeric characters.
+                                return data.replace(/\./g, '');
+                            }
+                            return data;
+                        }
+                    }
+                },
             },
             {
                 text: "<i class='fas fa-sync-alt'></i> Refresh",
@@ -443,6 +468,7 @@
 </script>
 
 {{-- JS Custom Functions --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
 <script>
     /**
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
@@ -456,6 +482,40 @@
         } else {
             window.location.href = destination;
         }
+    }
+
+    /**
+     * Download a pdf document based on the url.
+     *
+     * @param {string} url - The url view to be downloaded as pdf.
+     */
+    function downloadPDF(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            contentType: 'application/json',
+            responseType: 'document',
+            success: function(response) {
+                // Create an iframe element
+                var iframe = document.createElement('iframe');
+                iframe.style.visibility = 'hidden';
+
+                // Append the iframe to the document body
+                document.body.appendChild(iframe);
+
+                // Write the HTML content into the iframe
+                var doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(response);
+                doc.close();
+
+                // Wait for the content to load, then trigger the print dialog
+                iframe.onload = function() {
+                    iframe.contentWindow.print();
+                    document.body.removeChild(iframe);
+                };
+            }
+        });
     }
 
     /**

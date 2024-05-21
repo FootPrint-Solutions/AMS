@@ -54,6 +54,19 @@ function formatPrice($price)
 }
 
 /**
+ * Convert a string date value to readable date format.
+ * 
+ * @param string $price The string date value to be converted.
+ * @param string $format (Optional) The desired date format (the default date format is 1 Jan 2000).
+ * 
+ * @return string The formatted date.
+ */
+function formatDate($date, $format = "j M Y")
+{
+    return date_format(date_create($date), $format);
+}
+
+/**
  * Convert a numeric price into its Indonesian terbilang representation.
  * Shout out to @cahsowan (https://gist.github.com/cahsowan/d315d54a59e4f14a6bab)!
  * 
