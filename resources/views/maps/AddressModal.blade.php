@@ -36,10 +36,19 @@
     var marker;
 
     function initMap() {
+
+        var existingLat = parseFloat(document.getElementById('Latitude').value);
+        var existingLng = parseFloat(document.getElementById('Longitude').value);
+
+        if (isNaN(existingLat) || isNaN(existingLng)) {
+            existingLat = -6.8837859188198784;
+            existingLng = 107.5403487263912;
+        }
+
         map = new google.maps.Map(document.getElementById('MapsAddressFinderModal'), {
             center: {
-                lat: -6.8837859188198784,
-                lng: 107.5403487263912
+                lat: existingLat,
+                lng: existingLng
             },
             zoom: 15
         });
@@ -48,9 +57,31 @@
         var autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo('bounds', map);
 
+
         marker = new google.maps.Marker({
             map: map,
-            draggable: true
+            draggable: true,
+            position: {
+                lat: existingLat,
+                lng: existingLng
+            },
+            visible: true
+        });
+
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({
+            'location': {
+                lat: existingLat,
+                lng: existingLng
+            }
+        }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                var address = results[0].formatted_address;
+                document.getElementById('AddressSearchColumnModal').value = address;
+                document.getElementById('AddressSearchColumn').value = address;
+            } else {
+                console.error('Geocoder failed due to: ' + status);
+            }
         });
 
         autocomplete.addListener('place_changed', function() {
