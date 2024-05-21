@@ -126,7 +126,7 @@
                             '<div class="checkbox">';
                         html += '<label>';
                         html +=
-                            '<input type="checkbox" name="CheckBattery[]" value=' +
+                            '<input type="checkbox" name="CheckBattery1[]" value=' +
                             vehicle.id + '> Add to cart';
                         html +=
                             '</label>';
@@ -148,7 +148,7 @@
 
     $("#btnCopyAddress").on('click', function() {
         var FullName = $("#FullName").val();
-        var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+        var Battery = $("input[name='CheckBattery1[]']:checked").map(function() {
             return $(this).val();
         }).get();
 
@@ -189,7 +189,7 @@
     $('.seller-next-btn-check').on('click', function() {
         var VehicleCustomer = $('#VehicleCustomer').val();
         var AddressCustomer = $("#AddressCustomer").val();
-        var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+        var Battery = $("input[name='CheckBattery1[]']:checked").map(function() {
             return $(this).val();
         }).get();
 

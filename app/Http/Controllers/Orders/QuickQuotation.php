@@ -199,6 +199,15 @@ $arrayBattery
                     $value['image'] = null;
                 }
 
+                // cek image exist
+                $head = @get_headers($value['image']);
+
+                if ($head && strpos($head[0], '200')) {
+                    $value['image'] = $value['image'];
+                } else {
+                    $value['image'] = "https://via.placeholder.com/210x210";
+                }
+
                 $data = [
                     'to' => "62" . $request->input('ContactNumber'),
                     'session' => auth()->user()->username,
@@ -771,7 +780,12 @@ $arrayVehicle
     public function findBattery(Request $request)
     {
         $query = $request->input('input');
-        $results = BatteryModel::wherein('id', $request->input('Battery'))->orderBy('name', 'asc')->limit(10)->get();
+        $results = BatteryModel::whereIn('batteries.id', $request->input('Battery'))
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->orderBy('batteries.name', 'asc')
+            ->select('batteries.*', 'battery_size_categories.name as size_category')
+            ->limit(10)
+            ->get();
         return response()->json($results);
     }
 }
