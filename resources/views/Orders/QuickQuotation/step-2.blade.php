@@ -9,7 +9,8 @@
                 <div class="input-group">
                     <span class="input-group-text border-end country-code">+62</span>
                     <label for="company-name">Contact Number <span class="login-danger">*</span></label>
-                    <input type="number" class="form-control" id="ContactNumber" name="ContactNumber" placeholder="Enter Contract Number" value="" required autocomplete="off">
+                    <input type="number" class="form-control" id="ContactNumber" name="ContactNumber"
+                        placeholder="Enter Contract Number" value="" required autocomplete="off">
                 </div>
                 <div id="AutoCompleteFullNameCustomerContact"></div>
             </div>
@@ -17,7 +18,8 @@
         <div class="col-lg-6">
             <div class="form-group local-forms">
                 <label for="company-name">Email </label>
-                <input type="email" class="form-control" id="EmailCustomer" name="EmailCustomer" placeholder="Enter Email" value="" autocomplete="off">
+                <input type="email" class="form-control" id="EmailCustomer" name="EmailCustomer"
+                    placeholder="Enter Email" value="" autocomplete="off">
             </div>
         </div>
     </div>
@@ -25,13 +27,34 @@
         <div class="col-lg-6">
             <div class="form-group local-forms">
                 <label for="company-name">Full Name <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="FullName" name="FullName" placeholder="Enter Full Name" value="" required autocomplete="off">
+                <input type="text" class="form-control" id="FullName" name="FullName" placeholder="Enter Full Name"
+                    value="" required autocomplete="off">
                 <div id="AutoCompleteFullNameCustomer"></div>
                 <span class="badge bg-success" id="UserExist" style='display:none;'>User
                     Exist</span>
                 <span class="badge bg-warning" id="UserNotExist" style='display:none;'>New
                     User</span>
             </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="form-group local-forms">
+                <label for="company-contact">Address Customer <span class="login-danger">*</span></label>
+
+
+                {{-- <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
+                                                    value="" required autocomplete="off"></textarea> --}}
+
+                <input type="text" class="form-control" id="AddressCustomer" name="AddressCustomer">
+            </div>
+
+            <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
+            <input type="hidden" name="Latitude" id="Latitude" value="">
+            <input type="hidden" name="Longitude" id="Longitude" value="">
+        </div>
+
+        <div class="col-lg-6 d-none">
+            <div id="map"></div>
         </div>
     </div>
 
@@ -43,7 +66,8 @@
     </div>
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous
             </a>
         </div>
         <div class="col text-end">
