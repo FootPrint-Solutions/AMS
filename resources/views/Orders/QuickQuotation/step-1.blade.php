@@ -7,12 +7,13 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label for="company-name">Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
+                        aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">
-                            {{ trim($vehicle['name']) }}
+                            <option value="{{ $vehicle['id'] }}">
+                                {{ trim($vehicle['name']) }}
 
-                        </option>
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -106,6 +107,13 @@
                             vehicle.name + '</a></h3>';
                         html += '<p>Details & Specification :</p>';
                         html += '<ul class="list-group list-group-flush">';
+                        html += '<li class="list-group-item">Dimension : ' +
+                            vehicle.dimension_height + ' x ' + vehicle.dimension_width +
+                            ' x ' + vehicle.dimension_length + ' mm</li>';
+                        html += '<li class="list-group-item">Capacity : ' +
+                            vehicle.capacity + ' AH</li>';
+                        html += '<li class="list-group-item">Standar CCA : ' +
+                            vehicle.standard_cca + '</li>';
                         html += '<li class="list-group-item">Warranty : ' +
                             vehicle.warranty + ' Months</li>';
 
@@ -127,7 +135,7 @@
                         html += '<label>';
                         html +=
                             '<input type="checkbox" name="CheckBattery1[]" value=' +
-                            vehicle.id + '> Add to cart';
+                            vehicle.id + '> Select Battery';
                         html +=
                             '</label>';
                         html += '</div>';
@@ -249,9 +257,15 @@
                             vehicle.name + '</a></h3>';
                         html += '<p>Details & Specification :</p>';
                         html += '<ul class="list-group list-group-flush">';
+                        html += '<li class="list-group-item">Dimension : ' +
+                            vehicle.dimension_height + ' x ' + vehicle.dimension_width +
+                            ' x ' + vehicle.dimension_length + ' mm</li>';
+                        html += '<li class="list-group-item">Capacity : ' +
+                            vehicle.capacity + ' AH</li>';
+                        html += '<li class="list-group-item">Standar CCA : ' +
+                            vehicle.standard_cca + '</li>';
                         html += '<li class="list-group-item">Warranty : ' +
                             vehicle.warranty + ' Months</li>';
-
                         html += '<li class="list-group-item">Price : Rp. ' +
                             Number(vehicle.price_retail).toLocaleString(
                                 'id-ID') + '</li>';
@@ -270,10 +284,13 @@
                         html += '<label>';
                         html +=
                             '<input type="checkbox" name="CheckBattery[]" value=' +
-                            vehicle.id + '> Add to cart';
+                            vehicle.id + ' checked> Select Battery';
                         html +=
                             '</label>';
                         html += '</div>';
+                        html +=
+                            '<button data-id="' + vehicle.id +
+                            '" id="btnCopyLink" class="btn clip-btn btn-primary" onclick="CopyLinkBattery(x)"><i class="far fa-copy"></i> Copy from Input</button>';
                         html += '</div>';
                         html +=
                             '</div>';

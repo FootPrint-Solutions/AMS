@@ -174,9 +174,11 @@ $arrayVehicle";
             $arrayBattery = "";
             foreach ($results as $key => $value) {
                 $arrayBattery .= "*Nama* : " . $value['name'] . "\r\n";
+                $arrayBattery .= "*Dimensi* : " . $value['dimension_length'] . " x " . $value['dimension_width'] . " x " . $value['dimension_height'] . " cm\r\n";
                 $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
+                $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r";
+                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r";
                 $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
-                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -355,9 +357,11 @@ $arrayBattery
         $arrayBattery = "";
         foreach ($batteries as $battery) {
             $arrayBattery .= "*Nama* : " . $battery->name . "\r";
+            $arrayBattery .= "*Dimensi* : " . $battery->dimension_length . " x " . $battery->dimension_width . " x " . $battery->dimension_height . " cm\r";
             $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
-            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
             $arrayBattery .= "\r";
         }
 
