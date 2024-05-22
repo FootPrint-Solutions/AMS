@@ -230,6 +230,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tax/edit/{id}', [Tax::class, 'edit']);
     Route::post('/tax/store', [Tax::class, 'store']);
     Route::post('/tax/update', [Tax::class, 'update']);
+    Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
 
     //profile

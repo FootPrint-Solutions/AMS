@@ -31,22 +31,13 @@
                         </div>
                     </div>
 
-                    {{-- Valid Until --}}
+                    {{-- Valid From --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="valid-until">Valid Until <span class="login-danger">*</span></label>
-                            <input type="date" class="form-control" id="valid-until" name="validuntil" required
-                                @if (isset($data['profile'])) value="{{ $data['profile']['valid_until'] }}" @endif>
+                            <label for="valid-from">Valid From<span class="login-danger">*</span></label>
+                            <input type="date" class="form-control" id="valid-from" name="validfrom" required
+                                value=@isset($data['profile'])) {{ $data['profile']['valid_from'] }} @else {{ date('Y-m-d') }} @endisset>
                         </div>
-                    </div>
-
-                    {{-- Status --}}
-                    <div class="col-sm-1 @if (!isset($data['profile'])) d-none @endif">
-                        <input class="form-check-input" type="checkbox" value="" id="isactive"
-                            @if (isset($data['profile']) && $data['profile']['status'] === 'active') checked @endif>
-                        <label class="form-check-label" for="isshop">
-                            Active
-                        </label>
                     </div>
                 </div>
 
