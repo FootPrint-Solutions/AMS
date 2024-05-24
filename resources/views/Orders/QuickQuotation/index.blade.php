@@ -133,6 +133,26 @@
         <textarea cols="30" rows="10" id="CopyPersonalDetails" name="CopyPersonalDetails"></textarea>
     </div>
 
+
+    <div class="modal fade" id="ModalCopyLinkBattery" tabindex="-1" role="dialog" aria-labelledby="ModalCopyLinkBattery"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white">Copy Link Battery</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
             $('#VehicleCustomer').select2();
@@ -734,6 +754,63 @@
                 });
             });
         });
+
+        function CopyLinkBattery(x) {
+            var id = $(x).data('id');
+            $('#ModalCopyLinkBattery').modal('show');
+            var data = {
+                id: id,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
+            $.ajax({
+                url: "/quotation/get-link-battery",
+                type: "GET",
+                data: data,
+                success: function(data) {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    var modalBody = $("#ModalCopyLinkBattery .modal-body");
+                    modalBody.empty();
+
+                    data.forEach(function(item) {
+                        var inputGroup = `
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="${item.platform} - ${item.url}" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="CopyToClipboard('${item.url}')">Copy</button>
+                    </div>
+                `;
+                        modalBody.append(inputGroup);
+                    });
+                },
+                error: function(err) {
+                    var modalBody = $("#ModalCopyLinkBattery .modal-body");
+                    modalBody.empty();
+                    var inputGroup = `
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="Data not found" readonly>
+                    </div>
+                `;
+                    modalBody.append(inputGroup);
+                }
+            });
+        }
+
+        function CopyToClipboard(text) {
+            var copyText = text;
+            var textArea = document.createElement("textarea");
+            textArea.value = copyText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            Swal.fire({
+                title: "Success",
+                text: "Link copied to clipboard",
+                icon: "success",
+            });
+        }
     </script>
 
     {{-- GOOGLE MAPS JANGAN DIOTAK ATIK YA GESSS YAA  --}}

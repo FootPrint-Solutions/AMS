@@ -853,4 +853,17 @@ $arrayVehicle
             ->get();
         return response()->json($results);
     }
+
+    public function getLinkBattery(Request $request)
+    {
+        $id = $request->input('id');
+        if (!$id) {
+            return response()->json(['error' => 'ID is required'], 400);
+        }
+        $results = BatteryUrlModel::where('battery_id', $id)->get();
+        if ($results->isEmpty()) {
+            return response()->json(['error' => 'No data found'], 404);
+        }
+        return response()->json($results);
+    }
 }

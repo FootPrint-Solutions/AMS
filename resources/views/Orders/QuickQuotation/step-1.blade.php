@@ -290,7 +290,7 @@
                         html += '</div>';
                         html +=
                             '<button data-id="' + vehicle.id +
-                            '" id="btnCopyLink" class="btn clip-btn btn-primary" onclick="CopyLinkBattery(x)"><i class="far fa-copy"></i> Copy from Input</button>';
+                            '" id="btnCopyLink" class="btn clip-btn btn-primary btn-xs" onclick="CopyLinkBattery(this)"><i class="far fa-copy"></i> Copy</button>';
                         html += '</div>';
                         html +=
                             '</div>';
