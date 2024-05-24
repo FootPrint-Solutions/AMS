@@ -56,6 +56,15 @@
         <div class="col-lg-6 d-none">
             <div id="map"></div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="form-group local-forms">
+                <label for="company-name">Distributor Shop <span class="login-danger">*</span></label>
+                <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
+                    <option value="">Select Distributor Shop</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div id="MapsDistributorRecomendation">
@@ -143,9 +152,9 @@
                     if (data.length > 0) {
                         displaySuggestionsContact(data);
                     } else {
-                        $('#AutoCompleteFullNameCustomer').html('');
+                        $('#AutoCompleteFullNameCustomerContact').html('');
                         $("#EmailCustomer").val('');
-                        $("#FullName").val('');
+                        // $("#FullName").val('');
                         $("#AddressCustomer").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
@@ -158,7 +167,7 @@
         } else {
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
-            $("#FullName").val('');
+            // $("#FullName").val('');
             $("#AddressCustomer").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
@@ -190,7 +199,7 @@
                     } else {
                         $('#AutoCompleteFullNameCustomer').html('');
                         $("#EmailCustomer").val('');
-                        $("#ContactNumber").val('');
+                        // $("#ContactNumber").val('');
                         $("#AddressCustomer").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
@@ -203,7 +212,7 @@
         } else {
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
-            $("#ContactNumber").val('');
+            // $("#ContactNumber").val('');
             $("#AddressCustomer").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');

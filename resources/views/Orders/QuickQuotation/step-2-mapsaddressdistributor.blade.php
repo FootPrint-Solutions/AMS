@@ -72,7 +72,7 @@
             <select class="form-select" id="shop_id" name="shop_id" required>
                 <option value="">-- Choose Distributor --</option>
                 @foreach ($distributor as $d)
-                <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                 @endforeach
             </select>
         </div>
@@ -293,11 +293,11 @@
                         if (vehicle.battery_distributor_price != null) {
                             html +=
                                 '<input type="checkbox" name="CheckBattery[]" value=' +
-                                vehicle.battery_id + '> Add to Cart';
+                                vehicle.battery_id + ' checked> Select Battery';
                         } else {
                             html +=
                                 '<input type="checkbox" name="CheckBattery[]" value=' +
-                                vehicle.id + '> Add to Cart';
+                                vehicle.id + ' checked> Select Battery';
                         }
                         html +=
                             '</label>';

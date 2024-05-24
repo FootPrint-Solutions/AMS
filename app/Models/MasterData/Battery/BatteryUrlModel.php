@@ -26,6 +26,7 @@ class BatteryUrlModel extends Model implements Auditable
      * @var array
      */
     protected $fillable = [
+        'battery_id',
         'platform',
         'url'
     ];

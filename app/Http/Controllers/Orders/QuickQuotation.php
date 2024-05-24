@@ -24,8 +24,10 @@ use App\Services\Midtrans\CreateSnapTokenService;
 
 class QuickQuotation extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $request->session()->put('invoice', SalesOrderModel::newCode());
+
         return view(
             'Orders.QuickQuotation.index',
             getIndexData(
@@ -174,9 +176,11 @@ $arrayVehicle";
             $arrayBattery = "";
             foreach ($results as $key => $value) {
                 $arrayBattery .= "*Nama* : " . $value['name'] . "\r\n";
+                $arrayBattery .= "*Dimensi* : " . $value['dimension_length'] . " x " . $value['dimension_width'] . " x " . $value['dimension_height'] . " cm\r\n";
                 $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
+                $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r";
+                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r";
                 $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
-                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan";
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -281,7 +285,7 @@ $arrayBattery
         $Battery = BatteryModel::whereIn('id', $request->input('Battery'))->pluck('name')->toArray();
         $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get()->toArray();
         $TotalAmount = $request->input('TotalAmount');
-        $InvoiceNumber = "INV" . date('YmdHis') . rand(1000, 9999);
+        $InvoiceNumber = $request->session()->get('invoice', SalesOrderModel::newCode());
         $BatteryNameTabel = $request->input('BatteryNameTabel');
         $QtyTabel = $request->input('QtyTabel');
         $PriceTabel = $request->input('PriceTabel');
@@ -355,9 +359,11 @@ $arrayBattery
         $arrayBattery = "";
         foreach ($batteries as $battery) {
             $arrayBattery .= "*Nama* : " . $battery->name . "\r";
+            $arrayBattery .= "*Dimensi* : " . $battery->dimension_length . " x " . $battery->dimension_width . " x " . $battery->dimension_height . " cm\r";
             $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
-            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
             $arrayBattery .= "\r";
         }
 
@@ -395,17 +401,41 @@ $arrayBattery
         $Tax = $request->input('Tax');
         $Discount = $request->input('Discount');
         $TotalAmount = $request->input('TotalAmount');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $latitude = $request->input('Latitude');
+        $longitude = $request->input('Longitude');
+
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            if ($key == count($VehicleCustomer) - 1) {
+                $arrayVehicle .= "" . $value;
+            } else {
+                $arrayVehicle .= "" . $value . ",";
+            }
+        }
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
 
         $opening_message = str_replace(
-            ["<FULLNAME>", "<ENTER>", "<B>"],
-            [$FullName, "\n", "*"],
+            ["<FULLNAME>", "<ENTER>", "<B>", "<INVOICENUMBER>"],
+            [$FullName, "\n", "*", $request->session()->get('invoice', SalesOrderModel::newCode())],
             $TemplateMessagePersonalDetails['opening_message']
         );
 
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl .  $latitude . "," . $longitude;
+
         $content_message = "";
         $no = 1;
+
+        $content_message .= "*DETAIL PEMBELI*";
+        $content_message .= "\r";
+        $content_message .= "```> Nama : " . $FullName . "\r```";
+        $content_message .= "```> Telp : " . $ContactNumber . "\r```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r```";
+        $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
+
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
             $content_message .= "🔋 Battery " . $no++ . "\r\n";
@@ -413,14 +443,19 @@ $arrayBattery
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
         }
-        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
-        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
-        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
-        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $content_message .= "*PERHITUNGAN TOTAL* \r";
+        $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
+        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
+        $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
+
+        $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
 
         $closing_message = str_replace(
-            ["<ENTER>", "<B>"],
-            ["\n", "*"],
+            ["<ENTER>", "<B>", "<I>"],
+            ["\n", "*", "_"],
             $TemplateMessagePersonalDetails['closing_message']
         );
 
@@ -573,7 +608,7 @@ $arrayBattery
         }
 
         $data = [
-            'sales_order_number' => SalesOrderModel::newCode(),
+            'sales_order_number' => $request->session()->get('invoice', SalesOrderModel::newCode()),
             'customer_id' => $Customer->id,
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
@@ -687,22 +722,47 @@ $arrayVehicle
     public function getCheckoutCopyDetail(Request $request)
     {
         $FullName = $request->input('FullName');
+        $ContactNumber = $request->input('ContactNumber');
         $Battery = $request->input('Battery');
         $Subtotal = $request->input('Subtotal');
         $Tax = $request->input('Tax');
         $Discount = $request->input('Discount');
         $TotalAmount = $request->input('TotalAmount');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $latitude = $request->input('Latitude');
+        $longitude = $request->input('Longitude');
+
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            if ($key == count($VehicleCustomer) - 1) {
+                $arrayVehicle .= "" . $value;
+            } else {
+                $arrayVehicle .= "" . $value . ",";
+            }
+        }
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'checkout_page')->first()->toArray();
 
         $opening_message = str_replace(
-            ["<FULLNAME>", "<ENTER>", "<B>"],
-            [$FullName, "\n", "*"],
+            ["<FULLNAME>", "<ENTER>", "<B>", "<INVOICENUMBER>"],
+            [$FullName, "\n", "*", $request->session()->get('invoice', SalesOrderModel::newCode())],
             $TemplateMessagePersonalDetails['opening_message']
         );
 
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl .  $latitude . "," . $longitude;
+
         $content_message = "";
         $no = 1;
+
+        $content_message .= "*DETAIL PEMBELI*";
+        $content_message .= "\r";
+        $content_message .= "```> Nama : " . $FullName . "\r```";
+        $content_message .= "```> Telp : " . $ContactNumber . "\r```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r```";
+        $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
+
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
             $content_message .= "🔋 Battery " . $no++ . "\r\n";
@@ -710,14 +770,19 @@ $arrayVehicle
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
         }
-        $content_message .= "*Subtotal* : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n";
-        $content_message .= "*Pajak* : " . number_format($Tax, 0, "", ".") . "%\r\n";
-        $content_message .= "*Diskon* : " . number_format($Discount, 0, "", ".") . "%\r\n";
-        $content_message .= "*Total* : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n";
+
+        $content_message .= "*PERHITUNGAN TOTAL* \r";
+        $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
+        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
+        $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
+
+        $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
 
         $closing_message = str_replace(
-            ["<ENTER>", "<B>"],
-            ["\n", "*"],
+            ["<ENTER>", "<B>", "<I>"],
+            ["\n", "*", "_"],
             $TemplateMessagePersonalDetails['closing_message']
         );
 
@@ -786,6 +851,26 @@ $arrayVehicle
             ->select('batteries.*', 'battery_size_categories.name as size_category')
             ->limit(10)
             ->get();
+        return response()->json($results);
+    }
+
+    public function getLinkBattery(Request $request)
+    {
+        $id = $request->input('id');
+        if (!$id) {
+            return response()->json(['error' => 'ID is required'], 400);
+        }
+        $results = BatteryUrlModel::where('battery_id', $id)->get();
+        if ($results->isEmpty()) {
+            return response()->json(['error' => 'No data found'], 404);
+        }
+        return response()->json($results);
+    }
+
+    public function findDistributor(Request $request)
+    {
+        $query = $request->input('input');
+        $results = DistributorShopModel::get();
         return response()->json($results);
     }
 }

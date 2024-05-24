@@ -22,10 +22,10 @@
             <table class="table table-striped" id="table-tax">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Tax Percentage</th>
-                        <th scope="col">Valid Until</th>
-                        <th scope="col">Status</th>
+                        <th scope="col">Valid From</th>
+                        <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -68,7 +68,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/tax/edit/", "/tax/destroy");
+            appendDatatablesToolbar(4, "/tax/edit/", "/tax/destroy", "/tax/toggle");
         });
     </script>
 
