@@ -152,9 +152,9 @@
                     if (data.length > 0) {
                         displaySuggestionsContact(data);
                     } else {
-                        $('#AutoCompleteFullNameCustomer').html('');
+                        $('#AutoCompleteFullNameCustomerContact').html('');
                         $("#EmailCustomer").val('');
-                        $("#FullName").val('');
+                        // $("#FullName").val('');
                         $("#AddressCustomer").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
@@ -167,7 +167,7 @@
         } else {
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
-            $("#FullName").val('');
+            // $("#FullName").val('');
             $("#AddressCustomer").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
@@ -199,7 +199,7 @@
                     } else {
                         $('#AutoCompleteFullNameCustomer').html('');
                         $("#EmailCustomer").val('');
-                        $("#ContactNumber").val('');
+                        // $("#ContactNumber").val('');
                         $("#AddressCustomer").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
@@ -212,7 +212,7 @@
         } else {
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
-            $("#ContactNumber").val('');
+            // $("#ContactNumber").val('');
             $("#AddressCustomer").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
