@@ -304,6 +304,25 @@
             }
         });
 
+        // ajax get data distributor & insert data to combo box #distibutorid
+        $.ajax({
+            url: "/quotation/distributor/find",
+            type: "GET",
+            data: {
+                id: VehicleCustomer,
+                Battery: Battery,
+            },
+            success: function(data) {
+                var html = '<option value="">Select Distributor</option>';
+                data.forEach(function(distributor) {
+                    html += '<option value="' + distributor.id + '">' +
+                        distributor.name + '</option>';
+                });
+                $('#DistributorShopId').html(html);
+            }
+        });
+
+
 
         // function getMapsNearAddressCustomer() {
         //     var address = $('#AddressCustomer').val();

@@ -204,6 +204,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/customer/findbycontact', [QuickQuotation::class, 'findCustomerByContact'])->name('quotation.findCustomerByContact');
     Route::get('/quotation/battery/find', [QuickQuotation::class, 'findBattery'])->name('quotation.findBattery');
     Route::get('/quotation/get-link-battery', [QuickQuotation::class, 'getLinkBattery'])->name('quotation.getLinkBattery');
+    Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor');
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);

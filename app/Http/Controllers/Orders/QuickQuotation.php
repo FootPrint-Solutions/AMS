@@ -866,4 +866,11 @@ $arrayVehicle
         }
         return response()->json($results);
     }
+
+    public function findDistributor(Request $request)
+    {
+        $query = $request->input('input');
+        $results = DistributorShopModel::get();
+        return response()->json($results);
+    }
 }

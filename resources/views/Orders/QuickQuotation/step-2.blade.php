@@ -56,6 +56,15 @@
         <div class="col-lg-6 d-none">
             <div id="map"></div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="form-group local-forms">
+                <label for="company-name">Distributor Shop <span class="login-danger">*</span></label>
+                <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
+                    <option value="">Select Distributor Shop</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div id="MapsDistributorRecomendation">
