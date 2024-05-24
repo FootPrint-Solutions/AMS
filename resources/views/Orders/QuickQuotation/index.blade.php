@@ -448,6 +448,10 @@
 
                 var FullName = $("#FullName").val();
                 var ContactNumber = $("#ContactNumber").val();
+                var VehicleCustomer = $('#VehicleCustomer').val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var AddressCustomer = $("#AddressCustomer").val();
                 var Battery = [];
                 var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
                 var PriceTabel = []; // Menambahkan array untuk menyimpan harga
@@ -478,6 +482,10 @@
                     Discount: discount,
                     TotalAmount: TotalAmountHidden,
                     ContactNumber: ContactNumber,
+                    VehicleCustomer: VehicleCustomer,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    AddressCustomer: AddressCustomer,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 

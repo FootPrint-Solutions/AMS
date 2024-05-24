@@ -44,6 +44,10 @@
         var tax = $("#tax").val();
         var discount = $("#discount").val();
         var TotalAmountHidden = $("#TotalAmountHidden").val();
+        var VehicleCustomer = $('#VehicleCustomer').val();
+        var Latitude = $("#Latitude").val();
+        var Longitude = $("#Longitude").val();
+        var AddressCustomer = $("#AddressCustomer").val();
 
         var data = {
             FullName: FullName,
@@ -52,6 +56,10 @@
             Tax: tax,
             Discount: discount,
             TotalAmount: TotalAmountHidden,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
             _token: $('meta[name="csrf-token"]').attr('content')
         };
 
