@@ -130,7 +130,7 @@
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    swal.fire("Copied!", "Personal Details Copied", "success");
+                    swal.fire("Copied!", "Product Details Copied", "success");
                 } else {
                     swal.fire("Error!", response.message, "error");
                 }
