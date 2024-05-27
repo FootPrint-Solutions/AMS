@@ -239,6 +239,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Price
     Route::get('/price', [Price::class, 'index']);
+    Route::post('/price/show', [Price::class, 'show']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
