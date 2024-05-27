@@ -18,7 +18,7 @@ class PromoModel extends Model
      *
      * @var string
      */
-    protected $table = 'battery_prices';
+    protected $table = 'promos';
 
     /**
      * Get all data for DataTables.
@@ -29,14 +29,13 @@ class PromoModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['battery_prices.id', 'batteries.name as battery_name', 'batteries.price_retail', 'discount', 'net_price', 'period'];
-        $searchColumns = ['batteries.name'];
+        $selectColumns = ['id', 'name', 'period_start', 'period_end'];
+        $searchColumns = ['name'];
 
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->leftJoin("batteries", "battery_prices.battery_id", "=", "batteries.id");
         $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'battery_prices.updated_at', 'direction' => 'desc']);
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 }

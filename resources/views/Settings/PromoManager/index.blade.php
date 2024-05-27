@@ -23,6 +23,9 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-col-no">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Period Start</th>
+                        <th scope="col">Period End</th>
                     </tr>
                 </thead>
             </table>
@@ -57,18 +60,15 @@
                 }, {
                     targets: [0],
                     className: 'dt-body-center'
-                }, {
-                    targets: [2, 3, 4],
-                    className: 'dt-body-right'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: getDatatablesLanguangeConfigurations("Tax"),
+                language: getDatatablesLanguangeConfigurations("Promo"),
                 select: true,
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5, "/promo/edit/", "/promo/destroy");
+            appendDatatablesToolbar(4, "/promo/edit/", "/promo/destroy");
         });
     </script>
 

@@ -74,11 +74,9 @@ class Promo extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->battery_name;
-            $row[] = formatPrice($key->price_retail);
-            $row[] = $key->discount;
-            $row[] = formatPrice($key->net_price);
-            $row[] = $key->period;
+            $row[] = $key->name;
+            $row[] = formatDate($key->period_start);
+            $row[] = formatDate($key->period_end);
             $row[] = $key->id;
             $rows[] = $row;
         }
