@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -38,7 +40,18 @@ class Promo extends Controller
      */
     public function create()
     {
-        //
+        return view(
+            'Settings.PromoManager.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "batteries" => BatteryModel::all()->toArray(),
+                    "battery_categories" => BatterySizeCategoryModel::all()->toArray()
+                )
+            )
+        );
     }
 
     /**

@@ -237,9 +237,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
 
-    // Price
+    // Promo
     Route::get('/promo', [Promo::class, 'index']);
     Route::post('/promo/show', [Promo::class, 'show']);
+    Route::get('/promo/create', [Promo::class, 'create']);
+    Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);
