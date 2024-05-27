@@ -101,9 +101,10 @@
 
                                 {{-- Discount --}}
                                 <td>
-                                    <input type="text" class="form-control battery-code" id="battery-production-code"
-                                        name="batteriesdisc[]" placeholder="Enter item production code"
-                                        @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
+                                    <input type="text" class="form-control battery-discount"
+                                        id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
+                                        placeholder="Enter battery discount"
+                                        @isset($data['profile']['batteries'])value="{{ $battery['discount'] }}" @endisset>
                                 </td>
 
                                 {{-- Price --}}
@@ -119,7 +120,7 @@
                                                 id="battery-price-{{ $counter }}" name="batteriesprice[]"
                                                 placeholder="Enter item price" required
                                                 @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
+                                                @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
                                         </div>
 
                                         @if (!isset($data['profile']))
