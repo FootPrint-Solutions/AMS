@@ -307,6 +307,12 @@
 
 
             $(".product-next-btn").on('click', function() {
+                var FullName = $("#FullName").val();
+                var EmailCustomer = $("#EmailCustomer").val();
+                var ContactNumber = $("#ContactNumber").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var VehicleCustomer = $("#VehicleCustomer").val();
+                var TemplateMessage = $("#TemplateMessage").val();
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
@@ -325,15 +331,24 @@
                     return;
                 }
 
+                if (FullName == '') {
+                    swal.fire("Error!", "Full Name is required", "error");
+                    return;
+                }
+
+                if (ContactNumber == '') {
+                    swal.fire("Error!", "Contact Number is required", "error");
+                    return;
+                }
+
+                if (AddressCustomer == '') {
+                    swal.fire("Error!", "Address Customer is required", "error");
+                    return;
+                }
+
                 $('#btnNextStep3').trigger('click');
 
                 if ($('#CheckoutDisplay').hasClass('active')) {
-                    var FullName = $("#FullName").val();
-                    var EmailCustomer = $("#EmailCustomer").val();
-                    var ContactNumber = $("#ContactNumber").val();
-                    var AddressCustomer = $("#AddressCustomer").val();
-                    var VehicleCustomer = $("#VehicleCustomer").val();
-                    var TemplateMessage = $("#TemplateMessage").val();
                     var Latitude = $("#Latitude").val();
                     var Longitude = $("#Longitude").val();
                     var IdCustomer = $("#IdCustomer").val();
@@ -733,9 +748,9 @@
                                 text: ResponseData.message,
                                 icon: "success",
                             });
-                            setTimeout(function() {
-                                window.location.href = "/sales-order";
-                            }, 2000);
+                            // setTimeout(function() {
+                            //     window.location.href = "/sales-order";
+                            // }, 2000);
                         } else {
                             Swal.fire({
                                 title: "Error",

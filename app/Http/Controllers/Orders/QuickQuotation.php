@@ -178,9 +178,9 @@ $arrayVehicle";
                 $arrayBattery .= "*Nama* : " . $value['name'] . "\r\n";
                 $arrayBattery .= "*Dimensi* : " . $value['dimension_length'] . " x " . $value['dimension_width'] . " x " . $value['dimension_height'] . " cm\r\n";
                 $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
-                $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r";
-                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r";
-                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
+                $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r\n";
+                $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
+                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -203,11 +203,13 @@ $arrayBattery
                     $value['image'] = null;
                 }
 
-                // cek image exist
-                $head = @get_headers($value['image']);
-
-                if ($head && strpos($head[0], '200')) {
-                    $value['image'] = $value['image'];
+                if ($value['image'] != null) {
+                    $head = @get_headers($value['image']);
+                    if ($head && strpos($head[0], '200')) {
+                        $value['image'] = $value['image'];
+                    } else {
+                        $value['image'] = "https://via.placeholder.com/210x210";
+                    }
                 } else {
                     $value['image'] = "https://via.placeholder.com/210x210";
                 }
@@ -429,22 +431,22 @@ $arrayBattery
         $no = 1;
 
         $content_message .= "*DETAIL PEMBELI*";
-        $content_message .= "\r";
-        $content_message .= "```> Nama : " . $FullName . "\r```";
-        $content_message .= "```> Telp : " . $ContactNumber . "\r```";
-        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r```";
-        $content_message .= "```> Mobl : " . $arrayVehicle . "\r```";
+        $content_message .= "\r\n";
+        $content_message .= "```> Nama : " . $FullName . "\r\n```";
+        $content_message .= "```> Telp : " . $ContactNumber . "\r\n```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
         $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
 
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
             $content_message .= "🔋 Battery " . $no++ . "\r\n";
-            $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
-            $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+            $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
         }
 
-        $content_message .= "*PERHITUNGAN TOTAL* \r";
+        $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
         // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
@@ -573,12 +575,13 @@ $arrayBattery
         }
 
 
-        if ($request->input('IdCustomer') != null) {
+        if ($request->input('IdCustomer') != null or $request->input('IdCustomer') != '') {
             $Customer = CustomerModel::find($request->input('IdCustomer'));
             $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+            $tes = "YA";
         } else {
             $Customer = CustomerModel::firstOrCreate(
-                ['email' => $request->input('EmailCustomer')],
+                ['contact' => $request->input('contact')],
                 [
                     'name' => $request->input('FullName'),
                     'address' => $request->input('AddressCustomer'),
@@ -587,7 +590,7 @@ $arrayBattery
                     'longitude' => $request->input('Longitude')
                 ]
             );
-
+            $tes = "TIDAK";
             $Customer->vehicles()->sync($request->input('VehicleCustomer'));
         }
 
