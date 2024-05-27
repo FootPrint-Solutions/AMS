@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // MODELS
-use App\Models\Settings\PriceModel;
+use App\Models\Settings\PromoModel;
 
-class Price extends Controller
+class Promo extends Controller
 {
     private $title = "Price Manager";
     private $menu = 5;
@@ -22,7 +22,7 @@ class Price extends Controller
     public function index()
     {
         return view(
-            'Settings.PriceManager.index',
+            'Settings.PromoManager.index',
             getIndexData(
                 $this->title,
                 $this->menu,
@@ -65,7 +65,7 @@ class Price extends Controller
         $start = $request->input("start");
 
         // Get tax data (rows and count).
-        $data = PriceModel::allForDataTables($request);
+        $data = PromoModel::allForDataTables($request);
 
         // Set rows to be displayed in tax table.
         $rows = [];
@@ -75,9 +75,9 @@ class Price extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->battery_name;
-            $row[] = $key->price_retail;
+            $row[] = formatPrice($key->price_retail);
             $row[] = $key->discount;
-            $row[] = $key->net_price;
+            $row[] = formatPrice($key->net_price);
             $row[] = $key->period;
             $row[] = $key->id;
             $rows[] = $row;
@@ -85,7 +85,7 @@ class Price extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => PriceModel::count(),
+            "recordsTotal" => PromoModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));

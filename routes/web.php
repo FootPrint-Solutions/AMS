@@ -28,7 +28,7 @@ use App\Http\Controllers\Orders\SalesOrder;
 use App\Http\Controllers\Orders\SalesOrderBattery;
 
 // SETTINGS
-use App\Http\Controllers\Settings\Price;
+use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 
@@ -238,8 +238,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
 
     // Price
-    Route::get('/price', [Price::class, 'index']);
-    Route::post('/price/show', [Price::class, 'show']);
+    Route::get('/promo', [Promo::class, 'index']);
+    Route::post('/promo/show', [Promo::class, 'show']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

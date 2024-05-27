@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 // TRAITS
 use App\Traits\DataTablesTrait;
 
-class PriceModel extends Model
+class PromoModel extends Model
 {
     use HasFactory, SoftDeletes, DataTablesTrait;
 
