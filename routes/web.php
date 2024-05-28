@@ -222,6 +222,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
     Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
     Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
+    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate']);
+
+    // Work Order
+    Route::get('/work-order', [WorkOrder::class, 'index']);
 
     // Settings
     // Message Template

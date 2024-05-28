@@ -17,6 +17,8 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\Orders\WorkOrder\WorkOrderModel;
+use App\Models\Orders\WorkOrder\WorkOrderBatteryModel;
 
 class SalesOrderModel extends Model implements Auditable
 {
@@ -152,5 +154,44 @@ class SalesOrderModel extends Model implements Auditable
         // $query->whereNull("deleted_at");
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+    }
+
+    public static function CreateWorkOrder($id)
+    {
+        $salesOrder = self::with('customer', 'shop', 'technician', 'batteries')->find($id);
+        $workOrder = new WorkOrderModel();
+        $workOrder->work_order_number = WorkOrderModel::newCode();
+        $workOrder->date = $salesOrder->date;
+        $workOrder->sales_order_id = $salesOrder->id;
+        $workOrder->customer_id = $salesOrder->customer_id;
+        $workOrder->tax = $salesOrder->tax;
+        $workOrder->tax_price = $salesOrder->tax_price;
+        $workOrder->discount_price = $salesOrder->discount_price;
+        $workOrder->discount = $salesOrder->discount;
+        $workOrder->total = $salesOrder->total;
+        $workOrder->address = $salesOrder->address;
+        $workOrder->latitude = $salesOrder->latitude;
+        $workOrder->longitude = $salesOrder->longitude;
+        $workOrder->save();
+
+
+        $batteries = [];
+        // $workOrderBattery = new WorkOrderBatteryModel();
+        foreach ($salesOrder->batteries as $battery) {
+            $batteries[] = [
+                'battery_id' => $battery->battery_id,
+                'battery_name' => $battery->battery_name,
+                'battery_price' => $battery->battery_price,
+                'quantity' => $battery->quantity,
+            ];
+        }
+        $workOrder->batteries()->createMany($batteries);
+
+        return $workOrder;
+    }
+
+    public function workOrder()
+    {
+        return $this->hasOne(WorkOrderModel::class, 'sales_order_id');
     }
 }
