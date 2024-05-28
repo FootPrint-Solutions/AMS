@@ -117,13 +117,13 @@
                         @endphp
 
                         @foreach ($batteries as $battery)
-                            <tr class="table-battery-detail-row d-none">
+                            <tr class="table-battery-detail-row @if (!isset($data['profile']['batteries'])) d-none @endif">
                                 {{-- Name --}}
                                 <td>
                                     <input type="text" class="form-control battery-name"
                                         id="battery-name-{{ $counter }}" name="batteriesname[]"
                                         placeholder="Enter battery name"
-                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                        @isset($data['profile']['batteries']) value="{{ $battery['name'] }}" @endisset>
                                 </td>
 
                                 {{-- Retail Price --}}
@@ -132,7 +132,8 @@
                                         <span class="input-group-text border-end">IDR</span>
                                         <input type="text" class="form-control text-end battery-priceretail"
                                             id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
-                                            placeholder="Enter item retail price" readonly>
+                                            placeholder="Enter item retail price" readonly
+                                            @isset($data['profile']['batteries']) value="{{ $battery['price_retail'] }}" @endisset>
                                     </div>
                                 </td>
 
@@ -156,7 +157,7 @@
                                                 <input type="text" class="form-control text-end battery-pricenet"
                                                     id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
                                                     placeholder="Enter item net price" required
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
+                                                    @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
                                         </div>
 
@@ -440,6 +441,14 @@
                 row.find('input').val('');
             }
         });
+    </script>
+
+    {{-- Starter Functions --}}
+    <script>
+        $(document).ready(function() {
+            formatPrice($(".battery-priceretail"));
+            formatPrice($(".battery-pricenet"));
+        })
     </script>
 
     {{-- JS Functions --}}

@@ -63,7 +63,19 @@ class Promo extends Controller
      */
     public function edit($id)
     {
-        //
+        return view(
+            'Settings.PromoManager.create',
+            getIndexData(
+                $this->title,
+                $this->menu,
+                $this->submenu,
+                array(
+                    "profile" => PromoModel::with('batteries')->find($id)->toArray(),
+                    "batteries" => BatteryModel::all()->toArray(),
+                    "battery_categories" => BatterySizeCategoryModel::all()->toArray()
+                )
+            )
+        );
     }
 
     /**

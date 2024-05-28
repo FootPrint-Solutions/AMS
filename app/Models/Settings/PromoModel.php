@@ -5,6 +5,7 @@ namespace App\Models\Settings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
@@ -19,6 +20,16 @@ class PromoModel extends Model
      * @var string
      */
     protected $table = 'promos';
+
+    /**
+     * Get all of the batteries of the quotations.
+     */
+    public function batteries(): HasMany
+    {
+        return $this->hasMany(PromoBatteryModel::class, "promo_id")
+            ->join('batteries', 'promo_battery.battery_id', '=', 'batteries.id')
+            ->select('promo_battery.*', 'batteries.name');
+    }
 
     /**
      * Get all data for DataTables.
