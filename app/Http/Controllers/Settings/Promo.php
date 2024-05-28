@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
+use App\Models\Settings\PromoBatteryModel;
 use Illuminate\Http\Request;
 
 // MODELS
@@ -110,7 +111,31 @@ class Promo extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Save promo parent data.
+        $promo = new PromoModel();
+        $promo->name = $request->name;
+        $promo->period_start = $request->periodstart;
+        $promo->period_end = $request->periodend;
+        $status = $promo->save();
+
+        // Save promo detail data.
+        if ($status) {
+            for ($i = 0; $i < count($request->detailid); $i++) {
+                $battery = new PromoBatteryModel();
+                $battery->promo_id = $promo->id;
+                $battery->battery_id = $request->detailid[$i];
+                $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->discount = $request->batteriesdisc[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                $status &= $battery->save();
+            }
+        }
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The new promo was successfully created!" : "Failed to create the new promo!"
+        );
     }
 
     /**

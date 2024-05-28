@@ -131,7 +131,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
                                         <input type="text" class="form-control text-end battery-priceretail"
-                                            id="battery-priceretail-{{ $counter }}"
+                                            id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
                                             placeholder="Enter item retail price" readonly>
                                     </div>
                                 </td>
@@ -416,6 +416,9 @@
                     $("#battery-name-" + number).val(battery.name);
                     $("#battery-priceretail-" + number).val(battery.price_retail);
                     $("#battery-id-" + number).val(battery.id);
+
+                    // Format the retail price.
+                    formatPrice($("#battery-priceretail-" + number));
                 });
 
                 $('#battery-modal').modal('hide');
@@ -448,14 +451,16 @@
          * @returns {number} The total price after applying tax, discount, and extra discount.
          */
         function calculatePriceDiscount(counter, discountPriceIsChanged = false) {
-            let priceRetail = $('#battery-priceretail-' + counter).val();
-            let discount = $('#battery-discount-' + counter).val();
-            let priceNet = $('#battery-pricenet-' + counter).val();
+            let priceRetail = parseInt($('#battery-priceretail-' + counter).val().replace(/\D/g, ''));
+            let discount = parseInt($('#battery-discount-' + counter).val().replace(/\D/g, ''));
+            let priceNet = parseInt($('#battery-pricenet-' + counter).val().replace(/\D/g, ''));
 
             if (discountPriceIsChanged)
                 $('#battery-pricenet-' + counter).val(priceRetail - (priceRetail * discount / 100));
             else
-                $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail)));
+                $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail * 100)));
+
+            formatPrice($(".battery-pricenet"));
         }
     </script>
 @endsection
