@@ -1,4 +1,9 @@
-<link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
+<style>
+    .bg-grey {
+        background-color: #6c757d !important;
+        color: #fff;
+    }
+</style>
 <div class="row">
     <div class="col-xl-4 col-lg-6 col-md-6">
         <div class="invoice-info">
@@ -168,7 +173,12 @@
                             <div class="input-group">
                                 <input type="number" class="form-control" id="discount" name="discount"
                                     value="0">
-                                <span class="input-group-text border-end">%</span>
+                                {{-- <span class="input-group-text border-end bg-grey">%</span> --}}
+                                <input type="hidden" name="discount-rupiah" id="discount-rupiah">
+                                <input type="hidden" name="discount-percent" id="discount-percent">
+                                <input type="hidden" name="type-discount" id="type-discount">
+                                <button class="btn bg-success btn-sm" id="btn-percent">%</button>
+                                <button class="btn bg-grey btn-sm" id="btn-rupiah">Rp.</button>
                             </div>
                         </div>
                     </div>
@@ -207,7 +217,6 @@
         });
     </script>
 @endif
-<script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
 <script>
     $(document).ready(function() {
         $('.Platform').on('change', function() {
@@ -247,10 +256,21 @@
             if (discount == "") {
                 discount = 0;
             }
-            var discountvalue = subtotal * (parseInt(discount) / 100);
-            var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
-
-            var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
+            var typeDiscount = $("#type-discount").val();
+            if (typeDiscount == "rupiah") {
+                var discountvalue = parseInt(discount);
+                var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+                var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
+                var discountPercent = (parseInt(discount) / subtotal) * 100;
+                $("#discount-rupiah").val(discountvalue);
+                $("#discount-percent").val(discountPercent);
+            } else {
+                var discountvalue = subtotal * (parseInt(discount) / 100);
+                var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+                var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
+                $("#discount-rupiah").val(discountvalue);
+                $("#discount-percent").val(discount);
+            }
 
             $("#tax").val(tax);
             $("#discount").val(discount);
@@ -281,6 +301,32 @@
             formatPrice($(this));
         });
 
+
+        // button rupiah ditekan maka btn percent menjadi bg-grey dan btn rupiah menjadi bg-success
+        $('#btn-rupiah').on('click', function() {
+            $('#btn-percent').removeClass('bg-success').addClass('bg-grey');
+            $('#btn-rupiah').removeClass('bg-grey').addClass('bg-success');
+            var discount = $('#discount').val();
+            var subtotal = $('#subtotal').val();
+            var discountvalue = $('#discount-rupiah').val();
+            $('#discount-rupiah').val(discountvalue);
+            $('#discount-percent').val(discount);
+            $('#type-discount').val('rupiah');
+            calculateTotalAmount();
+        });
+
+        // button percent ditekan maka btn rupiah menjadi bg-grey dan btn percent menjadi bg-success
+        $('#btn-percent').on('click', function() {
+            $('#btn-rupiah').removeClass('bg-success').addClass('bg-grey');
+            $('#btn-percent').removeClass('bg-grey').addClass('bg-success');
+            var discount = $('#discount').val();
+            var subtotal = $('#subtotal').val();
+            var discountvalue = subtotal * (parseInt(discount) / 100);
+            $('#discount-rupiah').val(discountvalue);
+            $('#discount-percent').val(discount);
+            $('#type-discount').val('percent');
+            calculateTotalAmount();
+        });
 
     });
 </script>

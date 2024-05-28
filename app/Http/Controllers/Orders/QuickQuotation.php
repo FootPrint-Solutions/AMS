@@ -294,7 +294,7 @@ $arrayBattery
         $Link = $request->input('LinkTokopedia');
         $Platform = $request->input('Platform');
         $tax = $request->input('tax') ?? 0;
-        $Discount = $request->input('Discount') ?? 0;
+        $Discount = $request->input('DiscountPercentage') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
         if ($request->input('DistributorShopId') != null) {
             $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
@@ -565,6 +565,8 @@ $arrayBattery
         $discount_price = ($Discount * $subtotal) / 100;
         $total = $request->input('TotalAmount');
         $status = "Pending";
+        $DiscountRupiah = $request->input('DiscountRupiah');
+        $DiscountPercentage = $request->input('DiscountPercentage');
 
         if ($request->input('CheckMidtrans') == 1) {
             $payment_methode = "midtrans";
@@ -619,8 +621,8 @@ $arrayBattery
             'total' => $total,
             'tax' => $tax,
             'tax_price' => $tax_price,
-            'discount' => $Discount,
-            'discount_price' => $discount_price,
+            'discount' => $DiscountPercentage,
+            'discount_price' => $DiscountRupiah,
             'payment_methode' => $payment_methode,
             'midtrans_invoice' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,

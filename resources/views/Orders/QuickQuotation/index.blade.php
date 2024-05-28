@@ -436,6 +436,8 @@
                     });
 
                     var subtotal = $("#subtotal").val();
+                    var DiscountRupiah = $("#discount-rupiah").val();
+                    var DiscountPercentage = $("#discount-percent").val();
 
                     var data = {
                         FullName: FullName,
@@ -459,6 +461,8 @@
                         LinkTokopedia: LinkTokopedia,
                         Platform: Platform,
                         subtotal: subtotal,
+                        DiscountRupiah: DiscountRupiah,
+                        DiscountPercentage: DiscountPercentage,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -707,6 +711,8 @@
                 });
 
                 var DistributorShopId = $("#DistributorShopId").val();
+                var DiscountRupiah = $("#discount-rupiah").val();
+                var DiscountPercentage = $("#discount-percent").val();
 
                 var data = {
                     FullName: FullName,
@@ -733,7 +739,9 @@
                     techniciansName: techniciansName,
                     CheckMidtrans: CheckMidtrans,
                     linkPayment: LinkTokopedia,
-                    subtotal: subtotal
+                    subtotal: subtotal,
+                    DiscountRupiah: DiscountRupiah,
+                    DiscountPercentage: DiscountPercentage
                 };
 
                 $.ajax({
@@ -748,9 +756,9 @@
                                 text: ResponseData.message,
                                 icon: "success",
                             });
-                            // setTimeout(function() {
-                            //     window.location.href = "/sales-order";
-                            // }, 2000);
+                            setTimeout(function() {
+                                window.location.href = "/sales-order";
+                            }, 2000);
                         } else {
                             Swal.fire({
                                 title: "Error",
