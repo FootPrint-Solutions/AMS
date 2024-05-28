@@ -1,6 +1,12 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        .select2-container--open {
+            z-index: 1100;
+        }
+    </style>
+
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
@@ -58,7 +64,10 @@
                             <td colspan="4" class="h5 text-center">
                                 Item
                                 <button type="button" id="btn-add-battery"
-                                    class="btn btn-primary btn-sm rounded-circle mx-2"><i class="fas fa-plus"></i></button>
+                                    class="btn btn-primary btn-sm rounded-circle mx-2" data-bs-toggle="modal"
+                                    data-bs-target="#battery-modal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </td>
                         </tr>
                     </thead>
@@ -71,7 +80,7 @@
                         @endphp
 
                         @foreach ($batteries as $battery)
-                            <tr class="table-battery-detail-row">
+                            <tr class="table-battery-detail-row d-none">
                                 {{-- Name --}}
                                 <td>
                                     @php
@@ -110,66 +119,127 @@
                                 {{-- Price --}}
                                 <td>
                                     <div class="row">
-                                        @if (!isset($data['profile']))
-                                            <div class="col">
-                                        @endif
+                                        <div class="col">
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end">IDR</span>
+                                                <input type="text" class="form-control text-end battery-price"
+                                                    id="battery-price-{{ $counter }}" name="batteriesprice[]"
+                                                    placeholder="Enter item price" required
+                                                    @isset($data['profile']['batteries']) readonly @endisset
+                                                    @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
+                                            </div>
 
-                                        <div class="input-group">
-                                            <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end battery-price"
-                                                id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                                placeholder="Enter item price" required
-                                                @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
+                                                    title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                            </div>
                                         </div>
+                                </td>
 
-                                        @if (!isset($data['profile']))
-                                    </div>
+                                {{-- Hidden Inputs --}}
+                                @isset($data['profile']['batteries'])
+                                    <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+                                @endisset
+                            </tr>
 
-                                    <div class="col-sm-2">
-                                        <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
-                                            title="Delete Item"><i class="fas fa-xmark"></i></button>
-                                    </div>
-                        @endif
-        </div>
-        </td>
+                            @php
+                                $counter++;
+                            @endphp
+                        @endforeach
+                    </tbody>
+                </table>
+                <br>
 
-        {{-- Hidden Inputs --}}
-        @isset($data['profile']['batteries'])
-            <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
-        @endisset
-        </tr>
+                {{-- Hidden Inputs --}}
+                <input type="hidden" id="id" name="id"
+                    @if (isset($data['profile'])) value="{{ $data['profile']['id'] }}" @endif>
 
-        @php
-            $counter++;
-        @endphp
-        @endforeach
-        </tbody>
-
-        </table>
-        <br>
-
-        {{-- Hidden Inputs --}}
-        <input type="hidden" id="id" name="id"
-            @if (isset($data['profile'])) value="{{ $data['profile']['id'] }}" @endif>
-
-        {{-- Buttons --}}
-        <div class="d-flex flex-row-reverse">
-            {{-- Create or Update Button --}}
-            <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                @isset($data['profile']) value="update">
+                {{-- Buttons --}}
+                <div class="d-flex flex-row-reverse">
+                    {{-- Create or Update Button --}}
+                    <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                        @isset($data['profile']) value="update">
                     Update
                     @else
                     value="create">
                     Create @endisset
-                Promo </button>
+                        Promo </button>
 
-                {{-- Cancel Button --}}
-                <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                        {{-- Cancel Button --}}
+                        <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                </div>
+            </form>
         </div>
-        </form>
     </div>
+
+    {{-- Modal Battery --}}
+    <div id="battery-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                {{-- Header --}}
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Add Batteries</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                {{-- Body --}}
+                <div class="modal-body">
+                    {{-- Size Category --}}
+                    <div class="form-group local-forms">
+                        <label for="size">Size Category</label>
+                        <select class="form-control" id="size">
+                            <option></option>
+                            @foreach ($data['battery_categories'] as $size)
+                                <option value="{{ $size['id'] }}">
+                                    {{ $size['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Battery List --}}
+                    <ul class="list-group" id="list-battery"></ul>
+                </div>
+
+                {{-- Footer --}}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-add-modal">Add batteries</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    {{-- Select2 Configurations --}}
+    <script>
+        $(document).ready(function() {
+            $('#size').select2({
+                placeholder: "Enter battery size category"
+            });
+
+            $("#size").on("select2:select", function(e) {
+                // Empty all current items in list.
+                $('#list-battery').empty();
+
+                // Get selected size category.
+                let sizeId = e.params.data.id;
+
+                // Show the list of batteries of the selected size category.
+                $.ajax({
+                    url: "/battery/get/size/" + sizeId,
+                    success: function(data) {
+                        data.forEach(battery => {
+                            // Make the list item for battery.
+                            let item = document.createElement('li');
+                            item.className = 'list-group-item';
+                            item.innerHTML = battery.name;
+
+                            // Append the created list item into list.
+                            $("#list-battery").append(item);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
     {{-- Form Hanlder --}}
     <script>
@@ -194,6 +264,23 @@
 
             $("#promo-form").on("reset", function() {
                 goToPage(indexUrl);
+            });
+        });
+    </script>
+
+    {{-- Modal Handler --}}
+    <script>
+        $('#battery-modal').on('shown.bs.modal', function() {
+            $("#size").val(null).trigger('change');
+            $('#list-battery').empty();
+        });
+    </script>
+
+    {{-- Click Event Handler --}}
+    <script>
+        $(document).ready(function() {
+            $("#btn-add-modal").on('click', function() {
+                //
             });
         });
     </script>

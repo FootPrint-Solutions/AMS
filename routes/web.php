@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
+    Route::get('/battery/get/size/{sizeId}', [Battery::class, 'getBatteriesBySizeCategory']);
 
     // Battery Brand
     Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');
