@@ -257,7 +257,7 @@ $arrayBattery
             $distributorTechnician = "";
             $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
         }
-        $tax = TaxModel::where('status', 'active')->first()->percentage;
+        $tax = TaxModel::where('status', '1')->first()->percentage;
 
         $data = [
             'Fullname' => $Fullname,
