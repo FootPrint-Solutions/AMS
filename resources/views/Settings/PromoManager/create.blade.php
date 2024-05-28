@@ -338,6 +338,23 @@
                 $("#battery-discountpercentage-" + counter).removeClass("d-none");
             }
         });
+
+        $(document).ready(function() {
+            $(".battery-discount, .battery-pricenet").on("change", function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                let id = $(this).attr("id");
+                let parts = id.split('-');
+                let counter = parts[parts.length - 1];
+
+                // Recalculate total value.
+                calculatePriceDiscount(counter, $(this).hasClass("battery-discount"));
+            });
+        });
     </script>
 
     {{-- Click Event Handler --}}
@@ -345,10 +362,28 @@
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
                 $(".battery-discount").val($("#battery-discount-all").val());
+
+                // Calculate the price based on applied discount.
+                $(".battery-discount").each(function() {
+                    let element = $(this);
+                    let id = element.attr("id");
+                    let parts = id.split('-');
+                    let counter = parts[parts.length - 1];
+                    calculatePriceDiscount(counter, true);
+                });
             });
 
             $("#btn-apply-price").on('click', function() {
                 $(".battery-pricenet").val($("#battery-pricenet-all").val());
+
+                // Calculate the discount based on applied price.
+                $(".battery-discount").each(function() {
+                    let element = $(this);
+                    let id = element.attr("id");
+                    let parts = id.split('-');
+                    let counter = parts[parts.length - 1];
+                    calculatePriceDiscount(counter, false);
+                });
             });
 
             $("#btn-add-modal").on('click', function() {
@@ -402,5 +437,25 @@
                 row.find('input').val('');
             }
         });
+    </script>
+
+    {{-- JS Functions --}}
+    <script>
+        /**
+         * Calculate the total price with tax, discount, and extra discount included.
+         * 
+         * @param {boolean} discountPrice - (Optional) Indicates if the discount price value has been changed..
+         * @returns {number} The total price after applying tax, discount, and extra discount.
+         */
+        function calculatePriceDiscount(counter, discountPriceIsChanged = false) {
+            let priceRetail = $('#battery-priceretail-' + counter).val();
+            let discount = $('#battery-discount-' + counter).val();
+            let priceNet = $('#battery-pricenet-' + counter).val();
+
+            if (discountPriceIsChanged)
+                $('#battery-pricenet-' + counter).val(priceRetail - (priceRetail * discount / 100));
+            else
+                $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail)));
+        }
     </script>
 @endsection
