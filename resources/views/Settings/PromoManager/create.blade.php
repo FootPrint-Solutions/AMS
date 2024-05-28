@@ -1,6 +1,7 @@
 @extends('template.master')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
         .select2-container--open {
             z-index: 1100;
@@ -56,6 +57,41 @@
                     </div>
                 </div>
 
+                {{-- Discount & Net Price Generator --}}
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="battery-discount-all">
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-info mx-1" id="btn-apply-price">Apply Discount to
+                                    All</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <span class="input-group-text border-end">IDR</span>
+                                    <input type="text" class="form-control" id="battery-pricenet-all">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-info mx-1" id="btn-apply-price">Apply Net Price to
+                                    All</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Details --}}
                 <table class="table mb-2" id="table-battery-detail">
                     {{-- Header --}}
@@ -89,26 +125,53 @@
                                         @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                 </td>
 
-                                {{-- Discount --}}
+                                {{-- Retail Price --}}
                                 <td>
-                                    <input type="text" class="form-control battery-discount"
-                                        id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
-                                        placeholder="Enter battery discount"
-                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end battery-priceretail"
+                                            id="battery-priceretail-{{ $counter }}"
+                                            placeholder="Enter item retail price" readonly>
+                                    </div>
                                 </td>
 
-                                {{-- Price --}}
+                                {{-- Net Price & Delete --}}
                                 <td>
+                                    {{-- Net Price --}}
                                     <div class="row">
                                         <div class="col">
-                                            <div class="input-group">
+                                            {{-- Discount Percentage --}}
+                                            <div class="input-group" id="battery-discountpercentage-{{ $counter }}">
+                                                <input type="text" class="form-control battery-discount"
+                                                    id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
+                                                    placeholder="Enter battery discount"
+                                                    @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                                <span class="input-group-text border-end">%</span>
+                                            </div>
+
+                                            {{-- Discount Price --}}
+                                            <div class="input-group d-none" id="battery-discountprice-{{ $counter }}">
                                                 <span class="input-group-text border-end">IDR</span>
-                                                <input type="text" class="form-control text-end battery-price"
-                                                    id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                                    placeholder="Enter item price" required
+                                                <input type="text" class="form-control text-end battery-pricenet"
+                                                    id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
+                                                    placeholder="Enter item net price" required
                                                     @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
                                             </div>
                                         </div>
+
+                                        <div class="col-sm-2">
+                                            <input type="checkbox" class="toggle-discount"
+                                                id="toggle-discount-{{ $counter }}" data-toggle="toggle"
+                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" data-width="70"
+                                                data-height="25">
+                                        </div>
+
+                                        {{-- Delete --}}
+                                        <div class="col-sm-1">
+                                            <button type="button" class="btn btn-danger btn-sm btn-delete-row"
+                                                title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                        </div>
+                                    </div>
                                 </td>
 
                                 {{-- Hidden Inputs --}}
@@ -249,6 +312,26 @@
         });
     </script>
 
+    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
+    <script>
+        $(document).ready(function() {
+            $('.toggle-discount').on("change", function() {
+                let id = $(this).attr("id");
+                let parts = id.split('-');
+                let counter = parts[parts.length - 1];
+                console.log(counter);
+
+                if ($(this).prop('checked')) {
+                    $("#battery-discountprice-" + counter).removeClass("d-none");
+                    $("#battery-discountpercentage-" + counter).addClass("d-none");
+                } else {
+                    $("#battery-discountprice-" + counter).addClass("d-none");
+                    $("#battery-discountpercentage-" + counter).removeClass("d-none");
+                }
+            });
+        });
+    </script>
+
     {{-- Modal Handler --}}
     <script>
         $('#battery-modal').on('shown.bs.modal', function() {
@@ -260,6 +343,10 @@
     {{-- Click Event Handler --}}
     <script>
         $(document).ready(function() {
+            $("#btn-apply-price").on('click', function() {
+                $(".battery-pricenet").val($("#battery-pricenet-all").val());
+            });
+
             $("#btn-add-modal").on('click', function() {
                 selectedBatteries.forEach(battery => {
                     // Get the count of rows.
@@ -288,11 +375,28 @@
 
                     // Assign value to every columns.
                     $("#battery-name-" + number).val(battery.name);
+                    $("#battery-priceretail-" + number).val(battery.price_retail);
                     $("#battery-id-" + number).val(battery.id);
                 });
 
                 $('#battery-modal').modal('hide');
             });
+        });
+
+        // Attach a click event handler to all delete row buttons.
+        $(document).on("click", ".btn-delete-row", function() {
+            // Get the count of rows.
+            let count = $(".table-battery-detail-item").length;
+
+            // Check if count of rows is one ore more.
+            // If it's the only row, add d-non instaed of removing it.
+            if (count > 1) {
+                $(this).closest("tr").remove();
+            } else {
+                let row = $(this).closest("tr");
+                row.addClass("d-none");
+                row.find('input').val('');
+            }
         });
     </script>
 @endsection
