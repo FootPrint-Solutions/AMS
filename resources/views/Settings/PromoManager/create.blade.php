@@ -83,29 +83,10 @@
                             <tr class="table-battery-detail-row d-none">
                                 {{-- Name --}}
                                 <td>
-                                    @php
-                                        $targets = ["battery-price-$counter"];
-                                        $encodedTargets = json_encode($targets);
-                                    @endphp
-
-                                    @isset($data['profile'])
-                                        <input type="text" class="form-control" required
-                                            @isset($data['profile']['batteries']) readonly @endisset
-                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
-                                    @else
-                                        @component('components.autocomplete', [
-                                            'id' => "battery-name-$counter",
-                                            'class' => 'battery-name',
-                                            'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
-                                            'name' => 'batteriesname[]',
-                                            'nameHiddenId' => 'batteriesid[]',
-                                            'url' => '/battery/get/',
-                                            'placeholder' => 'Enter item name',
-                                            'targets' => $encodedTargets,
-                                            'callback' => 'calculateTotal',
-                                        ])
-                                        @endcomponent
-                                    @endisset
+                                    <input type="text" class="form-control battery-name"
+                                        id="battery-name-{{ $counter }}" name="batteriesname[]"
+                                        placeholder="Enter battery name"
+                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                 </td>
 
                                 {{-- Discount --}}
@@ -113,7 +94,7 @@
                                     <input type="text" class="form-control battery-discount"
                                         id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
                                         placeholder="Enter battery discount"
-                                        @isset($data['profile']['batteries'])value="{{ $battery['discount'] }}" @endisset>
+                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                 </td>
 
                                 {{-- Price --}}
@@ -125,21 +106,14 @@
                                                 <input type="text" class="form-control text-end battery-price"
                                                     id="battery-price-{{ $counter }}" name="batteriesprice[]"
                                                     placeholder="Enter item price" required
-                                                    @isset($data['profile']['batteries']) readonly @endisset
                                                     @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
-                                            </div>
-
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
-                                                    title="Delete Item"><i class="fas fa-xmark"></i></button>
                                             </div>
                                         </div>
                                 </td>
 
                                 {{-- Hidden Inputs --}}
-                                @isset($data['profile']['batteries'])
-                                    <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
-                                @endisset
+                                <input type="hidden" name="detailid[]" id="battery-id-{{ $counter }}"
+                                    @isset($data['profile']['batteries']) value="{{ $battery['id'] }}" @endisset>
                             </tr>
 
                             @php
@@ -210,6 +184,8 @@
 
     {{-- Select2 Configurations --}}
     <script>
+        var selectedBatteries = [];
+
         $(document).ready(function() {
             $('#size').select2({
                 placeholder: "Enter battery size category"
@@ -226,6 +202,8 @@
                 $.ajax({
                     url: "/battery/get/size/" + sizeId,
                     success: function(data) {
+                        selectedBatteries = [];
+
                         data.forEach(battery => {
                             // Make the list item for battery.
                             let item = document.createElement('li');
@@ -234,6 +212,9 @@
 
                             // Append the created list item into list.
                             $("#list-battery").append(item);
+
+                            // Append battery to selected battery.
+                            selectedBatteries.push(battery);
                         });
                     }
                 });
@@ -280,7 +261,37 @@
     <script>
         $(document).ready(function() {
             $("#btn-add-modal").on('click', function() {
-                //
+                selectedBatteries.forEach(battery => {
+                    // Get the count of rows.
+                    let count = $(".table-battery-detail-row").length;
+
+                    // Get the last row in list.
+                    let newRow = $('.table-battery-detail-row').last();
+
+                    // Check if the last row has been unhidden.
+                    // If it's been unhidden, clone it.
+                    if (count >= 1 && !newRow.hasClass("d-none"))
+                        newRow = newRow.clone();
+                    newRow.removeClass('d-none');
+                    newRow.find('input').val('');
+
+                    // Set new id to each elements inside.
+                    let number;
+                    newRow.find('*[id]').each(function() {
+                        let id = $(this).attr("id");
+                        let parts = id.split('-');
+                        number = parseInt(parts[parts.length - 1]) + 1;
+                        $(this).attr("id", parts[0] + '-' + parts[1] + '-' + number);
+                    });
+
+                    $('#table-battery-detail').append(newRow);
+
+                    // Assign value to every columns.
+                    $("#battery-name-" + number).val(battery.name);
+                    $("#battery-id-" + number).val(battery.id);
+                });
+
+                $('#battery-modal').modal('hide');
             });
         });
     </script>
