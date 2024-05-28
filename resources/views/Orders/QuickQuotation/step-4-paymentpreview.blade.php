@@ -131,8 +131,8 @@
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
                             <p>Subtotal <span>Rp. {{ number_format($Subtotal, 0, ',', '.') }}</span></p>
-                            <p>Discount <span>{{ $Discount }}</span></p>
-                            <p>Tax <span>{{ $tax }}</span></p>
+                            <p>Discount (%) <span>{{ $Discount }}</span></p>
+                            <p>Tax (%) <span>{{ $tax }}</span></p>
                             {{-- <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p> --}}
                         </div>
                         <div class="invoice-total-footer">
