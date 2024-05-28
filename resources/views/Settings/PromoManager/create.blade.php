@@ -69,7 +69,7 @@
                             </div>
 
                             <div class="col-sm-4">
-                                <button type="button" class="btn btn-info mx-1" id="btn-apply-price">Apply Discount to
+                                <button type="button" class="btn btn-info mx-1" id="btn-apply-discount">Apply Discount to
                                     All</button>
                             </div>
                         </div>
@@ -91,6 +91,7 @@
                         </div>
                     </div>
                 </div>
+                <br>
 
                 {{-- Details --}}
                 <table class="table mb-2" id="table-battery-detail">
@@ -159,6 +160,7 @@
                                             </div>
                                         </div>
 
+                                        {{-- Toggle --}}
                                         <div class="col-sm-2">
                                             <input type="checkbox" class="toggle-discount"
                                                 id="toggle-discount-{{ $counter }}" data-toggle="toggle"
@@ -312,26 +314,6 @@
         });
     </script>
 
-    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
-    <script>
-        $(document).ready(function() {
-            $('.toggle-discount').on("change", function() {
-                let id = $(this).attr("id");
-                let parts = id.split('-');
-                let counter = parts[parts.length - 1];
-                console.log(counter);
-
-                if ($(this).prop('checked')) {
-                    $("#battery-discountprice-" + counter).removeClass("d-none");
-                    $("#battery-discountpercentage-" + counter).addClass("d-none");
-                } else {
-                    $("#battery-discountprice-" + counter).addClass("d-none");
-                    $("#battery-discountpercentage-" + counter).removeClass("d-none");
-                }
-            });
-        });
-    </script>
-
     {{-- Modal Handler --}}
     <script>
         $('#battery-modal').on('shown.bs.modal', function() {
@@ -340,9 +322,31 @@
         });
     </script>
 
+    {{-- Change Event Handler --}}
+    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
+    <script>
+        $(document).on("change", ".toggle-discount", function() {
+            let id = $(this).attr("id");
+            let parts = id.split('-');
+            let counter = parts[parts.length - 1];
+
+            if ($(this).prop('checked')) {
+                $("#battery-discountprice-" + counter).removeClass("d-none");
+                $("#battery-discountpercentage-" + counter).addClass("d-none");
+            } else {
+                $("#battery-discountprice-" + counter).addClass("d-none");
+                $("#battery-discountpercentage-" + counter).removeClass("d-none");
+            }
+        });
+    </script>
+
     {{-- Click Event Handler --}}
     <script>
         $(document).ready(function() {
+            $("#btn-apply-discount").on('click', function() {
+                $(".battery-discount").val($("#battery-discount-all").val());
+            });
+
             $("#btn-apply-price").on('click', function() {
                 $(".battery-pricenet").val($("#battery-pricenet-all").val());
             });

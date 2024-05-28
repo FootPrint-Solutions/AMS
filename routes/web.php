@@ -27,6 +27,9 @@ use App\Http\Controllers\Orders\QuickQuotation;
 use App\Http\Controllers\Orders\SalesOrder;
 use App\Http\Controllers\Orders\SalesOrderBattery;
 
+// WORK ORDER
+use App\Http\Controllers\Orders\WorkOrder;
+
 // SETTINGS
 use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
@@ -226,6 +229,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Work Order
     Route::get('/work-order', [WorkOrder::class, 'index']);
+    Route::post('/work-order/show', [WorkOrder::class, 'show']);
+    Route::get('/work-order/print/{id}', [WorkOrder::class, 'print']);
 
     // Settings
     // Message Template
