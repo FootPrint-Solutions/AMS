@@ -28,6 +28,7 @@ use App\Http\Controllers\Orders\SalesOrder;
 use App\Http\Controllers\Orders\SalesOrderBattery;
 
 // SETTINGS
+use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 
@@ -40,6 +41,7 @@ use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
+
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -103,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
+    Route::get('/battery/get/size/{sizeId}', [Battery::class, 'getBatteriesBySizeCategory']);
 
     // Battery Brand
     Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');
@@ -219,13 +222,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
     Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
     Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
+    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate']);
+
+    // Work Order
+    Route::get('/work-order', [WorkOrder::class, 'index']);
 
     // Settings
     // Message Template
     Route::get('/template/message', [MessageTemplate::class, 'index']);
     Route::post('/template/message/update', [MessageTemplate::class, 'update']);
 
-    // Message Template
+    // Tax
     Route::get('/tax', [Tax::class, 'index']);
     Route::post('/tax/show', [Tax::class, 'show']);
     Route::get('/tax/create', [Tax::class, 'create']);
@@ -234,6 +241,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tax/update', [Tax::class, 'update']);
     Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
+
+    // Promo
+    Route::get('/promo', [Promo::class, 'index']);
+    Route::post('/promo/show', [Promo::class, 'show']);
+    Route::get('/promo/create', [Promo::class, 'create']);
+    Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

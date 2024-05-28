@@ -467,4 +467,14 @@ class Battery extends Controller
     {
         return BatteryModel::allForAutocomplete($keyword, ["price_retail", "battery_size_categories.name as size_category_name"]);
     }
+
+    /**
+     * Get the list of batteries based on size category.
+     * 
+     * @param  int  $sizeId The size category id
+     */
+    public function getBatteriesBySizeCategory($sizeId)
+    {
+        return BatteryModel::where('size_category_id', $sizeId)->get();
+    }
 }

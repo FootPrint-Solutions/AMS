@@ -91,7 +91,27 @@
                         downloadPDF("/sales-order/invoice/" + selectedRows[0][9]);
                     },
                     className: "btn btn-outline-secondary btn-sm",
-                }, ]),
+                }, {
+                    text: "<i class='fas fa-screwdriver-wrench'></i> Create Work Order",
+                    action: function(e, dt, node, config) {
+                        // Get the selected row's id.
+                        let selectedRows = table.rows({
+                            selected: true
+                        }).data().toArray();
+                        if (selectedRows.length !== 1) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Please select a single row for creating work order.",
+                                icon: "error",
+                            });
+                            return;
+                        }
+
+                        // Redirect to create work order page.
+                        createworkorder("/sales-order/work-order/" + selectedRows[0][9]);
+                    },
+                    className: "btn btn-outline-warning btn-sm",
+                }]),
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
             });

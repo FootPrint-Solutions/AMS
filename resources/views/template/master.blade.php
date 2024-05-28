@@ -11,9 +11,7 @@
     <link rel="shortcut icon" href="/img/logos/32x32.png">
 
     {{-- Fontfamily --}}
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap" rel="stylesheet">
 
     {{-- Bootstrap CSS --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -538,6 +536,50 @@
             }
             inputField.val("");
         }
+    }
+
+    /**
+     * Create a work order based on the url.
+     *
+     * @param {string} url - The url view to create a work order.
+     */
+    function createworkorder(url) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to create a work order for the selected item!",
+            icon: "warning",
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: "Yes, create it!",
+            cancelButtonText: "No, cancel!"
+        }).then(function(e) {
+            // If user has confirmed, do the create work order process.
+            if (e.value === true) {
+                // // Redirect to create work order page.
+                // goToPage(url);
+
+                // send ajax request to create work order
+                $.ajax({
+                    url: url,
+                    method: "get",
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        // Get response data from url (in JSON).
+                        let responseData = JSON.parse(response);
+
+                        // Show Toast message based on responseData.
+                        showResponseToast(responseData.status, responseData.message);
+
+                        // Call the callback table reload act (or any other acts after the deletion process is complete).
+                        if (callback !== null && typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     if ($('.clipboard').length > 0) {

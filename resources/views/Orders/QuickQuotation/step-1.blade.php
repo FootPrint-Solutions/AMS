@@ -7,13 +7,12 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label for="company-name">Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
-                        aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                            <option value="{{ $vehicle['id'] }}">
-                                {{ trim($vehicle['name']) }}
+                        <option value="{{ $vehicle['id'] }}">
+                            {{ trim($vehicle['name']) }}
 
-                            </option>
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -207,6 +206,11 @@
             return;
         }
 
+        if (Battery.length == 0) {
+            swal.fire("Error!", "Please select battery", "error");
+            return;
+        }
+
 
         $('#btnNextStep2').trigger('click');
 
@@ -290,7 +294,7 @@
                         html += '</div>';
                         html +=
                             '<button data-id="' + vehicle.id +
-                            '" id="btnCopyLink" class="btn clip-btn btn-primary btn-xs" onclick="CopyLinkBattery(this)"><i class="far fa-copy"></i> Copy</button>';
+                            '" id="btnCopyLink" class="btn clip-btn btn-primary btn-xs" onclick="CopyLinkBattery(this)"><i class="far fa-copy"></i> Links</button>';
                         html += '</div>';
                         html +=
                             '</div>';

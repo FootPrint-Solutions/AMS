@@ -320,4 +320,44 @@ class SalesOrder extends Controller
     {
         return DistributorShopTechnicianModel::where("distributor_shop_id", $shopId)->get()->toArray();
     }
+
+    /**
+     * Get the list of batteries based on selectd shop.
+     * 
+     * @param  int  $shopId The id of the selected shop
+     */
+    public function workOrderCreate($id)
+    {
+        try {
+            // check if the work order is already created.
+            $workOrder = SalesOrderModel::find($id)->workOrder;
+            if ($workOrder) {
+                // Set a new response data to be sent.
+                return getResponseData(
+                    false,
+                    "The work order has already been created!"
+                );
+            } else {
+
+                $status = SalesOrderModel::CreateWorkOrder($id);
+
+                if ($status) {
+                    // Set a new response data to be sent.
+                    return getResponseData(
+                        $status,
+                        $status ? "The work order was successfully created!" : "Failed to create the work order!"
+                    );
+                } else {
+                    // Set an error response data to be sent.
+                    return getResponseData(false);
+                }
+            }
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
 }
