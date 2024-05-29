@@ -117,13 +117,13 @@
                         @endphp
 
                         @foreach ($batteries as $battery)
-                            <tr class="table-battery-detail-row d-none">
+                            <tr class="table-battery-detail-row @if (!isset($data['profile']['batteries'])) d-none @endif">
                                 {{-- Name --}}
                                 <td>
                                     <input type="text" class="form-control battery-name"
                                         id="battery-name-{{ $counter }}" name="batteriesname[]"
                                         placeholder="Enter battery name"
-                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                        @isset($data['profile']['batteries']) value="{{ $battery['name'] }}" @endisset>
                                 </td>
 
                                 {{-- Retail Price --}}
@@ -131,8 +131,9 @@
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
                                         <input type="text" class="form-control text-end battery-priceretail"
-                                            id="battery-priceretail-{{ $counter }}"
-                                            placeholder="Enter item retail price" readonly>
+                                            id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
+                                            placeholder="Enter item retail price" readonly
+                                            @isset($data['profile']['batteries']) value="{{ $battery['price_retail'] }}" @endisset>
                                     </div>
                                 </td>
 
@@ -156,7 +157,7 @@
                                                 <input type="text" class="form-control text-end battery-pricenet"
                                                     id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
                                                     placeholder="Enter item net price" required
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['net_price'] }}" @endisset>
+                                                    @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
                                         </div>
 
@@ -338,6 +339,23 @@
                 $("#battery-discountpercentage-" + counter).removeClass("d-none");
             }
         });
+
+        $(document).ready(function() {
+            $(".battery-discount, .battery-pricenet").on("change", function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                let id = $(this).attr("id");
+                let parts = id.split('-');
+                let counter = parts[parts.length - 1];
+
+                // Recalculate total value.
+                calculatePriceDiscount(counter, $(this).hasClass("battery-discount"));
+            });
+        });
     </script>
 
     {{-- Click Event Handler --}}
@@ -345,10 +363,28 @@
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
                 $(".battery-discount").val($("#battery-discount-all").val());
+
+                // Calculate the price based on applied discount.
+                $(".battery-discount").each(function() {
+                    let element = $(this);
+                    let id = element.attr("id");
+                    let parts = id.split('-');
+                    let counter = parts[parts.length - 1];
+                    calculatePriceDiscount(counter, true);
+                });
             });
 
             $("#btn-apply-price").on('click', function() {
                 $(".battery-pricenet").val($("#battery-pricenet-all").val());
+
+                // Calculate the discount based on applied price.
+                $(".battery-discount").each(function() {
+                    let element = $(this);
+                    let id = element.attr("id");
+                    let parts = id.split('-');
+                    let counter = parts[parts.length - 1];
+                    calculatePriceDiscount(counter, false);
+                });
             });
 
             $("#btn-add-modal").on('click', function() {
@@ -381,6 +417,9 @@
                     $("#battery-name-" + number).val(battery.name);
                     $("#battery-priceretail-" + number).val(battery.price_retail);
                     $("#battery-id-" + number).val(battery.id);
+
+                    // Format the retail price.
+                    formatPrice($("#battery-priceretail-" + number));
                 });
 
                 $('#battery-modal').modal('hide');
@@ -402,5 +441,35 @@
                 row.find('input').val('');
             }
         });
+    </script>
+
+    {{-- Starter Functions --}}
+    <script>
+        $(document).ready(function() {
+            formatPrice($(".battery-priceretail"));
+            formatPrice($(".battery-pricenet"));
+        })
+    </script>
+
+    {{-- JS Functions --}}
+    <script>
+        /**
+         * Calculate the total price with tax, discount, and extra discount included.
+         * 
+         * @param {boolean} discountPrice - (Optional) Indicates if the discount price value has been changed..
+         * @returns {number} The total price after applying tax, discount, and extra discount.
+         */
+        function calculatePriceDiscount(counter, discountPriceIsChanged = false) {
+            let priceRetail = parseInt($('#battery-priceretail-' + counter).val().replace(/\D/g, ''));
+            let discount = parseInt($('#battery-discount-' + counter).val().replace(/\D/g, ''));
+            let priceNet = parseInt($('#battery-pricenet-' + counter).val().replace(/\D/g, ''));
+
+            if (discountPriceIsChanged)
+                $('#battery-pricenet-' + counter).val(priceRetail - (priceRetail * discount / 100));
+            else
+                $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail * 100)));
+
+            formatPrice($(".battery-pricenet"));
+        }
     </script>
 @endsection
