@@ -3,6 +3,14 @@
 @section('content')
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
+        .list-group-item {
+            cursor: pointer;
+        }
+
+        .list-group-item:hover {
+            background-color: rgba(184, 187, 191, 0.5)
+        }
+
         .select2-container--open {
             z-index: 1100;
         }
@@ -225,15 +233,23 @@
                 {{-- Body --}}
                 <div class="modal-body">
                     {{-- Size Category --}}
-                    <div class="form-group local-forms">
-                        <label for="size">Size Category</label>
-                        <select class="form-control" id="size">
-                            <option></option>
-                            @foreach ($data['battery_categories'] as $size)
-                                <option value="{{ $size['id'] }}">
-                                    {{ $size['name'] }}</option>
-                            @endforeach
-                        </select>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="size">Size Category</label>
+                                <select class="form-control" style="width: 100%" id="size">
+                                    <option></option>
+                                    @foreach ($data['battery_categories'] as $size)
+                                        <option value="{{ $size['id'] }}">
+                                            {{ $size['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-info" id="btn-all-modal">Select all</button>
+                        </div>
                     </div>
 
                     {{-- Battery List --}}
@@ -251,6 +267,7 @@
     {{-- Select2 Configurations --}}
     <script>
         var selectedBatteries = [];
+        var shownBatteries = [];
 
         $(document).ready(function() {
             $('#size').select2({
@@ -269,6 +286,7 @@
                     url: "/battery/get/size/" + sizeId,
                     success: function(data) {
                         selectedBatteries = [];
+                        shownBatteries = [];
 
                         data.forEach(battery => {
                             // Make the list item for battery.
@@ -276,11 +294,28 @@
                             item.className = 'list-group-item';
                             item.innerHTML = battery.name;
 
+                            item.onclick = function() {
+                                if ($(this).hasClass("active")) {
+                                    $(this).removeClass("active");
+
+                                    // Remove battery from selected battery.
+                                    const index = selectedBatteries.indexOf(
+                                        battery);
+                                    if (index > -1)
+                                        selectedBatteries.splice(index, 1);
+                                } else {
+                                    $(this).addClass("active");
+
+                                    // Append battery to selected battery.
+                                    selectedBatteries.push(battery);
+                                }
+                            };
+
                             // Append the created list item into list.
                             $("#list-battery").append(item);
 
-                            // Append battery to selected battery.
-                            selectedBatteries.push(battery);
+                            // Push battery info to shownBatteries.
+                            shownBatteries.push(battery);
                         });
                     }
                 });
@@ -359,6 +394,7 @@
     </script>
 
     {{-- Click Event Handler --}}
+    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.jquery.min.js') }}" defer></script>
     <script>
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
@@ -384,6 +420,14 @@
                     let parts = id.split('-');
                     let counter = parts[parts.length - 1];
                     calculatePriceDiscount(counter, false);
+                });
+            });
+
+            $("#btn-all-modal").on('click', function() {
+                //
+                $(".list-group-item").each(function() {
+                    $(this).addClass("active");
+                    selectedBatteries = shownBatteries;
                 });
             });
 
