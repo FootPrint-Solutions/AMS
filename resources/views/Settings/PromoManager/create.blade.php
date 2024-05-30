@@ -2,14 +2,6 @@
 
 @section('content')
     <style>
-        .list-group-item {
-            cursor: pointer;
-        }
-
-        .list-group-item:hover {
-            background-color: rgba(184, 187, 191, 0.5)
-        }
-
         .select2-container--open {
             z-index: 1100;
         }
@@ -254,7 +246,7 @@
 
                     {{-- Battery List --}}
                     <div id="list-battery-none">No batteries found</div>
-                    <ul class="list-group d-none" id="list-battery"></ul>
+                    <ul class="list-group list-group-flush d-none" id="list-battery"></ul>
                 </div>
 
                 {{-- Footer --}}
@@ -509,7 +501,7 @@
                         data.forEach(battery => {
                             // Make the list item for battery.
                             let item = document.createElement('li');
-                            item.className = 'list-group-item';
+                            item.className = 'list-group-item list-group-item-action';
                             item.innerHTML = battery.name;
 
                             item.onclick = function() {

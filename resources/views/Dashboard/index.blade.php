@@ -92,4 +92,77 @@
         </div>
     </div>
     <!-- /Overview Section -->
+
+    {{-- Promo --}}
+    <div class="row">
+        <div class="col">
+            <div class="card bg-comman w-100">
+                <div class="card-body">
+                    <div class="db-widgets d-flex justify-content-between align-items-center">
+                        <div class="db-info w-100">
+                            {{-- Title --}}
+                            <h6>Active Limited Promos</h6>
+
+                            {{-- List --}}
+                            <div class="overflow-auto">
+                                @if (count($data['ActivePromos']) > 0)
+                                    <ul class="list-group list-group-flush">
+                                        @foreach ($data['ActivePromos'] as $item)
+                                            <a href="/promo/edit/{{ $item->id }}"
+                                                class="list-group-item list-group-item-action flex-column align-items-start @if ($item->period_end == date('Y-m-d')) list-group-item-danger @endif">
+                                                <div class="d-flex justify-content-between">
+                                                    <h5 class="mb-1">{{ $item->name }}</h5>
+                                                    <small>
+                                                        valid up to
+                                                        @if ($item->period_end == date('Y-m-d'))
+                                                            today
+                                                        @else
+                                                            {{ date('d M Y', strtotime($item->period_end)) }}
+                                                        @endif
+                                                    </small>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    No promo found
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card bg-comman w-100">
+                <div class="card-body">
+                    <div class="db-widgets d-flex justify-content-between align-items-center">
+                        <div class="db-info w-100">
+                            {{-- Title --}}
+                            <h6>Unlimited Promos</h6>
+
+                            {{-- List --}}
+                            <div class="overflow-auto">
+                                @if (count($data['UnlimitedPromos']) > 0)
+                                    <ul class="list-group list-group-flush">
+                                        @foreach ($data['UnlimitedPromos'] as $item)
+                                            <a href="/promo/edit/{{ $item->id }}"
+                                                class="list-group-item list-group-item-action flex-column align-items-start">
+                                                <div class="d-flex justify-content-between">
+                                                    <h5 class="mb-1">{{ $item->name }}</h5>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    No promo found
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
