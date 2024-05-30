@@ -67,35 +67,18 @@
 
                 {{-- Discount & Net Price Generator --}}
                 <div class="row">
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="battery-discount-all">
-                                    <span class="input-group-text border-end">%</span>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                <button type="button" class="btn btn-info mx-1" id="btn-apply-discount">Apply Discount to
-                                    All</button>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="battery-discount-all">
+                                <span class="input-group-text border-end">%</span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" class="form-control" id="battery-pricenet-all">
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                <button type="button" class="btn btn-info mx-1" id="btn-apply-price">Apply Net Price to
-                                    All</button>
-                            </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-info btn-block" id="btn-apply-discount">Apply
+                                Discount to
+                                All</button>
                         </div>
                     </div>
                 </div>
@@ -145,36 +128,31 @@
                                     </div>
                                 </td>
 
+                                {{-- Discount --}}
+                                <td>
+                                    {{-- Discount Percentage --}}
+                                    <div class="input-group">
+                                        <input type="text" class="form-control battery-discount"
+                                            id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
+                                            placeholder="Enter battery discount"
+                                            @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                        <span class="input-group-text border-end">%</span>
+                                    </div>
+                                </td>
+
                                 {{-- Net Price & Delete --}}
                                 <td>
                                     {{-- Net Price --}}
                                     <div class="row">
                                         <div class="col">
-                                            {{-- Discount Percentage --}}
-                                            <div class="input-group" id="battery-discountpercentage-{{ $counter }}">
-                                                <input type="text" class="form-control battery-discount"
-                                                    id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
-                                                    placeholder="Enter battery discount"
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
-                                                <span class="input-group-text border-end">%</span>
-                                            </div>
-
                                             {{-- Discount Price --}}
-                                            <div class="input-group d-none" id="battery-discountprice-{{ $counter }}">
+                                            <div class="input-group">
                                                 <span class="input-group-text border-end">IDR</span>
                                                 <input type="text" class="form-control text-end battery-pricenet"
                                                     id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
-                                                    placeholder="Enter item net price" required
+                                                    placeholder="Enter item net price" required readonly
                                                     @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
-                                        </div>
-
-                                        {{-- Toggle --}}
-                                        <div class="col-sm-2">
-                                            <input type="checkbox" class="toggle-discount"
-                                                id="toggle-discount-{{ $counter }}" data-toggle="toggle"
-                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" data-width="70"
-                                                data-height="25">
                                         </div>
 
                                         {{-- Delete --}}
@@ -359,7 +337,6 @@
     </script>
 
     {{-- Change Event Handler --}}
-    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
     <script>
         $(document).on("change", ".toggle-discount", function() {
             let id = $(this).attr("id");
@@ -394,7 +371,6 @@
     </script>
 
     {{-- Click Event Handler --}}
-    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.jquery.min.js') }}" defer></script>
     <script>
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
