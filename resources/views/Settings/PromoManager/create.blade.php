@@ -1,7 +1,6 @@
 @extends('template.master')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
         .list-group-item {
             cursor: pointer;
@@ -254,7 +253,8 @@
                     </div>
 
                     {{-- Battery List --}}
-                    <ul class="list-group" id="list-battery"></ul>
+                    <div id="list-battery-none">No batteries found</div>
+                    <ul class="list-group d-none" id="list-battery"></ul>
                 </div>
 
                 {{-- Footer --}}
@@ -331,20 +331,6 @@
 
     {{-- Change Event Handler --}}
     <script>
-        $(document).on("change", ".toggle-discount", function() {
-            let id = $(this).attr("id");
-            let parts = id.split('-');
-            let counter = parts[parts.length - 1];
-
-            if ($(this).prop('checked')) {
-                $("#battery-discountprice-" + counter).removeClass("d-none");
-                $("#battery-discountpercentage-" + counter).addClass("d-none");
-            } else {
-                $("#battery-discountprice-" + counter).addClass("d-none");
-                $("#battery-discountpercentage-" + counter).removeClass("d-none");
-            }
-        });
-
         $(document).ready(function() {
             $("#unlimited-period").on("change", function() {
                 if ($(this).is(':checked')) {
@@ -493,10 +479,10 @@
         }
 
         /**
-         * Calculate the total price with tax, discount, and extra discount included.
+         * Search and show the list of batteries based on size category and name.
          * 
-         * @param {boolean} discountPrice - (Optional) Indicates if the discount price value has been changed..
-         * @returns {number} The total price after applying tax, discount, and extra discount.
+         * @param {number} sizeCategoryId - The id of selected size category.
+         * @param {string} name - The keyword of battery name.
          */
         function searchAndShowBattery(sizeCategoryId, name) {
             // Empty all current items in list.
@@ -504,44 +490,55 @@
 
             $.ajax({
                 url: "/battery/get/size",
-                method: POST,
+                method: "post",
                 data: {
+                    "_token": "{{ csrf_token() }}",
                     sizeId: sizeCategoryId,
                     name: name
-                }
+                },
                 success: function(data) {
                     selectedBatteries = [];
                     shownBatteries = [];
 
-                    data.forEach(battery => {
-                        // Make the list item for battery.
-                        let item = document.createElement('li');
-                        item.className = 'list-group-item';
-                        item.innerHTML = battery.name;
+                    // If there is at least one battery to display, show the list group.
+                    // Otherwise, show the 'No batteries found' container.
+                    if (data.length > 0) {
+                        $("#list-battery").removeClass("d-none");
+                        $("#list-battery-none").addClass("d-none");
 
-                        item.onclick = function() {
-                            if ($(this).hasClass("active")) {
-                                $(this).removeClass("active");
+                        data.forEach(battery => {
+                            // Make the list item for battery.
+                            let item = document.createElement('li');
+                            item.className = 'list-group-item';
+                            item.innerHTML = battery.name;
 
-                                // Remove battery from selected battery.
-                                const index = selectedBatteries.indexOf(
-                                    battery);
-                                if (index > -1)
-                                    selectedBatteries.splice(index, 1);
-                            } else {
-                                $(this).addClass("active");
+                            item.onclick = function() {
+                                if ($(this).hasClass("active")) {
+                                    $(this).removeClass("active");
 
-                                // Append battery to selected battery.
-                                selectedBatteries.push(battery);
-                            }
-                        };
+                                    // Remove battery from selected battery.
+                                    const index = selectedBatteries.indexOf(
+                                        battery);
+                                    if (index > -1)
+                                        selectedBatteries.splice(index, 1);
+                                } else {
+                                    $(this).addClass("active");
 
-                        // Append the created list item into list.
-                        $("#list-battery").append(item);
+                                    // Append battery to selected battery.
+                                    selectedBatteries.push(battery);
+                                }
+                            };
 
-                        // Push battery info to shownBatteries.
-                        shownBatteries.push(battery);
-                    });
+                            // Append the created list item into list.
+                            $("#list-battery").append(item);
+
+                            // Push battery info to shownBatteries.
+                            shownBatteries.push(battery);
+                        });
+                    } else {
+                        $("#list-battery").addClass("d-none");
+                        $("#list-battery-none").removeClass("d-none");
+                    }
                 }
             });
         }

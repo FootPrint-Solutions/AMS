@@ -477,13 +477,16 @@ class Battery extends Controller
     {
         try {
             $sizeId = $request->sizeId;
-            $keyword = $request->keyword;
+            $name = $request->name;
 
             $query = BatteryModel::query();
-            $query->where('size_category_id', $sizeId);
-            $query->where('name', 'like', '%' . $keyword . '%');
-            // return $query->get()->toArray();
-            return ["heh", "hah"];
+            if ($sizeId)
+                $query->where('size_category_id', $sizeId);
+
+            if ($name)
+                $query->where('name', 'like', '%' . $name . '%');
+
+            return $query->get()->toArray();
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());

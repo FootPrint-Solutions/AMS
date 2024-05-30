@@ -102,7 +102,7 @@ class Promo extends Controller
             $row[] = $no++;
             $row[] = $key->name;
             $row[] = formatDate($key->period_start);
-            $row[] = formatDate($key->period_end);
+            $row[] = $key->period_end ? formatDate($key->period_end) : "-";
             $row[] = $key->id;
             $rows[] = $row;
         }
