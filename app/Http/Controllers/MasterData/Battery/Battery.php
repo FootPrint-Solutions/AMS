@@ -473,8 +473,20 @@ class Battery extends Controller
      * 
      * @param  int  $sizeId The size category id
      */
-    public function getBatteriesBySizeCategory($sizeId)
+    public function getBatteriesBySizeCategory(Request $request)
     {
-        return BatteryModel::where('size_category_id', $sizeId)->get();
+        try {
+            $sizeId = $request->sizeId;
+            $keyword = $request->keyword;
+
+            $query = BatteryModel::query();
+            $query->where('size_category_id', $sizeId);
+            $query->where('name', 'like', '%' . $keyword . '%');
+            // return $query->get()->toArray();
+            return ["heh", "hah"];
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+        }
     }
 }
