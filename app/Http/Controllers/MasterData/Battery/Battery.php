@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 // MODELS
@@ -465,7 +466,7 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
-        return BatteryModel::allForAutocomplete($keyword, ["price_retail", "battery_size_categories.name as size_category_name"]);
+        return BatteryModel::allForAutocomplete($keyword, [DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price")]);
     }
 
     /**
