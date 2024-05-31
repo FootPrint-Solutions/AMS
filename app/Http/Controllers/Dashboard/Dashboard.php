@@ -31,9 +31,7 @@ class Dashboard extends Controller
                 'NumberOfCustomer' => CustomerModel::count(),
                 'NumberOfVehicle' => VehicleModel::count(),
                 'NumberOfBattery' => BatteryModel::count(),
-                'TotalRevenue' => SalesOrderModel::sum('total'),
-                'ActivePromos' => PromoModel::where('period_end', '>=', $today)->orderBy('period_end')->get(),
-                'UnlimitedPromos' => PromoModel::where('period_end', '=', null)->get()
+                'TotalRevenue' => SalesOrderModel::sum('total')
             )
         ));
     }

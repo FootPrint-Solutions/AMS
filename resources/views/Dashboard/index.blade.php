@@ -14,7 +14,7 @@
         }
     </style>
 
-    <!-- Page Header -->
+    {{-- Header --}}
     <div class="page-header">
         <div class="row">
             <div class="col-sm-12">
@@ -28,9 +28,8 @@
             </div>
         </div>
     </div>
-    <!-- /Page Header -->
 
-    <!-- Overview Section -->
+    {{-- Overview --}}
     <div class="row">
         <div class="col-xl-3 col-sm-6 col-12 d-flex">
             <div class="card bg-comman w-100">
@@ -96,7 +95,6 @@
             </div>
         </div>
     </div>
-    <!-- /Overview Section -->
 
     {{-- Promos --}}
     <div class="card flex-fill student-space comman-shadow">
