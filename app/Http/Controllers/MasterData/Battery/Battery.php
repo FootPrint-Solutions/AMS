@@ -19,6 +19,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
+use App\Models\MasterData\Battery\BatteryPriceModel;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -277,6 +278,12 @@ class Battery extends Controller
                     ]);
             }
 
+            // Store battery price.
+            $price = new BatteryPriceModel();
+            $price->battery_id = $battery->id;
+            $price->price_retail = $battery->price_retail;
+            $status &= $price->save();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
@@ -416,6 +423,13 @@ class Battery extends Controller
                             'url' => $request->url[$i],
                         ]);
                 }
+            }
+
+            // Store battery price.
+            $price = BatteryPriceModel::where("battery_id", $battery->id)->first();
+            if ($price) {
+                $price->price_retail = $battery->price_retail;
+                $status &= $price->save();
             }
 
             // Set a new response data to be sent.

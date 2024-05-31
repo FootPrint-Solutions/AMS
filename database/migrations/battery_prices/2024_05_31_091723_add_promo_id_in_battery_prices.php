@@ -14,7 +14,7 @@ class AddPromoIdInBatteryPrices extends Migration
     public function up()
     {
         Schema::table('battery_prices', function (Blueprint $table) {
-            $table->unsignedBigInteger('promo_id')->after('battery_id');
+            $table->unsignedBigInteger('promo_id')->default(0)->after('battery_id');
 
             // Set foreign key.
             $table->foreign('promo_id')
