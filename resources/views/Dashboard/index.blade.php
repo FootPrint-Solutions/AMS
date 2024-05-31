@@ -9,8 +9,17 @@
             content: var(--bs-breadcrumb-divider, "/");
         }
 
+        .card {
+            transition: transform .1s;
+        }
+
+        .card:hover {
+            transform: scale(1.01);
+        }
+
         #table-promo tbody tr:hover {
             cursor: pointer;
+            background-color: rgba(192, 192, 192, 0.5)
         }
     </style>
 
@@ -19,7 +28,8 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-sub-header">
-                    <h3 class="page-title">Welcome @auth {{ Auth::user()->name }} @endauth !</h3>
+                    <h3 class="page-title">Welcome, @auth{{ Auth::user()->name }}@endauth!</h3>
+
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="">Home</a></li>
                         <li class="breadcrumb-item active">Dashboard</li>
@@ -29,7 +39,7 @@
         </div>
     </div>
 
-    {{-- Overview --}}
+    {{-- Overview Row --}}
     <div class="row">
         <div class="col-xl-3 col-sm-6 col-12 d-flex">
             <div class="card bg-comman w-100">
@@ -96,35 +106,35 @@
         </div>
     </div>
 
-    {{-- Promos --}}
-    <div class="card flex-fill student-space comman-shadow">
-        <div class="card-header d-flex align-items-center">
-            <h5 class="card-title">Currently Active Promo</h5>
-            <ul class="chart-list-out student-ellips">
-                <li class="star-menus" id="star-menus-promo">
-                    <div class="container d-none" id="item-menus-promo">
-                        <button class="btn btn-sm btn-primary mx-1" id="btn-promo-limited">Limited</button>
-                        <button class="btn btn-sm btn-info mx-1" id="btn-promo-unlimited">Unlimited</button>
-                    </div>
-                    <input type="hidden" id="promo-filter" value="limited">
+    {{-- Promo Row --}}
+    <div class="row">
+        <div class="card flex-fill student-space comman-shadow">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title">Currently Active Promo</h5>
+                <ul class="chart-list-out student-ellips">
+                    <li class="star-menus" id="star-menus-promo">
+                        <div class="container d-none" id="item-menus-promo">
+                            <button class="btn btn-sm btn-primary mx-1" id="btn-promo-limited">Limited</button>
+                            <button class="btn btn-sm btn-info mx-1" id="btn-promo-unlimited">Unlimited</button>
+                        </div>
+                        <input type="hidden" id="promo-filter" value="limited">
+                    </li>
+                </ul>
+            </div>
 
-                    {{-- <a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a> --}}
-                </li>
-            </ul>
-        </div>
-
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped" id="table-promo">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Discounted Batteries</th>
-                            <th scope="col">Valid Until</th>
-                        </tr>
-                    </thead>
-                </table>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="table-promo">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="table-col-no">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Discounted Batteries</th>
+                                <th scope="col">Valid Until</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -165,30 +175,6 @@
                     });
                 }
             });
-        });
-    </script>
-
-    {{-- Click Handler Function --}}
-    <script>
-        $(document).ready(function() {
-            // $("#star-menus-promo").on('click', function() {
-            //     if ($("#item-menus-promo").hasClass("d-none"))
-            //         $("#item-menus-promo").css({
-            //             right: '-100%',
-            //             opacity: 0
-            //         }).removeClass("d-none")
-            //         .animate({
-            //             right: '0',
-            //             opacity: 1
-            //         }, 'fast');
-            //     else
-            //         $("#item-menus-promo").animate({
-            //             right: '-100%',
-            //             opacity: 0
-            //         }, 'fast', function() {
-            //             $(this).addClass("d-none");
-            //         });
-            // });
         });
     </script>
 @endsection
