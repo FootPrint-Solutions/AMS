@@ -8,7 +8,12 @@
             color: var(--bs-breadcrumb-divider-color);
             content: var(--bs-breadcrumb-divider, "/");
         }
+
+        #table-promo tbody tr:hover {
+            cursor: pointer;
+        }
     </style>
+
     <!-- Page Header -->
     <div class="page-header">
         <div class="row">
@@ -98,7 +103,15 @@
         <div class="card-header d-flex align-items-center">
             <h5 class="card-title">Currently Active Promo</h5>
             <ul class="chart-list-out student-ellips">
-                <li class="star-menus"><a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a></li>
+                <li class="star-menus" id="star-menus-promo">
+                    <div class="container d-none" id="item-menus-promo">
+                        <button class="btn btn-sm btn-primary mx-1" id="btn-promo-limited">Limited</button>
+                        <button class="btn btn-sm btn-info mx-1" id="btn-promo-unlimited">Unlimited</button>
+                    </div>
+                    <input type="hidden" id="promo-filter" value="limited">
+
+                    {{-- <a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a> --}}
+                </li>
             </ul>
         </div>
 
@@ -120,10 +133,11 @@
 
     {{-- DataTables configuration --}}
     <script>
-        var table;
+        var promoTable;
+
         $(document).ready(function() {
             // DataTables configuration
-            table = $("#table-promo").DataTable({
+            promoTable = $("#table-promo").DataTable({
                 lengthMenu: [
                     [3, 5]
                 ],
@@ -136,7 +150,7 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        type: "limited"
+                        type: 'limited'
                     }
                 },
                 columnDefs: [{
@@ -144,20 +158,39 @@
                     orderable: false
                 }],
                 dom: "tp",
-                select: true,
                 rowCallback: function(row, data) {
-                    if (data[5]) {
+                    if (data[5])
                         $('td', row).addClass("table-warning");
-                    }
+
+                    $(row).click(function() {
+                        document.location.href = '/promo/edit/' + data[4];
+                    });
                 }
             });
+        });
+    </script>
 
-            // Load DataTables toolbar component.
-            appendDatatablesToolbar(6, "/customer/edit/", null, "/customer/toggle");
-
-            $('#btn-add').on('click', function() {
-                goToPage("/customer/create");
-            });
+    {{-- Click Handler Function --}}
+    <script>
+        $(document).ready(function() {
+            // $("#star-menus-promo").on('click', function() {
+            //     if ($("#item-menus-promo").hasClass("d-none"))
+            //         $("#item-menus-promo").css({
+            //             right: '-100%',
+            //             opacity: 0
+            //         }).removeClass("d-none")
+            //         .animate({
+            //             right: '0',
+            //             opacity: 1
+            //         }, 'fast');
+            //     else
+            //         $("#item-menus-promo").animate({
+            //             right: '-100%',
+            //             opacity: 0
+            //         }, 'fast', function() {
+            //             $(this).addClass("d-none");
+            //         });
+            // });
         });
     </script>
 @endsection
