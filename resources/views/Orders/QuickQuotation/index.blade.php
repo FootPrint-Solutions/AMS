@@ -11,6 +11,15 @@
             z-index: 999;
         }
 
+        #AutoCompleteFullNameCustomerStep1 {
+            position: absolute;
+            background-color: #f1f1f1;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            z-index: 999;
+        }
+
         #AutoCompleteFullNameCustomerContact {
             position: absolute;
             background-color: #f1f1f1;
@@ -49,6 +58,27 @@
 
         .blog-image img {
             width: 75%;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 50%;
+            font-size: 0.8em;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        .price-discount {
+            font-weight: bold;
+            color: red;
         }
     </style>
     {{-- Title --}}

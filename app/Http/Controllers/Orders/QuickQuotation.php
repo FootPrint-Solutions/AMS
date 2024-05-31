@@ -27,6 +27,19 @@ class QuickQuotation extends Controller
     public function index(Request $request)
     {
         $request->session()->put('invoice', SalesOrderModel::newCode());
+        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->get()->toArray();
+
+        $datalatlong = [];
+        foreach ($Distibutor as $key => $value) {
+            $datalatlong[] = [
+                'latitude' => $value['latitude'],
+                'longitude' => $value['longitude'],
+                'name' => $value['name'],
+                'address' => $value['address'],
+                'contact' => $value['contact'],
+                'id' => $value['id']
+            ];
+        }
 
         return view(
             'Orders.QuickQuotation.index',
@@ -35,7 +48,8 @@ class QuickQuotation extends Controller
                 3,
                 5,
                 array(
-                    'Vehicle' => VehicleModel::all()->toArray()
+                    'Vehicle' => VehicleModel::all()->toArray(),
+                    'datalatlong ' => $datalatlong,
                 )
             )
         );
