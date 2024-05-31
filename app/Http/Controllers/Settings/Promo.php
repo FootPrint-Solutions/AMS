@@ -128,6 +128,48 @@ class Promo extends Controller
     }
 
     /**
+     * Display the specified resource in Dashboard.
+     *
+     * @param  int   $id
+     * @param string $type Promo type to be displayed (limited, unlimited or all).
+     * @return \Illuminate\Http\Response
+     */
+    public function showDashboard(Request $request)
+    {
+        // Get all DataTables requests.
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+        $type = $request->input("type");
+
+        // Get tax data (rows and count).
+        $data = PromoModel::allForDataTablesDashboard($request, $type);
+
+        // Set rows to be displayed in tax table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            $isEndingToday = $key->period_end == date('Y-m-d');
+
+            // Set an array for each row.
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->name . ($isEndingToday ? "<span class='badge badge-danger mx-2'>Ending today</span>" : "");
+            $row[] = $key->battery_list;
+            $row[] = $key->period_end ? formatDate($key->period_end) : "-";
+            $row[] = $key->id;
+            $row[] = $isEndingToday;
+            $rows[] = $row;
+        }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => PromoModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

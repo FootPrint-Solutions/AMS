@@ -250,6 +250,7 @@ Route::middleware(['auth'])->group(function () {
     // Promo
     Route::get('/promo', [Promo::class, 'index']);
     Route::post('/promo/show', [Promo::class, 'show']);
+    Route::post('/promo/show/dashboard', [Promo::class, 'showDashboard']);
     Route::get('/promo/create', [Promo::class, 'create']);
     Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
     Route::post('/promo/store', [Promo::class, 'store']);

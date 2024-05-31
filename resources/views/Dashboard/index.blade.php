@@ -93,76 +93,71 @@
     </div>
     <!-- /Overview Section -->
 
-    {{-- Promo --}}
-    <div class="row">
-        <div class="col">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info w-100">
-                            {{-- Title --}}
-                            <h6>Active Limited Promos</h6>
-
-                            {{-- List --}}
-                            <div class="overflow-auto">
-                                @if (count($data['ActivePromos']) > 0)
-                                    <ul class="list-group list-group-flush">
-                                        @foreach ($data['ActivePromos'] as $item)
-                                            <a href="/promo/edit/{{ $item->id }}"
-                                                class="list-group-item list-group-item-action flex-column align-items-start @if ($item->period_end == date('Y-m-d')) list-group-item-danger @endif">
-                                                <div class="d-flex justify-content-between">
-                                                    <h5 class="mb-1">{{ $item->name }}</h5>
-                                                    <small>
-                                                        valid up to
-                                                        @if ($item->period_end == date('Y-m-d'))
-                                                            today
-                                                        @else
-                                                            {{ date('d M Y', strtotime($item->period_end)) }}
-                                                        @endif
-                                                    </small>
-                                                </div>
-                                            </a>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    No promo found
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    {{-- Promos --}}
+    <div class="card flex-fill student-space comman-shadow">
+        <div class="card-header d-flex align-items-center">
+            <h5 class="card-title">Currently Active Promo</h5>
+            <ul class="chart-list-out student-ellips">
+                <li class="star-menus"><a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a></li>
+            </ul>
         </div>
 
-        <div class="col">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info w-100">
-                            {{-- Title --}}
-                            <h6>Unlimited Promos</h6>
-
-                            {{-- List --}}
-                            <div class="overflow-auto">
-                                @if (count($data['UnlimitedPromos']) > 0)
-                                    <ul class="list-group list-group-flush">
-                                        @foreach ($data['UnlimitedPromos'] as $item)
-                                            <a href="/promo/edit/{{ $item->id }}"
-                                                class="list-group-item list-group-item-action flex-column align-items-start">
-                                                <div class="d-flex justify-content-between">
-                                                    <h5 class="mb-1">{{ $item->name }}</h5>
-                                                </div>
-                                            </a>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    No promo found
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped" id="table-promo">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Discounted Batteries</th>
+                            <th scope="col">Valid Until</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
+
+    {{-- DataTables configuration --}}
+    <script>
+        var table;
+        $(document).ready(function() {
+            // DataTables configuration
+            table = $("#table-promo").DataTable({
+                lengthMenu: [
+                    [3, 5]
+                ],
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                order: [],
+                ajax: {
+                    url: "/promo/show/dashboard",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        type: "limited"
+                    }
+                },
+                columnDefs: [{
+                    targets: [0],
+                    orderable: false
+                }],
+                dom: "tp",
+                select: true,
+                rowCallback: function(row, data) {
+                    if (data[5]) {
+                        $('td', row).addClass("table-warning");
+                    }
+                }
+            });
+
+            // Load DataTables toolbar component.
+            appendDatatablesToolbar(6, "/customer/edit/", null, "/customer/toggle");
+
+            $('#btn-add').on('click', function() {
+                goToPage("/customer/create");
+            });
+        });
+    </script>
 @endsection
