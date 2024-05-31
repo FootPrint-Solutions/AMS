@@ -26,6 +26,7 @@
                         <th scope="col">Name</th>
                         <th scope="col">Period Start</th>
                         <th scope="col">Period End</th>
+                        <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -58,17 +59,22 @@
                     targets: [0],
                     orderable: false
                 }, {
-                    targets: [0],
+                    targets: [0, -1],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Promo"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[6] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/promo/edit/", "/promo/destroy");
+            appendDatatablesToolbar(5, "/promo/edit/", null, "/promo/toggle");
         });
     </script>
 

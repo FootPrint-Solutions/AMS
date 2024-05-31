@@ -254,6 +254,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
     Route::post('/promo/store', [Promo::class, 'store']);
     Route::post('/promo/update', [Promo::class, 'update']);
+    Route::post('/promo/toggle', [Promo::class, 'updateStatus']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

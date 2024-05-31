@@ -40,7 +40,7 @@ class PromoModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'period_start', 'period_end'];
+        $selectColumns = ['id', 'name', 'period_start', 'period_end', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.
