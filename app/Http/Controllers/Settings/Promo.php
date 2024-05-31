@@ -13,6 +13,7 @@ use App\Models\Settings\PromoModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
+use Illuminate\Support\Facades\DB;
 
 class Promo extends Controller
 {
@@ -177,6 +178,8 @@ class Promo extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Save promo parent data.
             $promo = new PromoModel();
@@ -186,24 +189,24 @@ class Promo extends Controller
             $status = $promo->save();
 
             // Save promo detail data.
-            if ($status) {
-                for ($i = 0; $i < count($request->detailid); $i++) {
-                    $battery = new PromoBatteryModel();
-                    $battery->promo_id = $promo->id;
-                    $battery->battery_id = $request->detailid[$i];
-                    $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
-                    $battery->discount = $request->batteriesdisc[$i];
-                    $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
-                    $status &= $battery->save();
+            for ($i = 0; $i < count($request->detailid); $i++) {
+                $battery = new PromoBatteryModel();
+                $battery->promo_id = $promo->id;
+                $battery->battery_id = $request->detailid[$i];
+                $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->discount = $request->batteriesdisc[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                $status &= $battery->save();
 
-                    // Set battery price.
-                    $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
-                    $price->promo_id = $promo->id;
-                    $price->discount = $request->batteriesdisc[$i];
-                    $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
-                    $status &= $price->save();
-                }
+                // Set battery price.
+                $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
+                $price->promo_id = $promo->id;
+                $price->discount = $request->batteriesdisc[$i];
+                $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                $status &= $price->save();
             }
+
+            DB::commit();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -211,6 +214,9 @@ class Promo extends Controller
                 $status ? "The new promo was successfully created!" : "Failed to create the new promo!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -228,6 +234,8 @@ class Promo extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Fetch the existing promo data
             $promo = PromoModel::find($request->id);
@@ -237,21 +245,20 @@ class Promo extends Controller
             $status = $promo->save();
 
             // Update promo detail data
-            if ($status) {
-                // Delete existing promo battery details
-                PromoBatteryModel::where('promo_id', $promo->id)->delete();
+            // Delete existing promo battery details
+            PromoBatteryModel::where('promo_id', $promo->id)->delete();
+            // Save the new promo battery details
+            for ($i = 0; $i < count($request->detailid); $i++) {
+                $battery = new PromoBatteryModel();
+                $battery->promo_id = $promo->id;
+                $battery->battery_id = $request->detailid[$i];
+                $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->discount = $request->batteriesdisc[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                $status &= $battery->save();
 
-                // Save the new promo battery details
-                for ($i = 0; $i < count($request->detailid); $i++) {
-                    $battery = new PromoBatteryModel();
-                    $battery->promo_id = $promo->id;
-                    $battery->battery_id = $request->detailid[$i];
-                    $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
-                    $battery->discount = $request->batteriesdisc[$i];
-                    $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
-                    $status &= $battery->save();
-
-                    // Set battery price.
+                // Set battery price.
+                if ($promo->status) {
                     $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->where('promo_id', $promo->id)->first();
                     if ($price) {
                         $price->discount = $request->batteriesdisc[$i];
@@ -261,12 +268,17 @@ class Promo extends Controller
                 }
             }
 
+            DB::commit();
+
             // Set a new response data to be sent
             return getResponseData(
                 $status,
                 $status ? "The promo was successfully updated!" : "Failed to update the promo!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -283,12 +295,14 @@ class Promo extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $promo = PromoModel::find($request->id);
             $promo->status = $promo->status ? 0 : 1;
             $status = $promo->save();
 
-            //
+            // Update price set for each batteries.
             $currentStatus = $promo->status;
             $batteries = PromoBatteryModel::where('promo_id', $promo->id)->get();
             if ($currentStatus) {
@@ -319,12 +333,17 @@ class Promo extends Controller
                 }
             }
 
+            DB::commit();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected promo was successfully updated!" : "Failed to update the selected promo!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
