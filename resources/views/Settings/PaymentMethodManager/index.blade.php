@@ -64,17 +64,22 @@
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Payment Method"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[4] == 0) {
+                        $('td', row).addClass("text-muted");
+                    }
+                }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/payment/edit/", null, "/payment/toggle");
+            appendDatatablesToolbar(3, "/payment/edit/", null, "/payment/toggle");
         });
     </script>
 
     {{-- Click Handler --}}
     <script>
         $('#btn-add').on('click', function() {
-            goToPage("/tax/create");
+            goToPage("/payment/create");
         });
     </script>
 @endsection

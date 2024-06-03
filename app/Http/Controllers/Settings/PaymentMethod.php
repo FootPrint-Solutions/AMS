@@ -103,6 +103,7 @@ class PaymentMethod extends Controller
             $row[] = $key->name;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -123,15 +124,15 @@ class PaymentMethod extends Controller
     public function store(Request $request)
     {
         try {
-            $tax = new PaymentMethodModel();
-            $tax->percentage = $request->percentage;
-            $tax->valid_from = $request->validfrom;
-            $status = $tax->save();
+            $payment = new PaymentMethodModel();
+            $payment->name = $request->name;
+            $payment->note = $request->note;
+            $status = $payment->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new tax was successfully created!" : "Failed to create the new tax!"
+                $status ? "The new payment method was successfully created!" : "Failed to create the new payment method!"
             );
         } catch (Exception) {
             // Set an error response data to be sent.
@@ -148,15 +149,15 @@ class PaymentMethod extends Controller
     public function update(Request $request)
     {
         try {
-            $tax = PaymentMethodModel::find($request->id);
-            $tax->percentage = $request->percentage;
-            $tax->valid_from = $request->validfrom;
-            $status = $tax->save();
+            $payment = PaymentMethodModel::find($request->id);
+            $payment->name = $request->name;
+            $payment->note = $request->note;
+            $status = $payment->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The tax was successfully updated!" : "Failed to update the tax!"
+                $status ? "The selected payment method was successfully updated!" : "Failed to update the selected payment method!"
             );
         } catch (Exception) {
             // Set an error response data to be sent.
@@ -175,57 +176,18 @@ class PaymentMethod extends Controller
         try {
             // Set tax's status to true.
             $tax = PaymentMethodModel::find($request->id);
-            if (!$tax->status) {
-                $tax->status = $tax->status ? 0 : 1;
-                $status = $tax->save();
-
-                // Set all other taxes' status to false.
-                PaymentMethodModel::where('id', '!=', $request->id)->update(['status' => 0]);
-
-                // Set a new response data to be sent.
-                return getResponseData(
-                    $status,
-                    $status ? "The selected tax was successfully updated!" : "Failed to update the selected tax!"
-                );
-            } else {
-                // Set a new response data to be sent.
-                return getResponseData(
-                    false,
-                    "The selected tax is currently the only active tax. Please select an inactive tax as an active tax."
-                );
-            }
-        } catch (Exception $e) {
-            // Logging error message.
-            Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $tax = PaymentMethodModel::find($id);
-                $status &= $tax->delete();
-            }
+            $tax->status = $tax->status ? 0 : 1;
+            $status = $tax->save();
 
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The selected tax was successfully deleted!" : "Failed to delete the selected tax!"
+                $status ? "The selected tax was successfully updated!" : "Failed to update the selected tax!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
             // Set an error response data to be sent.
             return getResponseData(false);
         }

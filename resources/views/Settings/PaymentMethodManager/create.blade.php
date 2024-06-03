@@ -11,33 +11,33 @@
                 @else
                     Add New
                 @endisset
-                Tax
+                Payment Method
             </div>
             <br>
 
             {{-- Form --}}
-            <form id="tax-form">
+            <form id="payment-method-form">
                 @csrf
 
-                {{-- Percentage & Valid Until --}}
+                {{-- Name --}}
                 <div class="row">
-                    {{-- Percentage --}}
-                    <div class="col">
-                        <div class="form-group local-forms">
-                            <label for="percentage">Percentage <span class="login-danger">*</span></label>
-                            <input type="number" class="form-control" id="percentage" name="percentage"
-                                placeholder="Enter tax percentage" required
-                                @if (isset($data['profile'])) value="{{ $data['profile']['percentage'] }}" @endif>
-                        </div>
+                    <div class="form-group local-forms">
+                        <label for="name">Name <span class="login-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name"
+                            placeholder="Enter payment method name" required
+                            @if (isset($data['profile'])) value="{{ $data['profile']['name'] }}" @endif>
                     </div>
+                </div>
 
-                    {{-- Valid From --}}
-                    <div class="col">
-                        <div class="form-group local-forms">
-                            <label for="valid-from">Valid From<span class="login-danger">*</span></label>
-                            <input type="date" class="form-control" id="valid-from" name="validfrom" required
-                                value=@isset($data['profile'])) {{ $data['profile']['valid_from'] }} @else {{ date('Y-m-d') }} @endisset>
-                        </div>
+                {{-- Note --}}
+                <div class="row">
+                    <div class="form-group local-forms">
+                        <label for="note">Note</label>
+                        <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter payment method note">
+@isset($data['profile'][0])
+{{ $data['profile']['note'] }}
+@endisset
+</textarea>
                     </div>
                 </div>
 
@@ -54,7 +54,7 @@
                     @else
                     value="create">
                     Create @endisset
-                        Tax </button>
+                        Payment Method </button>
 
                         {{-- Cancel Button --}}
                         <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -63,67 +63,28 @@
         </div>
     </div>
 
-    {{-- Address Modal --}}
-    @include('maps.addressmodal')
-
     {{-- Form Hanlder --}}
     <script>
-        let indexUrl = "/tax";
+        let indexUrl = "/payment";
 
         $(document).ready(function() {
-            $("#tax-form").on("submit", function(event) {
+            $("#payment-method-form").on("submit", function(event) {
                 event.preventDefault();
 
                 let mode = $("#btn-save").attr("value"); // update || create
-                let url = (mode == "update") ? "/tax/update" : "/tax/store";
+                let url = (mode == "update") ? "/payment/update" : "/payment/store";
 
                 // Obtain submitted form data.
-                let message = "";
                 let formData = new FormData($(this)[0]);
-                if (mode == "update") {
-                    let status = $("#isactive").is(':checked') ? "active" :
-                        "inactive";
-                    formData.append("status", status);
 
-                    if (status === "active") {
-                        message =
-                            "When updating the status of a tax to active, all other taxes will be automatically set inactive.";
-                    }
-                } else {
-                    message =
-                        "When creating a new tax, all other taxes will be automatically set inactive.";
-                }
-
-                if (message === "") {
-                    // Send submit POST request via AJAX.
-                    sendSubmitRequest(url, formData, function() {
-                        // Redirect to index page.
-                        goToPage(indexUrl);
-                    });
-                } else {
-                    // Show an alert before storing an item.
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: message,
-                        icon: "question",
-                        showCancelButton: true,
-                        reverseButtons: true,
-                        confirmButtonText: "Yes, " + mode + "!",
-                        cancelButtonText: "No, cancel!"
-                    }).then(function(e) {
-                        // If user has confirmed, do the destroy process.
-                        if (e.value === true) {
-                            // Send submit POST request via AJAX.
-                            sendSubmitRequest(url, formData, function() {
-                                // Redirect to index page.
-                                goToPage(indexUrl);
-                            });
-                        }
-                    });
-                }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage(indexUrl);
+                });
             });
 
-            $("#tax-form").on("reset", function() {
+            $("#payment-method-form").on("reset", function() {
                 goToPage(indexUrl);
             });
         });
