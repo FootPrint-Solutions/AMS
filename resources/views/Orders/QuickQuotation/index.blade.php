@@ -337,6 +337,7 @@
 
 
             $(".product-next-btn").on('click', function() {
+                $("#CheckoutPreview").html('');
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
@@ -439,6 +440,11 @@
                     var BatteryNameTabel = [];
                     var Platform = [];
                     var LinkTokopedia = [];
+                    var BatteryIdCheckout = [];
+                    var GrossPrice = [];
+                    var DiscountRow = [];
+                    var NetPrice = [];
+                    var SubtotalRow = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -465,6 +471,31 @@
                         Platform.push(value);
                     });
 
+                    $(".BatteryIdCheckout").each(function() {
+                        var value = $(this).val();
+                        BatteryIdCheckout.push(value);
+                    });
+
+                    $(".GrossPrice").each(function() {
+                        var value = $(this).val();
+                        GrossPrice.push(value);
+                    });
+
+                    $(".DiscountRow").each(function() {
+                        var value = $(this).val();
+                        DiscountRow.push(value);
+                    });
+
+                    $(".NetPrice").each(function() {
+                        var value = $(this).val();
+                        NetPrice.push(value);
+                    });
+
+                    $(".SubtotalRow").each(function() {
+                        var value = $(this).val();
+                        SubtotalRow.push(value);
+                    });
+
                     var subtotal = $("#subtotal").val();
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
@@ -479,7 +510,7 @@
                         Latitude: Latitude,
                         Longitude: Longitude,
                         IdCustomer: IdCustomer,
-                        Battery: Battery,
+                        Battery: BatteryIdCheckout,
                         TotalAmount: TotalAmount,
                         tax: tax,
                         Discount: Discount,
@@ -493,6 +524,10 @@
                         subtotal: subtotal,
                         DiscountRupiah: DiscountRupiah,
                         DiscountPercentage: DiscountPercentage,
+                        GrossPrice: GrossPrice,
+                        DiscountRow: DiscountRow,
+                        NetPrice: NetPrice,
+                        SubtotalRow: SubtotalRow,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 

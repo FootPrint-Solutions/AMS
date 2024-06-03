@@ -182,7 +182,13 @@ $arrayVehicle";
         $url = "http://185.199.52.172:5001/send-image";
         $ids = $request->input('Battery');
         $Fullname = $request->input('FullName');
-        $results = BatteryModel::where('id', $ids)->get()->toArray();
+        // $results = BatteryModel::where('id', $ids)->get()->toArray();
+
+        $results = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
+            ->where('batteries.id', $ids)
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->get()
+            ->toArray();
 
         if ($results == null) {
             return getResponseData(false, "Battery not found");
@@ -194,7 +200,13 @@ $arrayVehicle";
                 $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
                 $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r\n";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
-                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                if ($value['discount'] != 0) {
+                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ Discount " . number_format($value['discount']) . "%\r";
+                    $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_net'], 0, "", ".") . "\r";
+                } else {
+                    $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                }
+
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -269,7 +281,7 @@ $arrayBattery
         } else {
             $distributorChecked = "";
             $distributorTechnician = "";
-            $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
         }
         $tax = TaxModel::where('status', '1')->first()->percentage;
 
@@ -866,8 +878,9 @@ $arrayVehicle
         $query = $request->input('input');
         $results = BatteryModel::whereIn('batteries.id', $request->input('Battery'))
             ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
             ->orderBy('batteries.name', 'asc')
-            ->select('batteries.*', 'battery_size_categories.name as size_category')
+            ->select('batteries.*', 'battery_size_categories.name as size_category', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount')
             ->limit(10)
             ->get();
         return response()->json($results);
@@ -890,6 +903,19 @@ $arrayVehicle
     {
         $query = $request->input('input');
         $results = DistributorShopModel::get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBattery(Request $request)
+    {
+        $query = $request->input('query');
+        // $results = BatteryModel::where('name', 'like', '%' . $query . '%')->limit(10)->get();
+        $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->orderBy('batteries.name', 'asc')
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->limit(10)
+            ->get();
         return response()->json($results);
     }
 }
