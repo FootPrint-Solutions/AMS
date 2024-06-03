@@ -14,7 +14,7 @@ class UpdatePriceNetInSalesOrderBatteryTable extends Migration
     public function up()
     {
         Schema::table('sales_order_battery', function (Blueprint $table) {
-            $table->double('price_net')->default(0)->change();
+            $table->float('price_net')->default(0)->change();
         });
     }
 
