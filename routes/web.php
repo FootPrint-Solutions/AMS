@@ -34,6 +34,7 @@ use App\Http\Controllers\Orders\WorkOrder;
 use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
+use App\Http\Controllers\Settings\PaymentMethod;
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -247,6 +248,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tax/update', [Tax::class, 'update']);
     Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
+
+    // Payment Method
+    Route::get('/payment', [PaymentMethod::class, 'index']);
+    Route::post('/payment/show', [PaymentMethod::class, 'show']);
+    Route::get('/payment/create', [PaymentMethod::class, 'create']);
+    Route::get('/payment/edit/{id}', [PaymentMethod::class, 'edit']);
+    Route::post('/payment/store', [PaymentMethod::class, 'store']);
+    Route::post('/payment/update', [PaymentMethod::class, 'update']);
+    Route::post('/payment/toggle', [PaymentMethod::class, 'updateStatus']);
+    Route::post('/payment/destroy', [PaymentMethod::class, 'destroy']);
 
     // Promo
     Route::get('/promo', [Promo::class, 'index']);
