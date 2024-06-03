@@ -563,7 +563,7 @@
                 $(".add-table-items tbody tr").each(function() {
                     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
                     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    var price = $(this).find("input[name='NetPrice[]']").val();
                     Battery.push({
                         batteryName: batteryName,
                         quantity: quantity,

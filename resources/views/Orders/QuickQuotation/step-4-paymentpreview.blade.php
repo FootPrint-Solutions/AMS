@@ -36,67 +36,53 @@
             </div>
         </div>
 
-        <div class="invoice-item invoice-table-wrap">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="table-responsive">
-                        <table class="invoice-table table table-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Battery</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    @if (isset($DistributorShop) && !empty($DistributorShop))
-                                        <th style="width: 20%;">Platform</th>
-                                        <th>Link E-Commerce</th>
-                                    @endif
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($dataProduct as $data)
-                                    <?php
-                                    if (isset($Distributor) && !empty($Distributor)) {
-                                        $batteryUrl = DB::table('battery_urls')
-                                            ->where('battery_id', $battery->id)
-                                            ->get()
-                                            ->toArray();
-                                    }
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <input type="text" name="BatteryNamePaymentDetails[]"
-                                                class="form-control BatteryNamePaymentDetails"
-                                                value="{{ $data['name'] }}" readonly>
-                                        </td>
-                                        <td>
-                                            <input readonly type="number" name="QtyPaymentDetails[]"
-                                                class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
-                                        </td>
-                                        <td> <input readonly type="text" name="PricePaymentDetails2[]"
-                                                class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
-                                            <input readonly type="hidden" name="PricePaymentDetails[]"
-                                                class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
-                                        </td>
-                                        @if (isset($DistributorShop) && !empty($DistributorShop))
-                                            <td>
-                                                <input type="text" name="PlatformPayment[]"
-                                                    class="form-control PlatformPayment"
-                                                    value="{{ $data['platform'] }}" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="LinkPayment[]"
-                                                    class="form-control LinkPayment" value="{{ $data['link'] }}"
-                                                    readonly>
-                                            </td>
-                                        @endif
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class=" table table-center mb-0">
+                <thead>
+                    <tr>
+                    <tr>
+                        <th style="width: 25%;">Battery</th>
+                        <th style="width: 5%;">Quantity</th>
+                        <th>Gross Price</th>
+                        <th style="width: 5%;">Discount ( % )</th>
+                        <th>Net Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($dataProduct as $data)
+                        <tr>
+                            <td>
+                                <input type="text" name="BatteryNamePaymentDetails[]"
+                                    class="form-control BatteryNamePaymentDetails" value="{{ $data['name'] }}" readonly>
+                            </td>
+                            <td>
+                                <input readonly type="number" name="QtyPaymentDetails[]"
+                                    class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
+                            </td>
+                            <td> <input readonly type="text" name="PricePaymentDetails2[]"
+                                    class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
+                                <input readonly type="hidden" name="PricePaymentDetails[]"
+                                    class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="number" name="DiscountPaymentDetails[]"
+                                    class="form-control DiscountPaymentDetails" value="{{ $data['DiscountRow'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="NetPricePaymentDetails[]"
+                                    class="form-control NetPricePaymentDetails" value="{{ $data['NetPrice'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="SubtotalPaymentDetails[]"
+                                    class="form-control SubtotalPaymentDetails" value="{{ $data['SubtotalRow'] }}">
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+
 
         <div class="row align-items-center justify-content-center">
             <div class="col-lg-6 col-md-6">
