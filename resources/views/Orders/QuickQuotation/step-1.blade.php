@@ -125,11 +125,12 @@
                             ' Months</li>';
                         html += '<li class="list-group-item">Size : ' + vehicle.size_category +
                             '</li>';
-                        if (vehicle.discount == null) {
+                        if (vehicle.discount == 0) {
                             html += '<li class="list-group-item">Price : Rp. ' +
                                 Number(vehicle
                                     .price_retail).toLocaleString('id-ID') +
                                 '</li>';
+                            html += '<li class="list-group-item"></li>';
                         } else {
                             html +=
                                 '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
@@ -286,11 +287,26 @@
                             vehicle.standard_cca + '</li>';
                         html += '<li class="list-group-item">Warranty : ' +
                             vehicle.warranty + ' Months</li>';
-                        html += '<li class="list-group-item">Price : Rp. ' +
-                            Number(vehicle.price_retail).toLocaleString(
-                                'id-ID') + '</li>';
                         html += '<li class="list-group-item">Size : ' +
                             vehicle.size_category + '</li>';
+                        if (vehicle.discount == 0) {
+                            html += '<li class="list-group-item">Price : Rp. ' +
+                                Number(vehicle
+                                    .price_retail).toLocaleString('id-ID') +
+                                '</li>';
+                            html += '<li class="list-group-item"></li>';
+                        } else {
+                            html +=
+                                '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
+                                Number(vehicle.price_retail_original).toLocaleString(
+                                    'id-ID') +
+                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
+                                Number(vehicle.discount) + ' %</span> </span></li>';
+                            html +=
+                                '<li class="list-group-item">Price After Discount : <span class="price-discount">Rp. ' +
+                                Number(vehicle.price_net).toLocaleString('id-ID') +
+                                '</span></li>';
+                        }
                         html += '</ul>';
                         html +=
                             '</div>';
