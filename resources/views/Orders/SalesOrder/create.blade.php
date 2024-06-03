@@ -200,12 +200,12 @@
                                 {{-- Discount --}}
                                 <td>
                                     <div class="input-group">
-                                        <span class="input-group-text border-end">IDR</span>
                                         <input type="text" class="form-control text-end battery-discount"
                                             id="battery-discount-{{ $counter }}" name="batteriesdiscount[]"
                                             placeholder="Enter item discount" required
                                             @isset($data['profile']['batteries']) readonly @endisset
                                             @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                        <span class="input-group-text border-end">%</span>
                                     </div>
                                 </td>
 
