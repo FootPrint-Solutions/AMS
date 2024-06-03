@@ -322,17 +322,23 @@ $arrayBattery
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('DiscountPercentage') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        $GrossPrice = $request->input('GrossPrice');
+        $NetPrice = $request->input('NetPrice');
+        $DiscountRow = $request->input('DiscountRow');
+        $SubtotalRow = $request->input('SubtotalRow');
         if ($request->input('DistributorShopId') != null) {
             $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
             $dataProduct = [];
-            foreach ($BatteryData as $key => $value) {
+            foreach ($BatteryNameTabel as $key => $value) {
                 $dataProduct[] = [
-                    'name' => $value->name,
+                    'name' => $value,
                     'qty' => $QtyTabel[$key],
-                    'price' => $value->price_retail,
-                    'link' => $Link[$key],
-                    'platform' => $Platform[$key]
+                    'price' => $GrossPrice[$key],
+                    'link' => '',
+                    'DiscountRow' => $DiscountRow[$key],
+                    'NetPrice' => $NetPrice[$key],
+                    'SubtotalRow' => $SubtotalRow[$key]
                 ];
             }
         } else {
@@ -342,8 +348,11 @@ $arrayBattery
                 $dataProduct[] = [
                     'name' => $value,
                     'qty' => $QtyTabel[$key],
-                    'price' => $PriceTabel[$key],
-                    'link' => ''
+                    'price' => $GrossPrice[$key],
+                    'link' => '',
+                    'DiscountRow' => $DiscountRow[$key],
+                    'NetPrice' => $NetPrice[$key],
+                    'SubtotalRow' => $SubtotalRow[$key]
                 ];
             }
         }
