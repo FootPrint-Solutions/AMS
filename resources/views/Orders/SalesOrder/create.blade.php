@@ -190,7 +190,7 @@
                                 <td>
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" class="form-control text-end battery-retail-price"
+                                        <input type="text" class="form-control text-end battery-priceretail"
                                             id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
                                             placeholder="Enter item retail price" required readonly
                                             @isset($data['profile']['batteries']) value="{{ $battery['battery_price_retail'] }}" @endisset>
