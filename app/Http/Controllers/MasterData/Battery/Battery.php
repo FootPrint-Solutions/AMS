@@ -480,7 +480,14 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
-        return BatteryModel::allForAutocomplete($keyword, [DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price")]);
+        return BatteryModel::allForAutocomplete(
+            $keyword,
+            [
+                "battery_prices.price_retail", // retail price
+                "battery_prices.discount", // discount
+                DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price") // net price
+            ]
+        );
     }
 
     /**

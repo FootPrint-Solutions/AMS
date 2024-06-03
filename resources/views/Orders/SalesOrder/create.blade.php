@@ -3,20 +3,6 @@
 @section('content')
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
-        #table-battery-detail th:nth-child(1),
-        #table-battery-detail td:nth-child(1),
-        #table-battery-detail th:nth-child(3),
-        #table-battery-detail td:nth-child(3),
-        #table-battery-detail th:nth-child(4),
-        #table-battery-detail td:nth-child(4) {
-            width: 30%;
-        }
-
-        #table-battery-detail th:nth-child(2),
-        #table-battery-detail td:nth-child(2) {
-            width: 10%;
-        }
-
         #MapsAddressFinder {
             height: 400px;
             width: 100%;
@@ -143,7 +129,7 @@
                     {{-- Header --}}
                     <thead>
                         <tr>
-                            <td colspan="4" class="h5 text-center">
+                            <td colspan="6" class="h5 text-center">
                                 Item @if (!isset($data['profile']))
                                     <button type="button" id="btn-add-row"
                                         class="btn btn-primary btn-sm rounded-circle mx-2"><i
@@ -172,7 +158,11 @@
                                 {{-- Name --}}
                                 <td colspan="2">
                                     @php
-                                        $targets = ["battery-price-$counter"];
+                                        $targets = [
+                                            "battery-priceretail-$counter",
+                                            "battery-discount-$counter",
+                                            "battery-price-$counter",
+                                        ];
                                         $encodedTargets = json_encode($targets);
                                     @endphp
 
@@ -196,7 +186,30 @@
                                     @endisset
                                 </td>
 
-                                {{-- Price --}}
+                                {{-- Retail Price --}}
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end battery-retail-price"
+                                            id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
+                                            placeholder="Enter item retail price" required readonly
+                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_price_retail'] }}" @endisset>
+                                    </div>
+                                </td>
+
+                                {{-- Discount --}}
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end battery-discount"
+                                            id="battery-discount-{{ $counter }}" name="batteriesdiscount[]"
+                                            placeholder="Enter item discount" required
+                                            @isset($data['profile']['batteries']) readonly @endisset
+                                            @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                    </div>
+                                </td>
+
+                                {{-- Net Price --}}
                                 <td>
                                     <div class="row">
                                         @if (!isset($data['profile']))
@@ -209,7 +222,7 @@
                                                 id="battery-price-{{ $counter }}" name="batteriesprice[]"
                                                 placeholder="Enter item price" required
                                                 @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_price'] }}" @endisset>
+                                                @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                         </div>
 
                                         @if (!isset($data['profile']))
@@ -239,7 +252,7 @@
         <tfoot>
             {{-- Subtotal --}}
             <tr>
-                <td colspan="2"></td>
+                <td colspan="4"></td>
                 <td class="text-end">Subtotal</td>
                 <td>
                     <div class="input-group">
@@ -253,7 +266,7 @@
 
             {{-- Discount --}}
             <tr>
-                <td colspan="2"></td>
+                <td colspan="4"></td>
                 <td class="text-end">Discount</td>
                 <td>
                     <div class="row">
@@ -287,7 +300,7 @@
 
             {{-- Tax --}}
             <tr>
-                <td colspan="2"></td>
+                <td colspan="4"></td>
                 <td class="text-end">Tax</td>
                 <td>
                     <div class="row">
@@ -320,7 +333,7 @@
 
             {{-- Total --}}
             <tr>
-                <td colspan="2"></td>
+                <td colspan="4"></td>
                 <td class="text-end">Total</td>
                 <td>
                     <div class="input-group">
@@ -334,7 +347,7 @@
 
             {{-- Payment Method & Status --}}
             <tr>
-                <td colspan="2"></td>
+                <td colspan="4"></td>
                 <td class="text-end">Payment method</td>
                 <td>
                     <div class="row">
@@ -480,7 +493,9 @@
                     $(this).attr("id", parts[0] + '-' + parts[1] + '-' + number);
                 });
 
-                var targets = JSON.stringify(["battery-price-" + number]);
+                var targets = JSON.stringify(["battery-priceretail-" + number,
+                    "battery-discount-" + number, "battery-price-" + number
+                ]);
                 newRow.find(".autocomplete").attr("data-targets", targets);
 
                 $('#table-battery-detail tbody').append(newRow);
@@ -622,6 +637,7 @@
             $("#total").val(total);
 
             // Format all price fields value.
+            formatPrice($(".battery-priceretail"));
             formatPrice($("#subtotal"));
             formatPrice($("#total"));
             formatPrice($("#tax-price-value"));

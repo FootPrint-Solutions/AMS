@@ -95,7 +95,7 @@
                     <td style="text-align: center">{{ $index + 1 }}</td>
                     <td>{{ $battery['battery_production_code'] }}</td>
                     <td>{{ $battery['battery_name'] }}</td>
-                    <td style="text-align: right">{{ number_format($battery['battery_price']) }}</td>
+                    <td style="text-align: right">{{ number_format($battery['price_net']) }}</td>
                 </tr>
             @endforeach
         </tbody>

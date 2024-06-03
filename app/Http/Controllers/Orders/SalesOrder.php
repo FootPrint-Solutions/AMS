@@ -191,7 +191,9 @@ class SalesOrder extends Controller
                 $battery->sales_order_id = $salesOrder->id;
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
-                $battery->battery_price = (float) str_replace(".", "", $request->batteriesprice[$i]);
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }
