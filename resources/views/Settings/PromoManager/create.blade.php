@@ -339,7 +339,7 @@
                 $("#unlimited-period").prop('checked', false);
             });
 
-            $(".battery-discount, .battery-pricenet").on("change", function() {
+            $(".battery-discount").on("change keyup", function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
                 if (isNaN(value)) {
