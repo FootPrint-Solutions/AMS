@@ -352,13 +352,13 @@
                 <td>
                     <div class="row">
                         <div class="col">
-                            <select name="paymentmethod" id="payment-method" class="form-control" required>
-                                <option value="cash" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'cash') selected @endif>Cash
-                                </option>
-                                <option value="tokopedia" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'tokopedia') selected @endif>
-                                    Tokopedia</option>
-                                <option value="midtrans" @if (isset($data['profile']) && $data['profile']['payment_method'] == 'midtrans') selected @endif>
-                                    Midtrans</option>
+                            <select class="form-control" id="payment-method" name="paymentmethod" required>
+                                <option></option>
+                                @foreach ($data['payment_methods'] as $method)
+                                    <option value="{{ $method['id'] }}"
+                                        @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
+                                        {{ $method['name'] }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -417,7 +417,9 @@
                 placeholder: "Enter distributor shop"
             });
 
-            $('#payment-method').select2({});
+            $('#payment-method').select2({
+                placeholder: "Enter payment method"
+            });
 
             $('#status').select2({});
 
