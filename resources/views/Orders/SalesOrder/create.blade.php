@@ -542,16 +542,17 @@
                 }
             });
 
-            $("#tax, #discount, #discount-price-value, #extra-discount").on("change", function() {
-                // Validate input value.
-                let value = parseInt($(this).val(), 10);
-                if (isNaN(value)) {
-                    $(this).val("0");
-                }
+            $(".battery-discount, #tax, #discount, #discount-price-value, #extra-discount").on("change keyup",
+                function() {
+                    // Validate input value.
+                    let value = parseInt($(this).val(), 10);
+                    if (isNaN(value)) {
+                        $(this).val("0");
+                    }
 
-                // Recalculate total value.
-                calculateTotal($(this).attr("id") === "discount-price-value");
-            });
+                    // Recalculate total value.
+                    calculateTotal($(this).attr("id") === "discount-price-value");
+                });
         });
     </script>
 
@@ -611,6 +612,12 @@
             // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
+                let priceRetail = parseInt($(this).closest('td').siblings().find(".battery-priceretail").val()
+                    .replace(/\D/g, ''));
+                let discount = parseInt($(this).closest('td').siblings().find(".battery-discount").val().replace(
+                    /\D/g, ''));
+                $(this).val(priceRetail - (priceRetail * discount / 100));
+
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     subtotal += value;
