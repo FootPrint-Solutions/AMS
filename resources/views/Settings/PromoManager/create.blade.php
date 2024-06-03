@@ -168,7 +168,7 @@
 
                                 {{-- Hidden Inputs --}}
                                 <input type="hidden" name="detailid[]" id="battery-id-{{ $counter }}"
-                                    @isset($data['profile']['batteries']) value="{{ $battery['id'] }}" @endisset>
+                                    @isset($data['profile']['batteries']) value="{{ $battery['battery_id'] }}" @endisset>
                             </tr>
 
                             @php
