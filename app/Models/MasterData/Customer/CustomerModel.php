@@ -53,6 +53,14 @@ class CustomerModel extends Model implements Auditable
     }
 
     /**
+     * Get all of the customers' work orders.
+     */
+    public function workOrders()
+    {
+        return $this->hasMany(WorkOrderModel::class, 'customer_id', 'id');
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).

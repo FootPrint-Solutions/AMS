@@ -99,16 +99,16 @@
         </div>
         <table>
             <tr>
-                <td style='width:60%;'>Nama Partner : </td>
-                <td>Order ID :</td>
+                <td style='width:60%;'>Nama Partner : {{ $workOrder->distributorShop->name ?? '' }}</td>
+                <td>Order ID : {{ $workOrder->salesOrder->sales_order_number }}</td>
             </tr>
             <tr>
-                <td style='width:60%;'>Admin Akikita :</td>
-                <td>Tanggal : </td>
+                <td style='width:60%;'>Admin Akikita : {{ auth()->user()->name }}</td>
+                <td>Tanggal : {{ $workOrder->salesOrder->date }}</td>
             </tr>
             <tr>
                 <td style='width:60%;'>Jenis Pesanan : </td>
-                <td>Waktu Pesanan:</td>
+                <td>Waktu Pesanan: {{ $workOrder->salesOrder->created_at }}</td>
             </tr>
         </table>
 
@@ -118,9 +118,9 @@
 
             </tr>
             <tr>
-                <td style='width:60%;' rowspan="2">Alamat : </td>
+                <td style='width:60%;' rowspan="2">Alamat : {{ $workOrder->address }}</td>
                 <td style='width:20%;'>Nama Pelanggan :</td>
-                <td></td>
+                <td>{{ $workOrder->customer->name }}</td>
             </tr>
             <tr>
                 <td style='width:20%;'>Kendaraan :</td>
@@ -230,7 +230,7 @@
                         <td colspan="4" style="text-align:center; font-weight:700;">QR Code Lokasi</td>
                     </tr>
                     <tr>
-                        <td style="padding:53px"></td>
+                        <td style="text-align:center;">{{ $qrCode }}</td>
                     </tr>
                 </table>
             </div>
@@ -244,15 +244,15 @@
         <table>
             <tr>
                 <td style='width:60%;'>Nama Partner : </td>
-                <td>Order ID :</td>
+                <td>Order ID : {{ $workOrder->salesOrder->sales_order_number }} </td>
             </tr>
             <tr>
-                <td style='width:60%;'>Admin Akikita :</td>
-                <td>Tanggal : </td>
+                <td style='width:60%;'>Admin Akikita : {{ auth()->user()->name }}</td>
+                <td>Tanggal : {{ $workOrder->salesOrder->date }}</td>
             </tr>
             <tr>
                 <td style='width:60%;'>Jenis Pesanan : </td>
-                <td>Waktu Pesanan:</td>
+                <td>Waktu Pesanan : {{ $workOrder->salesOrder->created_at }}</td>
             </tr>
         </table>
         <div class="row">

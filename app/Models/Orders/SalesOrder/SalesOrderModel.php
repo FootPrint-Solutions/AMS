@@ -153,7 +153,6 @@ class SalesOrderModel extends Model implements Auditable
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
         $query->select($selectColumns);
-        // $query->whereNull("deleted_at");
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
@@ -178,12 +177,16 @@ class SalesOrderModel extends Model implements Auditable
 
 
         $batteries = [];
-        // $workOrderBattery = new WorkOrderBatteryModel();
         foreach ($salesOrder->batteries as $battery) {
+            if ($battery->price_net != 0) {
+                $BatteryPrice = $battery->price_net;
+            } else {
+                $BatteryPrice = $battery->battery_price_retail;
+            }
             $batteries[] = [
                 'battery_id' => $battery->battery_id,
                 'battery_name' => $battery->battery_name,
-                'battery_price' => $battery->battery_price,
+                'battery_price' => $BatteryPrice,
                 'quantity' => $battery->quantity,
             ];
         }
