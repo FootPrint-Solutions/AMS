@@ -5,14 +5,12 @@ namespace App\Http\Controllers\MasterData\Company;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Company\CompanyModel;
-
-
 
 class Company extends Controller
 {
@@ -66,6 +64,8 @@ class Company extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Validasi input dari formulir
             $validatedData = $request->validate(
@@ -104,15 +104,26 @@ class Company extends Controller
                 $status = $company->save();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set data respons yang baru.
             return getResponseData(
                 $status,
                 $status ? "Company profile was successfully updated!" : "Failed to update company profile!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian lainnya
             Log::error($e->getMessage());
             return getResponseData(false);

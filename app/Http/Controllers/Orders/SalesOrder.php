@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Settings\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 // MODELS
@@ -168,6 +169,8 @@ class SalesOrder extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Store sales order data.
             $salesOrder = new SalesOrderModel();
@@ -202,12 +205,20 @@ class SalesOrder extends Controller
                 $status &= $battery->save();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -224,6 +235,8 @@ class SalesOrder extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Update sales order data.
             $salesOrder = SalesOrderModel::find($request->id);
@@ -245,12 +258,20 @@ class SalesOrder extends Controller
                 $status &= $battery->save();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -267,6 +288,8 @@ class SalesOrder extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -275,6 +298,11 @@ class SalesOrder extends Controller
                 $salesOrder = SalesOrderModel::find($id);
                 $status &= $salesOrder->delete();
             }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -298,10 +326,17 @@ class SalesOrder extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $quotation = SalesOrderModel::find($request->id);
             $quotation->status = $request->status;
             $status = $quotation->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -309,6 +344,9 @@ class SalesOrder extends Controller
                 $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

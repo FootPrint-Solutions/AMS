@@ -5,9 +5,9 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleModel;
@@ -168,6 +168,8 @@ class Vehicle extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -202,7 +204,6 @@ class Vehicle extends Controller
 
             // Store the list of all vehicles' suitable battery.
             // Set primary battery type to 1.
-
             if (!is_null($request->batteryprimary)) {
                 $batteries = [];
                 foreach ($request->batteryprimary as $battery) {
@@ -211,15 +212,26 @@ class Vehicle extends Controller
             }
             $vehicle->batterySizeCategories()->attach($batteries);
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new vehicle was successfully created!" : "Failed to create the new vehicle!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -236,6 +248,8 @@ class Vehicle extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -277,15 +291,26 @@ class Vehicle extends Controller
             }
             $vehicle->batterySizeCategories()->sync($batteries);
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -302,10 +327,17 @@ class Vehicle extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $vehicle = VehicleModel::find($request->id);
             $vehicle->status = $vehicle->status ? 0 : 1;
             $status = $vehicle->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -313,6 +345,9 @@ class Vehicle extends Controller
                 $status ? "The selected vehicle was successfully updated!" : "Failed to update the selected vehicle!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

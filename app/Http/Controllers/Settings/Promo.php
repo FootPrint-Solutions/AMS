@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\PromoBatteryModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -13,7 +14,6 @@ use App\Models\Settings\PromoModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
-use Illuminate\Support\Facades\DB;
 
 class Promo extends Controller
 {
@@ -216,7 +216,10 @@ class Promo extends Controller
                 }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -286,7 +289,10 @@ class Promo extends Controller
                 }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent
             return getResponseData(
@@ -359,7 +365,10 @@ class Promo extends Controller
                 }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
