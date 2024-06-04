@@ -430,6 +430,11 @@ class Battery extends Controller
             if ($price) {
                 $price->price_retail = $battery->price_retail;
                 $status &= $price->save();
+            } else {
+                $price = new BatteryPriceModel();
+                $price->battery_id = $battery->id;
+                $price->price_retail = $battery->price_retail;
+                $status &= $price->save();
             }
 
             // Set a new response data to be sent.
