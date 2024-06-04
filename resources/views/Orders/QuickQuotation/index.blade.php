@@ -701,6 +701,7 @@
                 var tax = $("#tax").val();
                 var discount = $("#discount").val();
                 var TotalAmountHidden = $("#TotalAmountHidden").val();
+                var PaymentMethod = $("#PaymentMethod").val();
 
                 var data = {
                     FullName: FullName,
@@ -717,6 +718,7 @@
                     Latitude: Latitude,
                     Longitude: Longitude,
                     AddressCustomer: AddressCustomer,
+                    PaymentMethod: PaymentMethod,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -786,6 +788,11 @@
                 var PriceTabel = [];
                 var BatteryNameTabel = [];
                 var LinkTokopedia = [];
+                var QtyPayment = [];
+                var GrossPricePayment = [];
+                var DiscountPayment = [];
+                var NetPricePayment = [];
+                var SubtotalPayment = [];
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -807,6 +814,32 @@
                     LinkTokopedia.push(value);
                 });
 
+                $(".QtyPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    QtyPayment.push(value);
+                });
+
+                $(".PricePaymentDetails").each(function() {
+                    var value = $(this).val();
+                    GrossPricePayment.push(value);
+                });
+
+                $(".DiscountPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    DiscountPayment.push(value);
+                });
+
+                $(".NetPricePaymentDetails").each(function() {
+                    var value = $(this).val();
+                    NetPricePayment.push(value);
+                });
+
+                $(".SubtotalPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    SubtotalPayment.push(value);
+                });
+
+                var PaymentMethod = $("#PaymentMethod").val();
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
                 var DiscountPercentage = $("#discount-percent").val();
@@ -836,9 +869,16 @@
                     techniciansName: techniciansName,
                     CheckMidtrans: CheckMidtrans,
                     linkPayment: LinkTokopedia,
+                    linkMidtrans: linkPayment,
                     subtotal: subtotal,
                     DiscountRupiah: DiscountRupiah,
-                    DiscountPercentage: DiscountPercentage
+                    DiscountPercentage: DiscountPercentage,
+                    QtyPayment: QtyPayment,
+                    GrossPricePayment: GrossPricePayment,
+                    DiscountPayment: DiscountPayment,
+                    NetPricePayment: NetPricePayment,
+                    SubtotalPayment: SubtotalPayment,
+                    PaymentMethod: PaymentMethod,
                 };
 
                 $.ajax({
