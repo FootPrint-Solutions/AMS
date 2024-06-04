@@ -233,6 +233,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order', [WorkOrder::class, 'index']);
     Route::post('/work-order/show', [WorkOrder::class, 'show']);
     Route::get('/work-order/print/{id}', [WorkOrder::class, 'print']);
+    Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
 
     // Settings
     // Message Template
