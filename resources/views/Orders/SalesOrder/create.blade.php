@@ -220,8 +220,7 @@
                                             <span class="input-group-text border-end">IDR</span>
                                             <input type="text" class="form-control text-end battery-price"
                                                 id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                                placeholder="Enter item price" required
-                                                @isset($data['profile']['batteries']) readonly @endisset
+                                                placeholder="Enter item price" required readonly
                                                 @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                         </div>
 
