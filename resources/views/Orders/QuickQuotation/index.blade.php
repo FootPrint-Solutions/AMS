@@ -652,19 +652,26 @@
 
                 var FullName = $("#FullName").val();
                 var ContactNumber = $("#ContactNumber").val();
+                var VehicleCustomer = $('#VehicleCustomer').val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var Battery = [];
+                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
                 var links = [];
                 var Battery = [];
                 var InvoiceNumber = $("#invoiceNumber").val();
-                $(".add-table-items tbody tr").each(function() {
-                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='PriceCheckout[]']").val();
-                    Battery.push({
-                        batteryName: batteryName,
-                        quantity: quantity,
-                        price: price
-                    });
-                });
+                // $(".add-table-items tbody tr").each(function() {
+                //     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                //     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                //     var price = $(this).find("input[name='PriceCheckout[]']").val();
+                //     Battery.push({
+                //         batteryName: batteryName,
+                //         quantity: quantity,
+                //         price: price
+                //     });
+                // });
                 var IsMidtrans = $("#CheckMidtrans").prop("checked");
                 if (IsMidtrans) {
                     var linkMidtrans = $("#LinkPaymentMidtrans").val();
@@ -677,6 +684,23 @@
                     });
                     var IsMidtrans = "not midtrans";
                 }
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='NetPrice[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                    PriceTabel.push(price); // Menambahkan harga ke dalam array
+                });
+
+                var subtotal = $("#subtotal").val();
+                var tax = $("#tax").val();
+                var discount = $("#discount").val();
+                var TotalAmountHidden = $("#TotalAmountHidden").val();
 
                 var data = {
                     FullName: FullName,
@@ -685,6 +709,14 @@
                     InvoiceNumber: InvoiceNumber,
                     IsMidtrans: IsMidtrans,
                     links: links,
+                    Subtotal: subtotal,
+                    Tax: tax,
+                    Discount: discount,
+                    TotalAmount: TotalAmountHidden,
+                    VehicleCustomer: VehicleCustomer,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    AddressCustomer: AddressCustomer,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 

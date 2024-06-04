@@ -531,6 +531,21 @@ $arrayBattery
         $IsMidtrans = $request->input('IsMidtrans');
         $InvoiceNumber = $request->input('InvoiceNumber');
         $PaymentLinks = $request->input('links');
+        $latitude = $request->input('Latitude');
+        $longitude = $request->input('Longitude');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            if ($key == count($VehicleCustomer) - 1) {
+                $arrayVehicle .= "" . $value;
+            } else {
+                $arrayVehicle .= "" . $value . ",";
+            }
+        }
+        $Subtotal = $request->input('Subtotal');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
 
@@ -546,21 +561,49 @@ $arrayBattery
             $TemplateMessagePersonalDetails['closing_message']
         );
 
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl .  $latitude . "," . $longitude;
+        $no = 1;
+        $content_message = "";
+        $content_message .= "*DETAIL PEMBELI*";
+        $content_message .= "\r\n";
+        $content_message .= "```> Nama : " . $FullName . "\r\n```";
+        $content_message .= "```> Telp : " . $ContactNumber . "\r\n```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
+        $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
+
+        foreach ($Battery as $item) {
+            $item['price'] = str_replace(".", "", $item['price']);
+            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+
+        $content_message .= "*PERHITUNGAN TOTAL* \r\n";
+        $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
+        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
+        $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
+
+        $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
+
         if ($IsMidtrans == "midtrans") {
-            $content_message = "";
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
             $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
             foreach ($PaymentLinks as $link) {
                 $content_message .= "*$link*\r\n";
             }
         } else {
-            $content_message = "";
+            // $content_message = "";
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
-            foreach ($Battery as $index => $item) {
-                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
-                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
-                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
-            }
+            // foreach ($Battery as $index => $item) {
+            //     $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+            //     $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            //     $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            // }
         }
 
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
