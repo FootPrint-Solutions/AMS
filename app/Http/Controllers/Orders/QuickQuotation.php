@@ -201,7 +201,7 @@ $arrayVehicle";
                 $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r\n";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
                 if ($value['discount'] != 0) {
-                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ Discount " . number_format($value['discount']) . "%\r";
+                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r";
                     $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_net'], 0, "", ".") . "\r";
                 } else {
                     $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
@@ -478,14 +478,14 @@ $arrayBattery
         $content_message .= "*DETAIL PEMBELI*";
         $content_message .= "\r\n";
         $content_message .= "```> Nama : " . $FullName . "\r\n```";
-        $content_message .= "```> Telp : " . $ContactNumber . "\r\n```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r\n```";
         $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
         $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
         $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
 
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
-            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "Item " . $no++ . "\r\n";
             $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
@@ -493,8 +493,8 @@ $arrayBattery
 
         $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n```";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -851,14 +851,14 @@ $arrayVehicle
         $content_message .= "*DETAIL PEMBELI*";
         $content_message .= "\r";
         $content_message .= "```> Nama : " . $FullName . "\r```";
-        $content_message .= "```> Telp : " . $ContactNumber . "\r```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r```";
         $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r```";
         $content_message .= "```> Mobl : " . $arrayVehicle . "\r```";
         $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
 
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
-            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "Item " . $no++ . "\r\n";
             $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
@@ -866,8 +866,8 @@ $arrayVehicle
 
         $content_message .= "*PERHITUNGAN TOTAL* \r";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 

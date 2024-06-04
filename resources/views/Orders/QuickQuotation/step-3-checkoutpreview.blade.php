@@ -160,7 +160,8 @@
                             <select name="techniciansName" id="techniciansName" class="form-control">
                                 <option value="">-- No Technician --</option>
                                 @foreach ($DistributorTechnician as $technician)
-                                    <option data-phone="{{ $technician['contact'] }}" value="{{ $technician['id'] }}">
+                                    <option data-phone="62{{ $technician['contact'] }}"
+                                        value="{{ $technician['id'] }}">
                                         {{ $technician['name'] }}
                                     </option>
                                 @endforeach

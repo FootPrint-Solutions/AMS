@@ -59,7 +59,7 @@
 
         <div class="col-lg-6">
             <div class="form-group local-forms">
-                <label for="company-name">Distributor Shop <span class="login-danger">*</span></label>
+                <label for="company-name">Distributor Shop </label>
                 <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
                     <option value="">Select Distributor Shop</option>
                 </select>
