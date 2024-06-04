@@ -58,7 +58,7 @@ class SalesOrder extends Controller
                     "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
-                    "tax" => TaxModel::where('status', 'active')->first()->percentage ?? "0.00",
+                    "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
                 )
             )
