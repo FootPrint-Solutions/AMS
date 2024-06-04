@@ -7,7 +7,7 @@
 
             <div class="col-lg-6">
                 <div class="form-group local-forms">
-                    <label for="company-name">Full Name <span class="login-danger">*</span></label>
+                    <label for="company-name">Members Name </label>
                     <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
                         placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>

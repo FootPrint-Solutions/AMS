@@ -391,16 +391,26 @@ $arrayBattery
     {
         $batteryIds = $request->input('Battery');
         $Fullname = $request->input('FullName');
-        $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
+        $batteries = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
+            ->whereIn('batteries.id', $batteryIds)
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->get();
+
+
 
         $arrayBattery = "";
         foreach ($batteries as $battery) {
+            if ($battery->price_net != 0) {
+                $price_net = $battery->price_net;
+            } else {
+                $price_net = $battery->price_retail_original;
+            }
             $arrayBattery .= "*Nama* : " . $battery->name . "\r";
             $arrayBattery .= "*Dimensi* : " . $battery->dimension_length . " x " . $battery->dimension_width . " x " . $battery->dimension_height . " cm\r";
             $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
             $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
-            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($price_net, 0, "", ".") . "\r";
             $arrayBattery .= "\r";
         }
 
