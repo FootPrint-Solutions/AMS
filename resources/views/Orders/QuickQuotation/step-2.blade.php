@@ -59,15 +59,35 @@
 
         <div class="col-lg-6">
             <div class="form-group local-forms">
-                <label for="company-name">Distributor Shop <span class="login-danger">*</span></label>
+                <label for="company-name">Distributor Shop </label>
                 <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
                     <option value="">Select Distributor Shop</option>
                 </select>
             </div>
         </div>
+
+        <div class="col-lg-6">
+            <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
+                Maps</button>
+        </div>
     </div>
 
-    <div id="MapsDistributorRecomendation">
+    <div class="modal fade" id="modalMapsDistributor" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Maps Distributor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="MapsDistributorRecomendation"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h6 class="mt-3">Our Battery Recommendation</h6>
@@ -84,7 +104,8 @@
                 <i class="far fa-copy"></i>
                 Copy from Input
             </button>
-            <button id='BtnShareBattery' class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></button>
+            <button id='BtnShareBattery' class="btn btn-success"> Share <i
+                    class="fa-brands fa-whatsapp"></i></button>
             <a href="javascript: void(0);" class="btn btn-primary product-next-btn">Next
                 <i class="bx bx-chevron-right ms-1"></i>
             </a>
@@ -397,4 +418,28 @@
             });
         });
     });
+
+
+    function showMapsDistributor() {
+        var address = $('#AddressCustomer').val();
+        var latitude = $('#Latitude').val();
+        var longitude = $('#Longitude').val();
+        var idCustomer = $('#IdCustomer').val();
+        var data = {
+            address: address,
+            latitude: latitude,
+            longitude: longitude,
+        };
+
+        $.ajax({
+            url: "/quotation/customer/maps/near",
+            type: "GET",
+            data: data,
+            success: function(data) {
+                $("#MapsDistributorRecomendation").html(data);
+                $("#modalMapsDistributor").modal('show');
+            }
+        });
+
+    }
 </script>

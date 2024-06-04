@@ -61,25 +61,27 @@
 </style>
 
 
-<div class="row">
-    <div class="col">
-        <div class="form-group">
-            <h6>Our Distributor Partner</h6>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <h6>Our Distributor Partner</h6>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <select class="form-select" id="shop_id" name="shop_id" required>
+                    <option value="">-- Choose Distributor --</option>
+                    @foreach ($distributor as $d)
+                        <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
     </div>
-    <div class="col">
-        <div class="form-group">
-            <select class="form-select" id="shop_id" name="shop_id" required>
-                <option value="">-- Choose Distributor --</option>
-                @foreach ($distributor as $d)
-                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
+    <div id="MapShowMarkerDistributor"></div>
+    {{-- <input type="hidden" name="DistributorShopId" id="DistributorShopId"> --}}
 </div>
-<div id="MapShowMarkerDistributor"></div>
-<input type="hidden" name="DistributorShopId" id="DistributorShopId">
 <script>
     var map2;
     var markers = [];
@@ -198,7 +200,7 @@
         $("#shop_id").on("change", function() {
             var id = $(this).val();
             $("#DistributorShopId").val(id);
-            getBatteryRecomendation(id);
+            // getBatteryRecomendation(id);
         });
 
         initMap2();

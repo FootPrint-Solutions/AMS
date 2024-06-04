@@ -3,6 +3,24 @@
         background-color: #6c757d !important;
         color: #fff;
     }
+
+    .autocomplete-suggestions {
+        position: absolute;
+        background-color: #f1f1f1;
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        z-index: 999;
+    }
+
+    .suggestion-item {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #ddd;
+    }
 </style>
 <div class="row">
     <div class="col-xl-4 col-lg-6 col-md-6">
@@ -29,33 +47,38 @@
 
 
 
-<div class=" invoice-add-table">
+<div class="">
     <h4>Item Details</h4>
     <div class="table-responsive">
         <table class="table table-center add-table-items">
             <thead>
                 <tr>
-                    <th>Battery</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    @if (isset($Distributor) && !empty($Distributor))
-                        <th style="width: 20%;">Platform</th>
-                        <th>Link E-Commerce</th>
-                    @endif
+                    <th style="width: 25%;">Battery</th>
+                    <th style="width: 5%;">Quantity</th>
+                    <th>Gross Price</th>
+                    <th style="width: 5%;">Discount ( % )</th>
+                    <th>Net Price</th>
+                    <th>Subtotal</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($Battery as $battery)
                     <?php
-                    if (isset($Distributor) && !empty($Distributor)) {
-                        $batteryUrl = DB::table('battery_urls')
-                            ->where('battery_id', $battery->id)
-                            ->get()
-                            ->toArray();
+                    if ($battery->discount != 0) {
+                        $discount = $battery->discount;
+                        $price_retail = $battery->price_retail_original;
+                        $price_net = $battery->price_net;
+                    } else {
+                        $discount = 0;
+                        $price_retail = $battery->price_retail;
+                        $price_net = $battery->price_retail;
                     }
                     ?>
                     <tr>
                         <td>
+                            <input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout"
+                                class="BatteryIdCheckout" value="{{ $battery->id }}">
                             <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
                                 class="form-control BatteryNameCheckout" value="{{ $battery->name }}" readonly>
                         </td>
@@ -63,34 +86,45 @@
                             <input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout"
                                 value="1">
                         </td>
+                        {{-- gross --}}
                         <td>
                             <div class="input-group">
-                                <span class="input-group-text border-end">IDR</span>
-                                <input type="text" name="PriceCheckout[]" id="PriceCheckout"
-                                    class="form-control PriceCheckout text-end"
-                                    value="{{ number_format($battery->price_retail, '0', ',', '.') }}">
+                                <input type="text" name="GrossPrice[]" id="GrossPrice"
+                                    class="form-control GrossPrice text-end"
+                                    value="{{ number_format($price_retail, 0, ',', '.') }}" disabled>
                             </div>
                         </td>
-                        @if (isset($Distributor) && !empty($Distributor))
-                            <td>
-                                <select name="Platform[]" id="Platform" class="form-control Platform">
-                                    <option data-urlecommerce="" value="">-- Choose Platform --</option>
-                                    @foreach ($batteryUrl as $url)
-                                        <option data-urlecommerce="{{ $url->url }}" value="{{ $url->platform }}">
-                                            {{ $url->platform }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td>
-                                <input type="text" name="LinkTokopedia[]" id="LinkTokopedia"
-                                    class="form-control LinkTokopedia" value="{{ $battery->url }}" autocomplete="off">
-                            </td>
-                        @endif
+                        {{-- discount --}}
+                        <td>
+                            <div class="input-group">
+                                <input type="number" name="DiscountRow[]" id="DiscountRow"
+                                    class="form-control DiscountRow text-end" value="{{ $discount }}">
+                            </div>
+                        </td>
+                        {{-- net --}}
+                        <td>
+                            <div class="input-group">
+                                <input type="text" name="NetPrice[]" id="NetPrice"
+                                    class="form-control NetPrice text-end" value="{{ $price_net }}" disabled>
+                            </div>
+                        </td>
+                        {{-- subtotal --}}
+                        <td>
+                            <div class="input-group">
+                                <input type="text" name="SubtotalRow[]" id="SubtotalRow"
+                                    class="form-control SubtotalRow text-end" value="" disabled>
+                            </div>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-row">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        <button type="button" class="btn btn-primary btn-sm mt-3 mb-3 add-row">Add Row</button>
     </div>
 </div>
 
@@ -126,7 +160,8 @@
                             <select name="techniciansName" id="techniciansName" class="form-control">
                                 <option value="">-- No Technician --</option>
                                 @foreach ($DistributorTechnician as $technician)
-                                    <option data-phone="{{ $technician['contact'] }}" value="{{ $technician['id'] }}">
+                                    <option data-phone="62{{ $technician['contact'] }}"
+                                        value="{{ $technician['id'] }}">
                                         {{ $technician['name'] }}
                                     </option>
                                 @endforeach
@@ -219,27 +254,51 @@
 @endif
 <script>
     $(document).ready(function() {
-        $('.Platform').on('change', function() {
-            var selectedUrl = $(this).find('option:selected').data('urlecommerce');
-            var linkInput = $(this).closest('tr').find('.LinkTokopedia');
-            linkInput.val(selectedUrl);
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // Function to parse formatted number to float
+        function parseFormattedNumber(num) {
+            return parseFloat(num.replace(/\./g, '').replace(',', '.'));
+        }
+
+        function calculateRow(row) {
+            var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+            var grossPrice = parseFormattedNumber(row.find('.GrossPrice').val().replace(/,/g, '')) || 0;
+            var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
+
+            var discountAmount = (grossPrice * discount) / 100;
+            var netPrice = grossPrice - discountAmount;
+            var subtotal = netPrice * qty;
+
+            row.find('.NetPrice').val(formatNumber(netPrice));
+            row.find('.SubtotalRow').val(formatNumber(subtotal));
+        }
+
+        $(document).on('keyup', '.QtyCheckout, .DiscountRow', function() {
+            var row = $(this).closest('tr');
+            calculateRow(row);
+        });
+
+        // Calculate initial rows
+        $('.add-table-items tbody tr').each(function() {
+            calculateRow($(this));
         });
 
         function calculateTotalAmount() {
-            var total = 0;
-
-
-            $(".add-table-items tbody tr").each(function() {
-                var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                var price = parseFloat($(this).find("input[name='PriceCheckout[]']").val().replace(
-                    /\./g, '').replace(',', '.'));
-
-
-                var subtotal = quantity * price;
-                total += subtotal;
+            var subtotal = 0;
+            $('.add-table-items tbody tr').each(function() {
+                var row = $(this);
+                var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+                var subtotalRow = parseFormattedNumber(row.find('.SubtotalRow').val().replace(/,/g,
+                        '')) ||
+                    0;
+                subtotal += subtotalRow;
             });
+            var discount = parseFloat($('#discount').val()) || 0;
+            var tax = parseFloat($('#tax').val()) || 0;
 
-            var subtotal = total;
             $("#subtotal").val(subtotal);
             var formatedSubtotal = subtotal.toLocaleString('id-ID', {
                 minimumFractionDigits: 0,
@@ -247,15 +306,6 @@
             });
             $("#subtotal2").val(formatedSubtotal);
 
-
-            var tax = $("#tax").val();
-            var discount = $("#discount").val();
-            if (tax == "") {
-                tax = 0;
-            }
-            if (discount == "") {
-                discount = 0;
-            }
             var typeDiscount = $("#type-discount").val();
             if (typeDiscount == "rupiah") {
                 var discountvalue = parseInt(discount);
@@ -281,26 +331,6 @@
                 }));
             $("#TotalAmountHidden").val(GrandTotal);
         }
-
-        // Panggil fungsi calculateTotalAmount() setiap kali ada perubahan dalam input kuantitas atau harga
-        $(".add-table-items tbody").on("input",
-            "input[name='QtyCheckout[]'], input[name='PriceCheckout[]']",
-            function() {
-                calculateTotalAmount();
-            });
-
-        $("#tax, #discount, #subtotal").on("input", function() {
-            calculateTotalAmount();
-        });
-
-        calculateTotalAmount();
-
-        // formatPrice($(".PriceCheckout"));
-
-        $('.PriceCheckout').on("keyup", function() {
-            formatPrice($(this));
-        });
-
 
         // button rupiah ditekan maka btn percent menjadi bg-grey dan btn rupiah menjadi bg-success
         $('#btn-rupiah').on('click', function() {
@@ -328,6 +358,11 @@
             calculateTotalAmount();
         });
 
+        $("#tax, #discount, #subtotal").on("input", function() {
+            calculateTotalAmount();
+        });
+
+        calculateTotalAmount();
     });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"

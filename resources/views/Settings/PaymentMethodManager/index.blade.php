@@ -8,24 +8,22 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Battery Price Promo Manager</h3>
+                        <h3 class="page-title">Payment Method</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
                         <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Promo</button>
+                            New Payment Method</button>
                     </div>
                 </div>
             </div>
             <br>
 
             {{-- Table --}}
-            <table class="table table-striped" id="table-promo">
+            <table class="table table-striped" id="table-payment-method">
                 <thead>
                     <tr>
                         <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Name</th>
-                        <th scope="col">Period Start</th>
-                        <th scope="col">Period End</th>
                         <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
@@ -39,7 +37,7 @@
 
         $(document).ready(function() {
             // DataTables configuration
-            table = $("#table-promo").DataTable({
+            table = $("#table-payment-method").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
                     [5, 10, 25]
@@ -49,7 +47,7 @@
                 serverSide: true,
                 order: [],
                 ajax: {
-                    url: "/promo/show",
+                    url: "/payment/show",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}"
@@ -64,24 +62,24 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
-                language: getDatatablesLanguangeConfigurations("Promo"),
+                language: getDatatablesLanguangeConfigurations("Payment Method"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[6] == 0) {
+                    if (data[4] == 0) {
                         $('td', row).addClass("text-muted");
                     }
                 }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(5, "/promo/edit/", null, "/promo/toggle");
+            appendDatatablesToolbar(3, "/payment/edit/", null, "/payment/toggle");
         });
     </script>
 
     {{-- Click Handler --}}
     <script>
         $('#btn-add').on('click', function() {
-            goToPage("/promo/create");
+            goToPage("/payment/create");
         });
     </script>
 @endsection

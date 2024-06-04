@@ -36,90 +36,77 @@
             </div>
         </div>
 
-        <div class="invoice-item invoice-table-wrap">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="table-responsive">
-                        <table class="invoice-table table table-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Battery</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    @if (isset($DistributorShop) && !empty($DistributorShop))
-                                        <th style="width: 20%;">Platform</th>
-                                        <th>Link E-Commerce</th>
-                                    @endif
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($dataProduct as $data)
-                                    <?php
-                                    if (isset($Distributor) && !empty($Distributor)) {
-                                        $batteryUrl = DB::table('battery_urls')
-                                            ->where('battery_id', $battery->id)
-                                            ->get()
-                                            ->toArray();
-                                    }
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <input type="text" name="BatteryNamePaymentDetails[]"
-                                                class="form-control BatteryNamePaymentDetails"
-                                                value="{{ $data['name'] }}" readonly>
-                                        </td>
-                                        <td>
-                                            <input readonly type="number" name="QtyPaymentDetails[]"
-                                                class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
-                                        </td>
-                                        <td> <input readonly type="text" name="PricePaymentDetails2[]"
-                                                class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
-                                            <input readonly type="hidden" name="PricePaymentDetails[]"
-                                                class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
-                                        </td>
-                                        @if (isset($DistributorShop) && !empty($DistributorShop))
-                                            <td>
-                                                <input type="text" name="PlatformPayment[]"
-                                                    class="form-control PlatformPayment"
-                                                    value="{{ $data['platform'] }}" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="LinkPayment[]"
-                                                    class="form-control LinkPayment" value="{{ $data['link'] }}"
-                                                    readonly>
-                                            </td>
-                                        @endif
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class=" table table-center mb-0">
+                <thead>
+                    <tr>
+                    <tr>
+                        <th style="width: 25%;">Battery</th>
+                        <th style="width: 5%;">Quantity</th>
+                        <th>Gross Price</th>
+                        <th style="width: 5%;">Discount ( % )</th>
+                        <th>Net Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($dataProduct as $data)
+                    <tr>
+                        <td>
+                            <input type="text" name="BatteryNamePaymentDetails[]" class="form-control BatteryNamePaymentDetails" value="{{ $data['name'] }}" readonly>
+                        </td>
+                        <td>
+                            <input readonly type="number" name="QtyPaymentDetails[]" class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
+                        </td>
+                        <td> <input readonly type="text" name="PricePaymentDetails2[]" class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
+                            <input readonly type="hidden" name="PricePaymentDetails[]" class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
+                        </td>
+                        <td>
+                            <input readonly type="number" name="DiscountPaymentDetails[]" class="form-control DiscountPaymentDetails" value="{{ $data['DiscountRow'] }}">
+                        </td>
+                        <td>
+                            <input readonly type="text" name="NetPricePaymentDetails[]" class="form-control NetPricePaymentDetails" value="{{ $data['NetPrice'] }}">
+                        </td>
+                        <td>
+                            <input readonly type="text" name="SubtotalPaymentDetails[]" class="form-control SubtotalPaymentDetails" value="{{ $data['SubtotalRow'] }}">
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+
 
         <div class="row align-items-center justify-content-center">
             <div class="col-lg-6 col-md-6">
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">
+                        {{-- SELECT OPTION PAYMENT METHOD --}}
+
                         <div class="invoice-total-inner">
-                            @if (isset($DistributorShop) && !empty($DistributorShop))
+                            <h5>Payment Method</h5>
+                            <select class="form-select" name="PaymentMethod" id="PaymentMethod">
+                                @foreach ($PaymentMethod as $pm)
+                                <option value="{{ $pm['id'] }}">{{ $pm['name'] }}</option>
+                                @endforeach
+                            </select>
+
+                            <div id="MidtransPaymentLink" class="d-none mt-3">
+                                @if (isset($DistributorShop) && !empty($DistributorShop))
                                 <label class="custom_check w-100">
-                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans"
-                                        id="CheckMidtrans">
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans" checked readonly>
                                     <span class="checkmark"></span> Use Payment Link Midtrans
                                 </label>
-                            @elseif (isset($DistributorShop) && empty($DistributorShop))
+                                @elseif (isset($DistributorShop) && empty($DistributorShop))
                                 <label class="custom_check w-100">
-                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans"
-                                        disabled checked>
+                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans" disabled checked readonly>
                                     <span class="checkmark"></span> Use Payment Link Midtrans
                                 </label>
-                            @endif
-                            <p>Payment Link : </p>
-                            <p>{{ $snapToken }}</p>
-                            <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden"
-                                name="LinkPaymentMidtrans" value="{{ $snapToken }}">
+                                @endif
+                                <p>Payment Link : </p>
+                                <p>{{ $snapToken }}</p>
+                                <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden" name="LinkPaymentMidtrans" value="{{ $snapToken }}">
+                            </div>
                         </div>
                         {{-- Total Amount --}}
                     </div>
@@ -148,20 +135,27 @@
 <script>
     $("#btnCopyPaymentDetails").on("click", function() {
         var FullName = $("#FullName").val();
-        // check if midtrans is checked
+        var ContactNumber = $("#ContactNumber").val();
+        var VehicleCustomer = $('#VehicleCustomer').val();
+        var Latitude = $("#Latitude").val();
+        var Longitude = $("#Longitude").val();
+        var AddressCustomer = $("#AddressCustomer").val();
+        var Battery = [];
+        var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+        var PriceTabel = []; // Menambahkan array untuk menyimpan harga
         var links = [];
         var Battery = [];
         var InvoiceNumber = $("#invoiceNumber").val();
-        $(".add-table-items tbody tr").each(function() {
-            var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-            var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-            var price = $(this).find("input[name='PriceCheckout[]']").val();
-            Battery.push({
-                batteryName: batteryName,
-                quantity: quantity,
-                price: price
-            });
-        });
+        // $(".add-table-items tbody tr").each(function() {
+        //     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+        //     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+        //     var price = $(this).find("input[name='PriceCheckout[]']").val();
+        //     Battery.push({
+        //         batteryName: batteryName,
+        //         quantity: quantity,
+        //         price: price
+        //     });
+        // });
         var IsMidtrans = $("#CheckMidtrans").prop("checked");
         if (IsMidtrans) {
             var linkMidtrans = $("#LinkPaymentMidtrans").val();
@@ -174,13 +168,41 @@
             });
             var IsMidtrans = "not midtrans";
         }
+        $(".add-table-items tbody tr").each(function() {
+            var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+            var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+            var price = $(this).find("input[name='NetPrice[]']").val();
+            Battery.push({
+                batteryName: batteryName,
+                quantity: quantity,
+                price: price
+            });
+            QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+            PriceTabel.push(price); // Menambahkan harga ke dalam array
+        });
+
+        var subtotal = $("#subtotal").val();
+        var tax = $("#tax").val();
+        var discount = $("#discount").val();
+        var TotalAmountHidden = $("#TotalAmountHidden").val();
+        var PaymentMethod = $("#PaymentMethod").val();
 
         var data = {
             FullName: FullName,
-            Links: links,
-            IsMidtrans: IsMidtrans,
+            ContactNumber: ContactNumber,
             Battery: Battery,
             InvoiceNumber: InvoiceNumber,
+            IsMidtrans: IsMidtrans,
+            links: links,
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
+            PaymentMethod: PaymentMethod,
             _token: $('meta[name="csrf-token"]').attr('content')
         };
 
@@ -208,4 +230,20 @@
             }
         });
     });
+
+    // if PaymentMethod display midtrans
+    $("#PaymentMethod").on("change", function() {
+        checkpaymentmethod();
+    });
+
+    function checkpaymentmethod() {
+        var PaymentMethod = $("#PaymentMethod").val();
+        if (PaymentMethod == 1) {
+            $("#MidtransPaymentLink").removeClass("d-none");
+        } else {
+            $("#MidtransPaymentLink").addClass("d-none");
+        }
+    }
+
+    checkpaymentmethod();
 </script>

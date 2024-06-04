@@ -11,6 +11,15 @@
             z-index: 999;
         }
 
+        #AutoCompleteFullNameCustomerStep1 {
+            position: absolute;
+            background-color: #f1f1f1;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            z-index: 999;
+        }
+
         #AutoCompleteFullNameCustomerContact {
             position: absolute;
             background-color: #f1f1f1;
@@ -49,6 +58,27 @@
 
         .blog-image img {
             width: 75%;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 50%;
+            font-size: 0.8em;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        .price-discount {
+            font-weight: bold;
+            color: red;
         }
     </style>
     {{-- Title --}}
@@ -307,6 +337,7 @@
 
 
             $(".product-next-btn").on('click', function() {
+                $("#CheckoutPreview").html('');
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
@@ -409,6 +440,11 @@
                     var BatteryNameTabel = [];
                     var Platform = [];
                     var LinkTokopedia = [];
+                    var BatteryIdCheckout = [];
+                    var GrossPrice = [];
+                    var DiscountRow = [];
+                    var NetPrice = [];
+                    var SubtotalRow = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -435,6 +471,31 @@
                         Platform.push(value);
                     });
 
+                    $(".BatteryIdCheckout").each(function() {
+                        var value = $(this).val();
+                        BatteryIdCheckout.push(value);
+                    });
+
+                    $(".GrossPrice").each(function() {
+                        var value = $(this).val();
+                        GrossPrice.push(value);
+                    });
+
+                    $(".DiscountRow").each(function() {
+                        var value = $(this).val();
+                        DiscountRow.push(value);
+                    });
+
+                    $(".NetPrice").each(function() {
+                        var value = $(this).val();
+                        NetPrice.push(value);
+                    });
+
+                    $(".SubtotalRow").each(function() {
+                        var value = $(this).val();
+                        SubtotalRow.push(value);
+                    });
+
                     var subtotal = $("#subtotal").val();
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
@@ -449,7 +510,7 @@
                         Latitude: Latitude,
                         Longitude: Longitude,
                         IdCustomer: IdCustomer,
-                        Battery: Battery,
+                        Battery: BatteryIdCheckout,
                         TotalAmount: TotalAmount,
                         tax: tax,
                         Discount: Discount,
@@ -463,6 +524,10 @@
                         subtotal: subtotal,
                         DiscountRupiah: DiscountRupiah,
                         DiscountPercentage: DiscountPercentage,
+                        GrossPrice: GrossPrice,
+                        DiscountRow: DiscountRow,
+                        NetPrice: NetPrice,
+                        SubtotalRow: SubtotalRow,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -498,7 +563,7 @@
                 $(".add-table-items tbody tr").each(function() {
                     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
                     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='PriceCheckout[]']").val();
+                    var price = $(this).find("input[name='NetPrice[]']").val();
                     Battery.push({
                         batteryName: batteryName,
                         quantity: quantity,
@@ -587,19 +652,26 @@
 
                 var FullName = $("#FullName").val();
                 var ContactNumber = $("#ContactNumber").val();
+                var VehicleCustomer = $('#VehicleCustomer').val();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
+                var AddressCustomer = $("#AddressCustomer").val();
+                var Battery = [];
+                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
                 var links = [];
                 var Battery = [];
                 var InvoiceNumber = $("#invoiceNumber").val();
-                $(".add-table-items tbody tr").each(function() {
-                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='PriceCheckout[]']").val();
-                    Battery.push({
-                        batteryName: batteryName,
-                        quantity: quantity,
-                        price: price
-                    });
-                });
+                // $(".add-table-items tbody tr").each(function() {
+                //     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                //     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                //     var price = $(this).find("input[name='PriceCheckout[]']").val();
+                //     Battery.push({
+                //         batteryName: batteryName,
+                //         quantity: quantity,
+                //         price: price
+                //     });
+                // });
                 var IsMidtrans = $("#CheckMidtrans").prop("checked");
                 if (IsMidtrans) {
                     var linkMidtrans = $("#LinkPaymentMidtrans").val();
@@ -612,6 +684,24 @@
                     });
                     var IsMidtrans = "not midtrans";
                 }
+                $(".add-table-items tbody tr").each(function() {
+                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                    var price = $(this).find("input[name='NetPrice[]']").val();
+                    Battery.push({
+                        batteryName: batteryName,
+                        quantity: quantity,
+                        price: price
+                    });
+                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                    PriceTabel.push(price); // Menambahkan harga ke dalam array
+                });
+
+                var subtotal = $("#subtotal").val();
+                var tax = $("#tax").val();
+                var discount = $("#discount").val();
+                var TotalAmountHidden = $("#TotalAmountHidden").val();
+                var PaymentMethod = $("#PaymentMethod").val();
 
                 var data = {
                     FullName: FullName,
@@ -620,6 +710,15 @@
                     InvoiceNumber: InvoiceNumber,
                     IsMidtrans: IsMidtrans,
                     links: links,
+                    Subtotal: subtotal,
+                    Tax: tax,
+                    Discount: discount,
+                    TotalAmount: TotalAmountHidden,
+                    VehicleCustomer: VehicleCustomer,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    AddressCustomer: AddressCustomer,
+                    PaymentMethod: PaymentMethod,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -689,6 +788,11 @@
                 var PriceTabel = [];
                 var BatteryNameTabel = [];
                 var LinkTokopedia = [];
+                var QtyPayment = [];
+                var GrossPricePayment = [];
+                var DiscountPayment = [];
+                var NetPricePayment = [];
+                var SubtotalPayment = [];
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -710,6 +814,32 @@
                     LinkTokopedia.push(value);
                 });
 
+                $(".QtyPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    QtyPayment.push(value);
+                });
+
+                $(".PricePaymentDetails").each(function() {
+                    var value = $(this).val();
+                    GrossPricePayment.push(value);
+                });
+
+                $(".DiscountPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    DiscountPayment.push(value);
+                });
+
+                $(".NetPricePaymentDetails").each(function() {
+                    var value = $(this).val();
+                    NetPricePayment.push(value);
+                });
+
+                $(".SubtotalPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    SubtotalPayment.push(value);
+                });
+
+                var PaymentMethod = $("#PaymentMethod").val();
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
                 var DiscountPercentage = $("#discount-percent").val();
@@ -739,9 +869,16 @@
                     techniciansName: techniciansName,
                     CheckMidtrans: CheckMidtrans,
                     linkPayment: LinkTokopedia,
+                    linkMidtrans: linkPayment,
                     subtotal: subtotal,
                     DiscountRupiah: DiscountRupiah,
-                    DiscountPercentage: DiscountPercentage
+                    DiscountPercentage: DiscountPercentage,
+                    QtyPayment: QtyPayment,
+                    GrossPricePayment: GrossPricePayment,
+                    DiscountPayment: DiscountPayment,
+                    NetPricePayment: NetPricePayment,
+                    SubtotalPayment: SubtotalPayment,
+                    PaymentMethod: PaymentMethod,
                 };
 
                 $.ajax({

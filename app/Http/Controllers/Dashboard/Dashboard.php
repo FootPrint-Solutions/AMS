@@ -10,6 +10,8 @@ use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Settings\PromoModel;
+use Illuminate\Support\Carbon;
 
 class Dashboard extends Controller
 {
@@ -20,6 +22,7 @@ class Dashboard extends Controller
      */
     public function index()
     {
+        $today = Carbon::today();
         return view('Dashboard.index',   getIndexData(
             'Dashboard',
             1,
@@ -28,7 +31,7 @@ class Dashboard extends Controller
                 'NumberOfCustomer' => CustomerModel::count(),
                 'NumberOfVehicle' => VehicleModel::count(),
                 'NumberOfBattery' => BatteryModel::count(),
-                'TotalRevenue' => SalesOrderModel::sum('total'),
+                'TotalRevenue' => SalesOrderModel::sum('total')
             )
         ));
     }

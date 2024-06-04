@@ -4,15 +4,29 @@
     </div>
     <form id='FormPersonalDetails'>
         <div class="row">
+
+            <div class="col-lg-6">
+                <div class="form-group local-forms">
+                    <label for="company-name">Members Name </label>
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
+                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <div id="AutoCompleteFullNameCustomerStep1"></div>
+                    <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
+                        Exist</span>
+                    <span class="badge bg-warning" id="UserNotExistStep1" style='display:none;'>New
+                        User</span>
+                </div>
+            </div>
+
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label for="company-name">Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
+                        aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">
-                            {{ trim($vehicle['name']) }}
-
-                        </option>
+                            <option value="{{ $vehicle['id'] }}">
+                                {{ trim($vehicle['name']) }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -66,88 +80,91 @@
             url: "/quotation/vehicle/find",
             type: "GET",
             data: {
-                id: VehicleCustomer,
+                id: VehicleCustomer
             },
             success: function(data) {
                 var html = '';
-                // jika data kosong
                 if (data.length === 0) {
                     html =
                         '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Battery Found</div>';
                     $('#ResultRecommendationBatteryVehicle').html(html);
                     return;
                 } else {
-                    data.forEach(function(vehicle) {
+                    html = '<div class="row">'; // Memulai row baru untuk Bootstrap grid
+                    data.forEach(function(vehicle, index) {
                         html +=
-                            '<div class="col-md-6 col-xl-4 col-sm-12 d-flex">';
+                            '<div class="col-md-2_4 col-sm-6 mb-4 d-flex" style="flex: 0 0 calc(20% - 1rem); margin: 0.5rem; position: relative;">'; // Menambahkan position relative untuk badge
                         html += '<div class="blog grid-blog flex-fill">';
                         html += '<div class="blog-imagex">';
                         html += '<a href="#!">';
                         if (vehicle.image == null) {
-
-                            vehicle.image =
-                                'https://via.placeholder.com/210x210';
-                            html += '<img class="img-fluid" src="' + vehicle
-                                .image + '" alt="Post Image">';
+                            vehicle.image = 'https://via.placeholder.com/210x210';
+                            html += '<img class="img-fluid" src="' + vehicle.image +
+                                '" alt="Post Image">';
                         } else {
-                            var baseUrl =
-                                "{{ asset('storage/image/battery/') }}";
+                            var baseUrl = "{{ asset('storage/image/battery/') }}";
                             vehicle.image = vehicle.image;
-                            html += '<img class="img-fluid" src="' +
-                                baseUrl +
-                                '/' + vehicle.image +
+                            html += '<img class="img-fluid" src="' + baseUrl + '/' + vehicle.image +
                                 '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
                         }
                         html += '</a>';
                         html += '</div>';
                         html += '<div class="blog-content">';
-                        html +=
-                            '<h3 class="blog-title mt-3"><a href="#!">' +
-                            vehicle.name + '</a></h3>';
+                        html += '<h3 class="blog-title mt-3 "><a href="#!">' + vehicle.name +
+                            '</a></h3>';
                         html += '<p>Details & Specification :</p>';
                         html += '<ul class="list-group list-group-flush">';
-                        html += '<li class="list-group-item">Dimension : ' +
-                            vehicle.dimension_height + ' x ' + vehicle.dimension_width +
-                            ' x ' + vehicle.dimension_length + ' mm</li>';
-                        html += '<li class="list-group-item">Capacity : ' +
-                            vehicle.capacity + ' AH</li>';
-                        html += '<li class="list-group-item">Standar CCA : ' +
-                            vehicle.standard_cca + '</li>';
-                        html += '<li class="list-group-item">Warranty : ' +
-                            vehicle.warranty + ' Months</li>';
-
-                        html += '<li class="list-group-item">Price : Rp. ' +
-                            Number(vehicle.price_retail).toLocaleString(
-                                'id-ID') + '</li>';
-                        html += '<li class="list-group-item">Size : ' +
-                            vehicle.size_category + '</li>';
+                        html += '<li class="list-group-item">Dimension : ' + vehicle
+                            .dimension_height + ' x ' + vehicle.dimension_width + ' x ' + vehicle
+                            .dimension_length + ' mm</li>';
+                        html += '<li class="list-group-item">Capacity : ' + vehicle.capacity +
+                            ' AH</li>';
+                        html += '<li class="list-group-item">Standar CCA : ' + vehicle
+                            .standard_cca + '</li>';
+                        html += '<li class="list-group-item">Warranty : ' + vehicle.warranty +
+                            ' Months</li>';
+                        html += '<li class="list-group-item">Size : ' + vehicle.size_category +
+                            '</li>';
+                        if (vehicle.discount == 0) {
+                            html += '<li class="list-group-item">Price : Rp. ' +
+                                Number(vehicle
+                                    .price_retail).toLocaleString('id-ID') +
+                                '</li>';
+                            html += '<li class="list-group-item"></li>';
+                        } else {
+                            html +=
+                                '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
+                                Number(vehicle.price_retail_original).toLocaleString('id-ID') +
+                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
+                                Number(vehicle.discount) + ' %</span> </span></li>';
+                            html +=
+                                '<li class="list-group-item">Price After Discount : <span class="price-discount">Rp. ' +
+                                Number(vehicle.price_net).toLocaleString('id-ID') + '</span></li>';
+                        }
                         html += '</ul>';
-                        html +=
-                            '</div>';
+                        html += '</div>';
                         html += '<div class="row">';
-                        html +=
-                            '<div class="edit-options">';
-                        html +=
-                            '<div class="text-end inactive-style mt-3">';
-                        html +=
-                            '<div class="checkbox">';
+                        html += '<div class="edit-options">';
+                        html += '<div class="text-end inactive-style mt-3">';
+                        html += '<div class="checkbox">';
                         html += '<label>';
-                        html +=
-                            '<input type="checkbox" name="CheckBattery1[]" value=' +
-                            vehicle.id + '> Select Battery';
-                        html +=
-                            '</label>';
+                        html += '<input type="checkbox" name="CheckBattery1[]" value=' + vehicle
+                            .id + '> Select Battery';
+                        html += '</label>';
                         html += '</div>';
                         html += '</div>';
-                        html +=
-                            '</div>';
                         html += '</div>';
                         html += '</div>';
-                        html +=
-                            '</div>';
+                        html += '</div>';
+                        html += '</div>';
+
+                        // Tutup row setelah 5 elemen
+                        if ((index + 1) % 5 == 0) {
+                            html += '</div><div class="row">';
+                        }
                     });
+                    html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);
-                    // getMapsNearAddressCustomer();
                 }
             }
         });
@@ -270,11 +287,26 @@
                             vehicle.standard_cca + '</li>';
                         html += '<li class="list-group-item">Warranty : ' +
                             vehicle.warranty + ' Months</li>';
-                        html += '<li class="list-group-item">Price : Rp. ' +
-                            Number(vehicle.price_retail).toLocaleString(
-                                'id-ID') + '</li>';
                         html += '<li class="list-group-item">Size : ' +
                             vehicle.size_category + '</li>';
+                        if (vehicle.discount == 0) {
+                            html += '<li class="list-group-item">Price : Rp. ' +
+                                Number(vehicle
+                                    .price_retail).toLocaleString('id-ID') +
+                                '</li>';
+                            html += '<li class="list-group-item"></li>';
+                        } else {
+                            html +=
+                                '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
+                                Number(vehicle.price_retail_original).toLocaleString(
+                                    'id-ID') +
+                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
+                                Number(vehicle.discount) + ' %</span> </span></li>';
+                            html +=
+                                '<li class="list-group-item">Price After Discount : <span class="price-discount">Rp. ' +
+                                Number(vehicle.price_net).toLocaleString('id-ID') +
+                                '</span></li>';
+                        }
                         html += '</ul>';
                         html +=
                             '</div>';
@@ -349,4 +381,99 @@
         //     });
         // }
     });
+
+    $('#FullNameStep1').on('keyup', function() {
+        var input = $(this).val();
+        if (input.length > 0) {
+            $.ajax({
+                url: "/quotation/customer/find",
+                type: "GET",
+                data: {
+                    input: input
+                },
+                success: function(data) {
+                    // let suggestions = data.map(item => item.name);
+                    if (data.length > 0) {
+                        displaySuggestionsStep1(data);
+                    } else {
+                        $('#AutoCompleteFullNameCustomerStep1').html('');
+                        $("#EmailCustomer").val('');
+                        // $("#ContactNumber").val('');
+                        $("#AddressCustomer").val('');
+                        $("#IdCustomer").val('');
+                        $("#Latitude").val('');
+                        $("#Longitude").val('');
+                        $('#UserExist').hide();
+                        $('#UserNotExist').show();
+                    }
+                }
+            });
+        } else {
+            $('#AutoCompleteFullNameCustomerStep1').html('');
+            $("#EmailCustomer").val('');
+            // $("#ContactNumber").val('');
+            $("#AddressCustomer").val('');
+            $("#Latitude").val('');
+            $("#Longitude").val('');
+            $("#IdCustomer").val('');
+            var IdCustomer = $("#IdCustomer").val();
+            if (IdCustomer != '') {
+                $('#UserExist').show();
+                $('#UserNotExist').hide();
+            } else {
+                $('#UserExist').hide();
+                $('#UserNotExist').show();
+            }
+        }
+    });
+
+
+    function displaySuggestionsStep1(suggestions) {
+        $('#AutoCompleteFullNameCustomerStep1').empty();
+
+        suggestions.forEach(function(item) {
+            $('#AutoCompleteFullNameCustomerStep1').append('<div class="suggestion">' + item.name +
+                '</div>');
+        });
+
+        $('.suggestion').click(function() {
+            var index = $(this).index();
+
+            $('#FullName').val(suggestions[index].name);
+            $('#FullNameStep1').val(suggestions[index].name);
+            var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
+            $('#ContactNumber').val(cleanNumber);
+            $('#EmailCustomer').val(suggestions[index].email);
+            $('#AddressCustomer').val(suggestions[index].address);
+            $('#IdCustomer').val(suggestions[index].id);
+            $("#Latitude").val(suggestions[index].latitude);
+            $("#Longitude").val(suggestions[index].longitude);
+            $('#AutoCompleteFullNameCustomerStep1').empty();
+            // call google maps
+            // initMap();
+
+            var IdCustomer = $("#IdCustomer").val();
+            if (IdCustomer != '') {
+                $('#UserExist').show();
+                $('#UserNotExist').hide();
+
+                // get vehcile by id
+                $.ajax({
+                    url: "/quotation/customer/vehicle/find",
+                    type: "GET",
+                    data: {
+                        id: IdCustomer,
+                    },
+                    success: function(data) {
+                        var vehicles = data;
+                        $('#VehicleCustomer').val(vehicles);
+                        $('#VehicleCustomer').trigger('change');
+                    }
+                });
+            } else {
+                $('#UserExist').hide();
+                $('#UserNotExist').show();
+            }
+        });
+    }
 </script>

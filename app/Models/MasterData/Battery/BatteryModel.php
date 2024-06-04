@@ -146,7 +146,8 @@ class BatteryModel extends Model implements Auditable
         $columns = ["batteries.id", "batteries.name"];
         $query = self::select(array_merge($columns, $extraColumn))
             ->where("batteries.name", "like", "%{$keyword}%")
-            ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
+            ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')
+            // ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
             ->take($limit)
             ->get()
             ->toArray();
@@ -157,10 +158,9 @@ class BatteryModel extends Model implements Auditable
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
     {
         $batteryData = DB::table('batteries')
-            ->select('batteries.id', 'batteries.name', 'distributor_shop_battery.distributor_shop_id', 'distributor_shop_battery.price as price_retail', 'distributor_shop_battery.url')
-            ->join('distributor_shop_battery', 'batteries.id', '=', 'distributor_shop_battery.battery_id', 'left')
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
             ->whereIn('batteries.id', $selectedBatteryIds)
-            ->where('distributor_shop_battery.distributor_shop_id', $distributorShopId)
             ->get();
 
         return $batteryData;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Settings\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -14,6 +15,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 
 class SalesOrder extends Controller
@@ -56,7 +58,8 @@ class SalesOrder extends Controller
                     "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
-                    "tax" => TaxModel::where('status', 'active')->first()->percentage ?? "0.00",
+                    "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
                 )
             )
         );
@@ -78,7 +81,8 @@ class SalesOrder extends Controller
                 array(
                     "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
-                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray()
+                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
                 )
             )
         );
@@ -142,7 +146,7 @@ class SalesOrder extends Controller
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
-            $row[] = ucwords($key->payment_method);
+            $row[] = $key->payment_method_name ?? "<p class='text-center'>-</p>";
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $rows[] = $row;
@@ -181,7 +185,7 @@ class SalesOrder extends Controller
             $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
             $salesOrder->total = (float) str_replace(".", "", $request->total);
-            $salesOrder->payment_method = $request->paymentmethod;
+            $salesOrder->payment_method_id = $request->paymentmethod;
             $salesOrder->status = $request->status;
             $status = $salesOrder->save();
 
@@ -191,7 +195,9 @@ class SalesOrder extends Controller
                 $battery->sales_order_id = $salesOrder->id;
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
-                $battery->battery_price = (float) str_replace(".", "", $request->batteriesprice[$i]);
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }

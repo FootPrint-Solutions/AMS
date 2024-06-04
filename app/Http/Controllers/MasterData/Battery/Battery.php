@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 // MODELS
@@ -18,6 +19,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
+use App\Models\MasterData\Battery\BatteryPriceModel;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -276,6 +278,12 @@ class Battery extends Controller
                     ]);
             }
 
+            // Store battery price.
+            $price = new BatteryPriceModel();
+            $price->battery_id = $battery->id;
+            $price->price_retail = $battery->price_retail;
+            $status &= $price->save();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
@@ -417,6 +425,13 @@ class Battery extends Controller
                 }
             }
 
+            // Store battery price.
+            $price = BatteryPriceModel::where("battery_id", $battery->id)->first();
+            if ($price) {
+                $price->price_retail = $battery->price_retail;
+                $status &= $price->save();
+            }
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
@@ -465,7 +480,14 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
-        return BatteryModel::allForAutocomplete($keyword, ["price_retail", "battery_size_categories.name as size_category_name"]);
+        return BatteryModel::allForAutocomplete(
+            $keyword,
+            [
+                "battery_prices.price_retail", // retail price
+                "battery_prices.discount", // discount
+                DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price") // net price
+            ]
+        );
     }
 
     /**
@@ -473,8 +495,23 @@ class Battery extends Controller
      * 
      * @param  int  $sizeId The size category id
      */
-    public function getBatteriesBySizeCategory($sizeId)
+    public function getBatteriesBySizeCategory(Request $request)
     {
-        return BatteryModel::where('size_category_id', $sizeId)->get();
+        try {
+            $sizeId = $request->sizeId;
+            $name = $request->name;
+
+            $query = BatteryModel::query();
+            if ($sizeId)
+                $query->where('size_category_id', $sizeId);
+
+            if ($name)
+                $query->where('name', 'like', '%' . $name . '%');
+
+            return $query->get()->toArray();
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+        }
     }
 }

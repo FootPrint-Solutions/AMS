@@ -54,7 +54,7 @@ class SalesOrderModel extends Model implements Auditable
         'latitude',
         'longitude',
         'status',
-        'payment_method',
+        'payment_method_id',
         'midtrans_invoice_number',
         'midtrans_payment_link'
     ];
@@ -140,7 +140,8 @@ class SalesOrderModel extends Model implements Auditable
             'shops.name AS shop_name',
             'distributors.id AS distributor_id',
             'distributors.name AS distributor_name',
-            'technicians.name AS technician_name'
+            'technicians.name AS technician_name',
+            'payment_methods.name AS payment_method_name'
         ];
         $searchColumns = ['sales_order_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
@@ -150,6 +151,7 @@ class SalesOrderModel extends Model implements Auditable
         $query->leftJoin("distributor_shops AS shops", "sales_orders.distributor_shop_id", "=", "shops.id");
         $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
+        $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
         $query->select($selectColumns);
         // $query->whereNull("deleted_at");
 

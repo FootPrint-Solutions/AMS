@@ -34,6 +34,7 @@ use App\Http\Controllers\Orders\WorkOrder;
 use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
+use App\Http\Controllers\Settings\PaymentMethod;
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -107,8 +108,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
     Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
+    Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory']);
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
-    Route::get('/battery/get/size/{sizeId}', [Battery::class, 'getBatteriesBySizeCategory']);
 
     // Battery Brand
     Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');
@@ -211,6 +212,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/battery/find', [QuickQuotation::class, 'findBattery'])->name('quotation.findBattery');
     Route::get('/quotation/get-link-battery', [QuickQuotation::class, 'getLinkBattery'])->name('quotation.getLinkBattery');
     Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor');
+    Route::get('/quotation/battery/autoComplete', [QuickQuotation::class, 'autoCompleteBattery'])->name('quotation.autoCompleteBattery');
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);
@@ -247,13 +249,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
     Route::post('/tax/destroy', [Tax::class, 'destroy']);
 
+    // Payment Method
+    Route::get('/payment', [PaymentMethod::class, 'index']);
+    Route::post('/payment/show', [PaymentMethod::class, 'show']);
+    Route::get('/payment/create', [PaymentMethod::class, 'create']);
+    Route::get('/payment/edit/{id}', [PaymentMethod::class, 'edit']);
+    Route::post('/payment/store', [PaymentMethod::class, 'store']);
+    Route::post('/payment/update', [PaymentMethod::class, 'update']);
+    Route::post('/payment/toggle', [PaymentMethod::class, 'updateStatus']);
+    Route::post('/payment/destroy', [PaymentMethod::class, 'destroy']);
+
     // Promo
     Route::get('/promo', [Promo::class, 'index']);
     Route::post('/promo/show', [Promo::class, 'show']);
+    Route::post('/promo/show/dashboard', [Promo::class, 'showDashboard']);
     Route::get('/promo/create', [Promo::class, 'create']);
     Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
     Route::post('/promo/store', [Promo::class, 'store']);
     Route::post('/promo/update', [Promo::class, 'update']);
+    Route::post('/promo/toggle', [Promo::class, 'updateStatus']);
 
     //profile
     Route::get('/profile',  [Profile::class, 'index']);

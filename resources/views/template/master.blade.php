@@ -11,7 +11,9 @@
     <link rel="shortcut icon" href="/img/logos/32x32.png">
 
     {{-- Fontfamily --}}
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap"
+        rel="stylesheet">
 
     {{-- Bootstrap CSS --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -523,19 +525,21 @@
      * @param {jQuery|null} warning - (Optional) The jQuery warning message object.
      */
     function formatPrice(inputField, warning = null) {
-        let n = parseInt(inputField.val().replace(/\D/g, ''), 10);
+        inputField.each(function() {
+            let n = parseInt($(this).val().replace(/\D/g, ''), 10);
 
-        if (!isNaN(n)) {
-            if (warning !== null) {
-                warning.hide();
+            if (!isNaN(n)) {
+                if (warning !== null) {
+                    warning.hide();
+                }
+                $(this).val(n.toLocaleString("id-ID"));
+            } else {
+                if (warning !== null) {
+                    warning.show();
+                }
+                $(this).val("");
             }
-            inputField.val(n.toLocaleString("id-ID"));
-        } else {
-            if (warning !== null) {
-                warning.show();
-            }
-            inputField.val("");
-        }
+        });
     }
 
     /**

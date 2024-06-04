@@ -1,16 +1,7 @@
 @extends('template.master')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
-        .list-group-item {
-            cursor: pointer;
-        }
-
-        .list-group-item:hover {
-            background-color: rgba(184, 187, 191, 0.5)
-        }
-
         .select2-container--open {
             z-index: 1100;
         }
@@ -57,45 +48,40 @@
 
                     {{-- Period End --}}
                     <div class="col">
-                        <div class="form-group local-forms">
-                            <label for="period-end">Period End<span class="login-danger">*</span></label>
-                            <input type="date" class="form-control" id="period-end" name="periodend" required
-                                value=@isset($data['profile']) {{ $data['profile']['period_end'] }} @else {{ date('Y-m-d') }} @endisset>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group local-forms">
+                                    <label for="period-end">Period End</label>
+                                    <input type="date" class="form-control" id="period-end" name="periodend"
+                                        value=@isset($data['profile']) {{ $data['profile']['period_end'] }} @else {{ date('Y-m-d') }} @endisset>
+                                </div>
+                            </div>
+
+                            {{-- Unlimited Period --}}
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <input type="checkbox" class="form-check-input" id="unlimited-period">
+                                    <label class="form-check-label" for="unlimited-period"> Unlimited</label><br>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Discount & Net Price Generator --}}
                 <div class="row">
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="battery-discount-all">
-                                    <span class="input-group-text border-end">%</span>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                <button type="button" class="btn btn-info mx-1" id="btn-apply-discount">Apply Discount to
-                                    All</button>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="battery-discount-all">
+                                <span class="input-group-text border-end">%</span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" class="form-control" id="battery-pricenet-all">
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                <button type="button" class="btn btn-info mx-1" id="btn-apply-price">Apply Net Price to
-                                    All</button>
-                            </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-info btn-block" id="btn-apply-discount">Apply
+                                Discount to
+                                All</button>
                         </div>
                     </div>
                 </div>
@@ -145,36 +131,31 @@
                                     </div>
                                 </td>
 
+                                {{-- Discount --}}
+                                <td>
+                                    {{-- Discount Percentage --}}
+                                    <div class="input-group">
+                                        <input type="text" class="form-control battery-discount"
+                                            id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
+                                            placeholder="Enter battery discount"
+                                            @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
+                                        <span class="input-group-text border-end">%</span>
+                                    </div>
+                                </td>
+
                                 {{-- Net Price & Delete --}}
                                 <td>
                                     {{-- Net Price --}}
                                     <div class="row">
                                         <div class="col">
-                                            {{-- Discount Percentage --}}
-                                            <div class="input-group" id="battery-discountpercentage-{{ $counter }}">
-                                                <input type="text" class="form-control battery-discount"
-                                                    id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
-                                                    placeholder="Enter battery discount"
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
-                                                <span class="input-group-text border-end">%</span>
-                                            </div>
-
                                             {{-- Discount Price --}}
-                                            <div class="input-group d-none" id="battery-discountprice-{{ $counter }}">
+                                            <div class="input-group">
                                                 <span class="input-group-text border-end">IDR</span>
                                                 <input type="text" class="form-control text-end battery-pricenet"
                                                     id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
-                                                    placeholder="Enter item net price" required
+                                                    placeholder="Enter item net price" required readonly
                                                     @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
-                                        </div>
-
-                                        {{-- Toggle --}}
-                                        <div class="col-sm-2">
-                                            <input type="checkbox" class="toggle-discount"
-                                                id="toggle-discount-{{ $counter }}" data-toggle="toggle"
-                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" data-width="70"
-                                                data-height="25">
                                         </div>
 
                                         {{-- Delete --}}
@@ -187,7 +168,7 @@
 
                                 {{-- Hidden Inputs --}}
                                 <input type="hidden" name="detailid[]" id="battery-id-{{ $counter }}"
-                                    @isset($data['profile']['batteries']) value="{{ $battery['id'] }}" @endisset>
+                                    @isset($data['profile']['batteries']) value="{{ $battery['battery_id'] }}" @endisset>
                             </tr>
 
                             @php
@@ -232,12 +213,13 @@
 
                 {{-- Body --}}
                 <div class="modal-body">
-                    {{-- Size Category --}}
+                    {{-- Filter --}}
                     <div class="row">
+                        {{-- Size Category --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="size">Size Category</label>
-                                <select class="form-control" style="width: 100%" id="size">
+                                <label for="battery-size">Size Category</label>
+                                <select class="form-control" style="width: 100%" id="battery-size">
                                     <option></option>
                                     @foreach ($data['battery_categories'] as $size)
                                         <option value="{{ $size['id'] }}">
@@ -247,13 +229,24 @@
                             </div>
                         </div>
 
+                        {{-- Name --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="battery-name">Name</label>
+                                <input type="text" class="form-control" id="battery-name" name="battery-name"
+                                    placeholder="Enter battery name">
+                            </div>
+                        </div>
+
+                        {{-- Select All --}}
                         <div class="col-sm-2">
                             <button type="button" class="btn btn-info" id="btn-all-modal">Select all</button>
                         </div>
                     </div>
 
                     {{-- Battery List --}}
-                    <ul class="list-group" id="list-battery"></ul>
+                    <div id="list-battery-none">No batteries found</div>
+                    <ul class="list-group list-group-flush d-none" id="list-battery"></ul>
                 </div>
 
                 {{-- Footer --}}
@@ -264,61 +257,30 @@
         </div>
     </div>
 
-    {{-- Select2 Configurations --}}
     <script>
-        var selectedBatteries = [];
-        var shownBatteries = [];
+        var selectedBatteries = []; /* List of selected batteries in modal */
+        var shownBatteries = []; /* List of shown batteries (not yet selected) in modal */
 
         $(document).ready(function() {
-            $('#size').select2({
+            formatPrice($(".battery-priceretail"));
+            formatPrice($(".battery-pricenet"));
+        });
+    </script>
+
+    {{-- Select2 Configurations --}}
+    <script>
+        $(document).ready(function() {
+            $('#battery-size').select2({
                 placeholder: "Enter battery size category"
             });
 
-            $("#size").on("select2:select", function(e) {
-                // Empty all current items in list.
-                $('#list-battery').empty();
-
+            $("#battery-size").on("select2:select", function(e) {
                 // Get selected size category.
                 let sizeId = e.params.data.id;
+                let name = $("#battery-name").val();
 
                 // Show the list of batteries of the selected size category.
-                $.ajax({
-                    url: "/battery/get/size/" + sizeId,
-                    success: function(data) {
-                        selectedBatteries = [];
-                        shownBatteries = [];
-
-                        data.forEach(battery => {
-                            // Make the list item for battery.
-                            let item = document.createElement('li');
-                            item.className = 'list-group-item';
-                            item.innerHTML = battery.name;
-
-                            item.onclick = function() {
-                                if ($(this).hasClass("active")) {
-                                    $(this).removeClass("active");
-
-                                    // Remove battery from selected battery.
-                                    const index = selectedBatteries.indexOf(
-                                        battery);
-                                    if (index > -1)
-                                        selectedBatteries.splice(index, 1);
-                                } else {
-                                    $(this).addClass("active");
-
-                                    // Append battery to selected battery.
-                                    selectedBatteries.push(battery);
-                                }
-                            };
-
-                            // Append the created list item into list.
-                            $("#list-battery").append(item);
-
-                            // Push battery info to shownBatteries.
-                            shownBatteries.push(battery);
-                        });
-                    }
-                });
+                searchAndShowBattery(sizeId, name);
             });
         });
     </script>
@@ -353,30 +315,31 @@
     {{-- Modal Handler --}}
     <script>
         $('#battery-modal').on('shown.bs.modal', function() {
-            $("#size").val(null).trigger('change');
+            $("#battery-size").val(null).trigger('change');
+            $("#battery-name").val('');
             $('#list-battery').empty();
         });
     </script>
 
     {{-- Change Event Handler --}}
-    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.ecmas.min.js') }}" defer></script>
     <script>
-        $(document).on("change", ".toggle-discount", function() {
-            let id = $(this).attr("id");
-            let parts = id.split('-');
-            let counter = parts[parts.length - 1];
-
-            if ($(this).prop('checked')) {
-                $("#battery-discountprice-" + counter).removeClass("d-none");
-                $("#battery-discountpercentage-" + counter).addClass("d-none");
-            } else {
-                $("#battery-discountprice-" + counter).addClass("d-none");
-                $("#battery-discountpercentage-" + counter).removeClass("d-none");
-            }
-        });
-
         $(document).ready(function() {
-            $(".battery-discount, .battery-pricenet").on("change", function() {
+            $("#unlimited-period").on("change", function() {
+                if ($(this).is(':checked')) {
+                    $("#period-end").val('');
+                } else {
+                    let date = new Date();
+                    let day = ("0" + date.getDate()).slice(-2);
+                    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    $("#period-end").val(date.getFullYear() + "-" + (month) + "-" + (day));
+                }
+            });
+
+            $("#period-end").on("change", function() {
+                $("#unlimited-period").prop('checked', false);
+            });
+
+            $(".battery-discount").on("change keyup", function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
                 if (isNaN(value)) {
@@ -394,7 +357,6 @@
     </script>
 
     {{-- Click Event Handler --}}
-    <script src="{{ asset('plugins/bootstrap5-toggle/js/bootstrap5-toggle.jquery.min.js') }}" defer></script>
     <script>
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
@@ -410,21 +372,7 @@
                 });
             });
 
-            $("#btn-apply-price").on('click', function() {
-                $(".battery-pricenet").val($("#battery-pricenet-all").val());
-
-                // Calculate the discount based on applied price.
-                $(".battery-discount").each(function() {
-                    let element = $(this);
-                    let id = element.attr("id");
-                    let parts = id.split('-');
-                    let counter = parts[parts.length - 1];
-                    calculatePriceDiscount(counter, false);
-                });
-            });
-
             $("#btn-all-modal").on('click', function() {
-                //
                 $(".list-group-item").each(function() {
                     $(this).addClass("active");
                     selectedBatteries = shownBatteries;
@@ -487,12 +435,18 @@
         });
     </script>
 
-    {{-- Starter Functions --}}
+    {{-- Keyup Event Handler --}}
     <script>
         $(document).ready(function() {
-            formatPrice($(".battery-priceretail"));
-            formatPrice($(".battery-pricenet"));
-        })
+            $("#battery-name").on("keyup", function() {
+                // 
+                let name = $(this).val();
+                let sizeId = $("#battery-size").val();
+
+                // Show the list of batteries of the selected size category.
+                searchAndShowBattery(sizeId, name);
+            });
+        });
     </script>
 
     {{-- JS Functions --}}
@@ -514,6 +468,71 @@
                 $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail * 100)));
 
             formatPrice($(".battery-pricenet"));
+        }
+
+        /**
+         * Search and show the list of batteries based on size category and name.
+         * 
+         * @param {number} sizeCategoryId - The id of selected size category.
+         * @param {string} name - The keyword of battery name.
+         */
+        function searchAndShowBattery(sizeCategoryId, name) {
+            // Empty all current items in list.
+            $('#list-battery').empty();
+
+            $.ajax({
+                url: "/battery/get/size",
+                method: "post",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    sizeId: sizeCategoryId,
+                    name: name
+                },
+                success: function(data) {
+                    selectedBatteries = [];
+                    shownBatteries = [];
+
+                    // If there is at least one battery to display, show the list group.
+                    // Otherwise, show the 'No batteries found' container.
+                    if (data.length > 0) {
+                        $("#list-battery").removeClass("d-none");
+                        $("#list-battery-none").addClass("d-none");
+
+                        data.forEach(battery => {
+                            // Make the list item for battery.
+                            let item = document.createElement('li');
+                            item.className = 'list-group-item list-group-item-action';
+                            item.innerHTML = battery.name;
+
+                            item.onclick = function() {
+                                if ($(this).hasClass("active")) {
+                                    $(this).removeClass("active");
+
+                                    // Remove battery from selected battery.
+                                    const index = selectedBatteries.indexOf(
+                                        battery);
+                                    if (index > -1)
+                                        selectedBatteries.splice(index, 1);
+                                } else {
+                                    $(this).addClass("active");
+
+                                    // Append battery to selected battery.
+                                    selectedBatteries.push(battery);
+                                }
+                            };
+
+                            // Append the created list item into list.
+                            $("#list-battery").append(item);
+
+                            // Push battery info to shownBatteries.
+                            shownBatteries.push(battery);
+                        });
+                    } else {
+                        $("#list-battery").addClass("d-none");
+                        $("#list-battery-none").removeClass("d-none");
+                    }
+                }
+            });
         }
     </script>
 @endsection

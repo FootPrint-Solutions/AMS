@@ -19,14 +19,29 @@ use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Settings\MessageTemplateModel;
 use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
+use App\Models\Settings\PaymentMethodModel;
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
+use Faker\Provider\ar_EG\Payment;
 
 class QuickQuotation extends Controller
 {
     public function index(Request $request)
     {
         $request->session()->put('invoice', SalesOrderModel::newCode());
+        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->get()->toArray();
+
+        $datalatlong = [];
+        foreach ($Distibutor as $key => $value) {
+            $datalatlong[] = [
+                'latitude' => $value['latitude'],
+                'longitude' => $value['longitude'],
+                'name' => $value['name'],
+                'address' => $value['address'],
+                'contact' => $value['contact'],
+                'id' => $value['id']
+            ];
+        }
 
         return view(
             'Orders.QuickQuotation.index',
@@ -35,7 +50,8 @@ class QuickQuotation extends Controller
                 3,
                 5,
                 array(
-                    'Vehicle' => VehicleModel::all()->toArray()
+                    'Vehicle' => VehicleModel::all()->toArray(),
+                    'datalatlong ' => $datalatlong,
                 )
             )
         );
@@ -168,7 +184,13 @@ $arrayVehicle";
         $url = "http://185.199.52.172:5001/send-image";
         $ids = $request->input('Battery');
         $Fullname = $request->input('FullName');
-        $results = BatteryModel::where('id', $ids)->get()->toArray();
+        // $results = BatteryModel::where('id', $ids)->get()->toArray();
+
+        $results = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
+            ->where('batteries.id', $ids)
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->get()
+            ->toArray();
 
         if ($results == null) {
             return getResponseData(false, "Battery not found");
@@ -180,7 +202,13 @@ $arrayVehicle";
                 $arrayBattery .= "*Kapasitas* : " . $value['capacity'] . " AH\r\n";
                 $arrayBattery .= "*CCA* : " . $value['standard_cca'] . " A\r\n";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
-                $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                if ($value['discount'] != 0) {
+                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r";
+                    $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_net'], 0, "", ".") . "\r";
+                } else {
+                    $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                }
+
 
 
                 $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'product_recommendation')->first()->toArray();
@@ -255,7 +283,7 @@ $arrayBattery
         } else {
             $distributorChecked = "";
             $distributorTechnician = "";
-            $BatteryData = BatteryModel::whereIn('id', $request->input('Battery'))->get();
+            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
         }
         $tax = TaxModel::where('status', '1')->first()->percentage;
 
@@ -296,17 +324,24 @@ $arrayBattery
         $tax = $request->input('tax') ?? 0;
         $Discount = $request->input('DiscountPercentage') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+        $GrossPrice = $request->input('GrossPrice');
+        $NetPrice = $request->input('NetPrice');
+        $DiscountRow = $request->input('DiscountRow');
+        $SubtotalRow = $request->input('SubtotalRow');
+        $PaymentMethod = PaymentMethodModel::all()->toArray();
         if ($request->input('DistributorShopId') != null) {
             $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
             $dataProduct = [];
-            foreach ($BatteryData as $key => $value) {
+            foreach ($BatteryNameTabel as $key => $value) {
                 $dataProduct[] = [
-                    'name' => $value->name,
+                    'name' => $value,
                     'qty' => $QtyTabel[$key],
-                    'price' => $value->price_retail,
-                    'link' => $Link[$key],
-                    'platform' => $Platform[$key]
+                    'price' => $GrossPrice[$key],
+                    'link' => '',
+                    'DiscountRow' => $DiscountRow[$key],
+                    'NetPrice' => $NetPrice[$key],
+                    'SubtotalRow' => $SubtotalRow[$key]
                 ];
             }
         } else {
@@ -316,8 +351,11 @@ $arrayBattery
                 $dataProduct[] = [
                     'name' => $value,
                     'qty' => $QtyTabel[$key],
-                    'price' => $PriceTabel[$key],
-                    'link' => ''
+                    'price' => $GrossPrice[$key],
+                    'link' => '',
+                    'DiscountRow' => $DiscountRow[$key],
+                    'NetPrice' => $NetPrice[$key],
+                    'SubtotalRow' => $SubtotalRow[$key]
                 ];
             }
         }
@@ -342,6 +380,7 @@ $arrayBattery
             'ExtraDiscount' => $ExtraDiscount,
             'DistributorShop' => $DistibutorShop,
             'Subtotal' => $request->input('subtotal') ?? 0,
+            'PaymentMethod' => $PaymentMethod,
         ];
 
         $midtrans = new CreateSnapTokenService($InvoiceNumber);
@@ -356,16 +395,26 @@ $arrayBattery
     {
         $batteryIds = $request->input('Battery');
         $Fullname = $request->input('FullName');
-        $batteries = BatteryModel::whereIn('id', $batteryIds)->get();
+        $batteries = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
+            ->whereIn('batteries.id', $batteryIds)
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->get();
+
+
 
         $arrayBattery = "";
         foreach ($batteries as $battery) {
+            if ($battery->price_net != 0) {
+                $price_net = $battery->price_net;
+            } else {
+                $price_net = $battery->price_retail_original;
+            }
             $arrayBattery .= "*Nama* : " . $battery->name . "\r";
             $arrayBattery .= "*Dimensi* : " . $battery->dimension_length . " x " . $battery->dimension_width . " x " . $battery->dimension_height . " cm\r";
             $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
             $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
-            $arrayBattery .= "*Harga* : Rp. " . number_format($battery->price_retail, 0, "", ".") . "\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($price_net, 0, "", ".") . "\r";
             $arrayBattery .= "\r";
         }
 
@@ -433,14 +482,14 @@ $arrayBattery
         $content_message .= "*DETAIL PEMBELI*";
         $content_message .= "\r\n";
         $content_message .= "```> Nama : " . $FullName . "\r\n```";
-        $content_message .= "```> Telp : " . $ContactNumber . "\r\n```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r\n```";
         $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
         $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
         $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
 
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
-            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "Item " . $no++ . "\r\n";
             $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
@@ -448,8 +497,8 @@ $arrayBattery
 
         $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n```";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -496,6 +545,24 @@ $arrayBattery
         $IsMidtrans = $request->input('IsMidtrans');
         $InvoiceNumber = $request->input('InvoiceNumber');
         $PaymentLinks = $request->input('links');
+        $latitude = $request->input('Latitude');
+        $longitude = $request->input('Longitude');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $Tax = $request->input('Tax') ?? 0;
+        $PaymentMethod = $request->input('PaymentMethod');
+        $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            if ($key == count($VehicleCustomer) - 1) {
+                $arrayVehicle .= "" . $value;
+            } else {
+                $arrayVehicle .= "" . $value . ",";
+            }
+        }
+        $Subtotal = $request->input('Subtotal');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
 
@@ -511,21 +578,51 @@ $arrayBattery
             $TemplateMessagePersonalDetails['closing_message']
         );
 
-        if ($IsMidtrans == "midtrans") {
-            $content_message = "";
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl .  $latitude . "," . $longitude;
+        $no = 1;
+        $content_message = "";
+        $content_message .= "*DETAIL PEMBELI*";
+        $content_message .= "\r\n";
+        $content_message .= "```> Nama : " . $FullName . "\r\n```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r\n```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
+        $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
+
+        foreach ($Battery as $item) {
+            $item['price'] = str_replace(".", "", $item['price']);
+            $content_message .= "Item " . $no++ . "\r\n";
+            $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+
+        $content_message .= "*PERHITUNGAN TOTAL* \r\n";
+        $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
+        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
+        $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
+        $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
+
+        $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
+
+        if ($PaymentMethodData['id'] == 1) {
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
             $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
             foreach ($PaymentLinks as $link) {
                 $content_message .= "*$link*\r\n";
             }
         } else {
-            $content_message = "";
+            // $content_message = "";
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
-            foreach ($Battery as $index => $item) {
-                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
-                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
-                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
-            }
+            $content_message .= "Metode Pembayaran : *" . $PaymentMethodData['name'] . "*\r\n";
+            // foreach ($Battery as $index => $item) {
+            //     $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+            //     $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            //     $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            // }
         }
 
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
@@ -567,13 +664,15 @@ $arrayBattery
         $status = "Pending";
         $DiscountRupiah = $request->input('DiscountRupiah');
         $DiscountPercentage = $request->input('DiscountPercentage');
+        $PaymentMethod = $request->input('PaymentMethod');
+        $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
 
-        if ($request->input('CheckMidtrans') == 1) {
+        if ($PaymentMethodData['id'] == 1) {
             $payment_methode = "midtrans";
             $midtransInvoice = $request->input('invoiceNumber');
-            $midtransPaymentLink = $request->input('paymentLink');
+            $midtransPaymentLink = $request->input('linkMidtrans');
         } else {
-            $payment_methode = "tokopedia";
+            $payment_methode = $PaymentMethodData['name'];
         }
 
 
@@ -599,15 +698,6 @@ $arrayBattery
         if ($request->input('DistributorShopId') != null) {
             $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
-
-            $link = $request->input('linkPayment');
-            // update link to databse 
-            foreach ($link as $key => $value) {
-                $data = [
-                    'url' => $value
-                ];
-                DistributorShopBatteryModel::where('distributor_shop_id', $request->input('DistributorShopId'))->where('battery_id', $request->input('Battery')[$key])->update($data);
-            }
         } else {
             $DistributorShop = null;
         }
@@ -623,7 +713,7 @@ $arrayBattery
             'tax_price' => $tax_price,
             'discount' => $DiscountPercentage,
             'discount_price' => $DiscountRupiah,
-            'payment_methode' => $payment_methode,
+            'payment_method_id' => $PaymentMethodData['id'],
             'midtrans_invoice' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
             'status' => $status,
@@ -635,38 +725,32 @@ $arrayBattery
 
         $Quotation = SalesOrderModel::create($data);
 
-        if ($request->input('DistributorShopId') != null) {
-            $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
-            $dataProduct = [];
-            foreach ($BatteryData as $key => $value) {
-                for ($i = 0; $i <  $request->input('QtyTabel')[$key]; $i++) {
-                    $dataProduct[] = [
-                        'sales_order_id' => $Quotation->id,
-                        // 'quotation_id' => $Quotation->id,
-                        'battery_id' => $value->id,
-                        'battery_name' => $value->name,
-                        // 'quantity' => 1,
-                        'battery_price' => str_replace(".", "", $value->price_retail),
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
-                    ];
+
+        $dataProduct = [];
+        foreach ($request->input('BatteryNameTabel') as $key => $value) {
+            for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
+                if ($request->input('DiscountPayment')[$key] != 0) {
+                    $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                    $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                    $Discount = $request->input('DiscountPayment')[$key];
+                    $Subtotal = $request->input('SubtotalPayment')[$key];
+                } else {
+                    $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                    $NetPrice = 0;
+                    $Discount = 0;
+                    $Subtotal = $request->input('SubtotalPayment')[$key];
                 }
-            }
-        } else {
-            $dataProduct = [];
-            foreach ($request->input('BatteryNameTabel') as $key => $value) {
-                for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
-                    $dataProduct[] = [
-                        'sales_order_id' => $Quotation->id,
-                        // 'quotation_id' => $Quotation->id,
-                        'battery_id' => $request->input('Battery')[$key],
-                        'battery_name' => $value,
-                        // 'quantity' => 1,
-                        'battery_price' => str_replace(".", "", $request->input('PriceTabel')[$key]),
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
-                    ];
-                }
+                $dataProduct[] = [
+                    'sales_order_id' => $Quotation->id,
+                    'battery_id' => $request->input('Battery')[$key],
+                    'battery_name' => $value,
+                    'battery_price_retail' => $GrossPrice,
+                    'discount' => $Discount,
+                    'price_net' => $NetPrice,
+                    'quantity' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
             }
         }
 
@@ -763,14 +847,14 @@ $arrayVehicle
         $content_message .= "*DETAIL PEMBELI*";
         $content_message .= "\r";
         $content_message .= "```> Nama : " . $FullName . "\r```";
-        $content_message .= "```> Telp : " . $ContactNumber . "\r```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r```";
         $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r```";
         $content_message .= "```> Mobl : " . $arrayVehicle . "\r```";
         $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
 
         foreach ($Battery as $item) {
             $item['price'] = str_replace(".", "", $item['price']);
-            $content_message .= "🔋 Battery " . $no++ . "\r\n";
+            $content_message .= "Item " . $no++ . "\r\n";
             $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
             $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
             $content_message .= "*Harga* : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
@@ -778,8 +862,8 @@ $arrayVehicle
 
         $content_message .= "*PERHITUNGAN TOTAL* \r";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        // $content_message .= "```> Disc : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -802,7 +886,25 @@ $arrayVehicle
         $Battery = $request->input('Battery');
         $IsMidtrans = $request->input('IsMidtrans');
         $InvoiceNumber = $request->input('InvoiceNumber');
-        $PaymentLinks = $request->input('Links');
+        $PaymentLinks = $request->input('links');
+        $latitude = $request->input('Latitude');
+        $longitude = $request->input('Longitude');
+        $ContactNumber = $request->input('ContactNumber');
+        $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
+        $Tax = $request->input('Tax') ?? 0;
+        $PaymentMethod = $request->input('PaymentMethod');
+        $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
+        $arrayVehicle = "";
+        foreach ($VehicleCustomer as $key => $value) {
+            if ($key == count($VehicleCustomer) - 1) {
+                $arrayVehicle .= "" . $value;
+            } else {
+                $arrayVehicle .= "" . $value . ",";
+            }
+        }
+        $Subtotal = $request->input('Subtotal');
+        $Discount = $request->input('Discount');
+        $TotalAmount = $request->input('TotalAmount');
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
 
@@ -818,21 +920,51 @@ $arrayVehicle
             $TemplateMessagePersonalDetails['closing_message']
         );
 
-        if ($IsMidtrans == "midtrans") {
-            $content_message = "";
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl .  $latitude . "," . $longitude;
+        $no = 1;
+        $content_message = "";
+        $content_message .= "*DETAIL PEMBELI*";
+        $content_message .= "\r\n";
+        $content_message .= "```> Nama : " . $FullName . "\r\n```";
+        $content_message .= "```> Telp : 62" . $ContactNumber . "\r\n```";
+        $content_message .= "```> Almt : " . $request->input('AddressCustomer') . "\r\n```";
+        $content_message .= "```> Mobl : " . $arrayVehicle . "\r\n```";
+        $content_message .= "```> Maps : " . $mapsUrl  . "\r\n\n```";
+
+        foreach ($Battery as $item) {
+            $item['price'] = str_replace(".", "", $item['price']);
+            $content_message .= "Item " . $no++ . "\r\n";
+            $content_message .= "*Nama*       : " . $item['batteryName'] . "\r\n";
+            $content_message .= "*Kuantitas* : " . $item['quantity'] . "\r\n";
+            $content_message .= "*Harga*      : Rp. " . number_format($item['price'], 0, "", ".") . "\r\n\r\n";
+        }
+
+        $content_message .= "*PERHITUNGAN TOTAL* \r\n";
+        $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
+        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
+        $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
+        $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
+
+        $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
+
+        if ($PaymentMethodData['id'] == 1) {
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+            $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
             $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
             foreach ($PaymentLinks as $link) {
                 $content_message .= "*$link*\r\n";
             }
         } else {
-            $content_message = "";
+            // $content_message = "";
             $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
-            foreach ($Battery as $index => $item) {
-                $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
-                $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
-                $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
-            }
+            $content_message .= "Metode Pembayaran : *" . $PaymentMethodData['name'] . "*\r\n";
+            // foreach ($Battery as $index => $item) {
+            //     $content_message .= "🔋 Battery " . ($index + 1) . "\r\n";
+            //     $content_message .= "*Nama* : " . $item['batteryName'] . "\r\n";
+            //     $content_message .= "*Link Pembayaran* : " . $PaymentLinks[$index] . "\r\n\r\n";
+            // }
         }
 
         $message  = $opening_message . "\n" . $content_message . "\n" . $closing_message;
@@ -852,8 +984,9 @@ $arrayVehicle
         $query = $request->input('input');
         $results = BatteryModel::whereIn('batteries.id', $request->input('Battery'))
             ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
             ->orderBy('batteries.name', 'asc')
-            ->select('batteries.*', 'battery_size_categories.name as size_category')
+            ->select('batteries.*', 'battery_size_categories.name as size_category', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount')
             ->limit(10)
             ->get();
         return response()->json($results);
@@ -876,6 +1009,19 @@ $arrayVehicle
     {
         $query = $request->input('input');
         $results = DistributorShopModel::get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBattery(Request $request)
+    {
+        $query = $request->input('query');
+        // $results = BatteryModel::where('name', 'like', '%' . $query . '%')->limit(10)->get();
+        $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->orderBy('batteries.name', 'asc')
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->limit(10)
+            ->get();
         return response()->json($results);
     }
 }

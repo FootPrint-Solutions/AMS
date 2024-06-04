@@ -29,11 +29,12 @@
 <script>
     $("#btnCopyOrderDetail").on("click", function() {
         var FullName = $("#FullName").val();
+        var ContactNumber = $("#ContactNumber").val();
         var Battery = [];
         $(".add-table-items tbody tr").each(function() {
             var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
             var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-            var price = $(this).find("input[name='PriceCheckout[]']").val();
+            var price = $(this).find("input[name='SubtotalRow[]']").val();
             Battery.push({
                 batteryName: batteryName,
                 quantity: quantity,
@@ -51,6 +52,7 @@
 
         var data = {
             FullName: FullName,
+            ContactNumber: ContactNumber,
             Battery: Battery,
             Subtotal: subtotal,
             Tax: tax,
@@ -86,5 +88,89 @@
                 swal.fire("Error!", error, "error");
             }
         });
+    });
+
+    $(document).on('click', '.remove-row', function() {
+        $(this).closest('tr').remove();
+    });
+
+    // button add row 
+    $(document).on('click', '.add-row', function() {
+        var html = '';
+        html += '<tr>';
+        html +=
+            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
+        html +=
+            '<td><input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout" value="1"></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="GrossPrice[]" id="GrossPrice" class="form-control GrossPrice text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="DiscountRow[]" id="DiscountRow" class="form-control DiscountRow text-end" value=""></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="NetPrice[]" id="NetPrice" class="form-control NetPrice text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="SubtotalRow[]" id="SubtotalRow" class="form-control SubtotalRow text-end" value="" disabled></div></td>';
+        html +=
+            '<td><button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button></td>';
+        html += '</tr>';
+        $('.add-table-items tbody').append(html);
+    });
+
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // autocomplete battery
+    $(document).on('keyup', '.BatteryNameCheckout', function() {
+        var query = $(this).val();
+        var row = $(this).closest('tr'); // Mendapatkan baris yang sedang diubah
+        if (query != '') {
+            $.ajax({
+                url: "/quotation/battery/autoComplete",
+                method: "GET",
+                data: {
+                    query: query
+                },
+                success: function(data) {
+                    var suggestions = '';
+                    data.forEach(function(battery) {
+                        if (battery.discount == 0) {
+                            battery.discount = 0;
+                            battery.price_net = battery.price_retail_original;
+                        }
+                        suggestions += '<div class="suggestion-item" data-id="' + battery
+                            .id + '" data-name="' + battery.name + '" data-price-retail="' +
+                            formatNumber(battery.price_retail) + '" data-discount="' +
+                            battery.discount +
+                            '" data-price-net="' + formatNumber(battery.price_net) +
+                            '" data-id="' + formatNumber(battery.id) + '">' +
+                            battery.name +
+                            '</div>';
+                    });
+                    row.find('#showAutoCompleteBattery').html(suggestions).show();
+                }
+            });
+        } else {
+            row.find('#showAutoCompleteBattery').hide();
+        }
+    });
+
+    $(document).on('click', '.suggestion-item', function() {
+        var row = $(this).closest('tr');
+        var batteryName = $(this).data('name');
+        var priceRetail = $(this).data('price-retail');
+        var discount = $(this).data('discount');
+        var priceNet = $(this).data('price-net');
+        var subtotal = $(this).data('price-net');
+        var batteryId = $(this).data('id');
+
+        row.find('.BatteryNameCheckout').val(batteryName);
+        row.find('.GrossPrice').val(priceRetail);
+        row.find('.DiscountRow').val(discount);
+        row.find('.NetPrice').val(priceNet);
+        row.find('.SubtotalRow').val(subtotal);
+        row.find('.BatteryIdCheckout').val(batteryId);
+
+        row.find('#showAutoCompleteBattery').hide();
     });
 </script>
