@@ -89,7 +89,7 @@
                         }
 
                         // Download invoice as pdf.
-                        downloadPDF("/sales-order/invoice/" + selectedRows[0][9]);
+                        downloadPDF("/sales-order/invoice/" + selectedRows[0][10]);
                     },
                     className: "btn btn-outline-secondary btn-sm",
                 }, {
@@ -109,7 +109,7 @@
                         }
 
                         // Redirect to create work order page.
-                        createworkorder("/sales-order/work-order/" + selectedRows[0][9]);
+                        createworkorder("/sales-order/work-order/" + selectedRows[0][10]);
                     },
                     className: "btn btn-outline-warning btn-sm",
                 }]),
