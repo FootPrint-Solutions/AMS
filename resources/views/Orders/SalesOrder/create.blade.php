@@ -120,8 +120,8 @@
                     {{-- Email --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="contact">Customer E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email"
+                            <label for="customer-email">Customer E-mail</label>
+                            <input type="email" class="form-control" id="customer-email" name="customeremail"
                                 placeholder="Enter customer e-mail">
                         </div>
                     </div>
