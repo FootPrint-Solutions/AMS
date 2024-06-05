@@ -112,34 +112,46 @@
                         html += '<div class="blog-content">';
                         html += '<h3 class="blog-title mt-3 "><a href="#!">' + vehicle.name +
                             '</a></h3>';
-                        html += '<p>Details & Specification :</p>';
+                        html += '<p>Detail & Spesifikasi :</p>';
                         html += '<ul class="list-group list-group-flush">';
-                        html += '<li class="list-group-item">Dimension : ' + vehicle
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Dimensi  </div><div class="col-xl-1"> :</div><div class="col">' +
+                            vehicle
                             .dimension_height + ' x ' + vehicle.dimension_width + ' x ' + vehicle
-                            .dimension_length + ' mm</li>';
-                        html += '<li class="list-group-item">Capacity : ' + vehicle.capacity +
-                            ' AH</li>';
-                        html += '<li class="list-group-item">Standar CCA : ' + vehicle
-                            .standard_cca + '</li>';
-                        html += '<li class="list-group-item">Warranty : ' + vehicle.warranty +
-                            ' Months</li>';
-                        html += '<li class="list-group-item">Size : ' + vehicle.size_category +
-                            '</li>';
+                            .dimension_length + ' mm</div></div></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Kapasitas </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.capacity +
+                            ' AH</div></div></li></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Standar CCA </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle
+                            .standard_cca + '</div></div></li>'
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Garansi </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.warranty +
+                            ' Bulan</div></div></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Ukuran </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.size_category +
+                            '</div></div></li>';
                         if (vehicle.discount == 0) {
-                            html += '<li class="list-group-item">Price : Rp. ' +
+                            html +=
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number(vehicle
                                     .price_retail).toLocaleString('id-ID') +
-                                '</li>';
+                                '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
                             html +=
-                                '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
                                 Number(vehicle.price_retail_original).toLocaleString('id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
-                                Number(vehicle.discount) + ' %</span> </span></li>';
+                                Number(vehicle.discount) + ' %</span> </span></div></div></li>';
                             html +=
-                                '<li class="list-group-item">Price After Discount : <span class="price-discount">Rp. ' +
-                                Number(vehicle.price_net).toLocaleString('id-ID') + '</span></li>';
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net </div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
+                                Number(vehicle.price_net).toLocaleString('id-ID') +
+                                '</span></div></div></li>';
                         }
                         html += '</ul>';
                         html += '</div>';
@@ -276,36 +288,49 @@
                         html +=
                             '<h3 class="blog-title mt-3"><a href="#!">' +
                             vehicle.name + '</a></h3>';
-                        html += '<p>Details & Specification :</p>';
+                        html += '<p>Detail & Spesifikasi :</p>';
                         html += '<ul class="list-group list-group-flush">';
-                        html += '<li class="list-group-item">Dimension : ' +
-                            vehicle.dimension_height + ' x ' + vehicle.dimension_width +
-                            ' x ' + vehicle.dimension_length + ' mm</li>';
-                        html += '<li class="list-group-item">Capacity : ' +
-                            vehicle.capacity + ' AH</li>';
-                        html += '<li class="list-group-item">Standar CCA : ' +
-                            vehicle.standard_cca + '</li>';
-                        html += '<li class="list-group-item">Warranty : ' +
-                            vehicle.warranty + ' Months</li>';
-                        html += '<li class="list-group-item">Size : ' +
-                            vehicle.size_category + '</li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Dimensi  </div><div class="col-xl-1"> :</div><div class="col">' +
+                            vehicle
+                            .dimension_height + ' x ' + vehicle.dimension_width + ' x ' +
+                            vehicle
+                            .dimension_length + ' mm</div></div></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Kapasitas </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.capacity +
+                            ' AH</div></div></li></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Standar CCA </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle
+                            .standard_cca + '</div></div></li>'
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Garansi </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.warranty +
+                            ' Bulan</div></div></li>';
+                        html +=
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Ukuran </div><div class="col-xl-1"> : </div><div class="col">' +
+                            vehicle.size_category +
+                            '</div></div></li>';
                         if (vehicle.discount == 0) {
-                            html += '<li class="list-group-item">Price : Rp. ' +
+                            html +=
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number(vehicle
                                     .price_retail).toLocaleString('id-ID') +
-                                '</li>';
+                                '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
                             html +=
-                                '<li class="list-group-item">Price : <span class="price-original position-relative">Rp. ' +
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
                                 Number(vehicle.price_retail_original).toLocaleString(
                                     'id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
-                                Number(vehicle.discount) + ' %</span> </span></li>';
+                                Number(vehicle.discount) +
+                                ' %</span> </span></div></div></li>';
                             html +=
-                                '<li class="list-group-item">Price After Discount : <span class="price-discount">Rp. ' +
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net </div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
                                 Number(vehicle.price_net).toLocaleString('id-ID') +
-                                '</span></li>';
+                                '</span></div></div></li>';
                         }
                         html += '</ul>';
                         html +=
