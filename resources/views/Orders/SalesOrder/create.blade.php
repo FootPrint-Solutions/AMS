@@ -56,10 +56,7 @@
                         @endisset>
                         </div>
                     </div>
-                </div>
 
-                {{-- Customer, Distributor Shop & Technician --}}
-                <div class="row">
                     {{-- Customer --}}
                     <div class="col">
                         <div class="row">
@@ -93,12 +90,29 @@
                             value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
                             readonly>
                     </div>
+                </div>
+
+                {{-- Customer, Distributor Shop & Technician --}}
+                <div class="row">
+                    {{-- Vehicle --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="vehicle">Vehicle <span class="login-danger">*</span></label>
+                            <select class="form-control" id="vehicle" name="vehicle" required>
+                                <option></option>
+                                @foreach ($data['vehicles'] as $vehicle)
+                                    <option value="{{ $vehicle['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_id'] == $vehicle['id']) selected @endif>
+                                        {{ $vehicle['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
 
                     {{-- Distributor Shop --}}
                     <div class="col">
                         <div class="form-group local-forms">
-                            <label for="shop">Shop</label>
-                            <select class="form-control" id="shop" name="shop">
+                            <label for="shop">Shop <span class="login-danger">*</span></label>
+                            <select class="form-control" id="shop" name="shop" required>
                                 <option></option>
                                 @foreach ($data['shops'] as $shop)
                                     <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
@@ -410,6 +424,10 @@
         $(document).ready(function() {
             $('#customer').select2({
                 placeholder: "Enter customer"
+            });
+
+            $('#vehicle').select2({
+                placeholder: "Enter vehicle"
             });
 
             $('#shop').select2({

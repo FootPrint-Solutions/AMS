@@ -16,6 +16,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 
@@ -58,6 +59,7 @@ class SalesOrder extends Controller
                 array(
                     "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
+                    "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
@@ -82,6 +84,7 @@ class SalesOrder extends Controller
                 array(
                     "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
+                    "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
                 )
@@ -144,6 +147,7 @@ class SalesOrder extends Controller
             $row[] = $key->sales_order_number;
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name;
+            $row[] = $key->vehicle_name;
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
@@ -177,6 +181,7 @@ class SalesOrder extends Controller
             $salesOrder->sales_order_number = $request->salesordernumber;
             $salesOrder->date = $request->date;
             $salesOrder->customer_id = $request->customer;
+            $salesOrder->vehicle_id = $request->vehicle;
             $salesOrder->address = $request->Address;
             $salesOrder->latitude = $request->Latitude;
             $salesOrder->longitude = $request->Longitude;
@@ -242,6 +247,7 @@ class SalesOrder extends Controller
             $salesOrder = SalesOrderModel::find($request->id);
             $salesOrder->date = $request->date;
             $salesOrder->customer_id = $request->customer;
+            $salesOrder->vehicle_id = $request->vehicle;
             $salesOrder->address = $request->Address;
             $salesOrder->latitude = $request->Latitude;
             $salesOrder->longitude = $request->Longitude;

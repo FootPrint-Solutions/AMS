@@ -19,6 +19,7 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Orders\WorkOrder\WorkOrderBatteryModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class SalesOrderModel extends Model implements Auditable
 {
@@ -40,6 +41,7 @@ class SalesOrderModel extends Model implements Auditable
         'sales_order_number',
         'date',
         'customer_id',
+        'vehicle_id',
         'distributor_shop_id',
         'distributor_shop_technician_id',
         'tax',
@@ -92,6 +94,23 @@ class SalesOrderModel extends Model implements Auditable
     }
 
     /**
+     * Get the distributor shop has many sales order.
+     */
+    public function distributorShop(): BelongsTo
+    {
+        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id");
+    }
+
+    /**
+     * Get the vehicle has many sales order.
+     */
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(VehicleModel::class, "vehicle_id");
+    }
+
+
+    /**
      * 
      */
     public static function newCode()
@@ -137,6 +156,7 @@ class SalesOrderModel extends Model implements Auditable
         $selectColumns = [
             'sales_orders.*',
             'customers.name AS customer_name',
+            'vehicles.name AS vehicle_name',
             'shops.name AS shop_name',
             'distributors.id AS distributor_id',
             'distributors.name AS distributor_name',
@@ -148,6 +168,7 @@ class SalesOrderModel extends Model implements Auditable
         // Build the query to obtain all rows.
         $query = self::query();
         $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
+        $query->leftJoin("vehicles", "sales_orders.vehicle_id", "=", "vehicles.id");
         $query->leftJoin("distributor_shops AS shops", "sales_orders.distributor_shop_id", "=", "shops.id");
         $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");

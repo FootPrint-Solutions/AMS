@@ -666,6 +666,7 @@ $arrayBattery
         $DiscountPercentage = $request->input('DiscountPercentage');
         $PaymentMethod = $request->input('PaymentMethod');
         $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
+        $VehicleCustomer = $request->input('VehicleCustomer');
 
         if ($PaymentMethodData['id'] == 1) {
             $payment_methode = "midtrans";
@@ -705,6 +706,7 @@ $arrayBattery
         $data = [
             'sales_order_number' => $request->session()->get('invoice', SalesOrderModel::newCode()),
             'customer_id' => $Customer->id,
+            'vehicle_id' => $VehicleCustomer[0],
             'distributor_shop_id' => $DistributorShop->id ?? null,
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
             'subtotal' => $subtotal,

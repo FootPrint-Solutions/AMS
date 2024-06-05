@@ -89,7 +89,8 @@ class WorkOrderModel extends Model implements Auditable
 
     public function salesOrder()
     {
-        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id')
+            ->with('distributorShop', 'vehicle');
     }
 
     public function customer()
@@ -147,5 +148,13 @@ class WorkOrderModel extends Model implements Auditable
         return self::with('batteries', 'salesOrder', 'customer', 'distributorShop')
             ->where('id', $id)
             ->first();
+    }
+
+    public static function updateImagePath($id, $path)
+    {
+        return self::where('id', $id)
+            ->update([
+                'image' => $path
+            ]);
     }
 }
