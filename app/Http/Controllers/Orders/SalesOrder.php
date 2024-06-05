@@ -180,7 +180,27 @@ class SalesOrder extends Controller
             $salesOrder = new SalesOrderModel();
             $salesOrder->sales_order_number = $request->salesordernumber;
             $salesOrder->date = $request->date;
-            $salesOrder->customer_id = $request->customer;
+
+            if ($request->customer === "new") {
+                // Store the newly added vehicle brand.
+                $customer = new CustomerModel();
+                $customer->name = $request->customername;
+                $customer->contact = $request->customercontact;
+                $customer->email = $request->customeremail;
+                $customer->address = $request->Address;
+                $customer->latitude = $request->Latitude;
+                $customer->longitude = $request->Longitude;
+                $status = $customer->save();
+
+                // Store the list of customers" owned vehicles.
+                $customer->vehicles()->attach($request->customervehicle);
+
+                // Set customer to the newly added customer.
+                $salesOrder->customer_id = $customer->id;
+            } else {
+                $salesOrder->customer_id = $request->customer;
+            }
+
             $salesOrder->vehicle_id = $request->vehicle;
             $salesOrder->address = $request->Address;
             $salesOrder->latitude = $request->Latitude;
@@ -246,14 +266,34 @@ class SalesOrder extends Controller
             // Update sales order data.
             $salesOrder = SalesOrderModel::find($request->id);
             $salesOrder->date = $request->date;
-            $salesOrder->customer_id = $request->customer;
+
+            if ($request->customer === "new") {
+                // Store the newly added vehicle brand.
+                $customer = new CustomerModel();
+                $customer->name = $request->customername;
+                $customer->contact = $request->customercontact;
+                $customer->email = $request->customeremail;
+                $customer->address = $request->Address;
+                $customer->latitude = $request->Latitude;
+                $customer->longitude = $request->Longitude;
+                $status = $customer->save();
+
+                // Store the list of customers" owned vehicles.
+                $customer->vehicles()->attach($request->customervehicle);
+
+                // Set customer to the newly added customer.
+                $salesOrder->customer_id = $customer->id;
+            } else {
+                $salesOrder->customer_id = $request->customer;
+            }
+
             $salesOrder->vehicle_id = $request->vehicle;
             $salesOrder->address = $request->Address;
             $salesOrder->latitude = $request->Latitude;
             $salesOrder->longitude = $request->Longitude;
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
-            $salesOrder->payment_method = $request->paymentmethod;
+            $salesOrder->payment_method_id = $request->paymentmethod;
             $salesOrder->status = $request->status;
             $status = $salesOrder->save();
 

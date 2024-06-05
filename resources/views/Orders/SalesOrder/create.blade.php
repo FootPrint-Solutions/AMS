@@ -70,6 +70,7 @@
                                                 @if (isset($data['profile']) && $data['profile']['customer_id'] == $customer['id']) selected @endif>
                                                 {{ $customer['name'] }}</option>
                                         @endforeach
+                                        <option value="new">Quick add new customer</option>
                                     </select>
                                 </div>
                             </div>
@@ -92,6 +93,54 @@
                     </div>
                 </div>
 
+                {{-- Quick Add --}}
+                <div class="row d-none" id="customer-new-row">
+                    {{-- Name --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="customer-name">Customer Name <span class="login-danger">*</span></label>
+                            <input type="text" class="form-control" id="customer-name" name="customername"
+                                placeholder="Enter customer name">
+                        </div>
+                    </div>
+
+                    {{-- Contact --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="customer-contact">Customer Contact <span class="login-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text border-end country-code">+62</span>
+                                <input type="tel" pattern="[1-9][0-9]{7,}"
+                                    title="At least 8 digits with no leading zero" class="form-control"
+                                    id="customer-contact" name="customercontact" placeholder="Enter customer contact">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Email --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="contact">Customer E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                placeholder="Enter customer e-mail">
+                        </div>
+                    </div>
+
+                    {{-- Owned Vehicles --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="customer-vehicle">Customer Owned Vehicle</label>
+                            <select class="form-control" id="customer-vehicle" name="customervehicle[]" multiple="multiple">
+                                @foreach ($data['vehicles'] as $vehicle)
+                                    <option value="{{ $vehicle['id'] }}">
+                                        {{ $vehicle['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Customer, Distributor Shop & Technician --}}
                 <div class="row">
                     {{-- Vehicle --}}
@@ -101,7 +150,8 @@
                             <select class="form-control" id="vehicle" name="vehicle" required>
                                 <option></option>
                                 @foreach ($data['vehicles'] as $vehicle)
-                                    <option value="{{ $vehicle['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_id'] == $vehicle['id']) selected @endif>
+                                    <option value="{{ $vehicle['id'] }}"
+                                        @if (isset($data['profile']) && $data['profile']['vehicle_id'] == $vehicle['id']) selected @endif>
                                         {{ $vehicle['name'] }}</option>
                                 @endforeach
                             </select>
@@ -424,6 +474,22 @@
         $(document).ready(function() {
             $('#customer').select2({
                 placeholder: "Enter customer"
+            });
+
+            $("#customer").on("select2:select", function(e) {
+                if (e.params.data.id === "new") {
+                    $("#customer-new-row").removeClass('d-none');
+                    $("#customer-name").attr("required", true);
+                    $("#customer-contact").attr("required", true);
+
+                    $('#customer-vehicle').select2({
+                        placeholder: "Enter customer owned vehicle"
+                    });
+                } else {
+                    $("#customer-new-row").addClass('d-none');
+                    $("#customer-name").attr("required", false);
+                    $("#customer-contact").attr("required", false);
+                }
             });
 
             $('#vehicle').select2({
