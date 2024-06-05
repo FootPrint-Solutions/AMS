@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 // MODELS
 
@@ -85,5 +86,26 @@ class WorkOrder extends Controller
 
         // return view with work order data
         return view('Orders.WorkOrder.print', compact('workOrder', 'qrCode'));
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'work_order_id' => 'required|integer|exists:work_orders,id'
+        ]);
+
+        $image = $request->file('image');
+        $workOrderId = $request->input('work_order_id');
+        $imageExtension = $image->getClientOriginalExtension();
+        $imageFileName = $workOrderId . '.' . $imageExtension;
+        $imagePath = 'image/work-order/' . $imageFileName;
+        $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+        WorkOrderModel::updateImagePath($workOrderId, $imagePath);
+        return response()->json([
+            'success' => true,
+            'message' => 'Image uploaded successfully.',
+            'image_path' => Storage::url($imagePath)
+        ]);
     }
 }

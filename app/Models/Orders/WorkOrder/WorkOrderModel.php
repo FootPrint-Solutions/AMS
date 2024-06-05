@@ -149,4 +149,12 @@ class WorkOrderModel extends Model implements Auditable
             ->where('id', $id)
             ->first();
     }
+
+    public static function updateImagePath($id, $path)
+    {
+        return self::where('id', $id)
+            ->update([
+                'image' => $path
+            ]);
+    }
 }

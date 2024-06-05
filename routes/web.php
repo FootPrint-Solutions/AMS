@@ -213,6 +213,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/get-link-battery', [QuickQuotation::class, 'getLinkBattery'])->name('quotation.getLinkBattery');
     Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor');
     Route::get('/quotation/battery/autoComplete', [QuickQuotation::class, 'autoCompleteBattery'])->name('quotation.autoCompleteBattery');
+    Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);
@@ -233,7 +234,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order', [WorkOrder::class, 'index']);
     Route::post('/work-order/show', [WorkOrder::class, 'show']);
     Route::get('/work-order/print/{id}', [WorkOrder::class, 'print']);
-    Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
+    Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
 
     // Settings
     // Message Template

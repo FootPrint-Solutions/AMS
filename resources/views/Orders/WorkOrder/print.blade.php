@@ -202,7 +202,7 @@
 
         <table style='margin-top:10px;'>
             <tr>
-                <td colspan="3" style="">Catatan</td>
+                <td colspan="3">Catatan</td>
 
             </tr>
             <tr>
@@ -322,6 +322,7 @@
             </div>
         </div>
         <hr class="dashed">
+        <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="350px">
     </div>
 </body>
 
