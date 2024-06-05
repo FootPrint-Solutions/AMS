@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\PromoBatteryModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -13,7 +14,6 @@ use App\Models\Settings\PromoModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
-use Illuminate\Support\Facades\DB;
 
 class Promo extends Controller
 {
@@ -200,13 +200,26 @@ class Promo extends Controller
 
                 // Set battery price.
                 $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
-                $price->promo_id = $promo->id;
-                $price->discount = $request->batteriesdisc[$i];
-                $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
-                $status &= $price->save();
+                if ($price) {
+                    $price->promo_id = $promo->id;
+                    $price->discount = $request->batteriesdisc[$i];
+                    $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                    $status &= $price->save();
+                } else {
+                    $price = new BatteryPriceModel();
+                    $price->battery_id = $request->detailid[$i];
+                    $price->promo_id = $promo->id;
+                    $price->price_retail = BatteryModel::find($request->detailid[$i])->price_retail;
+                    $price->discount = $request->batteriesdisc[$i];
+                    $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                    $status &= $price->save();
+                }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -264,11 +277,22 @@ class Promo extends Controller
                         $price->discount = $request->batteriesdisc[$i];
                         $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                         $status &= $price->save();
+                    } else {
+                        $price = new BatteryPriceModel();
+                        $price->battery_id = $request->detailid[$i];
+                        $price->promo_id = $promo->id;
+                        $price->price_retail = BatteryModel::find($request->detailid[$i])->price_retail;
+                        $price->discount = $request->batteriesdisc[$i];
+                        $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
+                        $status &= $price->save();
                     }
                 }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent
             return getResponseData(
@@ -316,6 +340,14 @@ class Promo extends Controller
                         $price->discount = $battery->discount;
                         $price->price_net = $battery->price_net;
                         $status &= $price->save();
+                    } else {
+                        $price = new BatteryPriceModel();
+                        $price->battery_id = $battery->battery_id;
+                        $price->promo_id = $promo->id;
+                        $price->price_retail = BatteryModel::find($battery->battery_id)->price_retail;
+                        $price->discount = $battery->discount;
+                        $price->price_net = (float) str_replace(".", "", $battery->price_net);
+                        $status &= $price->save();
                     }
                 }
             } else {
@@ -333,7 +365,10 @@ class Promo extends Controller
                 }
             }
 
-            DB::commit();
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(

@@ -936,11 +936,11 @@
 
                     data.forEach(function(item) {
                         var inputGroup = `
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" value="${item.platform} - ${item.url}" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="CopyToClipboard('${item.url}')">Copy</button>
-                    </div>
-                `;
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="${item.platform} - ${item.url}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" data-id="${item.url}" onclick="CopyToClipboard(this)">Copy</button>
+                            </div>
+                        `;
                         modalBody.append(inputGroup);
                     });
                 },
@@ -957,14 +957,10 @@
             });
         }
 
-        function CopyToClipboard(text) {
-            var copyText = text;
-            var textArea = document.createElement("textarea");
-            textArea.value = copyText;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
+        function CopyToClipboard(x) {
+            var input = $(x).prev();
+            input.select();
+            document.execCommand("copy");
             Swal.fire({
                 title: "Success",
                 text: "Link copied to clipboard",

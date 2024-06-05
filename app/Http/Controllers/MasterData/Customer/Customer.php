@@ -5,9 +5,9 @@ namespace App\Http\Controllers\MasterData\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
@@ -134,6 +134,8 @@ class Customer extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $this->_validateData($request);
 
@@ -149,15 +151,26 @@ class Customer extends Controller
             // Store the list of customers" owned vehicles.
             $customer->vehicles()->attach($request->vehicle);
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian lainnya
             Log::error($e->getMessage());
             return getResponseData(false);
@@ -172,6 +185,8 @@ class Customer extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $this->_validateData($request);
 
@@ -187,15 +202,26 @@ class Customer extends Controller
             // Update the list of customers" owned vehicles.
             $customer->vehicles()->sync($request->vehicle);
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The customer was successfully updated!" : "Failed to update the customer!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian lainnya
             Log::error($e->getMessage());
             return getResponseData(false);
@@ -210,10 +236,17 @@ class Customer extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $customer = CustomerModel::find($request->id);
             $customer->status = $customer->status ? 0 : 1;
             $status = $customer->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -221,6 +254,9 @@ class Customer extends Controller
                 $status ? "The selected customer was successfully updated!" : "Failed to update the selected customer!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Vehicle;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
@@ -134,8 +135,9 @@ class VehicleBrand extends Controller
      */
     public function store(Request $request)
     {
-        try {
+        DB::beginTransaction();
 
+        try {
             $validatedData = $request->validate(
                 [
                     'name' => 'required|string',
@@ -149,15 +151,26 @@ class VehicleBrand extends Controller
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? 'The new vehicle brand was successfully created!' : 'Failed to create the new vehicle brand!'
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -174,8 +187,9 @@ class VehicleBrand extends Controller
      */
     public function update(Request $request)
     {
-        try {
+        DB::beginTransaction();
 
+        try {
             $validatedData = $request->validate(
                 [
                     'name' => 'required|string',
@@ -189,15 +203,26 @@ class VehicleBrand extends Controller
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? 'The vehicle brand was successfully updated!' : 'Failed to update the vehicle brand!'
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -214,10 +239,17 @@ class VehicleBrand extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $brand = VehicleBrandModel::find($request->id);
             $brand->status = $brand->status ? 0 : 1;
             $status = $brand->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -225,6 +257,9 @@ class VehicleBrand extends Controller
                 $status ? "The selected vehicle brand was successfully updated!" : "Failed to update the selected vehicle brand!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

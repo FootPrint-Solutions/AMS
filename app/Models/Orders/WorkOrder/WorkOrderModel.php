@@ -13,6 +13,11 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
+// MODEL
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
+
 class WorkOrderModel extends Model implements Auditable
 {
     use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
@@ -87,6 +92,18 @@ class WorkOrderModel extends Model implements Auditable
         return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(CustomerModel::class, 'customer_id');
+    }
+
+    // distributor shop from sales order 
+    public function distributorShop()
+    {
+        return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
+    }
+
+
     public static function allForDataTables($request)
     {
         $search = $request->input("search.value");
@@ -127,7 +144,7 @@ class WorkOrderModel extends Model implements Auditable
 
     public static function getWorkOrderData($id)
     {
-        return self::with('batteries')
+        return self::with('batteries', 'salesOrder', 'customer', 'distributorShop')
             ->where('id', $id)
             ->first();
     }
