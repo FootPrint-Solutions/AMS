@@ -258,11 +258,13 @@ class Promo extends Controller
             $status = $promo->save();
 
             // Update promo detail data
-            // Delete existing promo battery details
-            PromoBatteryModel::where('promo_id', $promo->id)->delete();
             // Save the new promo battery details
             for ($i = 0; $i < count($request->detailid); $i++) {
-                $battery = new PromoBatteryModel();
+                $battery = PromoBatteryModel::where('promo_id', $promo->id)->where('battery_id', $request->detailid[$i])->first();
+
+                if (!$battery) {
+                    $battery = new PromoBatteryModel();
+                }
                 $battery->promo_id = $promo->id;
                 $battery->battery_id = $request->detailid[$i];
                 $battery->price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
@@ -272,7 +274,7 @@ class Promo extends Controller
 
                 // Set battery price.
                 if ($promo->status) {
-                    $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->where('promo_id', $promo->id)->first();
+                    $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
                     if ($price) {
                         $price->discount = $request->batteriesdisc[$i];
                         $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
