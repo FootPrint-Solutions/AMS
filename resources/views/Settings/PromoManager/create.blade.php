@@ -338,21 +338,21 @@
             $("#period-end").on("change", function() {
                 $("#unlimited-period").prop('checked', false);
             });
+        });
 
-            $(".battery-discount").on("change keyup", function() {
-                // Validate input value.
-                let value = parseInt($(this).val(), 10);
-                if (isNaN(value)) {
-                    $(this).val("0");
-                }
+        $(document).on("change keyup", ".battery-discount", function() {
+            // Validate input value.
+            let value = parseInt($(this).val(), 10);
+            if (isNaN(value)) {
+                $(this).val("0");
+            }
 
-                let id = $(this).attr("id");
-                let parts = id.split('-');
-                let counter = parts[parts.length - 1];
+            let id = $(this).attr("id");
+            let parts = id.split('-');
+            let counter = parts[parts.length - 1];
 
-                // Recalculate total value.
-                calculatePriceDiscount(counter, $(this).hasClass("battery-discount"));
-            });
+            // Recalculate total value.
+            calculatePriceDiscount(counter, $(this).hasClass("battery-discount"));
         });
     </script>
 
