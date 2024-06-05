@@ -27,6 +27,7 @@
                         <th scope="col">Sales Order Number</th>
                         <th scope="col">Date</th>
                         <th scope="col">Customer</th>
+                        <th scope="col">Vehicle</th>
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
                         <th scope="col">Total (IDR)</th>
@@ -64,10 +65,10 @@
                     targets: [0],
                     orderable: false,
                 }, {
-                    targets: [6],
+                    targets: [7],
                     className: 'dt-body-right table-col-price'
                 }, {
-                    targets: [0, 8],
+                    targets: [0, -1],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
@@ -117,7 +118,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(9, "/sales-order/edit/");
+            appendDatatablesToolbar(10, "/sales-order/edit/");
         });
     </script>
 

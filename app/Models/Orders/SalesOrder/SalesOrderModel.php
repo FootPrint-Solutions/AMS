@@ -137,6 +137,7 @@ class SalesOrderModel extends Model implements Auditable
         $selectColumns = [
             'sales_orders.*',
             'customers.name AS customer_name',
+            'vehicles.name AS vehicle_name',
             'shops.name AS shop_name',
             'distributors.id AS distributor_id',
             'distributors.name AS distributor_name',
@@ -148,6 +149,7 @@ class SalesOrderModel extends Model implements Auditable
         // Build the query to obtain all rows.
         $query = self::query();
         $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
+        $query->leftJoin("vehicles", "sales_orders.vehicle_id", "=", "vehicles.id");
         $query->leftJoin("distributor_shops AS shops", "sales_orders.distributor_shop_id", "=", "shops.id");
         $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
