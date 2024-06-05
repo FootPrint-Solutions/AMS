@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Order Print</title>
+    <title>Work Order_{{ $workOrder->salesOrder->sales_order_number }}_AMS</title>
     <style>
         hr.dashed {
             border: none;
@@ -94,21 +94,22 @@
 <body>
 
     <div class="section">
-        <div style='text-align:end;margin-bottom:-15px;'>
+        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
+            <h1>{{ $workOrder->work_order_number }}</h1>
             <h1>Instruksi Kerja Teknisi</h1>
         </div>
         <table>
             <tr>
-                <td style='width:60%;'>Nama Partner : {{ $workOrder->distributorShop->name ?? '' }}</td>
+                <td style='width:60%;'>Nama Partner : {{ $workOrder->salesOrder->distributorShop->name ?? '' }}</td>
                 <td>Order ID : {{ $workOrder->salesOrder->sales_order_number }}</td>
             </tr>
             <tr>
                 <td style='width:60%;'>Admin Akikita : {{ auth()->user()->name }}</td>
-                <td>Tanggal : {{ $workOrder->salesOrder->date }}</td>
+                <td>Tanggal : {{ date('d-m-Y', strtotime($workOrder->salesOrder->date)) }}</td>
             </tr>
             <tr>
                 <td style='width:60%;'>Jenis Pesanan : </td>
-                <td>Waktu Pesanan: {{ $workOrder->salesOrder->created_at }}</td>
+                <td>Waktu Pesanan: {{ date('d-m-Y H:i:s', strtotime($workOrder->salesOrder->created_at)) }}</td>
             </tr>
         </table>
 
@@ -123,7 +124,8 @@
                 <td>{{ $workOrder->customer->name }}</td>
             </tr>
             <tr>
-                <td style='width:20%;'>Kendaraan :</td>
+                <td style='width:20%;'>Kendaraan : </td>
+                <td>{{ $workOrder->salesOrder->vehicle->name ?? '' }}</td>
             </tr>
         </table>
         <table style='margin-top:10px;'>
@@ -238,21 +240,22 @@
     </div>
     <br><br>
     <div class="section">
-        <div style='text-align:end;margin-bottom:-15px;'>
+        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
+            <h1>{{ $workOrder->work_order_number }}</h1>
             <h1>Instruksi Kerja Admin Partner</h1>
         </div>
         <table>
             <tr>
-                <td style='width:60%;'>Nama Partner : </td>
+                <td style='width:60%;'>Nama Partner : {{ $workOrder->salesOrder->distributorShop->name ?? '' }}</td>
                 <td>Order ID : {{ $workOrder->salesOrder->sales_order_number }} </td>
             </tr>
             <tr>
                 <td style='width:60%;'>Admin Akikita : {{ auth()->user()->name }}</td>
-                <td>Tanggal : {{ $workOrder->salesOrder->date }}</td>
+                <td>Tanggal : {{ date('d-m-Y', strtotime($workOrder->salesOrder->date)) }}</td>
             </tr>
             <tr>
                 <td style='width:60%;'>Jenis Pesanan : </td>
-                <td>Waktu Pesanan : {{ $workOrder->salesOrder->created_at }}</td>
+                <td>Waktu Pesanan: {{ date('d-m-Y H:i:s', strtotime($workOrder->salesOrder->created_at)) }}</td>
             </tr>
         </table>
         <div class="row">

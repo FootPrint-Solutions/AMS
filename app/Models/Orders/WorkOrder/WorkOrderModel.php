@@ -89,7 +89,8 @@ class WorkOrderModel extends Model implements Auditable
 
     public function salesOrder()
     {
-        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id')
+            ->with('distributorShop', 'vehicle');
     }
 
     public function customer()

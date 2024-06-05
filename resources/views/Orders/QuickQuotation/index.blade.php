@@ -185,7 +185,9 @@
 
     <script>
         $(document).ready(function() {
-            $('#VehicleCustomer').select2();
+            $('#VehicleCustomer').select2({
+                maximumSelectionLength: 1
+            });
 
             $('#BtnShareFormPersonalDetails').on('click', function() {
                 var button = $(this);
@@ -375,6 +377,13 @@
                 if (AddressCustomer == '') {
                     swal.fire("Error!", "Address Customer is required", "error");
                     return;
+                }
+
+                var DistributorShopId = $("#DistributorShopId").val();
+
+                if (DistributorShopId == '') {
+                    swal.fire("Error!", "Please select distributor", "error");
+                    return false;
                 }
 
                 $('#btnNextStep3').trigger('click');

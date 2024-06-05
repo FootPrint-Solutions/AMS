@@ -19,6 +19,7 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Orders\WorkOrder\WorkOrderBatteryModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class SalesOrderModel extends Model implements Auditable
 {
@@ -40,6 +41,7 @@ class SalesOrderModel extends Model implements Auditable
         'sales_order_number',
         'date',
         'customer_id',
+        'vehicle_id',
         'distributor_shop_id',
         'distributor_shop_technician_id',
         'tax',
@@ -90,6 +92,23 @@ class SalesOrderModel extends Model implements Auditable
     {
         return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id");
     }
+
+    /**
+     * Get the distributor shop has many sales order.
+     */
+    public function distributorShop(): BelongsTo
+    {
+        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id");
+    }
+
+    /**
+     * Get the vehicle has many sales order.
+     */
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(VehicleModel::class, "vehicle_id");
+    }
+
 
     /**
      * 
