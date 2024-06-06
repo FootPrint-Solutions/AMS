@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
@@ -117,6 +118,8 @@ class BatteryUsage extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -131,15 +134,26 @@ class BatteryUsage extends Controller
             $usage->name = $validatedData['name'];
             $status = $usage->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new battery usage type was successfully created!" : "Failed to create the new battery usage type!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -156,6 +170,8 @@ class BatteryUsage extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -170,15 +186,26 @@ class BatteryUsage extends Controller
             $usage->name = $validatedData['name'];
             $status = $usage->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery usage type was successfully updated!" : "Failed to update the battery usage type!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -195,6 +222,8 @@ class BatteryUsage extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -204,12 +233,20 @@ class BatteryUsage extends Controller
                 $status = $usage->delete();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected usage type was successfully deleted!" : "Failed to delete the selected usage type!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

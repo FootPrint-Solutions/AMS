@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
@@ -118,6 +119,8 @@ class BatterySubbrand extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -132,15 +135,26 @@ class BatterySubbrand extends Controller
             $subbrand->name = $validatedData['name'];
             $status = $subbrand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new battery subbrand category was successfully created!" : "Failed to create the new battery subbrand category!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -157,6 +171,8 @@ class BatterySubbrand extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -171,15 +187,26 @@ class BatterySubbrand extends Controller
             $subbrand->name = $validatedData['name'];
             $status = $subbrand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery subbrand category was successfully updated!" : "Failed to update the battery subbrand category!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -196,6 +223,8 @@ class BatterySubbrand extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -205,12 +234,20 @@ class BatterySubbrand extends Controller
                 $status = $subbrand->delete();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected subbrand category was successfully deleted!" : "Failed to delete the selected subbrand category!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

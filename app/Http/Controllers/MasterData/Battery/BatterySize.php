@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
@@ -119,6 +120,8 @@ class BatterySize extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -133,15 +136,26 @@ class BatterySize extends Controller
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new battery size category was successfully created!" : "Failed to create the new battery size category!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -158,6 +172,8 @@ class BatterySize extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -172,15 +188,26 @@ class BatterySize extends Controller
             $brand->name =  $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery size category was successfully updated!" : "Failed to update the battery size category!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -197,6 +224,8 @@ class BatterySize extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -206,12 +235,20 @@ class BatterySize extends Controller
                 $status = $brand->delete();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected size category was successfully deleted!" : "Failed to delete the selected size category!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

@@ -179,6 +179,8 @@ class Battery extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = new BatteryModel();
             $battery->name = $request->name;
@@ -284,12 +286,20 @@ class Battery extends Controller
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -307,6 +317,8 @@ class Battery extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = BatteryModel::find($request->id);
             $battery->name = $request->name;
@@ -437,12 +449,20 @@ class Battery extends Controller
                 $status &= $price->save();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery was successfully updated!" : "Failed to update the battery!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -459,10 +479,17 @@ class Battery extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = BatteryModel::find($request->id);
             $battery->status = $battery->status ? 0 : 1;
             $status = $battery->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -470,6 +497,9 @@ class Battery extends Controller
                 $status ? "The selected battery was successfully updated!" : "Failed to update the selected battery!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 

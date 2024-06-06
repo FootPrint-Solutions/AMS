@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
@@ -118,6 +119,8 @@ class BatteryTechnology extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -132,15 +135,26 @@ class BatteryTechnology extends Controller
             $technology->name = $validatedData["name"];
             $status = $technology->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new battery technology was successfully created!" : "Failed to create the new battery technology!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -157,6 +171,8 @@ class BatteryTechnology extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
 
             $validatedData = $request->validate(
@@ -173,15 +189,26 @@ class BatteryTechnology extends Controller
             $technology->name = $validatedData['name'];
             $status = $technology->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery technology was successfully updated!" : "Failed to update the battery technology!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -198,6 +225,8 @@ class BatteryTechnology extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -207,12 +236,20 @@ class BatteryTechnology extends Controller
                 $status = $technology->delete();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected technology was successfully deleted!" : "Failed to delete the selected technology!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
