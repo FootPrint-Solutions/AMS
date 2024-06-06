@@ -207,8 +207,6 @@ class SalesOrder extends Controller
             $salesOrder->longitude = $request->Longitude;
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
-            $salesOrder->tax = $request->tax;
-            $salesOrder->tax_price = (float) str_replace(".", "", $request->taxprice);
             $salesOrder->discount = $request->discount;
             $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
@@ -224,7 +222,10 @@ class SalesOrder extends Controller
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
                 $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
                 $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
