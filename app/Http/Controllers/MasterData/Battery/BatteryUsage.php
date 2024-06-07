@@ -16,8 +16,6 @@ use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 class BatteryUsage extends Controller
 {
     private $title = "Battery Usage Type";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery Usage Type index page.
@@ -29,9 +27,7 @@ class BatteryUsage extends Controller
         return view(
             "MasterData.Battery.Usage.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -45,9 +41,7 @@ class BatteryUsage extends Controller
         return view(
             'MasterData.Battery.Usage.create',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -67,8 +61,6 @@ class BatteryUsage extends Controller
             "MasterData.Battery.Usage.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $usage->toArray()
                 )

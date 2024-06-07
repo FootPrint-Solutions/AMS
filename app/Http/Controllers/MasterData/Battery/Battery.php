@@ -26,8 +26,6 @@ use Maatwebsite\Excel\Facades\Excel;
 class Battery extends Controller
 {
     private $title = "Battery";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery index page.
@@ -39,9 +37,7 @@ class Battery extends Controller
         return view(
             'MasterData.Battery.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -57,8 +53,6 @@ class Battery extends Controller
             'MasterData.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
@@ -82,8 +76,6 @@ class Battery extends Controller
             'MasterData.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'profile' => BatteryModel::with('urls')->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),

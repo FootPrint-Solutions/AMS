@@ -16,8 +16,6 @@ use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 class BatterySubbrand extends Controller
 {
     private $title = "Battery Subbrand Category";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery Subbrand Category index page.
@@ -30,8 +28,6 @@ class BatterySubbrand extends Controller
             "MasterData.Battery.Subbrand.index",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu
             )
         );
     }
@@ -47,8 +43,6 @@ class BatterySubbrand extends Controller
             'MasterData.Battery.Subbrand.create',
             getIndexData(
                 $this->title,
-                2,
-                4
             )
         );
     }
@@ -68,8 +62,6 @@ class BatterySubbrand extends Controller
             "MasterData.Battery.Subbrand.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $subbrand->toArray()
                 )

@@ -16,8 +16,6 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 class BatterySize extends Controller
 {
     private $title = "Battery Size Category";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery Size Category index page.
@@ -29,9 +27,7 @@ class BatterySize extends Controller
         return view(
             "MasterData.Battery.Size.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -46,9 +42,7 @@ class BatterySize extends Controller
         return view(
             "MasterData.Battery.Size.create",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -68,8 +62,6 @@ class BatterySize extends Controller
             "MasterData.Battery.Size.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $profile->toArray()
                 )

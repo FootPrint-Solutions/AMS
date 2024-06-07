@@ -16,8 +16,6 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 class Distributor extends Controller
 {
     private $title = "Distributor";
-    private $menu = 2;
-    private $submenu = 5;
 
     /**
      * Display a listing of the resource.
@@ -29,9 +27,7 @@ class Distributor extends Controller
         return view(
             'MasterData.Distributor.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -47,8 +43,6 @@ class Distributor extends Controller
             'MasterData.Distributor.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "shops" => DistributorShopModel::where("type", 1)->get()->toArray()
                 )
@@ -71,8 +65,6 @@ class Distributor extends Controller
             'MasterData.Distributor.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $distributor->toArray(),
                 )

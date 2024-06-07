@@ -25,8 +25,6 @@ class Dashboard extends Controller
         $today = Carbon::today();
         return view('Dashboard.index',   getIndexData(
             'Dashboard',
-            1,
-            '',
             array(
                 'NumberOfCustomer' => CustomerModel::count(),
                 'NumberOfVehicle' => VehicleModel::count(),

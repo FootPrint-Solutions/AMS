@@ -16,8 +16,6 @@ use App\Models\MasterData\Battery\BatteryTechnologyModel;
 class BatteryTechnology extends Controller
 {
     private $title = "Battery Technology";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery Technology index page.
@@ -29,9 +27,7 @@ class BatteryTechnology extends Controller
         return view(
             "MasterData.Battery.Technology.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -46,9 +42,7 @@ class BatteryTechnology extends Controller
         return view(
             'MasterData.Battery.Technology.create',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -68,8 +62,6 @@ class BatteryTechnology extends Controller
             "MasterData.Battery.Technology.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $technology->toArray()
                 )

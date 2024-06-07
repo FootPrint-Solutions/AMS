@@ -23,8 +23,6 @@ use App\Models\Settings\TaxModel;
 class SalesOrder extends Controller
 {
     private $title = "Quotation";
-    private $menu = 3;
-    private $submenu = 2;
 
     /**
      * Display a listing of the resource.
@@ -37,8 +35,6 @@ class SalesOrder extends Controller
             'Orders.SalesOrder.index',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu
             )
         );
     }
@@ -54,8 +50,6 @@ class SalesOrder extends Controller
             'Orders.SalesOrder.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "number" => SalesOrderModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
@@ -79,8 +73,6 @@ class SalesOrder extends Controller
             'Orders.SalesOrder.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
@@ -103,8 +95,6 @@ class SalesOrder extends Controller
             'Orders.SalesOrder.invoice',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
                     "company" => CompanyModel::first(),

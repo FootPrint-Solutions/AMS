@@ -16,8 +16,6 @@ use App\Models\MasterData\Battery\BatteryBrandModel;
 class BatteryBrand extends Controller
 {
     private $title = "Battery Brand";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Vehicle index page.
@@ -29,9 +27,7 @@ class BatteryBrand extends Controller
         return view(
             "MasterData.Battery.Brand.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -46,9 +42,7 @@ class BatteryBrand extends Controller
         return view(
             "MasterData.Battery.Brand.create",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -73,8 +67,6 @@ class BatteryBrand extends Controller
             "MasterData.Battery.Brand.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $brand->toArray()
                 )

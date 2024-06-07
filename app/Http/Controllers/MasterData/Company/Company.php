@@ -15,8 +15,6 @@ use App\Models\MasterData\Company\CompanyModel;
 class Company extends Controller
 {
     private $title = "Company";
-    private $menu = 2;
-    private $submenu = 1;
 
     /**
      * Show the form for editing Company profile resource.
@@ -40,8 +38,6 @@ class Company extends Controller
                 "MasterData.Company.edit",
                 getIndexData(
                     $this->title,
-                    $this->menu,
-                    $this->submenu,
                     array(
                         "profile" => CompanyModel::first()->toArray()
                     )

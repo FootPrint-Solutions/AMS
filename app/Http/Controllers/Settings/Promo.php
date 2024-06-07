@@ -18,8 +18,6 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 class Promo extends Controller
 {
     private $title = "Price Manager";
-    private $menu = 5;
-    private $submenu = 3;
 
     /**
      * Display a listing of the resource.
@@ -31,9 +29,7 @@ class Promo extends Controller
         return view(
             'Settings.PromoManager.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -49,8 +45,6 @@ class Promo extends Controller
             'Settings.PromoManager.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "batteries" => BatteryModel::all()->toArray(),
                     "battery_categories" => BatterySizeCategoryModel::all()->toArray()
@@ -71,8 +65,6 @@ class Promo extends Controller
             'Settings.PromoManager.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => PromoModel::with('batteries')->find($id)->toArray(),
                     "batteries" => BatteryModel::all()->toArray(),

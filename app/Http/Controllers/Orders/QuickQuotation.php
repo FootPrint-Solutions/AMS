@@ -47,8 +47,6 @@ class QuickQuotation extends Controller
             'Orders.QuickQuotation.index',
             getIndexData(
                 'Quick Quotation',
-                3,
-                5,
                 array(
                     'Vehicle' => VehicleModel::all()->toArray(),
                     'datalatlong ' => $datalatlong,

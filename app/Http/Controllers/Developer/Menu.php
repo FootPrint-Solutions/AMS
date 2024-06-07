@@ -12,8 +12,6 @@ use App\Models\MenuParent as MenuParentModel;
 class Menu extends Controller
 {
     private $title = "Menu Manager";
-    private $menu = 4;
-    private $submenu = 1;
 
     /**
      * Display a listing of the resource.
@@ -25,9 +23,7 @@ class Menu extends Controller
         return view(
             'Developer.Menu.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -43,8 +39,6 @@ class Menu extends Controller
             'Developer.Menu.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "menus" => [],
                     "menu_parents" => MenuParentModel::all()->toArray()
@@ -68,8 +62,6 @@ class Menu extends Controller
             'Developer.Menu.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $profile,
                     "menus" => MenuModel::where("parent_id", $profile["parent_id"])->get()->toArray(),

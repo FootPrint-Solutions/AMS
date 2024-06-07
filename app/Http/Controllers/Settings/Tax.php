@@ -13,8 +13,6 @@ use App\Models\Settings\TaxModel;
 class Tax extends Controller
 {
     private $title = "Tax Manager";
-    private $menu = 5;
-    private $submenu = 2;
 
     /**
      * Display a listing of the resource.
@@ -26,9 +24,7 @@ class Tax extends Controller
         return view(
             'Settings.TaxManager.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -43,9 +39,7 @@ class Tax extends Controller
         return view(
             "Settings.TaxManager.create",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu,
+                $this->title
             )
         );
     }
@@ -62,8 +56,6 @@ class Tax extends Controller
             "Settings.TaxManager.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => TaxModel::find($id)->toArray()
                 )

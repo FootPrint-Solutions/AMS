@@ -16,8 +16,6 @@ use App\Models\MasterData\Vehicle\VehicleBrandModel;
 class VehicleBrand extends Controller
 {
     private $title = "Vehicle Brand";
-    private $menu = 2;
-    private $submenu = 3;
 
     /**
      * Show the Vehicle index page.
@@ -29,9 +27,7 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.Vehicle.Brand.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -46,9 +42,7 @@ class VehicleBrand extends Controller
         return view(
             'MasterData.Vehicle.Brand.create',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -73,8 +67,6 @@ class VehicleBrand extends Controller
             'MasterData.Vehicle.Brand.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'profile' => $brand->toArray(),
                 )

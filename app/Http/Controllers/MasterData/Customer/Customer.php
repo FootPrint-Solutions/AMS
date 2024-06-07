@@ -16,8 +16,6 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 class Customer extends Controller
 {
     private $title = "Customer";
-    private $menu = 2;
-    private $submenu = 2;
 
     /**
      * Show the Customer index page.
@@ -29,9 +27,7 @@ class Customer extends Controller
         return view(
             "MasterData.Customer.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -47,8 +43,6 @@ class Customer extends Controller
             "MasterData.Customer.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "vehicles" => VehicleModel::all()->toArray()
                 )
@@ -68,8 +62,6 @@ class Customer extends Controller
             "MasterData.Customer.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => CustomerModel::find($id)->toArray(),
                     "owned_vehicles" => CustomerModel::find($id)->vehicles()->pluck("vehicle_id")->toArray(),

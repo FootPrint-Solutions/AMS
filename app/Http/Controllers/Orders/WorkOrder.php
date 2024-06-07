@@ -17,17 +17,13 @@ use App\Models\Orders\WorkOrder\WorkOrderModel;
 class WorkOrder extends Controller
 {
     private $title = 'Work Order';
-    private $menu = 'Orders';
-    private $submenu = 'Work Order';
 
     public function index()
     {
         return view(
             'Orders.WorkOrder.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
