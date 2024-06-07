@@ -1051,6 +1051,12 @@ $arrayVehicle
             ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
             ->limit(10)
             ->get();
+        $tax = TaxModel::where('status', '1')->first();
+        if ($tax && $results) {
+            foreach ($results as $result) {
+                $result->tax = $tax->percentage;
+            }
+        }
         return response()->json($results);
     }
 }

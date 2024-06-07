@@ -7,8 +7,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -90,9 +89,6 @@
         });
     });
 
-    $(document).on('click', '.remove-row', function() {
-        $(this).closest('tr').remove();
-    });
 
     // button add row 
     $(document).on('click', '.add-row', function() {
@@ -104,6 +100,10 @@
             '<td><input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout" value="1"></td>';
         html +=
             '<td><div class="input-group"><input type="text" name="GrossPrice[]" id="GrossPrice" class="form-control GrossPrice text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="TaxRow[]" id="TaxRow" class="form-control TaxRow text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="PriceTaxRow[]" id="PriceTaxRow" class="form-control PriceTaxRow text-end" value="" disabled></div></td>';
         html +=
             '<td><div class="input-group"><input type="text" name="DiscountRow[]" id="DiscountRow" class="form-control DiscountRow text-end" value=""></div></td>';
         html +=
@@ -137,13 +137,31 @@
                         if (battery.discount == 0) {
                             battery.discount = 0;
                             battery.price_net = battery.price_retail_original;
+                            battery.tax = battery.tax;
+                            battery.price_tax = battery.price_net + (battery.price_net *
+                                battery.tax / 100);
+                            battery.net_price = battery.price_tax - (battery.price_tax *
+                                battery.discount / 100);
+                        } else {
+                            battery.price_net = battery.price_retail_original;
+                            battery.tax = battery.tax;
+                            battery.price_tax = battery.price_net + (battery.price_net *
+                                battery.tax / 100);
+                            battery.net_price = battery.price_tax - (battery.price_tax *
+                                battery.discount / 100);
                         }
-                        suggestions += '<div class="suggestion-item" data-id="' + battery
-                            .id + '" data-name="' + battery.name + '" data-price-retail="' +
+                        suggestions += '<div class="suggestion-item" data-id="' +
+                            battery
+                            .id + '" data-name="' + battery.name +
+                            '" data-price-retail="' +
                             formatNumber(battery.price_retail) + '" data-discount="' +
                             battery.discount +
                             '" data-price-net="' + formatNumber(battery.price_net) +
-                            '" data-id="' + formatNumber(battery.id) + '">' +
+                            '" data-id="' + formatNumber(battery.id) +
+                            '" data-battery-tax="' +
+                            formatNumber(battery.tax) + '" data-price-tax="' +
+                            formatNumber(battery.price_tax) + '" data-net_price-tax="' +
+                            formatNumber(battery.net_price) + '">' +
                             battery.name +
                             '</div>';
                     });
@@ -160,9 +178,11 @@
         var batteryName = $(this).data('name');
         var priceRetail = $(this).data('price-retail');
         var discount = $(this).data('discount');
-        var priceNet = $(this).data('price-net');
-        var subtotal = $(this).data('price-net');
+        var priceNet = $(this).data('net_price-tax');
+        var subtotal = $(this).data('net_price-tax');
         var batteryId = $(this).data('id');
+        var batteryTax = $(this).data('battery-tax');
+        var priceTax = $(this).data('price-tax');
 
         row.find('.BatteryNameCheckout').val(batteryName);
         row.find('.GrossPrice').val(priceRetail);
@@ -170,6 +190,8 @@
         row.find('.NetPrice').val(priceNet);
         row.find('.SubtotalRow').val(subtotal);
         row.find('.BatteryIdCheckout').val(batteryId);
+        row.find('.TaxRow').val(batteryTax);
+        row.find('.PriceTaxRow').val(priceTax);
 
         row.find('#showAutoCompleteBattery').hide();
     });

@@ -49,13 +49,15 @@
 
 <div class="">
     <h4>Item Details</h4>
-    <div class="table-responsive">
+    <div class=" table-responsive">
         <table class="table table-center add-table-items">
             <thead>
                 <tr>
                     <th style="width: 25%;">Battery</th>
                     <th style="width: 5%;">Quantity</th>
                     <th>Gross Price</th>
+                    <th>Tax</th>
+                    <th>Price + Tax</th>
                     <th style="width: 5%;">Discount ( % )</th>
                     <th>Net Price</th>
                     <th>Subtotal</th>
@@ -69,10 +71,12 @@
                         $discount = $battery->discount;
                         $price_retail = $battery->price_retail_original;
                         $price_net = $battery->price_net;
+                        $price_tax = $price_retail + ($price_retail * $tax) / 100;
                     } else {
                         $discount = 0;
                         $price_retail = $battery->price_retail;
                         $price_net = $battery->price_retail;
+                        $price_tax = $price_retail + ($price_retail * $tax) / 100;
                     }
                     ?>
                     <tr>
@@ -92,6 +96,21 @@
                                 <input type="text" name="GrossPrice[]" id="GrossPrice"
                                     class="form-control GrossPrice text-end"
                                     value="{{ number_format($price_retail, 0, ',', '.') }}" disabled>
+                            </div>
+                        </td>
+                        {{-- tax --}}
+                        <td>
+                            <div class="input-group">
+                                <input type="text" name="TaxRow[]" id="TaxRow"
+                                    class="form-control TaxRow text-end" value="{{ $tax }}" disabled>
+                            </div>
+                        </td>
+                        {{-- price + tax --}}
+                        <td>
+                            <div class="input-group">
+                                <input type="text" name="PriceTaxRow[]" id="PriceTaxRow"
+                                    class="form-control PriceTaxRow text-end"
+                                    value="{{ number_format($price_tax, 0, ',', '.') }}" disabled>
                             </div>
                         </td>
                         {{-- discount --}}
@@ -218,16 +237,16 @@
                         </div>
                     </div>
 
-                    <div class="form-group row mb-3">
+                    {{-- <div class="form-group row mb-3">
                         <label for="order-customer" class="col-sm-5 col-form-label">Tax</label>
                         <div class="col-sm-7">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="tax" name="tax"
                                     value="{{ $tax }}">
-                                <span class="input-group-text border-end">%</span>
-                            </div>
-                        </div>
+                        <span class="input-group-text border-end">%</span>
                     </div>
+                </div>
+            </div> --}}
 
 
                 </div>
@@ -255,7 +274,12 @@
 <script>
     $(document).ready(function() {
         function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            // return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            // format number 1234567 to 1.234.567 wihtout decimal
+            return num.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
         }
 
         // Function to parse formatted number to float
@@ -265,7 +289,7 @@
 
         function calculateRow(row) {
             var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
-            var grossPrice = parseFormattedNumber(row.find('.GrossPrice').val().replace(/,/g, '')) || 0;
+            var grossPrice = parseFormattedNumber(row.find('.PriceTaxRow').val().replace(/,/g, '')) || 0;
             var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
 
             var discountAmount = (grossPrice * discount) / 100;
@@ -279,11 +303,13 @@
         $(document).on('keyup', '.QtyCheckout, .DiscountRow', function() {
             var row = $(this).closest('tr');
             calculateRow(row);
+            calculateTotalAmount();
         });
 
         // Calculate initial rows
         $('.add-table-items tbody tr').each(function() {
             calculateRow($(this));
+            calculateTotalAmount();
         });
 
         function calculateTotalAmount() {
@@ -359,6 +385,15 @@
         });
 
         $("#tax, #discount, #subtotal").on("input", function() {
+            calculateTotalAmount();
+        });
+
+        $(document).on('click', '.remove-row', function() {
+            $(this).closest('tr').remove();
+            calculateTotalAmount();
+        });
+
+        $(document).on('click', '.add-row', function() {
             calculateTotalAmount();
         });
 
