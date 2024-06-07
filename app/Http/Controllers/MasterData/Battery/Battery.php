@@ -512,7 +512,6 @@ class Battery extends Controller
             [
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
-                DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price") // net price
             ]
         );
     }

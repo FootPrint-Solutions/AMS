@@ -232,11 +232,7 @@
                                 {{-- Name --}}
                                 <td>
                                     @php
-                                        $targets = [
-                                            "battery-priceretail-$counter",
-                                            "battery-discount-$counter",
-                                            "battery-price-$counter",
-                                        ];
+                                        $targets = ["battery-priceretail-$counter", "battery-discount-$counter"];
                                         $encodedTargets = json_encode($targets);
                                     @endphp
 
@@ -723,7 +719,7 @@
                 row.find(".battery-priceaftertax").val(priceAfterTax);
 
                 // Count price + tax - discount.
-                let discount = parseInt(row.find(".battery-discount").val().replace(/\D/g, ''));
+                let discount = parseInt(row.find(".battery-discount").val());
                 let discountPrice = priceAfterTax * discount / 100;
                 row.find(".battery-discountprice").val(discountPrice);
                 $(this).val(priceAfterTax - discountPrice);
