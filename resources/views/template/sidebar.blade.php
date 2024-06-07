@@ -17,7 +17,10 @@
                             !empty(
                                 array_filter(
                                     $menu['menus'],
-                                    fn($menu_child) => str_starts_with($currentUrl, $menu_child['url']),
+                                    fn($menu_child) => str_starts_with(
+                                        $currentUrl,
+                                        '/' . explode('/', $menu_child['url'])[1],
+                                    ),
                                 )
                             );
                     @endphp
@@ -35,7 +38,8 @@
                         <ul style="@if ($isActive) display: block; @endif">
                             @foreach ($menu['menus'] as $menu_child)
                                 @php
-                                    $active_child_menu = str_starts_with($currentUrl, $menu_child['url']);
+                                    $childUrl = '/' . explode('/', $menu_child['url'])[1];
+                                    $active_child_menu = str_starts_with($currentUrl, $childUrl);
                                 @endphp
 
                                 <li @if (!empty(session('submenu')[$menu_child['id']])) class="submenu" @endif
