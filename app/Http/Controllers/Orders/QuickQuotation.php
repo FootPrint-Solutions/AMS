@@ -189,6 +189,7 @@ $arrayVehicle";
         $ids = $request->input('Battery');
         $Fullname = $request->input('FullName');
         // $results = BatteryModel::where('id', $ids)->get()->toArray();
+        $Tax = TaxModel::where('status', '1')->first()->percentage;
 
         $results = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
             ->where('batteries.id', $ids)
@@ -209,8 +210,14 @@ $arrayVehicle";
                 if ($value['discount'] != 0) {
                     $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r";
                     $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_net'], 0, "", ".") . "\r";
+                    $arrayBattery .= "*Tax* : " . number_format($Tax, 0, "", ".") . "%\r";
+                    $arrayBattery .= "*Harga Total* : Rp. " . number_format($value['price_net'] + ($value['price_net'] * $Tax / 100), 0, "", ".") . "\r";
                 } else {
                     $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                    $arrayBattery .= "*Discount* : " . number_format($value['discount']) . "%\r";
+                    $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r";
+                    $arrayBattery .= "*Tax* : " . number_format($Tax, 0, "", ".") . "%\r";
+                    $arrayBattery .= "*Harga Total* : Rp. " . number_format($value['price_retail'] + ($value['price_retail'] * $Tax / 100), 0, "", ".") . "\r";
                 }
 
 
