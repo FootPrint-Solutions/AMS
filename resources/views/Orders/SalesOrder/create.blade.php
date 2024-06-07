@@ -726,7 +726,7 @@
                 let discount = parseInt(row.find(".battery-discount").val().replace(/\D/g, ''));
                 let discountPrice = priceTax * discount / 100;
                 row.find(".battery-discountprice").val(discountPrice);
-                $(this).val(priceTax - discountPrice);
+                $(this).val(priceAfterTax - discountPrice);
 
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
