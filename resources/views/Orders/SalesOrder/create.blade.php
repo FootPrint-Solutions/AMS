@@ -715,12 +715,12 @@
                 // Count price + tax.
                 let priceTax = priceRetail * tax / 100;
                 row.find(".battery-taxprice").val(priceTax);
-                let priceAfterTax = priceRetail + priceTax;
+                let priceAfterTax = Math.round(priceRetail + priceTax);
                 row.find(".battery-priceaftertax").val(priceAfterTax);
 
                 // Count price + tax - discount.
                 let discount = parseInt(row.find(".battery-discount").val());
-                let discountPrice = priceAfterTax * discount / 100;
+                let discountPrice = Math.round(priceAfterTax * discount / 100);
                 row.find(".battery-discountprice").val(discountPrice);
                 $(this).val(priceAfterTax - discountPrice);
 
