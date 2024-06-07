@@ -724,7 +724,7 @@
 
                 // Count price + tax - discount.
                 let discount = parseInt(row.find(".battery-discount").val().replace(/\D/g, ''));
-                let discountPrice = priceTax * discount / 100;
+                let discountPrice = priceAfterTax * discount / 100;
                 row.find(".battery-discountprice").val(discountPrice);
                 $(this).val(priceAfterTax - discountPrice);
 
