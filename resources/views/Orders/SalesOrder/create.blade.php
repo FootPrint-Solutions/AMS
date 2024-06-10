@@ -79,9 +79,11 @@
                                 <button type="button" class="btn btn-primary" id="btnAddress"><i
                                         class="fas fa-map-marker"></i></button>
                                 <input type="hidden" name="Latitude" id="Latitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif">
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                                    required>
                                 <input type="hidden" name="Longitude" id="Longitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif">
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -89,7 +91,7 @@
                     <div class="col">
                         <input type="text" class="form-control" name="Address" id="AddressSearchColumn"
                             value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                            readonly>
+                            readonly required>
                     </div>
                 </div>
 
@@ -541,8 +543,11 @@
 
             let mode = $("#btn-save").attr("value"); // update || create
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
-            var address = $("#AddressSearchColumn").val();
-            if (address == "") {
+
+            let address = $("#AddressSearchColumn").val();
+            let lat = $("#Latitude").val();
+            let lon = $("#Longitude").val();
+            if (address == "" || lat == "" || lon == "") {
                 Swal.fire({
                     title: "Error",
                     text: "Please select address",
