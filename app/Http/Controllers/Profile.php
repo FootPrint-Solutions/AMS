@@ -7,11 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 // MODELS
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class Profile extends Controller
 {
@@ -35,8 +34,6 @@ class Profile extends Controller
             'Profile.index',
             getIndexData(
                 'Profile',
-                '',
-                '',
                 array(
                     'QrCode' => $QrCode
                 )
