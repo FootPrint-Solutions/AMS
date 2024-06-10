@@ -234,7 +234,7 @@ Route::middleware(['auth'])->group(function () {
     // Work Order
     Route::get('/work-order', [WorkOrder::class, 'index']);
     Route::post('/work-order/show', [WorkOrder::class, 'show']);
-    Route::get('/work-order/print/{id}', [WorkOrder::class, 'print']);
+    Route::post('/work-order/print/', [WorkOrder::class, 'print']);
     Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
 
     // Settings

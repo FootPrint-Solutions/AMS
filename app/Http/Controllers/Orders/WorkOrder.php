@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 // QR CODE
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
+use App\Models\settings\PrintTemplateModel;
 
 class WorkOrder extends Controller
 {
@@ -75,13 +76,33 @@ class WorkOrder extends Controller
     public function print(request $request)
     {
         // get work order data and work order battery detail data
-        $workOrder = WorkOrderModel::getWorkOrderData($request->id);
-        $baseUrl = "https://www.google.com/maps?q=";
-        $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
-        $qrCode = QrCode::size(90)->generate($mapsUrl);
+        $tipe = $request->print_option;
+        if ($tipe == "regular_dan_instalasi") {
+            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+            $task = PrintTemplateModel::all();
+            $baseUrl = "https://www.google.com/maps?q=";
+            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
+            $qrCode = QrCode::size(90)->generate($mapsUrl);
+            // dd($workOrder);
 
-        // return view with work order data
-        return view('Orders.WorkOrder.print', compact('workOrder', 'qrCode'));
+            return view('Orders.WorkOrder.RegularInstalasi.print', compact('workOrder', 'qrCode', 'task'));
+        } else if ($tipe == "tokopedia_dan_instalasi") {
+            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+            $task = PrintTemplateModel::all();
+            $baseUrl = "https://www.google.com/maps?q=";
+            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
+            $qrCode = QrCode::size(90)->generate($mapsUrl);
+
+            return view('Orders.WorkOrder.TokopediaInstalasi.print', compact('workOrder', 'qrCode', 'task'));
+        } else if ($tipe == "tokopedia_tanpa_instalasi") {
+            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+            $task = PrintTemplateModel::all();
+            $baseUrl = "https://www.google.com/maps?q=";
+            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
+            $qrCode = QrCode::size(90)->generate($mapsUrl);
+
+            return view('Orders.WorkOrder.Tokopedia.print', compact('workOrder', 'qrCode', 'task'));
+        }
     }
 
     public function uploadImage(Request $request)
