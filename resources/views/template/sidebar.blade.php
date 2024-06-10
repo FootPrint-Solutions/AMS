@@ -11,7 +11,7 @@
                 {{-- Menu --}}
                 @foreach (session('menu') as $menu)
                     @php
-                        $currentUrl = '/' . explode('/', request()->path())[0];
+                        $currentUrl = str_replace('/', '', request()->path());
                         $isActive =
                             $menu['url'] == $currentUrl ||
                             !empty(
@@ -19,7 +19,7 @@
                                     $menu['menus'],
                                     fn($menu_child) => str_starts_with(
                                         $currentUrl,
-                                        '/' . explode('/', $menu_child['url'])[1],
+                                        str_replace('/', '', $menu_child['url']),
                                     ),
                                 )
                             );
@@ -38,7 +38,7 @@
                         <ul style="@if ($isActive) display: block; @endif">
                             @foreach ($menu['menus'] as $menu_child)
                                 @php
-                                    $childUrl = '/' . explode('/', $menu_child['url'])[1];
+                                    $childUrl = str_replace('/', '', $menu_child['url']);
                                     $active_child_menu = str_starts_with($currentUrl, $childUrl);
                                 @endphp
 
