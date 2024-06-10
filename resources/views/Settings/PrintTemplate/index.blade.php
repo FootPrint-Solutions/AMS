@@ -25,7 +25,7 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td>
-                                <input type="text" class="form-control" name="step_no[{{ $item->id }}]"
+                                <input type="number" class="form-control" name="step_no[{{ $item->id }}]"
                                     id="step_no[{{ $item->id }}]" value="{{ $item->step_no }}">
                             </td>
                             <td>
@@ -73,7 +73,7 @@
                     <tr>
                         <td>${rowCount + 1}</td>
                         <td>
-                            <input type="text" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}">
+                            <input type="number" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}">
                         </td>
                         <td>
                             <textarea class="form-control" name="message[${rowCount}]" id="message[${rowCount}]" rows="3"></textarea>
