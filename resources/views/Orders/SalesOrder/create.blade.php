@@ -637,19 +637,19 @@
                     $("#discount-percentage").removeClass("d-none");
                 }
             });
-
-            $(".battery-discount, #tax, #discount, #discount-price-value, #extra-discount").on("change keyup",
-                function() {
-                    // Validate input value.
-                    let value = parseInt($(this).val(), 10);
-                    if (isNaN(value)) {
-                        $(this).val("0");
-                    }
-
-                    // Recalculate total value.
-                    calculateTotal($(this).attr("id") === "discount-price-value");
-                });
         });
+
+        $(document).on("change keyup", ".battery-discount, #tax, #discount, #discount-price-value, #extra-discount",
+            function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                // Recalculate total value.
+                calculateTotal($(this).attr("id") === "discount-price-value");
+            });
     </script>
 
     {{-- Keyup Event Handler --}}
