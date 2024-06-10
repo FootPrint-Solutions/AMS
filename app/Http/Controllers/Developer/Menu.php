@@ -134,7 +134,7 @@ class Menu extends Controller
      */
     public function update(Request $request)
     {
-        $menu = MenuModel::find($request->id);
+        $menu = MenuModel::find($request->id)->first();
         $menu->name = $request->name;
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
@@ -157,7 +157,7 @@ class Menu extends Controller
      */
     public function destroy(Request $request)
     {
-        $menu = MenuModel::find($request->id);
+        $menu = MenuModel::find($request->id)->first();
         $parent_id = $menu->parent_id;
         $order = $menu->order;
         $status = $menu->delete();
