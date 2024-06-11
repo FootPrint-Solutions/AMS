@@ -8,8 +8,7 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label for="company-name">Members Name </label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
-                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
                         Exist</span>
@@ -21,12 +20,11 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label for="company-name">Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
-                        aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                            <option value="{{ $vehicle['id'] }}">
-                                {{ trim($vehicle['name']) }}
-                            </option>
+                        <option value="{{ $vehicle['id'] }}">
+                            {{ trim($vehicle['name']) }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -148,9 +146,11 @@
                                 Number(vehicle.price_retail_original).toLocaleString('id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) + ' %</span> </span></div></div></li>';
+                            var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
+                            var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
-                                Number((vehicle.price_net * (1 + vehicle.tax / 100)))
+                                Number((price_tax))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';
@@ -329,9 +329,11 @@
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) +
                                 ' %</span> </span></div></div></li>';
+                            var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
+                            var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
-                                Number((vehicle.price_net * (1 + vehicle.tax / 100)))
+                                Number((price_tax))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';

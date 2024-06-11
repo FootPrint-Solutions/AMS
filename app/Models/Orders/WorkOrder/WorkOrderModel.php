@@ -84,7 +84,8 @@ class WorkOrderModel extends Model implements Auditable
 
     public function batteries()
     {
-        return $this->hasMany(WorkOrderBatteryModel::class, 'work_order_id');
+        return $this->hasMany(WorkOrderBatteryModel::class, 'work_order_id')
+            ->limit(3);
     }
 
     public function salesOrder()
