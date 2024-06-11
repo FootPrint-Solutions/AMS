@@ -140,85 +140,83 @@
             </tr>
             @php $no = 1; @endphp
             @php $count = count($workOrder->batteries); @endphp
+
             @foreach ($workOrder->batteries as $battery)
                 <tr>
                     <td><input type='checkbox'>{{ $battery->battery_name }}</td>
                     <td>{{ $battery->quantity }}</td>
                 </tr>
                 @php $no++; @endphp
-                @if ($no > 3)
-                    <!-- Batasi loop sampai 3 kali -->
-                @break
-            @endif
-        @endforeach
+            @endforeach
 
-        @if ($count >= 3)
-            <!-- Tampilkan total hanya jika jumlah data lebih dari 3 -->
+            @while ($no <= 3)
+                <tr>
+                    <td><input type='checkbox'>{{ '' }}</td>
+                    <td>{{ '' }}</td>
+                </tr>
+                @php $no++; @endphp
+            @endwhile
+
             <tr>
                 <td style='width:20%; text-align:end;'>Total</td>
                 <td>{{ $count }}</td>
             </tr>
-        @endif
-        @for ($i = 1; $i < 11; $i++)
-            @if ($i < count($task))
-                <tr>
-                    <td style='width:1%;'>{{ $i + 1 }}. </td>
-                    <td colspan="4"><input type='checkbox'>{{ $task[$i]->message }}</td>
-                </tr>
-            @else
-                <tr>
-                    <td style='width:1%;'>{{ $i + 1 }}. </td>
-                    <td colspan="4"><input type='checkbox'></td> <!-- Jika tidak ada data, kolom akan kosong -->
-                </tr>
-            @endif
-        @endfor
-    </table>
 
-    <table style='margin-top:10px;'>
-        <tr>
-            <td colspan="3">Catatan</td>
+            @for ($i = 1; $i < 11; $i++)
+                @if ($i < count($task))
+                    <tr>
+                        <td style='width:1%;'>{{ $i + 1 }}. </td>
+                        <td colspan="4"><input type='checkbox'>{{ $task[$i]->message }}</td>
+                    </tr>
+                @else
+                    <tr>
+                        <td style='width:1%;'>{{ $i + 1 }}. </td>
+                        <td colspan="4"><input type='checkbox'></td> <!-- Jika tidak ada data, kolom akan kosong -->
+                    </tr>
+                @endif
+            @endfor
+        </table>
 
-        </tr>
-        <tr>
-            <td style='width:60%; padding:50px' rowspan="3" colspan="3"></td>
-        </tr>
-    </table>
+        <table style='margin-top:10px;'>
+            <tr>
+                <td colspan="3">Catatan</td>
 
-    <div class="row">
-        <div class="column">
-            <table style='margin-top:10px;'>
-                <tr>
-                    <td colspan="2" style="text-align:center; font-weight:700;">Tanda Tangan</td>
-                </tr>
-                <tr>
-                    <td style="text-align:center; width:50%;">Admin Partner</td>
-                    <td style="text-align:center;">Teknisi</td>
-                </tr>
-                <tr>
-                    <td style="padding:40px; width:50%;"></td>
-                    <td style="padding:40px"></td>
-                </tr>
-            </table>
-        </div>
-        <div class="column">
-            <table style='margin-top:10px;'>
-                <tr>
-                    <td colspan="4" style="text-align:center; font-weight:700;">QR Code Lokasi</td>
-                </tr>
-                <tr>
-                    <td style="text-align:center;">{{ $qrCode }}</td>
-                </tr>
-            </table>
+            </tr>
+            <tr>
+                <td style='width:60%; padding:50px' rowspan="3" colspan="3"></td>
+            </tr>
+        </table>
+
+        <div class="row">
+            <div class="column">
+                <table style='margin-top:10px;'>
+                    <tr>
+                        <td colspan="2" style="text-align:center; font-weight:700;">Tanda Tangan</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; width:50%;">Admin Partner</td>
+                        <td style="text-align:center;">Teknisi</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px; width:50%;"></td>
+                        <td style="padding:40px"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="column">
+                <table style='margin-top:10px;'>
+                    <tr>
+                        <td colspan="4" style="text-align:center; font-weight:700;">QR Code Lokasi</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">{{ $qrCode }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<br><br>
+    <br><br>
 
 </body>
 
 </html>
-
-{{-- js print --}}
-<script>
-    window.print();
-</script>

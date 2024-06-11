@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 // QR CODE
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
-use App\Models\settings\PrintTemplateModel;
+use App\Models\Settings\PrintTemplateModel;
 
 class WorkOrder extends Controller
 {
