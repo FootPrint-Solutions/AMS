@@ -426,6 +426,18 @@
 
             $("#btnNextStep4").on('click', function() {
                 // $('#btnNextStep4').trigger('click');
+                var BatteryIdCheckout = [];
+                $(".BatteryIdCheckout").each(function() {
+                    var value = $(this).val();
+                    BatteryIdCheckout.push(value);
+                });
+
+                // jika BatteryIdCheckout kosong 
+                if (BatteryIdCheckout.length == 0) {
+                    swal.fire("Error!", "Please select battery", "error");
+                    return false;
+                }
+
 
                 if ($('#PaymentDisplay').hasClass('active')) {
                     var FullName = $("#FullName").val();
