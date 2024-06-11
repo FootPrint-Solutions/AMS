@@ -342,6 +342,8 @@ $arrayBattery
         $NetPrice = $request->input('NetPrice');
         $DiscountRow = $request->input('DiscountRow');
         $SubtotalRow = $request->input('SubtotalRow');
+        $TaxRow = $request->input('TaxRow');
+        $TaxPriceRow = $request->input('TaxPriceRow');
         $PaymentMethod = PaymentMethodModel::all()->toArray();
         if ($request->input('DistributorShopId') != null) {
             $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
@@ -355,7 +357,9 @@ $arrayBattery
                     'link' => '',
                     'DiscountRow' => $DiscountRow[$key],
                     'NetPrice' => $NetPrice[$key],
-                    'SubtotalRow' => $SubtotalRow[$key]
+                    'SubtotalRow' => $SubtotalRow[$key],
+                    'TaxRow' => $TaxRow[$key],
+                    'TaxPriceRow' => $TaxPriceRow[$key],
                 ];
             }
         } else {
@@ -369,7 +373,9 @@ $arrayBattery
                     'link' => '',
                     'DiscountRow' => $DiscountRow[$key],
                     'NetPrice' => $NetPrice[$key],
-                    'SubtotalRow' => $SubtotalRow[$key]
+                    'SubtotalRow' => $SubtotalRow[$key],
+                    'TaxRow' => $TaxRow[$key],
+                    'TaxPriceRow' => $TaxPriceRow[$key],
                 ];
             }
         }
@@ -754,23 +760,30 @@ $arrayBattery
         foreach ($request->input('BatteryNameTabel') as $key => $value) {
             for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
                 if ($request->input('DiscountPayment')[$key] != 0) {
+                    $TaxPayment = $request->input('TaxPayment')[$key];
                     $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                     $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
                     $Discount = $request->input('DiscountPayment')[$key];
                     $Subtotal = $request->input('SubtotalPayment')[$key];
+                    $TaxPrice = $GrossPrice * $TaxPayment / 100;
                 } else {
+                    $TaxPayment = $request->input('TaxPayment')[$key];
                     $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                    $NetPrice = 0;
-                    $Discount = 0;
+                    $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                    $Discount = $request->input('DiscountPayment')[$key];
                     $Subtotal = $request->input('SubtotalPayment')[$key];
+                    $TaxPrice = $GrossPrice * $TaxPayment / 100;
                 }
                 $dataProduct[] = [
                     'sales_order_id' => $Quotation->id,
-                    'battery_id' => $request->input('Battery')[$key],
+                    'battery_id' => $request->input('BatteryIdCheckout')[$key],
                     'battery_name' => $value,
                     'battery_price_retail' => $GrossPrice,
                     'discount' => $Discount,
-                    'price_net' => $NetPrice,
+                    'discount_price' => "0",
+                    'tax' => $request->input('TaxPayment')[$key],
+                    'tax_price' =>  $TaxPrice,
+                    'price_net' =>  str_replace(".", "", $Subtotal),
                     'quantity' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
