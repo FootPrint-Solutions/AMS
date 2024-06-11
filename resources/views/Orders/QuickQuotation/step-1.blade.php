@@ -122,18 +122,18 @@
                             vehicle.capacity +
                             ' AH</div></div></li></li>';
                         html +=
-                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Standar CCA </div><div class="col-xl-1"> : </div><div class="col">' +
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">CCA </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle
                             .standard_cca + '</div></div></li>'
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Garansi </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle.warranty +
                             ' Bulan</div></div></li>';
-                        html +=
-                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Ukuran </div><div class="col-xl-1"> : </div><div class="col">' +
-                            vehicle.size_category +
-                            '</div></div></li>';
                         if (vehicle.discount == 0) {
+                            html += '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
+                                Number((vehicle.price_retail))
+                                .toLocaleString('id-ID') +
+                                '</div></div></li>';
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN </div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number((vehicle.price_retail * (1 + vehicle.tax / 100)))
@@ -141,19 +141,22 @@
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
+                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
-                                Number(vehicle.price_retail_original).toLocaleString('id-ID') +
+                                Number(price_with_tax).toLocaleString('id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) + ' %</span> </span></div></div></li>';
+                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
                             var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
                             var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
                             html +=
-                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
                                 Number((price_tax))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';
+                            html += '<li class="list-group-item"></li>';
                         }
                         html += '</ul>';
                         html += '</div>';
@@ -303,18 +306,18 @@
                             vehicle.capacity +
                             ' AH</div></div></li></li>';
                         html +=
-                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Standar CCA </div><div class="col-xl-1"> : </div><div class="col">' +
+                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">CCA </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle
                             .standard_cca + '</div></div></li>'
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Garansi </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle.warranty +
                             ' Bulan</div></div></li>';
-                        html +=
-                            '<li class="list-group-item"><div class="row"><div class="col-xl-6">Ukuran </div><div class="col-xl-1"> : </div><div class="col">' +
-                            vehicle.size_category +
-                            '</div></div></li>';
                         if (vehicle.discount == 0) {
+                            html += '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
+                                Number((vehicle.price_retail))
+                                .toLocaleString('id-ID') +
+                                '</div></div></li>';
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN </div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number((vehicle.price_retail * (1 + vehicle.tax / 100)))
@@ -322,9 +325,10 @@
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
+                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
-                                Number(vehicle.price_retail_original).toLocaleString(
+                                Number(price_with_tax).toLocaleString(
                                     'id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) +
@@ -332,11 +336,12 @@
                             var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
                             var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
                             html +=
-                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga Net + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
                                 Number((price_tax))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';
+                            html += '<li class="list-group-item"></li>';
                         }
                         html += '</ul>';
                         html +=

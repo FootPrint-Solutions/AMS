@@ -209,18 +209,16 @@ $arrayVehicle";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
                 if ($value['discount'] != 0) {
                     // hitung price discount 
+                    $grossPriceWithTax = $value['price_net'] + ($value['price_net'] * $Tax / 100);
                     $price_discount = $value['price_retail'] - ($value['price_retail'] * $value['discount'] / 100);
                     $price_tax =  $price_discount + ($price_discount * $Tax / 100);
-                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($value['price_retail'], 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r\n";
-                    $arrayBattery .= "*Harga Net* : Rp. " . number_format($price_discount, 0, "", ".") . "\r\n";
-                    $arrayBattery .= "*Tax* : " . number_format($Tax, 0, "", ".") . "%\r\n";
-                    $arrayBattery .= "*Harga Total* : Rp. " . number_format($price_tax, 0, "", ".") . "\r";
+                    $arrayBattery .= "*Harga* : ~Rp. " . number_format($grossPriceWithTax, 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r\n";
+                    $arrayBattery .= "*Harga + PPN* : Rp. " . number_format($price_tax, 0, "", ".") . "\r";
                 } else {
-                    $arrayBattery .= "*Harga* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
+                    $grossPriceWithTax = $value['price_retail'] + ($value['price_retail'] * $Tax / 100);
+                    $arrayBattery .= "*Harga* : Rp. " . number_format($grossPriceWithTax, 0, "", ".") . "\r\n";
                     $arrayBattery .= "*Discount* : " . number_format($value['discount']) . "%\r\n";
-                    $arrayBattery .= "*Harga Net* : Rp. " . number_format($value['price_retail'], 0, "", ".") . "\r\n";
-                    $arrayBattery .= "*Tax* : " . number_format($Tax, 0, "", ".") . "%\r\n";
-                    $arrayBattery .= "*Harga Total* : Rp. " . number_format($value['price_retail'] + ($value['price_retail'] * $Tax / 100), 0, "", ".") . "\r";
+                    $arrayBattery .= "*Harga + PPN* : Rp. " . number_format($value['price_retail'] + ($value['price_retail'] * $Tax / 100), 0, "", ".") . "\r";
                 }
 
 
@@ -425,11 +423,13 @@ $arrayBattery
         $arrayBattery = "";
         foreach ($batteries as $battery) {
             if ($battery->price_net != 0) {
+                $grossPriceWithTax = $battery->price_net + ($battery->price_net * $Tax / 100);
                 $price_net = $battery->price_net;
                 $discount = $battery->discount;
                 $price_discount = $price_net - ($price_net * $discount / 100);
                 $price_tax = $price_discount + ($price_discount * $Tax / 100);
             } else {
+                $grossPriceWithTax = $battery->price_retail_original + ($battery->price_retail_original * $Tax / 100);
                 $price_net = $battery->price_retail_original;
                 $discount = 0;
                 $price_net = $price_net - ($price_net * $discount / 100);
@@ -440,10 +440,9 @@ $arrayBattery
             $arrayBattery .= "*Kapasitas* : " . $battery->capacity . " AH\r";
             $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
-            $arrayBattery .= "*Harga* : Rp. " . number_format($price_net, 0, "", ".") . "\r";
+            $arrayBattery .= "*Harga* : Rp. " . number_format($grossPriceWithTax, 0, "", ".") . "\r";
             $arrayBattery .= "*Discount* : " . number_format($discount, 0, "", ".") . "%\r";
-            $arrayBattery .= "*Tax* : " . number_format($Tax, 0, "", ".")  . "%\r";
-            $arrayBattery .= "*Harga Total* : Rp. " . number_format($price_tax, 0, "", ".") . "\r";
+            $arrayBattery .= "*Harga + PPN* : Rp. " . number_format($price_tax, 0, "", ".") . "\r";
 
             $arrayBattery .= "\r";
         }
