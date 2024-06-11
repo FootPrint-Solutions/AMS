@@ -186,8 +186,6 @@ class SalesOrderModel extends Model implements Auditable
         $workOrder->date = $salesOrder->date;
         $workOrder->sales_order_id = $salesOrder->id;
         $workOrder->customer_id = $salesOrder->customer_id;
-        $workOrder->tax = $salesOrder->tax;
-        $workOrder->tax_price = $salesOrder->tax_price;
         $workOrder->discount_price = $salesOrder->discount_price;
         $workOrder->discount = $salesOrder->discount;
         $workOrder->total = $salesOrder->total;
