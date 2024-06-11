@@ -454,6 +454,8 @@
                     var DiscountRow = [];
                     var NetPrice = [];
                     var SubtotalRow = [];
+                    var TaxRow = [];
+                    var TaxPriceRow = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -505,6 +507,16 @@
                         SubtotalRow.push(value);
                     });
 
+                    $(".TaxRow").each(function() {
+                        var value = $(this).val();
+                        TaxRow.push(value);
+                    });
+
+                    $(".PriceTaxRow").each(function() {
+                        var value = $(this).val();
+                        TaxPriceRow.push(value);
+                    });
+
                     var subtotal = $("#subtotal").val();
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
@@ -537,6 +549,8 @@
                         DiscountRow: DiscountRow,
                         NetPrice: NetPrice,
                         SubtotalRow: SubtotalRow,
+                        TaxRow: TaxRow,
+                        TaxPriceRow: TaxPriceRow,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -802,6 +816,9 @@
                 var DiscountPayment = [];
                 var NetPricePayment = [];
                 var SubtotalPayment = [];
+                var TaxPayment = [];
+                var TaxPricePayment = [];
+                var BatteryIdCheckout = [];
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -848,6 +865,21 @@
                     SubtotalPayment.push(value);
                 });
 
+                $(".TaxPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    TaxPayment.push(value);
+                });
+
+                $(".PriceTaxPaymentDetails").each(function() {
+                    var value = $(this).val();
+                    TaxPricePayment.push(value);
+                });
+
+                $(".BatteryIdCheckout").each(function() {
+                    var value = $(this).val();
+                    BatteryIdCheckout.push(value);
+                });
+
                 var PaymentMethod = $("#PaymentMethod").val();
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
@@ -888,6 +920,9 @@
                     NetPricePayment: NetPricePayment,
                     SubtotalPayment: SubtotalPayment,
                     PaymentMethod: PaymentMethod,
+                    TaxPayment: TaxPayment,
+                    TaxPricePayment: TaxPricePayment,
+                    BatteryIdCheckout: BatteryIdCheckout
                 };
 
                 $.ajax({

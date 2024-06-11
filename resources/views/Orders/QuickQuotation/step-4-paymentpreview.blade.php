@@ -44,6 +44,8 @@
                         <th style="width: 25%;">Battery</th>
                         <th style="width: 5%;">Quantity</th>
                         <th>Gross Price</th>
+                        <th>Tax</th>
+                        <th>Price + Tax</th>
                         <th style="width: 5%;">Discount ( % )</th>
                         <th>Net Price</th>
                         <th>Subtotal</th>
@@ -64,6 +66,14 @@
                                     class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
                                 <input readonly type="hidden" name="PricePaymentDetails[]"
                                     class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="TaxPaymentDetails[]"
+                                    class="form-control TaxPaymentDetails" value="{{ $data['TaxRow'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="PriceTaxPaymentDetails[]"
+                                    class="form-control PriceTaxPaymentDetails" value="{{ $data['TaxPriceRow'] }}">
                             </td>
                             <td>
                                 <input readonly type="number" name="DiscountPaymentDetails[]"
