@@ -389,6 +389,11 @@
         });
 
         $(document).on('click', '.remove-row', function() {
+            // cek jika row yang dihapus adalah row terakhir, maka akan menampilkan alert
+            if ($('.add-table-items tbody tr').length == 1) {
+                swal.fire("Error!", "You can't delete the last row", "error");
+                return false;
+            }
             $(this).closest('tr').remove();
             calculateTotalAmount();
         });
