@@ -120,14 +120,6 @@
                 </tr>
 
                 <tr>
-                    <td colspan="2"></td>
-                    <th style="text-align: right">Tax</th>
-                    <td style="text-align: right">
-                        {{ number_format($data['profile']['tax_price']) }}
-                    </td>
-                </tr>
-
-                <tr>
                     <td colspan="2" class="fst-italic">{{ ucwords(convertToTerbilang($data['profile']['total'])) }}
                     </td>
                     <th style="text-align: right">Total</th>
