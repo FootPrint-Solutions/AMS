@@ -478,6 +478,8 @@
             formatPrice($("#discount-price-value"));
             formatPrice($("#subtotal"));
             formatPrice($("#total"));
+
+            calculateTotal();
         });
     </script>
 
