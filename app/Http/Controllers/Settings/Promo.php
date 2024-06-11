@@ -197,7 +197,6 @@ class Promo extends Controller
                     $price->promo_id = $promo->id;
                     $price->discount = $request->batteriesdisc[$i];
                     $price->discount_price = $request->batteriesdiscprice[$i];
-                    $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                     $status &= $price->save();
                 } else {
                     $price = new BatteryPriceModel();
@@ -206,7 +205,6 @@ class Promo extends Controller
                     $price->price_retail = BatteryModel::find($request->detailid[$i])->price_retail;
                     $price->discount = $request->batteriesdisc[$i];
                     $price->discount_price = $request->batteriesdiscprice[$i];
-                    $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                     $status &= $price->save();
                 }
             }
@@ -272,7 +270,6 @@ class Promo extends Controller
                     $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
                     if ($price) {
                         $price->discount = $request->batteriesdisc[$i];
-                        $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                         $status &= $price->save();
                     } else {
                         $price = new BatteryPriceModel();
@@ -280,7 +277,6 @@ class Promo extends Controller
                         $price->promo_id = $promo->id;
                         $price->price_retail = BatteryModel::find($request->detailid[$i])->price_retail;
                         $price->discount = $request->batteriesdisc[$i];
-                        $price->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                         $status &= $price->save();
                     }
                 }
