@@ -7,7 +7,8 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -194,5 +195,58 @@
         row.find('.PriceTaxRow').val(priceTax);
 
         row.find('#showAutoCompleteBattery').hide();
+
+        calculateTotalAmount();
     });
+
+    function parseFormattedNumber(num) {
+        return parseFloat(num.replace(/\./g, '').replace(',', '.'));
+    }
+
+
+    function calculateTotalAmount() {
+        var subtotal = 0;
+        $('.add-table-items tbody tr').each(function() {
+            var row = $(this);
+            var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+            var subtotalRow = parseFormattedNumber(row.find('.SubtotalRow').val().replace(/,/g,
+                    '')) ||
+                0;
+            subtotal += subtotalRow;
+        });
+        var discount = parseFloat($('#discount').val()) || 0;
+        var tax = parseFloat($('#tax').val()) || 0;
+
+        $("#subtotal").val(subtotal);
+        var formatedSubtotal = subtotal.toLocaleString('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+        $("#subtotal2").val(formatedSubtotal);
+
+        var typeDiscount = $("#type-discount").val();
+        if (typeDiscount == "rupiah") {
+            var discountvalue = parseInt(discount);
+            var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+            var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
+            var discountPercent = (parseInt(discount) / subtotal) * 100;
+            $("#discount-rupiah").val(discountvalue);
+            $("#discount-percent").val(discountPercent);
+        } else {
+            var discountvalue = subtotal * (parseInt(discount) / 100);
+            var taxvalue = (subtotal - discountvalue) * (parseInt(tax) / 100);
+            var GrandTotal = (subtotal - parseInt(discountvalue)) + parseInt(taxvalue);
+            $("#discount-rupiah").val(discountvalue);
+            $("#discount-percent").val(discount);
+        }
+
+        $("#tax").val(tax);
+        $("#discount").val(discount);
+        $("#TotalAmount").text(GrandTotal
+            .toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }));
+        $("#TotalAmountHidden").val(GrandTotal);
+    }
 </script>

@@ -51,26 +51,33 @@
                 </thead>
                 <tbody>
                     @foreach ($dataProduct as $data)
-                    <tr>
-                        <td>
-                            <input type="text" name="BatteryNamePaymentDetails[]" class="form-control BatteryNamePaymentDetails" value="{{ $data['name'] }}" readonly>
-                        </td>
-                        <td>
-                            <input readonly type="number" name="QtyPaymentDetails[]" class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
-                        </td>
-                        <td> <input readonly type="text" name="PricePaymentDetails2[]" class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
-                            <input readonly type="hidden" name="PricePaymentDetails[]" class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
-                        </td>
-                        <td>
-                            <input readonly type="number" name="DiscountPaymentDetails[]" class="form-control DiscountPaymentDetails" value="{{ $data['DiscountRow'] }}">
-                        </td>
-                        <td>
-                            <input readonly type="text" name="NetPricePaymentDetails[]" class="form-control NetPricePaymentDetails" value="{{ $data['NetPrice'] }}">
-                        </td>
-                        <td>
-                            <input readonly type="text" name="SubtotalPaymentDetails[]" class="form-control SubtotalPaymentDetails" value="{{ $data['SubtotalRow'] }}">
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>
+                                <input type="text" name="BatteryNamePaymentDetails[]"
+                                    class="form-control BatteryNamePaymentDetails" value="{{ $data['name'] }}" readonly>
+                            </td>
+                            <td>
+                                <input readonly type="number" name="QtyPaymentDetails[]"
+                                    class="form-control QtyPaymentDetails" value="{{ $data['qty'] }}">
+                            </td>
+                            <td> <input readonly type="text" name="PricePaymentDetails2[]"
+                                    class="form-control PricePaymentDetails2" value="{{ $data['price'] }}">
+                                <input readonly type="hidden" name="PricePaymentDetails[]"
+                                    class="form-control PricePaymentDetails" value="{{ $data['price'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="number" name="DiscountPaymentDetails[]"
+                                    class="form-control DiscountPaymentDetails" value="{{ $data['DiscountRow'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="NetPricePaymentDetails[]"
+                                    class="form-control NetPricePaymentDetails" value="{{ $data['NetPrice'] }}">
+                            </td>
+                            <td>
+                                <input readonly type="text" name="SubtotalPaymentDetails[]"
+                                    class="form-control SubtotalPaymentDetails" value="{{ $data['SubtotalRow'] }}">
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -87,25 +94,28 @@
                             <h5>Payment Method</h5>
                             <select class="form-select" name="PaymentMethod" id="PaymentMethod">
                                 @foreach ($PaymentMethod as $pm)
-                                <option value="{{ $pm['id'] }}">{{ $pm['name'] }}</option>
+                                    <option value="{{ $pm['id'] }}">{{ $pm['name'] }}</option>
                                 @endforeach
                             </select>
 
                             <div id="MidtransPaymentLink" class="d-none mt-3">
                                 @if (isset($DistributorShop) && !empty($DistributorShop))
-                                <label class="custom_check w-100">
-                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans" checked readonly>
-                                    <span class="checkmark"></span> Use Payment Link Midtrans
-                                </label>
+                                    <label class="custom_check w-100">
+                                        <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans"
+                                            id="CheckMidtrans" checked readonly>
+                                        <span class="checkmark"></span> Use Payment Link Midtrans
+                                    </label>
                                 @elseif (isset($DistributorShop) && empty($DistributorShop))
-                                <label class="custom_check w-100">
-                                    <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans" id="CheckMidtrans" disabled checked readonly>
-                                    <span class="checkmark"></span> Use Payment Link Midtrans
-                                </label>
+                                    <label class="custom_check w-100">
+                                        <input type="checkbox" class="CheckMidtrans" name="CheckMidtrans"
+                                            id="CheckMidtrans" disabled checked readonly>
+                                        <span class="checkmark"></span> Use Payment Link Midtrans
+                                    </label>
                                 @endif
                                 <p>Payment Link : </p>
                                 <p>{{ $snapToken }}</p>
-                                <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden" name="LinkPaymentMidtrans" value="{{ $snapToken }}">
+                                <input class="linkMidtrans" id="LinkPaymentMidtrans" type="hidden"
+                                    name="LinkPaymentMidtrans" value="{{ $snapToken }}">
                             </div>
                         </div>
                         {{-- Total Amount --}}
@@ -119,7 +129,7 @@
                         <div class="invoice-total-inner">
                             <p>Subtotal <span>Rp. {{ number_format($Subtotal, 0, ',', '.') }}</span></p>
                             <p>Discount (%) <span>{{ $Discount }}</span></p>
-                            <p>Tax (%) <span>{{ $tax }}</span></p>
+                            {{-- <p>Tax (%) <span>{{ $tax }}</span></p> --}}
                             {{-- <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p> --}}
                         </div>
                         <div class="invoice-total-footer">
