@@ -12,8 +12,6 @@ use App\Models\MenuParent as MenuParentModel;
 class Menu extends Controller
 {
     private $title = "Menu Manager";
-    private $menu = 4;
-    private $submenu = 1;
 
     /**
      * Display a listing of the resource.
@@ -25,9 +23,7 @@ class Menu extends Controller
         return view(
             'Developer.Menu.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -43,8 +39,6 @@ class Menu extends Controller
             'Developer.Menu.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "menus" => [],
                     "menu_parents" => MenuParentModel::all()->toArray()
@@ -68,8 +62,6 @@ class Menu extends Controller
             'Developer.Menu.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $profile,
                     "menus" => MenuModel::where("parent_id", $profile["parent_id"])->get()->toArray(),
@@ -142,7 +134,7 @@ class Menu extends Controller
      */
     public function update(Request $request)
     {
-        $menu = MenuModel::find($request->id);
+        $menu = MenuModel::find($request->id)->first();
         $menu->name = $request->name;
         $menu->parent_id = $request->menuparent;
         $menu->order = $menu->order($request->after, $request->menuparent, $menu->order);
@@ -165,7 +157,7 @@ class Menu extends Controller
      */
     public function destroy(Request $request)
     {
-        $menu = MenuModel::find($request->id);
+        $menu = MenuModel::find($request->id)->first();
         $parent_id = $menu->parent_id;
         $order = $menu->order;
         $status = $menu->delete();

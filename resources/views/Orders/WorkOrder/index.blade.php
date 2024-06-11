@@ -87,7 +87,8 @@
                             }
 
                             // Download invoice as pdf.
-                            downloadPDF("/work-order/print/" + selectedRows[0][8]);
+                            $("#work_order_id").val(selectedRows[0][8]);
+                            showModalPrint("/work-order/print/" + selectedRows[0][8]);
                         },
                         className: "btn btn-outline-danger btn-sm",
                     },
@@ -121,18 +122,61 @@
 
             // Load DataTables toolbar component.
             appendDatatablesToolbar(9);
+
+            function showModalPrint(url) {
+                // Show the print modal.
+                $('#modal-print').modal('show');
+
+            }
         });
     </script>
+
+    {{-- modal print --}}
+    <div class="modal fade" id="modal-print" tabindex="-1" aria-labelledby="modal-print-label" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-light" id="modal-print-label"><i class="fas fa-print"></i> Print Work Order
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- select option --}}
+                    <div class="form-group mb-3">
+                        <form action="/work-order/print" method="POST">
+                            @csrf
+                            <input type="hidden" name="work_order_id" id="work_order_id">
+                            <label for="print_type">Print Type</label>
+                            <label for="print_option">Select Print Option:</label>
+                            <select class="form-select" id="print_option" name="print_option">
+                                <option value="regular_dan_instalasi">1. Regular dan Instalasi</option>
+                                <option value="tokopedia_dan_instalasi">2. Tokopedia dan Instalasi</option>
+                                <option value="tokopedia_tanpa_instalasi">3. Tokopedia tanpa Instalasi</option>
+                            </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="btn-print"><i class="fas fa-print"></i>
+                        Print</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- Modal --}}
     <div class="modal fade" id="modal-upload-image" tabindex="-1" aria-labelledby="modal-upload-image-label"
         aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-md modal-dialog-centered">
             <div class="modal-content">
                 <form id="form-upload-image" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modal-upload-image-label">Upload Image</h5>
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-light" id="modal-upload-image-label"><i class="fas fa-upload"></i>
+                            Upload Image
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 

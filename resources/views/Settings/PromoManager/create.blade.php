@@ -101,6 +101,13 @@
                                 </button>
                             </td>
                         </tr>
+
+                        <tr class="text-center">
+                            <td class="p-1 text-muted small">Name</td>
+                            <td class="p-1 text-muted small">Price Retail</td>
+                            <td class="p-1 text-muted small">Discount</td>
+                            <td class="p-1 text-muted small">Price Net</td>
+                        </tr>
                     </thead>
 
                     {{-- Body (Items) --}}
@@ -141,6 +148,9 @@
                                             @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                         <span class="input-group-text border-end">%</span>
                                     </div>
+
+                                    <input type="hidden" class="form-control text-end battery-discountprice"
+                                        id="battery-discountprice-{{ $counter }}" name="batteriesdiscprice[]">
                                 </td>
 
                                 {{-- Net Price & Delete --}}
@@ -153,7 +163,7 @@
                                                 <span class="input-group-text border-end">IDR</span>
                                                 <input type="text" class="form-control text-end battery-pricenet"
                                                     id="battery-pricenet-{{ $counter }}" name="batteriespricenet[]"
-                                                    placeholder="Enter item net price" required readonly
+                                                    required readonly
                                                     @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
                                         </div>
@@ -352,7 +362,7 @@
             let counter = parts[parts.length - 1];
 
             // Recalculate total value.
-            calculatePriceDiscount(counter, $(this).hasClass("battery-discount"));
+            calculatePriceDiscount(counter);
         });
     </script>
 
@@ -368,7 +378,7 @@
                     let id = element.attr("id");
                     let parts = id.split('-');
                     let counter = parts[parts.length - 1];
-                    calculatePriceDiscount(counter, true);
+                    calculatePriceDiscount(counter);
                 });
             });
 
@@ -457,15 +467,13 @@
          * @param {boolean} discountPrice - (Optional) Indicates if the discount price value has been changed..
          * @returns {number} The total price after applying tax, discount, and extra discount.
          */
-        function calculatePriceDiscount(counter, discountPriceIsChanged = false) {
+        function calculatePriceDiscount(counter) {
             let priceRetail = parseInt($('#battery-priceretail-' + counter).val().replace(/\D/g, ''));
             let discount = parseInt($('#battery-discount-' + counter).val().replace(/\D/g, ''));
-            let priceNet = parseInt($('#battery-pricenet-' + counter).val().replace(/\D/g, ''));
+            let discountPrice = priceRetail * discount / 100;
 
-            if (discountPriceIsChanged)
-                $('#battery-pricenet-' + counter).val(priceRetail - (priceRetail * discount / 100));
-            else
-                $('#battery-discount-' + counter).val(Math.round((priceNet / priceRetail * 100)));
+            $("#battery-discountprice-" + counter).val(discountPrice);
+            $('#battery-pricenet-' + counter).val(priceRetail - discountPrice);
 
             formatPrice($(".battery-pricenet"));
         }

@@ -26,8 +26,6 @@ use Maatwebsite\Excel\Facades\Excel;
 class Battery extends Controller
 {
     private $title = "Battery";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Battery index page.
@@ -39,9 +37,7 @@ class Battery extends Controller
         return view(
             'MasterData.Battery.index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -57,8 +53,6 @@ class Battery extends Controller
             'MasterData.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
@@ -82,8 +76,6 @@ class Battery extends Controller
             'MasterData.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'profile' => BatteryModel::with('urls')->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
@@ -179,6 +171,8 @@ class Battery extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = new BatteryModel();
             $battery->name = $request->name;
@@ -284,12 +278,20 @@ class Battery extends Controller
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -307,6 +309,8 @@ class Battery extends Controller
      */
     public function update(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = BatteryModel::find($request->id);
             $battery->name = $request->name;
@@ -437,12 +441,20 @@ class Battery extends Controller
                 $status &= $price->save();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery was successfully updated!" : "Failed to update the battery!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -459,10 +471,17 @@ class Battery extends Controller
      */
     public function updateStatus(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $battery = BatteryModel::find($request->id);
             $battery->status = $battery->status ? 0 : 1;
             $status = $battery->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -470,6 +489,9 @@ class Battery extends Controller
                 $status ? "The selected battery was successfully updated!" : "Failed to update the selected battery!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -490,7 +512,6 @@ class Battery extends Controller
             [
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
-                DB::raw("IF(battery_prices.price_net > 0, battery_prices.price_net, batteries.price_retail) as price") // net price
             ]
         );
     }

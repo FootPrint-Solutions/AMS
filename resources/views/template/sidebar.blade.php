@@ -11,10 +11,22 @@
                 {{-- Menu --}}
                 @foreach (session('menu') as $menu)
                     @php
-                        $isActive = isset($active) && $active === $menu['id'];
+                        $currentUrl = str_replace('/', '', request()->path());
+                        $isActive =
+                            $menu['url'] == $currentUrl ||
+                            !empty(
+                                array_filter(
+                                    $menu['menus'],
+                                    fn($menu_child) => str_starts_with(
+                                        $currentUrl,
+                                        str_replace('/', '', $menu_child['url']),
+                                    ),
+                                )
+                            );
                     @endphp
 
-                    <li class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif">
+                    <li
+                        class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif">
                         <a href="{{ $menu['url'] }}">
                             <i class="{{ $menu['icon'] }}"></i>
                             <span> {{ $menu['name'] }} </span>
@@ -26,10 +38,12 @@
                         <ul style="@if ($isActive) display: block; @endif">
                             @foreach ($menu['menus'] as $menu_child)
                                 @php
-                                    $active_child_menu = isset($active_child) && $active_child === $menu_child['id'] && $active === $menu_child['parent_id'];
+                                    $childUrl = str_replace('/', '', $menu_child['url']);
+                                    $active_child_menu = str_starts_with($currentUrl, $childUrl);
                                 @endphp
 
-                                <li @if (!empty(session('submenu')[$menu_child['id']])) class="submenu" @endif @if($menu_child['hide'] == '1') style="display: none;" @endif>
+                                <li @if (!empty(session('submenu')[$menu_child['id']])) class="submenu" @endif
+                                    @if ($menu_child['hide'] == '1') style="display: none;" @endif>
                                     <a href="{{ $menu_child['url'] }}"
                                         class="@if ($active_child_menu) active @endif">
                                         {{ $menu_child['name'] }}

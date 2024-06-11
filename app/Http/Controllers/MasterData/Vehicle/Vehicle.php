@@ -25,8 +25,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class Vehicle extends Controller
 {
     private $title = "Vehicle";
-    private $menu = 2;
-    private $submenu = 3;
 
     /**
      * Show the Vehicle index page.
@@ -38,9 +36,7 @@ class Vehicle extends Controller
         return view(
             'MasterData/Vehicle/index',
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -56,8 +52,6 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
@@ -95,8 +89,6 @@ class Vehicle extends Controller
             'MasterData/Vehicle/create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     'brands' => VehicleBrandModel::all()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),

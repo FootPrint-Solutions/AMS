@@ -65,29 +65,10 @@
                 // Get battery brand form data.
                 let formData = new FormData($(this)[0]);
 
-                // Send battery brand form data to BatteryTechnology controller using AJAX.
-                $.ajax({
-                    url: url,
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
-
-                        // Check response data status.
-                        if (responseData.status) {
-                            // Creating process was succeeded.
-                            showSuccessToast(responseData.message);
-                        } else {
-                            // Creating process was failed.
-                            showErrorToast(responseData.message);
-                        }
-
-                        // Redirect to battery index page.
-                        goToPage("/battery/technology");
-                    }
+                // Send submit POST request via AJAX.
+                sendSubmitRequest(url, formData, function() {
+                    // Redirect to index page.
+                    goToPage("/battery/technology");
                 });
             });
 

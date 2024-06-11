@@ -35,6 +35,7 @@ use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 use App\Http\Controllers\Settings\PaymentMethod;
+use App\Http\Controllers\Settings\PrintTemplate;
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -233,13 +234,15 @@ Route::middleware(['auth'])->group(function () {
     // Work Order
     Route::get('/work-order', [WorkOrder::class, 'index']);
     Route::post('/work-order/show', [WorkOrder::class, 'show']);
-    Route::get('/work-order/print/{id}', [WorkOrder::class, 'print']);
+    Route::post('/work-order/print/', [WorkOrder::class, 'print']);
     Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
 
     // Settings
     // Message Template
     Route::get('/template/message', [MessageTemplate::class, 'index']);
     Route::post('/template/message/update', [MessageTemplate::class, 'update']);
+    Route::get('/template/print', [PrintTemplate::class, 'index']);
+    Route::post('/template/print/update', [PrintTemplate::class, 'update']);
 
     // Tax
     Route::get('/tax', [Tax::class, 'index']);

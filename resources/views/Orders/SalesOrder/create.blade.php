@@ -79,9 +79,11 @@
                                 <button type="button" class="btn btn-primary" id="btnAddress"><i
                                         class="fas fa-map-marker"></i></button>
                                 <input type="hidden" name="Latitude" id="Latitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif">
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                                    required>
                                 <input type="hidden" name="Longitude" id="Longitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif">
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -89,7 +91,7 @@
                     <div class="col">
                         <input type="text" class="form-control" name="Address" id="AddressSearchColumn"
                             value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                            readonly>
+                            readonly required>
                     </div>
                 </div>
 
@@ -193,13 +195,23 @@
                     {{-- Header --}}
                     <thead>
                         <tr>
-                            <td colspan="6" class="h5 text-center">
+                            <td colspan="7" class="h5 text-center">
                                 Item @if (!isset($data['profile']))
                                     <button type="button" id="btn-add-row"
                                         class="btn btn-primary btn-sm rounded-circle mx-2"><i
                                             class="fas fa-plus"></i></button>
                                 @endif
                             </td>
+                        </tr>
+
+                        <tr class="text-center">
+                            <td class="p-1 text-muted small">Production Code</td>
+                            <td class="p-1 text-muted small">Name</td>
+                            <td class="p-1 text-muted small">Price Retail</td>
+                            <td class="p-1 text-muted small">Tax</td>
+                            <td class="p-1 text-muted small">Price + Tax</td>
+                            <td class="p-1 text-muted small">Discount</td>
+                            <td class="p-1 text-muted small">Price Net</td>
                         </tr>
                     </thead>
 
@@ -220,13 +232,9 @@
                                 </td>
 
                                 {{-- Name --}}
-                                <td colspan="2">
+                                <td>
                                     @php
-                                        $targets = [
-                                            "battery-priceretail-$counter",
-                                            "battery-discount-$counter",
-                                            "battery-price-$counter",
-                                        ];
+                                        $targets = ["battery-priceretail-$counter", "battery-discount-$counter"];
                                         $encodedTargets = json_encode($targets);
                                     @endphp
 
@@ -261,6 +269,29 @@
                                     </div>
                                 </td>
 
+                                {{-- Tax --}}
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control text-end battery-tax"
+                                            id="battery-tax-{{ $counter }}" name="batteriestax[]" required readonly
+                                            @isset($data['profile']['batteries']) value="{{ $battery['tax'] }}" @else value="{{ $data['tax'] }}" @endisset>
+                                        <span class="input-group-text border-end">%</span>
+                                    </div>
+
+                                    <input type="hidden" class="form-control text-end battery-taxprice"
+                                        id="battery-taxprice-{{ $counter }}" name="batteriestaxprice[]">
+                                </td>
+
+                                {{-- Tax Price --}}
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end battery-priceaftertax"
+                                            id="battery-priceaftertax-{{ $counter }}" required readonly
+                                            @isset($data['profile']['batteries']) value="{{ $battery['battery_price_retail'] + $battery['tax_price'] }}" @endisset>
+                                    </div>
+                                </td>
+
                                 {{-- Discount --}}
                                 <td>
                                     <div class="input-group">
@@ -271,6 +302,9 @@
                                             @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                         <span class="input-group-text border-end">%</span>
                                     </div>
+
+                                    <input type="hidden" class="form-control text-end battery-discountprice"
+                                        id="battery-discountprice-{{ $counter }}" name="batteriesdiscountprice[]">
                                 </td>
 
                                 {{-- Net Price --}}
@@ -315,7 +349,7 @@
         <tfoot>
             {{-- Subtotal --}}
             <tr>
-                <td colspan="4"></td>
+                <td colspan="5"></td>
                 <td class="text-end">Subtotal</td>
                 <td>
                     <div class="input-group">
@@ -329,7 +363,7 @@
 
             {{-- Discount --}}
             <tr>
-                <td colspan="4"></td>
+                <td colspan="5"></td>
                 <td class="text-end">Discount</td>
                 <td>
                     <div class="row">
@@ -347,7 +381,7 @@
                             <div class="input-group d-none" id="discount-price">
                                 <span class="input-group-text border-end">IDR</span>
                                 <input type="text" class="form-control text-end" id="discount-price-value"
-                                    name="discountprice"
+                                    name="discountprice" @isset($data['profile']['discount']) readonly @endisset
                                     @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
                                     required>
                             </div>
@@ -361,42 +395,9 @@
                 </td>
             </tr>
 
-            {{-- Tax --}}
-            <tr>
-                <td colspan="4"></td>
-                <td class="text-end">Tax</td>
-                <td>
-                    <div class="row">
-                        <div class="col">
-                            {{-- Tax Percentage --}}
-                            <div class="input-group" id="tax-percentage">
-                                <input type="text" pattern="[0-9.]+" class="form-control text-end" id="tax"
-                                    name="tax"
-                                    @isset($data['profile'])value="{{ $data['profile']['tax'] }}" @else value="{{ $data['tax'] }}" @endisset
-                                    readonly required>
-                                <span class="input-group-text border-end">%</span>
-                            </div>
-
-                            {{-- Tax Price --}}
-                            <div class="input-group d-none" id="tax-price">
-                                <span class="input-group-text border-end">IDR</span>
-                                <input type="text" class="form-control text-end" id="tax-price-value" name="taxprice"
-                                    @isset($data['profile'])value="{{ $data['profile']['tax_price'] }}" @else value="0" @endisset
-                                    readonly required>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <input type="checkbox" id="toggle-tax" data-toggle="toggle" data-size="sm"
-                                data-offlabel="%" data-onlabel="IDR">
-                        </div>
-                    </div>
-                </td>
-            </tr>
-
             {{-- Total --}}
             <tr>
-                <td colspan="4"></td>
+                <td colspan="5"></td>
                 <td class="text-end">Total</td>
                 <td>
                     <div class="input-group">
@@ -410,7 +411,7 @@
 
             {{-- Payment Method & Status --}}
             <tr>
-                <td colspan="4"></td>
+                <td colspan="5"></td>
                 <td class="text-end">Payment method</td>
                 <td>
                     <div class="row">
@@ -468,6 +469,17 @@
 
     {{-- Address Modal --}}
     @include('maps.addressmodal')
+
+    <script>
+        $(document).ready(function() {
+            formatPrice($(".battery-priceretail"));
+            formatPrice($(".battery-priceaftertax"));
+            formatPrice($(".battery-price"));
+            formatPrice($("#discount-price-value"));
+            formatPrice($("#subtotal"));
+            formatPrice($("#total"));
+        });
+    </script>
 
     {{-- Select2 Configurations --}}
     <script>
@@ -531,8 +543,11 @@
 
             let mode = $("#btn-save").attr("value"); // update || create
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
-            var address = $("#AddressSearchColumn").val();
-            if (address == "") {
+
+            let address = $("#AddressSearchColumn").val();
+            let lat = $("#Latitude").val();
+            let lon = $("#Longitude").val();
+            if (address == "" || lat == "" || lon == "") {
                 Swal.fire({
                     title: "Error",
                     text: "Please select address",
@@ -564,9 +579,10 @@
                 // Enable the delete row button as a new row is to be appended.
                 $(".btn-delete-row").removeClass("disabled");
                 calculateTotal();
+
                 // Clone the last row.
                 let newRow = $('.table-battery-detail-row').last().clone();
-                newRow.find('input').val('');
+                newRow.find('input').not('.battery-tax').val('');
                 newRow.find('.btn-delete-row').removeClass('disabled');
 
                 // Set new id to each elements inside.
@@ -626,19 +642,19 @@
                     $("#discount-percentage").removeClass("d-none");
                 }
             });
-
-            $(".battery-discount, #tax, #discount, #discount-price-value, #extra-discount").on("change keyup",
-                function() {
-                    // Validate input value.
-                    let value = parseInt($(this).val(), 10);
-                    if (isNaN(value)) {
-                        $(this).val("0");
-                    }
-
-                    // Recalculate total value.
-                    calculateTotal($(this).attr("id") === "discount-price-value");
-                });
         });
+
+        $(document).on("change keyup", ".battery-discount, #tax, #discount, #discount-price-value, #extra-discount",
+            function() {
+                // Validate input value.
+                let value = parseInt($(this).val(), 10);
+                if (isNaN(value)) {
+                    $(this).val("0");
+                }
+
+                // Recalculate total value.
+                calculateTotal($(this).attr("id") === "discount-price-value");
+            });
     </script>
 
     {{-- Keyup Event Handler --}}
@@ -697,17 +713,29 @@
             // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
-                let priceRetail = parseInt($(this).closest('td').siblings().find(".battery-priceretail").val()
-                    .replace(/\D/g, ''));
-                let discount = parseInt($(this).closest('td').siblings().find(".battery-discount").val().replace(
-                    /\D/g, ''));
-                $(this).val(priceRetail - (priceRetail * discount / 100));
+                let row = $(this).closest('td').siblings();
+                let priceRetail = parseInt(row.find(".battery-priceretail").val().replace(/\D/g, ''));
+                let tax = parseInt(row.find(".battery-tax").val());
+
+                // Count price + tax.
+                let priceTax = priceRetail * tax / 100;
+                row.find(".battery-taxprice").val(priceTax);
+                let priceAfterTax = Math.round(priceRetail + priceTax);
+                row.find(".battery-priceaftertax").val(priceAfterTax);
+
+                // Count price + tax - discount.
+                let discount = parseInt(row.find(".battery-discount").val());
+                let discountPrice = Math.round(priceAfterTax * discount / 100);
+                row.find(".battery-discountprice").val(discountPrice);
+                $(this).val(priceAfterTax - discountPrice);
 
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     subtotal += value;
                 }
 
+                // Format displayed price.
+                formatPrice(row.find(".battery-priceaftertax"));
                 formatPrice($(this));
             });
             $("#subtotal").val(subtotal);
@@ -721,18 +749,15 @@
                 discount = $("#discount-price-value").val();
                 $("#discount").val(Math.round(discount / subtotal * 100));
             }
-            let tax = Math.round((subtotal - discount) * parseFloat($("#tax").val()) / 100);
-            $("#tax-price-value").val(tax);
 
             // Calculate total value.
-            let total = (subtotal - discount) + tax;
+            let total = (subtotal - discount);
             $("#total").val(total);
 
             // Format all price fields value.
             formatPrice($(".battery-priceretail"));
             formatPrice($("#subtotal"));
             formatPrice($("#total"));
-            formatPrice($("#tax-price-value"));
             formatPrice($("#discount-price-value"));
 
             return total;

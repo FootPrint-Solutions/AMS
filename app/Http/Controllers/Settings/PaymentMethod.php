@@ -134,7 +134,7 @@ class PaymentMethod extends Controller
                 $status,
                 $status ? "The new payment method was successfully created!" : "Failed to create the new payment method!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -159,7 +159,7 @@ class PaymentMethod extends Controller
                 $status,
                 $status ? "The selected payment method was successfully updated!" : "Failed to update the selected payment method!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 class MessageTemplate extends Controller
 {
     private $title = "Message Template Settings";
-    private $menu = 5;
-    private $submenu = 1;
 
     /**
      * Display a listing of the resource.
@@ -23,8 +21,6 @@ class MessageTemplate extends Controller
             'Settings.MessageTemplate.edit',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "templates" => MessageTemplateModel::all()->map(function ($template) {
                         return [

@@ -5,9 +5,10 @@ namespace App\Http\Controllers\MasterData\Battery;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 // MODELS
 use App\Models\MasterData\Battery\BatteryBrandModel;
@@ -15,8 +16,6 @@ use App\Models\MasterData\Battery\BatteryBrandModel;
 class BatteryBrand extends Controller
 {
     private $title = "Battery Brand";
-    private $menu = 2;
-    private $submenu = 4;
 
     /**
      * Show the Vehicle index page.
@@ -28,9 +27,7 @@ class BatteryBrand extends Controller
         return view(
             "MasterData.Battery.Brand.index",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -45,9 +42,7 @@ class BatteryBrand extends Controller
         return view(
             "MasterData.Battery.Brand.create",
             getIndexData(
-                $this->title,
-                $this->menu,
-                $this->submenu
+                $this->title
             )
         );
     }
@@ -72,8 +67,6 @@ class BatteryBrand extends Controller
             "MasterData.Battery.Brand.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $brand->toArray()
                 )
@@ -124,6 +117,8 @@ class BatteryBrand extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $validatedData = $request->validate(
                 [
@@ -138,15 +133,26 @@ class BatteryBrand extends Controller
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -163,8 +169,9 @@ class BatteryBrand extends Controller
      */
     public function update(Request $request)
     {
-        try {
+        DB::beginTransaction();
 
+        try {
             $validatedData = $request->validate(
                 [
                     'name' => 'required|string',
@@ -178,15 +185,26 @@ class BatteryBrand extends Controller
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
             );
         } catch (ValidationException $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -203,6 +221,8 @@ class BatteryBrand extends Controller
      */
     public function destroy(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $status = true;
             $ids = $request->id;
@@ -212,12 +232,20 @@ class BatteryBrand extends Controller
                 $status = $brand->delete();
             }
 
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
             );
         } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
             // Logging error message.
             Log::error($e->getMessage());
 
