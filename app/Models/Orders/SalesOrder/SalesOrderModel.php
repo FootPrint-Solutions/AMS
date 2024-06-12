@@ -192,7 +192,7 @@ class SalesOrderModel extends Model implements Auditable
         $workOrder->address = $salesOrder->address;
         $workOrder->latitude = $salesOrder->latitude;
         $workOrder->longitude = $salesOrder->longitude;
-        $workOrder->save();
+        $status = $workOrder->save();
 
 
         $batteries = [];
@@ -211,7 +211,7 @@ class SalesOrderModel extends Model implements Auditable
         }
         $workOrder->batteries()->createMany($batteries);
 
-        return $workOrder;
+        return $status;
     }
 
     public function workOrder()

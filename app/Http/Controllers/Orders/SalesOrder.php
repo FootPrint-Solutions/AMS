@@ -17,6 +17,7 @@ use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 
@@ -259,7 +260,7 @@ class SalesOrder extends Controller
             $salesOrder = SalesOrderModel::find($request->id);
 
             if ($salesOrder->status == 'posted') {
-                throw new Exception("Unable to edit posted Sales Order.");
+                return getResponseData(false, "Unable to edit posted Sales Order.");
             }
 
             $salesOrder->date = $request->date;
@@ -315,44 +316,6 @@ class SalesOrder extends Controller
             // Rollback if any of the database processes failed.
             DB::rollBack();
 
-            // Logging error message.
-            Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $salesOrder = SalesOrderModel::find($id);
-                $status &= $salesOrder->delete();
-            }
-
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The selected quotation was successfully deleted!" : "Failed to delete the selected quotation!"
-            );
-        } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
 
@@ -419,11 +382,11 @@ class SalesOrder extends Controller
             // Check if sales order is posted or not.
             $salesOrder = SalesOrderModel::find($id);
             if ($salesOrder->status == "draft") {
-                throw new Exception("Unable to create Work Order of unposted Sales Order.");
+                return getResponseData(false, "Unable to create Work Order of an unposted Sales Order.");
             }
 
             // check if the work order is already created.
-            $workOrder = $salesOrder->workOrder;
+            $workOrder = WorkOrderModel::where('sales_order_id', $id)->first();
             if ($workOrder) {
                 // Set a new response data to be sent.
                 return getResponseData(
@@ -431,7 +394,12 @@ class SalesOrder extends Controller
                     "The work order has already been created!"
                 );
             } else {
+                // Create work order.
                 $status = SalesOrderModel::CreateWorkOrder($id);
+
+                // Set sales order status to completed.
+                $salesOrder->status = "completed";
+                $status &= $salesOrder->save();
 
                 if ($status) {
                     // Set a new response data to be sent.
