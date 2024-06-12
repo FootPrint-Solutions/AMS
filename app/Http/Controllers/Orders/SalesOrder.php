@@ -123,9 +123,9 @@ class SalesOrder extends Controller
         $no = $start + 1;
         foreach ($data["row"] as $key) {
             // Set the status badge class name depending on the status.
-            if ($key->status == "paid") {
+            if ($key->payment_status == "paid") {
                 $statusBadgeClass = "badge-success";
-            } else if ($key->status == "pending") {
+            } else if ($key->payment_status == "pending") {
                 $statusBadgeClass = "badge-warning";
             } else {
                 $statusBadgeClass = "badge-danger";
@@ -142,8 +142,9 @@ class SalesOrder extends Controller
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
             $row[] = $key->payment_method_name ?? "<p class='text-center'>-</p>";
-            $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
+            $row[] = "<span class='badge $statusBadgeClass'>$key->payment_status</span>";
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -202,7 +203,7 @@ class SalesOrder extends Controller
             $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
             $salesOrder->total = (float) str_replace(".", "", $request->total);
             $salesOrder->payment_method_id = $request->paymentmethod;
-            $salesOrder->status = $request->status;
+            $salesOrder->payment_status = $request->status;
             $status = $salesOrder->save();
 
             // Store sales order detail data.
@@ -256,6 +257,11 @@ class SalesOrder extends Controller
         try {
             // Update sales order data.
             $salesOrder = SalesOrderModel::find($request->id);
+
+            if ($salesOrder->status == 'posted') {
+                throw new Exception("Unable to edit posted Sales Order.");
+            }
+
             $salesOrder->date = $request->date;
 
             if ($request->customer === "new") {
@@ -285,7 +291,7 @@ class SalesOrder extends Controller
             $salesOrder->distributor_shop_id = $request->shop;
             $salesOrder->distributor_shop_technician_id = $request->technician;
             $salesOrder->payment_method_id = $request->paymentmethod;
-            $salesOrder->status = $request->status;
+            $salesOrder->payment_status = $request->status;
             $status = $salesOrder->save();
 
             // Store sales order detail data.
@@ -361,13 +367,13 @@ class SalesOrder extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function updateStatus(Request $request)
+    public function post(Request $request)
     {
         DB::beginTransaction();
 
         try {
             $quotation = SalesOrderModel::find($request->id);
-            $quotation->status = $request->status;
+            $quotation->status = "posted";
             $status = $quotation->save();
 
             if ($status)
@@ -378,7 +384,7 @@ class SalesOrder extends Controller
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The quotation status was successfully updated!" : "Failed to update the quotation status!"
+                $status ? "The selected sales order was successfully posted!" : "Failed to post the selected sales order!"
             );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
@@ -410,8 +416,14 @@ class SalesOrder extends Controller
     public function workOrderCreate($id)
     {
         try {
+            // Check if sales order is posted or not.
+            $salesOrder = SalesOrderModel::find($id);
+            if ($salesOrder->status == "draft") {
+                throw new Exception("Unable to create Work Order of unposted Sales Order.");
+            }
+
             // check if the work order is already created.
-            $workOrder = SalesOrderModel::find($id)->workOrder;
+            $workOrder = $salesOrder->workOrder;
             if ($workOrder) {
                 // Set a new response data to be sent.
                 return getResponseData(
@@ -419,7 +431,6 @@ class SalesOrder extends Controller
                     "The work order has already been created!"
                 );
             } else {
-
                 $status = SalesOrderModel::CreateWorkOrder($id);
 
                 if ($status) {
