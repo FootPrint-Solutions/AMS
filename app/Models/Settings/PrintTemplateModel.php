@@ -14,5 +14,6 @@ class PrintTemplateModel extends Model
     protected $fillable = [
         'step_no',
         'message',
+        'tipe'
     ];
 }

@@ -162,7 +162,7 @@
                 <td>{{ $count }}</td>
             </tr>
 
-            @for ($i = 1; $i < 11; $i++)
+            @for ($i = 0; $i < 10; $i++)
                 @if ($i < count($task))
                     <tr>
                         <td style='width:1%;'>{{ $i + 1 }}. </td>
