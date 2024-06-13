@@ -397,10 +397,6 @@ class SalesOrder extends Controller
                 // Create work order.
                 $status = SalesOrderModel::CreateWorkOrder($id);
 
-                // Set sales order status to completed.
-                $salesOrder->status = "completed";
-                $status &= $salesOrder->save();
-
                 if ($status) {
                     // Set a new response data to be sent.
                     return getResponseData(

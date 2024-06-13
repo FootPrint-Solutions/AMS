@@ -89,7 +89,7 @@
                         }
 
                         // Post the selected sales order.
-                        sendPostRequest(selectedRows[0][10], "/sales-order/post/",
+                        sendPostRequest(selectedRows[0][10], "/sales-order/post",
                             function() {
                                 // Reload the index table.
                                 table.ajax.reload();

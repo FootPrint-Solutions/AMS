@@ -57,6 +57,7 @@ class SalesOrderModel extends Model implements Auditable
         'longitude',
         'status',
         'payment_method_id',
+        'payment_status',
         'midtrans_invoice_number',
         'midtrans_payment_link'
     ];
