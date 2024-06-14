@@ -73,6 +73,30 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
+                    text: "<i class='fas fa-file-text'></i> Post",
+                    action: function(e, dt, node, config) {
+                        // Get the selected row's id.
+                        let selectedRows = table.rows({
+                            selected: true
+                        }).data().toArray();
+                        if (selectedRows.length !== 1) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Please select a single row for posting.",
+                                icon: "error",
+                            });
+                            return;
+                        }
+
+                        // Post the selected sales order.
+                        sendPostRequest(selectedRows[0][10], "/sales-order/post",
+                            function() {
+                                // Reload the index table.
+                                table.ajax.reload();
+                            });
+                    },
+                    className: "btn btn-outline-secondary btn-sm",
+                }, {
                     text: "<i class='fas fa-file-text'></i> Invoice",
                     action: function(e, dt, node, config) {
                         // Get the selected row's id.
@@ -115,6 +139,12 @@
                 }]),
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[11] == "posted")
+                        $('td', row).addClass("text-success");
+                    else if (data[11] == "completed")
+                        $('td', row).addClass("text-info");
+                }
             });
 
             // Load DataTables toolbar component.

@@ -79,16 +79,15 @@ class WorkOrder extends Controller
         $tipe = $request->print_option;
         if ($tipe == "regular_dan_instalasi") {
             $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::all();
+            $task = PrintTemplateModel::where('tipe', 'regular-instalasi')->get();
             $baseUrl = "https://www.google.com/maps?q=";
             $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
             $qrCode = QrCode::size(90)->generate($mapsUrl);
-            // dd($workOrder);
 
             return view('Orders.WorkOrder.RegularInstalasi.print', compact('workOrder', 'qrCode', 'task'));
         } else if ($tipe == "tokopedia_dan_instalasi") {
             $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::all();
+            $task = PrintTemplateModel::where('tipe', 'tokopedia-instalasi')->get();
             $baseUrl = "https://www.google.com/maps?q=";
             $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
             $qrCode = QrCode::size(90)->generate($mapsUrl);
@@ -96,7 +95,7 @@ class WorkOrder extends Controller
             return view('Orders.WorkOrder.TokopediaInstalasi.print', compact('workOrder', 'qrCode', 'task'));
         } else if ($tipe == "tokopedia_tanpa_instalasi") {
             $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::all();
+            $task = PrintTemplateModel::where('tipe', 'tokopedia-tanpa-instalasi')->get();
             $baseUrl = "https://www.google.com/maps?q=";
             $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
             $qrCode = QrCode::size(90)->generate($mapsUrl);

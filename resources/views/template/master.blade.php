@@ -284,6 +284,51 @@
     }
 
     /**
+     * Send a POST request to post an item in database.
+     *
+     * @param {int} id - The id of item to be toggled.
+     * @param {string} url - The url of the toggler function.
+     * @param {function|null} callback - The table reload function after toggle process.
+     */
+    function sendPostRequest(id, url, callback = null) {
+        // Show an alert before destroying an item.
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to post the selected item!",
+            icon: "warning",
+            showCancelButton: true,
+            reverseButtons: true,
+            confirmButtonText: "Yes, post it!",
+            cancelButtonText: "No, cancel!"
+        }).then(function(e) {
+            // If user has confirmed, do the toggle process.
+            if (e.value === true) {
+                // Send the toggle POST request to url.
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "id": id
+                    },
+                    success: function(response) {
+                        // Get response data from url (in JSON).
+                        let responseData = JSON.parse(response);
+
+                        // Show Toast message based on responseData.
+                        showResponseToast(responseData.status, responseData.message);
+
+                        // Call the callback table reload act (or any other acts after the toggle process is complete).
+                        if (callback !== null && typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Send a POST request to store or update an item in database.
      *
      * @param {string} url - The url of the storer or updater function.
