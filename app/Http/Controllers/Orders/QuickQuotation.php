@@ -1073,4 +1073,61 @@ $arrayVehicle
         }
         return response()->json($results);
     }
+
+    public function screenshotBattery(Request $request)
+    {
+        $Battery = BatteryModel::getBatteryData($request->input('Battery'))->toArray();
+        $Tax = TaxModel::where('status', '1')->first()->percentage;
+
+        $batteries = [
+            'categories' => [],
+            'units' => ['NAMA UNIT'],
+            'images' => ['GAMBAR UNIT'],
+            'technologies' => ['TEKNOLOGI AKI'],
+            'dimensions' => ['DIMENSI (mm)'],
+            'capacities' => ['KAPASITAS'],
+            'cca' => ['STANDAR CCA'],
+            'warranties' => ['GARANSI'],
+            'prices' => ['HARGA'],
+        ];
+
+        foreach ($Battery as $key) {
+            $batteryPrices = $key['battery_prices'];
+            $batteries['categories'][] = $key['brand']['name'] . ' ' . $key['subbrand_category']['name'];
+            $batteries['units'][] = $key['name'];
+            if ($key['image'] != null) {
+                $value['image'] = asset('storage/image/battery/' . $key['image']);
+            } else {
+                $value['image'] = null;
+            }
+
+            if ($value['image'] != null) {
+                $head = @get_headers($value['image']);
+                if ($head && strpos($head[0], '200')) {
+                    $value['image'] = $value['image'];
+                } else {
+                    $value['image'] = "https://via.placeholder.com/210x210";
+                }
+            } else {
+                $value['image'] = "https://via.placeholder.com/210x210";
+            }
+            $batteries['images'][] = $value['image'];
+            $batteries['technologies'][] = $key['technology']['name'];
+            $batteries['dimensions'][] = $key['dimension_length'] . ' x ' . $key['dimension_width'] . ' x ' . $key['dimension_height'];
+            $batteries['capacities'][] = $key['capacity'] . " AH";
+            $batteries['cca'][] = $key['standard_cca'] . " A";
+            $batteries['warranties'][] = $key['warranty'] . ' bulan';
+            $pricePPn = $batteryPrices[0]['price_retail'] + ($batteryPrices[0]['price_retail'] * $Tax / 100);
+            $priceDiscount = $pricePPn * $batteryPrices[0]['discount'] / 100;
+            $priceNetto = $pricePPn - $priceDiscount;
+            $batteries['prices'][] = [
+                'original' =>  "Rp. " . number_format($pricePPn, 0, "", "."),
+                'discount' => number_format($batteryPrices[0]['discount'], 0, "", ".") . "",
+                'netto' => "Rp. " . number_format($priceNetto, 0, "", "."),
+            ];
+        }
+
+        // load view
+        return view('Orders.QuickQuotation.Screenshoot.battery', compact('batteries'));
+    }
 }

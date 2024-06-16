@@ -215,6 +215,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor');
     Route::get('/quotation/battery/autoComplete', [QuickQuotation::class, 'autoCompleteBattery'])->name('quotation.autoCompleteBattery');
     Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
+    Route::post('/quotation/battery/screenshot', [QuickQuotation::class, 'screenshotBattery'])->name('quotation.screenshotBattery');
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);

@@ -40,6 +40,8 @@
     <div class="row" id="ResultRecommendationBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
+            <!-- screenshoot button -->
+            <button id="screenshot" class="btn btn-primary"><i class="fas fa-camera"></i> Screenshot</button>
             <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
                 Copy from Input</button>
             <a href="javascript: void(0);" class="btn btn-primary seller-next-btn-check">
@@ -48,6 +50,20 @@
             <a id="btnNextStep2" href="javascript: void(0);" class="btn btn-primary seller-next-btn d-none">
                 Next
                 <i class="bx bx-chevron-right ms-1"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal screenshoot -->
+<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalScreenshotLabel"><button id="screenshoot-btn" class="btn btn-primary">Save to Image</button></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="ModalScreenshotBody">
+            </div>
         </div>
     </div>
 </div>
@@ -130,7 +146,8 @@
                             vehicle.warranty +
                             ' Bulan</div></div></li>';
                         if (vehicle.discount == 0) {
-                            html += '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
+                            html +=
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number((vehicle.price_retail))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
@@ -141,14 +158,17 @@
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
-                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
+                            var price_with_tax = vehicle.price_retail_original + (vehicle
+                                .price_retail_original * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
                                 Number(price_with_tax).toLocaleString('id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) + ' %</span> </span></div></div></li>';
-                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
-                            var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
+                            var price_with_tax = vehicle.price_retail_original + (vehicle
+                                .price_retail_original * (vehicle.tax / 100));
+                            var price_discount = vehicle.price_retail_original - (vehicle
+                                .price_retail_original * (vehicle.discount / 100));
                             var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
@@ -314,7 +334,8 @@
                             vehicle.warranty +
                             ' Bulan</div></div></li>';
                         if (vehicle.discount == 0) {
-                            html += '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
+                            html +=
+                                '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga</div><div class="col-xl-1"> : </div><div class="col">Rp. ' +
                                 Number((vehicle.price_retail))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
@@ -325,7 +346,8 @@
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
                         } else {
-                            var price_with_tax = vehicle.price_retail_original + (vehicle.price_retail_original * (vehicle.tax / 100));
+                            var price_with_tax = vehicle.price_retail_original + (vehicle
+                                .price_retail_original * (vehicle.tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga </div><div class="col-xl-1"> : </div><div class="col"><span class="price-original position-relative">Rp. ' +
                                 Number(price_with_tax).toLocaleString(
@@ -333,8 +355,10 @@
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
                                 Number(vehicle.discount) +
                                 ' %</span> </span></div></div></li>';
-                            var price_discount = vehicle.price_retail_original - (vehicle.price_retail_original * (vehicle.discount / 100));
-                            var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
+                            var price_discount = vehicle.price_retail_original - (vehicle
+                                .price_retail_original * (vehicle.discount / 100));
+                            var price_tax = price_discount + (price_discount * (vehicle
+                                .tax / 100));
                             html +=
                                 '<li class="list-group-item"><div class="row"><div class="col-xl-6">Harga + PPN</div><div class="col-xl-1"> : </div><div class="col"><span class="price-discount">Rp. ' +
                                 Number((price_tax))
@@ -512,4 +536,39 @@
             }
         });
     }
+
+
+    // screenshot
+    $('#screenshot').on('click', function() {
+        let $btn = $(this);
+        $btn.prop("disabled", true);
+        $btn.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+        );
+
+        var Battery = $("input[name='CheckBattery1[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        if (Battery.length == 0) {
+            swal.fire("Error!", "Please select battery", "error");
+            return;
+        }
+
+        // ajax to screenshoot
+        $.ajax({
+            url: "/quotation/battery/screenshot",
+            type: "POST",
+            data: {
+                Battery: Battery,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+                $btn.prop("disabled", false);
+                $btn.html('<i class="fas fa-camera"></i> Screenshot');
+                $('#ModalScreenshotBody').html(data);
+                $('#ModalScreenshot').modal('show');
+            }
+        });
+    });
 </script>
