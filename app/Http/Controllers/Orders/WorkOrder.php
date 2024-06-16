@@ -124,4 +124,11 @@ class WorkOrder extends Controller
             'image_path' => Storage::url($imagePath)
         ]);
     }
+
+    public function printTechnicianReport(Request $request)
+    {
+        $workOrder = WorkOrderModel::getWorkOrderData($request->id);
+        $task = PrintTemplateModel::where('tipe', 'teknisi')->get();
+        return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'task'));
+    }
 }

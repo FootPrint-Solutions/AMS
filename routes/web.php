@@ -236,6 +236,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/show', [WorkOrder::class, 'show']);
     Route::post('/work-order/print/', [WorkOrder::class, 'print']);
     Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
+    Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport']);
 
     // Settings
     // Message Template
