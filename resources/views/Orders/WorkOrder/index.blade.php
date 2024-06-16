@@ -70,7 +70,7 @@
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations([{
+                buttons: [{
                         text: "<i class='fas fa-print'></i> Print Work Order",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
@@ -114,9 +114,33 @@
                             $('#work_order_id').val(selectedRows[0][8]);
                         },
                         className: "btn btn-outline-primary btn-sm",
-                    }
-                ]),
-                language: getDatatablesLanguangeConfigurations("Sales Order"),
+                    },
+                    // add button print technician report
+                    {
+                        text: "<i class='fas fa-print'></i> Print Technician Report",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for printing technician report.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            $("#work_order_id").val(selectedRows[0][8]);
+                            window.open("/work-order/print-technician-report/" + selectedRows[0][
+                                8
+                            ]);
+                        },
+                        className: "btn btn-outline-success btn-sm",
+                    },
+                ],
+                language: getDatatablesLanguangeConfigurations("Work Order"),
                 select: true,
             });
 

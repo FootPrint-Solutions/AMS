@@ -231,7 +231,7 @@ class SalesOrder extends Controller
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new quotation was successfully created!" : "Failed to create the new quotation!"
+                $status ? "The new sales order was successfully created!" : "Failed to create the new sales order!"
             );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
@@ -259,7 +259,7 @@ class SalesOrder extends Controller
             // Update sales order data.
             $salesOrder = SalesOrderModel::find($request->id);
 
-            if ($salesOrder->status == 'posted') {
+            if ($salesOrder->status !== 'draft') {
                 return getResponseData(false, "Unable to edit posted Sales Order.");
             }
 
@@ -310,7 +310,7 @@ class SalesOrder extends Controller
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The quotation was successfully updated!" : "Failed to update the quotation!"
+                $status ? "The sales order was successfully updated!" : "Failed to update the sales order!"
             );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
@@ -335,9 +335,14 @@ class SalesOrder extends Controller
         DB::beginTransaction();
 
         try {
-            $quotation = SalesOrderModel::find($request->id);
-            $quotation->status = "posted";
-            $status = $quotation->save();
+            $salesOrder = SalesOrderModel::find($request->id);
+
+            if ($salesOrder->status !== 'draft') {
+                return getResponseData(false, "Unable to post posted and completed sales order.");
+            }
+
+            $salesOrder->status = "posted";
+            $status = $salesOrder->save();
 
             if ($status)
                 DB::commit();

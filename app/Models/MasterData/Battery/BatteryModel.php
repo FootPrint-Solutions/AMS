@@ -176,4 +176,16 @@ class BatteryModel extends Model implements Auditable
 
         return $batteryData;
     }
+
+    public static function getBatteryData($batteryId)
+    {
+        return self::with('brand', 'subbrandCategory', 'usageType', 'sizeCategory', 'technology', 'batteryPrices')
+            ->whereIn('id', $batteryId)
+            ->get();
+    }
+
+    public function batteryPrices(): HasMany
+    {
+        return $this->hasMany(BatteryPriceModel::class, 'battery_id', 'id');
+    }
 }
