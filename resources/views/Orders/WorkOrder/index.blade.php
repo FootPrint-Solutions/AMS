@@ -10,11 +10,6 @@
                     <div class="col">
                         <h3 class="page-title">Work Order</h3>
                     </div>
-
-                    {{-- <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
-                    </div> --}}
                 </div>
             </div>
             <br>
@@ -111,7 +106,7 @@
 
                             // show modal for upload image
                             $('#modal-upload-image').modal('show');
-                            $('#work_order_id').val(selectedRows[0][8]);
+                            $('#work_order_id_image').val(selectedRows[0][8]);
                         },
                         className: "btn btn-outline-primary btn-sm",
                     },
@@ -150,7 +145,7 @@
             function showModalPrint(url) {
                 // Show the print modal.
                 $('#modal-print').modal('show');
-
+                showUploadImage();
             }
         });
     </script>
@@ -168,7 +163,7 @@
                 <div class="modal-body">
                     {{-- select option --}}
                     <div class="form-group mb-3">
-                        <form action="/work-order/print" method="POST">
+                        <form action="/work-order/print" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="work_order_id" id="work_order_id">
                             <label for="print_type">Print Type</label>
@@ -178,6 +173,8 @@
                                 <option value="tokopedia_dan_instalasi">2. Tokopedia dan Instalasi</option>
                                 <option value="tokopedia_tanpa_instalasi">3. Tokopedia tanpa Instalasi</option>
                             </select>
+
+                            <div id="upload-column"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -205,7 +202,7 @@
                     </div>
 
                     <div class="modal-body text-center">
-                        <input type="hidden" name="work_order_id" id="work_order_id">
+                        <input type="hidden" name="work_order_id" id="work_order_id_image">
                         <input type="file" name="image" id="image" class="form-control" required allow="image/*">
                     </div>
 
@@ -254,12 +251,24 @@
                 }
             });
         });
-    </script>
 
-    {{-- Click Event Handler --}}
-    <script>
-        $('#btn-add').on('click', function() {
-            goToPage("/sales-order/create");
+        // jika print_option 2 / 3, maka tampilkan kolom upload image
+        $('#print_option').on('change', function() {
+            showUploadImage();
         });
+
+        function showUploadImage() {
+            let printOption = $('#print_option').val();
+            let uploadColumn = $('#upload-column');
+
+            if (printOption == 'tokopedia_dan_instalasi' || printOption == 'tokopedia_tanpa_instalasi') {
+                uploadColumn.html(`
+                    <label for="image" class="mt-3">Upload Image</label>
+                    <input type="file" name="image" id="image" class="form-control" required allow="image/*">
+                `);
+            } else {
+                uploadColumn.html('');
+            }
+        }
     </script>
 @endsection

@@ -215,7 +215,7 @@
             </div>
         </div>
     </div>
-    <br><br>
+    <br><br><br><br>
     <div class="section">
         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
             <h1>{{ $workOrder->work_order_number }}</h1>
@@ -274,7 +274,7 @@
             </div>
         </div>
         <hr class="dashed">
-        @if (Storage::exists($workOrder->image))
+        @if ($workOrder->image)
             <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="350px">
         @endif
     </div>
