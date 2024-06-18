@@ -237,6 +237,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/print/', [WorkOrder::class, 'print']);
     Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
     Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport']);
+    Route::post('/work-order/delete', [WorkOrder::class, 'destroy']);
 
     // Settings
     // Message Template

@@ -158,4 +158,25 @@ class WorkOrderModel extends Model implements Auditable
                 'image' => $path
             ]);
     }
+
+    public static function updateFileCompleteWorkOrderPath($id, $path)
+    {
+        return self::where('id', $id)
+            ->update([
+                'attachment_file' => $path
+            ]);
+    }
+
+    public static function updateStatusCompletedWorkOrderSalesOrder($id)
+    {
+        // update status work order to completed
+        $workOrder = self::find($id);
+        $workOrder->status = 'completed';
+        $workOrder->save();
+
+        // update status sales order to completed
+        $salesOrder = SalesOrderModel::find($workOrder->sales_order_id);
+        $salesOrder->status = 'completed';
+        $salesOrder->save();
+    }
 }

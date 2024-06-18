@@ -62,6 +62,7 @@ class WorkOrder extends Controller
             $row[] = formatPrice($key->total);
             $row[] = $key->address;
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -115,23 +116,33 @@ class WorkOrder extends Controller
 
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'work_order_id' => 'required|integer|exists:work_orders,id'
-        ]);
+        try {
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'work_order_id' => 'required|integer|exists:work_orders,id'
+            ]);
 
-        $image = $request->file('image');
-        $workOrderId = $request->input('work_order_id');
-        $imageExtension = $image->getClientOriginalExtension();
-        $imageFileName = $workOrderId . '.' . $imageExtension;
-        $imagePath = 'image/work-order/' . $imageFileName;
-        $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
-        WorkOrderModel::updateImagePath($workOrderId, $imagePath);
-        return response()->json([
-            'success' => true,
-            'message' => 'Image uploaded successfully.',
-            'image_path' => Storage::url($imagePath)
-        ]);
+            $image = $request->file('image');
+            $workOrderId = $request->input('work_order_id');
+            $imageExtension = $image->getClientOriginalExtension();
+            $imageFileName = $workOrderId . '.' . $imageExtension;
+            $imagePath = 'image/work-order/attachment-file/' . $imageFileName;
+            $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+            WorkOrderModel::updateFileCompleteWorkOrderPath($workOrderId, $imagePath);
+            WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image uploaded successfully.',
+                'image_path' => Storage::url($imagePath)
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload image ' . $th->getMessage()
+            ]);
+        }
     }
 
     public function printTechnicianReport(Request $request)
@@ -166,6 +177,24 @@ class WorkOrder extends Controller
                 return 'Orders.WorkOrder.Tokopedia.print';
             default:
                 throw new \InvalidArgumentException('Tipe cetak tidak valid');
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $workOrder = WorkOrderModel::find($request->work_order_id);
+            $workOrder->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Work order deleted successfully.'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete work order.'
+            ]);
         }
     }
 }
