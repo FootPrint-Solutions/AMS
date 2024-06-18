@@ -551,8 +551,11 @@
         }).get();
 
         if (Battery.length == 0) {
-            swal.fire("Error!", "Please select battery", "error");
-            return;
+            swal.fire("Error!", "Please select battery", "error").then(() => {
+                $btn.prop("disabled", false);
+                $btn.html('<i class="fas fa-camera"></i> Screenshot');
+            });
+            return false;
         }
 
         // ajax to screenshoot
