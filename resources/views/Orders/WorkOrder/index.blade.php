@@ -78,7 +78,7 @@
                     @csrf
                     <div class="modal-header bg-primary">
                         <h5 class="modal-title text-light" id="modal-upload-image-label"><i class="fas fa-upload"></i>
-                            Complete Work Order File Attachment
+                            Technician Report File Attachment
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -182,7 +182,7 @@
                             $("#work_order_id").val(selectedRows[0][8]);
                             showModalPrint("/work-order/print/" + selectedRows[0][8]);
                         },
-                        className: "btn btn-outline-danger btn-sm",
+                        className: "btn btn-outline-secondary btn-sm",
                     },
                     // add button print technician report
                     {
@@ -206,7 +206,7 @@
                                 8
                             ]);
                         },
-                        className: "btn btn-outline-danger btn-sm",
+                        className: "btn btn-outline-secondary btn-sm",
                     },
                     // add upload image button 
                     {
@@ -343,7 +343,7 @@
 
             if (printOption == 'tokopedia_dan_instalasi' || printOption == 'tokopedia_tanpa_instalasi') {
                 uploadColumn.html(`
-                    <label for="image" class="mt-3">Upload Image</label>
+                    <label for="image" class="mt-3">Upload Label Image ( From Market Place )</label>
                     <input type="file" name="image" id="image" class="form-control" allow="image/*">
                 `);
             } else {

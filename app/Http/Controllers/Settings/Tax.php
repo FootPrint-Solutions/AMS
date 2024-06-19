@@ -126,7 +126,7 @@ class Tax extends Controller
                 $status,
                 $status ? "The new tax was successfully created!" : "Failed to create the new tax!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -151,7 +151,7 @@ class Tax extends Controller
                 $status,
                 $status ? "The tax was successfully updated!" : "Failed to update the tax!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }
@@ -218,7 +218,7 @@ class Tax extends Controller
                 $status,
                 $status ? "The selected tax was successfully deleted!" : "Failed to delete the selected tax!"
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
         }

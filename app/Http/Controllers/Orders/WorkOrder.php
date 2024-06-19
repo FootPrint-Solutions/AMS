@@ -103,7 +103,9 @@ class WorkOrder extends Controller
 
         $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
         $templateType = $this->getTemplateType($tipe);
-        $task = PrintTemplateModel::where('tipe', $templateType)->get();
+        $template = PrintTemplateModel::where('name', $templateType)->first();
+        $taskOne = $template->details()->where("type", "page-one")->get();
+        $taskTwo = $template->details()->where("type", "page-two")->get();
 
         $baseUrl = "https://www.google.com/maps?q=";
         $mapsUrl = $baseUrl . $workOrder->latitude . "," . $workOrder->longitude;
@@ -111,7 +113,7 @@ class WorkOrder extends Controller
 
         $view = $this->getViewByType($tipe);
 
-        return view($view, compact('workOrder', 'qrCode', 'task'));
+        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo'));
     }
 
     public function uploadImage(Request $request)
@@ -148,19 +150,18 @@ class WorkOrder extends Controller
     public function printTechnicianReport(Request $request)
     {
         $workOrder = WorkOrderModel::getWorkOrderData($request->id);
-        $task = PrintTemplateModel::where('tipe', 'teknisi')->get();
-        return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'task'));
+        return view('Orders.WorkOrder.Technician.print', compact('workOrder'));
     }
 
     private function getTemplateType($tipe)
     {
         switch ($tipe) {
             case "regular_dan_instalasi":
-                return 'regular-instalasi';
+                return 'template-print-regular';
             case "tokopedia_dan_instalasi":
-                return 'tokopedia-instalasi';
+                return 'template-print-tokopedia';
             case "tokopedia_tanpa_instalasi":
-                return 'tokopedia-tanpa-instalasi';
+                return 'template-print-tokopedia-tanpa-instalasi';
             default:
                 throw new \InvalidArgumentException('Tipe cetak tidak valid');
         }
