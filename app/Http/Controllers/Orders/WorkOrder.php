@@ -150,8 +150,7 @@ class WorkOrder extends Controller
     public function printTechnicianReport(Request $request)
     {
         $workOrder = WorkOrderModel::getWorkOrderData($request->id);
-        $task = PrintTemplateModel::where('tipe', 'teknisi')->get();
-        return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'task'));
+        return view('Orders.WorkOrder.Technician.print', compact('workOrder'));
     }
 
     private function getTemplateType($tipe)
