@@ -112,7 +112,7 @@
                                 return;
                             }
                             let ids = selectedRows.map(row => row[10]);
-                            sendDestroyRequest(ids, "/sales-order/delete/", function() {
+                            sendDestroyRequest(ids, "/sales-order/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
                             });
