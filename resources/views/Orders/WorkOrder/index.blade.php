@@ -10,11 +10,6 @@
                     <div class="col">
                         <h3 class="page-title">Work Order</h3>
                     </div>
-
-                    {{-- <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
-                    </div> --}}
                 </div>
             </div>
             <br>
@@ -37,7 +32,71 @@
         </div>
     </div>
 
-    {{-- DataTables Configurations --}}
+    {{-- modal print --}}
+    <div class="modal fade" id="modal-print" tabindex="-1" aria-labelledby="modal-print-label" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-light" id="modal-print-label"><i class="fas fa-print"></i> Print Work Order
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- select option --}}
+                    <div class="form-group mb-3">
+                        <form action="/work-order/print" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="work_order_id" id="work_order_id">
+                            <label for="print_type">Print Type</label>
+                            <label for="print_option">Select Print Option:</label>
+                            <select class="form-select" id="print_option" name="print_option">
+                                <option value="regular_dan_instalasi">1. Regular dan Instalasi</option>
+                                <option value="tokopedia_dan_instalasi">2. Tokopedia dan Instalasi</option>
+                                <option value="tokopedia_tanpa_instalasi">3. Tokopedia tanpa Instalasi</option>
+                            </select>
+
+                            <div id="upload-column"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="btn-print"><i class="fas fa-print"></i>
+                        Print</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal --}}
+    <div class="modal fade" id="modal-upload-complete-work-order" tabindex="-1" aria-labelledby="modal-upload-image-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <form id="form-upload-image" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-light" id="modal-upload-image-label"><i class="fas fa-upload"></i>
+                            Complete Work Order File Attachment
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body text-center">
+                        <input type="hidden" name="work_order_id" id="work_order_id_image">
+                        <input type="file" name="image" id="image" class="form-control" required allow="image/*">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         var table;
 
@@ -70,7 +129,40 @@
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
-                buttons: [{
+                buttons: [
+                    // add delete button
+                    {
+                        text: "<i class='fas fa-trash'></i> Delete Work Order",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for deleting work order.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // check if work order status is completed cannot be deleted
+                            if (selectedRows[0][9] == "completed") {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Work Order status is completed, cannot be deleted.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            deleteData(selectedRows[0][8]);
+                        },
+                        className: "btn btn-outline-danger btn-sm",
+                    }
+                    // add button print work order    
+                    , {
                         text: "<i class='fas fa-print'></i> Print Work Order",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
@@ -91,29 +183,6 @@
                             showModalPrint("/work-order/print/" + selectedRows[0][8]);
                         },
                         className: "btn btn-outline-danger btn-sm",
-                    },
-                    // add upload image button 
-                    {
-                        text: "<i class='fas fa-upload'></i> Upload Image",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for uploading image.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            // show modal for upload image
-                            $('#modal-upload-image').modal('show');
-                            $('#work_order_id').val(selectedRows[0][8]);
-                        },
-                        className: "btn btn-outline-primary btn-sm",
                     },
                     // add button print technician report
                     {
@@ -137,11 +206,40 @@
                                 8
                             ]);
                         },
-                        className: "btn btn-outline-success btn-sm",
+                        className: "btn btn-outline-danger btn-sm",
+                    },
+                    // add upload image button 
+                    {
+                        text: "<i class='fas fa-upload'></i> Complete Work Order",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for Attach File.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // show modal for upload image
+                            $('#modal-upload-complete-work-order').modal('show');
+                            $('#work_order_id_image').val(selectedRows[0][8]);
+                        },
+                        className: "btn btn-outline-primary btn-sm",
                     },
                 ],
                 language: getDatatablesLanguangeConfigurations("Work Order"),
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[9] == "posted")
+                        $('td', row).addClass("text-success");
+                    else if (data[9] == "completed")
+                        $('td', row).addClass("text-info");
+                }
             });
 
             // Load DataTables toolbar component.
@@ -150,76 +248,52 @@
             function showModalPrint(url) {
                 // Show the print modal.
                 $('#modal-print').modal('show');
+                showUploadImage();
+            }
 
+            function deleteData(id) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this work order!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "/work-order/delete",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                work_order_id: id
+                            },
+                            success: function(response) {
+                                // Show success message.
+                                Swal.fire({
+                                    title: "Success",
+                                    text: response.message,
+                                    icon: "success",
+                                });
+
+                                // Refresh the table.
+                                table.ajax.reload();
+                            },
+                            error: function(xhr) {
+                                // Show error message.
+                                Swal.fire({
+                                    title: "Error",
+                                    text: xhr.responseJSON.message,
+                                    icon: "error",
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
-    </script>
 
-    {{-- modal print --}}
-    <div class="modal fade" id="modal-print" tabindex="-1" aria-labelledby="modal-print-label" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-light" id="modal-print-label"><i class="fas fa-print"></i> Print Work Order
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    {{-- select option --}}
-                    <div class="form-group mb-3">
-                        <form action="/work-order/print" method="POST">
-                            @csrf
-                            <input type="hidden" name="work_order_id" id="work_order_id">
-                            <label for="print_type">Print Type</label>
-                            <label for="print_option">Select Print Option:</label>
-                            <select class="form-select" id="print_option" name="print_option">
-                                <option value="regular_dan_instalasi">1. Regular dan Instalasi</option>
-                                <option value="tokopedia_dan_instalasi">2. Tokopedia dan Instalasi</option>
-                                <option value="tokopedia_tanpa_instalasi">3. Tokopedia tanpa Instalasi</option>
-                            </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="btn-print"><i class="fas fa-print"></i>
-                        Print</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Modal --}}
-    <div class="modal fade" id="modal-upload-image" tabindex="-1" aria-labelledby="modal-upload-image-label"
-        aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <div class="modal-content">
-                <form id="form-upload-image" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-header bg-primary">
-                        <h5 class="modal-title text-light" id="modal-upload-image-label"><i class="fas fa-upload"></i>
-                            Upload Image
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body text-center">
-                        <input type="hidden" name="work_order_id" id="work_order_id">
-                        <input type="file" name="image" id="image" class="form-control" required allow="image/*">
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Form Submit Handler --}}
-    <script>
         $('#form-upload-image').on('submit', function(e) {
             e.preventDefault();
 
@@ -242,7 +316,10 @@
                     });
 
                     // Hide the modal.
-                    $('#modal-upload-image').modal('hide');
+                    $('#modal-upload-complete-work-order').modal('hide');
+
+                    // refresh the table
+                    table.ajax.reload();
                 },
                 error: function(xhr) {
                     // Show error message.
@@ -254,12 +331,24 @@
                 }
             });
         });
-    </script>
 
-    {{-- Click Event Handler --}}
-    <script>
-        $('#btn-add').on('click', function() {
-            goToPage("/sales-order/create");
+        // jika print_option 2 / 3, maka tampilkan kolom upload image
+        $('#print_option').on('change', function() {
+            showUploadImage();
         });
+
+        function showUploadImage() {
+            let printOption = $('#print_option').val();
+            let uploadColumn = $('#upload-column');
+
+            if (printOption == 'tokopedia_dan_instalasi' || printOption == 'tokopedia_tanpa_instalasi') {
+                uploadColumn.html(`
+                    <label for="image" class="mt-3">Upload Image</label>
+                    <input type="file" name="image" id="image" class="form-control" required allow="image/*">
+                `);
+            } else {
+                uploadColumn.html('');
+            }
+        }
     </script>
 @endsection

@@ -62,6 +62,7 @@ class WorkOrder extends Controller
             $row[] = formatPrice($key->total);
             $row[] = $key->address;
             $row[] = $key->id;
+            $row[] = $key->status;
             $rows[] = $row;
         }
 
@@ -75,54 +76,73 @@ class WorkOrder extends Controller
 
     public function print(request $request)
     {
-        // get work order data and work order battery detail data
+        $validationRules = [
+            'work_order_id' => 'required|integer|exists:work_orders,id'
+        ];
+
         $tipe = $request->print_option;
-        if ($tipe == "regular_dan_instalasi") {
-            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::where('tipe', 'regular-instalasi')->get();
-            $baseUrl = "https://www.google.com/maps?q=";
-            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
-            $qrCode = QrCode::size(90)->generate($mapsUrl);
 
-            return view('Orders.WorkOrder.RegularInstalasi.print', compact('workOrder', 'qrCode', 'task'));
-        } else if ($tipe == "tokopedia_dan_instalasi") {
-            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::where('tipe', 'tokopedia-instalasi')->get();
-            $baseUrl = "https://www.google.com/maps?q=";
-            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
-            $qrCode = QrCode::size(90)->generate($mapsUrl);
+        // check if image is exist
+        if ($request->hasFile('image')) {
+            if ($tipe == "tokopedia_dan_instalasi" || $tipe == "tokopedia_tanpa_instalasi") {
+                $validationRules['image'] = 'required|image|mimes:jpeg,png,jpg,gif|max:2048';
+            }
 
-            return view('Orders.WorkOrder.TokopediaInstalasi.print', compact('workOrder', 'qrCode', 'task'));
-        } else if ($tipe == "tokopedia_tanpa_instalasi") {
-            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
-            $task = PrintTemplateModel::where('tipe', 'tokopedia-tanpa-instalasi')->get();
-            $baseUrl = "https://www.google.com/maps?q=";
-            $mapsUrl = $baseUrl .  $workOrder->latitude . "," . $workOrder->longitude;
-            $qrCode = QrCode::size(90)->generate($mapsUrl);
+            $request->validate($validationRules);
 
-            return view('Orders.WorkOrder.Tokopedia.print', compact('workOrder', 'qrCode', 'task'));
+            if (isset($validationRules['image'])) {
+                $image = $request->file('image');
+                $workOrderId = $request->input('work_order_id');
+                $imageExtension = $image->getClientOriginalExtension();
+                $imageFileName = $workOrderId . '.' . $imageExtension;
+                $imagePath = 'image/work-order/' . $imageFileName;
+                $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+                WorkOrderModel::updateImagePath($workOrderId, $imagePath);
+            }
         }
+
+        $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+        $templateType = $this->getTemplateType($tipe);
+        $task = PrintTemplateModel::where('tipe', $templateType)->get();
+
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl . $workOrder->latitude . "," . $workOrder->longitude;
+        $qrCode = QrCode::size(90)->generate($mapsUrl);
+
+        $view = $this->getViewByType($tipe);
+
+        return view($view, compact('workOrder', 'qrCode', 'task'));
     }
 
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'work_order_id' => 'required|integer|exists:work_orders,id'
-        ]);
+        try {
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'work_order_id' => 'required|integer|exists:work_orders,id'
+            ]);
 
-        $image = $request->file('image');
-        $workOrderId = $request->input('work_order_id');
-        $imageExtension = $image->getClientOriginalExtension();
-        $imageFileName = $workOrderId . '.' . $imageExtension;
-        $imagePath = 'image/work-order/' . $imageFileName;
-        $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
-        WorkOrderModel::updateImagePath($workOrderId, $imagePath);
-        return response()->json([
-            'success' => true,
-            'message' => 'Image uploaded successfully.',
-            'image_path' => Storage::url($imagePath)
-        ]);
+            $image = $request->file('image');
+            $workOrderId = $request->input('work_order_id');
+            $imageExtension = $image->getClientOriginalExtension();
+            $imageFileName = $workOrderId . '.' . $imageExtension;
+            $imagePath = 'image/work-order/attachment-file/' . $imageFileName;
+            $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+            WorkOrderModel::updateFileCompleteWorkOrderPath($workOrderId, $imagePath);
+            WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image uploaded successfully.',
+                'image_path' => Storage::url($imagePath)
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload image ' . $th->getMessage()
+            ]);
+        }
     }
 
     public function printTechnicianReport(Request $request)
@@ -130,5 +150,51 @@ class WorkOrder extends Controller
         $workOrder = WorkOrderModel::getWorkOrderData($request->id);
         $task = PrintTemplateModel::where('tipe', 'teknisi')->get();
         return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'task'));
+    }
+
+    private function getTemplateType($tipe)
+    {
+        switch ($tipe) {
+            case "regular_dan_instalasi":
+                return 'regular-instalasi';
+            case "tokopedia_dan_instalasi":
+                return 'tokopedia-instalasi';
+            case "tokopedia_tanpa_instalasi":
+                return 'tokopedia-tanpa-instalasi';
+            default:
+                throw new \InvalidArgumentException('Tipe cetak tidak valid');
+        }
+    }
+
+    private function getViewByType($tipe)
+    {
+        switch ($tipe) {
+            case "regular_dan_instalasi":
+                return 'Orders.WorkOrder.RegularInstalasi.print';
+            case "tokopedia_dan_instalasi":
+                return 'Orders.WorkOrder.TokopediaInstalasi.print';
+            case "tokopedia_tanpa_instalasi":
+                return 'Orders.WorkOrder.Tokopedia.print';
+            default:
+                throw new \InvalidArgumentException('Tipe cetak tidak valid');
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $workOrder = WorkOrderModel::find($request->work_order_id);
+            $workOrder->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Work order deleted successfully.'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete work order.'
+            ]);
+        }
     }
 }
