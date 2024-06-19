@@ -479,13 +479,6 @@
                     }
                 },
             },
-            {
-                text: "<i class='fas fa-sync-alt'></i> Refresh",
-                action: function(e, dt, node, config) {
-                    dt.ajax.reload();
-                },
-                className: "btn btn-outline-secondary btn-sm",
-            },
         ];
 
         // Append extra buttons if any is provided.
