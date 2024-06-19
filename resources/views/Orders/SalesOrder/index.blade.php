@@ -72,71 +72,120 @@
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations([{
-                    text: "<i class='fas fa-file-text'></i> Post",
-                    action: function(e, dt, node, config) {
-                        // Get the selected row's id.
-                        let selectedRows = table.rows({
-                            selected: true
-                        }).data().toArray();
-                        if (selectedRows.length !== 1) {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Please select a single row for posting.",
-                                icon: "error",
-                            });
-                            return;
-                        }
+                buttons: getDatatablesButtonConfigurations([
+                    // Edit    
+                    {
+                        text: "<i class='fas fa-pencil'></i> Edit",
+                        className: "btn btn-outline-primary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
 
-                        // Post the selected sales order.
-                        sendPostRequest(selectedRows[0][10], "/sales-order/post",
-                            function() {
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for editing.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            let id = selectedRows[0][10];
+                            goToPage("/sales-order/edit/" + id);
+                        }
+                    },
+                    // Delete   
+                    {
+                        text: "<i class='fas fa-trash'></i> Delete",
+                        className: "btn btn-outline-danger btn-sm ml-1",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+
+                            if (selectedRows.length === 0) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select at least one row for deleting.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            let ids = selectedRows.map(row => row[10]);
+                            sendDestroyRequest(ids, "/sales-order/delete/", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
                             });
-                    },
-                    className: "btn btn-outline-secondary btn-sm",
-                }, {
-                    text: "<i class='fas fa-file-text'></i> Invoice",
-                    action: function(e, dt, node, config) {
-                        // Get the selected row's id.
-                        let selectedRows = table.rows({
-                            selected: true
-                        }).data().toArray();
-                        if (selectedRows.length !== 1) {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Please select a single row for downloading invoice.",
-                                icon: "error",
-                            });
-                            return;
                         }
-
-                        // Download invoice as pdf.
-                        downloadPDF("/sales-order/invoice/" + selectedRows[0][10]);
                     },
-                    className: "btn btn-outline-secondary btn-sm",
-                }, {
-                    text: "<i class='fas fa-screwdriver-wrench'></i> Create Work Order",
-                    action: function(e, dt, node, config) {
-                        // Get the selected row's id.
-                        let selectedRows = table.rows({
-                            selected: true
-                        }).data().toArray();
-                        if (selectedRows.length !== 1) {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Please select a single row for creating work order.",
-                                icon: "error",
-                            });
-                            return;
-                        }
+                    // Post
+                    {
+                        text: "<i class='fas fa-file-text'></i> Post",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for posting.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
 
-                        // Redirect to create work order page.
-                        createworkorder("/sales-order/work-order/" + selectedRows[0][10]);
+                            // Post the selected sales order.
+                            sendPostRequest(selectedRows[0][10], "/sales-order/post",
+                                function() {
+                                    // Reload the index table.
+                                    table.ajax.reload();
+                                });
+                        },
+                        className: "btn btn-outline-success btn-sm",
                     },
-                    className: "btn btn-outline-warning btn-sm",
-                }]),
+                    {
+                        text: "<i class='fas fa-file-text'></i> Invoice",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for downloading invoice.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // Download invoice as pdf.
+                            downloadPDF("/sales-order/invoice/" + selectedRows[0][10]);
+                        },
+                        className: "btn btn-outline-secondary btn-sm",
+                    }, {
+                        text: "<i class='fas fa-screwdriver-wrench'></i> Create Work Order",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for creating work order.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // Redirect to create work order page.
+                            createworkorder("/sales-order/work-order/" + selectedRows[0][10]);
+                        },
+                        className: "btn btn-outline-warning btn-sm",
+                    }
+                ]),
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
                 rowCallback: function(row, data) {
@@ -146,9 +195,6 @@
                         $('td', row).addClass("text-info");
                 }
             });
-
-            // Load DataTables toolbar component.
-            appendDatatablesToolbar(10, "/sales-order/edit/");
         });
     </script>
 

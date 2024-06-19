@@ -447,7 +447,7 @@
         var buttons = [{
                 text: "<i class='fas fa-file-alt'></i> Export to PDF",
                 extend: "pdf",
-                className: "btn btn-outline-danger btn-sm",
+                className: "btn btn-outline-secondary btn-sm",
                 exportOptions: {
                     format: {
                         body: function(data, row, column, node) {
@@ -461,7 +461,7 @@
             {
                 text: "<i class='fas fa-file-excel'></i> Export to Excel",
                 extend: "excel",
-                className: "btn btn-outline-success btn-sm",
+                className: "btn btn-outline-secondary btn-sm",
                 exportOptions: {
                     format: {
                         body: function(data, row, column, node) {
@@ -484,7 +484,7 @@
                 action: function(e, dt, node, config) {
                     dt.ajax.reload();
                 },
-                className: "btn btn-outline-primary btn-sm",
+                className: "btn btn-outline-secondary btn-sm",
             },
         ];
 
@@ -492,6 +492,7 @@
         if (extraButtons !== null) {
             buttons.push(extraButtons);
         }
+        console.log(buttons);
 
         return buttons;
     }
