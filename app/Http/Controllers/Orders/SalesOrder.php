@@ -367,6 +367,29 @@ class SalesOrder extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $salesOrder = SalesOrderModel::find($request->id)->first();
+
+        if ($salesOrder->status !== 'draft') {
+            return getResponseData(false, "Unable to delete posted and completed sales order.");
+        }
+
+        $status = $salesOrder->delete();
+
+        // Set a new response data to be sent.
+        return getResponseData(
+            $status,
+            $status ? "The selected sales order was successfully deleted!" : "Failed to deleted the selected sales order!"
+        );
+    }
+
+    /**
      * Get the list of technicians based on selectd shop.
      * 
      * @param  int  $shopId The id of the selected shop

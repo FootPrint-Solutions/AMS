@@ -225,6 +225,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit']);
     Route::post('/sales-order/store', [SalesOrder::class, 'store']);
     Route::post('/sales-order/update', [SalesOrder::class, 'update']);
+    Route::post('/sales-order/delete', [SalesOrder::class, 'destroy']);
     Route::post('/sales-order/post', [SalesOrder::class, 'post']);
     Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
     Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
