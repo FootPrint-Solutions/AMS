@@ -344,7 +344,7 @@
             if (printOption == 'tokopedia_dan_instalasi' || printOption == 'tokopedia_tanpa_instalasi') {
                 uploadColumn.html(`
                     <label for="image" class="mt-3">Upload Image</label>
-                    <input type="file" name="image" id="image" class="form-control" required allow="image/*">
+                    <input type="file" name="image" id="image" class="form-control" allow="image/*">
                 `);
             } else {
                 uploadColumn.html('');
