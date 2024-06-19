@@ -15,12 +15,10 @@ class AddTableWorkOrderPrintTemplateMaster extends Migration
     public function up()
     {
         // Create table for work order print template master
-        DB::transaction(function () {
-            Schema::create('work_order_print_template_master', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->timestamps();
-            });
+        Schema::create('work_order_print_template_master', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
