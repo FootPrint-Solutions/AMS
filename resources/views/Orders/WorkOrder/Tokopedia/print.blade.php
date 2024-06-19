@@ -163,10 +163,10 @@
             </tr>
 
             @for ($i = 0; $i < 10; $i++)
-                @if ($i < count($task))
+                @if ($i < count($taskOne))
                     <tr>
                         <td style='width:1%;'>{{ $i + 1 }}. </td>
-                        <td colspan="4"><input type='checkbox'>{{ $task[$i]->message }}</td>
+                        <td colspan="4"><input type='checkbox'>{{ $taskOne[$i]->message }}</td>
                     </tr>
                 @else
                     <tr>
@@ -242,10 +242,10 @@
                         <td colspan="2" style="text-align:center; font-weight:700;">Pekerjaan</td>
                     </tr>
                     @for ($i = 0; $i < 10; $i++)
-                        @if ($i < count($task))
+                        @if ($i < count($taskTwo))
                             <tr>
                                 <td style='width:1%;'>{{ $i + 1 }}. </td>
-                                <td colspan="4"><input type='checkbox'>{{ $task[$i]->message }}</td>
+                                <td colspan="4"><input type='checkbox'>{{ $taskTwo[$i]->message }}</td>
                             </tr>
                         @else
                             <tr>

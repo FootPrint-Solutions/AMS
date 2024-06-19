@@ -182,7 +182,7 @@
                             $("#work_order_id").val(selectedRows[0][8]);
                             showModalPrint("/work-order/print/" + selectedRows[0][8]);
                         },
-                        className: "btn btn-outline-danger btn-sm",
+                        className: "btn btn-outline-secondary btn-sm",
                     },
                     // add button print technician report
                     {
@@ -206,7 +206,7 @@
                                 8
                             ]);
                         },
-                        className: "btn btn-outline-danger btn-sm",
+                        className: "btn btn-outline-secondary btn-sm",
                     },
                     // add upload image button 
                     {

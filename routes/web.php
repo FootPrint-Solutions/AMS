@@ -246,6 +246,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/template/message/update', [MessageTemplate::class, 'update']);
     Route::get('/template/print', [PrintTemplate::class, 'index']);
     Route::post('/template/print/update', [PrintTemplate::class, 'update']);
+    Route::post('/template/show', [PrintTemplate::class, 'show']);
+    Route::get('/template/create', [PrintTemplate::class, 'create']);
+    Route::post('/template/store', [PrintTemplate::class, 'store']);
+    Route::post('/template/destroy', [PrintTemplate::class, 'destroy']);
+    Route::get('/template/edit/{id}', [PrintTemplate::class, 'edit']);
+    Route::post('/template/update', [PrintTemplate::class, 'update']);
+    Route::get('/template/details/{id}', [PrintTemplate::class, 'details']);
+    Route::post('/template/print/update/details', [PrintTemplate::class, 'updateDetails']);
 
     // Tax
     Route::get('/tax', [Tax::class, 'index']);

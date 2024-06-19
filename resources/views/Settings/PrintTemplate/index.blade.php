@@ -1,5 +1,5 @@
 @extends('template.master')
-{{-- @dd($data) --}}
+
 
 @section('content')
     <div class="card">
