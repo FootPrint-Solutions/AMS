@@ -1094,7 +1094,9 @@ $arrayVehicle
         foreach ($Battery as $key) {
             $batteryPrices = $key['battery_prices'];
             $batteries['categories'][] = $key['brand']['name'] . ' ' . $key['subbrand_category']['name'];
-            $batteries['units'][] = $key['name'];
+            if (preg_match('/[0-9A-Z]+[0-9A-Z]$/', $key['name'], $matches)) {
+                $batteries['units'][] = $matches[0];
+            }
             if ($key['image'] != null) {
                 $value['image'] = asset('storage/image/battery/' . $key['image']);
             } else {

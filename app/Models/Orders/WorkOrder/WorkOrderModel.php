@@ -17,6 +17,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\Settings\PaymentMethodModel;
 
 class WorkOrderModel extends Model implements Auditable
 {
@@ -91,7 +92,8 @@ class WorkOrderModel extends Model implements Auditable
     public function salesOrder()
     {
         return $this->belongsTo(SalesOrderModel::class, 'sales_order_id')
-            ->with('distributorShop', 'vehicle');
+            ->with('distributorShop', 'vehicle')
+            ->with('paymentMethod');
     }
 
     public function customer()
@@ -103,6 +105,12 @@ class WorkOrderModel extends Model implements Auditable
     public function distributorShop()
     {
         return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
+    }
+
+    public function paymentMethod()
+    {
+        // from sales order join with payment method 
+        return $this->belongsTo(PaymentMethodModel::class, 'payment_method_id');
     }
 
 
@@ -146,7 +154,7 @@ class WorkOrderModel extends Model implements Auditable
 
     public static function getWorkOrderData($id)
     {
-        return self::with('batteries', 'salesOrder', 'customer', 'distributorShop')
+        return self::with('batteries', 'salesOrder', 'customer', 'distributorShop', 'paymentMethod')
             ->where('id', $id)
             ->first();
     }
