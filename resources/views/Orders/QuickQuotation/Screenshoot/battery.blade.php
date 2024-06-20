@@ -10,7 +10,7 @@
         background-color: #f0f0f0;
     }
 
-    .container {
+    .containerx {
         background-color: #333;
         color: white;
         padding: 20px;
@@ -18,7 +18,7 @@
     }
 
     table {
-        width: 100%;
+        /* width: 100%; */
         border-collapse: collapse;
     }
 
@@ -59,14 +59,14 @@
 
 <!-- button screenshoot -->
 
-<body id="body-screenshoot">
-    <div class="container" id="div-screenshoot">
+<div id="body-screenshoot">
+    <div class="containerx" id="div-screenshoot">
         <table>
             <thead>
                 <tr>
-                    <th>KATEGORI</th>
+                    <th style="width: 150px;">KATEGORI</th>
                     <?php foreach ($batteries['categories'] as $category) : ?>
-                    <th style="background-color:#aadf2d; color:#000;"><?= $category ?></th>
+                    <th style="background-color:#aadf2d;color:#000;width: 150px;"><?= $category ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
@@ -106,24 +106,19 @@
             </tbody>
         </table>
     </div>
-</body>
-{{-- <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script> --}}
+</div>
+
 <script src="{{ asset('/js/html2canvas.min.js') }}"></script>
 
 <script>
-    document.getElementById('screenshoot-btn').addEventListener('click', function() {
-
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-        this.disabled = true;
-
+    document.getElementById('screenshoot-btn').addEventListener('click', function handleClick() {
         html2canvas(document.querySelector("#div-screenshoot")).then(canvas => {
             var link = document.createElement('a');
             link.download = 'battery.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
-
-        this.innerHTML = '<i class="fas fa-camera"></i> Screenshoot';
-        this.disabled = false;
+        // Remove the event listener after the first click
+        document.getElementById('screenshoot-btn').removeEventListener('click', handleClick);
     });
 </script>
