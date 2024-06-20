@@ -66,7 +66,7 @@
                 <tr>
                     <th>KATEGORI</th>
                     <?php foreach ($batteries['categories'] as $category) : ?>
-                    <th style="background-color:#aadf2d;"><?= $category ?></th>
+                    <th style="background-color:#aadf2d; color:#000;"><?= $category ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
@@ -112,11 +112,18 @@
 
 <script>
     document.getElementById('screenshoot-btn').addEventListener('click', function() {
+
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        this.disabled = true;
+
         html2canvas(document.querySelector("#div-screenshoot")).then(canvas => {
             var link = document.createElement('a');
             link.download = 'battery.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
+
+        this.innerHTML = '<i class="fas fa-camera"></i> Screenshoot';
+        this.disabled = false;
     });
 </script>

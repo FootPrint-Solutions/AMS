@@ -20,6 +20,7 @@ use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Orders\WorkOrder\WorkOrderBatteryModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\Settings\PaymentMethodModel;
 
 class SalesOrderModel extends Model implements Auditable
 {
@@ -108,6 +109,14 @@ class SalesOrderModel extends Model implements Auditable
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(VehicleModel::class, "vehicle_id");
+    }
+
+    /**
+     * Get the payment method of the quotations.
+     */
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethodModel::class, "payment_method_id");
     }
 
 

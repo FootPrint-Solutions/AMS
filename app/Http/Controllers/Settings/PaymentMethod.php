@@ -27,8 +27,6 @@ class PaymentMethod extends Controller
             'Settings.PaymentMethodManager.index',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu
             )
         );
     }
@@ -44,8 +42,6 @@ class PaymentMethod extends Controller
             "Settings.PaymentMethodManager.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
             )
         );
     }
@@ -62,8 +58,6 @@ class PaymentMethod extends Controller
             "Settings.PaymentMethodManager.create",
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => PaymentMethodModel::find($id)->toArray()
                 )

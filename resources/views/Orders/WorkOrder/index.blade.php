@@ -97,6 +97,27 @@
         </div>
     </div>
 
+    {{-- Modal Detail --}}
+    <div class="modal fade" id="modal-detail" tabindex="-1" aria-labelledby="modal-detail-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-light" id="modal-detail-label"><i class="fas fa-info-circle"></i> Work
+                        Order
+                        Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body" id="modal-detail-body">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var table;
 
@@ -239,6 +260,11 @@
                         $('td', row).addClass("text-success");
                     else if (data[9] == "completed")
                         $('td', row).addClass("text-info");
+
+                    // double click to show modal detail
+                    $(row).on('dblclick', function() {
+                        showModalDetail(data[8]);
+                    });
                 }
             });
 
@@ -291,6 +317,37 @@
                         });
                     }
                 });
+            }
+
+            function showModalDetail(id) {
+                $('#modal-detail').modal('show');
+                $('#modal-detail-body').html(`
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                `);
+                // ajax request to get work order detail
+                $.ajax({
+                    url: "/work-order/detail",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        work_order_id: id
+                    },
+                    success: function(response) {
+                        $('#modal-detail-body').html(response);
+                    },
+                    error: function(xhr) {
+                        $('#modal-detail-body').html(`
+                                    <div class="text-center">
+                                        <p class="text-danger">Failed to load work order detail.</p>
+                                    </div>
+                                `);
+                    }
+                });
+
             }
         });
 

@@ -198,4 +198,10 @@ class WorkOrder extends Controller
             ]);
         }
     }
+
+    public function detail(Request $request)
+    {
+        $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+        return view('Orders.WorkOrder.detail', compact('workOrder'));
+    }
 }

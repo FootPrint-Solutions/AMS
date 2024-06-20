@@ -123,13 +123,22 @@ class SalesOrder extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
-            // Set the status badge class name depending on the status.
+            // Set the payment status badge class name depending on the status.
             if ($key->payment_status == "paid") {
-                $statusBadgeClass = "badge-success";
+                $paymentStatusBadgeClass = "badge-success";
             } else if ($key->payment_status == "pending") {
-                $statusBadgeClass = "badge-warning";
+                $paymentStatusBadgeClass = "badge-warning";
             } else {
-                $statusBadgeClass = "badge-danger";
+                $paymentStatusBadgeClass = "badge-danger";
+            }
+
+            // Set the payment status badge class name depending on the status.
+            if ($key->status == "draft") {
+                $statusBadgeClass = "badge-secondary text-dark";
+            } else if ($key->status == "posted") {
+                $statusBadgeClass = "badge-success";
+            } else {
+                $statusBadgeClass = "badge-info";
             }
 
             // Set an array for each row.
@@ -142,8 +151,8 @@ class SalesOrder extends Controller
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
-            $row[] = $key->payment_method_name ?? "<p class='text-center'>-</p>";
-            $row[] = "<span class='badge $statusBadgeClass'>$key->payment_status</span>";
+            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>";
+            $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $row[] = $key->status;
             $rows[] = $row;
