@@ -31,7 +31,7 @@
                         <th scope="col">Distributor/Shop</th>
                         <th scope="col">Technician</th>
                         <th scope="col">Total (IDR)</th>
-                        <th scope="col">Payment Method</th>
+                        <th scope="col">Payment Status</th>
                         <th scope="col">Status</th>
                     </tr>
                 </thead>
@@ -68,7 +68,7 @@
                     targets: [7],
                     className: 'dt-body-right table-col-price'
                 }, {
-                    targets: [0, -1],
+                    targets: [0, -1, -2],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
