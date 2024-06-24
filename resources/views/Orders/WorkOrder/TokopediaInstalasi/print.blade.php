@@ -235,7 +235,7 @@
                 </div>
             </div>
         </div>
-        <br>
+        <br><br>
         <div class="section">
             <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
                 <h2>{{ $workOrder->work_order_number }}</h2>
