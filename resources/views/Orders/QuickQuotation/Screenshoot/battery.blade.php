@@ -108,17 +108,41 @@
     </div>
 </div>
 
+<img src="" alt="" id="image-coppy">
+
 <script src="{{ asset('/js/html2canvas.min.js') }}"></script>
 
 <script>
     document.getElementById('screenshoot-btn').addEventListener('click', function handleClick() {
+        // show body-screenshoot
+        document.getElementById('body-screenshoot').style.display = 'flex';
+
+        // hide tag img
+        document.getElementById('image-coppy').src = '';
         html2canvas(document.querySelector("#div-screenshoot")).then(canvas => {
             var link = document.createElement('a');
             link.download = 'battery.png';
             link.href = canvas.toDataURL('image/png');
-            link.click();
+            // link.click();
+
+            // hide body-screenshoot
+            document.getElementById('body-screenshoot').style.display = 'none';
+
+            // set image to img tag
+            document.getElementById('image-coppy').src = canvas.toDataURL('image/png');
+
+            // Copy to clipboard from img tag
+            document.getElementById('image-coppy').addEventListener('click', function() {
+                navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': canvas.toDataURL('image/png')
+                    })
+                ]).then(function() {
+                    console.log('Image copied to clipboard.');
+                }).catch(function(err) {
+                    console.error('Unable to copy to clipboard: ', err);
+                });
+            });
         });
-        // Remove the event listener after the first click
-        document.getElementById('screenshoot-btn').removeEventListener('click', handleClick);
     });
 </script>
