@@ -218,8 +218,8 @@
                             <td style="text-align:center;">Teknisi</td>
                         </tr>
                         <tr>
-                            <td style="padding:30px; width:50%;"></td>
-                            <td style="padding:30px"></td>
+                            <td style="padding:24px; width:50%;"></td>
+                            <td style="padding:24px"></td>
                         </tr>
                     </table>
                 </div>
