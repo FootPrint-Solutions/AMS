@@ -109,7 +109,7 @@ class WorkOrder extends Controller
 
         $baseUrl = "https://www.google.com/maps?q=";
         $mapsUrl = $baseUrl . $workOrder->latitude . "," . $workOrder->longitude;
-        $qrCode = QrCode::size(72)->generate($mapsUrl);
+        $qrCode = QrCode::size(60)->generate($mapsUrl);
 
         $view = $this->getViewByType($tipe);
 
