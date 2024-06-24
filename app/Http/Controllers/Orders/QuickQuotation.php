@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
@@ -1131,5 +1133,50 @@ $arrayVehicle
 
         // load view
         return view('Orders.QuickQuotation.Screenshoot.battery', compact('batteries'));
+    }
+
+    public function saveScreenshoot(Request $request)
+    {
+        $image = $request->file('image');
+        $random_id = $request->input('random_id');
+
+        // check if image is exist
+        try {
+            if ($request->hasFile('image')) {
+                $request->validate([
+                    'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'random_id' => 'required'
+                ]);
+
+                $imageExtension = $image->getClientOriginalExtension();
+                $imageFileName = $random_id . '.' . $imageExtension;
+                $imagePath = 'image/quick-quotation/screenshot/' . $imageFileName;
+                $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Image uploaded successfully.',
+                    'image_path' => Storage::url($imagePath)
+                ]);
+            } else {
+                // change  data:image/png;base64 to data:image/png;base64,
+                $image = str_replace('data:image/png;base64,', '', $image);
+                $image = str_replace(' ', '+', $image);
+                $imageName = $random_id . '.png';
+                $imagePath = 'image/quick-quotation/screenshot/' . $imageName;
+                $imageFullPath = storage_path('app/public/' . $imagePath);
+                $imageData = base64_decode($image);
+                file_put_contents($imageFullPath, $imageData);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Image uploaded successfully.',
+                    'image_path' => Storage::url($imagePath)
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload image. ' . $e->getMessage()
+            ]);
+        }
     }
 }
