@@ -22,9 +22,9 @@
 
         .container {
             width: 100%;
-            max-width: 148mm;
+            max-width: 147mm;
             /* Set max-width to A5 width */
-            height: 210mm;
+            height: 209mm;
             /* Set height to A5 height */
             margin: 0 auto;
             padding: 10px;
