@@ -297,7 +297,7 @@
             </div>
             <hr class="dashed">
             @if ($workOrder->image)
-                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="350px">
+                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="250px">
             @endif
         </div>
     </div>
