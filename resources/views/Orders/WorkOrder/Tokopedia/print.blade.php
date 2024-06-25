@@ -235,8 +235,7 @@
                 </div>
             </div>
         </div>
-        <br><br>
-        <div class="section">
+        <div class="section" style="margin-top:50px;">
             <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
                 <h2>{{ $workOrder->work_order_number }}</h2>
                 <h2>Instruksi Kerja Admin Partner</h2>
@@ -297,7 +296,7 @@
             </div>
             <hr class="dashed">
             @if ($workOrder->image)
-                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="350px">
+                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="250px">
             @endif
         </div>
     </div>
