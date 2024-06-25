@@ -235,8 +235,7 @@
                 </div>
             </div>
         </div>
-        <br><br>
-        <div class="section">
+        <div class="section" style="margin-top:50px;">
             <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:-15px;'>
                 <h2>{{ $workOrder->work_order_number }}</h2>
                 <h2>Instruksi Kerja Admin Partner</h2>
