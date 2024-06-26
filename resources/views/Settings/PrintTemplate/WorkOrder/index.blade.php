@@ -81,7 +81,7 @@
                     },
                     className: "btn btn-outline-secondary btn-sm",
                 }),
-                language: getDatatablesLanguangeConfigurations("Tax"),
+                language: getDatatablesLanguangeConfigurations("Work Order Print Templates"),
                 select: true,
             });
 

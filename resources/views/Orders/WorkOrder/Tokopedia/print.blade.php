@@ -309,4 +309,7 @@
 {{-- js print --}}
 <script>
     window.print();
+    window.onafterprint = function() {
+        window.history.back();
+    }
 </script>
