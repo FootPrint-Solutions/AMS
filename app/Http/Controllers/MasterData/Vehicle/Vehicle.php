@@ -53,7 +53,7 @@ class Vehicle extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    'brands' => VehicleBrandModel::all()->toArray(),
+                    'brands' => VehicleBrandModel::where('status', 1)->get()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                 )
             )
@@ -90,7 +90,7 @@ class Vehicle extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    'brands' => VehicleBrandModel::all()->toArray(),
+                    'brands' => VehicleBrandModel::where('status', 1)->get()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
                     'primary_battery' => $primaryBattery,
