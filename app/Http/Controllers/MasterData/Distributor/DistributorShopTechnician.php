@@ -43,7 +43,7 @@ class DistributorShopTechnician extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
+                    "shops" => DistributorShopModel::with("distributor")->where("status", 1)->get()->toArray()
                 )
             )
         );
@@ -66,7 +66,7 @@ class DistributorShopTechnician extends Controller
                 $this->title,
                 array(
                     "profile" => $technician->toArray(),
-                    "shops" => DistributorShopModel::with("distributor")->get()->toArray()
+                    "shops" => DistributorShopModel::with("distributor")->where("status", 1)->get()->toArray()
                 )
             )
         );
