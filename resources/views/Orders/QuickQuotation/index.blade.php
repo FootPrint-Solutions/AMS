@@ -532,6 +532,7 @@
                     var subtotal = $("#subtotal").val();
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
+                    var typeDiscount = $("#type-discount").val();
 
                     var data = {
                         FullName: FullName,
@@ -563,6 +564,7 @@
                         SubtotalRow: SubtotalRow,
                         TaxRow: TaxRow,
                         TaxPriceRow: TaxPriceRow,
+                        typeDiscount: typeDiscount,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     };
 
@@ -612,6 +614,7 @@
                 var tax = $("#tax").val();
                 var discount = $("#discount").val();
                 var TotalAmountHidden = $("#TotalAmountHidden").val();
+                var typeDiscount = $("#type-discount").val();
 
                 var data = {
                     FullName: FullName,
@@ -625,6 +628,7 @@
                     Latitude: Latitude,
                     Longitude: Longitude,
                     AddressCustomer: AddressCustomer,
+                    typeDiscount: typeDiscount,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -737,6 +741,7 @@
                 var discount = $("#discount").val();
                 var TotalAmountHidden = $("#TotalAmountHidden").val();
                 var PaymentMethod = $("#PaymentMethod").val();
+                var typeDiscount = $("#type-discount").val();
 
                 var data = {
                     FullName: FullName,
@@ -754,6 +759,7 @@
                     Longitude: Longitude,
                     AddressCustomer: AddressCustomer,
                     PaymentMethod: PaymentMethod,
+                    typeDiscount: typeDiscount,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
@@ -896,6 +902,7 @@
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
                 var DiscountPercentage = $("#discount-percent").val();
+                var typeDiscount = $("#type-discount").val();
 
                 var data = {
                     FullName: FullName,
@@ -934,7 +941,8 @@
                     PaymentMethod: PaymentMethod,
                     TaxPayment: TaxPayment,
                     TaxPricePayment: TaxPricePayment,
-                    BatteryIdCheckout: BatteryIdCheckout
+                    BatteryIdCheckout: BatteryIdCheckout,
+                    typeDiscount: typeDiscount
                 };
 
                 $.ajax({

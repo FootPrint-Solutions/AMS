@@ -49,6 +49,7 @@
         var Latitude = $("#Latitude").val();
         var Longitude = $("#Longitude").val();
         var AddressCustomer = $("#AddressCustomer").val();
+        var typeDiscount = $("#type-discount").val();
 
         var data = {
             FullName: FullName,
@@ -62,6 +63,7 @@
             Latitude: Latitude,
             Longitude: Longitude,
             AddressCustomer: AddressCustomer,
+            typeDiscount: typeDiscount,
             _token: $('meta[name="csrf-token"]').attr('content')
         };
 

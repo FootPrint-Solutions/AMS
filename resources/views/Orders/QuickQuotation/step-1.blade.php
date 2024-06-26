@@ -135,8 +135,8 @@
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Dimensi  </div><div class="col-xl-1"> :</div><div class="col">' +
                             vehicle
-                            .dimension_height + ' x ' + vehicle.dimension_width + ' x ' + vehicle
-                            .dimension_length + ' mm</div></div></li>';
+                            .dimension_length + ' x ' + vehicle.dimension_width + ' x ' + vehicle
+                            .dimension_height + ' mm</div></div></li>';
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Kapasitas </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle.capacity +
@@ -322,9 +322,9 @@
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Dimensi  </div><div class="col-xl-1"> :</div><div class="col">' +
                             vehicle
-                            .dimension_height + ' x ' + vehicle.dimension_width + ' x ' +
+                            .dimension_length + ' x ' + vehicle.dimension_width + ' x ' +
                             vehicle
-                            .dimension_length + ' mm</div></div></li>';
+                            .dimension_height + ' mm</div></div></li>';
                         html +=
                             '<li class="list-group-item"><div class="row"><div class="col-xl-6">Kapasitas </div><div class="col-xl-1"> : </div><div class="col">' +
                             vehicle.capacity +

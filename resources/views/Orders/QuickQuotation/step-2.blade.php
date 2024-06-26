@@ -68,7 +68,7 @@
 
         <div class="col-lg-6">
             <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
-                Maps</button>
+                Maps Distributor Shop</button>
         </div>
     </div>
 
