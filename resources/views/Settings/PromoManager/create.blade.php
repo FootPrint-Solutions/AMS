@@ -303,6 +303,16 @@
             $("#promo-form").on("submit", function(event) {
                 event.preventDefault();
 
+                let batteryLength = $('.battery-name:visible').length;
+                if (batteryLength < 1) {
+                    Swal.fire({
+                        title: "Cannot Save Promo",
+                        text: "A promo must have at least one item.",
+                        icon: "warning"
+                    });
+                    return;
+                }
+
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/promo/update" : "/promo/store";
 
