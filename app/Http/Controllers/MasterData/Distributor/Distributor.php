@@ -154,6 +154,8 @@ class Distributor extends Controller
             $distributor->name = $validatedData['name'];
             $distributor->is_shop = $request->isshop;
             $distributor->address = $validatedData['address'];
+            $distributor->latitude = $request->Latitude;
+            $distributor->longitude = $request->Longitude;
             $distributor->contact_person = $validatedData['contactperson'];
             $distributor->contact = $validatedData['contact'];
             $distributor->email = $validatedData['email'];
@@ -235,6 +237,8 @@ class Distributor extends Controller
             $distributor->name = $validatedData['name'];
             $distributor->is_shop = $request->isshop;
             $distributor->address = $validatedData['address'];
+            $distributor->latitude = $request->Latitude;
+            $distributor->longitude = $request->Longitude;
             $distributor->contact_person = $validatedData['contactperson'];
             $distributor->contact = $validatedData['contact'];
             $distributor->email = $validatedData['email'];

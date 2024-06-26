@@ -42,8 +42,10 @@
                                     value="{{ $data['profile']['address'] }}"
                                 @endisset>
 
-                                    <input type="hidden" id="Latitude" name="Latitude">
-                                    <input type="hidden" id="Longitude" name="Longitude">
+                                    <input type="hidden" id="Latitude" name="Latitude"
+                                        @if (isset($data['profile'])) value="{{ $data['profile']['latitude'] }}" @endif>
+                                    <input type="hidden" id="Longitude" name="Longitude"
+                                        @if (isset($data['profile'])) value="{{ $data['profile']['longitude'] }}" @endif>
                                 </div>
                             </div>
 
@@ -74,7 +76,7 @@
                             <input type="text" class="form-control" id="distributor-contact-person" name="contactperson"
                                 placeholder="Enter distributor contact person name" required
                                 @isset($data['profile'])
-                                value="{{ $data['profile']['address'] }}"
+                                value="{{ $data['profile']['contact_person'] }}"
                             @endisset>
                         </div>
                     </div>
