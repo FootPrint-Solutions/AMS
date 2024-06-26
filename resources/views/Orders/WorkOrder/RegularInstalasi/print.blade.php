@@ -31,6 +31,7 @@
             border: 1px solid #000;
             box-sizing: border-box;
             background-color: #fff;
+            overflow: hidden;
         }
 
         .header {
