@@ -469,7 +469,7 @@
          */
         function calculatePriceDiscount(counter) {
             let priceRetail = parseInt($('#battery-priceretail-' + counter).val().replace(/\D/g, ''));
-            let discount = parseInt($('#battery-discount-' + counter).val().replace(/\D/g, ''));
+            let discount = parseInt($('#battery-discount-' + counter).val());
             let discountPrice = priceRetail * discount / 100;
 
             $("#battery-discountprice-" + counter).val(discountPrice);
