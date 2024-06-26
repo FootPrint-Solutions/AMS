@@ -38,10 +38,11 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>
                                         <input type="number" class="form-control" name="step_no[{{ $item->id }}]"
-                                            id="step_no[{{ $item->id }}]" value="{{ $item->step_no }}">
+                                            id="step_no[{{ $item->id }}]" value="{{ $item->step_no }}" required>
                                     </td>
                                     <td>
-                                        <textarea class="form-control" name="message[{{ $item->id }}]" id="message[{{ $item->id }}]" rows="3">{{ $item->message }}</textarea>
+                                        <textarea class="form-control" name="message[{{ $item->id }}]" id="message[{{ $item->id }}]" rows="3"
+                                            required>{{ $item->message }}</textarea>
                                     </td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" id="delete-row-page-one">
@@ -80,10 +81,11 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>
                                         <input type="number" class="form-control" name="step_no[{{ $item->id }}]"
-                                            id="step_no[{{ $item->id }}]" value="{{ $item->step_no }}">
+                                            id="step_no[{{ $item->id }}]" value="{{ $item->step_no }}" required>
                                     </td>
                                     <td>
-                                        <textarea class="form-control" name="message[{{ $item->id }}]" id="message[{{ $item->id }}]" rows="3">{{ $item->message }}</textarea>
+                                        <textarea class="form-control" name="message[{{ $item->id }}]" id="message[{{ $item->id }}]" rows="3"
+                                            required>{{ $item->message }}</textarea>
                                     </td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" id="delete-row-page-two">
@@ -129,10 +131,10 @@
                     <tr>
                         <td>${rowCount + 1}</td>
                         <td>
-                            <input type="number" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}">
+                            <input type="number" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}" required>
                         </td>
                         <td>
-                            <textarea class="form-control" name="message[${rowCount}]" id="message[${rowCount}]" rows="3"></textarea>
+                            <textarea class="form-control" name="message[${rowCount}]" id="message[${rowCount}]" rows="3" required></textarea>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" id="delete-row-page-one">
@@ -159,13 +161,74 @@
 
                 // Obtain submitted form data.
                 let formData = new FormData();
+                var hasError = false;
                 $("#table-page-one tbody tr").each(function(index, tr) {
+
+                    // check if the row is empty
+                    if ($(tr).find("input[name^='step_no']").val() == "" || $(tr).find(
+                            "textarea[name^='message']").val() == "") {
+                        swal.fire({
+                            title: "Warning",
+                            text: "Please fill all the fields",
+                            icon: "warning",
+                        });
+                        hasError = true;
+                        return;
+                    }
+
                     let stepNo = $(tr).find("input[name^='step_no']").val();
                     let message = $(tr).find("textarea[name^='message']").val();
 
                     formData.append(`step_no[${index}]`, stepNo);
                     formData.append(`message[${index}]`, message);
                 });
+
+                // check if the row is empty
+                if ($("#table-page-one tbody tr").length == 0) {
+                    swal.fire({
+                        title: "Warning",
+                        text: "Please add at least one row",
+                        icon: "warning",
+                    });
+                    hasError = true;
+                    return false;
+                }
+
+                // check if the row step_no and message is empty
+                if ($("#table-page-one tbody tr").find("input[name^='step_no']").val() == "" || $(
+                        "#table-page-one tbody tr").find(
+                        "textarea[name^='message']").val() == "") {
+                    swal.fire({
+                        title: "Warning",
+                        text: "Please fill all the fields",
+                        icon: "warning",
+                    });
+                    hasError = true;
+                    return false;
+                }
+
+                // check if the row step_no unique
+                let stepNoArray = [];
+                $("#table-page-one tbody tr").each(function(index, tr) {
+                    let stepNo = $(tr).find("input[name^='step_no']").val();
+                    if (stepNoArray.includes(stepNo)) {
+                        swal.fire({
+                            title: "Warning",
+                            text: "Step No must be unique",
+                            icon: "warning",
+                        });
+                        hasError = true;
+                        return;
+                    }
+                    stepNoArray.push(stepNo);
+                });
+
+                if (hasError) {
+                    $btn.prop("disabled", false);
+                    $btn.html("Save Print Templates");
+                    return false;
+                }
+
                 formData.append("tipe", "page-one");
                 formData.append("id", $("#id").val());
                 formData.append("_token", "{{ csrf_token() }}");
@@ -174,6 +237,11 @@
 
                 $btn.prop("disabled", false);
                 $btn.html("Save Print Templates");
+
+                // redirect to the previous page after 3 seconds
+                setTimeout(function() {
+                    window.history.back();
+                }, 2000);
             });
         });
 
@@ -195,10 +263,10 @@
                     <tr>
                         <td>${rowCount + 1}</td>
                         <td>
-                            <input type="number" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}">
+                            <input type="number" class="form-control" name="step_no[${rowCount}]" id="step_no[${rowCount}]" value="${rowCount + 1}" required>
                         </td>
                         <td>
-                            <textarea class="form-control" name="message[${rowCount}]" id="message[${rowCount}]" rows="3"></textarea>
+                            <textarea class="form-control" name="message[${rowCount}]" id="message[${rowCount}]" rows="3" required></textarea>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" id="delete-row-page-two">
@@ -225,13 +293,74 @@
 
                 // Obtain submitted form data.
                 let formData = new FormData();
+                var hasError = false;
                 $("#table-page-two tbody tr").each(function(index, tr) {
+
+                    // check if the row is empty
+                    if ($(tr).find("input[name^='step_no']").val() == "" || $(tr).find(
+                            "textarea[name^='message']").val() == "") {
+                        swal.fire({
+                            title: "Warning",
+                            text: "Please fill all the fields",
+                            icon: "warning",
+                        });
+                        hasError = true;
+                        return;
+                    }
+
                     let stepNo = $(tr).find("input[name^='step_no']").val();
                     let message = $(tr).find("textarea[name^='message']").val();
 
                     formData.append(`step_no[${index}]`, stepNo);
                     formData.append(`message[${index}]`, message);
                 });
+
+                // check if the row is empty
+                if ($("#table-page-two tbody tr").length == 0) {
+                    swal.fire({
+                        title: "Warning",
+                        text: "Please add at least one row",
+                        icon: "warning",
+                    });
+                    hasError = true;
+                    return false;
+                }
+
+                // check if the row step_no and message is empty
+                if ($("#table-page-two tbody tr").find("input[name^='step_no']").val() == "" || $(
+                        "#table-page-two tbody tr").find(
+                        "textarea[name^='message']").val() == "") {
+                    swal.fire({
+                        title: "Warning",
+                        text: "Please fill all the fields",
+                        icon: "warning",
+                    });
+                    hasError = true;
+                    return false;
+                }
+
+                // check if the row step_no unique
+                let stepNoArray = [];
+                $("#table-page-two tbody tr").each(function(index, tr) {
+                    let stepNo = $(tr).find("input[name^='step_no']").val();
+                    if (stepNoArray.includes(stepNo)) {
+                        swal.fire({
+                            title: "Warning",
+                            text: "Step No must be unique",
+                            icon: "warning",
+                        });
+                        hasError = true;
+                        return;
+                    }
+                    stepNoArray.push(stepNo);
+                });
+
+                if (hasError) {
+                    $btn.prop("disabled", false);
+                    $btn.html("Save Print Templates");
+                    return false;
+                }
+
                 formData.append("tipe", "page-two");
                 formData.append("id", $("#id").val());
                 formData.append("_token", "{{ csrf_token() }}");
@@ -240,6 +369,10 @@
 
                 $btn.prop("disabled", false);
                 $btn.html("Save Print Templates");
+
+                setTimeout(function() {
+                    window.history.back();
+                }, 2000);
             });
         });
     </script>
