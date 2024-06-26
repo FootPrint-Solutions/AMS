@@ -252,6 +252,9 @@ class Promo extends Controller
 
             // Update promo detail data
             // Save the new promo battery details
+            $storedBatteries = PromoBatteryModel::where('promo_id', $promo->id)->pluck('battery_id')->toArray();
+            $processedBatteries = [];
+
             for ($i = 0; $i < count($request->detailid); $i++) {
                 $battery = PromoBatteryModel::where('promo_id', $promo->id)->where('battery_id', $request->detailid[$i])->first();
 
@@ -265,6 +268,8 @@ class Promo extends Controller
                 $battery->price_net = (float) str_replace(".", "", $request->batteriespricenet[$i]);
                 $status &= $battery->save();
 
+                $processedBatteries[] = $request->detailid[$i];
+
                 // Set battery price.
                 if ($promo->status) {
                     $price = BatteryPriceModel::where('battery_id', $request->detailid[$i])->first();
@@ -277,6 +282,21 @@ class Promo extends Controller
                         $price->promo_id = $promo->id;
                         $price->price_retail = BatteryModel::find($request->detailid[$i])->price_retail;
                         $price->discount = $request->batteriesdisc[$i];
+                        $status &= $price->save();
+                    }
+                }
+            }
+
+            $deletedBatteries = array_diff($storedBatteries, $processedBatteries);
+            if (!empty($deletedBatteries)) {
+                foreach ($deletedBatteries as $battery) {
+                    $status &= PromoBatteryModel::where('promo_id', $promo->id)->where('battery_id', $battery)->delete();
+
+                    $price = BatteryPriceModel::where('battery_id', $battery)->first();
+                    if ($price) {
+                        $price->promo_id = 0;
+                        $price->discount = 0.0;
+                        $price->discount_price = 0;
                         $status &= $price->save();
                     }
                 }

@@ -441,7 +441,7 @@
         // Attach a click event handler to all delete row buttons.
         $(document).on("click", ".btn-delete-row", function() {
             // Get the count of rows.
-            let count = $(".table-battery-detail-item").length;
+            let count = $(".table-battery-detail-row").length;
 
             // Check if count of rows is one ore more.
             // If it's the only row, add d-non instaed of removing it.
