@@ -326,12 +326,13 @@ class Promo extends Controller
                 // Activate the current promo price.
                 foreach ($batteries as $battery) {
                     // Retrieve the corresponding battery_prices record
-                    $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->where('promo_id', 0)->first();
+                    $batteryExists = BatteryPriceModel::where('battery_id', $battery->battery_id)->exists();
 
-                    if ($price) {
+                    if ($batteryExists) {
+                        $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->first();
                         $price->promo_id = $promo->id;
                         $price->discount = $battery->discount;
-                        $price->price_net = $battery->price_net;
+                        $price->discount_price = ($price->price_retail * $battery->discount / 100);
                         $status &= $price->save();
                     } else {
                         $price = new BatteryPriceModel();
@@ -339,7 +340,7 @@ class Promo extends Controller
                         $price->promo_id = $promo->id;
                         $price->price_retail = BatteryModel::find($battery->battery_id)->price_retail;
                         $price->discount = $battery->discount;
-                        $price->price_net = (float) str_replace(".", "", $battery->price_net);
+                        $price->discount_price = ($price->price_retail * $battery->discount / 100);
                         $status &= $price->save();
                     }
                 }
@@ -352,7 +353,7 @@ class Promo extends Controller
                     if ($price) {
                         $price->promo_id = 0;
                         $price->discount = 0.0;
-                        $price->price_net = 0;
+                        $price->discount_price = 0;
                         $status &= $price->save();
                     }
                 }
