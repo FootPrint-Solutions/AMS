@@ -36,7 +36,7 @@ class DistributorShopBatteryModel extends Model implements Auditable
      */
     public static function whereForDataTables($request)
     {
-        $selectColumns = ['distributor_shop_battery.id', 'batteries.name', 'price', 'url'];
+        $selectColumns = ['distributor_shop_battery.id', 'batteries.name', 'price'];
         $searchColumns = ['batteries.name'];
 
         // Build the query to obtain all rows.
