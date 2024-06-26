@@ -31,7 +31,7 @@ class QuickQuotation extends Controller
     public function index(Request $request)
     {
         $request->session()->put('invoice', SalesOrderModel::newCode());
-        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->get()->toArray();
+        $Distibutor = DistributorShopModel::where('latitude', '!=', null)->where('longitude', '!=', null)->where('status', 1)->get()->toArray();
 
         $datalatlong = [];
         foreach ($Distibutor as $key => $value) {
@@ -50,7 +50,7 @@ class QuickQuotation extends Controller
             getIndexData(
                 'Quick Quotation',
                 array(
-                    'Vehicle' => VehicleModel::all()->toArray(),
+                    'Vehicle' => VehicleModel::all()->where('status', 1)->toArray(),
                     'datalatlong ' => $datalatlong,
                 )
             )
@@ -60,7 +60,7 @@ class QuickQuotation extends Controller
     public function findCustomer(Request $request)
     {
         $query = $request->input('input');
-        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->orderBy('name', 'asc')->limit(10)->get();
+        $results = CustomerModel::where('name', 'like', '%' . $query . '%')->where('status', 1)->orderBy('name', 'asc')->limit(10)->get();
         return response()->json($results);
     }
 
@@ -211,7 +211,7 @@ $arrayVehicle";
                 $arrayBattery .= "*Garansi* : " . $value['warranty'] . " Bulan\r\n";
                 if ($value['discount'] != 0) {
                     // hitung price discount 
-                    $grossPriceWithTax = $value['price_net'] + ($value['price_net'] * $Tax / 100);
+                    $grossPriceWithTax = $value['price_retail'] + ($value['price_retail'] * $Tax / 100);
                     $price_discount = $value['price_retail'] - ($value['price_retail'] * $value['discount'] / 100);
                     $price_tax =  $price_discount + ($price_discount * $Tax / 100);
                     $arrayBattery .= "*Harga* : ~Rp. " . number_format($grossPriceWithTax, 0, "", ".") . "~ \n*Discount* : " . number_format($value['discount']) . "%\r\n";
@@ -336,7 +336,6 @@ $arrayBattery
         $Link = $request->input('LinkTokopedia');
         $Platform = $request->input('Platform');
         $tax = $request->input('tax') ?? 0;
-        $Discount = $request->input('DiscountPercentage') ?? 0;
         $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
         $GrossPrice = $request->input('GrossPrice');
         $NetPrice = $request->input('NetPrice');
@@ -345,6 +344,12 @@ $arrayBattery
         $TaxRow = $request->input('TaxRow');
         $TaxPriceRow = $request->input('TaxPriceRow');
         $PaymentMethod = PaymentMethodModel::all()->toArray();
+        $typeDiscount = $request->input('typeDiscount');
+        if ($typeDiscount == 'rupiah') {
+            $Discount = $request->input('DiscountRupiah') ?? 0;
+        } else {
+            $Discount = $request->input('DiscountPercentage') ?? 0;
+        }
         if ($request->input('DistributorShopId') != null) {
             $DistibutorShop = DistributorShopModel::find($request->input('DistributorShopId'));
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
@@ -401,6 +406,7 @@ $arrayBattery
             'DistributorShop' => $DistibutorShop,
             'Subtotal' => $request->input('subtotal') ?? 0,
             'PaymentMethod' => $PaymentMethod,
+            'typeDiscount' => $typeDiscount,
         ];
 
         $midtrans = new CreateSnapTokenService($InvoiceNumber);
@@ -425,8 +431,8 @@ $arrayBattery
         $arrayBattery = "";
         foreach ($batteries as $battery) {
             if ($battery->price_net != 0) {
-                $grossPriceWithTax = $battery->price_net + ($battery->price_net * $Tax / 100);
-                $price_net = $battery->price_net;
+                $grossPriceWithTax = $battery->price_retail_original + ($battery->price_retail_original * $Tax / 100);
+                $price_net = $battery->price_retail_original;
                 $discount = $battery->discount;
                 $price_discount = $price_net - ($price_net * $discount / 100);
                 $price_tax = $price_discount + ($price_discount * $Tax / 100);
@@ -486,6 +492,7 @@ $arrayBattery
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         $latitude = $request->input('Latitude');
         $longitude = $request->input('Longitude');
+        $typeDiscount = $request->input('typeDiscount');
 
         $arrayVehicle = "";
         foreach ($VehicleCustomer as $key => $value) {
@@ -528,7 +535,11 @@ $arrayBattery
 
         $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        if ($typeDiscount == 'rupiah') {
+            $content_message .= "```> Disc     : Rp. " . number_format($Discount, 0, "", ".") . "\r\n```";
+        } else {
+            $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        }
         $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n```";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
@@ -594,6 +605,7 @@ $arrayBattery
         $Subtotal = $request->input('Subtotal');
         $Discount = $request->input('Discount');
         $TotalAmount = $request->input('TotalAmount');
+        $typeDiscount = $request->input('typeDiscount');
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
 
@@ -631,7 +643,11 @@ $arrayBattery
 
         $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        if ($typeDiscount == 'rupiah') {
+            $content_message .= "```> Disc     : Rp. " . number_format($Discount, 0, "", ".") . "\r\n```";
+        } else {
+            $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        }
         $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
@@ -859,6 +875,7 @@ $arrayVehicle
         $VehicleCustomer = VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray();
         $latitude = $request->input('Latitude');
         $longitude = $request->input('Longitude');
+        $typeDiscount = $request->input('typeDiscount');
 
         $arrayVehicle = "";
         foreach ($VehicleCustomer as $key => $value) {
@@ -901,7 +918,11 @@ $arrayVehicle
 
         $content_message .= "*PERHITUNGAN TOTAL* \r";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        if ($typeDiscount == 'rupiah') {
+            $content_message .= "```> Disc     : Rp. " . number_format($Discount, 0, "", ".") . "\r\n```";
+        } else {
+            $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        }
         $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
@@ -944,6 +965,7 @@ $arrayVehicle
         $Subtotal = $request->input('Subtotal');
         $Discount = $request->input('Discount');
         $TotalAmount = $request->input('TotalAmount');
+        $typeDiscount = $request->input('typeDiscount');
 
         $TemplateMessagePersonalDetails = MessageTemplateModel::where('name', 'payment_details')->first()->toArray();
 
@@ -981,7 +1003,11 @@ $arrayVehicle
 
         $content_message .= "*PERHITUNGAN TOTAL* \r\n";
         $content_message .= "```> Subtotal : Rp. " . number_format($Subtotal, 0, "", ".") . "\r\n```";
-        $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        if ($typeDiscount == 'rupiah') {
+            $content_message .= "```> Disc     : Rp. " . number_format($Discount, 0, "", ".") . "\r\n```";
+        } else {
+            $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
+        }
         $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
@@ -1053,7 +1079,7 @@ $arrayVehicle
     public function findDistributor(Request $request)
     {
         $query = $request->input('input');
-        $results = DistributorShopModel::get();
+        $results = DistributorShopModel::where('status', 1)->get();
         return response()->json($results);
     }
 

@@ -303,6 +303,16 @@
             $("#promo-form").on("submit", function(event) {
                 event.preventDefault();
 
+                let batteryLength = $('.battery-name:visible').length;
+                if (batteryLength < 1) {
+                    Swal.fire({
+                        title: "Cannot Save Promo",
+                        text: "A promo must have at least one item.",
+                        icon: "warning"
+                    });
+                    return;
+                }
+
                 let mode = $("#btn-save").attr("value"); // update || create
                 let url = (mode == "update") ? "/promo/update" : "/promo/store";
 
@@ -431,7 +441,7 @@
         // Attach a click event handler to all delete row buttons.
         $(document).on("click", ".btn-delete-row", function() {
             // Get the count of rows.
-            let count = $(".table-battery-detail-item").length;
+            let count = $(".table-battery-detail-row").length;
 
             // Check if count of rows is one ore more.
             // If it's the only row, add d-non instaed of removing it.

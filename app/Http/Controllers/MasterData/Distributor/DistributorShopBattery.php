@@ -99,7 +99,6 @@ class DistributorShopBattery extends Controller
             $row[] = $no++;
             $row[] = "<a href='javascript:void(0)'>$key->name</a>";
             $row[] = number_format($key->price);
-            $row[] = "<a href='" . $key->url . "'>" . $key->url . "</a>";
             $row[] = $key->id;
             $rows[] = $row;
         }

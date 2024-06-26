@@ -138,7 +138,11 @@
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
                             <p>Subtotal <span>Rp. {{ number_format($Subtotal, 0, ',', '.') }}</span></p>
-                            <p>Discount (%) <span>{{ $Discount }}</span></p>
+                            @if ($typeDiscount == 'rupiah')
+                                <p>Discount <span>Rp. {{ number_format($Discount, 0, ',', '.') }}</span></p>
+                            @else
+                                <p>Discount (%) <span>{{ $Discount }}</span></p>
+                            @endif
                             {{-- <p>Tax (%) <span>{{ $tax }}</span></p> --}}
                             {{-- <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p> --}}
                         </div>
@@ -206,6 +210,7 @@
         var discount = $("#discount").val();
         var TotalAmountHidden = $("#TotalAmountHidden").val();
         var PaymentMethod = $("#PaymentMethod").val();
+        var typeDiscount = $("#type-discount").val();
 
         var data = {
             FullName: FullName,
@@ -223,6 +228,7 @@
             Longitude: Longitude,
             AddressCustomer: AddressCustomer,
             PaymentMethod: PaymentMethod,
+            typeDiscount: typeDiscount,
             _token: $('meta[name="csrf-token"]').attr('content')
         };
 

@@ -58,7 +58,6 @@
                                 <th scope="col" class="table-col-no">#</th>
                                 <th scope="col">Battery Name</th>
                                 <th scope="col">Price</th>
-                                <th scope="col">URL</th>
                             </tr>
                         </thead>
                     </table>

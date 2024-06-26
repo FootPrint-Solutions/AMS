@@ -25,6 +25,6 @@ class BatteryPriceModel extends Model
         'battery_id',
         'price_retail',
         'discount',
-        'price_net'
+        'discount_price'
     ];
 }
