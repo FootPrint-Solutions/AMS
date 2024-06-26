@@ -274,6 +274,7 @@ class Battery extends Controller
 
             // Store battery price.
             $price = new BatteryPriceModel();
+            $price->promo_id = 0;
             $price->battery_id = $battery->id;
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
@@ -436,6 +437,7 @@ class Battery extends Controller
                 $status &= $price->save();
             } else {
                 $price = new BatteryPriceModel();
+                $price->promo_id = 0;
                 $price->battery_id = $battery->id;
                 $price->price_retail = $battery->price_retail;
                 $status &= $price->save();
