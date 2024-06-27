@@ -63,7 +63,7 @@ class DeactivateExpiredPromos extends Command
                 // Update all affected batteries' price, effectively returning them to default value.
                 $prices = BatteryPriceModel::where('promo_id', $promo->id)->get();
                 foreach ($prices as $price) {
-                    $price->promo_id = 0;
+                    $price->promo_id = null;
                     $price->discount = 0.0;
                     $price->price_net = 0;
                     $status &= $price->save();

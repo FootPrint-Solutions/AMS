@@ -274,7 +274,7 @@ class Battery extends Controller
 
             // Store battery price.
             $price = new BatteryPriceModel();
-            $price->promo_id = 0;
+            $price->promo_id = null;
             $price->battery_id = $battery->id;
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
@@ -287,7 +287,7 @@ class Battery extends Controller
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new customer was successfully created!" : "Failed to create the new customer!"
+                $status ? "The new battery was successfully created!" : "Failed to create the new battery!"
             );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
@@ -437,7 +437,7 @@ class Battery extends Controller
                 $status &= $price->save();
             } else {
                 $price = new BatteryPriceModel();
-                $price->promo_id = 0;
+                $price->promo_id = null;
                 $price->battery_id = $battery->id;
                 $price->price_retail = $battery->price_retail;
                 $status &= $price->save();
