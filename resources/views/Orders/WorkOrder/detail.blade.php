@@ -123,8 +123,13 @@
                         <div class="row mb-3">
                             <div class="col-md-4 font-weight-bold">Payment Link:</div>
                             <div class="col-md-8">
-                                <a href="{{ $workOrder->salesOrder->midtrans_payment_link }}" target="_blank"
-                                    class="btn btn-sm btn-primary">Payment Link</a>
+                                {{--  jika payment link tidak null --}}
+                                @if ($workOrder->salesOrder->midtrans_payment_link)
+                                    <a href="{{ $workOrder->salesOrder->midtrans_payment_link }}" target="_blank"
+                                        class="btn btn-sm btn-primary">Payment Link</a>
+                                @else
+                                    <p class="mb-0">No Payment Link</p>
+                                @endif
                             </div>
                         </div>
                     </div>

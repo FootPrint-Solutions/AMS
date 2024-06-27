@@ -540,7 +540,7 @@ $arrayBattery
         } else {
             $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
         }
-        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n```";
+        // $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n```";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -648,7 +648,7 @@ $arrayBattery
         } else {
             $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
         }
-        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
+        // $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -923,7 +923,7 @@ $arrayVehicle
         } else {
             $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
         }
-        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n";
+        // $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
@@ -1008,7 +1008,7 @@ $arrayVehicle
         } else {
             $content_message .= "```> Disc     : " . number_format($Discount, 0, "", ".") . "%\r\n```";
         }
-        $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
+        // $content_message .= "```> Tax      : " . number_format($Tax, 0, "", ".") . "%```\r\n";
         $content_message .= "```> Total    : Rp. " . number_format($TotalAmount, 0, "", ".") . "\r\n```";
         $content_message .= "> _Biaya instalasi sudah termasuk dalam perhitungan total_\r\n\n";
 
