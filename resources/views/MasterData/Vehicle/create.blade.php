@@ -107,12 +107,13 @@
 
 
             $("#brand").on("select2:select", function(e) {
+                console.log(e.params.data.id);
                 if (e.params.data.id === "new") {
                     $("#brand-new-group").show();
-                    $("#brand-new-group").attr("required", true);
+                    $("#brand-new").attr("required", true);
                 } else {
                     $("#brand-new-group").hide();
-                    $("#brand-new-group").attr("required", false);
+                    $("#brand-new").attr("required", false);
                 }
             });
 

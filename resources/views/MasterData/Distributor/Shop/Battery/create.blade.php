@@ -71,16 +71,6 @@
                                 enter a valid numeric value for the price.</small>
                         </div>
                     </div>
-
-                    {{-- URL --}}
-                    <div class="col">
-                        <div class="form-group local-forms">
-                            <label for="url">Battery URL</label>
-                            <input type="url" pattern="https?://.+" class="form-control" id="url" name="url"
-                                placeholder="Enter battery product url"
-                                @if (isset($data['profile'])) value="{{ $data['profile']['url'] }}" @endif>
-                        </div>
-                    </div>
                 </div>
 
                 {{-- Hidden Inputs --}}

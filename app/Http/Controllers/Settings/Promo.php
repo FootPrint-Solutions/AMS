@@ -294,7 +294,7 @@ class Promo extends Controller
 
                     $price = BatteryPriceModel::where('battery_id', $battery)->first();
                     if ($price) {
-                        $price->promo_id = 0;
+                        $price->promo_id = null;
                         $price->discount = 0.0;
                         $price->discount_price = 0;
                         $status &= $price->save();
@@ -371,7 +371,7 @@ class Promo extends Controller
                     $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->where('promo_id', $promo->id)->first();
 
                     if ($price) {
-                        $price->promo_id = 0;
+                        $price->promo_id = null;
                         $price->discount = 0.0;
                         $price->discount_price = 0;
                         $status &= $price->save();

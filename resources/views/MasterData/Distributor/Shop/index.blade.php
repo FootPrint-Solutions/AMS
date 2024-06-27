@@ -150,7 +150,7 @@
                             ],
                             select: true,
                         });
-                        appendDatatablesToolbar(4, "/distributor/shop/battery/edit/",
+                        appendDatatablesToolbar(3, "/distributor/shop/battery/edit/",
                             "/distributor/shop/battery/destroy", null,
                             "#table-distributor-shop-detail_wrapper");
                     },
