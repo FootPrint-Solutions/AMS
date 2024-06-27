@@ -32,8 +32,6 @@ class DistributorShopBattery extends Controller
             'MasterData.Distributor.Shop.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "shop" => $shop,
                     "shopId" => $shopId,
@@ -62,8 +60,6 @@ class DistributorShopBattery extends Controller
             'MasterData.Distributor.Shop.Battery.create',
             getIndexData(
                 $this->title,
-                $this->menu,
-                $this->submenu,
                 array(
                     "profile" => $profile,
                     "shop" => $shop,
