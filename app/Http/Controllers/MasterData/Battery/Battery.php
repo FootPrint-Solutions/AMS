@@ -20,6 +20,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 // IMPORT CLASS
 use App\Imports\BatteryImport;
 use App\Models\MasterData\Battery\BatteryPriceModel;
+use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -530,11 +531,17 @@ class Battery extends Controller
             $name = $request->name;
 
             $query = BatteryModel::query();
-            if ($sizeId)
+            if (!is_null($sizeId))
                 $query->where('size_category_id', $sizeId);
 
-            if ($name)
+            if (!is_null($name))
                 $query->where('name', 'like', '%' . $name . '%');
+
+            $query->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id');
+            $query->where(function ($query) {
+                $query->whereNull('battery_prices.promo_id')
+                    ->orWhere('battery_prices.promo_id', '=', 0);
+            });
 
             return $query->get()->toArray();
         } catch (Exception $e) {
