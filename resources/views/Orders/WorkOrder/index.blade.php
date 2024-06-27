@@ -223,9 +223,9 @@
                             }
 
                             $("#work_order_id").val(selectedRows[0][8]);
-                            window.open("/work-order/print-technician-report/" + selectedRows[0][
-                                8
-                            ]);
+                            // redirect to print technician report
+                            window.location = "/work-order/print-technician-report/" +
+                                selectedRows[0][8];
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },

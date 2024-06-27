@@ -378,6 +378,16 @@
             return;
         }
 
+        // jika nomer bukan diawali dengan angka 8
+        if (contactNumber.charAt(0) != '8') {
+            swal.fire("Error!", "Contact Number must start with 8", "error");
+            button.prop('disabled', false);
+            button.html(
+                "<i class='fa-brands fa-whatsapp'></i> Share"
+            );
+            return;
+        }
+
         Battery.forEach(function(battery) {
             var data = {
                 FullName: FullName,
