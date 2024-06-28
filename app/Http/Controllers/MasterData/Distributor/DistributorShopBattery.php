@@ -118,8 +118,7 @@ class DistributorShopBattery extends Controller
         $shopDetail = new DistributorShopBatteryModel();
         $shopDetail->distributor_shop_id = $request->shopid;
         $shopDetail->battery_id = $request->battery;
-        $shopDetail->price = (float) str_replace(",", "", $request->price);
-        $shopDetail->url = $request->url;
+        $shopDetail->price = (float) str_replace(".", "", $request->price);
         $status = $shopDetail->save();
 
         // Set a new response data to be sent.
@@ -158,7 +157,6 @@ class DistributorShopBattery extends Controller
                     $existingRecord->battery_id = $battery->id;
                     $existingRecord->distributor_shop_id = $shopId;
                     $existingRecord->price = $battery->price_retail;
-                    $existingRecord->url = null;
                     $status &= $existingRecord->save();
                 }
             }
@@ -183,8 +181,7 @@ class DistributorShopBattery extends Controller
         $shopDetail = DistributorShopBatteryModel::find($request->id);
         $shopDetail->distributor_shop_id = $request->shopid;
         $shopDetail->battery_id = $request->battery;
-        $shopDetail->price = (float) str_replace(",", "", $request->price);
-        $shopDetail->url = $request->url;
+        $shopDetail->price = (float) str_replace(".", "", $request->price);
         $status = $shopDetail->save();
 
         // Set a new response data to be sent.
