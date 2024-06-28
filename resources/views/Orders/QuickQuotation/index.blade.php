@@ -386,6 +386,12 @@
                     return false;
                 }
 
+                // jika contact number tidak diawali dengan 8
+                if (ContactNumber.substring(0, 1) != '8') {
+                    swal.fire("Error!", "Contact Number must start with 8", "error");
+                    return false;
+                }
+
                 $('#btnNextStep3').trigger('click');
 
                 if ($('#CheckoutDisplay').hasClass('active')) {
