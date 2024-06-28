@@ -458,7 +458,7 @@
     {{-- Keyup Event Handler --}}
     <script>
         $(document).ready(function() {
-            $("#battery-name").on("change", function() {
+            $("#battery-name").on("keyup", function() {
                 // 
                 let name = $(this).val();
                 let sizeId = $("#battery-size").val();
