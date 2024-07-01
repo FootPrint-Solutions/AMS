@@ -350,6 +350,7 @@ class SalesOrder extends Controller
                 return getResponseData(false, "Unable to post posted and completed sales order.");
             }
 
+            $salesOrder->payment_status = "paid";
             $salesOrder->status = "posted";
             $status = $salesOrder->save();
 
