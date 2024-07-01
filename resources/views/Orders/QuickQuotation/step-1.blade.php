@@ -42,7 +42,8 @@
     <div class="row" id="ResultRecommendationBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
-            <!-- screenshoot button -->
+            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
+                Select All</button>
             <button id="screenshot" class="btn btn-primary"><i class="fas fa-camera"></i> Screenshot</button>
             <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
                 Copy from Input</button>
@@ -62,7 +63,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="ModalScreenshotLabel">
-                    <button id="screenshoot-btn" class="btn btn-primary">Convert to Image</button>
+                    <button id="screenshoot-btn" class="btn btn-primary" style="display: none;">Convert to
+                        Image</button>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -575,7 +577,47 @@
                 $btn.html('<i class="fas fa-camera"></i> Screenshot');
                 $('#ModalScreenshotBody').html(data);
                 $('#ModalScreenshot').modal('show');
+                // check apakah didalam #body-screenshoot ada table atau tidak
+                // jika ada maka trigger click event
+                if ($('#body-screenshoot table').length > 0) {
+                    $('#screenshoot-btn').trigger('click');
+                }
             }
         });
     });
+
+
+    function selectAll() {
+        var Battery = $("input[name='CheckBattery1[]']").map(function() {
+            return $(this).val();
+        }).get();
+
+        if (Battery.length == 0) {
+            swal.fire("Error!", "No battery found", "error");
+            return;
+        }
+
+        $("input[name='CheckBattery1[]']").prop('checked', true);
+
+        // change button text
+        $('#btnSelectAllBattery').html('<i class="fas fa-times"></i> Unselect All');
+        $('#btnSelectAllBattery').attr('onclick', 'unselectAll()');
+    }
+
+    function unselectAll() {
+        var Battery = $("input[name='CheckBattery1[]']").map(function() {
+            return $(this).val();
+        }).get();
+
+        if (Battery.length == 0) {
+            swal.fire("Error!", "No battery found", "error");
+            return;
+        }
+
+        $("input[name='CheckBattery1[]']").prop('checked', false);
+
+        // change button text
+        $('#btnSelectAllBattery').html('<i class="fas fa-check"></i> Select All');
+        $('#btnSelectAllBattery').attr('onclick', 'selectAll()');
+    }
 </script>

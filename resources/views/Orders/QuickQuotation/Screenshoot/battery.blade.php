@@ -59,49 +59,49 @@
 
 <!-- button screenshoot -->
 
-<div id="body-screenshoot">
+<div id="spinner" class="spinner-border text-primary m-2" role="status"></div>
+<div id="body-screenshoot" style="display: none;">
     <div class="containerx" id="div-screenshoot">
         <table>
             <thead>
                 <tr>
                     <th style="width: 150px;">KATEGORI</th>
                     <?php foreach ($batteries['categories'] as $category) : ?>
-                    <th style="background-color:#aadf2d;color:#000;width: 150px;"><?= $category ?></th>
+                        <th style="background-color:#aadf2d;color:#000;width: 150px;"><?= $category ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($batteries as $key => $values) : ?>
-                <?php if ($key == 'categories') {
-                    continue;
-                } ?>
-                <tr>
-                    <th><?= $values[0] ?></th>
-                    <?php for ($i = 1; $i < count($values); $i++) : ?>
-                    <?php if ($key == 'prices' && !empty($values[$i])) :
+                    <?php if ($key == 'categories') {
+                        continue;
+                    } ?>
+                    <tr>
+                        <th><?= $values[0] ?></th>
+                        <?php for ($i = 1; $i < count($values); $i++) : ?>
+                            <?php if ($key == 'prices' && !empty($values[$i])) :
                                 if (empty($values[$i]['discount'])) : ?>
-                    <td class="item" style="background-color: white;">
-                        <strong style="color:#010202;"><?= $values[$i]['netto'] ?></strong>
-                    </td>
-                    <?php else : ?>
-                    <td class="item" style="background-color: white;">
-                        <s style="color:#89837c;"><?= $values[$i]['original'] ?></s><br>
-                        <b style="background-color: #ff0000; display: block;"> Disc
-                            <?= $values[$i]['discount'] ?>%</b>
-                        <strong style="color:#010202;">Netto: <?= $values[$i]['netto'] ?></strong>
-                    </td>
-                    <?php endif; ?>
-                    <?php elseif ($key == 'images' && !empty($values[$i])) : ?>
-                    <td class="item" style="background-color: white;"><img src="<?= $values[$i] ?>"
-                            alt="Battery <?= $i ?>"></td>
-                    <?php elseif (empty($values[$i])) : ?>
-                    <td class="item" style="background-color: white; color:#000;">
-                        <?= $key == 'units' ? '#TIDAK TERSEDIA' : '' ?></td>
-                    <?php else : ?>
-                    <td class="item" style="background-color: white; color:#000;"><b><?= $values[$i] ?></b></td>
-                    <?php endif; ?>
-                    <?php endfor; ?>
-                </tr>
+                                    <td class="item" style="background-color: white;">
+                                        <strong style="color:#010202;"><?= $values[$i]['netto'] ?></strong>
+                                    </td>
+                                <?php else : ?>
+                                    <td class="item" style="background-color: white;">
+                                        <s style="color:#89837c;"><?= $values[$i]['original'] ?></s><br>
+                                        <b style="background-color: #ff0000; display: block;"> Disc
+                                            <?= $values[$i]['discount'] ?>%</b>
+                                        <strong style="color:#010202;">Netto: <?= $values[$i]['netto'] ?></strong>
+                                    </td>
+                                <?php endif; ?>
+                            <?php elseif ($key == 'images' && !empty($values[$i])) : ?>
+                                <td class="item" style="background-color: white;"><img src="<?= $values[$i] ?>" alt="Battery <?= $i ?>"></td>
+                            <?php elseif (empty($values[$i])) : ?>
+                                <td class="item" style="background-color: white; color:#000;">
+                                    <?= $key == 'units' ? '#TIDAK TERSEDIA' : '' ?></td>
+                            <?php else : ?>
+                                <td class="item" style="background-color: white; color:#000;"><b><?= $values[$i] ?></b></td>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -114,6 +114,17 @@
 
 <script>
     document.getElementById('screenshoot-btn').addEventListener('click', function handleClick() {
+        // sleep 5 seconds after click and show body-screenshoot
+        // to make sure all content is loaded
+        // add loading spinner
+        setTimeout(() => {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('screenshoot-btn').style.display = 'none';
+            screenShoot();
+        }, 3000);
+    });
+
+    function screenShoot() {
         // show body-screenshoot
         document.getElementById('body-screenshoot').style.display = 'flex';
 
@@ -144,5 +155,13 @@
                 });
             });
         });
+    }
+
+
+    // when body screenshoot complete load, trigger click event
+    window.addEventListener('load', function() {
+        alert('Load');
+        // Setelah seluruh konten termasuk gambar selesai di-load, trigger click
+        document.getElementById('screenshoot-btn').click();
     });
 </script>
