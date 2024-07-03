@@ -183,11 +183,17 @@
                     <td>{{ $count }}</td>
                 </tr>
 
-                @for ($i = 0; $i < 10; $i++)
+                @for ($i = 0; $i < 15; $i++)
                     @if ($i < count($taskOne))
                         <tr>
                             <td style='width:1%;'>{{ $i + 1 }}. </td>
-                            <td colspan="4"><input type='checkbox'>{{ $taskOne[$i]->message }}</td>
+                            <td colspan="4"><input type='checkbox'>{{ $taskOne[$i]->message }}
+                                {{-- loop sub task limit 3 --}}
+                                @foreach ($taskOne[$i]->subDetails as $subTask)
+                                    <br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='checkbox'>{{ $subTask->value }}
+                                @endforeach
+                            </td>
                         </tr>
                     @else
                         <tr>
@@ -197,16 +203,6 @@
                         </tr>
                     @endif
                 @endfor
-            </table>
-
-            <table style='margin-top:10px;'>
-                <tr>
-                    <td colspan="3">Catatan</td>
-
-                </tr>
-                <tr>
-                    <td style='width:60%; padding:50px' rowspan="3" colspan="3"></td>
-                </tr>
             </table>
 
             <div class="row">
@@ -263,11 +259,17 @@
                         <tr>
                             <td colspan="2" style="text-align:center; font-weight:700;">Pekerjaan</td>
                         </tr>
-                        @for ($i = 0; $i < 10; $i++)
+                        @for ($i = 0; $i < 15; $i++)
                             @if ($i < count($taskTwo))
                                 <tr>
                                     <td style='width:1%;'>{{ $i + 1 }}. </td>
-                                    <td colspan="4"><input type='checkbox'>{{ $taskTwo[$i]->message }}</td>
+                                    <td colspan="4"><input type='checkbox'>{{ $taskTwo[$i]->message }}
+                                        {{-- loop sub task limit 3 --}}
+                                        @foreach ($taskTwo[$i]->subDetails as $subTask)
+                                            <br>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='checkbox'>{{ $subTask->value }}
+                                        @endforeach
+                                    </td>
                                 </tr>
                             @else
                                 <tr>

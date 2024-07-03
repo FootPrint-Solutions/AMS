@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 // MODELS
 use App\Models\Settings\PrintTemplateDetailModel;
+use App\Models\Settings\PrintTemplateDetailSubModel;
 
 class PrintTemplate extends Controller
 {
@@ -254,6 +255,96 @@ class PrintTemplate extends Controller
                     "templateDetailsPageTwo" => $template->details()->where("type", "page-two")->get()
                 )
             )
+        );
+    }
+
+    /**
+     * Get sub task
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getSubTask(Request $request)
+    {
+        $id = $request->input('id');
+        $type = $request->input('type');
+        $printTemplate = PrintTemplateDetailModel::find($id);
+        $printTemplateDetails = $printTemplate->detailssub()->orderBy('step_no', 'asc')->get();
+
+        $data = [];
+        foreach ($printTemplateDetails as $key) {
+            $data[] = [
+                'id' => $key->id,
+                'step_no' => $key->step_no,
+                'message' => $key->value
+            ];
+        }
+        return response()->json($data);
+    }
+
+    /**
+     * Update sub task
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSubTask(Request $request)
+    {
+        $stepNo = $request->input('step_no');
+        $message = $request->input('message');
+        $id = $request->input('id');
+        $type = $request->input('tipe');
+
+        try {
+            $status = true;
+
+            $printTemplatesSub = PrintTemplateDetailModel::find($id)->detailssub()->where('step_no', $stepNo)->get();
+            if ($printTemplatesSub->isEmpty()) {
+
+                // check jika di didalam table work_order_print_template_details_sub sudah ada 3 data maka tidak bisa di tambah
+                $printTemplatesSub = PrintTemplateDetailSubModel::get();
+                if ($printTemplatesSub->count() >= 3) {
+                    return getResponseData(false, 'Cannot add more than 3 sub task');
+                }
+
+                $printTemplateSub = new PrintTemplateDetailSubModel();
+                $printTemplateSub->step_no = $stepNo;
+                $printTemplateSub->work_order_print_template_details_id = $id;
+                $printTemplateSub->value = $message;
+                $printTemplateSub->save();
+            } else {
+                foreach ($printTemplatesSub as $printTemplateSub) {
+                    $printTemplateSub->step_no = $stepNo;
+                    $printTemplateSub->work_order_print_template_details_id = $id;
+                    $printTemplateSub->value = $message;
+                    $printTemplateSub->save();
+                }
+            }
+
+            return getResponseData(
+                $status,
+                $status ? 'Print Template Updated' : 'Failed to update Print Template'
+            );
+        } catch (\Exception $e) {
+            $status = false;
+            return getResponseData($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete sub task
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteSubTask(Request $request)
+    {
+        $id = $request->input('id');
+        $status = PrintTemplateDetailSubModel::destroy($id);
+
+        return getResponseData(
+            $status,
+            $status ? 'Print Template Updated' : 'Failed to update Print Template'
         );
     }
 }
