@@ -16,7 +16,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             background-color: #f4f4f4;
         }
 
@@ -157,7 +157,19 @@
                     <td style='width:1%; vertical-align:top;' rowspan="5">1. </td>
                     <td style='width:40%;'>Siapkan :</td>
                     <td style='width:10%;'>Jumlah</td>
-                    <td rowspan="5" style="vertical-align:top;">Syarat Kondisi Aki:</td>
+                    <td rowspan="5" style="vertical-align:top;">Syarat Kondisi Aki:
+                        <ul style="margin-top: 0px;">
+                            <li>State of Health (SoH) 100%</li>
+                            <li>Voltase minium 12.5V</li>
+                            <li>Aki harus terlihat baru:
+                                <ul>
+                                    <li>Bersih</li>
+                                    <li>Tidak ada Karat</li>
+                                    <li>Tidak ada Kerusakan</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
                 </tr>
                 @php $no = 1; @endphp
                 @php $count = count($workOrder->batteries); @endphp
