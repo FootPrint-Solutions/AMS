@@ -3,7 +3,7 @@
 <style>
     @media print {
         @page {
-            size: A5 landscape;
+            size: A5 portrait;
             font-size: 0.9em;
         }
     }
@@ -40,7 +40,7 @@
         <tr>
             {{-- Invoice Information --}}
             <td style="width: 50%">
-                <h3>INVOICE</h3>
+                <h3>KWITANSI</h3>
                 {{ $data['profile']['sales_order_number'] }}<br>
                 Issued on {{ date('d M Y', strtotime($data['profile']['date'])) }}
             </td>
