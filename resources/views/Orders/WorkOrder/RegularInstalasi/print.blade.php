@@ -257,10 +257,10 @@
     </div>
 
     <script>
-        // window.print();
-        // window.onafterprint = function() {
-        //     window.history.back();
-        // }
+        window.print();
+        window.onafterprint = function() {
+            window.history.back();
+        }
     </script>
 </body>
 
