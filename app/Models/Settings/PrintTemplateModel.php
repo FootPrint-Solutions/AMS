@@ -40,9 +40,14 @@ class PrintTemplateModel extends Model
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'name', 'direction' => 'desc']);
     }
 
-    // connect to detail table
+    /**
+     * Get the details for the print template.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany The relationship between the print template and its details.
+     */
     public function details()
     {
-        return $this->hasMany(PrintTemplateDetailModel::class, 'work_order_print_template_master_id');
+        return $this->hasMany(PrintTemplateDetailModel::class, 'work_order_print_template_master_id')
+            ->with('subDetails');
     }
 }

@@ -256,6 +256,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/template/update', [PrintTemplate::class, 'update']);
     Route::get('/template/details/{id}', [PrintTemplate::class, 'details']);
     Route::post('/template/print/update/details', [PrintTemplate::class, 'updateDetails']);
+    Route::post('/template/print/get/sub-task', [PrintTemplate::class, 'getSubTask']);
+    Route::post('/template/print/update/sub-task', [PrintTemplate::class, 'updateSubTask']);
+    Route::post('/template/print/delete/sub-task', [PrintTemplate::class, 'deleteSubTask']);
 
     // Tax
     Route::get('/tax', [Tax::class, 'index']);
