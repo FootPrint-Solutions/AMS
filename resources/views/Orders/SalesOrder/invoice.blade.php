@@ -48,7 +48,7 @@
             {{-- Company Profile --}}
             <td class="text-end" style="width: 50%">
                 <div class="row">
-                    <div class="col-9 text-end">
+                    <div class="col-8 text-end">
                         <h3>{{ $data['company']['name'] }}</h3>
                         {{ $data['company']['address'] }}<br>
                         {{ $data['company']['contact'] }}<br>
