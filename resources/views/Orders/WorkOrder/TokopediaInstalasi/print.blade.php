@@ -271,7 +271,7 @@
                         <tr>
                             <td colspan="2" style="text-align:center; font-weight:700;">Pekerjaan</td>
                         </tr>
-                        @for ($i = 0; $i < 10; $i++)
+                        @for ($i = 0; $i < 15; $i++)
                             @if ($i < count($taskTwo))
                                 <tr>
                                     <td style='width:1%;'>{{ $i + 1 }}. </td>

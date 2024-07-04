@@ -294,6 +294,7 @@ class PrintTemplate extends Controller
         $message = $request->input('message');
         $id = $request->input('id');
         $type = $request->input('tipe');
+        $id_master = $request->input('id_master');
 
         try {
             $status = true;
@@ -302,18 +303,20 @@ class PrintTemplate extends Controller
             if ($printTemplatesSub->isEmpty()) {
 
                 // check jika di didalam table work_order_print_template_details_sub sudah ada 3 data maka tidak bisa di tambah
-                $printTemplatesSub = PrintTemplateDetailSubModel::get();
+                $printTemplatesSub = PrintTemplateDetailSubModel::where('work_order_print_template_master_id', $id_master)->get();
                 if ($printTemplatesSub->count() >= 3) {
                     return getResponseData(false, 'Cannot add more than 3 sub task');
                 }
 
                 $printTemplateSub = new PrintTemplateDetailSubModel();
+                $printTemplateSub->work_order_print_template_master_id = $id_master;
                 $printTemplateSub->step_no = $stepNo;
                 $printTemplateSub->work_order_print_template_details_id = $id;
                 $printTemplateSub->value = $message;
                 $printTemplateSub->save();
             } else {
                 foreach ($printTemplatesSub as $printTemplateSub) {
+                    $printTemplateSub->work_order_print_template_master_id = $id_master;
                     $printTemplateSub->step_no = $stepNo;
                     $printTemplateSub->work_order_print_template_details_id = $id;
                     $printTemplateSub->value = $message;

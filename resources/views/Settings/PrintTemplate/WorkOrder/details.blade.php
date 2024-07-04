@@ -267,6 +267,7 @@
                 );
 
                 let formData = new FormData($("#form-sub-row")[0]);
+                let id = $("#id").val();
                 // check if the row step_no and message is empty
                 if ($("#step_no").val() == "" || $("#message").val() == "") {
                     swal.fire({
@@ -291,6 +292,7 @@
                     return false;
                 }
                 formData.append("tipe", "page-one");
+                formData.append("id_master", id);
                 formData.append("_token", "{{ csrf_token() }}");
 
                 sendSubmitRequest("/template/print/update/sub-task", formData);
