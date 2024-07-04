@@ -266,12 +266,12 @@
                 </tr>
             </table>
             <div class="row">
-                <div class="column" style='padding: 10px;'>
-                    <table style='margin-top:10px;'>
+                <div class="column" style='padding: 0px;'>
+                    <table style='margin-top:10px;width: 128%;'>
                         <tr>
                             <td colspan="2" style="text-align:center; font-weight:700;">Pekerjaan</td>
                         </tr>
-                        @for ($i = 0; $i < 15; $i++)
+                        @for ($i = 0; $i < 10; $i++)
                             @if ($i < count($taskTwo))
                                 <tr>
                                     <td style='width:1%;'>{{ $i + 1 }}. </td>
@@ -295,7 +295,7 @@
                     </table>
                 </div>
                 <div class="column" style='padding: 10px;'>
-                    <table style='margin-top:10px;'>
+                    <table style='margin-top:10px;width: 70%;margin-left: 80px;'>
                         <tr>
                             <td colspan="4" style="text-align:center; font-weight:700;">Tanda Tangan Admin Parnter
                             </td>
@@ -304,7 +304,7 @@
                             <td colspan="2" style="padding:53px"></td>
                         </tr>
                         <tr>
-                            <td width="20%">Nama : </td>
+                            <td width="21%">Nama : </td>
                             <td></td>
                         </tr>
                     </table>
@@ -312,7 +312,7 @@
             </div>
             <hr class="dashed">
             @if ($workOrder->image)
-                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="250px">
+                <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="100%">
             @endif
         </div>
     </div>
