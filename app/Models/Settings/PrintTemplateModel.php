@@ -48,6 +48,7 @@ class PrintTemplateModel extends Model
     public function details()
     {
         return $this->hasMany(PrintTemplateDetailModel::class, 'work_order_print_template_master_id')
+            ->selectRaw('work_order_print_template_details.*, (SELECT COUNT(*) FROM work_order_print_template_details_sub WHERE work_order_print_template_details_id = work_order_print_template_details.id) as sub_details_count')
             ->with('subDetails');
     }
 }
