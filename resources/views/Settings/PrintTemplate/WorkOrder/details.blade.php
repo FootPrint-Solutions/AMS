@@ -51,9 +51,13 @@
                                         </button>
 
                                         {{-- button add sub row --}}
-                                        <button class="btn btn-primary btn-sm" id="add-sub-row-page-one"
+                                        <button class="btn btn-primary btn-sm position-relative" id="add-sub-row-page-one"
                                             data-id="{{ $item->id }}">
                                             <i class="fas fa-plus"></i>
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                {{ $item->sub_details_count }}
+                                            </span>
                                         </button>
                                     </td>
                                 </tr>
@@ -104,6 +108,10 @@
                                         <button class="btn btn-primary btn-sm" id="add-sub-row-page-two"
                                             data-id="{{ $item->id }}">
                                             <i class="fas fa-plus"></i>
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                {{ $item->sub_details_count }}
+                                            </span>
                                         </button>
                                     </td>
                                 </tr>
