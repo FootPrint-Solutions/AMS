@@ -304,10 +304,6 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
-    // Midtrans Core API
-    Route::post('/midtrans/snap/token', [Midtrans::class, 'createSnapToken']);
-    Route::post('/midtrans/notification', [Midtrans::class, 'notificationHandler']);
-
 
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
@@ -339,4 +335,8 @@ Route::middleware(['developer'])->group(function () {
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [Authentication::class, 'index'])->name('login');
     Route::post('/auth', [Authentication::class, 'authenticate'])->name('auth.authenticate');
+
+    // Midtrans Core API
+    Route::post('/midtrans/snap/token', [Midtrans::class, 'createSnapToken']);
+    Route::post('/midtrans/notification', [Midtrans::class, 'notificationHandler']);
 });
