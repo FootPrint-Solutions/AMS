@@ -22,6 +22,8 @@ use App\Models\Settings\MessageTemplateModel;
 use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\Settings\PaymentMethodModel;
+use App\Models\Servers\ServerPaymentGatewayModel;
+
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
 use Faker\Provider\ar_EG\Payment;
@@ -409,10 +411,18 @@ $arrayBattery
             'typeDiscount' => $typeDiscount,
         ];
 
-        $midtrans = new CreateSnapTokenService($InvoiceNumber);
-        $snapToken = $midtrans->getSnapTokenUrl($data);
 
-        $data['snapToken'] = $snapToken;
+        // Check API Key Allready Exist
+        $ServerPaymentGateway = ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first();
+        if ($ServerPaymentGateway) {
+            $midtrans = new CreateSnapTokenService($InvoiceNumber);
+            $snapToken = $midtrans->getSnapTokenUrl($data);
+
+            $data['snapToken'] = $snapToken;
+        } else {
+            $data['snapToken'] = null;
+        }
+
 
         return view('Orders.QuickQuotation.step-4-paymentpreview', $data);
     }

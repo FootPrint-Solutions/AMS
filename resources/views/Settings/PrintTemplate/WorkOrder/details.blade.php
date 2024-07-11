@@ -105,7 +105,7 @@
                                         </button>
 
                                         {{-- button add sub row --}}
-                                        <button class="btn btn-primary btn-sm" id="add-sub-row-page-two"
+                                        <button class="btn btn-primary btn-sm position-relative" id="add-sub-row-page-two"
                                             data-id="{{ $item->id }}">
                                             <i class="fas fa-plus"></i>
                                             <span

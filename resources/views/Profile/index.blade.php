@@ -9,9 +9,11 @@
                     {{-- Profile Picture --}}
                     <div class="col-auto profile-image">
                         @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
-                            <img class="rounded-circle" alt="User Image" src="{{ asset("/img/profiles/default_profile.png") }}">
+                            <img class="rounded-circle" alt="User Image"
+                                src="{{ asset('/img/profiles/default_profile.png') }}">
                         @else
-                            <img class="rounded-circle" alt="User Image" src="{{ asset("storage/image/profile/" . auth()->user()->image) }}">
+                            <img class="rounded-circle" alt="User Image"
+                                src="{{ asset('storage/image/profile/' . auth()->user()->image) }}">
                         @endif
                     </div>
 
@@ -49,6 +51,14 @@
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="tab" href="#password-tab">Password</a>
                     </li>
+
+                    {{-- Setting Api Key Payment Gateway --}}
+                    @if (auth()->user()->level == 'developer')
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#setting-api-key">Setting Api Key Payment
+                                Gateway</a>
+                        </li>
+                    @endif
                 </ul>
             </div>
 
@@ -63,6 +73,13 @@
                 <div id="password-tab" class="tab-pane fade">
                     @include('Profile.password')
                 </div>
+
+                {{-- Setting Api Key Payment Gateway --}}
+                @if (auth()->user()->level == 'developer')
+                    <div id="setting-api-key" class="tab-pane fade">
+                        @include('Profile.setting-api')
+                    </div>
+                @endif
 
             </div>
         </div>
@@ -99,7 +116,7 @@
                 }
             });
         })
-        
+
         $("#image-input").on("change", function() {
             $("#profile-picture-form").submit();
         });

@@ -55,6 +55,13 @@ class CreateSnapTokenService extends Midtrans
             'gross_amount' => $data['TotalAmount'], // no decimal allowed for creditcard
         );
 
+        // check if phone number not start with '0' and replace it with '62'
+        if (substr($data['ContactNumber'], 0, 1) == '0') {
+            $data['ContactNumber'] = '62' . substr($data['ContactNumber'], 1);
+        } else {
+            $data['ContactNumber'] = '62' . $data['ContactNumber'];
+        }
+
         // Populate customer's billing address
         $billing_address = array(
             'first_name'   => $data['Fullname'],
@@ -86,11 +93,23 @@ class CreateSnapTokenService extends Midtrans
             'billing_address'  => $billing_address,
             'shipping_address' => $shipping_address
         );
+        // dd($data['dataProduct']);
+        // item details
+        $items = array();
+        foreach ($data['dataProduct'] as $item) {
+            $price = str_replace('.', '', $item['SubtotalRow']);
+            $items[] = array(
+                'id'       => rand(1, 1000), // generate random id
+                'price'    =>  $price,
+                'quantity' => $item['qty'],
+                'name'     => $item['name']
+            );
+        }
 
         $params = array(
             'transaction_details' => $transaction_details,
             'customer_details' => $customer_details,
-            // 'item_details' => $items,
+            'item_details' => $items,
         );
 
         try {

@@ -47,7 +47,7 @@
 
         // Get form data.
         let formData = new FormData($(this)[0]);
-        
+
         // Send form data to Vehicle controller using AJAX.
         $.ajax({
             url: "/profile/password/update",

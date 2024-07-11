@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 // MODELS
 use App\Models\User;
+use App\Models\Servers\ServerPaymentGatewayModel;
 
 class Profile extends Controller
 {
@@ -30,12 +31,15 @@ class Profile extends Controller
             $QrCode = "";
         }
 
+
+
         return view(
             'Profile.index',
             getIndexData(
                 'Profile',
                 array(
-                    'QrCode' => $QrCode
+                    'QrCode' => $QrCode,
+                    'ServerPaymentGateway' => ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first(),
                 )
             )
         );
@@ -135,6 +139,43 @@ class Profile extends Controller
             }
         } catch (\Throwable $th) {
             return getResponseData(false, "Failed to delete session => " . $th->getMessage());
+        }
+    }
+
+    /**
+     * Update the User API Key resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateApiKey(Request $request)
+    {
+        try {
+            // update or create new api key from server payment gateway limit 1
+            $status = true;
+            $ServerPaymentGateway = ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first();
+            if ($ServerPaymentGateway == null) {
+                $ServerPaymentGateway = new ServerPaymentGatewayModel();
+                $ServerPaymentGateway->name = 'MIDTRANS';
+                $ServerPaymentGateway->server_key = $request->server_key;
+                $ServerPaymentGateway->client_key = $request->client_key;
+                $ServerPaymentGateway->id_merchant = $request->id_merchant;
+                $ServerPaymentGateway->is_active = 1;
+                $status = $ServerPaymentGateway->save();
+            } else {
+                $ServerPaymentGateway->server_key = $request->server_key;
+                $ServerPaymentGateway->client_key = $request->client_key;
+                $ServerPaymentGateway->id_merchant = $request->id_merchant;
+                $status = $ServerPaymentGateway->save();
+            }
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "Your API Key was successfully updated!" : "Failed
+            to update your API Key!"
+            );
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to update API Key => " . $th->getMessage());
         }
     }
 }
