@@ -17,7 +17,7 @@ class Midtrans
     public function __construct()
     {
         $this->serverKey = ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first()->server_key ?? '';
-        $this->isProduction = false;
+        $this->isProduction =  ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first()->is_active ?? '0';
         $this->isSanitized = false;
         $this->is3ds = false;
 

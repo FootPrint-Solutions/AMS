@@ -160,12 +160,13 @@ class Profile extends Controller
                 $ServerPaymentGateway->server_key = $request->server_key;
                 $ServerPaymentGateway->client_key = $request->client_key;
                 $ServerPaymentGateway->id_merchant = $request->id_merchant;
-                $ServerPaymentGateway->is_active = 1;
+                $ServerPaymentGateway->is_active = $request->environment;
                 $status = $ServerPaymentGateway->save();
             } else {
                 $ServerPaymentGateway->server_key = $request->server_key;
                 $ServerPaymentGateway->client_key = $request->client_key;
                 $ServerPaymentGateway->id_merchant = $request->id_merchant;
+                $ServerPaymentGateway->is_active = $request->environment;
                 $status = $ServerPaymentGateway->save();
             }
             // Set a new response data to be sent.

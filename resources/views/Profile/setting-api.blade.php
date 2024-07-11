@@ -39,6 +39,18 @@
                         value="{{ $data['ServerPaymentGateway']->server_key ?? '' }}" autocomplete="off">
                 </div>
 
+                {{-- Environment --}}
+                <div class="form-group local-forms">
+                    <label for="environment">Environment <span class="login-danger">*</span></label>
+                    <select class="form-control" id="environment" name="environment" required>
+                        <option value="0" {{ $data['ServerPaymentGateway']->is_active == '0' ? 'selected' : '' }}>
+                            Sandbox</option>
+                        <option value="1" {{ $data['ServerPaymentGateway']->is_active == '1' ? 'selected' : '' }}>
+                            Production</option>
+                    </select>
+                </div>
+
+
 
                 <div class="d-flex flex-row-reverse">
                     <button class="btn btn-success" type="submit">Update API Key</button>
