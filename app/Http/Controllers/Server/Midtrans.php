@@ -32,7 +32,7 @@ class Midtrans extends Controller
 
             if ($transaction_status == 'capture') {
                 if ($fraud_status == 'challenge') {
-                    // TODO set transaction status on your database to 'challenge'
+                    // TODO set transaction payment_status on your database to 'challenge'
                     // and response with 200 OK
                     Log::info('Transaction Challenge', ['order_id' => $order_id]);
                 } else if ($fraud_status == 'accept') {
@@ -45,35 +45,47 @@ class Midtrans extends Controller
                 // and response with 200 OK
 
                 // Update order status
-                $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
-                $order->status = 'paid';
-                $order->save();
+                try {
+                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order->payment_status = 'paid';
+                    $order->save();
 
-                Log::info('Transaction Settlement', ['order_id' => $order_id]);
+                    Log::info('Transaction Settlement', ['order_id' => $order_id]);
+                } catch (\Throwable $th) {
+                    Log::error('Error update order status', ['order_id' => $order_id, 'error' => $th->getMessage()]);
+                }
             } else if (
                 $transaction_status == 'cancel' ||
                 $transaction_status == 'deny' ||
                 $transaction_status == 'expire'
             ) {
-                // TODO set transaction status on your database to 'failure'
+                // TODO set transaction payment_status on your database to 'failure'
                 // and response with 200 OK
 
-                // Update order status
-                $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
-                $order->status =  $transaction_status;
-                $order->save();
+                // Update order payment_status
+                try {
+                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order->payment_status =  $transaction_status;
+                    $order->save();
 
-                Log::info('Transaction Failure', ['order_id' => $order_id]);
+                    Log::info('Transaction Failure', ['order_id' => $order_id]);
+                } catch (\Throwable $th) {
+                    Log::error('Error update order status', ['order_id' => $order_id, 'error' => $th->getMessage()]);
+                }
             } else if ($transaction_status == 'pending') {
-                // TODO set transaction status on your database to 'pending' / waiting payment
+                // TODO set transaction payment_status on your database to 'pending' / waiting payment
                 // and response with 200 OK
 
-                // Update order status
-                $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
-                $order->status = 'pending';
-                $order->save();
+                // Update order payment_status
+                try {
+                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order->payment_status = 'pending';
+                    $order->save();
 
-                Log::info('Transaction Pending', ['order_id' => $order_id]);
+                    Log::info('Transaction Pending', ['order_id' => $order_id]);
+                } catch (\Throwable $th) {
+                    Log::error('Error update order status', ['order_id' => $order_id, 'error' => $th->getMessage()]);
+                }
             }
         }
     }
