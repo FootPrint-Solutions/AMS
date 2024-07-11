@@ -50,6 +50,9 @@ use App\Http\Controllers\Auth\Authentication;
 // PROFILE
 use App\Http\Controllers\Profile;
 
+// Midtrans
+use App\Http\Controllers\Server\Midtrans;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -296,9 +299,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture']);
     Route::post('/profile/password/update', [Profile::class, 'updatePassword']);
     Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp']);
+    Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
+
+    // Midtrans Core API
+    Route::post('/midtrans/snap/token', [Midtrans::class, 'createSnapToken']);
+    Route::post('/midtrans/notification', [Midtrans::class, 'notificationHandler']);
 
 
     // Reusable Component

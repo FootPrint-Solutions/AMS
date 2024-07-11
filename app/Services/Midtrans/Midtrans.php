@@ -4,6 +4,9 @@ namespace App\Services\Midtrans;
 
 use Midtrans\Config;
 
+// Model
+use App\Models\Servers\ServerPaymentGatewayModel;
+
 class Midtrans
 {
     protected $serverKey;
@@ -13,7 +16,7 @@ class Midtrans
 
     public function __construct()
     {
-        $this->serverKey = "SB-Mid-server-mq4uqrualVrHP-Oqe-eKTWbq";
+        $this->serverKey = ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first()->server_key ?? '';
         $this->isProduction = false;
         $this->isSanitized = false;
         $this->is3ds = false;
