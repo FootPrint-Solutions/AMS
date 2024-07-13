@@ -118,54 +118,10 @@
                             });
                         }
                     },
-                    // Post
+                    // button show modal More Action
                     {
-                        text: "<i class='fas fa-file-text'></i> Post",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for posting.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            // Post the selected sales order.
-                            sendPostRequest(selectedRows[0][10], "/sales-order/post",
-                                function() {
-                                    // Reload the index table.
-                                    table.ajax.reload();
-                                });
-                        },
-                        className: "btn btn-outline-success btn-sm",
-                    },
-                    {
-                        text: "<i class='fas fa-file-text'></i> Invoice",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for downloading invoice.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            // Download invoice as pdf.
-                            downloadPDF("/sales-order/invoice/" + selectedRows[0][10]);
-                        },
+                        text: "<i class='fas fa-ellipsis-v'></i> More Action",
                         className: "btn btn-outline-secondary btn-sm",
-                    }, {
-                        text: "<i class='fas fa-screwdriver-wrench'></i> Create Work Order",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -174,16 +130,15 @@
                             if (selectedRows.length !== 1) {
                                 Swal.fire({
                                     title: "Error",
-                                    text: "Please select a single row for creating work order.",
+                                    text: "Please select a single row for more action.",
                                     icon: "error",
                                 });
                                 return;
                             }
 
-                            // Redirect to create work order page.
-                            createworkorder("/sales-order/work-order/" + selectedRows[0][10]);
-                        },
-                        className: "btn btn-outline-warning btn-sm",
+                            // Show modal more action
+                            showModalMoreAction(selectedRows[0][10]);
+                        }
                     }
                 ]),
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
@@ -198,10 +153,179 @@
         });
     </script>
 
+    {{-- Modal More Action --}}
+    <div class="modal fade" id="modal-more-action" tabindex="-1" aria-labelledby="modal-more-action-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-more-action-label">More Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <input type="hidden" id="modal-more-action-id">
+                    <div class="row">
+                        <div class="col-6 col-md-3 mb-3">
+                            <!-- Button Post -->
+                            <button class="btn btn-outline-success btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
+                                <i class="fas fa-file-text me-2"></i> Post
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <!-- Button Invoice -->
+                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
+                                onclick="downloadInvoice()">
+                                <i class="fas fa-file-text me-2"></i> Invoice
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <!-- Button Create Work Order -->
+                            <button class="btn btn-outline-warning w-100 btn-sm text-truncate" id="btn-work-order"
+                                onclick="createWorkOrder()">
+                                <i class="fas fa-screwdriver-wrench me-2"></i> Create Work Order
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <!-- Button Re-Create Payment Link -->
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate" id="btn-recreate-payment-link"
+                                onclick="recreatePaymentLink()">
+                                <i class="fas fa-link me-2"></i> Re-Create Payment Link
+                            </button>
+                        </div>
+
+                        {{-- button copy link payment  --}}
+                        <div class="col-6 col-md-3 mb-3">
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate" id="btn-copy-link-payment"
+                                onclick="copyLinkPayment()">
+                                <i class="fas fa-link me-2"></i> Copy Payment Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     {{-- Click Event Handler --}}
     <script>
         $('#btn-add').on('click', function() {
             goToPage("/sales-order/create");
         });
+
+        function showModalMoreAction(id) {
+            // Show the modal.
+            $('#modal-more-action').modal('show');
+
+            // Set the id.
+            $('#modal-more-action-id').val(id);
+        }
+
+        function postSalesOrder() {
+            // Post the selected sales order.
+            sendPostRequest($('#modal-more-action-id').val(), "/sales-order/post",
+                function() {
+                    // Reload the index table.
+                    table.ajax.reload();
+                });
+
+            // Hide the modal.
+            $('#modal-more-action').modal('hide');
+        }
+
+        function downloadInvoice() {
+            // Download invoice as pdf.
+            downloadPDF("/sales-order/invoice/" + $('#modal-more-action-id').val());
+
+            // Hide the modal.
+            $('#modal-more-action').modal('hide');
+        }
+
+        function createWorkOrder() {
+            // Redirect to create work order page.
+            createworkorder("/sales-order/work-order/" + $('#modal-more-action-id').val());
+
+            // Hide the modal.
+            $('#modal-more-action').modal('hide');
+        }
+
+        function recreatePaymentLink() {
+            Swal.fire({
+                title: "Re-Create Payment Link",
+                text: "Are you sure you want to re-create the payment link?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Re-create the payment link.
+                    $.ajax({
+                        url: "/sales-order/recreate-payment-link/" + $('#modal-more-action-id').val(),
+                        method: "GET",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            let responseData = JSON.parse(response);
+                            if (responseData.status == true) {
+                                Swal.fire({
+                                    title: "Success",
+                                    text: responseData.message,
+                                    icon: "success",
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: responseData.message,
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function copyLinkPayment() {
+            // send ajax 
+            $.ajax({
+                url: "/sales-order/copy-link-payment/" + $('#modal-more-action-id').val(),
+                method: "GET",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    let responseData = JSON.parse(response);
+                    if (responseData.status == true) {
+                        Swal.fire({
+                            title: "Success",
+                            text: responseData.message,
+                            icon: "success",
+                        });
+
+                        var copyText = responseData.message;
+                        var textArea = document.createElement("textarea");
+                        textArea.value = copyText;
+                        // Make the textarea element not visible but still in the DOM
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-9999px';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            console.log('Copy successful');
+                        } catch (err) {
+                            console.log('Copy failed', err);
+                        }
+                        document.body.removeChild(textArea);
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: responseData.message,
+                            icon: "error",
+                        });
+                    }
+                }
+            });
+        }
     </script>
 @endsection

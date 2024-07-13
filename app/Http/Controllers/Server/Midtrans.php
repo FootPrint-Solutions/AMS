@@ -46,7 +46,7 @@ class Midtrans extends Controller
 
                 // Update order status
                 try {
-                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order = SalesOrderModel::where('midtrans_invoice_number', $order_id)->first();
                     $order->payment_status = 'paid';
                     $order->save();
 
@@ -64,7 +64,7 @@ class Midtrans extends Controller
 
                 // Update order payment_status
                 try {
-                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order = SalesOrderModel::where('midtrans_invoice_number', $order_id)->first();
                     $order->payment_status =  $transaction_status;
                     $order->save();
 
@@ -78,7 +78,7 @@ class Midtrans extends Controller
 
                 // Update order payment_status
                 try {
-                    $order = SalesOrderModel::where('sales_order_number', $order_id)->first();
+                    $order = SalesOrderModel::where('midtrans_invoice_number', $order_id)->first();
                     $order->payment_status = 'pending';
                     $order->save();
 

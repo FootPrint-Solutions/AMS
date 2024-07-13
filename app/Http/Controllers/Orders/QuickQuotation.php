@@ -414,11 +414,20 @@ $arrayBattery
 
         // Check API Key Allready Exist
         $ServerPaymentGateway = ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first();
+        $invoiceNumberMidtrans = $InvoiceNumber . '-' . time();
+        $request->session()->put('invoiceNumberMidtrans', $invoiceNumberMidtrans);
+        $data['invoiceNumberMidtrans'] = $invoiceNumberMidtrans;
         if ($ServerPaymentGateway) {
-            $midtrans = new CreateSnapTokenService($InvoiceNumber);
-            $snapToken = $midtrans->getSnapTokenUrl($data);
 
-            $data['snapToken'] = $snapToken;
+            // create snap token from session invoice number
+            try {
+                $midtrans = new CreateSnapTokenService($request->session()->get('invoiceNumberMidtrans'));
+                $snapToken = $midtrans->getSnapTokenUrl($data);
+
+                $data['snapToken'] = $snapToken;
+            } catch (\Throwable $th) {
+                $data['snapToken'] = $th->getMessage();
+            }
         } else {
             $data['snapToken'] = null;
         }
@@ -727,7 +736,7 @@ $arrayBattery
 
         if ($PaymentMethodData['id'] == 1) {
             $payment_methode = "midtrans";
-            $midtransInvoice = $request->input('invoiceNumber');
+            $midtransInvoice = $request->session()->get('invoiceNumberMidtrans');
             $midtransPaymentLink = $request->input('linkMidtrans');
         } else {
             $payment_methode = $PaymentMethodData['name'];
@@ -771,7 +780,7 @@ $arrayBattery
             'discount' => $DiscountPercentage,
             'discount_price' => $DiscountRupiah,
             'payment_method_id' => $PaymentMethodData['id'],
-            'midtrans_invoice' => $midtransInvoice ?? null,
+            'midtrans_invoice_number' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
             'payment_status' => "pending",
             'status' => "draft",

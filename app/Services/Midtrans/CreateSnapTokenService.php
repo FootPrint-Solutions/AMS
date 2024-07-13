@@ -51,7 +51,7 @@ class CreateSnapTokenService extends Midtrans
     public function getSnapTokenUrl($data)
     {
         $transaction_details = array(
-            'order_id' => $data['InvoiceNumber'],
+            'order_id' => $data['invoiceNumberMidtrans'],
             'gross_amount' => $data['TotalAmount'], // no decimal allowed for creditcard
         );
 
