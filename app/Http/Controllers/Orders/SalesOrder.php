@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use GuzzleHttp\Client;
 
 // MODELS
 use App\Models\Orders\SalesOrder\SalesOrderModel;
@@ -20,6 +21,9 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
+
+// Midtrans 
+use App\Services\Midtrans\Transaction;
 
 class SalesOrder extends Controller
 {
@@ -141,6 +145,9 @@ class SalesOrder extends Controller
                 $statusBadgeClass = "badge-info";
             }
 
+            // payment method badge
+            $paymentMethodBadge = " <span class='badge badge-info'>$key->payment_method_name</span>";
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
@@ -151,7 +158,7 @@ class SalesOrder extends Controller
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
-            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>";
+            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge;
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $row[] = $key->status;
@@ -452,6 +459,212 @@ class SalesOrder extends Controller
 
             // Set an error response data to be sent.
             return getResponseData(false);
+        }
+    }
+
+
+    public function recreatePaymentLink($id)
+    {
+        try {
+            // Check if sales order is posted or not.
+            $salesOrder = SalesOrderModel::find($id);
+            if ($salesOrder->status == "posted") {
+                return getResponseData(false, "Unable to create Payment Link of an posted Sales Order.");
+            }
+
+            // get detail sales order
+            $salesOrder = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
+
+            // cancle the previous payment link midtrans
+            $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
+
+            if (!$salesOrder->midtrans_invoice_number) {
+                $MidtransOrderId = $salesOrder->sales_order_number . '-' . time();
+            } else {
+                $MidtransOrderId = $salesOrder->midtrans_invoice_number;
+            }
+            if ($paymentMethod->name == 'Midtrans') {
+
+                // Create new payment link.
+                $transaction = new Transaction($MidtransOrderId);
+                $response = $transaction->status($MidtransOrderId);
+                $response = json_decode(json_encode($response), true);
+
+                if (isset($response['status_code']) && $response['status_code'] == '404') {
+                    // Set a new response data to be sent.
+                    return getResponseData(
+                        false,
+                        "Payment Link not found! Please create a new one."
+                    );
+                } else {
+                    if ($response['transaction_status'] == 'pending') {
+
+
+                        // cancel the previous payment link
+                        $response = $transaction->cancel($MidtransOrderId);
+                        $response = json_decode(json_encode($response), true);
+
+                        if ($response['status_code'] == '200') {
+
+                            // Create new payment link.
+
+                            $transaction_details = array(
+                                'order_id' => $salesOrder->sales_order_number,
+                                'gross_amount' => $salesOrder->total,
+                            );
+
+                            $item_details = array();
+                            foreach ($salesOrder->batteries as $key) {
+                                $item_details[] = array(
+                                    'id' => $key->battery_id,
+                                    'price' => $key->price_net,
+                                    'quantity' => 1,
+                                    'name' => $key->battery_name,
+                                );
+                            }
+
+                            $customer_details = array(
+                                'first_name' => $salesOrder->customer->name,
+                                'last_name' => "",
+                                'email' => $salesOrder->customer->email,
+                                'phone' => $salesOrder->customer->contact,
+                                'billing_address' => array(
+                                    'first_name' => $salesOrder->customer->name,
+                                    'last_name' => "",
+                                    'address' => $salesOrder->address,
+                                    'city' => "",
+                                    'postal_code' => "",
+                                    'phone' => $salesOrder->customer->contact,
+                                    'country_code' => 'IDN'
+                                ),
+                                'shipping_address' => array(
+                                    'first_name' => $salesOrder->customer->name,
+                                    'last_name' => "",
+                                    'address' => $salesOrder->address,
+                                    'city' => "",
+                                    'postal_code' => "",
+                                    'phone' => $salesOrder->customer->contact,
+                                    'country_code' => 'IDN'
+                                )
+                            );
+
+                            $params = array(
+                                'transaction_details' => $transaction_details,
+                                'item_details' => $item_details,
+                                'customer_details' => $customer_details,
+                            );
+
+                            $response = $transaction->createTransaction($params);
+                        } else {
+
+                            return getResponseData(
+                                false,
+                                $response['status_message']
+                            );
+                        }
+                    } else if ($response['transaction_status'] == 'settlement') {
+
+                        return getResponseData(
+                            false,
+                            "The payment link has been successfully paid!"
+                        );
+                    } else if ($response['transaction_status'] == 'expire') {
+
+                        return getResponseData(
+                            false,
+                            "The payment link has been expired!"
+                        );
+                    } else {
+
+                        return getResponseData(
+                            false,
+                            "The payment link has been failed!"
+                        );
+                    }
+                }
+            } else {
+                return getResponseData(false, "Payment Method not supported.");
+            }
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            $transaction = new Transaction($MidtransOrderId);
+            $transaction_details = array(
+                'order_id' => $salesOrder->sales_order_number,
+                'gross_amount' => $salesOrder->total,
+            );
+
+            $item_details = array();
+            foreach ($salesOrder->batteries as $key) {
+                $item_details[] = array(
+                    'id' => $key->battery_id,
+                    'price' => $key->price_net,
+                    'quantity' => 1,
+                    'name' => $key->battery_name,
+                );
+            }
+
+            $customer_details = array(
+                'first_name' => $salesOrder->customer->name,
+                'last_name' => "",
+                'email' => $salesOrder->customer->email,
+                'phone' => $salesOrder->customer->contact,
+                'billing_address' => array(
+                    'first_name' => $salesOrder->customer->name,
+                    'last_name' => "",
+                    'address' => $salesOrder->address,
+                    'city' => "",
+                    'postal_code' => "",
+                    'phone' => $salesOrder->customer->contact,
+                    'country_code' => 'IDN'
+                ),
+                'shipping_address' => array(
+                    'first_name' => $salesOrder->customer->name,
+                    'last_name' => "",
+                    'address' => $salesOrder->address,
+                    'city' => "",
+                    'postal_code' => "",
+                    'phone' => $salesOrder->customer->contact,
+                    'country_code' => 'IDN'
+                )
+            );
+
+            $params = array(
+                'transaction_details' => $transaction_details,
+                'item_details' => $item_details,
+                'customer_details' => $customer_details,
+            );
+
+            $response = $transaction->createTransaction($params);
+
+            // update data sales order 
+            $salesOrder->midtrans_invoice_number = $MidtransOrderId;
+            $salesOrder->midtrans_payment_link = $response;
+            $salesOrder->save();
+
+            return getResponseData(
+                true,
+                "The payment link was successfully created! " . $response
+            );
+        }
+    }
+
+    public function copyPaymentLink($id)
+    {
+        try {
+            // check payment method is midtrans
+            $salesOrder = SalesOrderModel::find($id);
+            $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
+
+            if ($paymentMethod->name == 'Midtrans') {
+                $paymenMethodLink = $salesOrder->midtrans_payment_link;
+                return getResponseData(true, $paymenMethodLink);
+            } else {
+                return getResponseData(false, "Payment Method not supported.");
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
         }
     }
 }

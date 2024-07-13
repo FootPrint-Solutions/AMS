@@ -43,9 +43,11 @@
                 <div class="form-group local-forms">
                     <label for="environment">Environment <span class="login-danger">*</span></label>
                     <select class="form-control" id="environment" name="environment" required>
-                        <option value="0" {{ $data['ServerPaymentGateway']->is_active == '0' ? 'selected' : '' }}>
+                        <option value="0"
+                            {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '0' ? 'selected' : '' }}>
                             Sandbox</option>
-                        <option value="1" {{ $data['ServerPaymentGateway']->is_active == '1' ? 'selected' : '' }}>
+                        <option value="1"
+                            {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '1' ? 'selected' : '' }}>
                             Production</option>
                     </select>
                 </div>
