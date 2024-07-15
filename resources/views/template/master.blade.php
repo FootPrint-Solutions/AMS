@@ -507,7 +507,7 @@
 </script>
 
 {{-- JS Custom Functions --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="{{ asset('/js/jspdf.umd.min.js') }}"></script>
 <script>
     /**
      * Go to a certain view by replacing main-wrapper (to achieve SPA functionality).
