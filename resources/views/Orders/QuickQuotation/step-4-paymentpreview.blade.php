@@ -40,7 +40,6 @@
             <table class=" table table-center mb-0">
                 <thead>
                     <tr>
-                    <tr>
                         <th style="width: 25%;">Battery</th>
                         <th style="width: 5%;">Quantity</th>
                         <th>Gross Price</th>
@@ -138,11 +137,13 @@
                     <div class="invoice-total-box">
                         <div class="invoice-total-inner">
                             <p>Subtotal <span>Rp. {{ number_format($Subtotal, 0, ',', '.') }}</span></p>
-                            @if ($typeDiscount == 'rupiah')
-                                <p>Discount <span>Rp. {{ number_format($Discount, 0, ',', '.') }}</span></p>
-                            @else
-                                <p>Discount (%) <span>{{ $Discount }}</span></p>
-                            @endif
+                            <div class="d-none">
+                                @if ($typeDiscount == 'rupiah')
+                                    <p>Discount <span>Rp. {{ number_format($Discount, 0, ',', '.') }}</span></p>
+                                @else
+                                    <p>Discount (%) <span>{{ $Discount }}</span></p>
+                                @endif
+                            </div>
                             {{-- <p>Tax (%) <span>{{ $tax }}</span></p> --}}
                             {{-- <p>Extra Discount <span>{{ $ExtraDiscount }}</span></p> --}}
                         </div>

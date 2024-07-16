@@ -221,7 +221,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row mb-3">
+                    <div class="form-group row mb-3 d-none">
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
                             <div class="input-group">
