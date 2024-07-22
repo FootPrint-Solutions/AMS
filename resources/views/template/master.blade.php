@@ -52,7 +52,7 @@
 </head>
 
 <body>
-    <div id="main-wrapper">
+    <div id="main-wrapper" class="main-wrapper">
         {{-- Header --}}
         @include('template.header')
 
