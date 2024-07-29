@@ -150,7 +150,10 @@ class WorkOrder extends Controller
     public function printTechnicianReport(Request $request)
     {
         $workOrder = WorkOrderModel::getWorkOrderData($request->id);
-        return view('Orders.WorkOrder.Technician.print', compact('workOrder'));
+
+        // qrcode contain work order id
+        $qrCode = QrCode::size(60)->generate($workOrder->id);
+        return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
     }
 
     private function getTemplateType($tipe)
