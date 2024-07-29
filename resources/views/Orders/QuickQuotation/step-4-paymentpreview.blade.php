@@ -45,7 +45,7 @@
                         <th>Gross Price</th>
                         <th>Tax</th>
                         <th>Price + Tax</th>
-                        <th style="width: 5%;">Discount ( % )</th>
+                        <th style="width: 5%;">Discount ( Rp )</th>
                         <th>Net Price</th>
                         <th>Subtotal</th>
                     </tr>

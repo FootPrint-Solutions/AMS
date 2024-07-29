@@ -800,24 +800,26 @@ $arrayBattery
                     $TaxPayment = $request->input('TaxPayment')[$key];
                     $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                     $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                    $Discount = $request->input('DiscountPayment')[$key];
+                    $DiscountPrice = $request->input('DiscountPayment')[$key];
                     $Subtotal = $request->input('SubtotalPayment')[$key];
                     $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                    $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
                 } else {
                     $TaxPayment = $request->input('TaxPayment')[$key];
                     $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                     $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                    $Discount = $request->input('DiscountPayment')[$key];
+                    $DiscountPrice = $request->input('DiscountPayment')[$key];
                     $Subtotal = $request->input('SubtotalPayment')[$key];
                     $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                    $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
                 }
                 $dataProduct[] = [
                     'sales_order_id' => $Quotation->id,
                     'battery_id' => $request->input('BatteryIdCheckout')[$key],
                     'battery_name' => $value,
                     'battery_price_retail' => $GrossPrice,
-                    'discount' => $Discount,
-                    'discount_price' => "0",
+                    'discount' => $DiscountPercent,
+                    'discount_price' => $DiscountPrice,
                     'tax' => $request->input('TaxPayment')[$key],
                     'tax_price' =>  $TaxPrice,
                     'price_net' =>  str_replace(".", "", $Subtotal),

@@ -1181,5 +1181,5 @@
     </script>
     {{-- END DESKTOP VERSION --}}
 
-    @include('Orders.QuickQuotation.Mobile.index');
+    @include('Mobile.QuickQuotation.index');
 @endsection

@@ -22,7 +22,8 @@
         <div class="col">
             <div class="card-stacked">
                 <div class="title">Revenue</div>
-                <div class="value">49,890,000</div>
+                <div class="value" id="value-revenue">Rp 0</div>
+                <div id="chart-revenue-mobile"></div>
                 <div class="icon">
                     {{-- // svg dollar sign icon --}}
                     <svg width="42" height="42" viewBox="0 0 42 42" fill="none"
@@ -117,3 +118,125 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: "/dashboard/chart/revenue",
+            type: "GET",
+            success: function(data) {
+                var rupiahFormatter = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                });
+
+                // Extract dates and formatted totals from data
+                var dates = data.map(function(d) {
+                    // Format date if necessary
+                    var date = new Date(d.date);
+                    var dateFormatter = new Intl.DateTimeFormat('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    return dateFormatter.format(date);
+                });
+
+                var totals = data.map(function(d) {
+                    return rupiahFormatter.format(d.total);
+                });
+
+                // Chart configuration
+                var options = {
+                    series: [{
+                        name: "Revenue",
+                        data: data.map(function(d) {
+                            return d.total;
+                        }) // use raw totals for chart data
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        zoom: {
+                            enabled: false
+                        },
+                        // color 
+                        foreColor: 'white',
+
+                    },
+                    fill: {
+                        colors: ['#F44336', '#E91E63', '#9C27B0']
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    // title: {
+                    //     text: 'Revenue Chart',
+                    //     align: 'left',
+                    //     style: {
+                    //         fontSize: '16px',
+                    //         color: 'white'
+                    //     }
+                    // },
+                    grid: {
+                        row: {
+                            colors: ['#2c3e50', 'transparent'],
+                            opacity: 0.5
+                        },
+                    },
+                    xaxis: {
+                        categories: dates
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function(value) {
+                                return rupiahFormatter.format(value);
+                            }
+                        },
+                        style: {
+                            color: '#2c3e50'
+                        },
+                        theme: 'dark'
+                    },
+                    yaxis: {
+                        show: false,
+                    }
+                };
+
+                // var chart = new ApexCharts(document.querySelector("#chart-revenue"), options);
+                var chart_mobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"),
+                    options);
+
+                chart_mobile.render();
+
+                // sum of total revenue
+                var total = data.reduce(function(acc, d) {
+                    return acc + d.total;
+                }, 0);
+
+                // display total revenue & add count animation effect
+                $('#value-revenue').text(rupiahFormatter.format(total));
+                $('#value-revenue').each(function() {
+                    var $this = $(this);
+                    jQuery({
+                        Counter: 0
+                    }).animate({
+                        Counter: $this.text().replace(/\D/g, '')
+                    }, {
+                        duration: 1000,
+                        easing: 'swing',
+                        step: function() {
+                            $this.text(rupiahFormatter.format(Math.ceil(this
+                                .Counter)));
+                        }
+                    });
+                });
+            }
+        });
+    });
+</script>

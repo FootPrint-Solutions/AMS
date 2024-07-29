@@ -33,4 +33,26 @@ class Dashboard extends Controller
             )
         ));
     }
+
+    /**
+     * Get the data for the dashboard.
+     *
+     * @return array
+     */
+    public function getRevenueChart()
+    {
+        $revenue = SalesOrderModel::selectRaw('DATE(date) as date, SUM(total) as total')
+            ->groupBy('date')
+            ->get();
+
+        $data = array();
+        foreach ($revenue as $r) {
+            $data[] = array(
+                'date' => $r->date,
+                'total' => $r->total
+            );
+        }
+
+        return response()->json($data);
+    }
 }

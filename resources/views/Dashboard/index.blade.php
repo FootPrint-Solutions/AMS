@@ -44,6 +44,16 @@
     {{-- Overview Row --}}
     <div class="d-none d-lg-block">
         <div class="row">
+            {{-- add chart revenue --}}
+            <div class="col">
+                <div class="card flex-fill w-100 comman-shadow">
+                    <div class="card-body">
+                        <div id="chart-revenue" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-xl-3 col-sm-6 col-12 d-flex">
                 <div class="card bg-comman w-100">
                     <div class="card-body">
@@ -177,6 +187,91 @@
                     $(row).click(function() {
                         document.location.href = '/promo/edit/' + data[4];
                     });
+                }
+            });
+
+            // ajax chart & configuration for revenue
+            $.ajax({
+                url: "/dashboard/chart/revenue",
+                type: "GET",
+                success: function(data) {
+                    var rupiahFormatter = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    });
+
+                    // Extract dates and formatted totals from data
+                    var dates = data.map(function(d) {
+                        // Format date if necessary
+                        var date = new Date(d.date);
+                        var dateFormatter = new Intl.DateTimeFormat('id-ID', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        return dateFormatter.format(date);
+                    });
+
+                    var totals = data.map(function(d) {
+                        return rupiahFormatter.format(d.total);
+                    });
+
+                    // Chart configuration
+                    var options = {
+                        series: [{
+                            name: "Revenue",
+                            data: data.map(function(d) {
+                                return d.total;
+                            }) // use raw totals for chart data
+                        }],
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            zoom: {
+                                enabled: false
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: 'straight'
+                        },
+                        title: {
+                            text: 'Revenue Chart',
+                            align: 'left'
+                        },
+                        grid: {
+                            row: {
+                                colors: ['#f3f3f3', 'transparent'],
+                                opacity: 0.5
+                            },
+                        },
+                        xaxis: {
+                            categories: dates
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(value) {
+                                    return rupiahFormatter.format(value);
+                                }
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: function(value) {
+                                    return rupiahFormatter.format(value);
+                                }
+                            }
+                        }
+                    };
+
+                    var chart = new ApexCharts(document.querySelector("#chart-revenue"), options);
+                    var chart_mobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"),
+                        options);
+
+                    chart.render();
                 }
             });
         });

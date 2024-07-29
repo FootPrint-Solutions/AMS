@@ -7,8 +7,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -152,6 +151,7 @@
                                 battery.tax / 100);
                             battery.net_price = battery.price_tax - (battery.price_tax *
                                 battery.discount / 100);
+                            battery.discount = 0;
                         }
                         suggestions += '<div class="suggestion-item" data-id="' +
                             battery
