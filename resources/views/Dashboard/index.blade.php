@@ -27,78 +27,82 @@
     <div class="page-header">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-sub-header">
-                    <h3 class="page-title">Welcome, @auth{{ Auth::user()->name }}@endauth!</h3>
+                <div class="d-none d-lg-block">
+                    <div class="page-sub-header">
+                        <h3 class="page-title">Welcome, @auth{{ Auth::user()->name }}@endauth!</h3>
 
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="">Home</a></li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ul>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Home</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     {{-- Overview Row --}}
-    <div class="row">
-        <div class="col-xl-3 col-sm-6 col-12 d-flex">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info">
-                            <h6>Customer</h6>
-                            <h3>{{ $data['NumberOfCustomer'] }}</h3>
-                        </div>
-                        <div class="db-icon">
-                            <i class="fa fa-users text-dark"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 col-12 d-flex">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info">
-                            <h6>Vehicle</h6>
-                            <h3>{{ $data['NumberOfVehicle'] }}</h3>
-                        </div>
-                        <div class="db-icon">
-                            <i class="fa fa-car text-dark"></i>
+    <div class="d-none d-lg-block">
+        <div class="row">
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Customer</h6>
+                                <h3>{{ $data['NumberOfCustomer'] }}</h3>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-users text-dark"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-sm-6 col-12 d-flex">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info">
-                            <h6>Battery</h6>
-                            <h3>{{ $data['NumberOfBattery'] }}</h3>
-                        </div>
-                        <div class="db-icon">
-                            <i class="fa fa-car-battery text-dark"></i>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Vehicle</h6>
+                                <h3>{{ $data['NumberOfVehicle'] }}</h3>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-car text-dark"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-sm-6 col-12 d-flex">
-            <div class="card bg-comman w-100">
-                <div class="card-body">
-                    <div class="db-widgets d-flex justify-content-between align-items-center">
-                        <div class="db-info">
-                            <h6>Revenue</h6>
-                            <h3>Rp. {{ number_format($data['TotalRevenue'], 0, ',', '.') }}</h3>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Battery</h6>
+                                <h3>{{ $data['NumberOfBattery'] }}</h3>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-car-battery text-dark"></i>
+                            </div>
                         </div>
-                        <div class="db-icon">
-                            <i class="fa fa-dollar-sign text-dark"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Revenue</h6>
+                                <h3>Rp. {{ number_format($data['TotalRevenue'], 0, ',', '.') }}</h3>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-dollar-sign text-dark"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -106,8 +110,7 @@
         </div>
     </div>
 
-    {{-- Promo Row --}}
-    <div class="row">
+    <div class="d-none d-lg-block">
         <div class="card flex-fill student-space comman-shadow">
             <div class="card-header d-flex align-items-center">
                 <h5 class="card-title">Currently Active Promo</h5>
@@ -139,6 +142,7 @@
         </div>
     </div>
 
+    @include('Mobile.Dashboard.index')
     {{-- DataTables configuration --}}
     <script>
         var promoTable;
