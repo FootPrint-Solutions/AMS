@@ -247,6 +247,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport']);
     Route::post('/work-order/delete', [WorkOrder::class, 'destroy']);
     Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
+    Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
 
     // Settings
     // Message Template
