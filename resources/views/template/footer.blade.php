@@ -1,6 +1,6 @@
 <!-- Footer -->
 <br><br><br>
-<footer class="fixed-bottom">
+<footer>
     <p>
         Copyright © 2024 itfpsolutions.com </p>
 </footer>

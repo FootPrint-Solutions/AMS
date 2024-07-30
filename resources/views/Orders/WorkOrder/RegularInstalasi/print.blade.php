@@ -24,7 +24,7 @@
             width: 100%;
             max-width: 147mm;
             /* Set max-width to A5 width */
-            height: 209mm;
+            /* height: 209mm; */
             /* Set height to A5 height */
             margin: 0 auto;
             padding: 10px;
@@ -216,16 +216,6 @@
                 @endfor
             </table>
 
-            {{-- <table style='margin-top:10px;'>
-                <tr>
-                    <td colspan="3">Catatan</td>
-
-                </tr>
-                <tr>
-                    <td style='width:60%; padding:50px' rowspan="3" colspan="3"></td>
-                </tr>
-            </table> --}}
-
             <div class="row">
                 <div class="column">
                     <table style='margin-top:10px;'>
@@ -254,13 +244,21 @@
                 </div>
             </div>
         </div>
+
+        @php
+            $data = [
+                'company' => $company,
+                'profile' => $workOrder->salesOrder,
+            ];
+        @endphp
+        @include('Orders.WorkOrder.Invoice.print', ['data' => $data])
     </div>
 
     <script>
-        window.print();
-        window.onafterprint = function() {
-            window.history.back();
-        }
+        // window.print();
+        // window.onafterprint = function() {
+        //     window.history.back();
+        // }
     </script>
 </body>
 

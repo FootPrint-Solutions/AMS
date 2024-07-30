@@ -1,0 +1,299 @@
+.mobile_btn {
+    top: -15px;
+    left: -25px;
+}
+
+/* remove background color body in mobile screen */
+@media (max-width: 767px) {
+    body {
+        background-color: transparent;
+    }
+}
+
+.header-left {
+    /*  remove all border in mobile screen */
+    border: none;
+}
+
+.rounded-mobile {
+    border-radius: 0;
+}
+
+.user-img-mobile img {
+    width: 50px;
+    height: 50px;
+    /* border: 2px solid #E6E6E6; */
+    padding: 2px;
+}
+
+.card-stacked {
+    position: relative;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 98%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-stacked::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background-color: #1abc9c;
+    border-radius: 10px;
+    z-index: -1;
+}
+
+.card-stacked .icon {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    /* background-color: #34495e; */
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.card-stacked .icon svg {
+    fill: white;
+}
+
+.card-stacked .title {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.card-stacked .value {
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.info-card {
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 105px;
+    height: 150px;
+    text-align: center;
+}
+
+.info-card .icon {
+    top: 10px;
+    right: 45px;
+}
+
+.info-card .icon svg {
+    fill: white;
+}
+
+.info-card .value {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.info-card .label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.bg-greyrat {
+    background-color: #E3E3E3;
+}
+
+.bg-dark-blue {
+    background: #2A3950;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.carousel-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.carousel-indicators {
+    bottom: -50px;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-container .btn {
+    margin: 0 10px;
+}
+
+/* .product-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    margin: 10px;
+    background-color: #fff;
+}
+.pagination-dots {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+.pagination-dots span {
+    height: 10px;
+    width: 10px;
+    margin: 0 5px;
+    background-color: #c4c4c4;
+    border-radius: 50%;
+    display: inline-block;
+}
+.pagination-dots .active {
+    background-color: #00c853;
+}
+.bottom-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+.btn-custom {
+    width: 45%;
+    font-size: 18px;
+} */
+
+.product-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 0px;
+    background-color: #EFEFEF;
+}
+
+.bottom-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.btn-custom {
+    width: 45%;
+    font-size: 18px;
+}
+
+.text-carousell {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    color: #2A3950;
+}
+
+.btn-circle {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    background-color: #2A3950;
+    color: white;
+    font-weight: 800;
+}
+
+.owl-dots-custom {
+    text-align: justify;
+}
+
+.image-carousel {
+    border-radius: 10px;
+    background-color: #EFEFEF;
+}
+
+.btn-whatsapp {
+    background-color: #60D3AA;
+    color: white;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.btn-whatsapp:hover {
+    background-color: #60D3AA;
+    color: white;
+}
+
+.btn-next {
+    background-color: #1FBABF;
+    color: white;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.btn-next:hover {
+    background-color: #1FBABF;
+    color: white;
+}
+
+.step {
+    text-align: center;
+    padding: 10px;
+}
+
+.step .icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1A374D;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 24px;
+}
+
+.step.active .icon {
+    background-color: #406882;
+}
+
+.step-title {
+    font-weight: bold;
+}
+
+.step-description {
+    color: #6c757d;
+}
+
+.nav-label {
+    color: #2A3950;
+}
+
+.nav-label .active {
+    font-weight: 600;
+}
+
+.btn-previous {
+    background-color: #1FBABF;
+    color: white;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.btn-previous:hover {
+    background-color: #1FBABF;
+    color: white;
+}
+
+.btn-copy-text-mobile {
+    background-color: #1FBABF;
+    color: white;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.btn-copy-text-mobile:hover {
+    background-color: #1FBABF;
+    color: white;
+}

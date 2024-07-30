@@ -58,7 +58,7 @@
                     <th>Gross Price</th>
                     <th>Tax</th>
                     <th>Price + Tax</th>
-                    <th style="width: 5%;">Discount ( % )</th>
+                    <th style="width: 5%;">Discount ( Rp )</th>
                     <th>Net Price</th>
                     <th>Subtotal</th>
                     <th></th>
@@ -72,11 +72,13 @@
                         $price_retail = $battery->price_retail_original;
                         $price_net = $battery->price_net;
                         $price_tax = $price_retail + ($price_retail * $tax) / 100;
+                        $discount_price = ($price_retail * $discount) / 100;
                     } else {
                         $discount = 0;
                         $price_retail = $battery->price_retail;
                         $price_net = $battery->price_retail;
                         $price_tax = $price_retail + ($price_retail * $tax) / 100;
+                        $discount_price = 0;
                     }
                     ?>
                     <tr>
@@ -117,7 +119,7 @@
                         <td>
                             <div class="input-group">
                                 <input type="number" name="DiscountRow[]" id="DiscountRow"
-                                    class="form-control DiscountRow text-end" value="{{ $discount }}">
+                                    class="form-control DiscountRow text-end" value="{{ $discount_price }}">
                             </div>
                         </td>
                         {{-- net --}}
@@ -221,7 +223,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row mb-3">
+                    <div class="form-group row mb-3 d-none">
                         <label for="order-customer" class="col-sm-5 col-form-label">Discount</label>
                         <div class="col-sm-7">
                             <div class="input-group">
@@ -282,6 +284,12 @@
             });
         }
 
+        // discount row format number on keyup
+        $('.DiscountRow').on('keyup', function() {
+            var discount = $(this).val();
+            $(this).val(formatNumber(discount));
+        });
+
         // Function to parse formatted number to float
         function parseFormattedNumber(num) {
             return parseFloat(num.replace(/\./g, '').replace(',', '.'));
@@ -292,10 +300,19 @@
             var grossPrice = parseFormattedNumber(row.find('.PriceTaxRow').val().replace(/,/g, '')) || 0;
             var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
 
-            var discountAmount = (grossPrice * discount) / 100;
+            var discountAmount = discount;
             var netPrice = grossPrice - discountAmount;
             var subtotal = netPrice * qty;
 
+            // if subtotal is NaN then set to 0 or subtotal < 0 then set to 0
+            if (subtotal <= 0 || isNaN(subtotal)) {
+                swal.fire("Error!", "Subtotal is less than 0", "error");
+                row.find('.DiscountRow').val(0);
+                row.find('.NetPrice').val(formatNumber(grossPrice));
+                row.find('.SubtotalRow').val(formatNumber(grossPrice));
+            }
+
+            // Set value to subtotal row
             row.find('.NetPrice').val(formatNumber(netPrice));
             row.find('.SubtotalRow').val(formatNumber(subtotal));
         }

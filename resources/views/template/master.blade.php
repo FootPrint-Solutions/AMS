@@ -49,10 +49,17 @@
 
     {{-- Boostrap Form Wizard --}}
     <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
+
+    {{-- Custom CSS  MOBILE RESPONSIVE --}}
+    <link rel="stylesheet" href="{{ asset('/css/mobile-responsive.css') }}">
+
+    {{-- OWL CAROUSEL CSS --}}
+    <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.theme.default.min.css') }}">
 </head>
 
 <body>
-    <div id="main-wrapper">
+    <div id="main-wrapper" class="main-wrapper">
         {{-- Header --}}
         @include('template.header')
 

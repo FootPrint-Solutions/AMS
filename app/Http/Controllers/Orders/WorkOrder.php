@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PrintTemplateModel;
+use App\Models\MasterData\Company\CompanyModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
 class WorkOrder extends Controller
 {
@@ -81,6 +83,7 @@ class WorkOrder extends Controller
         ];
 
         $tipe = $request->print_option;
+        $invoice = $request->invoice_check;
 
         // check if image is exist
         if ($request->hasFile('image')) {
@@ -113,30 +116,43 @@ class WorkOrder extends Controller
 
         $view = $this->getViewByType($tipe);
 
-        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo'));
+        $company = CompanyModel::first();
+        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo', 'company'));
     }
 
     public function uploadImage(Request $request)
     {
         try {
-            $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'work_order_id' => 'required|integer|exists:work_orders,id'
-            ]);
+            // jika ada inputan image 
+            if (!$request->hasFile('image')) {
+            } else {
+                $request->validate([
+                    'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'work_order_id' => 'required|integer|exists:work_orders,id'
+                ]);
 
-            $image = $request->file('image');
-            $workOrderId = $request->input('work_order_id');
-            $imageExtension = $image->getClientOriginalExtension();
-            $imageFileName = $workOrderId . '.' . $imageExtension;
-            $imagePath = 'image/work-order/attachment-file/' . $imageFileName;
-            $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
-            WorkOrderModel::updateFileCompleteWorkOrderPath($workOrderId, $imagePath);
-            WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
+                $image = $request->file('image');
+                $workOrderId = $request->input('work_order_id');
+                $imageExtension = $image->getClientOriginalExtension();
+                $imageFileName = $workOrderId . '.' . $imageExtension;
+                $imagePath = 'image/work-order/attachment-file/' . $imageFileName;
+                $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+                WorkOrderModel::updateFileCompleteWorkOrderPath($workOrderId, $imagePath);
+                WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
+            }
+
+            if ($request->battery_id) {
+                // looping battery id and update production code
+                foreach ($request->battery_id as $key => $value) {
+                    $battery = SalesOrderBatteryModel::find($value);
+                    $battery->battery_production_code = $request->production_code[$key];
+                    $battery->save();
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Image uploaded successfully.',
-                'image_path' => Storage::url($imagePath)
+                'message' => 'Data has been saved successfully.'
             ]);
         } catch (\Throwable $th) {
             Log::error($th);
@@ -150,7 +166,10 @@ class WorkOrder extends Controller
     public function printTechnicianReport(Request $request)
     {
         $workOrder = WorkOrderModel::getWorkOrderData($request->id);
-        return view('Orders.WorkOrder.Technician.print', compact('workOrder'));
+
+        // qrcode contain work order id
+        $qrCode = QrCode::size(60)->generate($workOrder->id);
+        return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
     }
 
     private function getTemplateType($tipe)
@@ -203,5 +222,22 @@ class WorkOrder extends Controller
     {
         $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
         return view('Orders.WorkOrder.detail', compact('workOrder'));
+    }
+
+    public function getProductionCode(Request $request)
+    {
+        try {
+            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+            return response()->json([
+                'status' => true,
+                'production_code' => $workOrder
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get production code.'
+            ]);
+        }
     }
 }

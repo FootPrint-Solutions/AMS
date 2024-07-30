@@ -84,13 +84,15 @@
                     </div>
 
                     <div class="modal-body text-center">
+                        <div class="production_code_data"></div>
                         <input type="hidden" name="work_order_id" id="work_order_id_image">
-                        <input type="file" name="image" id="image" class="form-control" required allow="image/*">
+                        <label for="image" class="mt-3">Upload Technician Report File</label>
+                        <input type="file" name="image" id="image" class="form-control" allow="image/*">
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="btn btn-primary">Upload & Save</button>
                     </div>
                 </form>
             </div>
@@ -245,6 +247,78 @@
                                 });
                                 return;
                             }
+
+                            // get data production code ajax request
+                            $.ajax({
+                                url: "/work-order/production-code",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    work_order_id: selectedRows[0][8]
+                                },
+                                success: function(responseData) {
+                                    if (responseData.status == true) {
+                                        let batteries = responseData.production_code
+                                            .sales_order.batteries;
+                                        let batteriesHtml = ``;
+                                        batteriesHtml += `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Production Code</th>
+                            <th>Battery Name</th>
+                            <th width="20%">Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+                                        batteries.forEach(function(battery) {
+                                            // jika battery production code null, maka tampilkan input text ganti dengan kosong
+                                            if (battery
+                                                .battery_production_code == null
+                                            ) {
+                                                battery
+                                                    .battery_production_code =
+                                                    '';
+                                            }
+                                            batteriesHtml += `
+                    <tr>
+                        <input type="hidden" name="battery_id[]" value="${battery.id}">
+                        <td><input type="text" name="production_code[]" value="${battery.battery_production_code}" class="form-control"></td>
+                        <td><input type="text" name="battery_name[]" value="${battery.battery_name}" class="form-control" readonly></td>
+                        <td><input type="number" name="battery_quantity[]" value="${battery.quantity}" class="form-control" readonly></td>
+                    </tr>
+                `;
+                                        });
+
+                                        batteriesHtml += `
+                    </tbody>
+                </table>
+            `;
+
+
+                                        $('.production_code_data').html(`
+                                            <div class="text-center">
+                                            <p>Work Order: ${responseData.production_code.work_order_number}</p>
+                                            </div>
+                                            <div class="batteries-data">${batteriesHtml}</div>`);
+                                    } else {
+                                        $('.production_code_data').html(`
+                                            <div class="text-center">
+                                                <p class="text-danger">Failed to load production code.</p>
+                                            </div>
+                                        `);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    $('.production_code_data').html(`
+                                        <div class="text-center">
+                                            <p class="text-danger">Failed to load production code.</p>
+                                        </div>
+                                    `);
+                                }
+                            });
 
                             // show modal for upload image
                             $('#modal-upload-complete-work-order').modal('show');

@@ -314,7 +314,15 @@
             @if ($workOrder->image)
                 <img src="{{ Storage::url($workOrder->image) }}" alt="Work Order Image" width="100%">
             @endif
+            <br><br><br><br><br><br><br><br><br><br><br><br>
         </div>
+        @php
+            $data = [
+                'company' => $company,
+                'profile' => $workOrder->salesOrder,
+            ];
+        @endphp
+        @include('Orders.WorkOrder.Invoice.print', ['data' => $data])
     </div>
 </body>
 

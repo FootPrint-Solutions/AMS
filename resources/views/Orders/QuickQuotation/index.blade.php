@@ -84,100 +84,102 @@
     {{-- Title --}}
 
 
+    {{-- DESKTOP VERSION --}}
+    <div class="d-none d-lg-block">
+        <div class="row">
 
-    <div class="row">
-
-        <!-- Lightbox -->
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Quick Quotation</h4>
-                </div>
-                <div class="card-body">
-                    <div id="basic-pills-wizard" class="twitter-bs-wizard">
-                        <ul class="twitter-bs-wizard-nav">
-                            <li class="nav-item active">
-                                <a href="#seller-details" class="nav-link" data-toggle="tab">
-                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Personal Detail">
-                                        <i class="far fa-user"></i>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="nav-item" id="ProductDisplay">
-                                <a href="#product-display" class="nav-link" data-toggle="tab">
-                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Product Recomendation Display">
-                                        <i class="fa-solid fa-boxes-stacked"></i>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="nav-item" id="CheckoutDisplay">
-                                <a href="#company-document" class="nav-link" data-toggle="tab">
-                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Checkout Page">
-                                        <i class="fas fa-file-invoice"></i>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li class="nav-item" id="PaymentDisplay">
-                                <a href="#bank-detail" class="nav-link" data-toggle="tab">
-                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Payment Details">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                        <!-- wizard-nav -->
-
-                        <div class="tab-content twitter-bs-wizard-tab-content">
-                            <div class="tab-pane active" id="seller-details">
-                                @include('Orders.QuickQuotation.step-1')
-                            </div>
-                            <!-- tab pane -->
-                            <div class="tab-pane" id="product-display">
-                                @include('Orders.QuickQuotation.step-2')
-                            </div>
-                            <!-- tab pane -->
-                            <div class="tab-pane" id="checkout">
-                                @include('Orders.QuickQuotation.step-3')
-                            </div>
-                            <!-- tab pane -->
-                            <div class="tab-pane" id="bank-detail">
-                                @include('Orders.QuickQuotation.step-4')
-                            </div>
-                            <!-- tab pane -->
-                        </div>
-                        <!-- end tab content -->
+            <!-- Lightbox -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Quick Quotation</h4>
                     </div>
+                    <div class="card-body">
+                        <div id="basic-pills-wizard" class="twitter-bs-wizard">
+                            <ul class="twitter-bs-wizard-nav">
+                                <li class="nav-item active">
+                                    <a href="#seller-details" class="nav-link" data-toggle="tab">
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Personal Detail">
+                                            <i class="far fa-user"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="nav-item" id="ProductDisplay">
+                                    <a href="#product-display" class="nav-link" data-toggle="tab">
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Product Recomendation Display">
+                                            <i class="fa-solid fa-boxes-stacked"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="nav-item" id="CheckoutDisplay">
+                                    <a href="#company-document" class="nav-link" data-toggle="tab">
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Checkout Page">
+                                            <i class="fas fa-file-invoice"></i>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" id="PaymentDisplay">
+                                    <a href="#bank-detail" class="nav-link" data-toggle="tab">
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Payment Details">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                            <!-- wizard-nav -->
+
+                            <div class="tab-content twitter-bs-wizard-tab-content">
+                                <div class="tab-pane active" id="seller-details">
+                                    @include('Orders.QuickQuotation.step-1')
+                                </div>
+                                <!-- tab pane -->
+                                <div class="tab-pane" id="product-display">
+                                    @include('Orders.QuickQuotation.step-2')
+                                </div>
+                                <!-- tab pane -->
+                                <div class="tab-pane" id="checkout">
+                                    @include('Orders.QuickQuotation.step-3')
+                                </div>
+                                <!-- tab pane -->
+                                <div class="tab-pane" id="bank-detail">
+                                    @include('Orders.QuickQuotation.step-4')
+                                </div>
+                                <!-- tab pane -->
+                            </div>
+                            <!-- end tab content -->
+                        </div>
+                    </div>
+                    <!-- end card body -->
                 </div>
-                <!-- end card body -->
             </div>
+            <!-- /Wizard -->
         </div>
-        <!-- /Wizard -->
-    </div>
 
-    <div class="clipboard visually-hidden">
-        <textarea cols="30" rows="10" id="CopyPersonalDetails" name="CopyPersonalDetails"></textarea>
-    </div>
+        <div class="clipboard visually-hidden">
+            <textarea cols="30" rows="10" id="CopyPersonalDetails" name="CopyPersonalDetails"></textarea>
+        </div>
 
 
-    <div class="modal fade" id="ModalCopyLinkBattery" tabindex="-1" role="dialog" aria-labelledby="ModalCopyLinkBattery"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white">Copy Link Battery</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+        <div class="modal fade" id="ModalCopyLinkBattery" tabindex="-1" role="dialog"
+            aria-labelledby="ModalCopyLinkBattery" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white">Copy Link Battery</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1177,8 +1179,7 @@
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
     </script>
+    {{-- END DESKTOP VERSION --}}
 
-
-
-    <br><br><br><br><br>
+    @include('Mobile.QuickQuotation.index');
 @endsection

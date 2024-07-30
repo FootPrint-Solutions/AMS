@@ -69,26 +69,23 @@
         }
 
         .section h3 {
-            margin-bottom: 5px;
+            margin-top: 0px;
             font-size: 14px;
         }
 
-        .section table {
+        .table-order {
             width: 100%;
             border-collapse: collapse;
-        }
-
-        .section table,
-        .section th,
-        .section td {
             border: 1px solid #000;
-        }
-
-        .section th,
-        .section td {
             /* padding: 4px; */
             text-align: left;
         }
+
+        .table-order td {
+            border: 1px solid #000;
+        }
+
+
 
         * {
             box-sizing: border-box;
@@ -137,11 +134,39 @@
         .signatures {
             display: flex;
             justify-content: space-between;
+            border: 1px solid #000;
+            margin-top: 10px;
         }
 
         .customer-signature {
             width: 45%;
             text-align: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-5 {
+            margin-top: 5px;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-bukti {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+        .qr-code {
+            margin-top: -80px;
+            margin-left: 266px;
         }
     </style>
 </head>
@@ -151,57 +176,93 @@
     <div class="container">
         <div class="kertas_print">
             <div class="section">
-                <h2>Laporan Teknisi Akikita.id</h2>
-                <table>
+                <img src="{{ asset('img/akikita-tech-report.png') }}" style="width: 190px;">
+                <h3>
+                    <table style="width: 60%; border: 0px solid #000;">
+                        <tr>
+                            <td>WA</td>
+                            <td>:</td>
+                            <td>082228800175</td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>:</td>
+                            <td>akikita.id@gmail.com </td>
+                        </tr>
+                        <tr>
+                            <td>Website</td>
+                            <td>:</td>
+                            <td>www.akikita.id </td>
+                        </tr>
+                    </table>
+                </h3>
+                <div class="qr-code">
+                    {{ $qrCode }}
+                </div>
+                <h1 class="text-right text-bukti">Bukti Instalasi</h1>
+                <table class="table-order">
                     <tr>
                         <td>
-                            <strong>Order ID: </strong>{{ $workOrder->work_order_number }}
+                            <strong>Order ID</strong>
                         </td>
                         <td>
-                            <strong>Tanggal: </strong> {{ date('d-m-Y', strtotime($workOrder->salesOrder->date)) }}
+                            {{ $workOrder->work_order_number }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2"> <strong>Alamat: </strong>{{ $workOrder->address }}</td>
+                        <td>
+                            <strong>Tanggal</strong>
+                        </td>
+                        <td>
+                            {{ date('d-m-Y', strtotime($workOrder->salesOrder->date)) }}
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2"> <strong>Aki:</strong>
+                        <td> <strong>Alamat</strong></td>
+                        <td>
+                            {{ $workOrder->address }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> <strong>Nama Unit:</strong>
+                        </td>
+                        <td>
                             @foreach ($workOrder->batteries as $battery)
                                 {{ $battery->battery_name }},
                             @endforeach
                         </td>
                     </tr>
-                </table>
-                <div class="vehicle-condition">
-                    <p><strong>Kondisi Kendaraan:</strong></p>
-                    <p>Apakah kendaraan dapat dinyalakan setelah pemasangan aki?</p>
-                    <label><input type="radio" name="start-status" value="ya"> Ya</label>
-                    <label><input type="radio" name="start-status" value="tidak"> Tidak</label>
-                </div>
-                <div class="battery-tension">
-                    <p><strong>Ketegangan mekanisme pengisian daya aki:</strong></p>
-                    __________________Volt <span style="margin-left: 80px;">(Optimal: 14V – 14.5V)</span>
-                </div>
-                <div class="current-while-off">
-                    <p><strong>Arus listrik saat kendaraan mati:</strong></p>
-                    __________________Amp <span style="margin-left: 80px;">(Optimal: 0.10A – 0.50A)</span>
-                </div>
-                <table style='margin-top:10px;'>
-                    <p><strong>Keterangan:</strong></p>
                     <tr>
-                        <td style='width:60%; padding:50px' rowspan="3" colspan="3"></td>
+                        <td>
+                            <strong>
+                                Catatan
+                            </strong>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style='width:50%; padding:50px' rowspan="3" colspan="3"></td>
                     </tr>
                 </table>
-                <div class="signatures">
-                    <div class="technician-signature">
-                        <p><strong>Tanda Tangan Teknisi</strong></p>
-                        <p style="margin-top: 45px;"><strong>Nama:</strong> <span class="technician-name"></span></p>
-                    </div>
-                    <div class="customer-signature">
-                        <p><strong>Tanda Tangan Pelanggan</strong></p>
-                        <p style="margin-top: 45px;"><strong>Nama:</strong> <span class="customer-name"></span></p>
-                    </div>
-                </div>
+                <table class="table-order text-center mt-5">
+                    <tr>
+                        <td colspan="2"><strong>Tanda Tangan</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Teknisi</strong></td>
+                        <td><strong>Penerima</strong></td>
+                    </tr>
+                    <tr>
+                        <td style='width:50%; padding:30px'></td>
+                        <td style='width:50%; padding:30px'></td>
+                    </tr>
+                    <tr class="text-left">
+                        <td><strong>Nama: </strong></td>
+                        <td><strong>Nama: </strong></td>
+                    </tr>
+                </table>
+
+                <h3 class="text-center">Terima kasih telah memilih Akikita.id</h3>
             </div>
         </div>
 
