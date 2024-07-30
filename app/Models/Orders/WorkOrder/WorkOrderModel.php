@@ -93,7 +93,8 @@ class WorkOrderModel extends Model implements Auditable
     {
         return $this->belongsTo(SalesOrderModel::class, 'sales_order_id')
             ->with('distributorShop', 'vehicle')
-            ->with('paymentMethod');
+            ->with('paymentMethod')
+            ->with('batteries');
     }
 
     public function customer()

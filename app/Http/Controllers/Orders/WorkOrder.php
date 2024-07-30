@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PrintTemplateModel;
+use App\Models\MasterData\Company\CompanyModel;
 
 class WorkOrder extends Controller
 {
@@ -81,6 +82,7 @@ class WorkOrder extends Controller
         ];
 
         $tipe = $request->print_option;
+        $invoice = $request->invoice_check;
 
         // check if image is exist
         if ($request->hasFile('image')) {
@@ -113,7 +115,8 @@ class WorkOrder extends Controller
 
         $view = $this->getViewByType($tipe);
 
-        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo'));
+        $company = CompanyModel::first();
+        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo', 'company'));
     }
 
     public function uploadImage(Request $request)
