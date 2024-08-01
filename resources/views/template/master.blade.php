@@ -50,12 +50,20 @@
     {{-- Boostrap Form Wizard --}}
     <link rel="stylesheet" href="{{ asset('/plugins/twitter-bootstrap-wizard/form-wizard.css') }}">
 
-    {{-- Custom CSS  MOBILE RESPONSIVE --}}
-    <link rel="stylesheet" href="{{ asset('/css/mobile-responsive.css') }}">
+    {{-- Custom CSS MOBILE RESPONSIVE --}}
+    <link rel="stylesheet" href="{{ asset('/css/quick-quotation.css') }}">
 
     {{-- OWL CAROUSEL CSS --}}
     <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.theme.default.min.css') }}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 
 <body>

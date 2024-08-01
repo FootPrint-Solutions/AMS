@@ -1,86 +1,8 @@
 @extends('template.master')
 
 @section('content')
-    <style>
-        #AutoCompleteFullNameCustomer {
-            position: absolute;
-            background-color: #f1f1f1;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            z-index: 999;
-        }
-
-        #AutoCompleteFullNameCustomerStep1 {
-            position: absolute;
-            background-color: #f1f1f1;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            z-index: 999;
-        }
-
-        #AutoCompleteFullNameCustomerContact {
-            position: absolute;
-            background-color: #f1f1f1;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            z-index: 999;
-        }
-
-        .suggestion {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .suggestion:hover {
-            background-color: #ddd;
-        }
-
-        #map {
-            height: 205px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .visually-hidden {
-            position: absolute !important;
-            height: 1px;
-            width: 1px;
-            overflow: hidden;
-            clip: rect(1px 1px 1px 1px);
-            /* IE6, IE7 */
-            clip: rect(1px, 1px, 1px, 1px);
-            white-space: nowrap;
-            /* added line */
-        }
-
-        .blog-image img {
-            width: 75%;
-        }
-
-        .discount-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: red;
-            color: white;
-            padding: 5px;
-            border-radius: 50%;
-            font-size: 0.8em;
-        }
-
-        .price-original {
-            text-decoration: line-through;
-            color: grey;
-        }
-
-        .price-discount {
-            font-weight: bold;
-            color: red;
-        }
-    </style>
+    {{-- Custom CSS  MOBILE RESPONSIVE --}}
+    <link rel="stylesheet" href="{{ asset('/css/quick-quotation.css') }}">
     {{-- Title --}}
 
 
@@ -1181,5 +1103,5 @@
     </script>
     {{-- END DESKTOP VERSION --}}
 
-    @include('Mobile.QuickQuotation.index');
+    @include('Mobile.QuickQuotation.index')
 @endsection
