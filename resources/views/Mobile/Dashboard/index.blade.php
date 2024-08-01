@@ -1,5 +1,5 @@
 {{-- mobile version --}}
-<div class="d-block d-md-none">
+<div class="d-block d-md-none mb-3">
     <div class="row">
         <div class="col-2 user-img-mobile">
             @if (is_null(auth()->user()->image) || empty(auth()->user()->image))
@@ -50,7 +50,7 @@
                             fill="white" />
                     </svg>
                 </div>
-                <div class="value">15</div>
+                <div class="value">{{ $data['NumberOfCustomer'] }}</div>
                 <div class="label">Customer</div>
             </div>
         </div>
@@ -66,8 +66,8 @@
                     </svg>
 
                 </div>
-                <div class="value">1201</div>
-                <div class="label">Vehicle</div>
+                <div class="value">{{ $data['NumberOfSalesOrder'] }}</div>
+                <div class="label">Sales Order</div>
             </div>
         </div>
         <div class="col-4">
@@ -81,8 +81,8 @@
                             fill="white" />
                     </svg>
                 </div>
-                <div class="value">65</div>
-                <div class="label">Battery</div>
+                <div class="value">{{ $data['NumberOfWorkOrder'] }}</div>
+                <div class="label">Work Order</div>
             </div>
         </div>
     </div>
@@ -90,33 +90,25 @@
 
 <div class="d-block d-md-none">
     <h3 class="page-title text-left mt-3 mb-3">Currently Active Promo </h3>
-    <div class="card bg-greyrat w-100">
-        <div class="card-body">
-            <div class="db-widgets d-flex justify-content-between align-items-center">
-                <div class="db-icon bg-dark-blue">
-                    1.
+
+    {{-- loop promo --}}
+    @php
+        $no = 1;
+    @endphp
+    @foreach ($data['Promo'] as $promo)
+        <div class="card bg-greyrat w-100">
+            <div class="card-body">
+                <div class="db-widgets d-flex align-items-center">
+                    <div class="db-icon bg-dark-blue">
+                        {{ $no++ }}.
+                    </div>
+                    <div class="db-content text-white">
+                        <h4 class="text-white font-weight-bold" style="margin-left:10px;">{{ $promo->name }}</h4>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card bg-greyrat w-100">
-        <div class="card-body">
-            <div class="db-widgets d-flex justify-content-between align-items-center">
-                <div class="db-icon bg-dark-blue">
-                    2.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card bg-greyrat w-100">
-        <div class="card-body">
-            <div class="db-widgets d-flex justify-content-between align-items-center">
-                <div class="db-icon bg-dark-blue">
-                    3.
-                </div>
-            </div>
-        </div>
-    </div>
+    @endforeach
 </div>
 
 

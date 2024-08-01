@@ -191,6 +191,8 @@
             });
 
             // ajax chart & configuration for revenue
+
+            // create loading spinner for chart
             $.ajax({
                 url: "/dashboard/chart/revenue",
                 type: "GET",
