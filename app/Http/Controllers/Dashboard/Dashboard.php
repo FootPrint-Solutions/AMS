@@ -11,7 +11,7 @@ use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Settings\PromoModel;
-use App\Models\Orders\WorkOrder\WOrkOrderModel;
+use App\Models\Orders\WorkOrder\WorkOrderModel;
 use Illuminate\Support\Carbon;
 
 class Dashboard extends Controller
