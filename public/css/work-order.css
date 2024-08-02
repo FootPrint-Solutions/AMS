@@ -1,0 +1,31 @@
+.top-nav-search-custom-mobile {
+    float: left;
+    display: flex;
+    margin-left: 0px;
+}
+
+.top-nav-search-custom-mobile form {
+    margin-top: 10px;
+    position: relative;
+    width: 300px;
+}
+
+.top-nav-search-custom-mobile .form-control {
+    background: #F5F5F5;
+    border: 1px solid #D7D9DE;
+    border-radius: 8px;
+    color: #6c757d;
+    height: 40px;
+    padding: 10px 15px 10px 40px;
+}
+
+.top-nav-search-custom-mobile .btn {
+    background-color: transparent;
+    border-color: transparent;
+    color: rgba(17, 17, 17, 0.32);
+    min-height: 40px;
+    padding: 7px 15px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}

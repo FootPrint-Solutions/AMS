@@ -2,33 +2,35 @@
 
 @section('content')
     {{-- Form --}}
-    <div class="card">
-        <div class="card-body">
-            {{-- Title --}}
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Work Order</h3>
+    <div class="d-none d-lg-block">
+        <div class="card">
+            <div class="card-body">
+                {{-- Title --}}
+                <div class="page-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="page-title">Work Order</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <br>
+                <br>
 
-            {{-- Table --}}
-            <table class="table table-striped" id="table-work-order">
-                <thead>
-                    <tr>
-                        <th scope="col" class="table-col-no">#</th>
-                        <th scope="col">Work Order Number</th>
-                        <th scope="col">Sales Order Number</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Qty</th>
-                        <th scope="col">Total (IDR)</th>
-                        <th scope="col">Address</th>
-                    </tr>
-                </thead>
-            </table>
+                {{-- Table --}}
+                <table class="table table-striped" id="table-work-order">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Sales Order Number</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Qty</th>
+                            <th scope="col">Total (IDR)</th>
+                            <th scope="col">Address</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -482,4 +484,6 @@
             }
         }
     </script>
+
+    @include('Mobile.Orders.WorkOrder.index')
 @endsection
