@@ -238,6 +238,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate']);
     Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink']);
     Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink']);
+    // Mobile
+    Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders']);
+    Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail']);
 
     // Work Order
     Route::get('/work-order', [WorkOrder::class, 'index']);

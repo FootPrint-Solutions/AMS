@@ -2,42 +2,46 @@
 
 @section('content')
     {{-- Form --}}
-    <div class="card">
-        <div class="card-body">
-            {{-- Title --}}
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Sales Order</h3>
-                    </div>
+    <div class="d-none d-lg-block">
+        <div class="card">
+            <div class="card-body">
+                {{-- Title --}}
+                <div class="page-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="page-title">Sales Order</h3>
+                        </div>
 
-                    <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
+                        <div class="col-auto text-end float-end ms-auto download-grp">
+                            <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
+                                New Sales Order</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <br>
+                <br>
 
-            {{-- Table --}}
-            <table class="table table-striped" id="table-sales-order">
-                <thead>
-                    <tr>
-                        <th scope="col" class="table-col-no">#</th>
-                        <th scope="col">Sales Order Number</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Vehicle</th>
-                        <th scope="col">Distributor/Shop</th>
-                        <th scope="col">Technician</th>
-                        <th scope="col">Total (IDR)</th>
-                        <th scope="col">Payment Status</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-            </table>
+                {{-- Table --}}
+                <table class="table table-striped" id="table-sales-order">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Sales Order Number</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Vehicle</th>
+                            <th scope="col">Distributor/Shop</th>
+                            <th scope="col">Technician</th>
+                            <th scope="col">Total (IDR)</th>
+                            <th scope="col">Payment Status</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
+
+    @include('Mobile.SalesOrder.index')
 
     {{-- DataTables Configurations --}}
     <script>

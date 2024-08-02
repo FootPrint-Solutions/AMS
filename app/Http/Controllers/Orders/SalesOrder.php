@@ -39,9 +39,33 @@ class SalesOrder extends Controller
         return view(
             'Orders.SalesOrder.index',
             getIndexData(
-                $this->title,
+                $this->title
             )
         );
+    }
+
+    public function getSalesOrders($status = 'all', $filter = '')
+    {
+        $query = SalesOrderModel::with('customer')->join("customers", "sales_orders.customer_id", "customers.id")
+            ->select("sales_orders.*");
+
+        // Filter status
+        if ($status != 'all')
+            $query->where('payment_status', $status);
+
+        // Filter
+        if ($filter != '')
+            $query->where(function ($q) use ($filter) {
+                $q->where('sales_order_number', 'like', '%' . $filter . '%')
+                    ->orWhere('customers.name', 'like', '%' . $filter . '%');
+            });
+
+        return $query->get()->toArray();
+    }
+
+    public function getSalesOrderDetail($id)
+    {
+        return SalesOrderModel::with(['vehicle', 'technician', 'shop.distributor'])->find($id)->toArray();
     }
 
     /**
@@ -351,26 +375,58 @@ class SalesOrder extends Controller
         DB::beginTransaction();
 
         try {
-            $salesOrder = SalesOrderModel::find($request->id);
+            if (isset($request->id)) {
+                $salesOrder = SalesOrderModel::find($request->id);
 
-            if ($salesOrder->status !== 'draft') {
-                return getResponseData(false, "Unable to post posted and completed sales order.");
+                if ($salesOrder->status !== 'draft') {
+                    return getResponseData(false, "Unable to post posted and completed sales order.");
+                }
+
+                $salesOrder->payment_status = "paid";
+                $salesOrder->status = "posted";
+                $status = $salesOrder->save();
+
+                if ($status)
+                    DB::commit();
+                else
+                    DB::rollBack();
+
+                // Set a new response data to be sent.
+                return getResponseData(
+                    $status,
+                    $status ? "The selected sales order was successfully posted!" : "Failed to post the selected sales order!"
+                );
+            } else {
+                $ids = explode(",", $request->ids);
+                foreach ($ids as $id) {
+                    $salesOrder = SalesOrderModel::find($id);
+
+                    if ($salesOrder->status !== 'draft')
+                        break;
+
+                    $salesOrder->payment_status = "paid";
+                    $salesOrder->status = "posted";
+                    $status = $salesOrder->save();
+                }
+
+                if ($status)
+                    DB::commit();
+                else
+                    DB::rollBack();
+
+                // Set a new response data to be sent.
+                $successMessage = "The selected sales order was successfully posted!";
+                $failedMessage = "Failed to post the selected sales order!";
+                if (count($ids) > 1) {
+                    $successMessage = "The selected sales orders were successfully posted!";
+                    $failedMessage = "Failed to post the selected sales orders!";
+                }
+
+                return getResponseData(
+                    $status,
+                    $status ? $successMessage : $failedMessage
+                );
             }
-
-            $salesOrder->payment_status = "paid";
-            $salesOrder->status = "posted";
-            $status = $salesOrder->save();
-
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The selected sales order was successfully posted!" : "Failed to post the selected sales order!"
-            );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
             DB::rollBack();
