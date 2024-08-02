@@ -288,6 +288,10 @@
             refreshList(status, filter);
         })
 
+        $("#btn-add-mobile").on("click", function() {
+            goToPage("/sales-order/create");
+        })
+
         $("#input-search").on("keyup", function() {
             let status = "all";
             $(".filter-status").each(function() {
