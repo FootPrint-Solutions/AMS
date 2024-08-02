@@ -188,4 +188,42 @@ class WorkOrderModel extends Model implements Auditable
         $salesOrder->status = 'completed';
         $salesOrder->save();
     }
+
+    public static function lazyLoadList($request)
+    {
+        $search = $request->input("search.value");
+        $order = $request->input("order.0.column");
+        $dir = $request->input("order.0.dir");
+        $start = $request->input("offset");
+        $length = $request->input("limit");
+
+        // get data from table work order for datatable
+        $data = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
+            ->leftJoin('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
+            ->leftJoin('customers', 'work_orders.customer_id', '=', 'customers.id')
+            ->addSelect([
+                'qty' => WorkOrderBatteryModel::selectRaw('sum(quantity)')
+                    ->whereColumn('work_order_id', 'work_orders.id')
+            ])
+            ->where('work_orders.work_order_number', 'like', "%$search%")
+            ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
+            ->orWhere('customers.name', 'like', "%$search%")
+            ->orderBy('work_orders.id', 'desc')
+            ->offset($start)
+            ->limit($length)
+            ->get();
+
+        $count = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
+            ->leftJoin('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
+            ->leftJoin('customers', 'work_orders.customer_id', '=', 'customers.id')
+            ->where('work_orders.work_order_number', 'like', "%$search%")
+            ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
+            ->orWhere('customers.name', 'like', "%$search%")
+            ->count();
+
+        return [
+            'row' => $data,
+            'count' => $count
+        ];
+    }
 }

@@ -29,3 +29,72 @@
     left: 0;
     top: 0;
 }
+
+.left-2 {
+    margin-left: 0px;
+}
+
+.font-size-10 {
+    font-size: 10px;
+}
+
+.work-order-name {
+    font-family: Poppins;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 21px;
+    text-align: left;
+}
+
+.work-order-price {
+    font-family: Poppins;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 21px;
+    text-align: left;
+}
+
+.work-order-id {
+    font-family: Poppins;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 15px;
+    text-align: left;
+}
+
+.right-2 {
+    margin-right: 0px;
+}
+
+.card-active-work-order {
+    background: #F5F5F5;
+    border: 1px solid #D7D9DE;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.block-work-order {
+    width: 323px;
+    height: 55px;
+    top: 20px;
+    left: 20px;
+    gap: 10px;
+    border-radius: 10px 0px 0px 0px;
+    border: 0px 0px 1.5px 0px;
+    opacity: 0px;
+}
+
+.block {
+    width: Hug (286.5px)px;
+    height: Hug (36px)px;
+    top: 8px;
+    left: 12px;
+    gap: 14px;
+    opacity: 0px;
+}
+
+.scrollable-y {
+    overflow-y: auto;
+    max-height: 50vh;
+}

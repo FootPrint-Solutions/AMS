@@ -248,6 +248,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/delete', [WorkOrder::class, 'destroy']);
     Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
     Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
+    Route::get('/work-order/lazy-load/list', [WorkOrder::class, 'lazyLoadList']);
 
     // Settings
     // Message Template
