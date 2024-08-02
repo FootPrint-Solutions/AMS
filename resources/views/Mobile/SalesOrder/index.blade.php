@@ -356,7 +356,7 @@
                 $("#detail-distributor").text(data.shop.distributor.name);
                 $("#detail-shop").text(data.shop.name);
                 $("#detail-technician").text(data.technician.name);
-                $("#detail-total").text("Rp" + data.total);
+                $("#detail-total").text("Rp" + formatNumberWithSeparator(data.total));
                 $("#detail-payment-status").text(data.payment_status);
                 $("#detail-status").text(data.status);
 
@@ -396,7 +396,7 @@
                                 </div>
 
                                 <div class="col-4" onclick="viewDetail('${order.id}')">
-                                    <p>Rp${order.total}</p>
+                                    <p>Rp${formatNumberWithSeparator(order.total)}</p>
                                 </div>
                             </div>
                         </li>
