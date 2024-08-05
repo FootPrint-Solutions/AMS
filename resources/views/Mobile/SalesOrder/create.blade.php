@@ -96,13 +96,23 @@
         {{-- Date --}}
         <div class="form-group local-forms mb-4">
             <label for="date">Sales Order Number <span class="login-danger">*</span></label>
-            <input type="text" name="salesordernumber" class="form-control" readonly value="{{ $data['number'] }}">
+            <input type="text" name="salesordernumber" class="form-control" readonly
+                @isset($data['profile'])
+                            value="{{ $data['profile']['sales_order_number'] }}"
+                        @else
+                            value="{{ $data['number'] }}"
+                        @endisset>
         </div>
 
         {{-- Date --}}
         <div class="form-group local-forms mb-4">
             <label for="date">Date <span class="login-danger">*</span></label>
-            <input type="date" name="date" id="date" class="form-control">
+            <input type="date" name="date" id="date" class="form-control"
+                @isset($data['profile'])
+                            value="{{ $data['profile']['date'] }}"
+                        @else
+                            value="{{ date('Y-m-d') }}"
+                        @endisset>
         </div>
 
         {{-- Customer --}}
@@ -121,7 +131,8 @@
         <div class="form-group local-forms mb-4">
             <label for="address">Address <span class="login-danger">*</span></label>
             <input type="text" name="Address" id="address" class="form-control"
-                placeholder="Enter customer address">
+                placeholder="Enter customer address"
+                value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif">
 
             <input type="hidden" name="Latitude" id="Latitude" value="1" required>
             <input type="hidden" name="Longitude" id="Longitude" value="1" required>
@@ -191,15 +202,69 @@
                 id="btn-add-detail-mobile"><span class="material-icons text-very-small">add</span></button></div>
 
         {{-- List Details --}}
-        <ul class="list-group list-group-flush" id="list-detail"></ul>
+        <ul class="list-group list-group-flush" id="list-detail">
+            @isset($data['profile'])
+                @foreach ($batteries as $battery)
+                    <li class="list-group-item list-dash-border">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="row">
+                                    <p class="fw-bold text-truncate">{{ $battery['battery_name'] }}</p>
+                                    <p class="text-muted text-very-small">{{ $battery['battery_production_code'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="badge bg-warning">Tax {{ $battery['tax'] }}%</span>
+                                            <span class="badge bg-danger">Disc {{ $battery['discount'] }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <p class="fw-bold">Rp{{ formatPrice($battery['price_net']) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="batteriescode[]"
+                                value="{{ $battery['battery_production_code'] }}">
+                            <input type="hidden" name="batteriesname[]" value="{{ $battery['battery_name'] }}">
+                            <input type="hidden" name="batteriesid[]" value="{{ $battery['battery_id'] }}">
+                            <input type="hidden" name="batteriespriceretail[]"
+                                value="{{ $battery['battery_price_retail'] }}">
+                            <input type="hidden" name="batteriestax[]" value="{{ $battery['tax'] }}">
+                            <input type="hidden" name="batteriestaxprice[]" value="{{ $battery['tax_price'] }}">
+                            <input type="hidden" name="batteriesdiscount[]" value="{{ $battery['discount'] }}">
+                            <input type="hidden" name="batteriesdiscountprice[]"
+                                value="{{ $battery['discount_price'] }}">
+                            <input type="hidden" name="batteriesprice[]" class="batteriespricemobile"
+                                value="{{ $battery['price_net'] }}">
+                            <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+                        </div>
+                    </li>
+                @endforeach
+            @endisset
+        </ul>
 
         {{-- Total --}}
         <div class="card" id="card-total">
             <div class="card-body">
-                <p class="card-text text-center"><span class="fw-bold">Total</span> : Rp<span
-                        id="span-subtotal">0</span>
+                <p class="card-text text-center"><span class="fw-bold">Total</span> : Rp<span id="span-subtotal">
+                        @isset($data['profile'])
+                            {{ formatPrice($data['profile']['subtotal']) }}
+                        @else
+                            0
+                        @endisset
+                    </span>
                 </p>
-                <input type="hidden" name="subtotal" id="subtotal" value="0">
+                <input type="hidden" name="subtotal" id="subtotal"
+                    @isset($data['profile'])
+                            value="{{ $data['profile']['subtotal'] }}"
+                        @else
+                            value="0"
+                        @endisset>
             </div>
         </div>
 
@@ -209,10 +274,18 @@
                 {{-- Discount --}}
                 <div class="row">
                     <div class="col-4"><span class="fw-bold">Invoice Discount</span></div>
-                    <div class="col-5"><input type="text" class="form-control" name="discount"
-                            id="discount-mobile" value="0">
+                    <div class="col">
+                        <div class="input-group">
+                            <span class="input-group-text border-end">Rp</span>
+                            <input type="text" class="form-control" name="discount" id="discount-mobile"
+                                @isset($data['profile'])
+                            value="{{ $data['profile']['discount_price'] }}"
+                        @else
+                            value="0"
+                        @endisset>
+                        </div>
                     </div>
-                    <div class="col-2">Toggle</div>
+                    {{-- <div class="col-2">Toggle</div> --}}
                 </div>
 
                 <hr>
@@ -220,16 +293,36 @@
                 {{-- Grand Total --}}
                 <div class="row">
                     <div class="col-4"></div>
-                    <div class="col-7"><span class="fw-bold">Grand Total</span> : Rp<span
-                            id="span-grand-total">0</span>
+                    <div class="col-7"><span class="fw-bold">Grand Total</span> : Rp<span id="span-grand-total">
+                            @isset($data['profile'])
+                                {{ formatPrice($data['profile']['subtotal']) }}
+                            @else
+                                0
+                            @endisset
+                        </span>
                     </div>
-                    <input type="hidden" name="total" id="grandtotal" value="0">
+                    <input type="hidden" name="total" id="grandtotal"
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['total'] }}"
+                        @else
+                            value="0"
+                        @endisset>
                 </div>
             </div>
         </div>
 
+        @isset($data['profile'])
+            <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+        @endisset
+
         {{-- Button --}}
-        <button class="btn btn-block" id="btn-add-mobile">Create New Sales Order</button>
+        <button class="btn btn-block" id="btn-add-mobile"
+            @if (isset($data['profile'])) value="update">
+                    Update
+                @else
+                    value="create">
+                    Create @endif
+            Sales Order </button>
     </form>
 </div>
 
@@ -408,9 +501,8 @@
         $("#sales-order-form-mobile").on("submit", function(event) {
             event.preventDefault();
 
-            // let mode = $("#btn-save").attr("value"); // update || create
-            // let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
-            let url = "/sales-order/store";
+            let mode = $("#btn-add-mobile").attr("value"); // update || create
+            let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
 
             // let address = $("#AddressSearchColumn").val();
             // let lat = $("#Latitude").val();
