@@ -191,7 +191,7 @@ class WorkOrderModel extends Model implements Auditable
 
     public static function lazyLoadList($request)
     {
-        $search = $request->input("search.value");
+        $search = $request->input("search");
         $order = $request->input("order.0.column");
         $dir = $request->input("order.0.dir");
         $start = $request->input("offset");

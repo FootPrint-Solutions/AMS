@@ -122,6 +122,8 @@
         </div>
     </div>
 
+    @include('Mobile.Orders.WorkOrder.index')
+
     <script>
         var table;
 
@@ -484,6 +486,4 @@
             }
         }
     </script>
-
-    @include('Mobile.Orders.WorkOrder.index')
 @endsection
