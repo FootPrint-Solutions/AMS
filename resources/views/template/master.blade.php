@@ -652,6 +652,10 @@
     function formatNumberWithSeparator(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
+
+    function removeSeparators(numberString) {
+        return numberString.replace(/\./g, '');
+    }
 </script>
 
 </html>
