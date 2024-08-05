@@ -257,4 +257,21 @@ class WorkOrder extends Controller
             ]);
         }
     }
+
+    public function getWorkOrderDetail(Request $request)
+    {
+        try {
+            $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+            return response()->json([
+                'status' => true,
+                'work_order' => $workOrder
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get work order detail.'
+            ]);
+        }
+    }
 }
