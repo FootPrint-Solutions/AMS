@@ -135,6 +135,20 @@
         font-weight: 700;
         text-decoration: underline;
     }
+
+    .scrollable-list-x {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .scrollable-list-x .row {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .scrollable-list-x .col {
+        /* flex: 1 0 auto; */
+    }
 </style>
 
 <div class="d-block d-md-none mb-3">
@@ -160,11 +174,16 @@
         <div class="card-body">
             {{-- Status --}}
             <h5 class="card-title">
-                <div class="row text-center">
-                    <div class="col filter-status active" data-status="all">All</div>
-                    <div class="col filter-status" data-status="paid">Paid</div>
-                    <div class="col filter-status" data-status="pending">Pending</div>
-                    <div class="col filter-status" data-status="failed">Failed</div>
+                <div class="scrollable-list-x">
+                    <div class="row text-center">
+                        <div class="col filter-status active" data-status="all">All</div>
+                        <div class="col filter-status" data-status="paid">Paid</div>
+                        <div class="col filter-status" data-status="pending">Pending</div>
+                        <div class="col filter-status" data-status="failed">Failed</div>
+                        <div class="col filter-status" data-status="draft">Draft</div>
+                        <div class="col filter-status" data-status="posted">Posted</div>
+                        <div class="col filter-status" data-status="completed">Completed</div>
+                    </div>
                 </div>
             </h5>
             <hr>
@@ -327,7 +346,10 @@
         $("#btn-edit-mobile").on("click", function() {
             let selected = getSelected();
             if (selected.length > 1) {
-                alert("Cannot edit for more than one sales order.");
+                Swal.fire({
+                    text: "Unable to edit more than one sales order",
+                    icon: "error"
+                });
             } else {
                 goToPage("/sales-order/edit/" + selected[0]);
             }
@@ -359,7 +381,10 @@
         $("#btn-invoice").on("click", function() {
             let selected = getSelected();
             if (selected.length > 1) {
-                alert("Cannot download invoice for more than one sales order.");
+                Swal.fire({
+                    text: "Unable to download invoices for more than one sales order",
+                    icon: "error"
+                });
             } else {
                 downloadPDF("/sales-order/invoice/" + selected[0]);
                 $("#modal-action").modal("hide");
@@ -371,7 +396,10 @@
         $("#btn-work-order").on("click", function() {
             let selected = getSelected();
             if (selected.length > 1) {
-                alert("Cannot create work order for more than one sales order.");
+                Swal.fire({
+                    text: "Unable to create work order for more than one sales order",
+                    icon: "error"
+                });
             } else {
                 createworkorder("/sales-order/work-order/" + selected[0]);
                 $("#modal-action").modal("hide");
@@ -436,6 +464,12 @@
                     else if (order.status == 'completed')
                         textColor = 'text-info';
 
+                    var labelColor = 'badge-danger';
+                    if (order.payment_status == 'paid')
+                        labelColor = 'badge-info';
+                    else if (order.payment_status == 'pending')
+                        labelColor = 'badge-warning';
+
                     var listItem = `
                         <li class="list-group-item ${textColor}">
                             <div class="row">
@@ -451,6 +485,7 @@
                                 </div>
 
                                 <div class="col-4" onclick="viewDetail('${order.id}')">
+                                    <p class="text-end"><span class="badge ${labelColor} ml-auto">${order.payment_status}</span></p>
                                     <p>Rp${formatNumberWithSeparator(order.total)}</p>
                                 </div>
                             </div>

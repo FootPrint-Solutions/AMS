@@ -51,7 +51,10 @@ class SalesOrder extends Controller
 
         // Filter status
         if ($status != 'all')
-            $query->where('payment_status', $status);
+            $query->where(function ($q) use ($status) {
+                $q->where('payment_status', $status)
+                    ->orWhere('sales_orders.status', $status);
+            });
 
         // Filter
         if ($filter != '')
