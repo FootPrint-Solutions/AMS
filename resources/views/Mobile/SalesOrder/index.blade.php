@@ -366,6 +366,18 @@
                 refreshList();
             }
         })
+
+        // Invoice
+        $("#btn-work-order").on("click", function() {
+            let selected = getSelected();
+            if (selected.length > 1) {
+                alert("Cannot create work order for more than one sales order.");
+            } else {
+                createworkorder("/sales-order/work-order/" + selected[0]);
+                $("#modal-action").modal("hide");
+                refreshList();
+            }
+        })
     });
 
     $(document).on("click", ".btn-number", function() {
