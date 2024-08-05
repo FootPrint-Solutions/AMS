@@ -77,6 +77,16 @@
         background-color: rgb(95, 211, 169);
     }
 
+    #btn-edit-mobile {
+        color: rgb(256, 256, 256);
+        height: 55px;
+    }
+
+    #btn-delete-mobile {
+        color: rgb(256, 256, 256);
+        height: 55px;
+    }
+
     #btn-post {
         background-color: rgb(42, 57, 80);
         color: rgb(256, 256, 256);
@@ -179,6 +189,16 @@
 
             {{-- Body --}}
             <div class="modal-body">
+                <button class="btn btn-warning btn-block mb-2 fw-bold text-start" id="btn-edit-mobile">
+                    <div class="icon"><span class="material-icons">edit</span></div>
+                    Edit
+                </button>
+
+                <button class="btn btn-danger btn-block mb-2 fw-bold text-start" id="btn-delete-mobile">
+                    <div class="icon"><span class="material-icons">delete</span></div>
+                    Delete
+                </button>
+
                 <button class="btn btn-block mb-2 fw-bold text-start" id="btn-post">
                     <div class="icon"><span class="material-icons">task</span></div>
                     Post
@@ -303,6 +323,27 @@
             refreshList(status, filter);
         })
 
+        // Edit
+        $("#btn-edit-mobile").on("click", function() {
+            let selected = getSelected();
+            if (selected.length > 1) {
+                alert("Cannot edit for more than one sales order.");
+            } else {
+                goToPage("/sales-order/edit/" + selected[0]);
+            }
+        })
+
+        // Delete
+        $("#btn-delete-mobile").on("click", function() {
+            let formData = new FormData();
+            formData.set("ids", getSelected());
+            formData.set("_token", "{{ csrf_token() }}");
+            sendSubmitRequest("/sales-order/delete", formData, function() {
+                $("#modal-action").modal("hide");
+                refreshList();
+            });
+        })
+
         // Post
         $("#btn-post").on("click", function() {
             let formData = new FormData();
@@ -348,18 +389,16 @@
     }
 
     function viewDetail(orderId) {
-        console.log("Order ID: " + orderId);
         $.ajax({
             url: "/sales-order/show/detail/mobile/" + orderId,
             type: "GET",
             success: function(data) {
-                console.log(data);
                 $("#detail-so-number").text(data.sales_order_number);
                 $("#detail-date").text(data.date);
                 $("#detail-vehicle").text(data.vehicle.name);
                 $("#detail-distributor").text(data.shop.distributor.name);
                 $("#detail-shop").text(data.shop.name);
-                $("#detail-technician").text(data.technician.name);
+                $("#detail-technician").text(data.technician ? data.technician.name : "-");
                 $("#detail-total").text("Rp" + formatNumberWithSeparator(data.total));
                 $("#detail-payment-status").text(data.payment_status);
                 $("#detail-status").text(data.status);

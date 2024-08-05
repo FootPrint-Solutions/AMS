@@ -447,19 +447,49 @@ class SalesOrder extends Controller
      */
     public function destroy(Request $request)
     {
-        $salesOrder = SalesOrderModel::find($request->id)->first();
+        if (isset($request->id)) {
+            $salesOrder = SalesOrderModel::find($request->id)->first();
 
-        if ($salesOrder->status !== 'draft') {
-            return getResponseData(false, "Unable to delete posted and completed sales order.");
+            if ($salesOrder->status !== 'draft') {
+                return getResponseData(false, "Unable to delete posted and completed sales order.");
+            }
+
+            $status = $salesOrder->delete();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The selected sales order was successfully deleted!" : "Failed to deleted the selected sales order!"
+            );
+        } else {
+            $ids = explode(",", $request->ids);
+            foreach ($ids as $id) {
+                $salesOrder = SalesOrderModel::find($id);
+
+                if ($salesOrder->status !== 'draft')
+                    break;
+
+                $status = $salesOrder->delete();
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            // Set a new response data to be sent.
+            $successMessage = "The selected sales order was successfully deleted!";
+            $failedMessage = "Failed to delete the selected sales order!";
+            if (count($ids) > 1) {
+                $successMessage = "The selected sales orders were successfully deleted!";
+                $failedMessage = "Failed to delete the selected sales orders!";
+            }
+
+            return getResponseData(
+                $status,
+                $status ? $successMessage : $failedMessage
+            );
         }
-
-        $status = $salesOrder->delete();
-
-        // Set a new response data to be sent.
-        return getResponseData(
-            $status,
-            $status ? "The selected sales order was successfully deleted!" : "Failed to deleted the selected sales order!"
-        );
     }
 
     /**
