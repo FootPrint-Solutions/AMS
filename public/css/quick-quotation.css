@@ -477,3 +477,35 @@
     font-weight: bold;
     color: red;
 }
+
+#AutoCompleteFullNameCustomerMobile {
+    position: absolute;
+    background-color: #f1f1f1;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    z-index: 999;
+}
+
+#AutoCompleteFullNameCustomerStep1Mobile {
+    position: absolute;
+    background-color: #f1f1f1;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    z-index: 999;
+}
+
+#AutoCompleteFullNameCustomerContactMobile {
+    position: absolute;
+    background-color: #f1f1f1;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    z-index: 999;
+}
+
+.suggestionmobile {
+    padding: 10px;
+    cursor: pointer;
+}
