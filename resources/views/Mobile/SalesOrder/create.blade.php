@@ -129,7 +129,7 @@
 
         {{-- Address --}}
         <div class="row">
-            <div class="col">
+            <div class="col-10">
                 <div class="form-group local-forms">
                     <label for="address">Address <span class="login-danger">*</span></label>
                     <input type="text" class="form-control" name="Address" id="AddressSearchColumnx"
