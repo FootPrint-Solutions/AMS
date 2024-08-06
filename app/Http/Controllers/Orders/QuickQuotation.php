@@ -778,8 +778,8 @@ $arrayBattery
             'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
             'subtotal' => $subtotal,
             'total' => $total,
-            'discount' => $DiscountPercentage,
-            'discount_price' => $DiscountRupiah,
+            'discount' => $DiscountPercentage ?? 0,
+            'discount_price' => $DiscountRupiah ?? 0,
             'payment_method_id' => $PaymentMethodData['id'],
             'midtrans_invoice_number' => $midtransInvoice ?? null,
             'midtrans_payment_link' => $midtransPaymentLink ?? null,
@@ -1268,6 +1268,147 @@ $arrayVehicle
                 'tax' => $Tax
             ]);
         } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get data. ' . $th->getMessage()
+            ]);
+        }
+    }
+
+    public function mobilePayment(Request $request)
+    {
+        try {
+            $data = array(
+                'FullName' => $request->input('FullName'),
+                'Battery' => BatteryModel::getBatteryData($request->input('Battery'))->toArray(),
+                'IsMidtrans' => $request->input('IsMidtrans'),
+                'InvoiceNumber' => $request->input('InvoiceNumber'),
+                'links' => $request->input('links'),
+                'Latitude' => $request->input('Latitude'),
+                'Longitude' => $request->input('Longitude'),
+                'ContactNumber' => $request->input('ContactNumber'),
+                'VehicleCustomer' => VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray(),
+                'Tax' => $request->input('Tax') ?? 0,
+                'Subtotal' => $request->input('Subtotal'),
+                'Discount' => $request->input('Discount'),
+                'TotalAmount' => $request->input('TotalAmount'),
+                'typeDiscount' => $request->input('typeDiscount'),
+                'Qty' => $request->input('Qty'),
+                'Price' => $request->input('Price'),
+                'EmailCustomer' => $request->input('EmailCustomer'),
+                'AddressCustomer' => $request->input('AddressCustomer'),
+                'InvoiceNumber' => $request->session()->get('invoice', SalesOrderModel::newCode()),
+                'PaymentMethod' => PaymentMethodModel::all()->toArray()
+            );
+
+            // return as json
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get data. ' . $th->getMessage()
+            ]);
+        }
+    }
+
+    public function saveDataMobile(Request $request)
+    {
+        try {
+            $FullName = $request->input('FullName');
+            $ContactNumber = $request->input('ContactNumber');
+            $AddressCustomer = $request->input('AddressCustomer');
+            $VehicleCustomer = $request->input('VehicleCustomer');
+            $Latitude = $request->input('Latitude');
+            $Longitude = $request->input('Longitude');
+            $IdCustomer = $request->input('IdCustomer');
+            $Battery = BatteryModel::getBatteryData($request->input('Battery'))->toArray();
+            $TotalAmount = $request->input('TotalAmount');
+            $Qty = $request->input('QtyTabel');
+            $Price = $request->input('PriceTabel');
+            $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
+            $invoiceNumber = $request->input('invoiceNumber');
+            $techniciansName = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+            $SUbtotal = $request->input('subtotal');
+            $PaymentMethod = PaymentMethodModel::where('id', $request->input('PaymentMethod'))->first()->toArray();
+
+            // check if customer is exist or not 
+            if ($IdCustomer != null or $IdCustomer != '') {
+                $Customer = CustomerModel::find($IdCustomer);
+                $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+            } else {
+                $Customer = CustomerModel::firstOrCreate(
+                    ['contact' => $ContactNumber],
+                    [
+                        'name' => $FullName,
+                        'address' => $AddressCustomer,
+                        'contact' => $ContactNumber,
+                        'latitude' => $Latitude,
+                        'longitude' => $Longitude
+                    ]
+                );
+                $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+            }
+
+            // SAVE DATA TO SALES ORDER 
+            $data = [
+                'sales_order_number' => $invoiceNumber,
+                'customer_id' => $Customer->id,
+                'vehicle_id' => $VehicleCustomer[0],
+                'distributor_shop_id' => $DistributorShop->id,
+                'distributor_shop_technician_id' => $techniciansName[0]['id'],
+                'subtotal' => $SUbtotal,
+                'total' => $TotalAmount,
+                'discount' => $request->input('Discount') ?? 0,
+                'discount_price' => $request->input('DiscountRupiah') ?? 0,
+                'payment_method_id' => $PaymentMethod['id'],
+                'midtrans_invoice_number' => null,
+                'midtrans_payment_link' => null,
+                'payment_status' => "pending",
+                'status' => "draft",
+                'address' => $AddressCustomer,
+                'latitude' => $Latitude,
+                'longitude' => $Longitude,
+                'date' => date('Y-m-d')
+            ];
+
+            $Quotation = SalesOrderModel::create($data);
+
+            // SAVE DATA TO SALES ORDER BATTERY
+            $dataProduct = [];
+            foreach ($Battery as $key => $value) {
+                for ($i = 0; $i < $Qty[$key]; $i++) {
+                    $dataProduct[] = [
+                        'sales_order_id' => $Quotation->id,
+                        'battery_id' => $value['id'],
+                        'battery_name' => $value['name'],
+                        'battery_price_retail' => $Price[$key],
+                        'discount' => $value['discount'] ?? 0,
+                        'discount_price' => $value['discount_price'] ?? 0,
+                        'tax' => $value['tax'] ?? 0,
+                        'tax_price' => $value['tax_price'] ?? 0,
+                        'price_net' => $Price[$key],
+                        'quantity' => $Qty[$key],
+                    ];
+                }
+            }
+
+            $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
+            if (!$QuuotationBattery) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to save data'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data saved successfully'
+                ]);
+            }
+        } catch (\Throwable $th) {
+            Log::error($th);
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get data. ' . $th->getMessage()

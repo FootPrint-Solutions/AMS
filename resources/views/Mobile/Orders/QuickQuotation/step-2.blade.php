@@ -421,6 +421,9 @@
 
                     $("#subtotal_checkout_mobile").text(FormatSumPriceNet);
                     $("#subtotal_hidden_checkout_mobile").val(sum);
+
+                    $("#total_amount_hidden_checkout_mobile").val(sum);
+                    $("#total_amount_checkout_mobile").text(FormatSumPriceNet);
                 } else {
                     swal.fire("Error!", data.message, "error");
                 }

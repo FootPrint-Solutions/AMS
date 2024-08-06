@@ -110,6 +110,18 @@
                         </h6>
                     </div>
                 </div>
+                {{-- dot white hr --}}
+                <div class="dot-white-hr"></div>
+                <div class="row">
+                    <div class="col">
+                        <h5>Grand Total</h5>
+                    </div>
+                    <div class="col">
+                        <h5 id="total_amount_checkout_mobile"></h5>
+                        <input type="hidden" name="total_amount_hidden_checkout_mobile"
+                            id="total_amount_hidden_checkout_mobile">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -249,6 +261,13 @@
             currency: 'IDR'
         }).format(subtotal);
         $("#subtotal_checkout_mobile").text(formatSubtotal);
+
+        $("#total_amount_hidden_checkout_mobile").val(subtotal);
+        formatTotal = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        }).format(subtotal);
+        $("#total_amount_checkout_mobile").text(formatTotal);
     }
 
     function btn_detail_battery_checkout(x) {
@@ -369,6 +388,145 @@
             complete: function() {
                 button.prop('disabled', false);
                 button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+            }
+        });
+    });
+
+    $("#checkout-mobile-next-button-lower").click(function() {
+        var FullName = $("#full_name_input_mobile").val();
+        var ContactNumber = $("#contact_input_mobile").val();
+        var EmailCustomer = $("#email_input_mobile").val();
+        var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
+        var Latitude = $("#latitude_input_mobile").val();
+        var Longitude = $("#longitude_input_mobile").val();
+        var AddressCustomer = $('#address_input_mobile').val();
+        var Battery = [];
+        var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+        var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+
+        // get all battery_id_checkout_mobile[] value
+        $("input[name='battery_id_checkout_mobile[]']").each(function() {
+            Battery.push($(this).val());
+        });
+
+        // get all qty_checkout_mobile[] value
+        $("input[name='qty_checkout_mobile[]']").each(function() {
+            QtyTabel.push($(this).val()); // Menambahkan kuantitas ke dalam array
+        });
+
+        // get all subtotal_checkout_mobile[] value
+        $("input[name='subtotal_checkout_mobile[]']").each(function() {
+            PriceTabel.push($(this).val()); // Menambahkan harga ke dalam array
+        });
+
+        var subtotal = $("#subtotal_hidden_checkout_mobile").val();
+        var tax = $("#tax").val();
+        var discount = $("#discount").val();
+        var TotalAmountHidden = $("#total_amount_hidden_checkout_mobile").val();
+        var typeDiscount = $("#type-discount").val();
+
+        var data = {
+            FullName: FullName,
+            Battery: Battery,
+            Qty: QtyTabel, // Menambahkan QtyTabel ke dalam data
+            Price: PriceTabel, // Menambahkan PriceTabel ke dalam data
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            ContactNumber: ContactNumber,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
+            typeDiscount: typeDiscount,
+            EmailCustomer: EmailCustomer,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        if (Battery.length === 0) { // Mengubah pengecekan Battery menjadi Battery.length
+            swal.fire("Error!", "Please select battery", "error");
+            return;
+        }
+
+        $.ajax({
+            url: "/quotation/mobile/payment",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                if (response.success == true) {
+                    $("#personal-details-mobile-li").removeClass("active");
+                    $("#personal-details-mobile-tab").css("display", "none");
+                    $("#product-recommendation-mobile-li").removeClass("active");
+                    $("#product-recommendation-mobile-tab").css("display", "none");
+                    $("#checkout-page-mobile-li").removeClass("active");
+                    $("#checkout-page-mobile-tab").css("display", "none");
+                    $("#payment-detail-mobile-li").addClass("active");
+                    $("#payment-detail-mobile-tab").css("display", "block");
+
+                    // set data to payment details 
+                    $("#full_name_customer_payment_details_mobile").text(FullName);
+                    $("#number_customer_payment_details_mobile").text(ContactNumber);
+                    $("#email_customer_payment_details_mobile").text(EmailCustomer);
+                    $("#address_customer_payment_details_mobile").text(AddressCustomer);
+                    formatTotalAmount = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR'
+                    }).format(TotalAmountHidden);
+                    $("#grand_total_payment_details_mobile").text(formatTotalAmount);
+                    $("#invoice_number_payment_details_mobile").text(response.data.InvoiceNumber);
+
+                    // loop battery and set to battery-payment-details-mobile
+                    var batteryHtml = "";
+                    response.data.Battery.forEach(function(battery) {
+                        var qty = response.data.Qty.shift();
+
+                        var baseUrl = "{{ asset('storage/image/battery/') }}";
+                        battery.image = battery.image;
+
+                        batteryHtml +=
+                            '<div class="d-flex justify-content-between align-items-center p-2 border-bottom">';
+                        batteryHtml += '<div class="d-flex align-items-center">';
+                        batteryHtml += '<img src="' + baseUrl + '/' + battery.image +
+                            '" alt="Product Image" class="img-fluid" style="width: 70px;" style="margin-left: 10px;">';
+                        batteryHtml += '<div class="ml-3">';
+                        batteryHtml += '<h6 class="mb-1">' + battery.name + '</h6>';
+                        batteryHtml += '<p class="mb-0">' + new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR'
+                        }).format(battery.price_retail) + '</p>';
+                        batteryHtml += '</div>';
+                        batteryHtml += '</div>';
+                        batteryHtml += '<span>X' + qty + '</span>';
+                        batteryHtml += '</div>';
+                    });
+                    $("#battery-payment-details-mobile").html(batteryHtml);
+
+                    // loop payment method and set to payment-method-payment-details-mobile
+                    var paymentMethodHtml = "";
+                    response.data.PaymentMethod.forEach(function(paymentMethod) {
+                        paymentMethodHtml +=
+                            '<div class="payment-method" data-id="payment_gateway_payment_details_mobile_' +
+                            paymentMethod
+                            .id + '">';
+                        paymentMethodHtml +=
+                            '<input type="radio" name="paymentMethod" id="payment_gateway_payment_details_mobile" value="' +
+                            paymentMethod.id + '">';
+                        paymentMethodHtml += '<label for="' + paymentMethod.name + '">' +
+                            paymentMethod.name +
+                            '</label>';
+                        paymentMethodHtml += '</div>';
+                    });
+                    $("#payment-method-payment-details-mobile").html(paymentMethodHtml);
+
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message ||
+                            "Something went wrong, please try again later",
+                        icon: "error",
+                    });
+                }
             }
         });
     });

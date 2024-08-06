@@ -224,6 +224,8 @@ Route::middleware(['auth'])->group(function () {
     // Quick Quotation Mobile
     Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout']);
     Route::post('/quotation/mobile/detail/battery', [QuickQuotation::class, 'getBatteryDetail']);
+    Route::post('/quotation/mobile/payment', [QuickQuotation::class, 'mobilePayment']);
+    Route::post('/quotation/mobile/save-data', [QuickQuotation::class, 'saveDataMobile']);
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);

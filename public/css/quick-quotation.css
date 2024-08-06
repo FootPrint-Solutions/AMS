@@ -509,3 +509,39 @@
     padding: 10px;
     cursor: pointer;
 }
+
+.dot-white-hr {
+    border-top: 3 px dotted #fff;
+}
+
+.bg-dark-blue-only {
+    background: #2A3950;
+}
+
+.bg-grey-custom {
+    background-color: #DCDCDC;
+}
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.payment-method img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.payment-method input[type="radio"] {
+    margin-right: 10px;
+}
