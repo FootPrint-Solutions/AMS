@@ -351,30 +351,65 @@
                     icon: "error"
                 });
             } else {
-                goToPage("/sales-order/edit/" + selected[0]);
+                $.get("/sales-order/status", {
+                    ids: selected
+                }, function(data) {
+                    if (data.allDrafts)
+                        goToPage("/sales-order/edit/" + selected[0]);
+                    else
+                        Swal.fire({
+                            text: "Unable to edit non-draft sales order",
+                            icon: "error"
+                        });
+                });
             }
         })
 
         // Delete
         $("#btn-delete-mobile").on("click", function() {
-            let formData = new FormData();
-            formData.set("ids", getSelected());
-            formData.set("_token", "{{ csrf_token() }}");
-            sendSubmitRequest("/sales-order/delete", formData, function() {
-                $("#modal-action").modal("hide");
-                refreshList();
+            let selected = getSelected();
+            $.get("/sales-order/status", {
+                ids: selected
+            }, function(data) {
+                if (data.allDrafts) {
+                    let formData = new FormData();
+                    formData.set("ids", selected);
+                    formData.set("_token", "{{ csrf_token() }}");
+                    sendSubmitRequest("/sales-order/delete", formData, function() {
+                        $("#modal-action").modal("hide");
+                        refreshList();
+                    });
+                } else {
+                    Swal.fire({
+                        text: "Unable to delete non-draft sales orders",
+                        icon: "error"
+                    });
+                }
             });
         })
 
         // Post
         $("#btn-post").on("click", function() {
-            let formData = new FormData();
-            formData.set("ids", getSelected());
-            formData.set("_token", "{{ csrf_token() }}");
-            sendSubmitRequest("/sales-order/post", formData, function() {
-                $("#modal-action").modal("hide");
-                refreshList();
+            let selected = getSelected();
+            $.get("/sales-order/status", {
+                ids: selected
+            }, function(data) {
+                if (data.allDrafts) {
+                    let formData = new FormData();
+                    formData.set("ids", selected);
+                    formData.set("_token", "{{ csrf_token() }}");
+                    sendSubmitRequest("/sales-order/post", formData, function() {
+                        $("#modal-action").modal("hide");
+                        refreshList();
+                    });
+                } else {
+                    Swal.fire({
+                        text: "Unable to post non-draft sales orders",
+                        icon: "error"
+                    });
+                }
             });
+
         })
 
         // Invoice
