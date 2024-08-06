@@ -1254,4 +1254,24 @@ $arrayVehicle
             ]);
         }
     }
+
+    public function getBatteryDetail(Request $request)
+    {
+        try {
+            $data = array($request->input('id'));
+            $Battery = BatteryModel::getBatteryData($data)->toArray();
+            $Tax = TaxModel::where('status', '1')->first()->percentage;
+
+            return response()->json([
+                'success' => true,
+                'data' => $Battery,
+                'tax' => $Tax
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get data. ' . $th->getMessage()
+            ]);
+        }
+    }
 }
