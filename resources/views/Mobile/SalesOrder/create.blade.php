@@ -128,14 +128,28 @@
         </div>
 
         {{-- Address --}}
-        <div class="form-group local-forms mb-4">
-            <label for="address">Address <span class="login-danger">*</span></label>
-            <input type="text" name="Address" id="address" class="form-control"
-                placeholder="Enter customer address"
-                value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif">
+        <div class="row">
+            <div class="col-10">
+                <div class="form-group local-forms">
+                    <label for="address">Address <span class="login-danger">*</span></label>
+                    <input type="text" class="form-control" name="Address" id="AddressSearchColumnx"
+                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
+                        readonly required>
+                </div>
+            </div>
 
-            <input type="hidden" name="Latitude" id="Latitude" value="1" required>
-            <input type="hidden" name="Longitude" id="Longitude" value="1" required>
+            <div class="col">
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-primary" id="btnAddressx"><i
+                            class="fas fa-map-marker"></i></button>
+                    <input type="hidden" name="Latitude" id="Latitudex"
+                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                        required>
+                    <input type="hidden" name="Longitude" id="Longitudex"
+                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                        required>
+                </div>
+            </div>
         </div>
 
         {{-- Vehicle --}}
@@ -153,7 +167,7 @@
         {{-- Shop --}}
         <div class="form-group local-forms mb-4">
             <label for="shop">Shop <span class="login-danger">*</span></label>
-            <select class="form-control" id="shop" name="shop" required>
+            <select class="form-control" id="shopx" name="shop" required>
                 <option></option>
                 @foreach ($data['shops'] as $shop)
                     <option value="{{ $shop['id'] }}" @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
@@ -165,7 +179,7 @@
         {{-- Technician --}}
         <div class="form-group local-forms mb-4">
             <label for="technician">Technician</label>
-            <select class="form-control" id="technician" name="technician">
+            <select class="form-control" id="technicianx" name="technician">
                 <option></option>
                 <option disabled>Select a distributor to select a technician</option>
             </select>
@@ -259,7 +273,7 @@
                         @endisset
                     </span>
                 </p>
-                <input type="hidden" name="subtotal" id="subtotal"
+                <input type="hidden" name="subtotal" id="subtotalx"
                     @isset($data['profile'])
                             value="{{ $data['profile']['subtotal'] }}"
                         @else
@@ -277,7 +291,13 @@
                     <div class="col">
                         <div class="input-group">
                             <span class="input-group-text border-end">Rp</span>
-                            <input type="text" class="form-control" name="discount" id="discount-mobile"
+                            <input type="hidden" name="discount"
+                                @isset($data['profile'])
+                            value="{{ $data['profile']['discount'] }}"
+                        @else
+                            value="0"
+                        @endisset>
+                            <input type="text" class="form-control" name="discountprice" id="discount-mobile"
                                 @isset($data['profile'])
                             value="{{ $data['profile']['discount_price'] }}"
                         @else
@@ -295,7 +315,7 @@
                     <div class="col-4"></div>
                     <div class="col-7"><span class="fw-bold">Grand Total</span> : Rp<span id="span-grand-total">
                             @isset($data['profile'])
-                                {{ formatPrice($data['profile']['subtotal']) }}
+                                {{ formatPrice($data['profile']['total']) }}
                             @else
                                 0
                             @endisset
@@ -410,8 +430,42 @@
     </div>
 </div>
 
+@include('maps.addressmodal')
+
 <script>
     $(function() {
+        function loadTechnicianDataMobile() {
+            let parentId = $("#shopx").val();
+            $.ajax({
+                url: "/sales-order/technician/get/" + parentId,
+                method: "GET",
+                success: function(response) {
+                    // Clear current options and value.
+                    $("#technicianx").empty().val(null).trigger("change");
+
+                    let emptyOption = new Option("", "", false, false);
+                    $("#technicianx").append(emptyOption).trigger("change");
+
+                    let mode = $("#btn-save").attr("value"); // update || create
+                    response.forEach(function(menu) {
+                        // Append new options.
+                        let selected = false;
+                        if (mode == 'update') {
+                            // Get saved technician id.
+                            let id = $("#technician_id").val();
+                            if (menu.id == id) {
+                                selected = true;
+                            }
+                        }
+
+                        let newOption = new Option(menu.name, menu.id, false,
+                            selected);
+                        $("#technicianx").append(newOption).trigger("change");
+                    });
+                }
+            });
+        }
+
         $("#btn-add-detail-mobile").on("click", function() {
             // Clear all inputs value.
             $("#modal-detail input").val('');
@@ -419,6 +473,11 @@
             // Show modal.
             $("#modal-detail").modal("show");
         })
+
+        $("#shopx").on("change", function() {
+            // Get the list of menus inside the selected parent.
+            loadTechnicianDataMobile();
+        });
 
         $("#btn-save-detail-mobile").on("click", function() {
             var productName = $("#productname").val();
@@ -475,7 +534,7 @@
                 subtotal += parseInt($(this).val());
             });
             $("#span-subtotal").html(formatNumberWithSeparator(subtotal));
-            $("#subtotal").val(subtotal);
+            $("#subtotalx").val(subtotal);
             var discount = parseInt($("#discount-mobile").val());
             var total = subtotal - discount;
             $("#span-grand-total").html(formatNumberWithSeparator(total));
@@ -504,17 +563,19 @@
             let mode = $("#btn-add-mobile").attr("value"); // update || create
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
 
-            // let address = $("#AddressSearchColumn").val();
-            // let lat = $("#Latitude").val();
-            // let lon = $("#Longitude").val();
-            // if (address == "" || lat == "" || lon == "") {
-            //     Swal.fire({
-            //         title: "Error",
-            //         text: "Please select address",
-            //         icon: "error",
-            //     });
-            //     return;
-            // }
+            let address = $("#AddressSearchColumnx").val();
+            let lat = $("#Latitudex").val();
+            let lon = $("#Longitudex").val();
+            console.log(address, lat, lon);
+
+            if (address == "" || lat == "" || lon == "") {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select address",
+                    icon: "error",
+                });
+                return;
+            }
             // calculateTotal();
 
             // Obtain submitted form data.
@@ -595,4 +656,193 @@
         var priceDiscount = priceTax - (priceTax * discount / 100);
         $("#pricenet").val(formatNumberWithSeparator(priceDiscount));
     }
+</script>
+
+
+
+
+
+
+
+
+
+
+{{-- INI MAP KABRUT (KACAU BRUTAL) --}}
+{{-- NANTI DIUBAH KOK, I PROMISE... ;p --}}
+<style>
+    #MapsAddressFinderModalx {
+        height: 400px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .pac-container {
+        z-index: 10000 !important;
+    }
+</style>
+<div class="modal fade" id="modalAddressFinderx" tabindex="-1" aria-labelledby="myLargeModalLabel"
+    style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myLargeModalLabel">Address Finder</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="text" class="form-control mb-1" placeholder="Search your address here..."
+                    name="AddressSearchColumnModal" id="AddressSearchColumnModalx">
+                <div id="MapsAddressFinderModalx"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btnCloseModalAddresFinderx" class="btn btn-success"
+                    data-bs-dismiss="modal">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var map;
+    var marker;
+
+    function initMapx() {
+        console.group("initMapx");
+
+        var existingLat = parseFloat(document.getElementById('Latitudex').value);
+        var existingLng = parseFloat(document.getElementById('Longitudex').value);
+        console.log("exisintg Lat", existingLat);
+        console.log("exisintg Lng", existingLng);
+
+
+        if (isNaN(existingLat) || isNaN(existingLng)) {
+            existingLat = -6.8837859188198784;
+            existingLng = 107.5403487263912;
+        }
+
+        map = new google.maps.Map(document.getElementById('MapsAddressFinderModalx'), {
+            center: {
+                lat: existingLat,
+                lng: existingLng
+            },
+            zoom: 15
+        });
+        console.log("map", map);
+
+        var input = document.getElementById('AddressSearchColumnModalx');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo('bounds', map);
+        console.log("input", input);
+        console.log("autocomplete", autocomplete);
+
+
+
+        marker = new google.maps.Marker({
+            map: map,
+            draggable: true,
+            position: {
+                lat: existingLat,
+                lng: existingLng
+            },
+            visible: true
+        });
+
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({
+            'location': {
+                lat: existingLat,
+                lng: existingLng
+            }
+        }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                var address = results[0].formatted_address;
+                document.getElementById('AddressSearchColumnModalx').value = address;
+                document.getElementById('AddressSearchColumnx').value = address;
+            } else {
+                console.error('Geocoder failed due to: ' + status);
+            }
+        });
+
+        autocomplete.addListener('place_changed', function() {
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+                console.error("Place details not found");
+                return;
+            }
+
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(17);
+            }
+
+            marker.setPosition(place.geometry.location);
+            marker.setVisible(true);
+
+
+            var address = place.formatted_address;
+            var latitude = place.geometry.location.lat();
+            var longitude = place.geometry.location.lng();
+
+            console.log("heh");
+            console.log(latitude, longitude);
+
+            document.getElementById('AddressSearchColumnModalx').value = address;
+            document.getElementById('AddressSearchColumnx').value = address;
+            document.getElementById('Latitudex').value = latitude;
+            document.getElementById('Longitudex').value = longitude;
+        });
+
+
+        google.maps.event.addListener(marker, 'dragend', function() {
+            var position = marker.getPosition();
+            map.panTo(position);
+
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                'location': position
+            }, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        var address = results[0].formatted_address;
+                        var latitude = position.lat();
+                        var longitude = position.lng();
+                        console.log("heh2");
+                        console.log(latitude, longitude);
+
+                        document.getElementById('AddressSearchColumnModalx').value = address;
+                        document.getElementById('AddressSearchColumnx').value = address;
+                        document.getElementById('Latitudex').value = latitude;
+                        document.getElementById('Longitudex').value = longitude;
+                    }
+                } else {
+                    console.error('Geocoder failed due to: ' + status);
+                }
+            });
+        });
+        console.groupEnd();
+    }
+
+    function openAddressModalx() {
+        $('#modalAddressFinderx').modal('show');
+        setTimeout(function() {
+            $("#AddressSearchColumnModalx").focus();
+        }, 3000);
+    }
+
+    $("#AddressSearchColumnx").on("click", function() {
+        openAddressModalx();
+    });
+
+    $("#btnAddressx").on("click", function() {
+        openAddressModalx();
+    });
+
+    $(function() {
+        console.log("masuk ready");
+        initMapx();
+    });
 </script>
