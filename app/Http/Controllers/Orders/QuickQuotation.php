@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Controllers\MasterData\Vehicle\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -54,6 +54,7 @@ class QuickQuotation extends Controller
                 array(
                     'Vehicle' => VehicleModel::all()->where('status', 1)->toArray(),
                     'datalatlong ' => $datalatlong,
+                    'distibutor' => $Distibutor
                 )
             )
         );
@@ -1223,6 +1224,33 @@ $arrayVehicle
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload image. ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function mobileCheckout(Request $request)
+    {
+        try {
+            $data = array(
+                'Fullname' => $request->input('FullName'),
+                'ContactNumber' => $request->input('ContactNumber'),
+                'AddressCustomer' => $request->input('AddressCustomer'),
+                'EmailCustomer' => $request->input('EmailCustomer'),
+                'VehicleCustomer' => VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray(),
+                'Battery' => BatteryModel::getBatteryData($request->input('Battery'))->toArray(),
+                'Ditributor' => DistributorShopModel::find($request->input('DistributorShopId'))->toArray(),
+                'DistributorTechnician' => DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray(),
+            );
+
+            // return as json
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get data. ' . $th->getMessage()
             ]);
         }
     }

@@ -221,6 +221,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
     Route::post('/quotation/battery/screenshot', [QuickQuotation::class, 'screenshotBattery'])->name('quotation.screenshotBattery');
     Route::post('/quotation/battery/save-screenshoot', [QuickQuotation::class, 'saveScreenshoot'])->name('quotation.saveScreenshoot');
+    Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout']);
 
     // Sales Order
     Route::get('/sales-order', [SalesOrder::class, 'index']);
