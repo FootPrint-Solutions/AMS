@@ -37,7 +37,7 @@
                 <span class="nav-label">Checkout Page</span>
             </li>
             <li class="nav-item">
-                <a href="#payment-detail-mobile" class="nav-link" data-toggle="tab">
+                <a href="#payment-detail-mobile-li" class="nav-link" data-toggle="tab">
                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                         aria-label="payment-detail-mobile" data-bs-original-title="payment-detail-mobile">
                         <i class="fas fa-money-bills"></i>
@@ -60,6 +60,10 @@
 
             <div class="tab-pane" id="checkout-page-mobile-tab" style="display: none; opacity: 1;">
                 @include('Mobile.Orders.QuickQuotation.step-3')
+            </div>
+
+            <div class="tab-pane" id="payment-detail-mobile-tab" style="display: none; opacity: 1;">
+                @include('Mobile.Orders.QuickQuotation.step-4')
             </div>
         </div>
     </div>

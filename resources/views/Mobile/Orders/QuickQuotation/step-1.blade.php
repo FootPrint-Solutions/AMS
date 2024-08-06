@@ -264,9 +264,6 @@
                  $('.loop').html(html);
 
 
-                 console.log('Initializing owlCarousel on .loop element');
-                 console.log($('.loop'));
-
                  var owl = $('.loop');
                  owl.owlCarousel({
                      items: 2,
@@ -309,14 +306,12 @@
      //checbox-centang on checkbox event
      $('.checbox-centang').on('change', function() {
          if ($(this).is(':checked')) {
-             console.log('checked');
              $('.btn-owl-carousel').each(function() {
                  $(this).data('check', 1);
                  $(this).html('<i class="fa fa-check"></i>');
                  $(this).css('background-color', '#60D3AA');
              });
          } else {
-             console.log('unchecked');
              $('.btn-owl-carousel').each(function() {
                  $(this).data('check', 0);
                  $(this).html('+');
@@ -495,10 +490,6 @@
 
 
                      $('.loop2').html(html);
-
-
-                     console.log('Initializing owlCarousel on .loop element');
-                     console.log($('.loop2'));
 
                      var owl = $('.loop2');
                      owl.owlCarousel({
