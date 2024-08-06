@@ -244,6 +244,7 @@ Route::middleware(['auth'])->group(function () {
     // Mobile
     Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders']);
     Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail']);
+    Route::get('/sales-order/status', [SalesOrder::class, 'getSalesOrderStatus']);
 
     // Work Order
     Route::get('/work-order', [WorkOrder::class, 'index']);

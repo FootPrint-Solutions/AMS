@@ -387,7 +387,7 @@
                         <div class="form-group local-forms mb-4">
                             <div class="input-group">
                                 <label>Tax</label>
-                                <input type="text" id="tax" class="form-control">
+                                <input type="text" id="taxdet" class="form-control">
                                 <input type="hidden" id="taxinprice">
                                 <span class="input-group-text border-end">%</span>
                             </div>
@@ -483,7 +483,7 @@
             var productName = $("#productname").val();
             var productionCode = $("#productioncode").val();
             var priceRetail = $("#priceretail").val();
-            var tax = $("#tax").val();
+            var tax = $("#taxdet").val();
             var taxPrice = $("#taxinprice").val();
             var discount = $("#detdiscount").val();
             var discountPrice = $("#detdiscountinprice").val();
@@ -589,7 +589,7 @@
         });
     });
 
-    $("#modal-detail").on('keyup', '#tax, #detdiscount', function() {
+    $("#modal-detail").on('keyup', '#taxdet, #detdiscount', function() {
         calculateDetailTotal();
     });
 
@@ -615,7 +615,7 @@
                                 $("#productname").val(item.name);
                                 $("#priceretail").val(formatNumberWithSeparator(item
                                     .price_retail));
-                                $("#tax").val(0);
+                                $("#taxdet").val(0);
                                 $("#pricetax").val(0);
                                 $("#detdiscount").val(0);
                                 $("#pricenet").val(0);
@@ -642,7 +642,7 @@
 <script>
     function calculateDetailTotal() {
         var priceRetail = parseInt(removeSeparators($("#priceretail").val()));
-        var tax = parseInt($("#tax").val());
+        var tax = parseInt($("#taxdet").val());
         $("#taxinprice").val(tax * priceRetail / 100);
 
         // Calculate price + tax.

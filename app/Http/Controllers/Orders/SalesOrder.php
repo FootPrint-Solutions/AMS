@@ -756,4 +756,19 @@ class SalesOrder extends Controller
             //throw $th;
         }
     }
+
+    public function getSalesOrderStatus(Request $request)
+    {
+        $allDrafts = true;
+        $ids = $request->ids;
+        foreach ($ids as $id) {
+            $order = SalesOrderModel::find($id);
+
+            if ($order->status != 'draft') {
+                $allDrafts = false;
+                break;
+            }
+        }
+        return response()->json(['allDrafts' => $allDrafts]);
+    }
 }

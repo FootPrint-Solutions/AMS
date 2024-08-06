@@ -314,19 +314,30 @@
                             url: '/work-order/mobile/delete',
                             type: 'POST',
                             data: {
-                                work_order_id: workOrderId
+                                work_order_id: workOrderId,
+                                _token: "{{ csrf_token() }}",
                             },
                             success: function(response) {
-                                if (response.status) {
+                                console.log(response);
+
+                                if (response.success) {
                                     swal.fire({
                                         title: 'Deleted!',
                                         text: 'Work order has been deleted.',
                                         icon: 'success',
                                         confirmButtonText: 'OK'
                                     });
-                                    $('#modal-work-order-mobile-menu').modal(
-                                        'hide');
+                                } else {
+                                    swal.fire({
+                                        title: 'Unable to delete!',
+                                        text: 'Work order cannot be deleted.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
                                 }
+
+                                $('#modal-work-order-mobile-menu').modal(
+                                    'hide');
                             }
                         });
                     }
