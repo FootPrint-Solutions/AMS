@@ -23,10 +23,16 @@
                                     ),
                                 )
                             );
+
+                        if ($menu['name'] == 'Orders') {
+                            $classVisibility = 'd-block';
+                        } else {
+                            $classVisibility = 'd-none d-lg-block';
+                        }
                     @endphp
 
                     <li
-                        class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif">
+                        class="@if (count($menu['menus']) > 0) submenu @endif @if ($isActive) active @endif {{ $classVisibility }}">
                         <a href="{{ $menu['url'] }}">
                             <i class="{{ $menu['icon'] }}"></i>
                             <span> {{ $menu['name'] }} </span>
