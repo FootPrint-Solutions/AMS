@@ -57,6 +57,9 @@
     <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/plugins/owl-carousel/assets/owl.theme.default.min.css') }}">
 
+    {{-- Google Icon  --}}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
@@ -642,6 +645,16 @@
 
     if ($('.clipboard').length > 0) {
         var clipboard = new Clipboard('.btn');
+    }
+</script>
+
+<script>
+    function formatNumberWithSeparator(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function removeSeparators(numberString) {
+        return numberString.replace(/\./g, '');
     }
 </script>
 

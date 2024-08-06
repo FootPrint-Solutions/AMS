@@ -8,12 +8,14 @@
  *
  * @return array Associative array containing data for index display.
  */
-function getIndexData($title = null, $data = null)
-{
-    return array(
-        "title" => $title . ' | ' . config('app.name'),
-        "data" => $data
-    );
+if (!function_exists('getIndexData')) {
+    function getIndexData($title = null, $data = null)
+    {
+        return array(
+            "title" => $title . ' | ' . config('app.name'),
+            "data" => $data
+        );
+    }
 }
 
 /**

@@ -1103,5 +1103,5 @@
     </script>
     {{-- END DESKTOP VERSION --}}
 
-    @include('Mobile.QuickQuotation.index')
+    @include('Mobile.Orders.QuickQuotation.index')
 @endsection

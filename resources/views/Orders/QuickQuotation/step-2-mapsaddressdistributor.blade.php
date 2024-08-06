@@ -73,7 +73,7 @@
                 <select class="form-select" id="shop_id" name="shop_id" required>
                     <option value="">-- Choose Distributor --</option>
                     @foreach ($distributor as $d)
-                        <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                     @endforeach
                 </select>
             </div>
@@ -192,6 +192,7 @@
         } else {
             $("#shop_id").val(Distributor[0]);
             $("#DistributorShopId").val(Distributor[0]);
+            $("#distributor_input_mobile").val(Distributor[0]);
             getBatteryRecomendation(Distributor[0]);
         }
     }
