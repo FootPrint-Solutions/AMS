@@ -6,8 +6,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -15,8 +14,7 @@
                 <i class="far fa-copy"></i>
                 Copy from Input
             </button>
-            <button id='BtnSharePaymentDetails' class="btn btn-success"> Share <i
-                    class="fa-brands fa-whatsapp"></i></button>
+            <button id='BtnSharePaymentDetails' class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></button>
             <button class="btn btn-primary" id="ButtonSaveData">Save Changes</button>
         </div>
     </div>

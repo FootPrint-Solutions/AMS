@@ -12,7 +12,7 @@
      <div class="row">
          <div class="col-lg-6">
              <div class="mb-3">
-                 <label for="basicpill-firstname-input" class="form-label">Members Name</label>
+                 <label class="form-label">Members Name</label>
                  <input type="text" class="form-control" id="members_name_input_mobile" name="members_name_input_mobile" required>
                  <div id="AutoCompleteFullNameCustomerStep1Mobile"></div>
                  <span class="badge bg-success" id="UserExistStep1Mobile" style='display:none;'>User
@@ -23,7 +23,7 @@
          </div>
          <div class="col-lg-6">
              <div class="mb-3">
-                 <label for="basicpill-lastname-input" class="form-label">Vehicle Customer</label>
+                 <label class="form-label">Vehicle Customer</label>
                  <select class="form-control" id="vehicle_customer_input_mobile" multiple='multiple' name="vehicle_customer_input_mobile[]">
                      @foreach ($data['Vehicle'] as $vehicle)
                      <option value="{{ $vehicle['id'] }}">

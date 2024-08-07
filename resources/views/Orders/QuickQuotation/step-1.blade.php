@@ -7,7 +7,7 @@
 
             <div class="col-lg-6">
                 <div class="form-group local-forms">
-                    <label for="company-name">Members Name </label>
+                    <label>Members Name </label>
                     <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
                         placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
@@ -20,7 +20,7 @@
 
             <div class="col-lg-8">
                 <div class="form-group local-forms">
-                    <label for="company-name">Vehicle Customer <span class="login-danger">*</span></label>
+                    <label>Vehicle Customer <span class="login-danger">*</span></label>
                     <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
                         aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)

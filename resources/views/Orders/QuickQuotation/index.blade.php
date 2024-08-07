@@ -981,7 +981,7 @@
             var autocomplete = new google.maps.places.Autocomplete(input);
             autocomplete.bindTo('bounds', map);
 
-            marker = new google.maps.Marker({
+            marker = new google.maps.marker.AdvancedMarkerElement({
                 map: map,
                 draggable: true
             });
@@ -1098,8 +1098,8 @@
             });
         }
     </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&loading=async&libraries=places,marker&callback=initMap">
     </script>
     {{-- END DESKTOP VERSION --}}
 

@@ -3,7 +3,7 @@
     <div id="basic-pills-wizard" class="twitter-bs-wizard">
         <ul class="twitter-bs-wizard-nav nav nav-pills nav-justified">
             <li class="nav-item active" id="personal-details-mobile-li">
-                <a href="#personal-details-mobile" class="nav-link" data-toggle="tab">
+                <a href="#!" class="nav-link" data-toggle="tab">
                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                         aria-label="personal-details-mobile" data-bs-original-title="personal-details-mobile">
                         <i class="far fa-user"></i>
@@ -14,7 +14,7 @@
                 <span class="nav-label">Personal Details</span>
             </li>
             <li class="nav-item" id="product-recommendation-mobile-li">
-                <a href="#product-recommendation-mobile" class="nav-link" data-toggle="tab">
+                <a href="#!" class="nav-link" data-toggle="tab">
                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                         aria-label="product-recommendation-mobile"
                         data-bs-original-title="product-recommendation-mobile">
@@ -26,7 +26,7 @@
                 <span class="nav-label">Product Recomendation Display</span>
             </li>
             <li class="nav-item" id="checkout-page-mobile-li">
-                <a href="#checkout-page-mobile" class="nav-link" data-toggle="tab">
+                <a href="#!" class="nav-link" data-toggle="tab">
                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                         aria-label="checkout-page-mobile" data-bs-original-title="checkout-page-mobile">
                         <i class="fas fa-file-invoice"></i>
@@ -36,8 +36,8 @@
                 <span class="nav-label">STEP 3</span>
                 <span class="nav-label">Checkout Page</span>
             </li>
-            <li class="nav-item">
-                <a href="#payment-detail-mobile-li" class="nav-link" data-toggle="tab">
+            <li class="nav-item" id="payment-detail-mobile-li">
+                <a href="#!" class="nav-link" data-toggle="tab">
                     <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                         aria-label="payment-detail-mobile" data-bs-original-title="payment-detail-mobile">
                         <i class="fas fa-money-bills"></i>
@@ -78,5 +78,32 @@
     // add custom css to owl dots
     $('.owl-dots').css('text-align', 'justify');
 
-    // recomendation-display-mobile-next-button-lower click event
+    $("#personal-details-mobile-li").click(function() {
+        $("#personal-details-mobile-li").addClass("active");
+        $("#personal-details-mobile-tab").css("display", "block");
+
+        $("#product-recommendation-mobile-li").removeClass("active");
+        $("#product-recommendation-mobile-tab").css("display", "none");
+
+        $("#checkout-page-mobile-li").removeClass("active");
+        $("#checkout-page-mobile-tab").css("display", "none");
+
+        $("#payment-detail-mobile-li").removeClass("active");
+        $("#payment-detail-mobile-tab").css("display", "none");
+    });
+
+    $("#product-recommendation-mobile-li").click(function() {
+        // trigger click personal-details-mobile-next-button-lower button 
+        $("#personal-details-mobile-next-button-lower").trigger("click");
+    });
+
+    $("#checkout-page-mobile-li").click(function() {
+        // trigger click recomendation-display-mobile-next-button-lower button
+        $("#recomendation-display-mobile-next-button-lower").trigger("click");
+    });
+
+    $("#payment-detail-mobile-li").click(function() {
+        // trigger checkout-mobile-next-button-lower button 
+        $("#checkout-mobile-next-button-lower").trigger("click");
+    });
 </script>
