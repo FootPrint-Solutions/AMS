@@ -6,13 +6,13 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="mb-3">
-                    <label for="basicpill-pancard-input" class="form-label">Full Name</label>
+                    <label class="form-label">Full Name</label>
                     <input type="text" class="form-control" id="full_name_input_mobile" name="full_name_input_mobile">
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="mb-3">
-                    <label for="basicpill-vatno-input" class="form-label">Contact Number</label>
+                    <label class="form-label">Contact Number</label>
                     <input type="text" class="form-control" id="contact_input_mobile" name="contact_input_mobile">
                 </div>
             </div>
@@ -20,13 +20,13 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="mb-3">
-                    <label for="basicpill-cstno-input" class="form-label">Email</label>
+                    <label class="form-label">Email</label>
                     <input type="email" class="form-control" id="email_input_mobile" name="email_input_mobile">
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="mb-3">
-                    <label for="basicpill-servicetax-input" class="form-label">Customer
+                    <label class="form-label">Customer
                         Address</label>
                     <input type="text" class="form-control" id="address_input_mobile" name="address_input_mobile">
                 </div>
@@ -46,21 +46,30 @@
             </div>
 
             <div class="row mt-3">
-                <div class="col-10">
+                <div class="col-8">
                     <div class="mb-3">
-                        <label for="basicpill-cstno-input" class="form-label">Distributor Shop</label>
+                        <label class="form-label">Distributor Shop</label>
                         <select class="form-select" id="distributor_input_mobile" name="distributor_input_mobile"
                             required>
                             <option value="">-- Choose Distributor --</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-1" style="margin-top: 29px;">
+                <div class="col" style="margin-top: 29px;">
                     <button type="button" class="btn btn-maps-select btn-md" onclick="showMapsDistributorMobile()">
                         <svg width="18" height="26" viewBox="0 0 18 26" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M9 25.5C6.79167 25.5 4.98958 25.151 3.59375 24.4531C2.19792 23.7552 1.5 22.8542 1.5 21.75C1.5 21.25 1.65104 20.7865 1.95312 20.3594C2.25521 19.9323 2.67708 19.5625 3.21875 19.25L5.1875 21.0938C5 21.1771 4.79688 21.2708 4.57812 21.375C4.35938 21.4792 4.1875 21.6042 4.0625 21.75C4.33333 22.0833 4.95833 22.375 5.9375 22.625C6.91667 22.875 7.9375 23 9 23C10.0625 23 11.0885 22.875 12.0781 22.625C13.0677 22.375 13.6979 22.0833 13.9688 21.75C13.8229 21.5833 13.6354 21.4479 13.4062 21.3438C13.1771 21.2396 12.9583 21.1458 12.75 21.0625L14.6875 19.1875C15.2708 19.5208 15.7188 19.901 16.0312 20.3281C16.3438 20.7552 16.5 21.2292 16.5 21.75C16.5 22.8542 15.8021 23.7552 14.4062 24.4531C13.0104 25.151 11.2083 25.5 9 25.5ZM9.03125 18.625C11.0938 17.1042 12.6458 15.5781 13.6875 14.0469C14.7292 12.5156 15.25 10.9792 15.25 9.4375C15.25 7.3125 14.5729 5.70833 13.2188 4.625C11.8646 3.54167 10.4583 3 9 3C7.54167 3 6.13542 3.54167 4.78125 4.625C3.42708 5.70833 2.75 7.3125 2.75 9.4375C2.75 10.8333 3.26042 12.2865 4.28125 13.7969C5.30208 15.3073 6.88542 16.9167 9.03125 18.625ZM9 21.75C6.0625 19.5833 3.86979 17.4792 2.42188 15.4375C0.973958 13.3958 0.25 11.3958 0.25 9.4375C0.25 7.95833 0.515625 6.66146 1.04688 5.54688C1.57812 4.43229 2.26042 3.5 3.09375 2.75C3.92708 2 4.86458 1.4375 5.90625 1.0625C6.94792 0.6875 7.97917 0.5 9 0.5C10.0208 0.5 11.0521 0.6875 12.0938 1.0625C13.1354 1.4375 14.0729 2 14.9062 2.75C15.7396 3.5 16.4219 4.43229 16.9531 5.54688C17.4844 6.66146 17.75 7.95833 17.75 9.4375C17.75 11.3958 17.026 13.3958 15.5781 15.4375C14.1302 17.4792 11.9375 19.5833 9 21.75ZM9 11.75C9.6875 11.75 10.276 11.5052 10.7656 11.0156C11.2552 10.526 11.5 9.9375 11.5 9.25C11.5 8.5625 11.2552 7.97396 10.7656 7.48438C10.276 6.99479 9.6875 6.75 9 6.75C8.3125 6.75 7.72396 6.99479 7.23438 7.48438C6.74479 7.97396 6.5 8.5625 6.5 9.25C6.5 9.9375 6.74479 10.526 7.23438 11.0156C7.72396 11.5052 8.3125 11.75 9 11.75Z"
+                                fill="white" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-copy-text-mobile" id="btn-copy-text-step-2-mobile"
+                        style="border-radius: 10px;">
+                        <svg width="20" height="23" viewBox="0 0 20 23" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M2.54771 22.6854C1.91804 22.6854 1.38145 22.4637 0.937955 22.0202C0.494455 21.5769 0.272705 21.0403 0.272705 20.4104V6.48219H2.54771V20.4104H13.6017V22.6854H2.54771ZM6.82271 18.4104C6.19304 18.4104 5.65645 18.1887 5.21295 17.7452C4.76945 17.3019 4.54771 16.7653 4.54771 16.1354V2.58994C4.54771 1.96011 4.76945 1.42352 5.21295 0.980191C5.65645 0.536691 6.19304 0.314941 6.82271 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z"
                                 fill="white" />
                         </svg>
                     </button>
@@ -140,6 +149,48 @@
             }
         });
     }
+
+    $("#btn-copy-text-step-2-mobile").click(function() {
+        var FullName = $("#full_name_input_mobile").val();
+        var Battery = [];
+        $('.btn-owl-carousel-step-2').each(function() {
+            if ($(this).data('check') == 1) {
+                Battery.push($(this).data('id'));
+            }
+        });
+
+        if (Battery.length == 0) {
+            swal.fire("Error!", "Please select battery", "error");
+            return;
+        }
+
+        var data = {
+            'Battery': Battery,
+            'FullName': FullName,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/battery/copy",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                let ResponseData = JSON.parse(response);
+                if (ResponseData.status == true) {
+                    var copyText = ResponseData.message;
+                    var textArea = document.createElement("textarea");
+                    textArea.value = copyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    swal.fire("Copied!", "Product Details Copied", "success");
+                } else {
+                    swal.fire("Error!", response.message, "error");
+                }
+            }
+        });
+    });
 
     // get distributor and insert to select option
     $(document).ready(function() {
@@ -449,6 +500,7 @@
         });
 
         var input = document.getElementById('address_input_mobile');
+        console.log(input);
         var autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo('bounds', map);
 

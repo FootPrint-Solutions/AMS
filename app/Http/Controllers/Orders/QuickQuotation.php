@@ -1358,7 +1358,7 @@ $arrayVehicle
                 'customer_id' => $Customer->id,
                 'vehicle_id' => $VehicleCustomer[0],
                 'distributor_shop_id' => $DistributorShop->id,
-                'distributor_shop_technician_id' => $techniciansName[0]['id'],
+                'distributor_shop_technician_id' => $techniciansName[0]['id'] ?? null,
                 'subtotal' => $SUbtotal,
                 'total' => $TotalAmount,
                 'discount' => $request->input('Discount') ?? 0,
