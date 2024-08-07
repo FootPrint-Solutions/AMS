@@ -117,8 +117,8 @@
 
         {{-- Customer --}}
         <div class="form-group local-forms mb-4">
-            <label for="customer">Customer <span class="login-danger">*</span></label>
-            <select class="form-control" id="customer" name="customer" required>
+            <label for="customerx">Customer <span class="login-danger">*</span></label>
+            <select class="form-control" id="customerx" name="customer" required>
                 <option></option>
                 @foreach ($data['customers'] as $customer)
                     <option value="{{ $customer['id'] }}" @if (isset($data['profile']) && $data['profile']['customer_id'] == $customer['id']) selected @endif>
@@ -154,8 +154,8 @@
 
         {{-- Vehicle --}}
         <div class="form-group local-forms mb-4">
-            <label for="vehicle">Vehicle <span class="login-danger">*</span></label>
-            <select class="form-control" id="vehicle" name="vehicle" required>
+            <label for="vehiclex">Vehicle <span class="login-danger">*</span></label>
+            <select class="form-control" id="vehiclex" name="vehicle" required>
                 <option></option>
                 @foreach ($data['vehicles'] as $vehicle)
                     <option value="{{ $vehicle['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_id'] == $vehicle['id']) selected @endif>
@@ -166,7 +166,7 @@
 
         {{-- Shop --}}
         <div class="form-group local-forms mb-4">
-            <label for="shop">Shop <span class="login-danger">*</span></label>
+            <label for="shopx">Shop <span class="login-danger">*</span></label>
             <select class="form-control" id="shopx" name="shop" required>
                 <option></option>
                 @foreach ($data['shops'] as $shop)
@@ -178,10 +178,10 @@
 
         {{-- Technician --}}
         <div class="form-group local-forms mb-4">
-            <label for="technician">Technician</label>
+            <label for="technicianx">Technician</label>
             <select class="form-control" id="technicianx" name="technician">
                 <option></option>
-                <option disabled>Select a distributor to select a technician</option>
+                <option disabled>Select a distributor and shop to select a technician</option>
             </select>
             @isset($data['profile'])
                 <input type="hidden" id="technician_id" value="{{ $data['profile']['distributor_shop_technician_id'] }}">
@@ -189,8 +189,8 @@
         </div>
 
         <div class="form-group local-forms mb-4">
-            <label for="payment-method">Payment Method <span class="login-danger">*</span></label>
-            <select class="form-control" id="payment-method" name="paymentmethod" required>
+            <label for="payment-methodx">Payment Method <span class="login-danger">*</span></label>
+            <select class="form-control" id="payment-methodx" name="paymentmethod" required>
                 <option></option>
                 @foreach ($data['payment_methods'] as $method)
                     <option value="{{ $method['id'] }}" @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
@@ -200,8 +200,8 @@
         </div>
 
         <div class="form-group local-forms mb-4">
-            <label for="payment-method">Status <span class="login-danger">*</span></label>
-            <select name="status" id="status" class="form-control" required>
+            <label for="statusx">Status <span class="login-danger">*</span></label>
+            <select name="status" id="statusx" class="form-control" required>
                 <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
                 </option>
                 <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
@@ -431,6 +431,34 @@
 </div>
 
 @include('maps.addressmodal')
+
+<script>
+    $(function() {
+        $('#customerx').select2({
+            placeholder: "Select customer"
+        });
+
+        $('#shopx').select2({
+            placeholder: "Select distributor and shop"
+        });
+
+        $('#technicianx').select2({
+            placeholder: "Select shop technician"
+        });
+
+        $('#vehiclex').select2({
+            placeholder: "Select customer vehicle"
+        });
+
+        $('#payment-methodx').select2({
+            placeholder: "Select payment method"
+        });
+
+        $('#statusx').select2({
+            placeholder: "Select payment method"
+        });
+    })
+</script>
 
 <script>
     $(function() {
