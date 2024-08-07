@@ -444,7 +444,7 @@
         var autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo('bounds', map);
 
-        marker = new google.maps.marker.AdvancedMarkerElement({
+        marker = new google.maps.Marker({
             map: map,
             draggable: true
         });

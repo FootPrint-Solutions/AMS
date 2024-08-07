@@ -116,7 +116,7 @@
 
 
         var customerLatLng = new google.maps.LatLng(latititudeCustomer, longitudeCustomer);
-        customerMarker = new google.maps.marker.AdvancedMarkerElement({
+        customerMarker = new google.maps.Marker({
             position: customerLatLng,
             map: map2,
             icon: {
@@ -140,7 +140,7 @@
     }
 
     function createMarker(latlng, name, address, iconUrl, DisributorPhone, Id) {
-        var marker = new google.maps.marker.AdvancedMarkerElement({
+        var marker = new google.maps.Marker({
             position: latlng,
             map: map2,
             icon: {
