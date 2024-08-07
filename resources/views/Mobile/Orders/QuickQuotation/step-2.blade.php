@@ -64,7 +64,7 @@
                                 fill="white" />
                         </svg>
                     </button>
-                    <button class="btn btn-copy-text-mobile" id="btn-copy-text-step-2-mobile"
+                    {{-- <button class="btn btn-copy-text-mobile" id="btn-copy-text-step-2-mobile"
                         style="border-radius: 10px;">
                         <svg width="20" height="23" viewBox="0 0 20 23" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -72,7 +72,7 @@
                                 d="M2.54771 22.6854C1.91804 22.6854 1.38145 22.4637 0.937955 22.0202C0.494455 21.5769 0.272705 21.0403 0.272705 20.4104V6.48219H2.54771V20.4104H13.6017V22.6854H2.54771ZM6.82271 18.4104C6.19304 18.4104 5.65645 18.1887 5.21295 17.7452C4.76945 17.3019 4.54771 16.7653 4.54771 16.1354V2.58994C4.54771 1.96011 4.76945 1.42352 5.21295 0.980191C5.65645 0.536691 6.19304 0.314941 6.82271 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z"
                                 fill="white" />
                         </svg>
-                    </button>
+                    </button> --}}
                 </div>
             </div>
         </div>
@@ -92,6 +92,11 @@
     {{-- end sample owl carousel --}}
 
     <div class="bottom-buttons pager wizard twitter-bs-wizard-pager-link">
+        {{-- copy button --}}
+        <button class="btn btn-custom btn-whatsapp" id="btn-copy-text-step-2-mobile">
+            <i class="fa fa-copy fa-md"></i>
+            Copy
+        </button>
         {{-- share button --}}
         <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-2-mobile">
             <i class="fa-brands fa-whatsapp"></i>
