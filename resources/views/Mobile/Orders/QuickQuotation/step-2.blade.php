@@ -441,6 +441,7 @@
         });
 
         var input = document.getElementById('address_input_mobile');
+        console.log(input);
         var autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo('bounds', map);
 
