@@ -13,7 +13,8 @@
          <div class="col-lg-6">
              <div class="mb-3">
                  <label class="form-label">Members Name</label>
-                 <input type="text" class="form-control" id="members_name_input_mobile" name="members_name_input_mobile" required>
+                 <input type="text" class="form-control" id="members_name_input_mobile"
+                     name="members_name_input_mobile" required>
                  <div id="AutoCompleteFullNameCustomerStep1Mobile"></div>
                  <span class="badge bg-success" id="UserExistStep1Mobile" style='display:none;'>User
                      Exist</span>
@@ -24,11 +25,12 @@
          <div class="col-lg-6">
              <div class="mb-3">
                  <label class="form-label">Vehicle Customer</label>
-                 <select class="form-control" id="vehicle_customer_input_mobile" multiple='multiple' name="vehicle_customer_input_mobile[]">
+                 <select class="form-control" id="vehicle_customer_input_mobile" multiple='multiple'
+                     name="vehicle_customer_input_mobile[]">
                      @foreach ($data['Vehicle'] as $vehicle)
-                     <option value="{{ $vehicle['id'] }}">
-                         {{ trim($vehicle['name']) }}
-                     </option>
+                         <option value="{{ $vehicle['id'] }}">
+                             {{ trim($vehicle['name']) }}
+                         </option>
                      @endforeach
                  </select>
              </div>
@@ -37,16 +39,21 @@
  </form>
 
  <h4 class=" mt-3">Product Recomendation Display
-     <button class="btn btn-copy-text-mobile" id="btn-copy-text-mobile" style="border-radius: 10px;">
-         <svg width="20" height="23" viewBox="0 0 20 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-             <path d="M2.54771 22.6854C1.91804 22.6854 1.38145 22.4637 0.937955 22.0202C0.494455 21.5769 0.272705 21.0403 0.272705 20.4104V6.48219H2.54771V20.4104H13.6017V22.6854H2.54771ZM6.82271 18.4104C6.19304 18.4104 5.65645 18.1887 5.21295 17.7452C4.76945 17.3019 4.54771 16.7653 4.54771 16.1354V2.58994C4.54771 1.96011 4.76945 1.42352 5.21295 0.980191C5.65645 0.536691 6.19304 0.314941 6.82271 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z" fill="white" />
-         </svg>
-     </button>
-     <button class="btn btn-copy-text-mobile" id="btn-screenshoot-mobile" style="border-radius: 10px; background-color: #D9D9D9">
-         <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-             <path d="M7.63743 12.3624H17.6374L14.1874 7.86243L11.8874 10.8624L10.3374 8.86243L7.63743 12.3624ZM6.70918 16.5657C6.07951 16.5657 5.54293 16.3439 5.09943 15.9004C4.65593 15.4569 4.43418 14.9203 4.43418 14.2907V2.43418C4.43418 1.80451 4.65593 1.26793 5.09943 0.824429C5.54293 0.380929 6.07951 0.15918 6.70918 0.15918H18.5657C19.1953 0.15918 19.7319 0.380929 20.1754 0.824429C20.6189 1.26793 20.8407 1.80451 20.8407 2.43418V14.2907C20.8407 14.9203 20.6189 15.4569 20.1754 15.9004C19.7319 16.3439 19.1953 16.5657 18.5657 16.5657H6.70918ZM2.43418 20.8407C1.80451 20.8407 1.26793 20.6189 0.82443 20.1754C0.38093 19.7319 0.15918 19.1953 0.15918 18.5657V4.43418H2.43418V18.5657H16.5657V20.8407H2.43418Z" fill="#5F6368" />
-         </svg>
-     </button>
+     {{-- <button class="btn btn-copy-text-mobile" id="btn-copy-text-mobile" style="border-radius: 10px;">
+            <svg width="20" height="23" viewBox="0 0 20 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M2.54771 22.6854C1.91804 22.6854 1.38145 22.4637 0.937955 22.0202C0.494455 21.5769 0.272705 21.0403 0.272705 20.4104V6.48219H2.54771V20.4104H13.6017V22.6854H2.54771ZM6.82271 18.4104C6.19304 18.4104 5.65645 18.1887 5.21295 17.7452C4.76945 17.3019 4.54771 16.7653 4.54771 16.1354V2.58994C4.54771 1.96011 4.76945 1.42352 5.21295 0.980191C5.65645 0.536691 6.19304 0.314941 6.82271 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z"
+                    fill="white" />
+            </svg>
+        </button>
+        <button class="btn btn-copy-text-mobile" id="btn-screenshoot-mobile"
+            style="border-radius: 10px; background-color: #D9D9D9">
+            <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M7.63743 12.3624H17.6374L14.1874 7.86243L11.8874 10.8624L10.3374 8.86243L7.63743 12.3624ZM6.70918 16.5657C6.07951 16.5657 5.54293 16.3439 5.09943 15.9004C4.65593 15.4569 4.43418 14.9203 4.43418 14.2907V2.43418C4.43418 1.80451 4.65593 1.26793 5.09943 0.824429C5.54293 0.380929 6.07951 0.15918 6.70918 0.15918H18.5657C19.1953 0.15918 19.7319 0.380929 20.1754 0.824429C20.6189 1.26793 20.8407 1.80451 20.8407 2.43418V14.2907C20.8407 14.9203 20.6189 15.4569 20.1754 15.9004C19.7319 16.3439 19.1953 16.5657 18.5657 16.5657H6.70918ZM2.43418 20.8407C1.80451 20.8407 1.26793 20.6189 0.82443 20.1754C0.38093 19.7319 0.15918 19.1953 0.15918 18.5657V4.43418H2.43418V18.5657H16.5657V20.8407H2.43418Z"
+                    fill="#5F6368" />
+            </svg>
+        </button> --}}
  </h4>
  <div class="checkbox-all mb-3">
      <input type="checkbox" class="checbox-centang" /> <span class="text-grey">Select All</span>
@@ -59,11 +66,16 @@
  {{-- end sample owl carousel --}}
 
  <div class="bottom-buttons ">
-     {{-- share button --}}
-     {{-- <button class="btn btn-custom btn-whatsapp">
-         <i class="fa-brands fa-whatsapp"></i>
-         Share
-     </button> --}}
+     {{-- screenshoot button --}}
+     <button class="btn btn-custom btn-whatsapp btn-screenshoot" id="btn-screenshoot-mobile">
+         <i class="fa fa-camera fa-md"></i>
+         Capture
+     </button>
+     {{-- copy button --}}
+     <button class="btn btn-custom btn-whatsapp" id="btn-copy-text-step-1-mobile">
+         <i class="fa fa-copy fa-md"></i>
+         Copy
+     </button>
      {{-- next button --}}
      <button id="personal-details-mobile-next-button-lower" class="btn btn-custom btn-next next">Next
          <i class="fa fa-chevron-right"></i>
@@ -71,7 +83,8 @@
  </div>
 
 
- <div class="modal fade" id="ModalScreenshotMobile" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
+ <div class="modal fade" id="ModalScreenshotMobile" tabindex="-1" aria-labelledby="ModalScreenshotLabel"
+     aria-hidden="true">
      <div class="modal-dialog modal-dialog-centered modal-xl">
          <div class="modal-content">
              <div class="modal-header">
@@ -95,7 +108,47 @@
 
 
  <script>
-     // personal-details-mobile-next-button click event
+     $("#btn-copy-text-step-1-mobile").on('click', function() {
+         var FullName = $("#members_name_input_mobile").val();
+         var Battery = [];
+         $('.btn-owl-carousel').each(function() {
+             if ($(this).data('check') == 1) {
+                 Battery.push($(this).data('id'));
+             }
+         });
+
+         if (Battery.length == 0) {
+             swal.fire("Error!", "Please select battery", "error");
+             return;
+         }
+
+         var data = {
+             'Battery': Battery,
+             'FullName': FullName,
+             _token: $('meta[name="csrf-token"]').attr('content')
+         };
+
+         $.ajax({
+             url: "/quotation/battery/copy",
+             type: "POST",
+             data: data,
+             success: function(response) {
+                 let ResponseData = JSON.parse(response);
+                 if (ResponseData.status == true) {
+                     var copyText = ResponseData.message;
+                     var textArea = document.createElement("textarea");
+                     textArea.value = copyText;
+                     document.body.appendChild(textArea);
+                     textArea.select();
+                     document.execCommand('copy');
+                     document.body.removeChild(textArea);
+                     swal.fire("Copied!", "Personal Details Copied", "success");
+                 } else {
+                     swal.fire("Error!", response.message, "error");
+                 }
+             }
+         });
+     });
 
      // auto complete member
      $('#members_name_input_mobile').on('keyup', function() {
@@ -339,7 +392,7 @@
              swal.fire("Error!", "Please select battery", "error").then(() => {
                  $btn.prop("disabled", false);
                  $btn.html(
-                     '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.63743 12.3624H17.6374L14.1874 7.86243L11.8874 10.8624L10.3374 8.86243L7.63743 12.3624ZM6.70918 16.5657C6.07951 16.5657 5.54293 16.3439 5.09943 15.9004C4.65593 15.4569 4.43418 14.9203 4.43418 14.2907V2.58994C4.43418 1.96011 4.65593 1.42352 5.09943 0.980191C5.54293 0.536691 6.07951 0.314941 6.70918 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z" fill="#5F6368"/></svg>'
+                     '<i class="fa fa-camera fa-md"></i> Capture'
                  );
              });
              return false;
@@ -355,7 +408,7 @@
              success: function(data) {
                  $btn.prop("disabled", false);
                  $btn.html(
-                     '<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.63743 12.3624H17.6374L14.1874 7.86243L11.8874 10.8624L10.3374 8.86243L7.63743 12.3624ZM6.70918 16.5657C6.07951 16.5657 5.54293 16.3439 5.09943 15.9004C4.65593 15.4569 4.43418 14.9203 4.43418 14.2907V2.58994C4.43418 1.96011 4.65593 1.42352 5.09943 0.980191C5.54293 0.536691 6.07951 0.314941 6.70918 0.314941H13.7392L19.8587 6.43444V16.1354C19.8587 16.7653 19.637 17.3019 19.1935 17.7452C18.75 18.1887 18.2134 18.4104 17.5837 18.4104H6.82271ZM12.5837 7.58994H17.5837L12.5837 2.58994V7.58994Z" fill="#5F6368"/></svg>'
+                     '<i class="fa fa-camera fa-md"></i> Capture'
                  );
                  $('#ModalScreenshotBodyMobile').html(data);
                  $('#ModalScreenshotMobile').modal('show');

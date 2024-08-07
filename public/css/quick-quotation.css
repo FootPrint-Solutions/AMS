@@ -178,8 +178,8 @@
     background-color: #60D3AA;
     color: white;
     border-radius: 35px;
-    font-size: 20px;
-    font-weight: 800;
+    /* font-size: 20px;
+    font-weight: 800; */
 }
 
 .btn-whatsapp:hover {

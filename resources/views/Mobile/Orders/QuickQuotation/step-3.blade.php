@@ -126,11 +126,16 @@
         </div>
     </div>
     <div class="bottom-buttons pager wizard twitter-bs-wizard-pager-link">
+        {{-- copy button --}}
+        <button class="btn btn-custom btn-whatsapp" id="btn-copy-text-step-3-mobile">
+            <i class="fa fa-copy fa-md"></i>
+            Copy
+        </button>
         {{-- share button --}}
-        {{-- <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-3-mobile">
+        <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-3-mobile">
             <i class="fa-brands fa-whatsapp"></i>
             Share
-        </button> --}}
+        </button>
         {{-- next button --}}
         <button id="checkout-mobile-next-button-lower" class="btn btn-custom btn-next next"
             href="javascript: void(0);">Next
@@ -212,6 +217,71 @@
     $("#technicians_checkout_mobile").change(function() {
         var phone = $(this).find(':selected').data('phone');
         $("#mechanic_phone_checkout_mobile").text(phone);
+    });
+
+    $("#btn-copy-text-step-3-mobile").on("click", function() {
+        var FullName = $("#full_name_input_mobile").val();
+        var ContactNumber = $("#contact_input_mobile").val();
+        var Battery = [];
+        $(".add-table-items tbody tr").each(function() {
+            var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+            var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+            var price = $(this).find("input[name='SubtotalRow[]']").val();
+            Battery.push({
+                batteryName: batteryName,
+                quantity: quantity,
+                price: price
+            });
+        });
+        var subtotal = $("#subtotal").val();
+        var tax = $("#tax").val();
+        var discount = $("#discount").val();
+        var TotalAmountHidden = $("#TotalAmountHidden").val();
+        var VehicleCustomer = $('#VehicleCustomer').val();
+        var Latitude = $("#Latitude").val();
+        var Longitude = $("#Longitude").val();
+        var AddressCustomer = $("#AddressCustomer").val();
+        var typeDiscount = $("#type-discount").val();
+
+        var data = {
+            FullName: FullName,
+            ContactNumber: ContactNumber,
+            Battery: Battery,
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
+            typeDiscount: typeDiscount,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/checkout/copy",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                let ResponseData = JSON.parse(response);
+                if (ResponseData.status == true) {
+                    var copyText = ResponseData.message;
+                    var textArea = document.createElement("textarea");
+                    textArea.value = copyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    swal.fire("Copied!", "Personal Details Copied", "success");
+                } else {
+                    swal.fire("Error!", ResponseData.message, "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                swal.fire("Error!", error, "error");
+            }
+        });
     });
 
     function min_qty_checkout(x) {
