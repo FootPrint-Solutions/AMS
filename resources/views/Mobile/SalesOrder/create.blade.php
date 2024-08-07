@@ -702,20 +702,13 @@
         </div>
     </div>
 </div>
-
-
 <script>
     var map;
     var marker;
 
     function initMapx() {
-        console.group("initMapx");
-
         var existingLat = parseFloat(document.getElementById('Latitudex').value);
         var existingLng = parseFloat(document.getElementById('Longitudex').value);
-        console.log("exisintg Lat", existingLat);
-        console.log("exisintg Lng", existingLng);
-
 
         if (isNaN(existingLat) || isNaN(existingLng)) {
             existingLat = -6.8837859188198784;
@@ -729,15 +722,10 @@
             },
             zoom: 15
         });
-        console.log("map", map);
 
         var input = document.getElementById('AddressSearchColumnModalx');
         var autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo('bounds', map);
-        console.log("input", input);
-        console.log("autocomplete", autocomplete);
-
-
 
         marker = new google.maps.Marker({
             map: map,
@@ -787,9 +775,6 @@
             var latitude = place.geometry.location.lat();
             var longitude = place.geometry.location.lng();
 
-            console.log("heh");
-            console.log(latitude, longitude);
-
             document.getElementById('AddressSearchColumnModalx').value = address;
             document.getElementById('AddressSearchColumnx').value = address;
             document.getElementById('Latitudex').value = latitude;
@@ -810,8 +795,6 @@
                         var address = results[0].formatted_address;
                         var latitude = position.lat();
                         var longitude = position.lng();
-                        console.log("heh2");
-                        console.log(latitude, longitude);
 
                         document.getElementById('AddressSearchColumnModalx').value = address;
                         document.getElementById('AddressSearchColumnx').value = address;
@@ -823,7 +806,6 @@
                 }
             });
         });
-        console.groupEnd();
     }
 
     function openAddressModalx() {
@@ -842,7 +824,6 @@
     });
 
     $(function() {
-        console.log("masuk ready");
         initMapx();
     });
 </script>
