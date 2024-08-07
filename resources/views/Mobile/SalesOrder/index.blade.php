@@ -26,8 +26,9 @@
     }
 
     #btn-more {
-        width: 44px;
-        height: 44px;
+        max-width: 2.5em !important;
+        /* width: 44px; */
+        /* height: 44px; */
         border-radius: 100%;
         flex: none;
         order: 1;

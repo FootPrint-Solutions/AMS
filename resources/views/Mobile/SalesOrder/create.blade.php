@@ -84,6 +84,10 @@
         height: 50px;
         border-radius: 20px;
     }
+
+    #btnAddressx {
+        max-width: 2em !important;
+    }
 </style>
 
 <div class="d-block d-md-none mb-3">
