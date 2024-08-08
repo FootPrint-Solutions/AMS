@@ -180,8 +180,7 @@
         </div>
 
         <div class="col">
-            <button id="btn-more" data-bs-toggle="modal" data-bs-target="#modal-action"><span
-                    class="material-icons">more_horiz</span></button>
+            <button id="btn-more"><span class="material-icons">more_horiz</span></button>
         </div>
     </div>
 
@@ -461,6 +460,106 @@
                 refreshList();
             }
         })
+
+        // more action
+        $("#btn-more").on("click", function() {
+            getSelected();
+        })
+
+        // btn-recreate-payment
+        $("#btn-recreate-payment").on("click", function() {
+            let selected = getSelected();
+            if (selected.length > 1) {
+                Swal.fire({
+                    text: "Unable to re-create payment for more than one sales order",
+                    icon: "error"
+                });
+            } else {
+                $.get("/sales-order/status", {
+                    ids: selected
+                }, function(data) {
+                    if (data.allPaid) {
+                        Swal.fire({
+                            text: "Unable to re-create payment for paid sales order",
+                            icon: "error"
+                        });
+                    } else {
+                        $.get("/sales-order/recreate-payment-link/" + selected[0], function(
+                            data) {
+                            let response = JSON.parse(data);
+                            if (response.status) {
+                                Swal.fire({
+                                    text: response.message,
+                                    icon: "success"
+                                });
+                                $("#modal-action").modal("hide");
+                                refreshList();
+                            } else {
+                                Swal.fire({
+                                    text: response.message,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        })
+
+        // btn-copy-link
+        $("#btn-copy-link").on("click", function() {
+            let selected = getSelected();
+            if (selected.length > 1) {
+                Swal.fire({
+                    text: "Unable to copy payment link for more than one sales order",
+                    icon: "error"
+                });
+            } else {
+                $.get("/sales-order/status", {
+                    ids: selected
+                }, function(data) {
+                    if (data.allPaid) {
+                        Swal.fire({
+                            text: "Unable to copy payment link for paid sales order",
+                            icon: "error"
+                        });
+                    } else {
+                        $.get("/sales-order/copy-link-payment/" + selected[0], function(data) {
+                            let response = JSON.parse(data);
+                            if (response.status) {
+                                Swal.fire({
+                                    text: response.message,
+                                    icon: "success"
+                                });
+
+                                var copyText = responseData.message;
+                                var textArea = document.createElement("textarea");
+                                textArea.value = copyText;
+                                textArea.style.position = 'fixed';
+                                textArea.style.left = '-9999px';
+                                document.body.appendChild(textArea);
+                                textArea.select();
+                                try {
+                                    document.execCommand('copy');
+                                    console.log('Copy successful');
+                                } catch (err) {
+                                    console.log('Copy failed', err);
+                                }
+                                document.body.removeChild(textArea);
+
+                                $("#modal-action").modal("hide");
+                                refreshList();
+                            } else {
+                                Swal.fire({
+                                    text: response.message,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        })
     });
 
     $(document).on("click", ".btn-number", function() {
@@ -491,7 +590,16 @@
         $(".btn-number-selected").each(function() {
             selected.push($(this).data("id"));
         });
-        return selected;
+        if (selected.length == 0) {
+            Swal.fire({
+                text: "Please select at least one sales order",
+                icon: "error"
+            });
+            return [];
+        } else {
+            $("#modal-action").modal("show");
+            return selected;
+        }
     }
 
     function viewDetail(orderId) {
