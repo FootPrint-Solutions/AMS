@@ -351,7 +351,6 @@
     function min_qty_checkout(x) {
         var id = $(x).data('id');
         var qty = $("#qty_checkout_mobile_" + id).val();
-        console.log(qty);
         if (qty > 1) {
             qty--;
 
@@ -652,6 +651,7 @@
                     var batteryHtml = "";
                     response.data.Battery.forEach(function(battery) {
                         var qty = response.data.Qty.shift();
+                        var price = response.data.Price.shift();
 
                         baseUrl = "{{ asset('storage/image/battery/') }}";
                         battery.image = baseUrl + '/' + battery.image;
@@ -662,7 +662,7 @@
                                     <img src="${battery.image}" alt="Product Image" class="img-fluid" style="width: 70px; margin-left: 10px;">
                                     <div class="ml-3">
                                         <h6 class="mb-1">${battery.name}</h6>
-                                        <p class="mb-0">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(battery.price_retail)}</p>
+                                        <p class="mb-0">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price)}</p>
                                     </div>
                                 </div>
                                 <span>X${qty}</span>

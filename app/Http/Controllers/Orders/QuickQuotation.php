@@ -615,6 +615,7 @@ $arrayBattery
         $PaymentMethod = $request->input('PaymentMethod');
         $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
         $arrayVehicle = "";
+        $type = $request->input('type');
         foreach ($VehicleCustomer as $key => $value) {
             if ($key == count($VehicleCustomer) - 1) {
                 $arrayVehicle .= "" . $value;
@@ -675,11 +676,16 @@ $arrayBattery
         $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
 
         if ($PaymentMethodData['id'] == 1) {
-            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
-            $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
-            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
-            foreach ($PaymentLinks as $link) {
-                $content_message .= "*$link*\r\n";
+            if ($type = "mobile") {
+                $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+                $content_message .= "Metode Pembayaran : *" . $PaymentMethodData['name'] . "*\r\n";
+            } else {
+                $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+                $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
+                $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+                foreach ($PaymentLinks as $link) {
+                    $content_message .= "*$link*\r\n";
+                }
             }
         } else {
             // $content_message = "";
@@ -977,6 +983,7 @@ $arrayVehicle
         $PaymentMethod = $request->input('PaymentMethod');
         $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
         $arrayVehicle = "";
+        $tipeDevice = $request->input('type');
         foreach ($VehicleCustomer as $key => $value) {
             if ($key == count($VehicleCustomer) - 1) {
                 $arrayVehicle .= "" . $value;
@@ -1037,11 +1044,16 @@ $arrayVehicle
         $content_message .= "*TOTAL : Rp. " . number_format($TotalAmount, 0, "", ".") . "*\r\n";
 
         if ($PaymentMethodData['id'] == 1) {
-            $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
-            $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
-            $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
-            foreach ($PaymentLinks as $link) {
-                $content_message .= "*$link*\r\n";
+            if ($tipeDevice = "mobile") {
+                $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+                $content_message .= "Metode Pembayaran : *" . $PaymentMethodData['name'] . "*\r\n";
+            } else {
+                $content_message .= "Invoice Number : *" . $InvoiceNumber . "*\r\n";
+                $content_message .= "Metode Pembayaran : *Midtrans*\r\n";
+                $content_message .= "Silakan klik link berikut untuk melakukan pembayaran:\r\n";
+                foreach ($PaymentLinks as $link) {
+                    $content_message .= "*$link*\r\n";
+                }
             }
         } else {
             // $content_message = "";
