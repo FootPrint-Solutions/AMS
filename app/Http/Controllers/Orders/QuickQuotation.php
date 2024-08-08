@@ -23,6 +23,7 @@ use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Servers\ServerPaymentGatewayModel;
+use Illuminate\Support\Facades\DB;
 
 // Midtrans 
 use App\Services\Midtrans\CreateSnapTokenService;
@@ -1329,6 +1330,8 @@ $arrayVehicle
     public function saveDataMobile(Request $request)
     {
         try {
+            DB::beginTransaction();
+
             $FullName = $request->input('FullName');
             $ContactNumber = $request->input('ContactNumber');
             $AddressCustomer = $request->input('AddressCustomer');
@@ -1409,17 +1412,20 @@ $arrayVehicle
 
             $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
             if (!$QuuotationBattery) {
+                DB::rollBack();
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to save data'
                 ]);
             } else {
+                DB::commit();
                 return response()->json([
                     'success' => true,
                     'message' => 'Data saved successfully'
                 ]);
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
             Log::error($th);
             return response()->json([
                 'success' => false,
