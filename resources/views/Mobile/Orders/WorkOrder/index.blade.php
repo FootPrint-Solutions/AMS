@@ -373,7 +373,8 @@
             var workOrderId = $('#work_order_id_mobile').val();
             if (workOrderId) {
                 $("#work_order_id").val(workOrderId);
-                window.location = "/work-order/print-technician-report/" + workOrderId;
+                goToPage("/work-order/mobile/print-technician-report/" + workOrderId, true);
+                // window.location = "/work-order/print-technician-report/" + workOrderId;
             } else {
                 swal.fire({
                     title: 'No Work Order Selected',

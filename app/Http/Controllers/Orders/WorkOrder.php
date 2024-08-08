@@ -172,6 +172,15 @@ class WorkOrder extends Controller
         return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
     }
 
+    public function printTechnicianReportMobile(Request $request)
+    {
+        $workOrder = WorkOrderModel::getWorkOrderData($request->id);
+
+        // qrcode contain work order id
+        $qrCode = QrCode::size(60)->generate($workOrder->id);
+        return view('Mobile.Orders.WorkOrder.print', compact('workOrder', 'qrCode'));
+    }
+
     private function getTemplateType($tipe)
     {
         switch ($tipe) {
