@@ -68,7 +68,7 @@ class SalesOrder extends Controller
 
     public function getSalesOrderDetail($id)
     {
-        return SalesOrderModel::with(['vehicle', 'technician', 'shop.distributor'])->find($id)->toArray();
+        return SalesOrderModel::with(['vehicle', 'technician', 'shop.distributor', 'batteries'])->find($id)->toArray();
     }
 
     /**
