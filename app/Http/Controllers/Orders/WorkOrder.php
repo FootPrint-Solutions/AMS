@@ -16,6 +16,8 @@ use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PrintTemplateModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
 {
@@ -169,6 +171,8 @@ class WorkOrder extends Controller
 
     public function uploadImage(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // jika ada inputan image 
             if (!$request->hasFile('image')) {
@@ -192,6 +196,11 @@ class WorkOrder extends Controller
                 // looping battery id and update production code
                 foreach ($request->battery_id as $key => $value) {
                     $battery = SalesOrderBatteryModel::find($value);
+
+                    $order = SalesOrderModel::find($battery->sales_order_id);
+                    if ($order->status == 'completed')
+                        throw new \Exception("Cannot update completed order detail.");
+
                     $battery->battery_production_code = $request->production_code[$key];
 
                     if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key]))
@@ -201,11 +210,14 @@ class WorkOrder extends Controller
                 }
             }
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data has been saved successfully.'
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             Log::error($th);
             return response()->json([
                 'success' => false,
