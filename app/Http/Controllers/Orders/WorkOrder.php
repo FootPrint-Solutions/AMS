@@ -120,6 +120,53 @@ class WorkOrder extends Controller
         return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo', 'company'));
     }
 
+    public function printMobile(request $request)
+    {
+        $validationRules = [
+            'work_order_id' => 'required|integer|exists:work_orders,id'
+        ];
+
+        $tipe = $request->print_option;
+        $invoice = $request->invoice_check;
+
+        // check if image is exist
+        if ($request->hasFile('image')) {
+            if ($tipe == "tokopedia_dan_instalasi" || $tipe == "tokopedia_tanpa_instalasi") {
+                $validationRules['image'] = 'required|image|mimes:jpeg,png,jpg,gif|max:2048';
+            }
+
+            $request->validate($validationRules);
+
+            if (isset($validationRules['image'])) {
+                $image = $request->file('image');
+                $workOrderId = $request->input('work_order_id');
+                $imageExtension = $image->getClientOriginalExtension();
+                $imageFileName = $workOrderId . '.' . $imageExtension;
+                $imagePath = 'image/work-order/' . $imageFileName;
+                $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
+                WorkOrderModel::updateImagePath($workOrderId, $imagePath);
+            }
+        }
+
+        $workOrder = WorkOrderModel::getWorkOrderData($request->work_order_id);
+        $templateType = $this->getTemplateType($tipe);
+        $template = PrintTemplateModel::where('name', $templateType)->first();
+        $taskOne = $template->details()->where("type", "page-one")->get();
+        $taskTwo = $template->details()->where("type", "page-two")->get();
+
+        $baseUrl = "https://www.google.com/maps?q=";
+        $mapsUrl = $baseUrl . $workOrder->latitude . "," . $workOrder->longitude;
+        $qrCode = QrCode::size(60)->generate($mapsUrl);
+
+        $view = $this->getViewByType(
+            $tipe,
+            true
+        );
+
+        $company = CompanyModel::first();
+        return view($view, compact('workOrder', 'qrCode', 'taskOne', 'taskTwo', 'company'));
+    }
+
     public function uploadImage(Request $request)
     {
         try {
@@ -195,15 +242,17 @@ class WorkOrder extends Controller
         }
     }
 
-    private function getViewByType($tipe)
+    private function getViewByType($tipe, $mobile = false)
     {
+        $mobile = $mobile ? "Mobile." : "";
+
         switch ($tipe) {
             case "regular_dan_instalasi":
-                return 'Orders.WorkOrder.RegularInstalasi.print';
+                return $mobile . 'Orders.WorkOrder.RegularInstalasi.print';
             case "tokopedia_dan_instalasi":
-                return 'Orders.WorkOrder.TokopediaInstalasi.print';
+                return $mobile . 'Orders.WorkOrder.TokopediaInstalasi.print';
             case "tokopedia_tanpa_instalasi":
-                return 'Orders.WorkOrder.Tokopedia.print';
+                return $mobile . 'Orders.WorkOrder.Tokopedia.print';
             default:
                 throw new \InvalidArgumentException('Tipe cetak tidak valid');
         }

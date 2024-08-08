@@ -357,7 +357,7 @@
             var workOrderId = $('#work_order_id_mobile').val();
             if (workOrderId) {
                 $("#work_order_id").val(workOrderId);
-                showModalPrint("/work-order/print/" + workOrderId);
+                showModalPrint("/work-order/print/" + workOrderId, workOrderId);
             } else {
                 swal.fire({
                     title: 'No Work Order Selected',
@@ -575,11 +575,50 @@
         });
     }
 
-    function showModalPrint(url) {
+    function showModalPrint(url, id) {
         // hide modal work order detail
         $("#modal-work-order-mobile-menu").modal('hide');
         // Show the print modal.
-        $('#modal-print').modal('show');
+        $('#modal-printx').modal('show');
+        $("#work_order_idx").val(id);
         showUploadImage();
     }
 </script>
+
+
+<div class="modal fade" id="modal-printx" tabindex="-1" aria-labelledby="modal-print-label" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-light" id="modal-print-label"><i class="fas fa-print"></i> Print Work
+                    Order
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{-- select option --}}
+                <div class="form-group mb-3">
+                    <form action="/work-order/mobile/print" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="work_order_id" id="work_order_idx">
+                        <label for="print_type">Print Type</label>
+                        <label for="print_option">Select Print Option:</label>
+                        <select class="form-select" id="print_option" name="print_option">
+                            <option value="regular_dan_instalasi">1. Regular dan Instalasi</option>
+                            <option value="tokopedia_dan_instalasi">2. Tokopedia dan Instalasi</option>
+                            <option value="tokopedia_tanpa_instalasi">3. Tokopedia tanpa Instalasi</option>
+                        </select>
+
+                        <div id="upload-column"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="btn-print"><i class="fas fa-print"></i>
+                    Print</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

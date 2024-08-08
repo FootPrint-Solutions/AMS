@@ -262,6 +262,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail']);
     Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy']);
     Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile']);
+    Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile']);
 
     // Settings
     // Message Template

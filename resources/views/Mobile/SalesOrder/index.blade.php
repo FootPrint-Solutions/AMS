@@ -422,7 +422,7 @@
                     icon: "error"
                 });
             } else {
-                goToPage("/sales-order/invoice/" + selected[0], true);
+                goToPage("/sales-order/invoice/" + selected[0]);
                 $("#modal-action").modal("hide");
                 refreshList();
             }
