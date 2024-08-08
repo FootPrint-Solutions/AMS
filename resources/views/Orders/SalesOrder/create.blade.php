@@ -688,34 +688,36 @@
          */
         function loadTechnicianData() {
             let parentId = $("#shop").val();
-            $.ajax({
-                url: "/sales-order/technician/get/" + parentId,
-                method: "GET",
-                success: function(response) {
-                    // Clear current options and value.
-                    $("#technician").empty().val(null).trigger("change");
 
-                    let emptyOption = new Option("", "", false, false);
-                    $("#technician").append(emptyOption).trigger("change");
+            if (parentId)
+                $.ajax({
+                    url: "/sales-order/technician/get/" + parentId,
+                    method: "GET",
+                    success: function(response) {
+                        // Clear current options and value.
+                        $("#technician").empty().val(null).trigger("change");
 
-                    let mode = $("#btn-save").attr("value"); // update || create
-                    response.forEach(function(menu) {
-                        // Append new options.
-                        let selected = false;
-                        if (mode == 'update') {
-                            // Get saved technician id.
-                            let id = $("#technician_id").val();
-                            if (menu.id == id) {
-                                selected = true;
+                        let emptyOption = new Option("", "", false, false);
+                        $("#technician").append(emptyOption).trigger("change");
+
+                        let mode = $("#btn-save").attr("value"); // update || create
+                        response.forEach(function(menu) {
+                            // Append new options.
+                            let selected = false;
+                            if (mode == 'update') {
+                                // Get saved technician id.
+                                let id = $("#technician_id").val();
+                                if (menu.id == id) {
+                                    selected = true;
+                                }
                             }
-                        }
 
-                        let newOption = new Option(menu.name, menu.id, false,
-                            selected);
-                        $("#technician").append(newOption).trigger("change");
-                    });
-                }
-            });
+                            let newOption = new Option(menu.name, menu.id, false,
+                                selected);
+                            $("#technician").append(newOption).trigger("change");
+                        });
+                    }
+                });
         }
 
         /**

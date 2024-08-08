@@ -26,8 +26,9 @@
     }
 
     #btn-more {
-        width: 44px;
-        height: 44px;
+        max-width: 2.5em !important;
+        /* width: 44px; */
+        /* height: 44px; */
         border-radius: 100%;
         flex: none;
         order: 1;
@@ -421,7 +422,7 @@
                     icon: "error"
                 });
             } else {
-                downloadPDF("/sales-order/invoice/" + selected[0]);
+                goToPage("/sales-order/invoice/" + selected[0]);
                 $("#modal-action").modal("hide");
                 refreshList();
             }
