@@ -1,5 +1,6 @@
 {{-- Work Order Custom Css --}}
 <link rel="stylesheet" href="{{ asset('css/work-order.css') }}">
+
 <div class="d-block d-md-none">
     <div class="container">
         <h3>
@@ -409,6 +410,7 @@
                             <th>Production Code</th>
                             <th>Battery Name</th>
                             <th width="20%">Qty</th>
+                            <th width="20%">Image</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -429,6 +431,13 @@
                         <td><input type="text" name="production_code[]" value="${battery.battery_production_code}" class="form-control"></td>
                         <td><input type="text" name="battery_name[]" value="${battery.battery_name}" class="form-control" readonly></td>
                         <td><input type="number" name="battery_quantity[]" value="${battery.quantity}" class="form-control" readonly></td>
+                        
+                        <td>
+                            <label for="cameraInput" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-camera"></i>
+                            </label>
+                            <input type="file" name="battery_image[]" id="cameraInput" class="d-none" accept="image/*" capture="camera">
+                        </td>
                     </tr>
                 `;
                             });
