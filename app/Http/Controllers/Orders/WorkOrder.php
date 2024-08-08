@@ -17,6 +17,7 @@ use App\Models\Settings\PrintTemplateModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\WorkOrder\TrackingModel;
 use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
@@ -346,6 +347,64 @@ class WorkOrder extends Controller
                 'status' => false,
                 'message' => 'Failed to get work order detail.'
             ]);
+        }
+    }
+
+    /**
+     * 
+     */
+    public function startTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+        $order = WorkOrderModel::find($workOrderId);
+
+        // Save tracking.
+        $tracking = new TrackingModel();
+        $tracking->work_order_id = $order->id;
+        $tracking->latitude_start = $currentLat;
+        $tracking->longitude_start = $currentLon;
+        $tracking->latitude_current = $currentLat;
+        $tracking->longitude_current = $currentLon;
+        $tracking->latitude_destination = $order->latitude;
+        $tracking->longitude_destination = $order->longitude;
+        $tracking->save();
+    }
+
+    /**
+     * 
+     */
+    public function updateTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+
+        // Save tracking.
+        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+        if ($tracking) {
+            $tracking->latitude_current = $currentLat;
+            $tracking->longitude_current = $currentLon;
+            $tracking->save();
+        }
+    }
+
+    /**
+     * 
+     */
+    public function endTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+
+        // Save tracking.
+        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+        if ($tracking) {
+            $tracking->latitude_end = $currentLat;
+            $tracking->longitude_end = $currentLon;
+            $tracking->save();
         }
     }
 }

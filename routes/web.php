@@ -263,6 +263,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy']);
     Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile']);
     Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile']);
+    // tracking
+    Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking']);
+    Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking']);
+    Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking']);
 
     // Settings
     // Message Template
