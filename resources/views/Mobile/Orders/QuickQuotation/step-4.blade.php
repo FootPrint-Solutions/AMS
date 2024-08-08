@@ -61,8 +61,13 @@
     <input type="hidden" id="payment_gateway_payment_details_mobile" name="payment_gateway_payment_details_mobile">
 
     <div class="bottom-buttons pager wizard twitter-bs-wizard-pager-link">
+        {{-- copy button --}}
+        <button class="btn btn-custom btn-whatsapp" id="btn-copy-text-step-4-mobile">
+            <i class="fa fa-copy fa-md"></i>
+            Copy
+        </button>
         {{-- share button --}}
-        <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-3-mobile">
+        <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-4-mobile">
             <i class="fa-brands fa-whatsapp"></i>
             Share
         </button>
@@ -125,6 +130,231 @@
         $("#payment_gateway_payment_details_mobile").val(id);
     }
 
+    $("#btn-share-whatsapp-step-4-mobile").on('click', function() {
+        var button = $(this);
+        button.prop('disabled', true);
+        button.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+        );
+
+        var FullName = $("#full_name_customer_payment_details_mobile").text();
+        var ContactNumber = $("#number_customer_payment_details_mobile").text();
+        var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
+        var Latitude = $("#latitude_input_mobile").val();
+        var Longitude = $("#longitude_input_mobile").val();
+        var AddressCustomer = $("#address_customer_payment_details_mobile").text();
+        var Battery = [];
+        var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+        var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+        var links = [];
+        var Battery = [];
+        var InvoiceNumber = $("#invoice_number_payment_details_mobile").text();
+
+        var IsMidtrans = $("#CheckMidtrans").prop("checked");
+        if (IsMidtrans) {
+            var linkMidtrans = $("#LinkPaymentMidtrans").val();
+            links.push(linkMidtrans);
+            var IsMidtrans = "midtrans";
+        } else {
+            $(".LinkPayment").each(function() {
+                var value = $(this).val();
+                links.push(value);
+            });
+            var IsMidtrans = "not midtrans";
+        }
+
+        var Battery = [];
+        $(".item-detail.d-flex.align-items-center").each(function() {
+            var batteryName = $(this).find("input[name='battery_name_checkout_mobile[]']").val();
+            var quantity = $(this).find("input[name='qty_checkout_mobile[]']").val();
+            var price = $(this).find("input[name='subtotal_checkout_mobile[]']").val();
+            Battery.push({
+                batteryName: batteryName,
+                quantity: quantity,
+                price: price
+            });
+        });
+
+        var subtotal = $("#subtotal_hidden_checkout_mobile").val();
+        var tax = $("#tax").val();
+        var discount = $("#discount").val();
+        var TotalAmountHidden = $("#total_amount_hidden_checkout_mobile").val();
+        var PaymentMethod = $("#payment_gateway_payment_details_mobile").val();
+        var typeDiscount = $("#type-discount").val();
+
+        // jika payment method kosong maka tampilkan alert
+        if (PaymentMethod == null || PaymentMethod == "") {
+            Swal.fire({
+                title: "Error",
+                text: "Please select payment method",
+                icon: "error",
+            });
+            return;
+
+            button.prop('disabled', false);
+            button.html(
+                "<i class='fa-brands fa-whatsapp'></i> Share"
+            );
+        }
+
+        var data = {
+            FullName: FullName,
+            ContactNumber: ContactNumber,
+            Battery: Battery,
+            InvoiceNumber: InvoiceNumber,
+            IsMidtrans: IsMidtrans,
+            links: links,
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
+            PaymentMethod: PaymentMethod,
+            typeDiscount: typeDiscount,
+            type: "mobile",
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/share-payment-details",
+            type: "POST",
+            data: data,
+            success: function(data) {
+                let ResponseData = JSON.parse(data);
+                if (ResponseData.status) {
+                    Swal.fire({
+                        title: "Success",
+                        text: ResponseData.message,
+                        icon: "success",
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: ResponseData.message ||
+                            "Something went wrong, please try again later",
+                        icon: "error",
+                    });
+                }
+            },
+            complete: function() {
+                button.prop('disabled', false);
+                button.html(
+                    "<i class='fa-brands fa-whatsapp'></i> Share"
+                );
+            }
+        });
+    });
+
+
+    $("#btn-copy-text-step-4-mobile").on("click", function() {
+        var FullName = $("#full_name_customer_payment_details_mobile").text();
+        var ContactNumber = $("#number_customer_payment_details_mobile").text();
+        var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
+        var Latitude = $("#latitude_input_mobile").val();
+        var Longitude = $("#longitude_input_mobile").val();
+        var AddressCustomer = $("#address_customer_payment_details_mobile").text();
+        var Battery = [];
+        var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+        var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+        var links = [];
+        var Battery = [];
+        var InvoiceNumber = $("#invoice_number_payment_details_mobile").text();
+
+        var IsMidtrans = $("#CheckMidtrans").prop("checked");
+        if (IsMidtrans) {
+            var linkMidtrans = $("#LinkPaymentMidtrans").val();
+            links.push(linkMidtrans);
+            var IsMidtrans = "midtrans";
+        } else {
+            $(".LinkPayment").each(function() {
+                var value = $(this).val();
+                links.push(value);
+            });
+            var IsMidtrans = "not midtrans";
+        }
+        var Battery = [];
+        $(".item-detail.d-flex.align-items-center").each(function() {
+            var batteryName = $(this).find("input[name='battery_name_checkout_mobile[]']").val();
+            var quantity = $(this).find("input[name='qty_checkout_mobile[]']").val();
+            var price = $(this).find("input[name='subtotal_checkout_mobile[]']").val();
+            Battery.push({
+                batteryName: batteryName,
+                quantity: quantity,
+                price: price
+            });
+        });
+
+        var subtotal = $("#subtotal_hidden_checkout_mobile").val();
+        var tax = $("#tax").val();
+        var discount = $("#discount").val();
+        var TotalAmountHidden = $("#total_amount_hidden_checkout_mobile").val();
+        var PaymentMethod = $("#payment_gateway_payment_details_mobile").val();
+        var typeDiscount = $("#type-discount").val();
+
+        // jika payment method kosong maka tampilkan alert
+        if (PaymentMethod == null || PaymentMethod == "") {
+            Swal.fire({
+                title: "Error",
+                text: "Please select payment method",
+                icon: "error",
+            });
+            return;
+
+            button.prop('disabled', false);
+            button.html(
+                "<i class='fa fa-copy fa-md'></i> Copy"
+            );
+        }
+
+        var data = {
+            FullName: FullName,
+            ContactNumber: ContactNumber,
+            Battery: Battery,
+            InvoiceNumber: InvoiceNumber,
+            IsMidtrans: IsMidtrans,
+            links: links,
+            Subtotal: subtotal,
+            Tax: tax,
+            Discount: discount,
+            TotalAmount: TotalAmountHidden,
+            VehicleCustomer: VehicleCustomer,
+            Latitude: Latitude,
+            Longitude: Longitude,
+            AddressCustomer: AddressCustomer,
+            PaymentMethod: PaymentMethod,
+            typeDiscount: typeDiscount,
+            type: "mobile",
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: "/quotation/payment-details/copy",
+            type: "POST",
+            data: data,
+            success: function(response) {
+                let ResponseData = JSON.parse(response);
+                if (ResponseData.status == true) {
+                    var copyText = ResponseData.message;
+                    var textArea = document.createElement("textarea");
+                    textArea.value = copyText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    swal.fire("Copied!", "Personal Details Copied", "success");
+                } else {
+                    swal.fire("Error!", ResponseData.message, "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                swal.fire("Error!", error, "error");
+            }
+        });
+    });
+
     $("#payment-details-mobile-save-button-lower").click(function() {
         var button = $(this);
         button.prop('disabled', true);
@@ -175,6 +405,21 @@
         var TaxPayment = [];
         var TaxPricePayment = [];
         var BatteryIdCheckout = [];
+
+        // jika payment method kosong maka tampilkan alert
+        if (PaymentMethod == null || PaymentMethod == "") {
+            Swal.fire({
+                title: "Error",
+                text: "Please select payment method",
+                icon: "error",
+            });
+            return;
+
+            button.prop('disabled', false);
+            button.html(
+                "Save Changes"
+            );
+        }
 
         $("input[name='qty_checkout_mobile[]']").each(function() {
             QtyTabel.push($(this).val()); // Menambahkan kuantitas ke dalam array
