@@ -674,6 +674,10 @@
                     );
                 }, function(error) {
                     console.error('Error watching position:', error);
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 1000
                 });
             },
             error: function(error) {
