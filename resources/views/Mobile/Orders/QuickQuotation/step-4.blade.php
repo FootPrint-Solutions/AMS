@@ -58,12 +58,14 @@
         </div>
     </div>
 
+    <input type="hidden" id="payment_gateway_payment_details_mobile" name="payment_gateway_payment_details_mobile">
+
     <div class="bottom-buttons pager wizard twitter-bs-wizard-pager-link">
         {{-- share button --}}
-        {{-- <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-3-mobile">
+        <button class="btn btn-custom btn-whatsapp" id="btn-share-whatsapp-step-3-mobile">
             <i class="fa-brands fa-whatsapp"></i>
             Share
-        </button> --}}
+        </button>
         {{-- next button --}}
         <button id="payment-details-mobile-save-button-lower" class="btn btn-custom btn-next next"
             href="javascript: void(0);" style="background-color:#0B759D;">Save
@@ -113,6 +115,15 @@
         // set radio button checked
         $("#payment_gateway_payment_details_mobile_" + id).prop("checked", true);
     });
+
+    function selectPaymentMethodMobile(x) {
+        // get data-id 
+        var id = $(x).data("id");
+
+        // set radio button checked
+        $("#payment_gateway_payment_details_mobile_" + id).prop("checked", true);
+        $("#payment_gateway_payment_details_mobile").val(id);
+    }
 
     $("#payment-details-mobile-save-button-lower").click(function() {
         var button = $(this);

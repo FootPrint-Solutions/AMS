@@ -150,6 +150,21 @@
     .scrollable-list-x .col {
         /* flex: 1 0 auto; */
     }
+
+    .list-item-detail {
+        background-color: rgb(233, 233, 233);
+    }
+
+    .zoom {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        transition: transform 0.2s ease-in, top 0.2s ease, left 0.2s ease;
+        max-width: 90%;
+        border: 3px solid black;
+    }
 </style>
 
 <div class="d-block d-md-none mb-3">
@@ -191,7 +206,7 @@
 
             {{-- List --}}
             <div class="scrollable-list">
-                <ul class="list-group"></ul>
+                <ul class="list-group" id="list-order"></ul>
             </div>
         </div>
     </div>
@@ -306,6 +321,10 @@
                         <td><span id="detail-status"></span></td>
                     </tr>
                 </table>
+
+                <br>
+                <div class="h4 fw-bold">Batteries</div>
+                <ul class="list-group list-group-flush" id="list-details"></ul>
             </div>
         </div>
     </div>
@@ -453,6 +472,17 @@
             $(this).addClass("btn-number-selected");
         }
     });
+
+    $(document).on("click", ".img-complete-battery", function() {
+        if ($(this).hasClass("zoom")) {
+            $(this).removeClass("zoom");
+        } else {
+            $(".img-complete-battery").each(function() {
+                $(this).removeClass("zoom");
+            });
+            $(this).addClass("zoom");
+        }
+    })
 </script>
 
 <script>
@@ -479,6 +509,42 @@
                 $("#detail-payment-status").text(data.payment_status);
                 $("#detail-status").text(data.status);
 
+                //  Show details.
+                $("#list-details").empty();
+                data.batteries.forEach(element => {
+                    console.log(element);
+                    var image = element.image;
+                    var name = element.battery_name;
+                    var quantity = element.quantity;
+                    var price = element.price_net;
+
+                    var imageUrl = image ?
+                        `{{ asset('storage/image/work-order/complete-image-file/${image}') }}` :
+                        `{{ asset('img/default-empty.png') }}`;
+
+                    var row = `
+                        <li class="list-group-item list-item-detail">
+                            <table>
+                                <tr>
+                                    <td rowspan="3" style="width: 20%; padding-right: 5%;">
+                                        <img src="${imageUrl}" class="img-fluid img-complete-battery" alt="Battery complete image" style="cursor: pointer;">
+                                    </td>
+                                    <td colspan="2" style="width: 80%"><p class="fw-bold">${name}</p></td>
+                                </tr>
+
+                                <tr></tr>
+
+                                <tr>
+                                    <td>x${quantity}</td>
+                                    <td class="fw-bold text-end">Rp${formatNumberWithSeparator(price)}</td>
+                                </tr>      
+                            </table>
+                        </li>
+                        `;
+                    $('#list-details').append(row);
+                });
+
+
                 $("#modal-detail").modal("show");
             }
         });
@@ -489,7 +555,7 @@
             url: "/sales-order/show/mobile/" + status + "/" + filter,
             type: "GET",
             success: function(data) {
-                var list = $('.list-group');
+                var list = $('#list-order');
                 list.empty();
 
                 for (i = 0; i < data.length; i++) {

@@ -5,57 +5,56 @@
     <form>
         <div class="row">
             <div class="col-lg-6">
-                <div class="mb-3">
-                    <label class="form-label">Full Name</label>
+                <div class="mb-3 form-group local-forms">
+                    <label class="form-label">Full Name
+                        <span class="login-danger">*</span>
+                    </label>
                     <input type="text" class="form-control" id="full_name_input_mobile" name="full_name_input_mobile">
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="mb-3">
-                    <label class="form-label">Contact Number</label>
+                <div class="mb-3 form-group local-forms">
+                    <label class="form-label">Contact Number
+                        <span class="login-danger">*</span>
+                    </label>
                     <input type="text" class="form-control" id="contact_input_mobile" name="contact_input_mobile">
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-6">
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
+                <div class="mb-3 form-group local-forms">
+                    <label class="form-label">Email
+                        <span class="login-danger">*</span>
+                    </label>
                     <input type="email" class="form-control" id="email_input_mobile" name="email_input_mobile">
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="mb-3">
+                <div class="mb-3 form-group local-forms">
                     <label class="form-label">Customer
-                        Address</label>
+                        Address
+                        <span class="login-danger">*</span>
+                    </label>
                     <input type="text" class="form-control" id="address_input_mobile" name="address_input_mobile">
                 </div>
-
-                {{-- <button type="button" class="btn btn-maps-select btn-sm">
-                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M11.475 20.4498V18.4498C12.175 18.3498 12.8542 18.1581 13.5125 17.8748C14.1709 17.5915 14.7917 17.2331 15.375 16.7998L16.825 18.2498C16.0417 18.8665 15.2 19.3623 14.3 19.7373C13.4 20.1123 12.4584 20.3498 11.475 20.4498ZM18.225 16.7998L16.825 15.3998C17.2584 14.8498 17.6084 14.2456 17.875 13.5873C18.1417 12.929 18.325 12.2331 18.425 11.4998H20.475C20.3417 12.5331 20.0875 13.4956 19.7125 14.3873C19.3375 15.279 18.8417 16.0831 18.225 16.7998ZM18.425 9.4998C18.325 8.7498 18.1417 8.04564 17.875 7.3873C17.6084 6.72897 17.2584 6.13314 16.825 5.5998L18.225 4.1998C18.8584 4.93314 19.3709 5.7498 19.7625 6.6498C20.1542 7.5498 20.3917 8.4998 20.475 9.4998H18.425ZM9.47502 20.4498C6.92502 20.1498 4.79586 19.0581 3.08752 17.1748C1.37919 15.2915 0.525024 13.0665 0.525024 10.4998C0.525024 7.91647 1.37919 5.68314 3.08752 3.7998C4.79586 1.91647 6.92502 0.833138 9.47502 0.549805V2.5498C7.47502 2.83314 5.81669 3.7248 4.50002 5.2248C3.18336 6.7248 2.52502 8.48314 2.52502 10.4998C2.52502 12.5165 3.18336 14.2706 4.50002 15.7623C5.81669 17.254 7.47502 18.1498 9.47502 18.4498V20.4498ZM15.425 4.1998C14.825 3.7498 14.1917 3.38314 13.525 3.0998C12.8584 2.81647 12.175 2.63314 11.475 2.5498V0.549805C12.4584 0.633138 13.4 0.862305 14.3 1.2373C15.2 1.6123 16.0417 2.11647 16.825 2.7498L15.425 4.1998ZM10.5 15.4998C9.53336 14.6831 8.62502 13.8081 7.77502 12.8748C6.92502 11.9415 6.50002 10.8498 6.50002 9.5998C6.50002 8.46647 6.88752 7.4998 7.66252 6.6998C8.43752 5.8998 9.38336 5.4998 10.5 5.4998C11.6167 5.4998 12.5625 5.8998 13.3375 6.6998C14.1125 7.4998 14.5 8.46647 14.5 9.5998C14.5 10.8498 14.075 11.9415 13.225 12.8748C12.375 13.8081 11.4667 14.6831 10.5 15.4998ZM10.5 10.4998C10.8 10.4998 11.0542 10.3956 11.2625 10.1873C11.4709 9.97897 11.575 9.7248 11.575 9.4248C11.575 9.14147 11.4709 8.89147 11.2625 8.6748C11.0542 8.45814 10.8 8.3498 10.5 8.3498C10.2 8.3498 9.94586 8.45814 9.73752 8.6748C9.52919 8.89147 9.42502 9.14147 9.42502 9.4248C9.42502 9.7248 9.52919 9.97897 9.73752 10.1873C9.94586 10.3956 10.2 10.4998 10.5 10.4998Z"
-                            fill="#FDFFFE" />
-                    </svg>
-
-                    Choose from Maps
-                </button> --}}
                 <input type="hidden" name="latitude_input_mobile" id="latitude_input_mobile">
                 <input type="hidden" name="longitude_input_mobile" id="longitude_input_mobile">
             </div>
 
             <div class="row mt-3">
                 <div class="col-8">
-                    <div class="mb-3">
-                        <label class="form-label">Distributor Shop</label>
+                    <div class="mb-3 form-group local-forms">
+                        <label class="form-label">Distributor Shop
+                            <span class="login-danger">*</span>
+                        </label>
                         <select class="form-select" id="distributor_input_mobile" name="distributor_input_mobile"
                             required>
                             <option value="">-- Choose Distributor --</option>
                         </select>
                     </div>
                 </div>
-                <div class="col" style="margin-top: 29px;">
+                <div class="col">
                     <button type="button" class="btn btn-maps-select btn-md" onclick="showMapsDistributorMobile()">
                         <svg width="18" height="26" viewBox="0 0 18 26" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -403,12 +402,30 @@
 
                     var html = '';
                     response.data.Battery.forEach(function(battery) {
+
                         // price net battery prices 
                         var batteryPrices = battery.battery_prices[0];
+                        var tax = 11;
+                        var batteryPriceTax = batteryPrices.price_net * tax / 100;
+                        var discountBatteryPercent = batteryPrices.discount;
+                        var discountPrice = (batteryPrices.price_net) *
+                            discountBatteryPercent /
+                            100;
+                        var batteryNetPrice = (batteryPrices.price_net + batteryPriceTax) -
+                            discountPrice;
+
+                        console.log("Battery price net:" + batteryPrices.price_net);
+                        console.log("Battery price tax:" + batteryPriceTax);
+                        console.log("Battery discount percent:" + discountBatteryPercent);
+                        console.log("Battery discount price:" + discountPrice);
+                        console.log("Battery net price:" + batteryNetPrice);
+
+
+
                         var FormatPriceNet = new Intl.NumberFormat('id-ID', {
                             style: 'currency',
                             currency: 'IDR'
-                        }).format(batteryPrices.price_net);
+                        }).format(batteryNetPrice);
 
                         html += '<div class="item-detail d-flex align-items-center">';
                         html += '<div class="ms-3 flex-grow-1">';
@@ -423,7 +440,7 @@
                         html +=
                             '<input type="hidden" name="price_net_checkout_mobile[]" id="price_net_checkout_mobile_' +
                             battery.id + '" value="' +
-                            batteryPrices.price_net + '">';
+                            batteryNetPrice + '">';
                         // input type hidden battery id 
                         html +=
                             '<input type="hidden" name="battery_id_checkout_mobile[]" id="battery_id_checkout_mobile_' +
@@ -433,10 +450,14 @@
                         html +=
                             '<input type="hidden" name="qty_checkout_mobile[]" id="qty_checkout_mobile_' +
                             battery.id + '" value="1">';
+                        // input type discount battery
+                        html +=
+                            '<input type="hidden" name="discount_checkout_mobile[]" id="discount_checkout_mobile_' +
+                            battery.id + '" value="' + discountPrice + '">';
                         // input type subtotal battery
                         html +=
                             '<input type="hidden" name="subtotal_checkout_mobile[]" id="subtotal_checkout_mobile_' +
-                            battery.id + '" value="' + batteryPrices.price_net +
+                            battery.id + '" value="' + batteryNetPrice +
                             '" class="subtotal_checkout_mobile">';
                         html +=
                             '<button class="btn btn-sm btn-rounded btn-dark-blue" id="btn-detail-battery-checkout-mobile" data-id="' +

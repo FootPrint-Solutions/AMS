@@ -31,7 +31,7 @@
     </div>
     <div class="card bg-grey mt-3">
         <div class="card-body">
-            <div classs="battery_customer_checkout_mobile" id="battery_customer_checkout_mobile">
+            <div class="battery_customer_checkout_mobile" id="battery_customer_checkout_mobile">
                 <div class="btn-add-more mt-3">
                     <span>Tambah</span>
                 </div>
@@ -206,7 +206,71 @@
                     <div class="col" id="price_battery_detail_mobile_checkout">
 
                     </div>
+                    <input type="hidden" name="price_battery_detail_input_mobile_checkout"
+                        id="price_battery_detail_input_mobile_checkout" class="form-control">
                 </div>
+
+                {{-- qty  --}}
+                <div class="row">
+                    <div class="col">
+                        Qty
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="number" name="qty_battery_detail_input_mobile_checkout"
+                            id="qty_battery_detail_input_mobile_checkout" value="1" class="form-control">
+                    </div>
+                </div>
+
+                {{-- tax --}}
+                <div class="row">
+                    <div class="col">
+                        PPN
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="text" name="tax_battery_detail_input_mobile_checkout"
+                            id="tax_battery_detail_input_mobile_checkout" value="11" readonly
+                            class="form-control">
+                    </div>
+                </div>
+
+                {{-- discount --}}
+                <div class="row">
+                    <div class="col">
+                        Diskon (Rp)
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="number" name="discount_battery_detail_input_mobile_checkout"
+                            id="discount_battery_detail_input_mobile_checkout" value="0" class="form-control">
+                    </div>
+                </div>
+
+                {{-- subtotal  --}}
+                <div class="row">
+                    <div class="col">
+                        Subtotal
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="text" name="subtotal_battery_detail_input_mobile_checkout"
+                            id="subtotal_battery_detail_input_mobile_checkout" value="0" readonly
+                            class="form-control">
+                    </div>
+                </div>
+
+                {{-- battery id  --}}
+                <input type="hidden" name="battery_id_detail_checkout_mobile"
+                    id="battery_id_detail_checkout_mobile">
             </div>
         </div>
     </div>
@@ -223,24 +287,24 @@
         var FullName = $("#full_name_input_mobile").val();
         var ContactNumber = $("#contact_input_mobile").val();
         var Battery = [];
-        $(".add-table-items tbody tr").each(function() {
-            var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-            var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-            var price = $(this).find("input[name='SubtotalRow[]']").val();
+        $(".item-detail.d-flex.align-items-center").each(function() {
+            var batteryName = $(this).find("input[name='battery_name_checkout_mobile[]']").val();
+            var quantity = $(this).find("input[name='qty_checkout_mobile[]']").val();
+            var price = $(this).find("input[name='subtotal_checkout_mobile[]']").val();
             Battery.push({
                 batteryName: batteryName,
                 quantity: quantity,
                 price: price
             });
         });
-        var subtotal = $("#subtotal").val();
+        var subtotal = $("#subtotal_hidden_checkout_mobile").val();
         var tax = $("#tax").val();
         var discount = $("#discount").val();
-        var TotalAmountHidden = $("#TotalAmountHidden").val();
-        var VehicleCustomer = $('#VehicleCustomer').val();
-        var Latitude = $("#Latitude").val();
-        var Longitude = $("#Longitude").val();
-        var AddressCustomer = $("#AddressCustomer").val();
+        var TotalAmountHidden = $("#total_amount_hidden_checkout_mobile").val();
+        var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
+        var Latitude = $('#latitude_input_mobile').val();
+        var Longitude = $('#longitude_input_mobile').val();
+        var AddressCustomer = $("#address_input_mobile").val();
         var typeDiscount = $("#type-discount").val();
 
         var data = {
@@ -343,6 +407,14 @@
     function btn_detail_battery_checkout(x) {
         var id = $(x).data('id');
 
+        // get qty and set to qty detail
+        var qty = $("#qty_checkout_mobile_" + id).val();
+        $("#qty_battery_detail_input_mobile_checkout").val(qty);
+
+        // get discount_checkout_mobile and set to discount detail
+        var discount = $("#discount_checkout_mobile_" + id).val();
+        $("#discount_battery_detail_input_mobile_checkout").val(discount);
+
         // send ajax to get detail battery 
         $.ajax({
             url: "/quotation/mobile/detail/battery",
@@ -356,7 +428,7 @@
                 $("#battery_detail_checkout_mobile").modal('show');
                 response = response.data[0];
                 var baseUrl = "{{ asset('storage/image/battery/') }}";
-                response.image = response.image;
+                response.image = baseUrl + '/' + response.image;
 
 
                 $("#image_battery_checkout_mobile").attr('src', response.image);
@@ -369,10 +441,44 @@
                     currency: 'IDR'
                 }).format(response.price_retail);
                 $("#price_battery_detail_mobile_checkout").text(formatPriceRetail);
-
+                $("#price_battery_detail_input_mobile_checkout").val(response.price_retail);
+                $("#battery_id_detail_checkout_mobile").val(response.id);
+                calculateSubtotalBatteryDetail();
             }
         });
     }
+
+    function calculateSubtotalBatteryDetail() {
+        var price = $("#price_battery_detail_input_mobile_checkout").val();
+        var qty = $("#qty_battery_detail_input_mobile_checkout").val();
+        var tax = $("#tax_battery_detail_input_mobile_checkout").val();
+        var discount = $("#discount_battery_detail_input_mobile_checkout").val();
+
+        var subtotal = (price * qty) + (price * qty * tax / 100);
+        subtotal = subtotal - discount;
+        $("#subtotal_battery_detail_input_mobile_checkout").val(subtotal);
+
+        formatSubtotal = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        }).format(subtotal);
+        $("#subtotal_battery_detail_input_mobile_checkout").val(formatSubtotal);
+
+        // set subtotal_checkout_mobile_
+        $("#subtotal_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(subtotal);
+        // set discount_checkout_mobile_
+        $("#discount_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(discount);
+        // set qty_checkout_mobile_
+        $("#qty_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(qty);
+        $("#qty_" + $("#battery_id_detail_checkout_mobile").val()).text(qty);
+        calculateSubtotal();
+    }
+
+    // when qty_battery_detail_input_mobile_checkout, tax_battery_detail_input_mobile_checkout, discount_battery_detail_input_mobile_checkout is changed calculateSubtotalBatteryDetail
+    $("#qty_battery_detail_input_mobile_checkout, #tax_battery_detail_input_mobile_checkout, #discount_battery_detail_input_mobile_checkout")
+        .on("keyup", function() {
+            calculateSubtotalBatteryDetail();
+        });
 
     $("#btn-share-whatsapp-step-3-mobile").on('click', function() {
         var button = $(this);
@@ -387,11 +493,9 @@
         var Latitude = $("#latitude_input_mobile").val();
         var Longitude = $("#longitude_input_mobile").val();
         var AddressCustomer = $('#address_input_mobile').val();
-        var battery = [];
-        var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
-        var PriceTabel = []; // Menambahkan array untuk menyimpan harga
 
-        $(".battery_customer_checkout_mobile").each(function() {
+        var Battery = [];
+        $(".item-detail.d-flex.align-items-center").each(function() {
             var batteryName = $(this).find("input[name='battery_name_checkout_mobile[]']").val();
             var quantity = $(this).find("input[name='qty_checkout_mobile[]']").val();
             var price = $(this).find("input[name='subtotal_checkout_mobile[]']").val();
@@ -400,14 +504,12 @@
                 quantity: quantity,
                 price: price
             });
-            QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
-            PriceTabel.push(price); // Menambahkan harga ke dalam array
         });
 
         var subtotal = $("#subtotal_hidden_checkout_mobile").val();
         var tax = $("#tax").val();
         var discount = $("#discount").val();
-        var TotalAmountHidden = $("#TotalAmountHidden").val();
+        var TotalAmountHidden = $("#total_amount_hidden_checkout_mobile").val();
         var typeDiscount = $("#type-discount").val();
 
         var data = {
@@ -551,39 +653,37 @@
                     response.data.Battery.forEach(function(battery) {
                         var qty = response.data.Qty.shift();
 
-                        var baseUrl = "{{ asset('storage/image/battery/') }}";
-                        battery.image = battery.image;
+                        baseUrl = "{{ asset('storage/image/battery/') }}";
+                        battery.image = baseUrl + '/' + battery.image;
 
-                        batteryHtml +=
-                            '<div class="d-flex justify-content-between align-items-center p-2 border-bottom">';
-                        batteryHtml += '<div class="d-flex align-items-center">';
-                        batteryHtml += '<img src="' + baseUrl + '/' + battery.image +
-                            '" alt="Product Image" class="img-fluid" style="width: 70px;" style="margin-left: 10px;">';
-                        batteryHtml += '<div class="ml-3">';
-                        batteryHtml += '<h6 class="mb-1">' + battery.name + '</h6>';
-                        batteryHtml += '<p class="mb-0">' + new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(battery.price_retail) + '</p>';
-                        batteryHtml += '</div>';
-                        batteryHtml += '</div>';
-                        batteryHtml += '<span>X' + qty + '</span>';
-                        batteryHtml += '</div>';
+                        batteryHtml += `
+                            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <img src="${battery.image}" alt="Product Image" class="img-fluid" style="width: 70px; margin-left: 10px;">
+                                    <div class="ml-3">
+                                        <h6 class="mb-1">${battery.name}</h6>
+                                        <p class="mb-0">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(battery.price_retail)}</p>
+                                    </div>
+                                </div>
+                                <span>X${qty}</span>
+                            </div>
+                        `;
                     });
                     $("#battery-payment-details-mobile").html(batteryHtml);
 
                     // loop payment method and set to payment-method-payment-details-mobile
                     var paymentMethodHtml = "";
                     response.data.PaymentMethod.forEach(function(paymentMethod) {
+                        var uniqueId = 'payment_gateway_payment_details_mobile_' +
+                            paymentMethod.id;
                         paymentMethodHtml +=
-                            '<div class="payment-method" data-id="payment_gateway_payment_details_mobile_' +
-                            paymentMethod
-                            .id + '">';
+                            '<div class="payment-method" data-id="' + uniqueId + '">';
                         paymentMethodHtml +=
-                            '<input type="radio" name="paymentMethod" id="payment_gateway_payment_details_mobile" value="' +
-                            paymentMethod.id + '">';
-                        paymentMethodHtml += '<label for="' + paymentMethod.name + '">' +
-                            paymentMethod.name +
+                            '<input type="radio" name="paymentMethod" id="' + uniqueId +
+                            '" value="' + paymentMethod.id + '" data-id="' + paymentMethod
+                            .id + '" onclick="selectPaymentMethodMobile(this)">';
+                        paymentMethodHtml +=
+                            '<label for="' + uniqueId + '">' + paymentMethod.name +
                             '</label>';
                         paymentMethodHtml += '</div>';
                     });
