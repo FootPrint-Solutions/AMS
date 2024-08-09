@@ -44,11 +44,17 @@
         /* padding */
         padding: 1rem;
     }
+
+    #loading-tracking {
+        display: inline-block;
+        margin-left: 1rem;
+    }
 </style>
 
 {{-- Live Tracking --}}
 <div id="live-tracking">
-    <h1 class="tracking-title">Live Tracking</h1>
+    <h1 class="tracking-title">Live Tracking <div id="loading-tracking"></div>
+    </h1>
     <div class="tracking-map-container">
         <div id="map" class="tracking-map"></div>
     </div>
@@ -153,39 +159,11 @@
         var infoWindow = new google.maps.InfoWindow({
             content: '<h1>My Location</h1>'
         });
-
-        // ajax get latest location current location
-        function getLatestLocation() {
-            // loading maps
-            document.getElementById('map').innerHTML =
-                '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
-            $.ajax({
-                url: '/tracking/live/{{ $tracking->work_order_id }}',
-                type: 'GET',
-                success: function(response) {
-                    // set value lat lng current
-                    document.getElementById('latitude_current').value = response.tracking.latitude_current;
-                    document.getElementById('longitude_current').value = response.tracking
-                        .longitude_current;
-
-                    // move marker current
-                    marker_current.setPosition({
-                        lat: parseFloat(response.tracking.latitude_current),
-                        lng: parseFloat(response.tracking.longitude_current)
-                    });
-                }
-            });
-        }
-
-        // interval 3 seconds
-        // setInterval(() => {
-        //     getLatestLocation();
-        // }, 3000);
     }
 
     function getLatestLocation() {
         // loading maps
-        document.getElementById('map').innerHTML =
+        document.getElementById('loading-tracking').innerHTML =
             '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
         $.ajax({
             url: '/tracking/live/{{ $tracking->work_order_id }}',
@@ -197,11 +175,16 @@
                     .longitude_current;
 
                 // move marker current
-                marker_current.setPosition({
-                    lat: parseFloat(response.tracking.latitude_current),
-                    lng: parseFloat(response.tracking.longitude_current)
-                });
+                initMap();
+
+                // remove loading maps
+                document.getElementById('loading-tracking').innerHTML = '';
             }
         });
     }
+
+    // auto refresh every 5 seconds
+    setInterval(function() {
+        getLatestLocation();
+    }, 5000);
 </script>
