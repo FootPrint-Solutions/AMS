@@ -155,7 +155,7 @@ class WorkOrderModel extends Model implements Auditable
 
     public static function getWorkOrderData($id)
     {
-        return self::with('batteries', 'salesOrder', 'customer', 'distributorShop', 'paymentMethod')
+        return self::with('batteries', 'salesOrder.batteries', 'customer', 'distributorShop', 'paymentMethod')
             ->where('id', $id)
             ->first();
     }

@@ -1,6 +1,19 @@
 {{-- Work Order Custom Css --}}
 <link rel="stylesheet" href="{{ asset('css/work-order.css') }}">
 
+<style>
+    .zoom {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        transition: transform 0.2s ease-in, top 0.2s ease, left 0.2s ease;
+        max-width: 90%;
+        border: 3px solid black;
+    }
+</style>
+
 <div class="d-block d-md-none">
     <div class="container">
         <h3>
@@ -282,15 +295,24 @@
 
                         // battery list loop 
                         $('#list-battery-detail').empty();
-                        workOrder.batteries.forEach(function(battery) {
+                        console.log(workOrder.sales_order.batteries);
+
+                        workOrder.sales_order.batteries.forEach(function(battery) {
+                            var imageUrl = image ?
+                                `{{ asset('storage/image/work-order/complete-image-file/${battery.image}') }}` :
+                                `{{ asset('img/default-empty.png') }}`;
+
                             $('#list-battery-detail').append(`
                                 <tr>
+                                    <td rowspan="2" style="width: 20%; padding-right: 5%;">
+                                        <img src="${imageUrl}" class="img-fluid img-complete-battery" alt="Battery complete image" style="cursor: pointer;">
+                                    </td>
                                     <td colspan="3">${battery.battery_name}</td>
                                 </tr>
                                 <tr>
-                                    <td width="60%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.battery_price)}</td>
+                                    <td width="60%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.price_net)}</td>
                                     <td width="50%">${battery.quantity}</td>
-                                    <td width="50%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.battery_price)}</td>
+                                    <td width="50%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.price_net)}</td>
                                 </tr>
                             `);
                         });
@@ -304,6 +326,17 @@
             // show modal work order detail
             $('#modal-work-order-detail').modal('show');
         });
+
+        $(document).on("click", ".img-complete-battery", function() {
+            if ($(this).hasClass("zoom")) {
+                $(this).removeClass("zoom");
+            } else {
+                $(".img-complete-battery").each(function() {
+                    $(this).removeClass("zoom");
+                });
+                $(this).addClass("zoom");
+            }
+        })
 
 
         // when delete work order clicked
