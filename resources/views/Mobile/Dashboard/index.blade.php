@@ -40,7 +40,7 @@
 
     <div class="row mt-4">
         <div class="col-4">
-            <div class="info-card" style="background-color: #007bff;">
+            <div class="info-card customer-card" style="background-color: #007bff;">
                 <div class="icon">
                     <svg width="44" height="45" viewBox="0 0 44 45" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -55,7 +55,7 @@
             </div>
         </div>
         <div class="col-4">
-            <div class="info-card" style="background-color: #17a2b8;">
+            <div class="info-card sales-order-card" style="background-color: #17a2b8;">
                 <div class="icon">
                     <svg width="44" height="44" viewBox="0 0 44 44" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +71,7 @@
             </div>
         </div>
         <div class="col-4">
-            <div class="info-card" style="background-color: #28a745;">
+            <div class="info-card work-order-card" style="background-color: #28a745;">
                 <div class="icon">
                     <svg width="44" height="44" viewBox="0 0 44 44" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -156,7 +156,9 @@
                         },
                         // color 
                         foreColor: 'white',
-
+                        toolbar: {
+                            show: false
+                        }
                     },
                     fill: {
                         colors: ['#F44336', '#E91E63', '#9C27B0']
@@ -229,6 +231,21 @@
                     });
                 });
             }
+        });
+
+        // customer card click redirect to customer page
+        $('.customer-card').click(function() {
+            window.location.href = '/customer';
+        });
+
+        // sales order card click redirect to sales order page
+        $('.sales-order-card').click(function() {
+            window.location.href = '/sales-order';
+        });
+
+        // work order card click redirect to work order page
+        $('.work-order-card').click(function() {
+            window.location.href = '/work-order';
         });
     });
 </script>

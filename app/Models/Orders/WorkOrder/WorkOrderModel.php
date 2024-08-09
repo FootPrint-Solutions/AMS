@@ -198,7 +198,7 @@ class WorkOrderModel extends Model implements Auditable
         $length = $request->input("limit");
 
         // get data from table work order for datatable
-        $data = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
+        $data = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name', 'sales_orders.status')
             ->leftJoin('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
             ->leftJoin('customers', 'work_orders.customer_id', '=', 'customers.id')
             ->addSelect([

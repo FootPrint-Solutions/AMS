@@ -16,6 +16,9 @@ use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PrintTemplateModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\WorkOrder\TrackingModel;
+use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
 {
@@ -169,6 +172,8 @@ class WorkOrder extends Controller
 
     public function uploadImage(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // jika ada inputan image 
             if (!$request->hasFile('image')) {
@@ -192,6 +197,11 @@ class WorkOrder extends Controller
                 // looping battery id and update production code
                 foreach ($request->battery_id as $key => $value) {
                     $battery = SalesOrderBatteryModel::find($value);
+
+                    $order = SalesOrderModel::find($battery->sales_order_id);
+                    if ($order->status == 'completed')
+                        throw new \Exception("Cannot update completed order detail.");
+
                     $battery->battery_production_code = $request->production_code[$key];
 
                     if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key]))
@@ -201,11 +211,14 @@ class WorkOrder extends Controller
                 }
             }
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data has been saved successfully.'
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             Log::error($th);
             return response()->json([
                 'success' => false,
@@ -334,6 +347,64 @@ class WorkOrder extends Controller
                 'status' => false,
                 'message' => 'Failed to get work order detail.'
             ]);
+        }
+    }
+
+    /**
+     * 
+     */
+    public function startTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+        $order = WorkOrderModel::find($workOrderId);
+
+        // Save tracking.
+        $tracking = new TrackingModel();
+        $tracking->work_order_id = $order->id;
+        $tracking->latitude_start = $currentLat;
+        $tracking->longitude_start = $currentLon;
+        $tracking->latitude_current = $currentLat;
+        $tracking->longitude_current = $currentLon;
+        $tracking->latitude_destination = $order->latitude;
+        $tracking->longitude_destination = $order->longitude;
+        $tracking->save();
+    }
+
+    /**
+     * 
+     */
+    public function updateTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+
+        // Save tracking.
+        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+        if ($tracking) {
+            $tracking->latitude_current = $currentLat;
+            $tracking->longitude_current = $currentLon;
+            $tracking->save();
+        }
+    }
+
+    /**
+     * 
+     */
+    public function endTracking(Request $request)
+    {
+        $workOrderId = $request->workOrderId;
+        $currentLat = $request->currentLat;
+        $currentLon = $request->currentLon;
+
+        // Save tracking.
+        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+        if ($tracking) {
+            $tracking->latitude_end = $currentLat;
+            $tracking->longitude_end = $currentLon;
+            $tracking->save();
         }
     }
 }

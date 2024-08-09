@@ -60,6 +60,7 @@
                             </button>
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-6">
                             <button class="custom-btn print-tech-btn">
@@ -68,11 +69,18 @@
                             </button>
                         </div>
                         <div class="col-6">
-                            <button class="custom-btn complete-btn">
-                                <i class="fas fa-check-circle"></i>
-                                Complete Work Order
+                            <button class="custom-btn" id="go-btn">
+                                <i class="fas fa-motorcycle"></i>
+                                <span id="go-btn-text">Go Technician Go</span>
                             </button>
                         </div>
+                    </div>
+
+                    <div class="row">
+                        <button class="custom-btn complete-btn">
+                            <i class="fas fa-check-circle"></i>
+                            Complete Work Order
+                        </button>
                     </div>
                 </div>
             </div>
@@ -433,10 +441,11 @@
                         <td><input type="number" name="battery_quantity[]" value="${battery.quantity}" class="form-control" readonly></td>
                         
                         <td>
-                            <label for="cameraInput" class="btn btn-primary btn-sm">
+                            <label for="image-${battery.id}" class="btn btn-primary btn-sm">
                                 <i class="fa-solid fa-camera"></i>
+                                <span class="file-name"></span>
                             </label>
-                            <input type="file" name="battery_image[]" id="cameraInput" class="d-none" accept="image/*" capture="camera">
+                            <input type="file" name="battery_image[]" id="image-${battery.id}" class="d-none file-input" accept="image/*" capture="camera">
                         </td>
                     </tr>
                 `;
@@ -530,9 +539,14 @@
                             currency: 'IDR',
                             minimumFractionDigits: 0
                         }).format(workOrder.total);
+
+                        var textColor = '';
+                        if (workOrder.status == 'completed')
+                            textColor = 'text-info';
+
                         var workOrderCard = `
                         <div class="card bg-white mt-1" id="work-order-list" data-id="${workOrder.id}">
-                        <div class="row mt-2 mb-2 left-2">
+                        <div class="row mt-2 mb-2 left-2 ${textColor}">
                             <div class="col-2">
                                 <button class="btn bg-dark-blue float-left btn-rounded text-center font-size-10 text-light" id="btn-work-order-card" data-id="${workOrder.id}">
                                     ${no++}
@@ -591,6 +605,147 @@
         $('#modal-printx').modal('show');
         $("#work_order_idx").val(id);
         showUploadImage();
+    }
+</script>
+
+<script>
+    let trackStart = false;
+    let watchId;
+
+    $(function() {
+        $(document).on('change', '.file-input', function() {
+            var fileName = $(this).val().split('\\').pop(); // Mendapatkan nama file
+            $(this).siblings('label').find('.file-name').text(fileName); // Menampilkan nama file
+        });
+
+        $("#go-btn").on('click', function() {
+            var workOrderId = $('#work_order_id_mobile').val();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    if (!trackStart) {
+                        startTracking(workOrderId, latitude, longitude);
+                    } else {
+                        endTracking(workOrderId, latitude, longitude);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Tracking Error',
+                    text: 'Your browser does not support geolocation tracking.',
+                    icon: 'error',
+                    timer: 1000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    });
+
+    function startTracking(workOrderId, latitude, longitude) {
+        // Start the tracking.
+        trackStart = true;
+
+        $.ajax({
+            url: '/work-order/mobile/track/start',
+            method: 'POST',
+            data: {
+                workOrderId: workOrderId,
+                currentLat: latitude,
+                currentLon: longitude,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Tracking Started',
+                    text: 'Do not close the browser while tracking is running!',
+                    icon: 'success',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                $("#go-btn-text").text("Stop Tracking Technician");
+
+                watchId = navigator.geolocation.watchPosition(function(position) {
+                    updateTracking(
+                        workOrderId,
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                }, function(error) {
+                    console.error('Error watching position:', error);
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 1000
+                });
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Tracking Error',
+                    text: 'There was an error starting the tracking.',
+                    icon: 'error',
+                    timer: 1000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+    function updateTracking(workOrderId, latitude, longitude) {
+        $.ajax({
+            url: '/work-order/mobile/track/update',
+            method: 'POST',
+            data: {
+                workOrderId: workOrderId,
+                currentLat: latitude,
+                currentLon: longitude,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function(response) {
+                console.log("Tracking updated:", latitude, longitude);
+            },
+            error: function(error) {
+                console.log("Tracking update error:", error);
+            }
+        });
+    }
+
+    function endTracking(workOrderId, latitude, longitude) {
+        // Stop the tracking.
+        trackStart = false;
+
+        // Stop tracking.
+        navigator.geolocation.clearWatch(watchId);
+
+        $.ajax({
+            url: '/work-order/mobile/track/end',
+            method: 'POST',
+            data: {
+                workOrderId: workOrderId,
+                currentLat: latitude,
+                currentLon: longitude,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Tracking Ended',
+                    icon: 'success',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                $("#go-btn-text").text("Go Technician Go");
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Ending Tracking Error',
+                    text: 'There was an error ending the tracking.',
+                    icon: 'error',
+                    timer: 1000,
+                    showConfirmButton: false
+                });
+            }
+        });
     }
 </script>
 

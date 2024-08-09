@@ -444,11 +444,18 @@
                 processData: false,
                 success: function(response) {
                     // Show success message.
-                    Swal.fire({
-                        title: "Success",
-                        text: response.message,
-                        icon: "success",
-                    });
+                    if (response.status)
+                        Swal.fire({
+                            title: "Success",
+                            text: response.message,
+                            icon: "success",
+                        });
+                    else
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error",
+                        });
 
                     // Hide the modal.
                     $('#modal-upload-complete-work-order').modal('hide');
