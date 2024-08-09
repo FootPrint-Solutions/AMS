@@ -88,7 +88,7 @@
     function initMap() {
         // map options bandung ( -6.914689745762283, 107.61396939831049 )
         var options = {
-            zoom: 15,
+            zoom: 19,
             center: {
                 lat: parseFloat(document.getElementById('latitude_current').value),
                 lng: parseFloat(document.getElementById('longitude_current').value)
@@ -162,7 +162,7 @@
         document.getElementById('map').innerHTML =
             '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
         $.ajax({
-            url: '/tracking/live/{{ $tracking->id }}',
+            url: '/tracking/live/{{ $tracking->work_order_id }}',
             type: 'GET',
             success: function(response) {
                 // set value lat lng current
