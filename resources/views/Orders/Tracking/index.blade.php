@@ -54,7 +54,7 @@
     </div>
 
     {{-- button refresh manual to get the latest location --}}
-    <button class="btn btn-primary mt-3" onclick="initMap()">Refresh</button>
+    <button class="btn btn-primary mt-3" onclick="getLatestLocation()">Refresh</button>
 </div>
 
 
@@ -128,6 +128,16 @@
             icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
         });
 
+        // add marker current
+        var marker_current = new google.maps.Marker({
+            position: {
+                lat: parseFloat(document.getElementById('latitude_current').value),
+                lng: parseFloat(document.getElementById('longitude_current').value)
+            },
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+        });
+
         // polyline path start to end
         var path = [{
                 lat: parseFloat(document.getElementById('latitude_start').value),
@@ -144,9 +154,29 @@
             content: '<h1>My Location</h1>'
         });
 
-        // add event listener
-        marker.addListener('click', function() {
-            infoWindow.open(map, marker);
+    }
+
+    // ajax get latest location current location
+    function getLatestLocation() {
+        // loading maps
+        document.getElementById('map').innerHTML =
+            '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        $.ajax({
+            url: '/tracking/live/{{ $tracking->id }}',
+            type: 'GET',
+            success: function(response) {
+                // set value lat lng current
+                document.getElementById('latitude_current').value = response.tracking.latitude_current;
+                document.getElementById('longitude_current').value = response.tracking.longitude_current;
+
+                // refresh map
+                initMap();
+            }
         });
     }
+
+    // interval 3 seconds
+    setInterval(() => {
+        getLatestLocation();
+    }, 3000);
 </script>

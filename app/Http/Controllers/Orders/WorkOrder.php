@@ -487,4 +487,24 @@ class WorkOrder extends Controller
             ]);
         }
     }
+
+    public function trackingOrderLive($id)
+    {
+        try {
+            $workOrderId = $id;
+            $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+
+            // return json 
+            return response()->json([
+                'status' => true,
+                'tracking' => $tracking
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get tracking data. ' . $th->getMessage()
+            ]);
+        }
+    }
 }
