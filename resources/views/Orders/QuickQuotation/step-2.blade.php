@@ -9,7 +9,8 @@
                 <div class="input-group">
                     <span class="input-group-text border-end country-code">+62</span>
                     <label>Contact Number <span class="login-danger">*</span></label>
-                    <input type="number" class="form-control" id="ContactNumber" name="ContactNumber" placeholder="Enter Contract Number" value="" required autocomplete="off">
+                    <input type="number" class="form-control" id="ContactNumber" name="ContactNumber"
+                        placeholder="Enter Contract Number" value="" required autocomplete="off">
                 </div>
                 <div id="AutoCompleteFullNameCustomerContact"></div>
             </div>
@@ -17,7 +18,8 @@
         <div class="col-lg-6">
             <div class="form-group local-forms">
                 <label>Email </label>
-                <input type="email" class="form-control" id="EmailCustomer" name="EmailCustomer" placeholder="Enter Email" value="" autocomplete="off">
+                <input type="email" class="form-control" id="EmailCustomer" name="EmailCustomer"
+                    placeholder="Enter Email" value="" autocomplete="off">
             </div>
         </div>
     </div>
@@ -25,7 +27,8 @@
         <div class="col-lg-6">
             <div class="form-group local-forms">
                 <label>Full Name <span class="login-danger">*</span></label>
-                <input type="text" class="form-control" id="FullName" name="FullName" placeholder="Enter Full Name" value="" required autocomplete="off">
+                <input type="text" class="form-control" id="FullName" name="FullName" placeholder="Enter Full Name"
+                    value="" required autocomplete="off">
                 <div id="AutoCompleteFullNameCustomer"></div>
                 <span class="badge bg-success" id="UserExist" style='display:none;'>User
                     Exist</span>
@@ -51,7 +54,7 @@
         </div>
 
         <div class="col-lg-6 d-none">
-            <div id="map"></div>
+            <div id="map-customer-address"></div>
         </div>
 
         <div class="col-lg-6">
@@ -69,7 +72,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalMapsDistributor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalMapsDistributor" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -91,7 +95,8 @@
     </div>
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous
             </a>
         </div>
         <div class="col text-end">
@@ -99,7 +104,8 @@
                 <i class="far fa-copy"></i>
                 Copy from Input
             </button>
-            <button id='BtnShareBattery' class="btn btn-success"> Share <i class="fa-brands fa-whatsapp"></i></button>
+            <button id='BtnShareBattery' class="btn btn-success"> Share <i
+                    class="fa-brands fa-whatsapp"></i></button>
             <a href="javascript: void(0);" class="btn btn-primary product-next-btn">Next
                 <i class="bx bx-chevron-right ms-1"></i>
             </a>

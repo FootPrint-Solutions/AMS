@@ -154,9 +154,35 @@
             content: '<h1>My Location</h1>'
         });
 
+        // ajax get latest location current location
+        function getLatestLocation() {
+            // loading maps
+            document.getElementById('map').innerHTML =
+                '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+            $.ajax({
+                url: '/tracking/live/{{ $tracking->work_order_id }}',
+                type: 'GET',
+                success: function(response) {
+                    // set value lat lng current
+                    document.getElementById('latitude_current').value = response.tracking.latitude_current;
+                    document.getElementById('longitude_current').value = response.tracking
+                        .longitude_current;
+
+                    // move marker current
+                    marker_current.setPosition({
+                        lat: parseFloat(response.tracking.latitude_current),
+                        lng: parseFloat(response.tracking.longitude_current)
+                    });
+                }
+            });
+        }
+
+        // interval 3 seconds
+        // setInterval(() => {
+        //     getLatestLocation();
+        // }, 3000);
     }
 
-    // ajax get latest location current location
     function getLatestLocation() {
         // loading maps
         document.getElementById('map').innerHTML =
@@ -167,16 +193,15 @@
             success: function(response) {
                 // set value lat lng current
                 document.getElementById('latitude_current').value = response.tracking.latitude_current;
-                document.getElementById('longitude_current').value = response.tracking.longitude_current;
+                document.getElementById('longitude_current').value = response.tracking
+                    .longitude_current;
 
-                // refresh map
-                initMap();
+                // move marker current
+                marker_current.setPosition({
+                    lat: parseFloat(response.tracking.latitude_current),
+                    lng: parseFloat(response.tracking.longitude_current)
+                });
             }
         });
     }
-
-    // interval 3 seconds
-    setInterval(() => {
-        getLatestLocation();
-    }, 3000);
 </script>
