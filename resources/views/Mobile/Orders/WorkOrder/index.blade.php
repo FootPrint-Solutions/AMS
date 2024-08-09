@@ -619,17 +619,17 @@
         });
 
         $("#go-btn").on('click', function() {
+
             var workOrderId = $('#work_order_id_mobile').val();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
 
-                    if (!trackStart) {
+                    if (!trackStart)
                         startTracking(workOrderId, latitude, longitude);
-                    } else {
+                    else
                         endTracking(workOrderId, latitude, longitude);
-                    }
                 });
             } else {
                 Swal.fire({
@@ -657,11 +657,22 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
+                if (!response.success) {
+                    Swal.fire({
+                        title: 'Tracking Error',
+                        text: 'There was an error starting the tracking.',
+                        icon: 'error',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: 'Tracking Started',
                     text: 'Do not close the browser while tracking is running!',
                     icon: 'success',
-                    timer: 3000,
+                    timer: 2000,
                     showConfirmButton: false
                 });
                 $("#go-btn-text").text("Stop Tracking Technician");
@@ -728,6 +739,17 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
+                if (!response.success) {
+                    Swal.fire({
+                        title: 'Tracking Error',
+                        text: 'There was an error ending the tracking.',
+                        icon: 'error',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: 'Tracking Ended',
                     icon: 'success',
