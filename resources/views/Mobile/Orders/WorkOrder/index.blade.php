@@ -610,7 +610,7 @@
 
 <script>
     let trackStart = false;
-    let watchId;
+    let intervalId;
 
     $(function() {
         $(document).on('change', '.file-input', function() {
@@ -657,7 +657,9 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
-                if (!response.success) {
+                var response = JSON.parse(response);
+
+                if (!response.status) {
                     Swal.fire({
                         title: 'Tracking Error',
                         text: 'There was an error starting the tracking.',
@@ -677,24 +679,24 @@
                 });
                 $("#go-btn-text").text("Stop Tracking Technician");
 
-                watchId = navigator.geolocation.watchPosition(function(position) {
-                    updateTracking(
-                        workOrderId,
-                        position.coords.latitude,
-                        position.coords.longitude
-                    );
-                }, function(error) {
-                    console.error('Error watching position:', error);
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 1000
-                });
+                intervalId = setInterval(function() {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        let latitude = position.coords.latitude;
+                        let longitude = position.coords.longitude;
+
+                        updateTracking(workOrderId, latitude, longitude);
+                    }, function(error) {
+                        console.log("Error getting location:", error);
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 5000
+                    });
+                }, 5000);
             },
             error: function(error) {
                 Swal.fire({
                     title: 'Tracking Error',
-                    text: 'There was an error starting the tracking.',
+                    text: 'There was an error starting the trackingx.',
                     icon: 'error',
                     timer: 1000,
                     showConfirmButton: false
@@ -727,7 +729,7 @@
         trackStart = false;
 
         // Stop tracking.
-        navigator.geolocation.clearWatch(watchId);
+        clearInterval(intervalId);
 
         $.ajax({
             url: '/work-order/mobile/track/end',
@@ -739,7 +741,9 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
-                if (!response.success) {
+                var response = JSON.parse(response);
+
+                if (!response.status) {
                     Swal.fire({
                         title: 'Tracking Error',
                         text: 'There was an error ending the tracking.',

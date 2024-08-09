@@ -408,22 +408,21 @@ class WorkOrder extends Controller
             // Save tracking.
             $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
 
-            if (!$tracking)
-                throw new Exception("No tracking process for the current work order.");
+            if ($tracking->latitude_current != $currentLat || $tracking->longitude_current != $currentLon) {
+                $tracking->latitude_current = $currentLat;
+                $tracking->longitude_current = $currentLon;
+                $status = $tracking->save();
 
-            $tracking->latitude_current = $currentLat;
-            $tracking->longitude_current = $currentLon;
-            $status = $tracking->save();
+                if ($status)
+                    DB::commit();
+                else
+                    DB::rollBack();
 
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
-            return getResponseData(
-                $status,
-                $status ? "The tracking process was successfully updated!" : "Failed to update the tracking process!"
-            );
+                return getResponseData(
+                    $status,
+                    $status ? "The tracking process was successfully updated!" : "Failed to update the tracking process!"
+                );
+            }
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e);
