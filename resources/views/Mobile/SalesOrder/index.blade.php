@@ -265,9 +265,12 @@
 {{-- Modal Detail --}}
 <div class="modal fade" id="modal-detail">
     <div class="modal-dialog modal-dialog-centered">
+
         <div class="modal-content">
-            {{-- Header --}}
-            <h3 class="text-center mt-3">SO Details</h3>
+            <div class="modal-header">
+                <h3 class="modal-title">SO Details</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
             {{-- Body --}}
             <div class="modal-body">
@@ -323,7 +326,9 @@
 
                 <br>
                 <div class="h4 fw-bold">Batteries</div>
-                <ul class="list-group list-group-flush" id="list-details"></ul>
+                <div class="scrollable-list">
+                    <ul class="list-group list-group-flush" id="list-details"></ul>
+                </div>
             </div>
         </div>
     </div>

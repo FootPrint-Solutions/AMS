@@ -64,7 +64,6 @@ use App\Http\Controllers\Server\Midtrans;
 |
 */
 
-
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
     Route::get('/', [Dashboard::class, 'index']);
@@ -135,7 +134,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy');
 
     // Battery Usage Type
-    Route::get('/battery/usage', [BatteryUsage::class, 'index'])->name("battery.usage.index");
+    Route::get('/battery/usage', [BatteryUsage::class, 'index'])->name('battery.usage.index');
     Route::post('/battery/usage/show', [BatteryUsage::class, 'show'])->name('battery.usage.show');
     Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
     Route::get('/battery/usage/edit/{id}', [BatteryUsage::class, 'edit'])->name('battery.usage.edit');
@@ -144,7 +143,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy');
 
     // Battery Technology
-    Route::get('/battery/technology', [BatteryTechnology::class, 'index'])->name("battery.Technology.index");
+    Route::get('/battery/technology', [BatteryTechnology::class, 'index'])->name('battery.Technology.index');
     Route::post('/battery/technology/show', [BatteryTechnology::class, 'show'])->name('battery.technology.show');
     Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
     Route::get('/battery/technology/edit/{id}', [BatteryTechnology::class, 'edit'])->name('battery.technology.edit');
@@ -153,7 +152,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy');
 
     // Battery Size Category
-    Route::get('/battery/size', [BatterySize::class, 'index'])->name("battery.size.index");
+    Route::get('/battery/size', [BatterySize::class, 'index'])->name('battery.size.index');
     Route::post('/battery/size/show', [BatterySize::class, 'show'])->name('battery.size.show');
     Route::get('/battery/size/create', [BatterySize::class, 'create']);
     Route::get('/battery/size/edit/{id}', [BatterySize::class, 'edit'])->name('battery.size.edit');
@@ -162,7 +161,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
 
     // Distributor
-    Route::get('/distributor', [Distributor::class, 'index'])->name("distributor.index");
+    Route::get('/distributor', [Distributor::class, 'index'])->name('distributor.index');
     Route::post('/distributor/show', [Distributor::class, 'show']);
     Route::get('/distributor/create', [Distributor::class, 'create']);
     Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
@@ -187,7 +186,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
 
     // Shop Technician
-    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index'])->name("distributor.technician.index");
+    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index'])->name('distributor.technician.index');
     Route::post('/distributor/technician/show', [DistributorShopTechnician::class, 'show']);
     Route::get('/distributor/technician/create', [DistributorShopTechnician::class, 'create']);
     Route::get('/distributor/technician/edit/{id}', [DistributorShopTechnician::class, 'edit']);
@@ -317,7 +316,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/promo/toggle', [Promo::class, 'updateStatus']);
 
     //profile
-    Route::get('/profile',  [Profile::class, 'index']);
+    Route::get('/profile', [Profile::class, 'index']);
     Route::post('/profile/update', [Profile::class, 'update']);
     Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture']);
     Route::post('/profile/password/update', [Profile::class, 'updatePassword']);
@@ -327,20 +326,19 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
-
     // Reusable Component
     Route::get('/datatables/toolbar', function () {
         $editUrl = request()->input('editUrl');
         $deleteUrl = request()->input('deleteUrl');
         $toggleUrl = request()->input('toggleUrl');
         $idIdx = request()->input('idIdx');
-        return view('components.dt-toolbar', array('idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl))->render();
+        return view('components.dt-toolbar', ['idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl])->render();
     });
 });
 
 Route::middleware(['developer'])->group(function () {
     // Menu Manager
-    Route::get('/menu',  [Menu::class, 'index']);
+    Route::get('/menu', [Menu::class, 'index']);
     Route::post('/menu/show', [Menu::class, 'show']);
     Route::get('/menu/create', [Menu::class, 'create']);
     Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
@@ -363,3 +361,7 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/midtrans/snap/token', [Midtrans::class, 'createSnapToken']);
     Route::post('/midtrans/notification', [Midtrans::class, 'notificationHandler']);
 });
+
+// route for all user to tracking order
+Route::get('/tracking/{order_id}', [WorkOrder::class, 'trackingOrder']);
+Route::get('/tracking/live/{order_id}', [WorkOrder::class, 'trackingOrderLive']);

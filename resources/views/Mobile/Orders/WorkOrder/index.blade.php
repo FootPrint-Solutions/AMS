@@ -610,7 +610,7 @@
 
 <script>
     let trackStart = false;
-    let watchId;
+    let intervalId;
 
     $(function() {
         $(document).on('change', '.file-input', function() {
@@ -619,17 +619,17 @@
         });
 
         $("#go-btn").on('click', function() {
+
             var workOrderId = $('#work_order_id_mobile').val();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
 
-                    if (!trackStart) {
+                    if (!trackStart)
                         startTracking(workOrderId, latitude, longitude);
-                    } else {
+                    else
                         endTracking(workOrderId, latitude, longitude);
-                    }
                 });
             } else {
                 Swal.fire({
@@ -657,33 +657,46 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
+                var response = JSON.parse(response);
+
+                if (!response.status) {
+                    Swal.fire({
+                        title: 'Tracking Error',
+                        text: 'There was an error starting the tracking.',
+                        icon: 'error',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: 'Tracking Started',
                     text: 'Do not close the browser while tracking is running!',
                     icon: 'success',
-                    timer: 3000,
+                    timer: 2000,
                     showConfirmButton: false
                 });
                 $("#go-btn-text").text("Stop Tracking Technician");
 
-                watchId = navigator.geolocation.watchPosition(function(position) {
-                    updateTracking(
-                        workOrderId,
-                        position.coords.latitude,
-                        position.coords.longitude
-                    );
-                }, function(error) {
-                    console.error('Error watching position:', error);
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 1000
-                });
+                intervalId = setInterval(function() {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        let latitude = position.coords.latitude;
+                        let longitude = position.coords.longitude;
+
+                        updateTracking(workOrderId, latitude, longitude);
+                    }, function(error) {
+                        console.log("Error getting location:", error);
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 5000
+                    });
+                }, 5000);
             },
             error: function(error) {
                 Swal.fire({
                     title: 'Tracking Error',
-                    text: 'There was an error starting the tracking.',
+                    text: 'There was an error starting the trackingx.',
                     icon: 'error',
                     timer: 1000,
                     showConfirmButton: false
@@ -716,7 +729,7 @@
         trackStart = false;
 
         // Stop tracking.
-        navigator.geolocation.clearWatch(watchId);
+        clearInterval(intervalId);
 
         $.ajax({
             url: '/work-order/mobile/track/end',
@@ -728,6 +741,19 @@
                 _token: "{{ csrf_token() }}",
             },
             success: function(response) {
+                var response = JSON.parse(response);
+
+                if (!response.status) {
+                    Swal.fire({
+                        title: 'Tracking Error',
+                        text: 'There was an error ending the tracking.',
+                        icon: 'error',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: 'Tracking Ended',
                     icon: 'success',

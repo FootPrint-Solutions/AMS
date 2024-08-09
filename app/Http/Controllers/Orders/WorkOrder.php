@@ -355,21 +355,42 @@ class WorkOrder extends Controller
      */
     public function startTracking(Request $request)
     {
-        $workOrderId = $request->workOrderId;
-        $currentLat = $request->currentLat;
-        $currentLon = $request->currentLon;
-        $order = WorkOrderModel::find($workOrderId);
+        DB::beginTransaction();
 
-        // Save tracking.
-        $tracking = new TrackingModel();
-        $tracking->work_order_id = $order->id;
-        $tracking->latitude_start = $currentLat;
-        $tracking->longitude_start = $currentLon;
-        $tracking->latitude_current = $currentLat;
-        $tracking->longitude_current = $currentLon;
-        $tracking->latitude_destination = $order->latitude;
-        $tracking->longitude_destination = $order->longitude;
-        $tracking->save();
+        try {
+            $workOrderId = $request->workOrderId;
+            $currentLat = $request->currentLat;
+            $currentLon = $request->currentLon;
+            $order = WorkOrderModel::find($workOrderId);
+
+            if (TrackingModel::where('work_order_id', $order->id)->exists())
+                throw new Exception("There is already a tracking process for the current work order.");
+
+            // Save tracking.
+            $tracking = new TrackingModel();
+            $tracking->work_order_id = $order->id;
+            $tracking->latitude_start = $currentLat;
+            $tracking->longitude_start = $currentLon;
+            $tracking->latitude_current = $currentLat;
+            $tracking->longitude_current = $currentLon;
+            $tracking->latitude_destination = $order->latitude;
+            $tracking->longitude_destination = $order->longitude;
+            $status = $tracking->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? "The tracking process was successfully started!" : "Failed to start the tracking process!"
+            );
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+            return getResponseData(false);
+        }
     }
 
     /**
@@ -377,16 +398,35 @@ class WorkOrder extends Controller
      */
     public function updateTracking(Request $request)
     {
-        $workOrderId = $request->workOrderId;
-        $currentLat = $request->currentLat;
-        $currentLon = $request->currentLon;
+        DB::beginTransaction();
 
-        // Save tracking.
-        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
-        if ($tracking) {
-            $tracking->latitude_current = $currentLat;
-            $tracking->longitude_current = $currentLon;
-            $tracking->save();
+        try {
+            $workOrderId = $request->workOrderId;
+            $currentLat = $request->currentLat;
+            $currentLon = $request->currentLon;
+
+            // Save tracking.
+            $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+
+            if ($tracking->latitude_current != $currentLat || $tracking->longitude_current != $currentLon) {
+                $tracking->latitude_current = $currentLat;
+                $tracking->longitude_current = $currentLon;
+                $status = $tracking->save();
+
+                if ($status)
+                    DB::commit();
+                else
+                    DB::rollBack();
+
+                return getResponseData(
+                    $status,
+                    $status ? "The tracking process was successfully updated!" : "Failed to update the tracking process!"
+                );
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+            return getResponseData(false);
         }
     }
 
@@ -395,16 +435,76 @@ class WorkOrder extends Controller
      */
     public function endTracking(Request $request)
     {
-        $workOrderId = $request->workOrderId;
-        $currentLat = $request->currentLat;
-        $currentLon = $request->currentLon;
+        DB::beginTransaction();
 
-        // Save tracking.
-        $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
-        if ($tracking) {
+        try {
+            $workOrderId = $request->workOrderId;
+            $currentLat = $request->currentLat;
+            $currentLon = $request->currentLon;
+
+            // Save tracking.
+            $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+
+            if (!$tracking)
+                throw new Exception("No tracking process for the current work order.");
+
             $tracking->latitude_end = $currentLat;
             $tracking->longitude_end = $currentLon;
-            $tracking->save();
+            $status = $tracking->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? "The tracking process was successfully ended!" : "Failed to end the tracking process!"
+            );
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     *  Get tracking data.
+     */
+    public function trackingOrder($id)
+    {
+        try {
+            $workOrderId = $id;
+            $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+
+            // return view
+            return view('Orders.Tracking.index', compact('tracking'));
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get tracking data. ' . $th->getMessage()
+            ]);
+        }
+    }
+
+    public function trackingOrderLive($id)
+    {
+        try {
+            $workOrderId = $id;
+            $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
+
+            // return json 
+            return response()->json([
+                'status' => true,
+                'tracking' => $tracking
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get tracking data. ' . $th->getMessage()
+            ]);
         }
     }
 }
