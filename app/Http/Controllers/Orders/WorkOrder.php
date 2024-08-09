@@ -361,7 +361,10 @@ class WorkOrder extends Controller
             $workOrderId = $request->workOrderId;
             $currentLat = $request->currentLat;
             $currentLon = $request->currentLon;
-            $order = WorkOrderModel::find($workOrderId);
+            $order = WorkOrderModel::with('salesOrder')->find($workOrderId);
+
+            if ($order->status == 'completed')
+                throw new Exception("Unable to start tracking for completed work order.");
 
             if (TrackingModel::where('work_order_id', $order->id)->exists())
                 throw new Exception("There is already a tracking process for the current work order.");

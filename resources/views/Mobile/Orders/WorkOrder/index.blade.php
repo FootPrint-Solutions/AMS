@@ -619,7 +619,6 @@
         });
 
         $("#go-btn").on('click', function() {
-
             var workOrderId = $('#work_order_id_mobile').val();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -656,10 +655,13 @@
                 currentLon: longitude,
                 _token: "{{ csrf_token() }}",
             },
+            beforeSend: function() {
+                $("#go-btn").addClass("disabled");
+            },
             success: function(response) {
                 var response = JSON.parse(response);
-
                 if (!response.status) {
+                    trackStart = false;
                     Swal.fire({
                         title: 'Tracking Error',
                         text: 'There was an error starting the tracking.',
@@ -677,6 +679,7 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+                $("#go-btn").removeClass("disabled");
                 $("#go-btn-text").text("Stop Tracking Technician");
 
                 intervalId = setInterval(function() {
@@ -701,6 +704,7 @@
                     timer: 1000,
                     showConfirmButton: false
                 });
+                trackStart = false;
             }
         });
     }
