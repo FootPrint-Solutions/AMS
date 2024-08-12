@@ -360,7 +360,7 @@ class SalesOrder extends Controller
             DB::rollBack();
 
             // Logging error message.
-            Log::error($e->getMessage());
+            Log::error($e);
 
             // Set an error response data to be sent.
             return getResponseData(false);
