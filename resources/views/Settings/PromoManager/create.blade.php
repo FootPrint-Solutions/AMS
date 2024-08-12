@@ -428,7 +428,7 @@
                     // Assign value to every columns.
                     $("#battery-name-" + number).val(battery.name);
                     $("#battery-priceretail-" + number).val(battery.price_retail);
-                    $("#battery-id-" + number).val(battery.id);
+                    $("#battery-id-" + number).val(battery.battery_id);
 
                     // Format the retail price.
                     formatPrice($("#battery-priceretail-" + number));
