@@ -1405,7 +1405,7 @@ $arrayVehicle
                         'tax' => $value['tax'] ?? 0,
                         'tax_price' => $value['tax_price'] ?? 0,
                         'price_net' => $Price[$key],
-                        'quantity' => $Qty[$key],
+                        'quantity' => 1,
                     ];
                 }
             }
