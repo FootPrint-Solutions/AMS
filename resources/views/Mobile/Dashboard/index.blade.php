@@ -233,11 +233,6 @@
             }
         });
 
-        // customer card click redirect to customer page
-        $('.customer-card').click(function() {
-            window.location.href = '/customer';
-        });
-
         // sales order card click redirect to sales order page
         $('.sales-order-card').click(function() {
             window.location.href = '/sales-order';

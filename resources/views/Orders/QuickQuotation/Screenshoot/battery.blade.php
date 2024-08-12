@@ -54,6 +54,11 @@
     .item strong {
         color: #00ff00;
     }
+
+    .img-responsive {
+        width: 100%;
+        height: auto;
+    }
 </style>
 </head>
 
@@ -108,7 +113,7 @@
     </div>
 </div>
 
-<img src="" alt="" id="image-coppy">
+<img src="" alt="" id="image-coppy" class="img-responsive">
 
 <script src="{{ asset('/js/html2canvas.min.js') }}"></script>
 

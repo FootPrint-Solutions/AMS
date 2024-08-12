@@ -189,12 +189,11 @@
                 text: "Please select payment method",
                 icon: "error",
             });
-            return;
-
             button.prop('disabled', false);
             button.html(
                 "<i class='fa-brands fa-whatsapp'></i> Share"
             );
+            return;
         }
 
         var data = {
@@ -301,12 +300,13 @@
                 text: "Please select payment method",
                 icon: "error",
             });
-            return;
 
             button.prop('disabled', false);
             button.html(
                 "<i class='fa fa-copy fa-md'></i> Copy"
             );
+
+            return;
         }
 
         var data = {
@@ -413,19 +413,18 @@
                 text: "Please select payment method",
                 icon: "error",
             });
-            return;
-
             button.prop('disabled', false);
             button.html(
                 "Save Changes"
             );
+            return;
         }
 
         $("input[name='qty_checkout_mobile[]']").each(function() {
             QtyTabel.push($(this).val()); // Menambahkan kuantitas ke dalam array
         });
 
-        $("input[name='subtotal_checkout_mobile[]']").each(function() {
+        $("input[name='unit_price_checkout_mobile[]']").each(function() {
             PriceTabel.push($(this).val()); // Menambahkan harga ke dalam array
         });
 

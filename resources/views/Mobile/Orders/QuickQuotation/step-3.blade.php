@@ -224,6 +224,20 @@
                     </div>
                 </div>
 
+                {{-- discount --}}
+                <div class="row">
+                    <div class="col">
+                        Diskon (Rp)
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="number" name="discount_battery_detail_input_mobile_checkout"
+                            id="discount_battery_detail_input_mobile_checkout" value="0" class="form-control">
+                    </div>
+                </div>
+
                 {{-- tax --}}
                 <div class="row">
                     <div class="col">
@@ -239,19 +253,7 @@
                     </div>
                 </div>
 
-                {{-- discount --}}
-                <div class="row">
-                    <div class="col">
-                        Diskon (Rp)
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="number" name="discount_battery_detail_input_mobile_checkout"
-                            id="discount_battery_detail_input_mobile_checkout" value="0" class="form-control">
-                    </div>
-                </div>
+
 
                 {{-- subtotal  --}}
                 <div class="row">
@@ -271,6 +273,10 @@
                 {{-- battery id  --}}
                 <input type="hidden" name="battery_id_detail_checkout_mobile"
                     id="battery_id_detail_checkout_mobile">
+
+                {{-- unit price --}}
+                <input type="hidden" name="unit_price_detail_checkout_mobile" id="unit_price_detail_checkout_mobile"
+                    value="0">
             </div>
         </div>
     </div>
@@ -414,6 +420,11 @@
         var discount = $("#discount_checkout_mobile_" + id).val();
         $("#discount_battery_detail_input_mobile_checkout").val(discount);
 
+        // get unit_price_checkout_mobile and set to unit_price detail
+        var unitPrice = $("#unit_price_checkout_mobile_" + id).val();
+        $("#unit_price_detail_checkout_mobile").val(unitPrice);
+
+
         // send ajax to get detail battery 
         $.ajax({
             url: "/quotation/mobile/detail/battery",
@@ -452,6 +463,9 @@
         var qty = $("#qty_battery_detail_input_mobile_checkout").val();
         var tax = $("#tax_battery_detail_input_mobile_checkout").val();
         var discount = $("#discount_battery_detail_input_mobile_checkout").val();
+        var unitPrice = $("#unit_price_detail_checkout_mobile").val();
+
+        var unitPriceNet = unitPrice - discount;
 
         var subtotal = (price * qty) + (price * qty * tax / 100);
         subtotal = subtotal - discount;
@@ -470,6 +484,8 @@
         // set qty_checkout_mobile_
         $("#qty_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(qty);
         $("#qty_" + $("#battery_id_detail_checkout_mobile").val()).text(qty);
+        // set unit_price_checkout_mobile_
+        $("#unit_price_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(unitPriceNet);
         calculateSubtotal();
     }
 

@@ -213,15 +213,15 @@
         var FullName = $("#full_name_input_mobile").val();
         var EmailCustomer = $("#email_input_mobile").val();
         var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
-        var Battery = [];
+        var BatteryStep2 = [];
         $('.btn-owl-carousel-step-2').each(function() {
             if ($(this).data('check') == 1) {
-                Battery.push($(this).data('id'));
+                BatteryStep2.push($(this).data('id'));
             }
         });
         var contactNumber = $("#contact_input_mobile").val();
 
-        if (Battery.length == 0) {
+        if (BatteryStep2.length == 0) {
             swal.fire("Error!", "Please select battery", "error");
             button.prop('disabled', false);
             button.html(
@@ -249,7 +249,7 @@
             return;
         }
 
-        Battery.forEach(function(battery) {
+        BatteryStep2.forEach(function(battery) {
             var data = {
                 FullName: FullName,
                 Battery: battery,
@@ -437,6 +437,12 @@
                         html +=
                             '<input type="hidden" name="discount_checkout_mobile[]" id="discount_checkout_mobile_' +
                             battery.id + '" value="' + discountPrice + '">';
+
+                        // input type unit price battery
+                        html +=
+                            '<input type="hidden" name="unit_price_checkout_mobile[]" id="unit_price_checkout_mobile_' +
+                            battery.id + '" value = "' + batteryNetPrice + '">';
+
                         // input type subtotal battery
                         html +=
                             '<input type="hidden" name="subtotal_checkout_mobile[]" id="subtotal_checkout_mobile_' +
@@ -495,5 +501,4 @@
 </script>
 
 
-<script>
-</script>
+<script></script>
