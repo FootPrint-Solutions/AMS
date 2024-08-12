@@ -380,6 +380,7 @@
 
                                 $('#modal-work-order-mobile-menu').modal(
                                     'hide');
+                                loadWorkOrderList(true);
                             }
                         });
                     }
@@ -535,14 +536,20 @@
         });
     });
 
-    function loadWorkOrderList() {
+    function loadWorkOrderList(refreshDefault = false) {
         isLoading = true;
 
         var limit = $('#lazy-load-limit').val();
         var offset = $('#lazy-load-offset').val();
         var search = $('#search-work-order').val();
 
+        if (refreshDefault) {
+            limit = 10;
+            offset = 0;
+        }
+
         // loading animation
+        $('#lazy-load-list-data').empty();
         $('#lazy-load-list-data').append(`
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
