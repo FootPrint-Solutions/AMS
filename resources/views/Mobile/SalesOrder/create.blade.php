@@ -305,6 +305,7 @@
                         @endisset>
                             <input type="text" class="form-control" name="discountprice" id="discount-mobile"
                                 @isset($data['profile'])
+                                readonly
                             value="{{ $data['profile']['discount_price'] }}"
                         @else
                             value="0"
@@ -577,7 +578,7 @@
             var discount = parseInt($("#discount-mobile").val());
             var total = subtotal - discount;
             $("#span-grand-total").html(formatNumberWithSeparator(total));
-            $("#grandtotal").val(subtotal);
+            $("#grandtotal").val(total);
 
             // Hide modal
             $("#modal-detail").modal("hide");
@@ -593,7 +594,7 @@
             var discount = parseInt($("#discount-mobile").val());
             var total = subtotal - discount;
             $("#span-grand-total").html(formatNumberWithSeparator(total));
-            $("#grandtotal").val(subtotal);
+            $("#grandtotal").val(total);
         });
 
         $("#sales-order-form-mobile").on("submit", function(event) {
@@ -688,7 +689,7 @@
         var discount = parseInt($("#discount-mobile").val());
         var total = subtotal - discount;
         $("#span-grand-total").html(formatNumberWithSeparator(total));
-        $("#grandtotal").val(subtotal);
+        $("#grandtotal").val(total);
     });
 </script>
 
