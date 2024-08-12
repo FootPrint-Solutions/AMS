@@ -132,7 +132,7 @@
         cursor: pointer;
     }
 
-    .active {
+    .filter-active {
         font-weight: 700;
         text-decoration: underline;
     }
@@ -191,7 +191,7 @@
             <h5 class="card-title">
                 <div class="scrollable-list-x">
                     <div class="row text-center">
-                        <div class="col filter-status active" data-status="all">All</div>
+                        <div class="col filter-status filter-active" data-status="all">All</div>
                         <div class="col filter-status" data-status="paid">Paid</div>
                         <div class="col filter-status" data-status="pending">Pending</div>
                         <div class="col filter-status" data-status="failed">Failed</div>
@@ -344,9 +344,9 @@
             let filter = $("#input-search").val();
 
             $(".filter-status").each(function() {
-                $(this).removeClass("active");
+                $(this).removeClass("filter-active");
             });
-            $(this).addClass("active");
+            $(this).addClass("filter-active");
 
             refreshList(status, filter);
         })
@@ -358,7 +358,7 @@
         $("#input-search").on("keyup", function() {
             let status = "all";
             $(".filter-status").each(function() {
-                if ($(this).hasClass("active"))
+                if ($(this).hasClass("filter-active"))
                     status = $(this).data("status");
             });
 

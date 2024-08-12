@@ -216,8 +216,10 @@
         </div>
 
         {{-- Add Item --}}
-        <div class="mb-1" id="title">Add Item <button type="button" class="btn rounded-circle"
-                id="btn-add-detail-mobile"><span class="material-icons text-very-small">add</span></button></div>
+        @if (!isset($data['profile']))
+            <div class="mb-1" id="title">Add Item <button type="button" class="btn rounded-circle"
+                    id="btn-add-detail-mobile"><span class="material-icons text-very-small">add</span></button></div>
+        @endif
 
         {{-- List Details --}}
         <ul class="list-group list-group-flush" id="list-detail">
@@ -303,6 +305,7 @@
                         @endisset>
                             <input type="text" class="form-control" name="discountprice" id="discount-mobile"
                                 @isset($data['profile'])
+                                readonly
                             value="{{ $data['profile']['discount_price'] }}"
                         @else
                             value="0"
@@ -525,7 +528,7 @@
             var list = `
             <li class="list-group-item list-dash-border">
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col-6">
                         <div class="row">
                             <p class="fw-bold text-truncate">${productName}</p>
                             <p class="text-muted text-very-small">${productionCode}</p>
@@ -544,6 +547,11 @@
                                 <p class="fw-bold">Rp${formatNumberWithSeparator(priceNet)}</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col-2">
+                        <button type="button" class="btn btn-danger btn-sm btn-delete-row"
+                                                title="Delete Item"><i class="fas fa-xmark"></i></button>
                     </div>
 
                     <input type="hidden" name="batteriescode[]" value="${productionCode}">
@@ -570,7 +578,7 @@
             var discount = parseInt($("#discount-mobile").val());
             var total = subtotal - discount;
             $("#span-grand-total").html(formatNumberWithSeparator(total));
-            $("#grandtotal").val(subtotal);
+            $("#grandtotal").val(total);
 
             // Hide modal
             $("#modal-detail").modal("hide");
@@ -586,7 +594,7 @@
             var discount = parseInt($("#discount-mobile").val());
             var total = subtotal - discount;
             $("#span-grand-total").html(formatNumberWithSeparator(total));
-            $("#grandtotal").val(subtotal);
+            $("#grandtotal").val(total);
         });
 
         $("#sales-order-form-mobile").on("submit", function(event) {
@@ -668,6 +676,20 @@
         } else {
             $('.autocomplete-name').html('');
         }
+    });
+
+    $(document).on('click', '.btn-delete-row', function() {
+        $(this).closest('.list-group-item').remove();
+        var subtotal = 0;
+        $(".batteriespricemobile").each(function() {
+            subtotal += parseInt($(this).val());
+        });
+        $("#span-subtotal").html(formatNumberWithSeparator(subtotal));
+        $("#subtotal").val(subtotal);
+        var discount = parseInt($("#discount-mobile").val());
+        var total = subtotal - discount;
+        $("#span-grand-total").html(formatNumberWithSeparator(total));
+        $("#grandtotal").val(total);
     });
 </script>
 

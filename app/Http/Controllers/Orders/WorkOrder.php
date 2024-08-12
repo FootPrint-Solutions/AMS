@@ -197,13 +197,7 @@ class WorkOrder extends Controller
                 // looping battery id and update production code
                 foreach ($request->battery_id as $key => $value) {
                     $battery = SalesOrderBatteryModel::find($value);
-
-                    $order = SalesOrderModel::find($battery->sales_order_id);
-                    if ($order->status == 'completed')
-                        throw new \Exception("Cannot update completed order detail.");
-
                     $battery->battery_production_code = $request->production_code[$key];
-
                     if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key]))
                         $battery->image = basename($request->file("battery_image")[$key]->store("public/image/work-order/complete-image-file"));
 
@@ -361,7 +355,10 @@ class WorkOrder extends Controller
             $workOrderId = $request->workOrderId;
             $currentLat = $request->currentLat;
             $currentLon = $request->currentLon;
-            $order = WorkOrderModel::find($workOrderId);
+            $order = WorkOrderModel::with('salesOrder')->find($workOrderId);
+
+            if ($order->status == 'completed')
+                throw new Exception("Unable to start tracking for completed work order.");
 
             if (TrackingModel::where('work_order_id', $order->id)->exists())
                 throw new Exception("There is already a tracking process for the current work order.");

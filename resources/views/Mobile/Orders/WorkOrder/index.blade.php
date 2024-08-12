@@ -1,6 +1,19 @@
 {{-- Work Order Custom Css --}}
 <link rel="stylesheet" href="{{ asset('css/work-order.css') }}">
 
+<style>
+    .zoom {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        transition: transform 0.2s ease-in, top 0.2s ease, left 0.2s ease;
+        max-width: 90%;
+        border: 3px solid black;
+    }
+</style>
+
 <div class="d-block d-md-none">
     <div class="container">
         <h3>
@@ -282,15 +295,24 @@
 
                         // battery list loop 
                         $('#list-battery-detail').empty();
-                        workOrder.batteries.forEach(function(battery) {
+                        console.log(workOrder.sales_order.batteries);
+
+                        workOrder.sales_order.batteries.forEach(function(battery) {
+                            var imageUrl = image ?
+                                `{{ asset('storage/image/work-order/complete-image-file/${battery.image}') }}` :
+                                `{{ asset('img/default-empty.png') }}`;
+
                             $('#list-battery-detail').append(`
                                 <tr>
+                                    <td rowspan="2" style="width: 20%; padding-right: 5%;">
+                                        <img src="${imageUrl}" class="img-fluid img-complete-battery" alt="Battery complete image" style="cursor: pointer;">
+                                    </td>
                                     <td colspan="3">${battery.battery_name}</td>
                                 </tr>
                                 <tr>
-                                    <td width="60%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.battery_price)}</td>
+                                    <td width="60%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.price_net)}</td>
                                     <td width="50%">${battery.quantity}</td>
-                                    <td width="50%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.battery_price)}</td>
+                                    <td width="50%">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(battery.price_net)}</td>
                                 </tr>
                             `);
                         });
@@ -304,6 +326,17 @@
             // show modal work order detail
             $('#modal-work-order-detail').modal('show');
         });
+
+        $(document).on("click", ".img-complete-battery", function() {
+            if ($(this).hasClass("zoom")) {
+                $(this).removeClass("zoom");
+            } else {
+                $(".img-complete-battery").each(function() {
+                    $(this).removeClass("zoom");
+                });
+                $(this).addClass("zoom");
+            }
+        })
 
 
         // when delete work order clicked
@@ -443,8 +476,8 @@
                         <td>
                             <label for="image-${battery.id}" class="btn btn-primary btn-sm">
                                 <i class="fa-solid fa-camera"></i>
-                                <span class="file-name"></span>
                             </label>
+                            <i class="fa-solid fa-check text-success d-none file-saved"></i>
                             <input type="file" name="battery_image[]" id="image-${battery.id}" class="d-none file-input" accept="image/*" capture="camera">
                         </td>
                     </tr>
@@ -614,12 +647,10 @@
 
     $(function() {
         $(document).on('change', '.file-input', function() {
-            var fileName = $(this).val().split('\\').pop(); // Mendapatkan nama file
-            $(this).siblings('label').find('.file-name').text(fileName); // Menampilkan nama file
+            $(this).siblings('.file-saved').removeClass('d-none');
         });
 
         $("#go-btn").on('click', function() {
-
             var workOrderId = $('#work_order_id_mobile').val();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -656,10 +687,13 @@
                 currentLon: longitude,
                 _token: "{{ csrf_token() }}",
             },
+            beforeSend: function() {
+                $("#go-btn").addClass("disabled");
+            },
             success: function(response) {
                 var response = JSON.parse(response);
-
                 if (!response.status) {
+                    trackStart = false;
                     Swal.fire({
                         title: 'Tracking Error',
                         text: 'There was an error starting the tracking.',
@@ -677,6 +711,7 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+                $("#go-btn").removeClass("disabled");
                 $("#go-btn-text").text("Stop Tracking Technician");
 
                 intervalId = setInterval(function() {
@@ -701,6 +736,7 @@
                     timer: 1000,
                     showConfirmButton: false
                 });
+                trackStart = false;
             }
         });
     }

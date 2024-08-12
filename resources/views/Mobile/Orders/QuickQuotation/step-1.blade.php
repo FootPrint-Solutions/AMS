@@ -396,11 +396,11 @@
                      '<i class="fa fa-camera fa-md"></i> Capture'
                  );
                  $('#ModalScreenshotBodyMobile').html(data);
-                 $('#ModalScreenshotMobile').modal('show');
                  // check apakah didalam #body-screenshoot ada table atau tidak
                  // jika ada maka trigger click event
                  if ($('#body-screenshoot table').length > 0) {
                      $('#screenshoot-btn').trigger('click');
+                     $('#ModalScreenshotMobile').modal('show');
                  }
              }
          });
@@ -532,7 +532,7 @@
                      var owl = $('.loop2');
                      owl.owlCarousel({
                          items: 2,
-                         loop: true,
+                         loop: false,
                          margin: 10,
                          dots: true,
                          responsive: {

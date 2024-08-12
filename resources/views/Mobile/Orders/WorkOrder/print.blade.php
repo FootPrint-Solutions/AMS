@@ -244,7 +244,7 @@
                         <td colspan="2" style='width:50%; padding:50px' rowspan="3" colspan="3"></td>
                     </tr>
                 </table>
-                <table class="table-order text-center mt-5">
+                <table class="table-order text-center mt-4">
                     <tr>
                         <td colspan="2"><strong>Tanda Tangan</strong></td>
                     </tr>
