@@ -476,8 +476,8 @@
                         <td>
                             <label for="image-${battery.id}" class="btn btn-primary btn-sm">
                                 <i class="fa-solid fa-camera"></i>
-                                <span class="file-name"></span>
                             </label>
+                            <i class="fa-solid fa-check text-success d-none file-saved"></i>
                             <input type="file" name="battery_image[]" id="image-${battery.id}" class="d-none file-input" accept="image/*" capture="camera">
                         </td>
                     </tr>
@@ -647,8 +647,7 @@
 
     $(function() {
         $(document).on('change', '.file-input', function() {
-            var fileName = $(this).val().split('\\').pop(); // Mendapatkan nama file
-            $(this).siblings('label').find('.file-name').text(fileName); // Menampilkan nama file
+            $(this).siblings('.file-saved').removeClass('d-none');
         });
 
         $("#go-btn").on('click', function() {
