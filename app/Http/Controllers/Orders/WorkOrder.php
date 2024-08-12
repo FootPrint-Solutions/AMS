@@ -197,13 +197,7 @@ class WorkOrder extends Controller
                 // looping battery id and update production code
                 foreach ($request->battery_id as $key => $value) {
                     $battery = SalesOrderBatteryModel::find($value);
-
-                    $order = SalesOrderModel::find($battery->sales_order_id);
-                    if ($order->status == 'completed')
-                        throw new \Exception("Cannot update completed order detail.");
-
                     $battery->battery_production_code = $request->production_code[$key];
-
                     if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key]))
                         $battery->image = basename($request->file("battery_image")[$key]->store("public/image/work-order/complete-image-file"));
 

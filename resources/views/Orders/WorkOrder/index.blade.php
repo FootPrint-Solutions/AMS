@@ -443,8 +443,9 @@
                 contentType: false,
                 processData: false,
                 success: function(response) {
+                    console.log(response);
                     // Show success message.
-                    if (response.status)
+                    if (response.success)
                         Swal.fire({
                             title: "Success",
                             text: response.message,
