@@ -463,6 +463,8 @@
 
                     // refresh the table
                     table.ajax.reload();
+
+                    loadWorkOrderList(true);
                 },
                 error: function(xhr) {
                     // Show error message.

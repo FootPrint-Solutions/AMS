@@ -397,18 +397,17 @@
 
                         // price net battery prices 
                         var batteryPrices = battery.battery_prices[0];
-                        var tax = 11;
-                        var batteryPriceTax = batteryPrices.price_net * tax / 100;
+                        var tax = response.data.Tax;
+                        var batteryPriceTax = batteryPrices.price_retail * tax / 100;
+                        var batteryNetPriceTax = batteryPrices.price_retail + batteryPriceTax;
                         var discountBatteryPercent = batteryPrices.discount;
-                        var discountPrice = (batteryPrices.price_net) *
-                            discountBatteryPercent /
-                            100;
-                        var batteryNetPrice = (batteryPrices.price_net + batteryPriceTax) -
+                        var discountPrice = batteryPrices.discount_price;
+                        var batteryNetPrice = (batteryPrices.price_retail + batteryPriceTax) -
                             discountPrice;
                         var FormatPriceNet = new Intl.NumberFormat('id-ID', {
                             style: 'currency',
                             currency: 'IDR'
-                        }).format(batteryNetPrice);
+                        }).format(batteryNetPriceTax);
 
                         html += '<div class="item-detail d-flex align-items-center">';
                         html += '<div class="ms-3 flex-grow-1">';

@@ -1253,6 +1253,7 @@ $arrayVehicle
                 'Battery' => BatteryModel::getBatteryData($request->input('Battery'))->toArray(),
                 'Ditributor' => DistributorShopModel::find($request->input('DistributorShopId'))->toArray(),
                 'DistributorTechnician' => DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray(),
+                'Tax' => TaxModel::where('status', '1')->first()->percentage ?? 0,
             );
 
             // return as json
