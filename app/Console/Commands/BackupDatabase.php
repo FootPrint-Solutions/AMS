@@ -43,11 +43,6 @@ class BackupDatabase extends Command
         $database = env('DB_DATABASE');
         $filename = "backup-" . now()->format('Y-m-d_H-i-s') . ".sql";
 
-        $this->info("DB Username: " . $username);
-        $this->info("DB Password: " . $password);
-        $this->info("DB Host: " . $host);
-        $this->info("DB Database: " . $database);
-
         $command = sprintf(
             'mysqldump --user=%s --password=\'%s\' --host=%s %s --result-file=%s',
             $username,
