@@ -661,6 +661,9 @@
                 endTracking(workOrderId, latitude, longitude);
             });
         }
+
+        // Close WhatsApp session.
+        $.get("/delete-session-whatsapp");
     }
 </script>
 
