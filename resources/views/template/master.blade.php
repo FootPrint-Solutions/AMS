@@ -70,7 +70,7 @@
 
 </head>
 
-<body>
+<body onbeforeunload="return byeByeBye()">
     <div id="main-wrapper" class="main-wrapper">
         {{-- Header --}}
         @include('template.header')
@@ -646,6 +646,21 @@
 
     if ($('.clipboard').length > 0) {
         var clipboard = new Clipboard('.btn');
+    }
+
+    /**
+     * Close everything when closing web.
+     */
+    function byeByeBye() {
+        // Force end tracking.
+        var workOrderId = $('#work_order_id_mobile').val();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                endTracking(workOrderId, latitude, longitude);
+            });
+        }
     }
 </script>
 
