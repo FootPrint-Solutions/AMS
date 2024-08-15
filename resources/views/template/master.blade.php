@@ -11,9 +11,7 @@
     <link rel="shortcut icon" href="/img/logos/32x32.png">
 
     {{-- Fontfamily --}}
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap" rel="stylesheet">
 
     {{-- Bootstrap CSS --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -70,7 +68,7 @@
 
 </head>
 
-<body>
+<body onbeforeunload="return byeByeBye()">
     <div id="main-wrapper" class="main-wrapper">
         {{-- Header --}}
         @include('template.header')
@@ -646,6 +644,24 @@
 
     if ($('.clipboard').length > 0) {
         var clipboard = new Clipboard('.btn');
+    }
+
+    /**
+     * Close everything when closing web.
+     */
+    function byeByeBye() {
+        // Force end tracking.
+        var workOrderId = $('#work_order_id_mobile').val();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                endTracking(workOrderId, latitude, longitude);
+            });
+        }
+
+        // Close WhatsApp session.
+        // $.get("/delete-session-whatsapp");
     }
 </script>
 

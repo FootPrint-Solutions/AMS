@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,6 +53,9 @@ class Authentication extends Controller
 
     public function logout(Request $request)
     {
+        $profileController = new Profile();
+        $profileController->deleteSessionWhatsapp();
+
         Auth::logout();
 
         $request->session()->invalidate();
