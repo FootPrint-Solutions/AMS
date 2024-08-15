@@ -1039,14 +1039,17 @@
             mapReference.map = map;
         }
 
-        function initMapDekstop() {
-            initializeMap('map-customer-address', 'AddressCustomer', 'Latitude', 'Longitude', markerDesktop, mapDesktop);
+        function initMapsMobile() {
             initializeMap('map-mobile', 'address_input_mobile', 'latitude_input_mobile', 'longitude_input_mobile',
                 markerMobile, mapMobile);
         }
+
+        function initMapDekstop() {
+            initializeMap('map-customer-address', 'AddressCustomer', 'Latitude', 'Longitude', markerDesktop, mapDesktop);
+        }
     </script>
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMapDekstop">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&loading=async">
     </script>
     {{-- END DESKTOP VERSION --}}
 
