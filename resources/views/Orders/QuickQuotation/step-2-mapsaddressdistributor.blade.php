@@ -1,5 +1,5 @@
 <style type="text/css">
-    ShowMarkerDistributor {
+    #MapShowMarkerDistributor {
         width: 100%;
         height: 350px;
     }
@@ -116,11 +116,12 @@
 
 
         var customerLatLng = new google.maps.LatLng(latititudeCustomer, longitudeCustomer);
+        var customerMarker = "{{ url('img/icon-marker/customer-icon.svg') }}";
         customerMarker = new google.maps.Marker({
             position: customerLatLng,
             map: map2,
             icon: {
-                url: 'https://i.ibb.co/dprhv35/image-removebg-preview-1.png',
+                url: customerMarker,
                 scaledSize: new google.maps.Size(60, 60)
             },
             // label: "C",
@@ -141,12 +142,12 @@
     }
 
     function createMarker(latlng, name, address, iconUrl, DisributorPhone, Id) {
+        var distributorMarker = "{{ url('img/icon-marker/distributor-icon.svg') }}";
         var marker = new google.maps.Marker({
             position: latlng,
             map: map2,
             icon: {
-                url: iconUrl ||
-                    'https://i.ibb.co/59CPMMK/png-transparent-white-and-green-house-house-symbol-home-icon-green-marker-s-building-text-triangle-1.png',
+                url: distributorMarker,
                 scaledSize: new google.maps.Size(40, 60)
             }
             // label: "D"
@@ -158,8 +159,11 @@
         });
 
         marker.addListener('click', function() {
-            var distance = google.maps.geometry.spherical.computeDistanceBetween(latlng, customerMarker
-                .getPosition());
+            var distance = google.maps.geometry.spherical.computeDistanceBetween(latlng, circle.getCenter());
+            // if (distance > circle.getRadius()) {
+            //     swal.fire("Error!", "Distributor is not in range", "error");
+            //     return;
+            // }
             var distanceInKm = (distance / 1000).toFixed(2);
             var infoContent = contentString + '<p>Distance to customer location : ' + distanceInKm +
                 ' km</p> Contact Distributor :  62' + DisributorPhone +
@@ -195,7 +199,7 @@
             $("#shop_id").val(Distributor[0]);
             $("#DistributorShopId").val(Distributor[0]);
             $("#distributor_input_mobile").val(Distributor[0]);
-            getBatteryRecomendation(Distributor[0]);
+            // getBatteryRecomendation(Distributor[0]);
         }
     }
 

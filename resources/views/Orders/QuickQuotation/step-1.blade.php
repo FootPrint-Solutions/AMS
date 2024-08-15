@@ -430,6 +430,10 @@
         });
 
 
+        // init maps
+        initMapDekstop();
+
+
 
         // function getMapsNearAddressCustomer() {
         //     var address = $('#AddressCustomer').val();

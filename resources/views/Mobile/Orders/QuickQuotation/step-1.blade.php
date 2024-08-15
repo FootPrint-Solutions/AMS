@@ -15,7 +15,8 @@
                  <label class="form-label">Members Name
                      <span class="login-danger">*</span>
                  </label>
-                 <input type="text" class="form-control" id="members_name_input_mobile" name="members_name_input_mobile" required>
+                 <input type="text" class="form-control" id="members_name_input_mobile"
+                     name="members_name_input_mobile" required>
                  <div id="AutoCompleteFullNameCustomerStep1Mobile"></div>
                  <span class="badge bg-success" id="UserExistStep1Mobile" style='display:none;'>User
                      Exist</span>
@@ -28,11 +29,12 @@
                  <label class="form-label">Vehicle Customer
                      <span class="login-danger">*</span>
                  </label>
-                 <select class="form-control" id="vehicle_customer_input_mobile" multiple='multiple' name="vehicle_customer_input_mobile[]">
+                 <select class="form-control" id="vehicle_customer_input_mobile" multiple='multiple'
+                     name="vehicle_customer_input_mobile[]">
                      @foreach ($data['Vehicle'] as $vehicle)
-                     <option value="{{ $vehicle['id'] }}">
-                         {{ trim($vehicle['name']) }}
-                     </option>
+                         <option value="{{ $vehicle['id'] }}">
+                             {{ trim($vehicle['name']) }}
+                         </option>
                      @endforeach
                  </select>
              </div>
@@ -69,7 +71,8 @@
  </div>
 
 
- <div class="modal fade" id="ModalScreenshotMobile" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
+ <div class="modal fade" id="ModalScreenshotMobile" tabindex="-1" aria-labelledby="ModalScreenshotLabel"
+     aria-hidden="true">
      <div class="modal-dialog modal-dialog-centered modal-xl">
          <div class="modal-content">
              <div class="modal-header">
@@ -451,6 +454,8 @@
 
      //if personal-details-mobile-next-button-lower click event
      $('#personal-details-mobile-next-button-lower').on('click', function() {
+         // init maps
+         initMapsMobile();
          $(".loop2").owlCarousel('destroy');
          $(".loop2").html('');
          var members_name_input_mobile = $('#members_name_input_mobile').val();
