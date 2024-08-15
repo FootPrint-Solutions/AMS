@@ -14,6 +14,7 @@ trait DataTablesTrait
      * @param array $searchColumns An array consists of two values : the default column order and the order direction (if null, table will be ordered by the update time in descending order by default).
      * @return array Associative array containing data for DataTables display.
      */
+
     public static function getAllRows($request, $query, $selectColumns, $searchColumns = null, $orderDefault = null)
     {
         // Get DataTables configuration request.

@@ -30,6 +30,9 @@ use App\Http\Controllers\Orders\SalesOrderBattery;
 // WORK ORDER
 use App\Http\Controllers\Orders\WorkOrder;
 
+// TRACKING TECHNICIAN
+use App\Http\Controllers\Orders\TrackingTechnician;
+
 // SETTINGS
 use App\Http\Controllers\Settings\Promo;
 use App\Http\Controllers\Settings\Tax;
@@ -266,6 +269,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking']);
     Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking']);
     Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking']);
+
+    // tracking technician
+    Route::get('/tracking-technician', [TrackingTechnician::class, 'index']);
+    Route::post('/tracking-technician/show', [TrackingTechnician::class, 'show']);
+    Route::post('/tracking-technician/share', [TrackingTechnician::class, 'share']);
 
     // Settings
     // Message Template

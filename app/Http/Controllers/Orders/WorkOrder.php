@@ -475,7 +475,7 @@ class WorkOrder extends Controller
             $tracking = TrackingModel::where('work_order_id', $workOrderId)->first();
 
             // return view
-            return view('Orders.Tracking.index', compact('tracking'));
+            return view('Orders.TrackingTechnician.track', compact('tracking'));
         } catch (\Throwable $th) {
             Log::error($th);
             return response()->json([

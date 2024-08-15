@@ -1,5 +1,5 @@
 <style type="text/css">
-    #MapShowMarkerDistributor {
+    ShowMarkerDistributor {
         width: 100%;
         height: 350px;
     }
@@ -73,7 +73,7 @@
                 <select class="form-select" id="shop_id" name="shop_id" required>
                     <option value="">-- Choose Distributor --</option>
                     @foreach ($distributor as $d)
-                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                        <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                     @endforeach
                 </select>
             </div>
@@ -123,6 +123,7 @@
                 url: 'https://i.ibb.co/dprhv35/image-removebg-preview-1.png',
                 scaledSize: new google.maps.Size(60, 60)
             },
+            // label: "C",
             title: 'Lokasi Pelanggan'
         });
         markers.push(customerMarker);
@@ -148,6 +149,7 @@
                     'https://i.ibb.co/59CPMMK/png-transparent-white-and-green-house-house-symbol-home-icon-green-marker-s-building-text-triangle-1.png',
                 scaledSize: new google.maps.Size(40, 60)
             }
+            // label: "D"
         });
 
         var contentString = '<div class="info-window"><h4>' + name + '</h4><p>' + address + '</p>';
