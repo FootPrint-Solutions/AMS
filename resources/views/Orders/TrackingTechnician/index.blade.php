@@ -39,6 +39,7 @@
                         <th scope="col">Customer</th>
                         <th scope="col">Address Customer</th>
                         <th scope="col">Arrived</th>
+                        <th scope="col">Link Tracking</th>
                     </tr>
                 </thead>
             </table>
@@ -91,7 +92,7 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[5]);
+                            let ids = selectedRows.map(row => row[6]);
                             sendDestroyRequest(ids, "/tracking-technician/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
@@ -116,7 +117,7 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[5]);
+                            let ids = selectedRows.map(row => row[6]);
                             sendShareRequest(ids, "/tracking-technician/share", function() {
                                 // Reload the index table.
                                 table.ajax.reload();

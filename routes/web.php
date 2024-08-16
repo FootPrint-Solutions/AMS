@@ -274,6 +274,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tracking-technician', [TrackingTechnician::class, 'index']);
     Route::post('/tracking-technician/show', [TrackingTechnician::class, 'show']);
     Route::post('/tracking-technician/share', [TrackingTechnician::class, 'share']);
+    Route::post('/tracking-technician/delete', [TrackingTechnician::class, 'delete']);
 
     // Settings
     // Message Template
