@@ -807,7 +807,7 @@ $arrayBattery
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
                 for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
                     if ($request->input('DiscountPayment')[$key] != 0) {
-                        $TaxPayment = $request->input('TaxPayment')[$key];
+                        $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                         $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
                         $DiscountPrice = $request->input('DiscountPayment')[$key];
@@ -815,7 +815,7 @@ $arrayBattery
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
                         $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
                     } else {
-                        $TaxPayment = $request->input('TaxPayment')[$key];
+                        $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                         $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
                         $DiscountPrice = $request->input('DiscountPayment')[$key];
