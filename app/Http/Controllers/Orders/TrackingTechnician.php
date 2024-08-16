@@ -56,6 +56,7 @@ class TrackingTechnician extends Controller
             $row[] = $key->workOrder->salesOrder->customer->name;
             $row[] = $key->workOrder->salesOrder->address;
             $row[] = $is_arrived;
+            $row[] = "<a href='" . url("/tracking/" . $key->work_order_id) . "' class='btn btn-primary btn-sm' target='_blank'>View</a>";
             $row[] = $key->id;
             $rows[] = $row;
         }
@@ -104,5 +105,11 @@ class TrackingTechnician extends Controller
         } catch (\Exception $e) {
             return getResponseData(false, "Failed to send message => " . $e->getMessage());
         }
+    }
+
+    public function delete(Request $request)
+    {
+        $tracking = TrackingModel::whereIn('id', $request->id)->delete();
+        return getResponseData(true, "Data deleted successfully");
     }
 }
