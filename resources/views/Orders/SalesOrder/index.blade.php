@@ -199,8 +199,8 @@
 
                         {{-- button copy link payment  --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-outline-info w-100 btn-sm text-truncate" id="btn-copy-link-payment"
-                                onclick="copyLinkPayment()">
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate"
+                                id="btn-copy-link-payment-midtrans">
                                 <i class="fas fa-link me-2"></i> Copy Payment Link
                             </button>
                         </div>
@@ -289,7 +289,8 @@
             });
         }
 
-        function copyLinkPayment() {
+        $("#btn-copy-link-payment-midtrans").on("click", function() {
+            $("#modal-more-action").modal("hide");
             // send ajax 
             $.ajax({
                 url: "/sales-order/copy-link-payment/" + $('#modal-more-action-id').val(),
@@ -300,27 +301,49 @@
                 success: function(response) {
                     let responseData = JSON.parse(response);
                     if (responseData.status == true) {
+                        var copyText = responseData.message
+
+                        // create sweet alert with input text   
                         Swal.fire({
-                            title: "Success",
-                            text: responseData.message,
-                            icon: "success",
+                            title: "Payment Link",
+                            html: `<input type="text" id="paymentLink" class="form-control" value="${copyText}">`,
+                            showCancelButton: true,
+                            confirmButtonText: "Copy",
+                            cancelButtonText: "Close",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var copyText = document.getElementById("paymentLink");
+                                copyText.select();
+                                copyText.setSelectionRange(0, 99999);
+                                document.execCommand("copy");
+                                Swal.fire({
+                                    title: "Success",
+                                    text: "Payment link copied",
+                                    icon: "success",
+                                });
+                            }
                         });
 
-                        var copyText = responseData.message;
-                        var textArea = document.createElement("textarea");
-                        textArea.value = copyText;
-                        // Make the textarea element not visible but still in the DOM
-                        textArea.style.position = 'fixed';
-                        textArea.style.left = '-9999px';
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        try {
-                            document.execCommand('copy');
-                            console.log('Copy successful');
-                        } catch (err) {
-                            console.log('Copy failed', err);
-                        }
-                        document.body.removeChild(textArea);
+                        // try {
+                        //     var copyText = responseData.message;
+                        //     var textArea = document.createElement("textarea");
+                        //     textArea.value = copyText;
+                        //     document.body.appendChild(textArea);
+                        //     textArea.select();
+                        //     document.execCommand('copy');
+                        //     document.body.removeChild(textArea);
+                        //     Swal.fire({
+                        //         title: "Success",
+                        //         text: responseData.message,
+                        //         icon: "success",
+                        //     });
+                        // } catch (error) {
+                        //     Swal.fire({
+                        //         title: "Error",
+                        //         text: "Failed to copy the link",
+                        //         icon: "error",
+                        //     });
+                        // }
                     } else {
                         Swal.fire({
                             title: "Error",
@@ -330,6 +353,6 @@
                     }
                 }
             });
-        }
+        });
     </script>
 @endsection
