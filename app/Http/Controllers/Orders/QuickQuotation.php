@@ -728,121 +728,128 @@ $arrayBattery
 
     public static function saveData(Request $request)
     {
-        $tax = $request->input('tax') ?? 0;
-        $Discount = $request->input('Discount') ?? 0;
-        $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
-        $subtotal = $request->input('subtotal');
-        $tax_price = ($tax * $subtotal) / 100;
-        $discount_price = ($Discount * $subtotal) / 100;
-        $total = $request->input('TotalAmount');
-        $status = "Pending";
-        $DiscountRupiah = $request->input('DiscountRupiah');
-        $DiscountPercentage = $request->input('DiscountPercentage');
-        $PaymentMethod = $request->input('PaymentMethod');
-        $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
-        $VehicleCustomer = $request->input('VehicleCustomer');
+        try {
+            DB::beginTransaction();
+            $tax = $request->input('tax') ?? 0;
+            $Discount = $request->input('Discount') ?? 0;
+            $ExtraDiscount = $request->input('ExtraDiscount') ?? 0;
+            $subtotal = $request->input('subtotal');
+            $tax_price = ($tax * $subtotal) / 100;
+            $discount_price = ($Discount * $subtotal) / 100;
+            $total = $request->input('TotalAmount');
+            $status = "Pending";
+            $DiscountRupiah = $request->input('DiscountRupiah');
+            $DiscountPercentage = $request->input('DiscountPercentage');
+            $PaymentMethod = $request->input('PaymentMethod');
+            $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
+            $VehicleCustomer = $request->input('VehicleCustomer');
 
-        if ($PaymentMethodData['id'] == 1) {
-            $payment_methode = "midtrans";
-            $midtransInvoice = $request->session()->get('invoiceNumberMidtrans');
-            $midtransPaymentLink = $request->input('linkMidtrans');
-        } else {
-            $payment_methode = $PaymentMethodData['name'];
-        }
-
-
-        if ($request->input('IdCustomer') != null or $request->input('IdCustomer') != '') {
-            $Customer = CustomerModel::find($request->input('IdCustomer'));
-            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
-            $tes = "YA";
-        } else {
-            $Customer = CustomerModel::firstOrCreate(
-                ['contact' => $request->input('contact')],
-                [
-                    'name' => $request->input('FullName'),
-                    'address' => $request->input('AddressCustomer'),
-                    'contact' => $request->input('ContactNumber'),
-                    'latitude' => $request->input('Latitude'),
-                    'longitude' => $request->input('Longitude')
-                ]
-            );
-            $tes = "TIDAK";
-            $Customer->vehicles()->sync($request->input('VehicleCustomer'));
-        }
-
-        if ($request->input('DistributorShopId') != null) {
-            $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
-            $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
-        } else {
-            $DistributorShop = null;
-        }
-
-        $data = [
-            'sales_order_number' => $request->session()->get('invoice', SalesOrderModel::newCode()),
-            'customer_id' => $Customer->id,
-            'vehicle_id' => $VehicleCustomer[0],
-            'distributor_shop_id' => $DistributorShop->id ?? null,
-            'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
-            'subtotal' => $subtotal,
-            'total' => $total,
-            'discount' => $DiscountPercentage ?? 0,
-            'discount_price' => $DiscountRupiah ?? 0,
-            'payment_method_id' => $PaymentMethodData['id'],
-            'midtrans_invoice_number' => $midtransInvoice ?? null,
-            'midtrans_payment_link' => $midtransPaymentLink ?? null,
-            'payment_status' => "pending",
-            'status' => "draft",
-            'address' => $request->input('AddressCustomer'),
-            'latitude' => $request->input('Latitude'),
-            'longitude' => $request->input('Longitude'),
-            'date' => date('Y-m-d')
-        ];
-
-        $Quotation = SalesOrderModel::create($data);
-
-
-        $dataProduct = [];
-        foreach ($request->input('BatteryNameTabel') as $key => $value) {
-            for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
-                if ($request->input('DiscountPayment')[$key] != 0) {
-                    $TaxPayment = $request->input('TaxPayment')[$key];
-                    $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                    $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                    $DiscountPrice = $request->input('DiscountPayment')[$key];
-                    $Subtotal = $request->input('SubtotalPayment')[$key];
-                    $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                    $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
-                } else {
-                    $TaxPayment = $request->input('TaxPayment')[$key];
-                    $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                    $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                    $DiscountPrice = $request->input('DiscountPayment')[$key];
-                    $Subtotal = $request->input('SubtotalPayment')[$key];
-                    $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                    $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
-                }
-                $dataProduct[] = [
-                    'sales_order_id' => $Quotation->id,
-                    'battery_id' => $request->input('BatteryIdCheckout')[$key],
-                    'battery_name' => $value,
-                    'battery_price_retail' => $GrossPrice,
-                    'discount' => $DiscountPercent,
-                    'discount_price' => $DiscountPrice,
-                    'tax' => $request->input('TaxPayment')[$key],
-                    'tax_price' =>  $TaxPrice,
-                    'price_net' =>  str_replace(".", "", $Subtotal),
-                    'quantity' => 1,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ];
+            if ($PaymentMethodData['id'] == 1) {
+                $payment_methode = "midtrans";
+                $midtransInvoice = $request->session()->get('invoiceNumberMidtrans');
+                $midtransPaymentLink = $request->input('linkMidtrans');
+            } else {
+                $payment_methode = $PaymentMethodData['name'];
             }
-        }
 
-        $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
-        if (!$QuuotationBattery) {
-            return getResponseData(false, "Failed to save data");
-        } else {
-            return getResponseData(true, "Data saved successfully");
+
+            if ($request->input('IdCustomer') != null or $request->input('IdCustomer') != '') {
+                $Customer = CustomerModel::find($request->input('IdCustomer'));
+                $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+                $tes = "YA";
+            } else {
+                $Customer = CustomerModel::firstOrCreate(
+                    ['contact' => $request->input('contact')],
+                    [
+                        'name' => $request->input('FullName'),
+                        'address' => $request->input('AddressCustomer'),
+                        'contact' => $request->input('ContactNumber'),
+                        'latitude' => $request->input('Latitude'),
+                        'longitude' => $request->input('Longitude')
+                    ]
+                );
+                $tes = "TIDAK";
+                $Customer->vehicles()->sync($request->input('VehicleCustomer'));
+            }
+
+            if ($request->input('DistributorShopId') != null) {
+                $DistributorShop = DistributorShopModel::find($request->input('DistributorShopId'));
+                $distributorTechnician = DistributorShopModel::find($request->input('DistributorShopId'))->technicians()->get()->toArray();
+            } else {
+                $DistributorShop = null;
+            }
+
+            $data = [
+                'sales_order_number' => $request->session()->get('invoice', SalesOrderModel::newCode()),
+                'customer_id' => $Customer->id,
+                'vehicle_id' => $VehicleCustomer[0],
+                'distributor_shop_id' => $DistributorShop->id ?? null,
+                'distributor_shop_technician_id' => $distributorTechnician[0]['id'] ?? null,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'discount' => $DiscountPercentage ?? 0,
+                'discount_price' => $DiscountRupiah ?? 0,
+                'payment_method_id' => $PaymentMethodData['id'],
+                'midtrans_invoice_number' => $midtransInvoice ?? null,
+                'midtrans_payment_link' => $midtransPaymentLink ?? null,
+                'payment_status' => "pending",
+                'status' => "draft",
+                'address' => $request->input('AddressCustomer'),
+                'latitude' => $request->input('Latitude'),
+                'longitude' => $request->input('Longitude'),
+                'date' => date('Y-m-d')
+            ];
+
+            $Quotation = SalesOrderModel::create($data);
+
+
+            $dataProduct = [];
+            foreach ($request->input('BatteryNameTabel') as $key => $value) {
+                for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
+                    if ($request->input('DiscountPayment')[$key] != 0) {
+                        $TaxPayment = $request->input('TaxPayment')[$key];
+                        $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                        $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                        $DiscountPrice = $request->input('DiscountPayment')[$key];
+                        $Subtotal = $request->input('SubtotalPayment')[$key];
+                        $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                        $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
+                    } else {
+                        $TaxPayment = $request->input('TaxPayment')[$key];
+                        $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                        $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                        $DiscountPrice = $request->input('DiscountPayment')[$key];
+                        $Subtotal = $request->input('SubtotalPayment')[$key];
+                        $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                        $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
+                    }
+                    $dataProduct[] = [
+                        'sales_order_id' => $Quotation->id,
+                        'battery_id' => $request->input('BatteryIdCheckout')[$key],
+                        'battery_name' => $value,
+                        'battery_price_retail' => $GrossPrice,
+                        'discount' => $DiscountPercent,
+                        'discount_price' => $DiscountPrice,
+                        'tax' => $request->input('TaxPayment')[$key],
+                        'tax_price' =>  $TaxPrice,
+                        'price_net' =>  str_replace(".", "", $Subtotal),
+                        'quantity' => 1,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+
+            $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
+            if (!$QuuotationBattery) {
+                DB::rollBack();
+                return getResponseData(false, "Failed to save data");
+            } else {
+                DB::commit();
+                return getResponseData(true, "Data saved successfully");
+            }
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to save data => " . $th->getMessage());
         }
     }
 
