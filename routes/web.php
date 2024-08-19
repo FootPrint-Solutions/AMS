@@ -49,7 +49,7 @@ use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
+use App\Http\Controllers\Inventory\Inventory;
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -196,6 +196,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/technician/store', [DistributorShopTechnician::class, 'store']);
     Route::post('/distributor/technician/update', [DistributorShopTechnician::class, 'update']);
     Route::post('/distributor/technician/destroy', [DistributorShopTechnician::class, 'destroy']);
+
+    // Inventory
+    // Inventory
+    Route::get('/inventory', [Inventory::class, 'index']);
+    Route::post('/inventory/show', [Inventory::class, 'show'])->name('inventory.show');
+    Route::get('/inventory/create', [Inventory::class, 'create']);
+    Route::get('/inventory/edit/{id}', [Inventory::class, 'edit'])->name('inventory.edit');
+    Route::post('/inventory/store', [Inventory::class, 'store'])->name('inventory.store');
+    Route::post('/inventory/update', [Inventory::class, 'update'])->name('inventory.update');
+    Route::post('/inventory/toggle', [Inventory::class, 'updateStatus'])->name('inventory.toggle');
 
     // Orders
     // Quick Quotation
