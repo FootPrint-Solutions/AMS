@@ -200,12 +200,6 @@ Route::middleware(['auth'])->group(function () {
     // Inventory
     // Inventory
     Route::get('/inventory', [Inventory::class, 'index']);
-    Route::post('/inventory/show', [Inventory::class, 'show'])->name('inventory.show');
-    Route::get('/inventory/create', [Inventory::class, 'create']);
-    Route::get('/inventory/edit/{id}', [Inventory::class, 'edit'])->name('inventory.edit');
-    Route::post('/inventory/store', [Inventory::class, 'store'])->name('inventory.store');
-    Route::post('/inventory/update', [Inventory::class, 'update'])->name('inventory.update');
-    Route::post('/inventory/toggle', [Inventory::class, 'updateStatus'])->name('inventory.toggle');
 
     // Orders
     // Quick Quotation

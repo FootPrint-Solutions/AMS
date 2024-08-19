@@ -22,7 +22,7 @@
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Quantity</th>
+                            <th scope="col">Stock</th>
                         </tr>
                     </thead>
 
@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $item[1] }}</td>
-                                <td>{{ $item[2] }}</td>
+                                <td>{{ formatPrice($item[2]) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -61,30 +61,7 @@
                     className: 'dt-body-right'
                 }],
                 dom: "lBrti",
-                buttons: getDatatablesButtonConfigurations([
-                    // Edit    
-                    {
-                        text: "<i class='fas fa-pencil'></i> Edit",
-                        className: "btn btn-outline-primary btn-sm",
-                        action: function(e, dt, node, config) {
-                            var selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for editing.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            let id = selectedRows[0][0];
-                            goToPage("/inventory/edit/" + id);
-                        }
-                    }
-                ]),
+                buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
             });
