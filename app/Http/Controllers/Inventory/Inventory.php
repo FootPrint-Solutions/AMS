@@ -12,7 +12,7 @@ class Inventory extends Controller
     private $service;
 
     // Constant sheet id.
-    const SHEET_ID = "1iHXJ4TlWUX1-DSL1UHv07X8JVnanPcvzaDiaL0TGiDE";
+    const SHEET_ID = "1uqSuVPyl181fZKCEvqEqrIp0hQz7WK9BcWrvGW35tL8";
 
     function __construct()
     {
@@ -52,5 +52,19 @@ class Inventory extends Controller
         $response = $this->service->spreadsheets_values->get(self::SHEET_ID, $range);
         $values = $response->getValues();
         return $values;
+    }
+
+    /**
+     * Get an inventory from Spreadsheet.
+     */
+    public function getZeroStockInventory()
+    {
+        $all = $this->getAllInventory();
+        $zeroStocks = [];
+        foreach ($all as $item) {
+            if (intval($item[2]) < 1)
+                $zeroStocks[] = $item[1];
+        }
+        return $zeroStocks;
     }
 }

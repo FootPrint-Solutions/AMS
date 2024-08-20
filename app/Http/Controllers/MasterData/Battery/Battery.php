@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MasterData\Battery;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Inventory\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -510,12 +511,16 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
+        $inventoryController = new Inventory();
+        $exceptions = $inventoryController->getZeroStockInventory();
+
         return BatteryModel::allForAutocomplete(
             $keyword,
             [
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
-            ]
+            ],
+            $exceptions
         );
     }
 

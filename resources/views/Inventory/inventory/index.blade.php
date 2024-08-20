@@ -63,7 +63,6 @@
                 dom: "lBrti",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
-                select: true,
             });
         });
     </script>

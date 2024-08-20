@@ -141,18 +141,21 @@ class BatteryModel extends Model implements Auditable
      * @param array $extraColumn The list of other columns except id and name to obtain.
      * @param int $limit The limit number of rows returned.
      */
-    public static function allForAutocomplete($keyword, $extraColumn, $limit = 5)
+    public static function allForAutocomplete($keyword, $extraColumn, $exceptions = [], $limit = 5)
     {
         $columns = ["batteries.id", "batteries.name"];
         $query = self::select(array_merge($columns, $extraColumn))
             ->where("batteries.name", "like", "%{$keyword}%")
             ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')
             // ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
-            ->take($limit)
-            ->get()
-            ->toArray();
+            ->take($limit);
 
-        return $query;
+        if ($exceptions != []) {
+            $query->whereNotIn("batteries.name", $exceptions);
+        }
+
+        return $query->get()
+            ->toArray();;
     }
 
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
