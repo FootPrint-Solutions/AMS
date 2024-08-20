@@ -21,6 +21,7 @@
                     <thead>
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">ID</th>
                             <th scope="col">Name</th>
                             <th scope="col">Stock</th>
                         </tr>
@@ -30,8 +31,9 @@
                         @foreach ($data['inventories'] as $index => $item)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $item[1] }}</td>
-                                <td>{{ formatPrice($item[2]) }}</td>
+                                <td>{{ $item[0] }}</td>
+                                <td>{{ $item[2] }}</td>
+                                <td>{{ formatPrice($item[6]) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -60,7 +62,7 @@
                     targets: [-1],
                     className: 'dt-body-right'
                 }],
-                dom: "lBrti",
+                dom: "lBrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
             });

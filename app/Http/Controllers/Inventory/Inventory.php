@@ -48,7 +48,7 @@ class Inventory extends Controller
      */
     private function getAllInventory()
     {
-        $range = 'Sheet1!A2:C';
+        $range = 'Sheet2!B3:H';
         $response = $this->service->spreadsheets_values->get(self::SHEET_ID, $range);
         $values = $response->getValues();
         return $values;
