@@ -71,7 +71,6 @@ class Inventory extends Controller
     public function getStock($batteryName)
     {
         $all = $this->getAllInventory();
-        $zeroStocks = [];
         foreach ($all as $item) {
             if ($item[1] == $batteryName)
                 return $item[2];
