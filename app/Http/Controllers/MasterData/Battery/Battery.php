@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\MasterData\Battery;
 
+use App\Exports\BatteryExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Inventory\Inventory;
 use Illuminate\Http\Request;
@@ -130,6 +131,19 @@ class Battery extends Controller
                 false,
                 "Error importing data!"
             );
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            return Excel::download(new BatteryExport, 'batteries.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data'
+            ]);
         }
     }
 

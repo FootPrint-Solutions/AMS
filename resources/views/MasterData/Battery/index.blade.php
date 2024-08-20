@@ -101,7 +101,41 @@
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
+                buttons: getDatatablesButtonConfigurations([
+                    // Export to Excel
+                    {
+                        text: "<i class='fas fa-file-excel'></i> Export All to Excel",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var formData = new FormData();
+                            formData.append('_token', "{{ csrf_token() }}");
+
+                            $.ajax({
+                                url: '/battery/export',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(data) {
+                                    var url = window.URL.createObjectURL(data);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'batteries.xlsx';
+                                    document.body.append(a);
+                                    a.click();
+                                    a.remove();
+                                    window.URL.revokeObjectURL(url);
+                                },
+                                error: function() {
+                                    alert('Error exporting data');
+                                }
+                            });
+                        }
+                    },
+                ]),
                 language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
                 rowCallback: function(row, data) {
