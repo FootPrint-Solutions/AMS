@@ -20,6 +20,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
+use App\Imports\BatteryPriceImport;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
@@ -107,6 +108,27 @@ class Battery extends Controller
             return getResponseData(
                 false,
                 "Error importing data Error importing data excell format or data is not suitable"
+            );
+        }
+    }
+
+    public function importPrice(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+        $path1 = $request->file('file')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
+        try {
+            Excel::import(new BatteryPriceImport, $path);
+            return getResponseData(
+                true,
+                "Data imported successfully!"
+            );
+        } catch (\Exception $e) {
+            return getResponseData(
+                false,
+                "Error importing data!"
             );
         }
     }
