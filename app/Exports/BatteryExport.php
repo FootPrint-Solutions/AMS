@@ -20,6 +20,7 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
     {
         return [
             'Name',
+            'Alternate Name',
             'Brand',
             'Subbrand Category',
             'Usage Type',
@@ -39,6 +40,7 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
     {
         return [
             $battery->name,
+            $battery->name_alternate,
             $battery->brand->name ?? "-",
             $battery->subbrandCategory->name ?? "-",
             $battery->usageType->name ?? "-",
