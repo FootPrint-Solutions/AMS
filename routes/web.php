@@ -200,6 +200,7 @@ Route::middleware(['auth'])->group(function () {
     // Inventory
     // Inventory
     Route::get('/inventory', [Inventory::class, 'index']);
+    Route::get('/inventory/get/{name}', [Inventory::class, 'getStock']);
 
     // Orders
     // Quick Quotation

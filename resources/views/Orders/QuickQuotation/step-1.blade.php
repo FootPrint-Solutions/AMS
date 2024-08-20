@@ -40,6 +40,7 @@
     <br>
     <h5> Product Recomendation Display</h5>
     <div class="row" id="ResultRecommendationBatteryVehicle"></div>
+    <div class="row" id="ResultRecommendationStockBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
             <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
@@ -210,6 +211,17 @@
                         if ((index + 1) % 5 == 0) {
                             html += '</div><div class="row">';
                         }
+
+                        // Set stock
+                        $.ajax({
+                            url: "/inventory/get/" + vehicle.name,
+                            type: "GET",
+                            success: function(data) {
+                                $("#ResultRecommendationStockBatteryVehicle").append(
+                                    `<div class="col alert alert-primary text-center mx-2">Stock: ${data}</div>`
+                                );
+                            }
+                        });
                     });
                     html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);
