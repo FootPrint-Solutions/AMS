@@ -22,6 +22,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 // IMPORT CLASS
 use App\Imports\BatteryImport;
 use App\Imports\BatteryPriceImport;
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
@@ -81,7 +82,7 @@ class Battery extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    'profile' => BatteryModel::with('urls')->find($id)->toArray(),
+                    'profile' => BatteryModel::with(['urls', 'code'])->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -318,6 +319,12 @@ class Battery extends Controller
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
 
+            // Store battery code.
+            $code = new BatteryCodeModel();
+            $code->code = $request->code;
+            $code->battery_id = $battery->id;
+            $status &= $code->save();
+
             if ($status)
                 DB::commit();
             else
@@ -480,6 +487,18 @@ class Battery extends Controller
                 $price->battery_id = $battery->id;
                 $price->price_retail = $battery->price_retail;
                 $status &= $price->save();
+            }
+
+            // Store battery code.
+            $code = BatteryCodeModel::where("battery_id", $battery->id)->first();
+            if ($code) {
+                $code->code = $request->code;
+                $status &= $code->save();
+            } else {
+                $code = new BatteryCodeModel();
+                $code->code = $request->code;
+                $code->battery_id = $battery->id;
+                $status &= $code->save();
             }
 
             if ($status)
