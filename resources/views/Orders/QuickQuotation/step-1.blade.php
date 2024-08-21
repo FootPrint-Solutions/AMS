@@ -213,8 +213,9 @@
                         }
 
                         // Set stock
+                        $("#ResultRecommendationStockBatteryVehicle").html("");
                         $.ajax({
-                            url: "/inventory/get/" + vehicle.name,
+                            url: "/inventory/get/" + vehicle.code,
                             type: "GET",
                             success: function(data) {
                                 $("#ResultRecommendationStockBatteryVehicle").append(

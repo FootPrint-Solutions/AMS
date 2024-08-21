@@ -88,10 +88,11 @@ class VehicleModel extends Model implements Auditable
             ->join('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
             ->join('distributor_shop_battery', 'batteries.id', '=', 'distributor_shop_battery.battery_id', 'left')
             ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
             ->where('distributor_shop_battery.distributor_shop_id', $distributor_id)
             ->where('batteries.deleted_at', null)
             ->where('batteries.status', 1)
-            ->select('vehicles.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'distributor_shop_battery.battery_id as battery_distributor_id', 'distributor_shop_battery.price as battery_distributor_price', 'distributor_shop_battery.url as battery_distributor_link', 'battery_size_categories.name as size_category', 'batteries.dimension_length', 'batteries.dimension_width', 'batteries.dimension_height', 'batteries.standard_cca', 'batteries.capacity', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount')
+            ->select('vehicles.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'distributor_shop_battery.battery_id as battery_distributor_id', 'distributor_shop_battery.price as battery_distributor_price', 'distributor_shop_battery.url as battery_distributor_link', 'battery_size_categories.name as size_category', 'batteries.dimension_length', 'batteries.dimension_width', 'batteries.dimension_height', 'batteries.standard_cca', 'batteries.capacity', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount', 'battery_codes.code')
             ->get();
     }
 
@@ -104,7 +105,8 @@ class VehicleModel extends Model implements Auditable
             ->leftjoin('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
             ->join('batteries', 'vehicle_battery_size_category.battery_size_category_id', '=', 'batteries.size_category_id')
             ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
-            ->select('batteries.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'battery_size_categories.name as size_category', 'batteries.dimension_length', 'batteries.dimension_width', 'batteries.dimension_height', 'batteries.standard_cca', 'batteries.capacity',  'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select('batteries.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'battery_size_categories.name as size_category', 'batteries.dimension_length', 'batteries.dimension_width', 'batteries.dimension_height', 'batteries.standard_cca', 'batteries.capacity',  'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount', 'battery_codes.code')
             ->get();
     }
 

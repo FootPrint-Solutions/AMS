@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class Inventory extends Controller
 {
     private $title = "Battery";
     private $service;
+    private $stockList = [];
 
     // Constant sheet id.
     const SHEET_ID = "1uqSuVPyl181fZKCEvqEqrIp0hQz7WK9BcWrvGW35tL8";
@@ -26,6 +29,31 @@ class Inventory extends Controller
 
         // Configure the Sheets Service.
         $this->service = new \Google_Service_Sheets($client);
+
+        // Set stock list.
+        $this->setStockList();
+    }
+
+    /**
+     * Set current stock list.
+     */
+    private function setStockList()
+    {
+        $this->stockList = Cache::remember('stockList', 600, function () {
+            return $this->getAllInventory();
+        });
+
+        // Insert into inventories table.
+        // foreach ($this->stockList as $item) {
+        //     $code = BatteryCodeModel::where('code', $item[0]);
+
+        //     if ($code) {
+        //         $inventory = Inventory::firstOrNew(['code' => $code->code]);
+        //         $inventory->battery_id = $code->battery_id;
+        //         $inventory->stock = $item[6];
+        //         $inventory->save();
+        //     }
+        // }
     }
 
     /**
@@ -35,10 +63,11 @@ class Inventory extends Controller
      */
     public function index()
     {
+        $this->setStockList();
         return view('inventory.inventory.index', getIndexData(
             $this->title,
             array(
-                'inventories' => $this->getAllInventory()
+                'inventories' => $this->stockList
             )
         ));
     }
@@ -59,22 +88,28 @@ class Inventory extends Controller
      */
     public function getZeroStockInventory()
     {
-        $all = $this->getAllInventory();
+        if ($this->stockList == [])
+            $this->stockList = $this->getAllInventory();
+
         $zeroStocks = [];
-        foreach ($all as $item) {
-            if (intval($item[2]) < 1)
-                $zeroStocks[] = $item[1];
+        foreach ($this->stockList as $item) {
+            if (intval($item[6]) < 1)
+                $zeroStocks[] = $item[0];
         }
         return $zeroStocks;
     }
 
-    public function getStock($batteryName)
+    /**
+     * Get stock of an inventory based on battery code.
+     */
+    public function getStock($batteryCode)
     {
-        $all = $this->getAllInventory();
-        foreach ($all as $item) {
-            if ($item[1] == $batteryName)
-                return $item[2];
-        }
+        if ($this->stockList == [])
+            $this->stockList = $this->getAllInventory();
+
+        $index = array_search($batteryCode, array_column($this->stockList, 0));
+        if ($index !== false)
+            return $this->stockList[$index][2];
         return "-";
     }
 }
