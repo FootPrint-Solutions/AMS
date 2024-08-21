@@ -39,6 +39,16 @@
                                 @if (isset($data['profile'])) value="{{ $data['profile']['name_alternate'] }}" @endif>
                         </div>
                     </div>
+
+                    {{-- Code --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="code">Code <span class="login-danger">*</span></label>
+                            <input type="text" class="form-control" id="code" name="code"
+                                placeholder="Enter battery code" required
+                                @if (isset($data['profile']) && $data['profile']['code']) value="{{ $data['profile']['code']['code'] }}" @endif>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Brand & Subbrand Category --}}
