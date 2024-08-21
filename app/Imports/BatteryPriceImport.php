@@ -24,12 +24,12 @@ class BatteryPriceImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
+        $newPrice = $row[13] ? intval($row[13]) : 0;
         $battery = BatteryModel::where('name', $row[0])->first();
-        if ($battery)
-            $battery->update([
-                'price_retail' => $row[13] != '-' ? $row[13] : null,
-            ]);
-
+        if ($battery && $battery->price_retail != $newPrice) {
+            $battery->price_retail = $row[13] ? intval($row[13]) : 0;
+            $status = $battery->save();
+        }
         return $battery;
     }
 }
