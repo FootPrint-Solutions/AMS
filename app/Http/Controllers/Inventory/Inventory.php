@@ -15,7 +15,7 @@ class Inventory extends Controller
     private $stockList = [];
 
     // Constant sheet id.
-    const SHEET_ID = "1uqSuVPyl181fZKCEvqEqrIp0hQz7WK9BcWrvGW35tL8";
+    const SHEET_ID = "1XfqdPabl5RhMNi7MnIvsGgOaS5f7cws3KdCgFhiERQg";
 
     function __construct()
     {
@@ -77,7 +77,7 @@ class Inventory extends Controller
      */
     private function getAllInventory()
     {
-        $range = 'Sheet2!B3:H';
+        $range = 'Sheet1!B3:H';
         $response = $this->service->spreadsheets_values->get(self::SHEET_ID, $range);
         $values = $response->getValues();
         return $values;
