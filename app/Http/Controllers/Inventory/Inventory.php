@@ -84,7 +84,7 @@ class Inventory extends Controller
     }
 
     /**
-     * Get an inventory from Spreadsheet.
+     * Get all zero stock from inventory.
      */
     public function getZeroStockInventory()
     {
@@ -100,6 +100,22 @@ class Inventory extends Controller
     }
 
     /**
+     * Get all non zero stock from inventory.
+     */
+    public function getNonZeroStockInventory()
+    {
+        if ($this->stockList == [])
+            $this->stockList = $this->getAllInventory();
+
+        $nonZeroStocks = [];
+        foreach ($this->stockList as $item) {
+            if (intval($item[6]) > 0)
+                $nonZeroStocks[] = $item[0];
+        }
+        return $nonZeroStocks;
+    }
+
+    /**
      * Get stock of an inventory based on battery code.
      */
     public function getStock($batteryCode)
@@ -109,7 +125,7 @@ class Inventory extends Controller
 
         $index = array_search($batteryCode, array_column($this->stockList, 0));
         if ($index !== false)
-            return $this->stockList[$index][2];
+            return $this->stockList[$index][6];
         return "-";
     }
 }

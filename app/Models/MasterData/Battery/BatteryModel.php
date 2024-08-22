@@ -148,9 +148,10 @@ class BatteryModel extends Model implements Auditable
      * 
      * @param string $keyword The autocomplete keyword.
      * @param array $extraColumn The list of other columns except id and name to obtain.
+     * @param array $whereIn The list of to be included battery-only.
      * @param int $limit The limit number of rows returned.
      */
-    public static function allForAutocomplete($keyword, $extraColumn, $exceptions = [], $limit = 5)
+    public static function allForAutocomplete($keyword, $extraColumn, $whereIn = [], $limit = 5)
     {
         $columns = ["batteries.id", "batteries.name"];
         $query = self::select(array_merge($columns, $extraColumn))
@@ -160,14 +161,8 @@ class BatteryModel extends Model implements Auditable
             ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
             ->take($limit);
 
-        if (!empty($exceptions))
-            $query->where(function ($q) use ($exceptions) {
-                $q->whereNull('battery_codes.code')
-                    ->orWhere(function ($q2) use ($exceptions) {
-                        $q2->whereNotNull('battery_codes.code')
-                            ->whereNotIn('battery_codes.code', $exceptions);
-                    });
-            });
+        if (!empty($whereIn))
+            $query->whereIn('battery_codes.code', $whereIn);
 
         return $query->get()
             ->toArray();
