@@ -8,8 +8,7 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label>Members Name </label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
-                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
                         Exist</span>
@@ -21,12 +20,11 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label>Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
-                        aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                            <option value="{{ $vehicle['id'] }}">
-                                {{ trim($vehicle['name']) }}
-                            </option>
+                        <option value="{{ $vehicle['id'] }}">
+                            {{ trim($vehicle['name']) }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -40,6 +38,7 @@
     <br>
     <h5> Product Recomendation Display</h5>
     <div class="row" id="ResultRecommendationBatteryVehicle"></div>
+    <div class="row" id="ResultRecommendationStockBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
             <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
@@ -113,7 +112,7 @@
                     html = '<div class="row">'; // Memulai row baru untuk Bootstrap grid
                     data.forEach(function(vehicle, index) {
                         html +=
-                            '<div class="col-md-2_4 col-sm-6 mb-4 d-flex" style="flex: 0 0 calc(20% - 1rem); margin: 0.5rem; position: relative;">'; // Menambahkan position relative untuk badge
+                            '<div class="col-md-2_4 col-sm-6 mb-4" id="' + vehicle.code + '" style="flex: 0 0 calc(20% - 1rem); margin: 0.5rem; position: relative;">'; // Menambahkan position relative untuk badge
                         html += '<div class="blog grid-blog d-flex flex-column h-100">';
                         html += '<div class="blog-imagex">';
                         html += '<a href="#!">';
@@ -196,8 +195,16 @@
                         html += '<div class="text-end inactive-style mt-3">';
                         html += '<div class="checkbox">';
                         html += '<label>';
-                        html += '<input type="checkbox" name="CheckBattery1[]" value=' + vehicle
-                            .id + '> Select Battery';
+                        if (vehicle.code == null) {
+                            html += '<input type="checkbox" name="CheckBattery1x[]" value=' + vehicle
+                                .id + ' id="checkBoxBattery' + vehicle
+                                .id + '" disabled> Select Battery';
+                        } else {
+                            html += '<input type="checkbox" name="CheckBattery1[]" value=' + vehicle
+                                .id + ' id="checkBoxBattery' + vehicle
+                                .id + '"> Select Battery ';
+                        }
+
                         html += '</label>';
                         html += '</div>';
                         html += '</div>';
@@ -210,6 +217,26 @@
                         if ((index + 1) % 5 == 0) {
                             html += '</div><div class="row">';
                         }
+
+                        // Set stock
+                        $("#ResultRecommendationStockBatteryVehicle").html("");
+                        $.ajax({
+                            url: "/inventory/get/" + vehicle.code,
+                            type: "GET",
+                            success: function(data) {
+
+                                // jika data 0 atau - atau null maka disable checkbox 
+                                if (data == 0 || data == '-' || data == null) {
+                                    $("#checkBoxBattery" + vehicle.id).prop('disabled', true);
+                                } else {
+                                    $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
+                                }
+
+                                $("#ResultRecommendationStockBatteryVehicle").append(
+                                    `<div class="col alert alert-primary text-center mx-2">Stock: ${data}</div>`
+                                );
+                            }
+                        });
                     });
                     html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);

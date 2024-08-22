@@ -12,6 +12,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
 class BatteryModel extends Model implements Auditable
@@ -96,6 +97,14 @@ class BatteryModel extends Model implements Auditable
     }
 
     /**
+     * Get battery code.
+     */
+    public function code(): HasOne
+    {
+        return $this->hasOne(BatteryCodeModel::class, 'battery_id', 'id');
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
@@ -141,18 +150,27 @@ class BatteryModel extends Model implements Auditable
      * @param array $extraColumn The list of other columns except id and name to obtain.
      * @param int $limit The limit number of rows returned.
      */
-    public static function allForAutocomplete($keyword, $extraColumn, $limit = 5)
+    public static function allForAutocomplete($keyword, $extraColumn, $exceptions = [], $limit = 5)
     {
         $columns = ["batteries.id", "batteries.name"];
         $query = self::select(array_merge($columns, $extraColumn))
             ->where("batteries.name", "like", "%{$keyword}%")
             ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')
             // ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
-            ->take($limit)
-            ->get()
-            ->toArray();
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->take($limit);
 
-        return $query;
+        if (!empty($exceptions))
+            $query->where(function ($q) use ($exceptions) {
+                $q->whereNull('battery_codes.code')
+                    ->orWhere(function ($q2) use ($exceptions) {
+                        $q2->whereNotNull('battery_codes.code')
+                            ->whereNotIn('battery_codes.code', $exceptions);
+                    });
+            });
+
+        return $query->get()
+            ->toArray();
     }
 
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)

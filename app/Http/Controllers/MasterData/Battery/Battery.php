@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\MasterData\Battery;
 
+use App\Exports\BatteryExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Inventory\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +21,8 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
+use App\Imports\BatteryPriceImport;
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
@@ -78,7 +82,7 @@ class Battery extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    'profile' => BatteryModel::with('urls')->find($id)->toArray(),
+                    'profile' => BatteryModel::with(['urls', 'code'])->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -107,6 +111,41 @@ class Battery extends Controller
                 false,
                 "Error importing data Error importing data excell format or data is not suitable"
             );
+        }
+    }
+
+    public function importPrice(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+        $path1 = $request->file('file')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
+        try {
+            Excel::import(new BatteryPriceImport, $path);
+            return getResponseData(
+                true,
+                "Data imported successfully!"
+            );
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return getResponseData(
+                false,
+                "Error importing data!"
+            );
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            return Excel::download(new BatteryExport, 'batteries.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data'
+            ]);
         }
     }
 
@@ -280,6 +319,12 @@ class Battery extends Controller
             $price->price_retail = $battery->price_retail;
             $status &= $price->save();
 
+            // Store battery code.
+            $code = new BatteryCodeModel();
+            $code->code = $request->code;
+            $code->battery_id = $battery->id;
+            $status &= $code->save();
+
             if ($status)
                 DB::commit();
             else
@@ -444,6 +489,18 @@ class Battery extends Controller
                 $status &= $price->save();
             }
 
+            // Store battery code.
+            $code = BatteryCodeModel::where("battery_id", $battery->id)->first();
+            if ($code) {
+                $code->code = $request->code;
+                $status &= $code->save();
+            } else {
+                $code = new BatteryCodeModel();
+                $code->code = $request->code;
+                $code->battery_id = $battery->id;
+                $status &= $code->save();
+            }
+
             if ($status)
                 DB::commit();
             else
@@ -510,12 +567,16 @@ class Battery extends Controller
      */
     public function getBatteriesByKeyword($keyword)
     {
+        $inventoryController = new Inventory();
+        $exceptions = $inventoryController->getZeroStockInventory();
+
         return BatteryModel::allForAutocomplete(
             $keyword,
             [
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
-            ]
+            ],
+            $exceptions
         );
     }
 

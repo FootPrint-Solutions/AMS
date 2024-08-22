@@ -49,7 +49,7 @@ use App\Http\Controllers\Developer\MenuParent;
 
 // AUTH
 use App\Http\Controllers\Auth\Authentication;
-
+use App\Http\Controllers\Inventory\Inventory;
 // PROFILE
 use App\Http\Controllers\Profile;
 
@@ -115,6 +115,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
     Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
     Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
+    Route::post('/battery/import/price', [Battery::class, 'importPrice'])->name('battery.import.price');
+    Route::post('/battery/export', [Battery::class, 'export'])->name('battery.export');
     Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory']);
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
 
@@ -196,6 +198,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/distributor/technician/store', [DistributorShopTechnician::class, 'store']);
     Route::post('/distributor/technician/update', [DistributorShopTechnician::class, 'update']);
     Route::post('/distributor/technician/destroy', [DistributorShopTechnician::class, 'destroy']);
+
+    // Inventory
+    // Inventory
+    Route::get('/inventory', [Inventory::class, 'index']);
+    Route::get('/inventory/get/{name}', [Inventory::class, 'getStock']);
 
     // Orders
     // Quick Quotation

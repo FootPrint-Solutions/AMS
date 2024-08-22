@@ -46,6 +46,7 @@
             <input type="hidden" id="lazy-load-offset">
             <div class="scrollable-y" id="scrollable-container">
                 <div id="lazy-load-list-data"></div>
+                <div id="lazy-load-list-data-info"></div>
             </div>
         </div>
     </div>
@@ -532,7 +533,7 @@
             $('#lazy-load-list-data').empty();
             $('#lazy-load-limit').val(10);
             $('#lazy-load-offset').val(0);
-            loadWorkOrderList();
+            loadWorkOrderList(true);
         });
     });
 
@@ -549,14 +550,16 @@
         }
 
         // loading animation
-        $('#lazy-load-list-data').empty();
-        $('#lazy-load-list-data').append(`
+        $('#lazy-load-list-data-info').empty();
+        $('#lazy-load-list-data-info').append(`
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </div>
         `);
+
+
         $.ajax({
             url: "/work-order/mobile/lazy-load/list",
             type: 'GET',
@@ -566,65 +569,70 @@
                 search: search
             },
             success: function(response) {
+                // remove loading animation
+                $('#lazy-load-list-data-info').find('.spinner-border').remove();
+
                 if (response.status) {
                     var workOrders = response.work_orders.row;
-                    var workOrderList = $('#lazy-load-list-data');
 
-                    var no = parseInt(offset) + 1;
-                    workOrders.forEach(function(workOrder) {
 
-                        // format number to currency wihtout decimal
-                        formatNumber = new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            minimumFractionDigits: 0
-                        }).format(workOrder.total);
-
-                        var textColor = '';
-                        if (workOrder.status == 'completed')
-                            textColor = 'text-info';
-
-                        var workOrderCard = `
-                        <div class="card bg-white mt-1" id="work-order-list" data-id="${workOrder.id}">
-                        <div class="row mt-2 mb-2 left-2 ${textColor}">
-                            <div class="col-2">
-                                <button class="btn bg-dark-blue float-left btn-rounded text-center font-size-10 text-light" id="btn-work-order-card" data-id="${workOrder.id}">
-                                    ${no++}
-                                </button>
+                    if (workOrders.length === 0) {
+                        var workOrderList = $('#lazy-load-list-data-info');
+                        workOrderList.append(`
+                            <div class="text-center">
+                                <p>No data found</p>
                             </div>
-                            <div class="col-6">
-                                <span class="work-order-name">
-                                    ${workOrder.customer_name}
-                                </span>
-                                <br>
-                                <span class="work-order-id">
-                                    ${workOrder.work_order_number}
-                                </span>
+                        `).appendTo(workOrderList);
+                    } else {
+                        var workOrderList = $('#lazy-load-list-data');
+                        var no = parseInt(offset) + 1;
+                        workOrders.forEach(function(workOrder) {
+                            // format number to currency without decimal
+                            formatNumber = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0
+                            }).format(workOrder.total);
+
+                            var textColor = '';
+                            if (workOrder.status == 'completed')
+                                textColor = 'text-info';
+
+                            var workOrderCard = `
+                            <div class="card bg-white mt-1" id="work-order-list" data-id="${workOrder.id}">
+                            <div class="row mt-2 mb-2 left-2 ${textColor}">
+                                <div class="col-2">
+                                    <button class="btn bg-dark-blue float-left btn-rounded text-center font-size-10 text-light" id="btn-work-order-card" data-id="${workOrder.id}">
+                                        ${no++}
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <span class="work-order-name">
+                                        ${workOrder.customer_name}
+                                    </span>
+                                    <br>
+                                    <span class="work-order-id">
+                                        ${workOrder.work_order_number}
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <span class="work-order-price right-2">
+                                        ${formatNumber}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="col">
-                                <span class="work-order-price right-2">
-                                    ${formatNumber}
-                                </span>
                             </div>
-                        </div>
-                        </div>
                             `;
-                        workOrderList.append(workOrderCard);
-                    });
+                            workOrderList.append(workOrderCard);
+                        });
 
-                    // remove loading animation
-                    $('#lazy-load-list-data').find('.spinner-border').remove();
-
-                    $('#lazy-load-offset').val(parseInt(offset) + parseInt(limit));
-                    $('#lazy-load-limit').val(parseInt(limit) + 10);
-
-
+                        $('#lazy-load-offset').val(parseInt(offset) + parseInt(limit));
+                        $('#lazy-load-limit').val(parseInt(limit) + 10);
+                    }
                 } else {
-                    // remove loading animation
-                    $('#lazy-load-list-data').find('.spinner-border').remove();
-                    $('#lazy-load-list-data').append(`
+                    $('#lazy-load-list-data-info').append(`
                         <div class="text-center">
-                            <p>No data found</p>
+                            <p>No data data</p>
                         </div>
                     `);
                 }
@@ -632,7 +640,12 @@
             },
             error: function() {
                 // Remove loading animation
-                $('#lazy-load-list-data').find('.spinner-border').remove();
+                $('#lazy-load-list-data-info').find('.spinner-border').remove();
+                $('#lazy-load-list-data-info').append(`
+                    <div class="text-center">
+                        <p>Error loading data</p>
+                    </div>
+                `);
                 isLoading = false; // Reset the flag if there's an error
             }
         });
