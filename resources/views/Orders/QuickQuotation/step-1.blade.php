@@ -8,7 +8,8 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label>Members Name </label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
+                        placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
                         Exist</span>
@@ -20,11 +21,12 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label>Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
+                        aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">
-                            {{ trim($vehicle['name']) }}
-                        </option>
+                            <option value="{{ $vehicle['id'] }}">
+                                {{ trim($vehicle['name']) }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -94,6 +96,7 @@
         html += '<span class="visually-hidden">Loading...</span>';
         html += '</div>';
         $('#ResultRecommendationBatteryVehicle').html(html);
+        $("#ResultRecommendationStockBatteryVehicle").html("");
 
         $.ajax({
             url: "/quotation/vehicle/find",
@@ -112,7 +115,8 @@
                     html = '<div class="row">'; // Memulai row baru untuk Bootstrap grid
                     data.forEach(function(vehicle, index) {
                         html +=
-                            '<div class="col-md-2_4 col-sm-6 mb-4" id="' + vehicle.code + '" style="flex: 0 0 calc(20% - 1rem); margin: 0.5rem; position: relative;">'; // Menambahkan position relative untuk badge
+                            '<div class="col-md-2_4 col-sm-6 mb-4" id="' + vehicle.code +
+                            '" style="flex: 0 0 calc(20% - 1rem); margin: 0.5rem; position: relative;">'; // Menambahkan position relative untuk badge
                         html += '<div class="blog grid-blog d-flex flex-column h-100">';
                         html += '<div class="blog-imagex">';
                         html += '<a href="#!">';
@@ -196,7 +200,8 @@
                         html += '<div class="checkbox">';
                         html += '<label>';
                         if (vehicle.code == null) {
-                            html += '<input type="checkbox" name="CheckBattery1x[]" value=' + vehicle
+                            html += '<input type="checkbox" name="CheckBattery1x[]" value=' +
+                                vehicle
                                 .id + ' id="checkBoxBattery' + vehicle
                                 .id + '" disabled> Select Battery';
                         } else {
@@ -219,22 +224,27 @@
                         }
 
                         // Set stock
-                        $("#ResultRecommendationStockBatteryVehicle").html("");
+                        // create div col for stock inside row ResultRecommendationStockBatteryVehicle
+                        var col =
+                            '<div class="col alert alert-primary text-center mx-2" id="stock' +
+                            vehicle.id +
+                            '"></div>';
+                        $("#ResultRecommendationStockBatteryVehicle").append(col);
                         $.ajax({
                             url: "/inventory/get/" + vehicle.code,
                             type: "GET",
                             success: function(data) {
-
                                 // jika data 0 atau - atau null maka disable checkbox 
                                 if (data == 0 || data == '-' || data == null) {
-                                    $("#checkBoxBattery" + vehicle.id).prop('disabled', true);
+                                    $("#checkBoxBattery" + vehicle.id).prop('disabled',
+                                        true);
                                 } else {
-                                    $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
+                                    $("#checkBoxBattery" + vehicle.id).prop('disabled',
+                                        false);
                                 }
 
-                                $("#ResultRecommendationStockBatteryVehicle").append(
-                                    `<div class="col alert alert-primary text-center mx-2">Stock: ${data}</div>`
-                                );
+                                // set stock
+                                $("#stock" + vehicle.id).html("Stock : " + data);
                             }
                         });
                     });
