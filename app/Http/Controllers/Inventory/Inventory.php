@@ -84,7 +84,7 @@ class Inventory extends Controller
     }
 
     /**
-     * Get an inventory from Spreadsheet.
+     * Get all zero stock from inventory.
      */
     public function getZeroStockInventory()
     {
@@ -97,6 +97,22 @@ class Inventory extends Controller
                 $zeroStocks[] = $item[0];
         }
         return $zeroStocks;
+    }
+
+    /**
+     * Get all non zero stock from inventory.
+     */
+    public function getNonZeroStockInventory()
+    {
+        if ($this->stockList == [])
+            $this->stockList = $this->getAllInventory();
+
+        $nonZeroStocks = [];
+        foreach ($this->stockList as $item) {
+            if (intval($item[6]) > 0)
+                $nonZeroStocks[] = $item[0];
+        }
+        return $nonZeroStocks;
     }
 
     /**

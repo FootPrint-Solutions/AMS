@@ -568,7 +568,7 @@ class Battery extends Controller
     public function getBatteriesByKeyword($keyword)
     {
         $inventoryController = new Inventory();
-        $exceptions = $inventoryController->getZeroStockInventory();
+        $exceptions = $inventoryController->getNonZeroStockInventory();
 
         return BatteryModel::allForAutocomplete(
             $keyword,
