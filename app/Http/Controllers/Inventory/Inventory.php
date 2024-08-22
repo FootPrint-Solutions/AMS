@@ -64,7 +64,7 @@ class Inventory extends Controller
     public function index()
     {
         $this->setStockList();
-        return view('inventory.inventory.index', getIndexData(
+        return view('Inventory.inventory.index', getIndexData(
             $this->title,
             array(
                 'inventories' => $this->stockList
