@@ -125,7 +125,7 @@ class Inventory extends Controller
 
         $index = array_search($batteryCode, array_column($this->stockList, 0));
         if ($index !== false)
-            return $this->stockList[$index][2];
+            return $this->stockList[$index][6];
         return "-";
     }
 }
