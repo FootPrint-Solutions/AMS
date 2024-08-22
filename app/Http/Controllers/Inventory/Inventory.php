@@ -15,7 +15,7 @@ class Inventory extends Controller
     private $stockList = [];
 
     // Constant sheet id.
-    const SHEET_ID = "1uqSuVPyl181fZKCEvqEqrIp0hQz7WK9BcWrvGW35tL8";
+    const SHEET_ID = "1XfqdPabl5RhMNi7MnIvsGgOaS5f7cws3KdCgFhiERQg";
 
     function __construct()
     {
@@ -64,7 +64,7 @@ class Inventory extends Controller
     public function index()
     {
         $this->setStockList();
-        return view('inventory.inventory.index', getIndexData(
+        return view('Inventory.inventory.index', getIndexData(
             $this->title,
             array(
                 'inventories' => $this->stockList
@@ -77,14 +77,14 @@ class Inventory extends Controller
      */
     private function getAllInventory()
     {
-        $range = 'Sheet2!B3:H';
+        $range = 'Sheet1!B3:H';
         $response = $this->service->spreadsheets_values->get(self::SHEET_ID, $range);
         $values = $response->getValues();
         return $values;
     }
 
     /**
-     * Get an inventory from Spreadsheet.
+     * Get all zero stock from inventory.
      */
     public function getZeroStockInventory()
     {
@@ -100,6 +100,22 @@ class Inventory extends Controller
     }
 
     /**
+     * Get all non zero stock from inventory.
+     */
+    public function getNonZeroStockInventory()
+    {
+        if ($this->stockList == [])
+            $this->stockList = $this->getAllInventory();
+
+        $nonZeroStocks = [];
+        foreach ($this->stockList as $item) {
+            if (intval($item[6]) > 0)
+                $nonZeroStocks[] = $item[0];
+        }
+        return $nonZeroStocks;
+    }
+
+    /**
      * Get stock of an inventory based on battery code.
      */
     public function getStock($batteryCode)
@@ -109,7 +125,7 @@ class Inventory extends Controller
 
         $index = array_search($batteryCode, array_column($this->stockList, 0));
         if ($index !== false)
-            return $this->stockList[$index][2];
+            return $this->stockList[$index][6];
         return "-";
     }
 }
