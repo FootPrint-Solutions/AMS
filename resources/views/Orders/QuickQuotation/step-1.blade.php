@@ -220,6 +220,8 @@
 
                         // Set stock
                         $("#ResultRecommendationStockBatteryVehicle").html("");
+                        // create div col for stock
+                        html += '<div class="col alert alert-primary text-center mx-2" id="stock' + vehicle.id + '">Loading...</div>';
                         $.ajax({
                             url: "/inventory/get/" + vehicle.code,
                             type: "GET",
@@ -232,9 +234,8 @@
                                     $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
                                 }
 
-                                $("#ResultRecommendationStockBatteryVehicle").append(
-                                    `<div class="col alert alert-primary text-center mx-2">Stock: ${data}</div>`
-                                );
+                                // set stock
+                                $("#stock" + vehicle.id).html("Stock : " + data);
                             }
                         });
                     });
