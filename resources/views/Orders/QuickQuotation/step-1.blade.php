@@ -96,6 +96,7 @@
         html += '<span class="visually-hidden">Loading...</span>';
         html += '</div>';
         $('#ResultRecommendationBatteryVehicle').html(html);
+        $("#ResultRecommendationStockBatteryVehicle").html("");
 
         $.ajax({
             url: "/quotation/vehicle/find",
@@ -223,16 +224,16 @@
                         }
 
                         // Set stock
-                        $("#ResultRecommendationStockBatteryVehicle").html("");
                         // create div col for stock inside row ResultRecommendationStockBatteryVehicle
-                        var col = '<div class="col-md-2_4 col-sm-6 mb-4" id="stock' + vehicle.id +
+                        var col =
+                            '<div class="col alert alert-primary text-center mx-2" id="stock' +
+                            vehicle.id +
                             '"></div>';
                         $("#ResultRecommendationStockBatteryVehicle").append(col);
                         $.ajax({
                             url: "/inventory/get/" + vehicle.code,
                             type: "GET",
                             success: function(data) {
-
                                 // jika data 0 atau - atau null maka disable checkbox 
                                 if (data == 0 || data == '-' || data == null) {
                                     $("#checkBoxBattery" + vehicle.id).prop('disabled',
