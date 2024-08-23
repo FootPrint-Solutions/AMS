@@ -37,10 +37,10 @@ class BackupDatabase extends Command
      */
     public function handle()
     {
-        $username = env('DB_USERNAME');
-        $password = env('DB_PASSWORD');
-        $host = env('DB_HOST');
-        $database = env('DB_DATABASE');
+        $username = env('DB_USERNAME', 'app');
+        $password = env('DB_PASSWORD', 'AkikitaAdmin20@%');
+        $host = env('DB_HOST', '127.0.0.1');
+        $database = env('DB_DATABASE', 'ams');
         $filename = "backup-" . now()->format('Y-m-d_H-i-s') . ".sql";
 
         $command = sprintf(
