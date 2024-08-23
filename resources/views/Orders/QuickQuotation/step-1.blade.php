@@ -245,6 +245,13 @@
 
                                 // set stock
                                 $("#stock" + vehicle.id).html("Stock : " + data);
+                                // show code battery
+                                if (vehicle.code != null) {
+                                    $("#stock" + vehicle.id).append("<br>ID : " +
+                                        vehicle.code);
+                                } else {
+                                    $("#stock" + vehicle.id).append("<br>ID : -");
+                                }
                             }
                         });
                     });
