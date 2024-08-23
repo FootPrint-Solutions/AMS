@@ -172,7 +172,8 @@
                                     @foreach ($data['shops'] as $shop)
                                         <option value="{{ $shop['id'] }}"
                                             @if (isset($data['profile']) && $data['profile']['distributor_shop_id'] == $shop['id']) selected @endif>
-                                            {{ $shop['distributor']['name'] . ' - ' . $shop['name'] }}</option>
+                                            {{ isset($shop['distributor']) ? $shop['distributor']['name'] . ' - ' . $shop['name'] : $shop['name'] }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
