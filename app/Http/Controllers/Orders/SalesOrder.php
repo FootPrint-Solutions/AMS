@@ -47,7 +47,7 @@ class SalesOrder extends Controller
     public function getSalesOrders($status = 'all', $filter = '')
     {
         $query = SalesOrderModel::with('customer')->join("customers", "sales_orders.customer_id", "customers.id")
-            ->select("sales_orders.*");
+            ->select("sales_orders.*")->orderBy("sales_orders.date", "DESC");
 
         // Filter status
         if ($status != 'all')
