@@ -62,7 +62,7 @@
                     targets: [-1],
                     className: 'dt-body-right'
                 }],
-                dom: "lBrtip",
+                dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
             });
