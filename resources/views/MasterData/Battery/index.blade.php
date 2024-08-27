@@ -167,31 +167,21 @@
                     contentType: false,
                     processData: false,
                     success: function(response) {
-                        // Get response data (in JSON).
-                        let responseData = JSON.parse(response);
+                        // Reset form.
+                        $("#form-import")[0].reset();
+                        $("#btn-import").attr("disabled", false);
+                        button.html(
+                            '<i class="fa-solid fa-file-import"></i> Import Battery Data'
+                        );
 
-                        // Check response data status.
-                        // Status indicates the success status of company profile update.
-                        if (responseData.status) {
-                            // Company profile update was succeeded.
-                            showSuccessToast(responseData.message);
-                            $("#form-import")[0].reset();
-                            $("#btn-import").attr("disabled", false);
-                            button.html(
-                                '<i class="fa-solid fa-file-import"></i> Import Battery Data'
-                            );
-                        } else {
-                            // Company profile update was failed.
-                            showErrorToast(responseData.message);
-                            $("#form-import")[0].reset();
-                            $("#btn-import").attr("disabled", false);
-                            button.html(
-                                '<i class="fa-solid fa-file-import"></i> Import Battery Data'
-                            );
-                        }
-
-                        // Reload table with updated rows.
+                        // Reload table.
                         table.ajax.reload();
+
+                        // Open import status page.
+                        var newTab = window.open();
+                        newTab.document.open();
+                        newTab.document.write(response);
+                        newTab.document.close();
                     }
                 });
             });
@@ -218,7 +208,7 @@
                         $("#form-import")[0].reset();
                         $("#btn-import").attr("disabled", false);
                         button.html(
-                            '<i class="fa-solid fa-file-import"></i> Import Battery Data'
+                            '<i class="fa-solid fa-file-import"></i> Import Battery Price'
                         );
 
                         // Reload table.

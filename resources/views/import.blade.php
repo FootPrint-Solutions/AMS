@@ -50,18 +50,25 @@
                                     <td style="width: 45%">{{ $totalRows }}</td>
                                 </tr>
 
-                                {{-- Total Changed Rows --}}
+                                {{-- Total Imported Rows --}}
                                 <tr>
-                                    <td>Total Changed Rows</td>
+                                    <td>Total Imported Rows</td>
                                     <td>:</td>
-                                    <td>{{ $totalChangedRows }}</td>
+                                    <td>{{ $totalRows - count($unimportedRows) }}</td>
                                 </tr>
 
                                 {{-- Failed Rows --}}
                                 <tr>
-                                    <td>Total Faild Rows</td>
+                                    <td>Total Failed Rows</td>
                                     <td>:</td>
                                     <td>{{ count($unimportedRows) }}</td>
+                                </tr>
+
+                                {{-- Total Changed Rows --}}
+                                <tr>
+                                    <td>Total Changed Rows</td>
+                                    <td>:</td>
+                                    <td>{{ $totalChangedRows ?? 0 }}</td>
                                 </tr>
                             </table>
                         @else
