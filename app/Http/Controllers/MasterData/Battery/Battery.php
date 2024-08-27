@@ -26,6 +26,7 @@ use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 
 class Battery extends Controller
@@ -100,28 +101,37 @@ class Battery extends Controller
         ]);
         $path1 = $request->file('file')->store('temp');
         $path = storage_path('app') . '/' . $path1;
+
         try {
-            Excel::import(new BatteryImport, $path);
-            return getResponseData(
-                true,
-                "Data imported successfully!"
-            );
+            $import = new BatteryImport();
+            Excel::import($import, $path);
+            return view('import', [
+                'status' => true,
+                'totalRows' => $import->getTotalRows(),
+                'unimportedRows' => $import->getUnimportedRows()
+            ]);
         } catch (\Exception $e) {
-            return getResponseData(
-                false,
-                "Error importing data Error importing data excell format or data is not suitable"
-            );
+            Log::error($e);
+            return view('import', [
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
     public function importPrice(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
-        ]);
-        $path1 = $request->file('file')->store('temp');
-        $path = storage_path('app') . '/' . $path1;
         try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,xls,csv',
+            ]);
+            if ($validator->fails())
+                throw new Exception('Invalid file format.');
+
+            // Proceed with the file storage and import
+            $path1 = $request->file('file')->store('temp');
+            $path = storage_path('app') . '/' . $path1;
+
             $import = new BatteryPriceImport();
             Excel::import($import, $path);
             return view('import', [

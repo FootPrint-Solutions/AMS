@@ -99,7 +99,7 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
         return [
             BeforeImport::class => function (BeforeImport $event) {
                 $worksheet = $event->getDelegate()->getActiveSheet();
-                $this->totalRows = $worksheet->getHighestDataRow();
+                $this->totalRows = $worksheet->getHighestDataRow() - 3;
             },
         ];
     }

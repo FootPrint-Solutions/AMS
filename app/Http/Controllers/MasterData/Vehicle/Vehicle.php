@@ -358,20 +358,21 @@ class Vehicle extends Controller
         ]);
         $path1 = $request->file('file')->store('temp');
         $path = storage_path('app') . '/' . $path1;
-        try {
-            Excel::import(new VehicleImport, $path);
-            return getResponseData(
-                true,
-                "Data imported successfully!"
-            );
-        } catch (\Exception $e) {
-            // Logging error message.
-            Log::error($e->getMessage());
 
-            return getResponseData(
-                false,
-                "Error importing data excell format or data is not suitable"
-            );
+        try {
+            $import = new VehicleImport();
+            Excel::import($import, $path);
+            return view('import', [
+                'status' => true,
+                'totalRows' => $import->getTotalRows(),
+                'unimportedRows' => $import->getUnimportedRows()
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return view('import', [
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }
