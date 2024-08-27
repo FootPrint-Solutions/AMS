@@ -128,7 +128,7 @@ class Battery extends Controller
                 "Data imported successfully!"
             );
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            Log::error($e);
             return getResponseData(
                 false,
                 "Error importing data!"

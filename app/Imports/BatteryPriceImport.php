@@ -2,8 +2,10 @@
 
 namespace App\Imports;
 
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
@@ -24,12 +26,24 @@ class BatteryPriceImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $newPrice = $row[13] ? intval($row[13]) : 0;
-        $battery = BatteryModel::where('name', $row[0])->first();
-        if ($battery && $battery->price_retail != $newPrice) {
-            $battery->price_retail = $row[13] ? intval($row[13]) : 0;
-            $status = $battery->save();
-        }
+        // Get new values (to replace).
+        $newName = $row[1] ? $row[1] : "";
+        $newPrice = $row[14] ? intval($row[14]) : 0;
+
+        // Get battery based on code.
+        $code = $row[0];
+        $batteryId = BatteryCodeModel::where('code', $code)->first();
+        if (!$batteryId)
+            return;
+        $batteryId = $batteryId->battery_id;
+
+        $battery = BatteryModel::where('id', $batteryId)->first();
+        if (!$battery)
+            return;
+
+        $battery->name = $newName;
+        $battery->price_retail = $newPrice;
+        $battery->save();
         return $battery;
     }
 }
