@@ -26,6 +26,7 @@ use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 
 class Battery extends Controller
@@ -116,12 +117,17 @@ class Battery extends Controller
 
     public function importPrice(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
-        ]);
-        $path1 = $request->file('file')->store('temp');
-        $path = storage_path('app') . '/' . $path1;
         try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,xls,csv',
+            ]);
+            if ($validator->fails())
+                throw new Exception('Invalid file format.');
+
+            // Proceed with the file storage and import
+            $path1 = $request->file('file')->store('temp');
+            $path = storage_path('app') . '/' . $path1;
+
             $import = new BatteryPriceImport();
             Excel::import($import, $path);
             return view('import', [

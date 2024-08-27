@@ -41,43 +41,49 @@
                             @endif
                         </div>
 
-                        <table>
-                            {{-- Total Rows --}}
-                            <tr>
-                                <td style="width: 40%">Total Rows</td>
-                                <td style="width: 5%">:</td>
-                                <td style="width: 45%">{{ $totalRows }}</td>
-                            </tr>
+                        @if ($status)
+                            <table>
+                                {{-- Total Rows --}}
+                                <tr>
+                                    <td style="width: 40%">Total Rows</td>
+                                    <td style="width: 5%">:</td>
+                                    <td style="width: 45%">{{ $totalRows }}</td>
+                                </tr>
 
-                            {{-- Total Changed Rows --}}
-                            <tr>
-                                <td>Total Changed Rows</td>
-                                <td>:</td>
-                                <td>{{ $totalChangedRows }}</td>
-                            </tr>
+                                {{-- Total Changed Rows --}}
+                                <tr>
+                                    <td>Total Changed Rows</td>
+                                    <td>:</td>
+                                    <td>{{ $totalChangedRows }}</td>
+                                </tr>
 
-                            {{-- Failed Rows --}}
-                            <tr>
-                                <td>Total Faild Rows</td>
-                                <td>:</td>
-                                <td>{{ count($unimportedRows) }}</td>
-                            </tr>
-                        </table>
+                                {{-- Failed Rows --}}
+                                <tr>
+                                    <td>Total Faild Rows</td>
+                                    <td>:</td>
+                                    <td>{{ count($unimportedRows) }}</td>
+                                </tr>
+                            </table>
+                        @else
+                            {{ $error }}
+                        @endif
                     </div>
                 </div>
                 <br>
 
                 {{-- List --}}
-                <h5>List of Failed Rows</h5>
-                <ul class="list-group">
-                    @if ($status && count($unimportedRows) > 0)
-                        @foreach ($unimportedRows as $row)
-                            <li class="list-group-item">{{ implode(',', $row) }}</li>
-                        @endforeach
-                    @else
-                        <li class="list-group-item disabled">No failed row</li>
-                    @endif
-                </ul>
+                @if ($status)
+                    <h5>List of Failed Rows</h5>
+                    <ul class="list-group">
+                        @if ($status && count($unimportedRows) > 0)
+                            @foreach ($unimportedRows as $row)
+                                <li class="list-group-item">{{ implode(',', $row) }}</li>
+                            @endforeach
+                        @else
+                            <li class="list-group-item disabled">No failed row</li>
+                        @endif
+                    </ul>
+                @endif
             </div>
         </div>
     </div>
