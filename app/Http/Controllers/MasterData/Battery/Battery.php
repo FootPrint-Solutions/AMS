@@ -122,17 +122,21 @@ class Battery extends Controller
         $path1 = $request->file('file')->store('temp');
         $path = storage_path('app') . '/' . $path1;
         try {
-            Excel::import(new BatteryPriceImport, $path);
-            return getResponseData(
-                true,
-                "Data imported successfully!"
-            );
+            $import = new BatteryPriceImport();
+            Excel::import($import, $path);
+            return view('import', [
+                'status' => true,
+                'totalRows' => $import->getTotalRows(),
+                'totalChangedRows' => $import->getTotalChangedRows(),
+                'totalUnchangedRows' => $import->getTotalUnchangedRows(),
+                'unimportedRows' => $import->getUnimportedRows()
+            ]);
         } catch (\Exception $e) {
             Log::error($e);
-            return getResponseData(
-                false,
-                "Error importing data!"
-            );
+            return view('import', [
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
