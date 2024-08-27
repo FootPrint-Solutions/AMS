@@ -39,6 +39,8 @@ use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 use App\Http\Controllers\Settings\PaymentMethod;
 use App\Http\Controllers\Settings\PrintTemplate;
+use App\Http\Controllers\Settings\ImportTemplate;
+
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -300,6 +302,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/template/print/get/sub-task', [PrintTemplate::class, 'getSubTask']);
     Route::post('/template/print/update/sub-task', [PrintTemplate::class, 'updateSubTask']);
     Route::post('/template/print/delete/sub-task', [PrintTemplate::class, 'deleteSubTask']);
+
+    // Import Template
+    Route::post('/template/import/update', [ImportTemplate::class, 'update']);
+    Route::post('/template/import/delete', [ImportTemplate::class, 'delete']);
 
     // Tax
     Route::get('/tax', [Tax::class, 'index']);

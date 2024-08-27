@@ -30,19 +30,52 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <h4 class="header-title mb-4">Print Templates Import</h4>
-            <p class="text-muted font-13 mb-4">
-                Import your print templates from Microsoft Word. Please note that the imported template will be in HTML
-                format.
-            </p>
-            <textarea id="basic-example"></textarea>
-        </div>
-    </div>
 
 
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+    {{-- Import Template --}}
+    @foreach ($data['importTemplate'] as $template)
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-4">{{ $template['name'] }} Import</h4>
+                <p class="text-muted font-13 mb-4">
+                    Import your {{ $template['name'] }} from Microsoft Word. Please note that the imported template will be
+                    in HTML format.
+                </p>
+                <textarea id="template-{{ $template['id'] }}" class="form-control" rows="10">
+                    {{ $template['template'] }}
+                </textarea>
+            </div>
+
+            {{-- save button template --}}
+            <div class="card-footer text-end">
+                <button class="btn btn-danger" id="btn-template-delete" data-id="{{ $template['id'] }}">Delete</button>
+                <button class="btn btn-success" id="btn-template-save" data-id="{{ $template['id'] }}">Save</button>
+            </div>
+        </div>
+
+        <script>
+            var editor = tinymce.init({
+                selector: 'textarea#template-{{ $template['id'] }}',
+                height: 500,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'importword'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                    'bold italic backcolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | help',
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+                init_instance_callback: function(editor) {
+                    editor.on('init', function() {
+                        // Add your loading effect code 
+                    });
+                }
+            });
+        </script>
+    @endforeach
 
     {{-- DataTables Configurations --}}
     <script>
@@ -110,26 +143,64 @@
             goToPage("/template/create");
         });
 
-        // Add loading effect
-        var editor = tinymce.init({
-            selector: 'textarea#basic-example',
-            height: 500,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'importword'
-            ],
-            toolbar: 'undo redo | blocks | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help | importword',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
-            init_instance_callback: function(editor) {
-                editor.on('init', function() {
-                    // Add your loading effect code 
+        // btn-template-save
+        $(document).on('click', '#btn-template-save', function() {
+            let id = $(this).data('id');
+            let template = tinymce.get('template-' + id).getContent();
 
-                });
-            }
+            $.ajax({
+                url: '/template/import/update',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id,
+                    template: template
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success",
+                            text: "Template has been saved.",
+                            icon: "success",
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Failed to save template.",
+                            icon: "error",
+                        });
+                    }
+                }
+            });
+        });
+
+        // btn-template-delete
+        $(document).on('click', '#btn-template-delete', function() {
+            let id = $(this).data('id');
+
+            $.ajax({
+                url: '/template/import/delete',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success",
+                            text: "Template has been deleted.",
+                            icon: "success",
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Failed to delete template.",
+                            icon: "error",
+                        });
+                    }
+                }
+            });
         });
     </script>
 @endsection
