@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Settings\ImportTemplateModel;
 use App\Models\Settings\PrintTemplateModel;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,9 @@ class PrintTemplate extends Controller
             'Settings.PrintTemplate.WorkOrder.index',
             getIndexData(
                 $this->title,
+                array(
+                    "importTemplate" => ImportTemplateModel::all(),
+                )
             )
         );
     }
