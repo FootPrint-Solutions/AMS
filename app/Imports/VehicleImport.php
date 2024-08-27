@@ -11,10 +11,36 @@ use App\Models\MasterData\Vehicle\VehicleBatterySizeCategoryModel;
 
 
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Events\BeforeImport;
 
-class VehicleImport implements ToModel, WithStartRow
+class VehicleImport implements ToModel, WithStartRow, WithEvents
 {
+    private $unimportedRows = [];
+    private $totalRows = 0;
+    private $totalChangedRows = 0;
+    private $totalUnchangedRows = 0;
+
+    public function getUnimportedRows()
+    {
+        return $this->unimportedRows;
+    }
+
+    public function getTotalRows()
+    {
+        return $this->totalRows;
+    }
+
+    public function getTotalChangedRows()
+    {
+        return $this->totalChangedRows;
+    }
+
+    public function getTotalUnchangedRows()
+    {
+        return $this->totalUnchangedRows;
+    }
 
     /**
      * @return int
@@ -31,33 +57,46 @@ class VehicleImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        if (empty($row[0])) {
+        try {
+            // Validate the row before processing
+            if (!$this->validateRow($row)) {
+                // Add invalid row to unimportedRows array
+                $this->unimportedRows[] = $row;
+                return null;
+            }
+
+            // Create or find the brand model
+            $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
+
+            // Initialize an array to hold alternate batteries
+            $altbatteries = [];
+            for ($i = 2; $i <= 5; $i++) {
+                if (!empty($row[$i])) {
+                    // Create or find battery size category model
+                    $battery = BatterySizeCategoryModel::firstOrCreate(['name' => trim($row[$i])]);
+                    $altbatteries[] = $battery;
+                }
+            }
+
+            // Create or find the vehicle model
+            $vehicle = VehicleModel::firstOrCreate(
+                ['name' => trim($row[0])], // Look for an existing vehicle by name
+                ['brand_id' => $brand->id, 'url' => $row[6]]
+            );
+
+            // Associate alternate batteries with the vehicle
+            foreach ($altbatteries as $battery) {
+                VehicleBatterySizeCategoryModel::firstOrCreate([
+                    'vehicle_id' => $vehicle->id,
+                    'battery_size_category_id' => $battery->id,
+                ]);
+            }
+
+            return $vehicle;
+        } catch (\Exception $e) {
+            $this->unimportedRows[] = $row;
             return null;
         }
-
-        $brand = VehicleBrandModel::firstOrCreate(['name' => trim($row[1])]);
-
-        $altbatteries = [];
-        for ($i = 2; $i <= 5; $i++) {
-            if (!empty($row[$i])) {
-                $battery = BatterySizeCategoryModel::firstOrCreate(['name' => trim($row[$i])]);
-                $altbatteries[] = $battery;
-            }
-        }
-
-        $vehicle = VehicleModel::firstOrCreate(
-            ['name' => trim($row[0])], // cari berdasarkan nama ini dulu
-            ['brand_id' => $brand->id, 'url' => $row[6]]
-        );
-
-        foreach ($altbatteries as $battery) {
-            VehicleBatterySizeCategoryModel::firstOrCreate([
-                'vehicle_id' => $vehicle->id,
-                'battery_size_category_id' => $battery->id,
-            ]);
-        }
-
-        return $vehicle;
     }
 
     private function validateRow(array $row): bool
@@ -67,5 +106,20 @@ class VehicleImport implements ToModel, WithStartRow
         }
 
         return true;
+    }
+
+    /**
+     * Register events
+     *
+     * @return array
+     */
+    public function registerEvents(): array
+    {
+        return [
+            BeforeImport::class => function (BeforeImport $event) {
+                $worksheet = $event->getDelegate()->getActiveSheet();
+                $this->totalRows = $worksheet->getHighestDataRow() - 3;
+            },
+        ];
     }
 }
