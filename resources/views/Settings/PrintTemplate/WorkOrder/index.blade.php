@@ -30,6 +30,20 @@
         </div>
     </div>
 
+    <div class="card">
+        <div class="card-body">
+            <h4 class="header-title mb-4">Print Templates Import</h4>
+            <p class="text-muted font-13 mb-4">
+                Import your print templates from Microsoft Word. Please note that the imported template will be in HTML
+                format.
+            </p>
+            <textarea id="basic-example"></textarea>
+        </div>
+    </div>
+
+
+    <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+
     {{-- DataTables Configurations --}}
     <script>
         var table;
@@ -94,6 +108,28 @@
     <script>
         $('#btn-add').on('click', function() {
             goToPage("/template/create");
+        });
+
+        // Add loading effect
+        var editor = tinymce.init({
+            selector: 'textarea#basic-example',
+            height: 500,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'importword'
+            ],
+            toolbar: 'undo redo | blocks | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help | importword',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            init_instance_callback: function(editor) {
+                editor.on('init', function() {
+                    // Add your loading effect code 
+
+                });
+            }
         });
     </script>
 @endsection
