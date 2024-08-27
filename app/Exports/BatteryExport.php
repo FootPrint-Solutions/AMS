@@ -13,12 +13,13 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
 {
     public function collection()
     {
-        return BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'sizeCategory', 'technology'])->get();
+        return BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'sizeCategory', 'technology', 'code'])->get();
     }
 
     public function headings(): array
     {
         return [
+            'ID',
             'Name',
             'Alternate Name',
             'Brand',
@@ -39,6 +40,7 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
     public function map($battery): array
     {
         return [
+            $battery->code->code ?? "",
             $battery->name,
             $battery->name_alternate,
             $battery->brand->name ?? "-",

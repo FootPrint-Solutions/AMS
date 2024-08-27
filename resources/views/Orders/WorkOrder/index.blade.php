@@ -122,6 +122,39 @@
         </div>
     </div>
 
+    {{-- modal print technician report choice --}}
+    <div class="modal fade" id="modal-print-technician-report" tabindex="-1"
+        aria-labelledby="modal-print-technician-report-label" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-light" id="modal-print-technician-report-label"><i
+                            class="fas fa-print"></i> Print Technician Report
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <label for="selection-print-technician-report">Select Print Option:</label>
+                    <select class="form-control" name="selection-print-technician-report"
+                        id="selection-print-technician-report">
+                        <option value="template">Print from template default</option>
+                        <option value="database">Print from template setting</option>
+                    </select>
+
+                    <input type="hidden" name="work_order_id" id="work_order_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" class="btn btn-primary" id="btn-print-technician-report"><i
+                            class="fas fa-print"></i>
+                        Print</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('Mobile.Orders.WorkOrder.index')
 
     <script>
@@ -229,9 +262,12 @@
                             }
 
                             $("#work_order_id").val(selectedRows[0][8]);
+
+                            // show modal print technician report
+                            $('#modal-print-technician-report').modal('show');
                             // redirect to print technician report
-                            window.location = "/work-order/print-technician-report/" +
-                                selectedRows[0][8];
+                            // window.location = "/work-order/print-technician-report/" +
+                            //     selectedRows[0][8];
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },
@@ -495,5 +531,15 @@
                 uploadColumn.html('');
             }
         }
+
+        // print technician report
+        $('#btn-print-technician-report').on('click', function() {
+            let workOrderId = $('#work_order_id').val();
+            let selectionPrintTechnicianReport = $('#selection-print-technician-report').val();
+
+            // redirect to print technician report
+            window.location = "/work-order/print-technician-report/" + workOrderId + "/" +
+                selectionPrintTechnicianReport;
+        });
     </script>
 @endsection

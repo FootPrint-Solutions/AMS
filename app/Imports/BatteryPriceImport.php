@@ -2,13 +2,41 @@
 
 namespace App\Imports;
 
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\MasterData\Battery\BatteryPriceModel;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Events\BeforeImport;
 
-class BatteryPriceImport implements ToModel, WithStartRow
+class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
 {
+    private $unimportedRows = [];
+    private $totalRows = 0;
+    private $totalChangedRows = 0;
+    private $totalUnchangedRows = 0;
+
+    public function getUnimportedRows()
+    {
+        return $this->unimportedRows;
+    }
+
+    public function getTotalRows()
+    {
+        return $this->totalRows;
+    }
+
+    public function getTotalChangedRows()
+    {
+        return $this->totalChangedRows;
+    }
+
+    public function getTotalUnchangedRows()
+    {
+        return $this->totalUnchangedRows;
+    }
+
     /**
      * @return int
      */
@@ -24,12 +52,55 @@ class BatteryPriceImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $newPrice = $row[13] ? intval($row[13]) : 0;
-        $battery = BatteryModel::where('name', $row[0])->first();
-        if ($battery && $battery->price_retail != $newPrice) {
-            $battery->price_retail = $row[13] ? intval($row[13]) : 0;
-            $status = $battery->save();
+        // Get new values (to replace).
+        $newName = $row[1] ? $row[1] : "";
+        $newPrice = $row[14] ? intval($row[14]) : 0;
+
+        // Get battery based on code.
+        $code = $row[0];
+        $batteryId = BatteryCodeModel::where('code', $code)->first();
+        if (!$batteryId) {
+            $this->unimportedRows[] = $row;
+            return;
+        }
+
+        $batteryId = $batteryId->battery_id;
+
+        $battery = BatteryModel::where('id', $batteryId)->first();
+        if (!$battery) {
+            $this->unimportedRows[] = $row;
+            return;
+        }
+
+        if ($battery->name != $newName || $battery->price_retail != $newPrice) {
+            $battery->name = $newName;
+            $battery->price_retail = $newPrice;
+
+            try {
+                $battery->saveOrFail();
+                $this->totalChangedRows++;
+            } catch (\Exception $e) {
+                $this->unimportedRows[] = $row;
+                Log::error($e);
+            }
+        } else {
+            $this->totalUnchangedRows++;
         }
         return $battery;
+    }
+
+    /**
+     * Register events
+     *
+     * @return array
+     */
+    public function registerEvents(): array
+    {
+        return [
+            BeforeImport::class => function (BeforeImport $event) {
+                $worksheet = $event->getDelegate()->getActiveSheet();
+                $this->totalRows = $worksheet->getHighestDataRow() - 3;
+            },
+        ];
     }
 }

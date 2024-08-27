@@ -39,6 +39,8 @@ use App\Http\Controllers\Settings\Tax;
 use App\Http\Controllers\Settings\MessageTemplate;
 use App\Http\Controllers\Settings\PaymentMethod;
 use App\Http\Controllers\Settings\PrintTemplate;
+use App\Http\Controllers\Settings\ImportTemplate;
+
 
 // ADMIN
 use App\Http\Controllers\Admin\User;
@@ -266,6 +268,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/delete', [WorkOrder::class, 'destroy']);
     Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
     Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
+    Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate']);
     // work order mobile
     Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList']);
     Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail']);
@@ -300,6 +303,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/template/print/get/sub-task', [PrintTemplate::class, 'getSubTask']);
     Route::post('/template/print/update/sub-task', [PrintTemplate::class, 'updateSubTask']);
     Route::post('/template/print/delete/sub-task', [PrintTemplate::class, 'deleteSubTask']);
+
+    // Import Template
+    Route::post('/template/import/update', [ImportTemplate::class, 'update']);
+    Route::post('/template/import/delete', [ImportTemplate::class, 'delete']);
 
     // Tax
     Route::get('/tax', [Tax::class, 'index']);

@@ -18,6 +18,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\WorkOrder\TrackingModel;
+use App\Models\Settings\ImportTemplateModel;
 use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
@@ -228,6 +229,25 @@ class WorkOrder extends Controller
         // qrcode contain work order id
         $qrCode = QrCode::size(60)->generate($workOrder->id);
         return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
+    }
+
+    public function printTechnicianReportTemplate($id, $selectionPrintTechnicianReport)
+    {
+        $workOrder = WorkOrderModel::getWorkOrderData($id);
+        $qrCode = QrCode::size(60)->generate($workOrder->id);
+
+        if ($selectionPrintTechnicianReport == "template") {
+            return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
+        } else if ($selectionPrintTechnicianReport == "database") {
+            $importTemplate = ImportTemplateModel::where('name', 'Print Techician Report')->first();
+            if ($importTemplate) {
+                return view('Orders.WorkOrder.Technician.print-template', compact('workOrder', 'qrCode', 'importTemplate'));
+            } else {
+                return redirect()->back()->with('error', 'Failed to get print technician report.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Failed to get print technician report.');
+        }
     }
 
     public function printTechnicianReportMobile(Request $request)
