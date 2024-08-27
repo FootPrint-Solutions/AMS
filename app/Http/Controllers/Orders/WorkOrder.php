@@ -18,6 +18,7 @@ use App\Models\MasterData\Company\CompanyModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\WorkOrder\TrackingModel;
+use App\Models\Settings\ImportTemplateModel;
 use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
@@ -228,6 +229,39 @@ class WorkOrder extends Controller
         // qrcode contain work order id
         $qrCode = QrCode::size(60)->generate($workOrder->id);
         return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
+    }
+
+    public function printTechnicianReportTemplate($id, $selectionPrintTechnicianReport)
+    {
+        if ($selectionPrintTechnicianReport == "template") {
+            $workOrder = WorkOrderModel::getWorkOrderData($id);
+            $qrCode = QrCode::size(60)->generate($workOrder->id);
+            return view('Orders.WorkOrder.Technician.print', compact('workOrder', 'qrCode'));
+        } else if ($selectionPrintTechnicianReport == "database") {
+            $workOrder = WorkOrderModel::getWorkOrderData($id);
+            $qrCode = QrCode::size(60)->generate($workOrder->id);
+            $importTemplate = ImportTemplateModel::where('name', 'Print Techician Report')->first();
+
+            // check if import template is exist
+            if ($importTemplate) {
+                // replace <work_order_number> with work order number, <customer_name> with customer name, <address> with address, <phone> with phone, <date> with date, <qty> with qty, <total> with total, <latitude> with latitude, <longitude> with longitude
+
+                $batteryString = "";
+                foreach ($workOrder->batteries as $batteryItem) {
+                    $batteryString .= $batteryItem->battery_name . ", ";
+                }
+
+                $importTemplate->template = str_replace("<WORKORDERID>", $workOrder->work_order_number, $importTemplate->template);
+                $importTemplate->template = str_replace("<BATTERY>", $batteryString, $importTemplate->template);
+                $importTemplate->template = str_replace("<ALAMAT>", $workOrder->address, $importTemplate->template);
+
+                return view('Orders.WorkOrder.Technician.print-template', compact('workOrder', 'qrCode', 'importTemplate'));
+            } else {
+                return redirect()->back()->with('error', 'Failed to get print technician report.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Failed to get print technician report.');
+        }
     }
 
     public function printTechnicianReportMobile(Request $request)
