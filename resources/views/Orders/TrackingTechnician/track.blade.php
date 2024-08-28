@@ -111,9 +111,12 @@
                 lng: parseFloat(document.getElementById('longitude_start').value)
             },
             map: map,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            icon: {
+                url: "{{ url('img/icon-marker/distributor-akikita.svg') }}",
+                scaledSize: new google.maps.Size(60, 60),
+            },
+            optimized: false
         });
-
         // add marker end
         var marker_end = new google.maps.Marker({
             position: {
@@ -121,7 +124,10 @@
                 lng: parseFloat(document.getElementById('longitude_end').value)
             },
             map: map,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new google.maps.Size(60, 60),
+            },
         });
 
         // add marker destination
@@ -131,7 +137,11 @@
                 lng: parseFloat(document.getElementById('longitude_destination').value)
             },
             map: map,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            icon: {
+                url: "{{ url('img/icon-marker/customer-icon.svg') }}",
+                scaledSize: new google.maps.Size(60, 60),
+            },
+            scaledSize: new google.maps.Size(60, 60)
         });
 
         // add marker current
@@ -141,7 +151,10 @@
                 lng: parseFloat(document.getElementById('longitude_current').value)
             },
             map: map,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+            icon: {
+                url: "{{ url('img/icon-marker/technician.svg') }}",
+                scaledSize: new google.maps.Size(60, 60)
+            }
         });
 
         // polyline path start to end
