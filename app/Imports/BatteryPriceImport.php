@@ -48,7 +48,7 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
     {
         // Get new values (to replace).
         $newName = $row[1] ? $row[1] : "";
-        $newPrice = $row[14] ? intval($row[14]) : 0;
+        $newPrice = $row[14] ? intval(str_replace(['.', ','], ['', '.'], $row[14])) : 0;
 
         // Get battery based on code.
         $code = $row[0];
