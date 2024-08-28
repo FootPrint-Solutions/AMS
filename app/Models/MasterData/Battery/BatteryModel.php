@@ -129,18 +129,31 @@ class BatteryModel extends Model implements Auditable
             'warranty',
             'price_retail',
             'name_alternate',
-            'status'
+            'status',
+            'battery_codes.code'
         ];
         $searchColumns = [
             'name',
-            'name_alternate'
+            'name_alternate',
+            'status',
+            'battery_codes.code'
         ];
 
         // Build the query to obtain all rows.
         $query = self::query();
         $query->select($selectColumns);
+        $query->join('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id');
 
-        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+        if (!empty($request->search['value'])) {
+            $searchValue = $request->search['value'];
+            $query->where(function ($q) use ($searchColumns, $searchValue) {
+                foreach ($searchColumns as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchValue . '%');
+                }
+            });
+        }
+
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'batteries.updated_at', 'direction' => 'desc']);
     }
 
     /**

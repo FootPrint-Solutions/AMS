@@ -192,6 +192,7 @@ class Battery extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
+            $row[] = $key->code;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? "-";
             $row[] = $key->subbrandCategory->name ?? "-";
