@@ -19,8 +19,7 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
 {
     private $unimportedRows = [];
     private $totalRows = 0;
-    private $totalChangedRows = 0;
-    private $totalUnchangedRows = 0;
+    private $totalInsertedRows = 0;
 
     public function getUnimportedRows()
     {
@@ -32,14 +31,9 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
         return $this->totalRows;
     }
 
-    public function getTotalChangedRows()
+    public function getTotalInsertedRows()
     {
-        return $this->totalChangedRows;
-    }
-
-    public function getTotalUnchangedRows()
-    {
-        return $this->totalUnchangedRows;
+        return $this->totalInsertedRows;
     }
 
     /**
@@ -62,7 +56,7 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
             if (!$this->validateRow($row)) {
                 // Add invalid row to unimportedRows array
                 $this->unimportedRows[] = $row;
-                return null;
+                return;
             }
 
             // Create or find related models
@@ -100,7 +94,7 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
                 'price_retail' => $priceRetail,
             ]);
 
-            $this->totalChangedRows++;
+            $this->totalInsertedRows++;
             return $battery;
         } catch (\Exception $e) {
             $this->unimportedRows[] = $row;

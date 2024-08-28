@@ -19,8 +19,7 @@ class VehicleImport implements ToModel, WithStartRow, WithEvents
 {
     private $unimportedRows = [];
     private $totalRows = 0;
-    private $totalChangedRows = 0;
-    private $totalUnchangedRows = 0;
+    private $totalInsertedRows = 0;
 
     public function getUnimportedRows()
     {
@@ -32,14 +31,9 @@ class VehicleImport implements ToModel, WithStartRow, WithEvents
         return $this->totalRows;
     }
 
-    public function getTotalChangedRows()
+    public function getTotalInsertedRows()
     {
-        return $this->totalChangedRows;
-    }
-
-    public function getTotalUnchangedRows()
-    {
-        return $this->totalUnchangedRows;
+        return $this->totalInsertedRows;
     }
 
     /**
@@ -92,6 +86,7 @@ class VehicleImport implements ToModel, WithStartRow, WithEvents
                 ]);
             }
 
+            $this->totalInsertedRows++;
             return $vehicle;
         } catch (\Exception $e) {
             $this->unimportedRows[] = $row;

@@ -108,7 +108,8 @@ class Battery extends Controller
             return view('import', [
                 'status' => true,
                 'totalRows' => $import->getTotalRows(),
-                'unimportedRows' => $import->getUnimportedRows()
+                'totalInsertedRows' => $import->getTotalInsertedRows(),
+                'unimportedRows' => $import->getUnimportedRows(),
             ]);
         } catch (\Exception $e) {
             Log::error($e);
@@ -137,8 +138,7 @@ class Battery extends Controller
             return view('import', [
                 'status' => true,
                 'totalRows' => $import->getTotalRows(),
-                'totalChangedRows' => $import->getTotalChangedRows(),
-                'totalUnchangedRows' => $import->getTotalUnchangedRows(),
+                'totalUpdatedRows' => $import->getTotalUpdatedRows(),
                 'unimportedRows' => $import->getUnimportedRows()
             ]);
         } catch (\Exception $e) {

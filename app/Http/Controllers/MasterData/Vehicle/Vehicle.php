@@ -365,6 +365,7 @@ class Vehicle extends Controller
             return view('import', [
                 'status' => true,
                 'totalRows' => $import->getTotalRows(),
+                'totalInsertedRows' => $import->getTotalInsertedRows(),
                 'unimportedRows' => $import->getUnimportedRows()
             ]);
         } catch (\Exception $e) {
