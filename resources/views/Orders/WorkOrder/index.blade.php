@@ -140,7 +140,7 @@
                     <select class="form-control" name="selection-print-technician-report"
                         id="selection-print-technician-report">
                         <option value="template">Print from template default</option>
-                        <option value="database">Print from template setting</option>
+                        <option value="database">Print from template setting ( custom )</option>
                     </select>
 
                     <input type="hidden" name="work_order_id" id="work_order_id">

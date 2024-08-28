@@ -14,8 +14,7 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
 {
     private $unimportedRows = [];
     private $totalRows = 0;
-    private $totalChangedRows = 0;
-    private $totalUnchangedRows = 0;
+    private $totalUpdatedRows = 0;
 
     public function getUnimportedRows()
     {
@@ -27,14 +26,9 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
         return $this->totalRows;
     }
 
-    public function getTotalChangedRows()
+    public function getTotalUpdatedRows()
     {
-        return $this->totalChangedRows;
-    }
-
-    public function getTotalUnchangedRows()
-    {
-        return $this->totalUnchangedRows;
+        return $this->totalUpdatedRows;
     }
 
     /**
@@ -54,7 +48,7 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
     {
         // Get new values (to replace).
         $newName = $row[1] ? $row[1] : "";
-        $newPrice = $row[14] ? intval($row[14]) : 0;
+        $newPrice = $row[14] ? intval(str_replace(['.', ','], ['', '.'], $row[14])) : 0;
 
         // Get battery based on code.
         $code = $row[0];
@@ -78,13 +72,13 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
 
             try {
                 $battery->saveOrFail();
-                $this->totalChangedRows++;
+                $this->totalUpdatedRows++;
             } catch (\Exception $e) {
                 $this->unimportedRows[] = $row;
                 Log::error($e);
             }
         } else {
-            $this->totalUnchangedRows++;
+            $this->unimportedRows[] = $row;
         }
         return $battery;
     }

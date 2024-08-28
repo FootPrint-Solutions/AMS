@@ -57,18 +57,25 @@
                                     <td>{{ $totalRows - count($unimportedRows) }}</td>
                                 </tr>
 
-                                {{-- Failed Rows --}}
+                                {{-- Unimported Rows --}}
                                 <tr>
-                                    <td>Total Failed Rows</td>
+                                    <td>Total Unimported Rows</td>
                                     <td>:</td>
                                     <td>{{ count($unimportedRows) }}</td>
                                 </tr>
 
                                 {{-- Total Changed Rows --}}
                                 <tr>
-                                    <td>Total Changed Rows</td>
+                                    <td>Total Updated Rows</td>
                                     <td>:</td>
-                                    <td>{{ $totalChangedRows ?? 0 }}</td>
+                                    <td>{{ $totalUpdatedRows ?? 0 }}</td>
+                                </tr>
+
+                                {{-- Total Added Rows --}}
+                                <tr>
+                                    <td>Total Inserted Rows</td>
+                                    <td>:</td>
+                                    <td>{{ $totalInsertedRows ?? 0 }}</td>
                                 </tr>
                             </table>
                         @else
@@ -80,7 +87,7 @@
 
                 {{-- List --}}
                 @if ($status)
-                    <h5>List of Failed Rows</h5>
+                    <h5>List of Unimported Rows</h5>
                     <ul class="list-group">
                         @if ($status && count($unimportedRows) > 0)
                             @foreach ($unimportedRows as $row)
