@@ -46,6 +46,7 @@
                     <thead>
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Code</th>
                             <th scope="col">Name</th>
                             <th scope="col">Brand</th>
                             <th scope="col">Subbrand Category</th>
@@ -94,7 +95,7 @@
                     targets: [8, 9, 10, 11],
                     className: 'dt-body-right'
                 }, {
-                    targets: [11],
+                    targets: [12],
                     className: 'table-col-price'
                 }, {
                     targets: [0, -1],
@@ -146,7 +147,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(13, "/battery/edit/", null, "/battery/toggle");
+            appendDatatablesToolbar(14, "/battery/edit/", null, "/battery/toggle");
 
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");
