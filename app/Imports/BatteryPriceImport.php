@@ -54,12 +54,40 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
         $code = $row[0];
         $batteryId = BatteryCodeModel::where('code', $code)->first();
         if (!$batteryId) {
-            $this->unimportedRows[] = $row;
-            return;
+            if ($code == "") {
+                $this->unimportedRows[] = $row;
+                return;
+            } else {
+                //
+                $battery = BatteryModel::where('name', $row[1])->first();
+                if (!$battery) {
+                    $this->unimportedRows[] = $row;
+                    return;
+                }
+
+                if ($battery->price_retail != $newPrice) {
+                    $battery->price_retail = $newPrice;
+
+                    try {
+                        $battery->saveOrFail();
+
+                        $code = BatteryCodeModel::firstOrNew(['battery_id' => $battery->id]);
+                        $code->code = $row[0];
+                        $code->save();
+
+                        $this->totalUpdatedRows++;
+                    } catch (\Exception $e) {
+                        $this->unimportedRows[] = $row;
+                        Log::error($e);
+                    }
+                } else {
+                    $this->unimportedRows[] = $row;
+                }
+                return $battery;
+            }
         }
 
         $batteryId = $batteryId->battery_id;
-
         $battery = BatteryModel::where('id', $batteryId)->first();
         if (!$battery) {
             $this->unimportedRows[] = $row;
