@@ -142,7 +142,7 @@ class BatteryModel extends Model implements Auditable
         // Build the query to obtain all rows.
         $query = self::query();
         $query->select($selectColumns);
-        $query->join('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id');
+        $query->join('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id', 'left');
 
         if (!empty($request->search['value'])) {
             $searchValue = $request->search['value'];
