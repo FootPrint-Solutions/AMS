@@ -41,6 +41,18 @@
                 <p class="text-muted font-13 mb-4">
                     Import your {{ $template['name'] }} from Microsoft Word. Please note that the imported template will be
                     in HTML format.
+                    @php
+                        if ($template['name'] == 'Print Techician Report') {
+                            // available parameter for Print Techician Report
+                            echo '<br>Available parameters: ';
+                            echo '<ul>';
+                            echo '<li>{WORKORDERID}</li>';
+                            echo '<li>{DATE}</li>';
+                            echo '<li>{ADDRESS}</li>';
+                            echo '<li>{BATTERY}</li>';
+                            echo '</ul>';
+                        }
+                    @endphp
                 </p>
                 <textarea id="template-{{ $template['id'] }}" class="form-control" rows="10">
                     {{ $template['template'] }}
