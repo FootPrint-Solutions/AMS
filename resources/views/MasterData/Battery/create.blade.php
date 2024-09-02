@@ -45,8 +45,8 @@
                         <div class="form-group local-forms">
                             <label for="code">Code <span class="login-danger">*</span></label>
                             <input type="text" class="form-control" id="code" name="code"
-                                placeholder="Enter battery code" required
-                                @if (isset($data['profile']) && $data['profile']['code']) value="{{ $data['profile']['code']['code'] }}" @endif>
+                                placeholder="Enter battery code"
+                                @if (isset($data['profile']) && $data['profile']['code']) value="{{ $data['profile']['code']['code'] }}" required @else readonly @endif>
                         </div>
                     </div>
                 </div>

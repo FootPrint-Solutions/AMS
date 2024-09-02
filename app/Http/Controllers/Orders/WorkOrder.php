@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Mpdf\Mpdf;
+use setasign\Fpdi\Fpdi;
 
 // MODELS
 
@@ -245,6 +247,23 @@ class WorkOrder extends Controller
             } else {
                 return redirect()->back()->with('error', 'Failed to get print technician report.');
             }
+        } else if ($selectionPrintTechnicianReport == "pdf") {
+            $pdf = new Mpdf();
+            $file = public_path('storage/pdf/technician-report.pdf');
+            $pagecount = $pdf->SetSourceFile($file);
+            $tplId = $pdf->ImportPage($pagecount);
+            $pdf->UseTemplate($tplId);
+            $content = $pdf->Output('', 'S');
+            $content = str_replace('{WORKORDERID}', $workOrder->work_order_number, $content);
+            $content = str_replace('{DATE}', $workOrder->date, $content);
+            $content = str_replace('{ADDRESS}', $workOrder->address, $content);
+
+            $batteries = implode(', ', $workOrder->batteries->pluck('battery_name')->toArray());
+            $content = str_replace('{BATTERIES}', $batteries, $content);
+
+            $output = storage_path('app/public/pdf/technician-report-result.pdf');
+            $pdf->WriteHTML($content);
+            $pdf->Output($output, 'F');
         } else {
             return redirect()->back()->with('error', 'Failed to get print technician report.');
         }

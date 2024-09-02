@@ -336,7 +336,7 @@ class Battery extends Controller
 
             // Store battery code.
             $code = new BatteryCodeModel();
-            $code->code = $request->code;
+            $code->code = BatteryCodeModel::generateCode();
             $code->battery_id = $battery->id;
             $status &= $code->save();
 
