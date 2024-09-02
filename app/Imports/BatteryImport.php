@@ -8,6 +8,7 @@ use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
+use App\Models\MasterData\Battery\BatteryCodeModel;
 
 
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -93,6 +94,11 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
                 'warranty' => $warranty ?? 0,
                 'price_retail' => $priceRetail,
             ]);
+
+            $code = new BatteryCodeModel();
+            $code->code = BatteryCodeModel::generateCode();
+            $code->battery_id = $battery->id;
+            $code->save();
 
             $this->totalInsertedRows++;
             return $battery;
