@@ -37,7 +37,10 @@
     @foreach ($data['importTemplate'] as $template)
         <div class="card">
             <div class="card-body">
-                <h4 class="header-title mb-4">{{ $template['name'] }} Import</h4>
+                <h4 class="header-title mb-4">{{ $template['name'] }} Import Custom
+                    {{-- badge new --}}
+                    <span class="badge bg-success rounded-pill">New</span>
+                </h4>
                 <p class="text-muted font-13 mb-4">
                     Import your {{ $template['name'] }} from Microsoft Word. Please note that the imported template will be
                     in HTML format.
