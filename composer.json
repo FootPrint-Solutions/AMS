@@ -23,6 +23,7 @@
         "opcodesio/log-viewer": "^3.6",
         "owen-it/laravel-auditing": "^13.6",
         "rap2hpoutre/laravel-log-viewer": "^2.4",
+        "setasign/fpdi": "*",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^3.61"
     },
