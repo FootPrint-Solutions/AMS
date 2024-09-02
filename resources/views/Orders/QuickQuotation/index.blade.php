@@ -273,6 +273,8 @@
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
+                var Latitude = $("#Latitude").val();
+                var Longitude = $("#Longitude").val();
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -316,11 +318,14 @@
                     return false;
                 }
 
+                if (Latitude == '' || Longitude == '') {
+                    swal.fire("Error!", "Please select address from suggestion", "error");
+                    return false;
+                }
+
                 $('#btnNextStep3').trigger('click');
 
                 if ($('#CheckoutDisplay').hasClass('active')) {
-                    var Latitude = $("#Latitude").val();
-                    var Longitude = $("#Longitude").val();
                     var IdCustomer = $("#IdCustomer").val();
                     var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                         return $(this).val();
