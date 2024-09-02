@@ -52,6 +52,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                pageLength: 10,
                 responsive: true,
                 processing: true,
                 order: [],
