@@ -64,7 +64,8 @@
 
             {{-- save button template --}}
             <div class="card-footer text-end">
-                <button class="btn btn-danger" id="btn-template-delete" data-id="{{ $template['id'] }}">Delete</button>
+                <button class="btn btn-danger btn-template-clear" id="btn-template-clear"
+                    data-id="{{ $template['id'] }}">Clear</button>
                 <button class="btn btn-success" id="btn-template-save" data-id="{{ $template['id'] }}">Save</button>
             </div>
         </div>
@@ -88,6 +89,13 @@
                         // Add your loading effect code 
                     });
                 }
+            });
+
+            document.querySelectorAll('.btn-template-clear').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var templateId = button.getAttribute('data-id');
+                    tinymce.get('template-' + templateId).setContent('');
+                });
             });
         </script>
     @endforeach
