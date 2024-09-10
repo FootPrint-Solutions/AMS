@@ -61,6 +61,9 @@ use App\Http\Controllers\Server\Midtrans;
 // Data Battery
 use App\Http\Controllers\Publish\DataBattery;
 
+// Sales Online
+use App\Http\Controllers\Publish\SalesOnline;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -354,6 +357,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce']);
     Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory']);
     Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct']);
+
+    // Sales Online
+    Route::get('/sales-online', [SalesOnline::class, 'index']);
+
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
