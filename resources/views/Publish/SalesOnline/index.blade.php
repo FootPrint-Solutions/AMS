@@ -26,20 +26,29 @@
                             <th scope="col">Address</th>
                             <th scope="col">Total</th>
                             <th scope="col">Payment Status</th>
+                            <th scope="col">Payment Method</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!empty($data['products']))
+                        @if (!empty($data['Sales']))
                             @foreach ($data['Sales'] as $sales)
+                                @php
+                                    if ($sales->date_paid != null) {
+                                        $status = '<span class="badge badge-success">Paid</span>';
+                                    } else {
+                                        $status = '<span class="badge badge-danger">Unpaid</span>';
+                                    }
+                                @endphp
                                 <tr>
                                     <th scope="row">{{ $loop->iteration }}</th>
-                                    <td>{{ $Sales->number }}</td>
+                                    <td>{{ $sales->number }}</td>
                                     <td>{{ $sales->date_created }}</td>
                                     <td>{{ $sales->billing->first_name }} {{ $sales->billing->last_name }}</td>
-                                    <td>{{ $sales->shipping->address_1 }} {{ $sales->address_1->address_2 }}
-                                        {{ $sales->address_1->city }} {{ $sales->address_1->postcode }}</td>
-                                    <td>{{ $sales->total }}</td>
-                                    <td>{{ $sales->payment_method_title }}</td>
+                                    <td>{{ $sales->shipping->address_1 }} {{ $sales->shipping->address_2 }}
+                                        {{ $sales->shipping->city }} {{ $sales->shipping->postcode }}</td>
+                                    <td>{!! formatPrice($sales->total) !!}</td>
+                                    <td>{!! $status !!}</td>
+                                    <td>{{ $sales->payment_method }}</td>
                                 </tr>
                             @endforeach
                         @endif
