@@ -360,6 +360,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Sales Online
     Route::get('/sales-online', [SalesOnline::class, 'index']);
+    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails']);
+    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline']);
 
 
     // Logout

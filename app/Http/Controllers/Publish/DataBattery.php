@@ -42,9 +42,19 @@ class DataBattery extends Controller
      */
     public function index()
     {
+
+        // check if session has product data already
+        if (session()->has('productData')) {
+            $productData = session('productData');
+        } else {
+            $productData = $this->getProductAll();
+            session(['productData' => $productData]);
+        }
+
         $data = array(
-            'products' => $this->getProductAll(),
+            'products' => $productData,
         );
+
         return view(
             'Publish.DataBattery.index',
             getIndexData(
@@ -110,7 +120,7 @@ class DataBattery extends Controller
                         }
                     }
                 } else {
-                    $this->woocommerce->put('products/categories/' . $categoryWoo->id, [
+                    $this->woocommerce->put('products/categories/' . $categoriesWoo->id, [
                         'name' => $category->name,
                     ]);
                 }
