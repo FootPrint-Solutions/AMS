@@ -58,6 +58,12 @@ use App\Http\Controllers\Profile;
 // Midtrans
 use App\Http\Controllers\Server\Midtrans;
 
+// Data Battery
+use App\Http\Controllers\Publish\DataBattery;
+
+// Sales Online
+use App\Http\Controllers\Publish\SalesOnline;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -345,6 +351,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/password/update', [Profile::class, 'updatePassword']);
     Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp']);
     Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey']);
+
+    // Data Battery
+    Route::get('/data-battery', [DataBattery::class, 'index']);
+    Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce']);
+    Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory']);
+    Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct']);
+
+    // Sales Online
+    Route::get('/sales-online', [SalesOnline::class, 'index']);
+
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
