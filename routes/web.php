@@ -357,6 +357,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce']);
     Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory']);
     Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct']);
+    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails']);
 
     // Sales Online
     Route::get('/sales-online', [SalesOnline::class, 'index']);

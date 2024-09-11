@@ -64,15 +64,46 @@ class DataBattery extends Controller
         );
     }
 
-    public function syncCategory()
+    /**
+     * Synchronizes product data.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function syncProduct()
     {
         try {
+            $productData = $this->getProductAll();
+            session(['productData' => $productData]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sync product data success',
+            ]);
         } catch (\Throwable $th) {
             // logs the error message
             Log::error($th);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sync data to WooCommerce Category failed ' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function viewDetails(Request $request)
+    {
+        try {
+            $product = $this->getProductById($request->id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product data retrieved successfully',
+                'data' => $product
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get sales data' . $th->getMessage(),
+                'data' => null
             ]);
         }
     }
@@ -228,5 +259,10 @@ class DataBattery extends Controller
         }
 
         return null;
+    }
+
+    private function getProductById($id)
+    {
+        return $this->woocommerce->get('products/' . $id);
     }
 }
