@@ -117,8 +117,8 @@ class DataBattery extends Controller
 
             foreach ($product as $key) {
                 $categori = $key->VehicleBattery->vehicle->name;
-                dd($categori);
-                $category = $this->findCategoryWooByName($categori);
+                $categorySlug = strtolower(str_replace(' ', '-', $categori));
+                $category = $this->findCategoryWooBySlug($categorySlug);
                 $price = (string) $key->batteryPricesBelong->price_retail;
 
                 $data = [
@@ -276,6 +276,13 @@ class DataBattery extends Controller
         }
     }
 
+    /**
+     * Sends category data partially.
+     *
+     * @param \Illuminate\Http\Request $request The request object.
+     *
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the status, message, and data.
+     */
     public function sendCategoryPartially(Request $request)
     {
         try {
@@ -285,7 +292,8 @@ class DataBattery extends Controller
             $category = VehicleModel::limit($limit)->offset($offset)->get();
             $dataCategoryStatus = [];
             foreach ($category as $cat) {
-                $category = $this->findCategoryWooByName($cat->name);
+                $slug = strtolower(str_replace(' ', '-', $cat->name));
+                $category = $this->findCategoryWooBySlug($slug);
                 if ($category == null || count($category) == 0) {
                     $this->woocommerce->post('products/categories', [
                         'name' => $cat->name,
@@ -508,5 +516,16 @@ class DataBattery extends Controller
     private function findProductWooByName($name)
     {
         return $this->woocommerce->get('products', ['name' => $name]);
+    }
+
+    /**
+     * Find a WooCommerce category by slug in the WooCommerce categories array.
+     *
+     * @param string $slug
+     * @return array|null
+     */
+    private function findCategoryWooBySlug($slug)
+    {
+        return $this->woocommerce->get('products/categories', ['slug' => $slug]);
     }
 }
