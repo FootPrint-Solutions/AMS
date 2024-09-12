@@ -93,3 +93,15 @@ function convertToTerbilang($price)
     else if ($price < 1000000000)
         return convertToTerbilang($price / 1000000) . " juta" . convertToTerbilang($price % 1000000);
 }
+
+
+/**
+ * Format a date in "Y-m-d" format.
+ *
+ * @param string $date The date to format.
+ * @return string The formatted date.
+ */
+function formatDateWoo($date)
+{
+    return date_format(date_create($date), "Y-m-d");
+}

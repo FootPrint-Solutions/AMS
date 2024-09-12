@@ -64,6 +64,9 @@ use App\Http\Controllers\Publish\DataBattery;
 // Sales Online
 use App\Http\Controllers\Publish\SalesOnline;
 
+// Data Category
+use App\Http\Controllers\Publish\DataCategory;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -357,10 +360,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce']);
     Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory']);
     Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct']);
+    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails']);
+    Route::post('/data-battery/send-product', [DataBattery::class, 'sendProduct']);
+    Route::post('/data-battery/count-category', [DataBattery::class, 'countCategory']);
+    Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially']);
+    Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct']);
+    Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially']);
 
     // Sales Online
     Route::get('/sales-online', [SalesOnline::class, 'index']);
+    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails']);
+    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline']);
 
+    // Data Category
+    Route::get('/data-category', [DataCategory::class, 'index']);
+    Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);

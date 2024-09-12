@@ -39,9 +39,18 @@ class SalesOnline extends Controller
      */
     public function index()
     {
+        // check if session has sales data already
+        if (session()->has('salesData')) {
+            $salesData = session('salesData');
+        } else {
+            $salesData = $this->getSalesAll();
+            session(['salesData' => $salesData]);
+        }
+
         $data = array(
-            'Sales' => $this->getSalesAll(),
+            'Sales' => $salesData,
         );
+
         return view(
             'Publish.SalesOnline.index',
             getIndexData(
@@ -52,6 +61,51 @@ class SalesOnline extends Controller
     }
 
     /**
+     * Retrieves the sales data by the given sales online number.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request object.
+     *
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the sales data.
+     */
+    public function viewDetails(Request $request)
+    {
+        try {
+            $SalesData = $this->getSalesById($request->sales_online_number);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sales data retrieved successfully',
+                'data' => $SalesData
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get sales data' . $th->getMessage(),
+                'data' => null
+            ]);
+        }
+    }
+
+    public function syncSalesOnline()
+    {
+        try {
+            $salesData = $this->getSalesAll();
+            session(['salesData' => $salesData]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sync data to WooCommerce Sales Online successful',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sync data to WooCommerce Sales Online failed ' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * Retrieves all sales from the WooCommerce API.
      *
      * @return array The sales data.
@@ -59,6 +113,18 @@ class SalesOnline extends Controller
     private function getSalesAll()
     {
         $sales = $this->woocommerce->get('orders');
+        return $sales;
+    }
+
+    /**
+     * Retrieves a specific sale from the WooCommerce API.
+     *
+     * @param int $id The ID of the sale.
+     * @return array The sale data.
+     */
+    private function getSalesById($id)
+    {
+        $sales = $this->woocommerce->get('orders/' . $id);
         return $sales;
     }
 }

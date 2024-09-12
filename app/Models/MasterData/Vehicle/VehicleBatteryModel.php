@@ -9,6 +9,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 // TRAITS
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
+// MODELS
+use App\Models\MasterData\Vehicle\VehicleModel;
+
 class VehicleBatteryModel extends Model implements Auditable
 {
     use HasFactory, AuditableTrait;
@@ -26,4 +29,12 @@ class VehicleBatteryModel extends Model implements Auditable
      * @var array
      */
     protected $fillable = ['vehicle_id', 'battery_id', 'type'];
+
+    /**
+     * Get vehicle.
+     */
+    public function vehicle()
+    {
+        return $this->belongsTo(VehicleModel::class, 'vehicle_id', 'id');
+    }
 }
