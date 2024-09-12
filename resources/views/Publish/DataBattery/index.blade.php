@@ -58,6 +58,18 @@
         </div>
     </div>
 
+    {{-- send data product properties --}}
+    <input type="hidden" name="count-category" id="count-category" value="0">
+    <input type="hidden" name="limit-category" id="limit-category" value="2">
+    <input type="hidden" name="offset-category" id="offset-category" value="0">
+    <input type="hidden" name="count-category-now" id="count-category-now" value="0">
+
+    {{-- send data product properties --}}
+    <input type="hidden" name="count-product" id="count-product" value="0">
+    <input type="hidden" name="limit-product" id="limit-product" value="2">
+    <input type="hidden" name="offset-product" id="offset-product" value="0">
+    <input type="hidden" name="count-product-now" id="count-product-now" value="0">
+
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
 
     <script>
@@ -147,42 +159,137 @@
                     {
                         text: 'Send Product',
                         className: 'btn btn-outline-primary btn-sm',
-                        // swal confirmation
                         action: function(e, dt, node, config) {
+                            // loading
                             Swal.fire({
-                                title: 'Are you sure?',
-                                text: "You want to send product to WooCommerce?",
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#3085d6',
-                                cancelButtonColor: '#d33',
-                                confirmButtonText: 'Yes, send it!'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    // ajax request
-                                    $.ajax({
-                                        url: '/data-battery/send-product',
-                                        method: 'POST',
-                                        data: {
-                                            _token: "{{ csrf_token() }}"
-                                        },
-                                        success: function(response) {
-                                            Swal.fire(
-                                                'Success!',
-                                                'Product has been sent.',
-                                                'success'
-                                            )
-                                        },
-                                        error: function(xhr, status, error) {
+                                title: 'Please Wait..',
+                                html: 'Sending Product Data..',
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                            });
+
+                            var count_product = $('#count-product').val();
+                            var limit_product = $('#limit-product').val();
+                            var offset_product = $('#offset-product').val();
+                            var count_product_now = $('#count-product-now').val();
+
+                            // Function to handle sending product data with recursion
+                            function sendproductData(offset) {
+                                $.ajax({
+                                    url: '/data-battery/send-product-partially',
+                                    method: 'POST',
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        limit: limit_product,
+                                        offset: offset
+                                    },
+                                    success: function(response) {
+                                        if (response.status == 'success') {
+                                            var message = '';
+                                            response.data.forEach(function(data) {
+                                                message +=
+                                                    '<span class="badge bg-success">' +
+                                                    data.message +
+                                                    '</span><br>';
+                                            });
+                                            count_product_now = parseInt(
+                                                count_product_now) + parseInt(
+                                                limit_product);
+                                            $('#count-product-now').val(
+                                                count_product_now);
+
+                                            var percent = (count_product_now /
+                                                count_product) * 100;
+                                            Swal.update({
+                                                html: 'Sending Product Data.. <br> <div class="progress"> <div class="progress-bar" role="progressbar" style="width: ' +
+                                                    percent +
+                                                    '%" aria-valuenow="' +
+                                                    percent +
+                                                    '" aria-valuemin="0" aria-valuemax="100"></div> </div> <div class="show-percentage"></div> <div class="show-message-progress"></div>',
+                                                allowOutsideClick: false,
+                                                showConfirmButton: false,
+                                                didOpen: () => {
+                                                    Swal.showLoading();
+                                                },
+                                                showCloseButton: false,
+                                            });
+
+                                            // update offset
+                                            offset_product = parseInt(
+                                                    offset_product) +
+                                                parseInt(limit_product);
+                                            $('#offset-product').val(offset_product);
+
+                                            // show percentage
+                                            $('.show-percentage').html(
+                                                percent.toFixed(2) + '%');
+
+                                            // show message progress
+                                            $('.show-message-progress').html(
+                                                message);
+
+
+                                            if (count_product_now < count_product) {
+                                                // Recursively call until all product are sent
+                                                sendproductData(count_product_now);
+                                            } else {
+                                                Swal.fire(
+                                                    'Success!',
+                                                    'Product data has been sent.',
+                                                    'success'
+                                                );
+                                            }
+                                        } else {
                                             Swal.fire(
                                                 'Error!',
-                                                'Failed to send product.',
+                                                'Failed to send Product data.',
                                                 'error'
-                                            )
+                                            );
                                         }
-                                    });
+                                    },
+                                    error: function(xhr, status, error) {
+                                        Swal.fire(
+                                            'Error!',
+                                            'Failed to send Product data.',
+                                            'error'
+                                        );
+                                    }
+                                });
+                            }
+
+                            // Get the count of Product first before starting the send process
+                            $.ajax({
+                                url: '/data-battery/count-product',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    if (response.status == 'success') {
+
+
+                                        $('#count-product').val(response.data);
+                                        count_product = response.data;
+
+                                        // Start sending category data
+                                        sendproductData(offset_product);
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            response.message,
+                                            'error'
+                                        );
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Failed to count product data.',
+                                        'error'
+                                    );
                                 }
-                            })
+                            });
                         }
                     },
                     // button view details
@@ -290,7 +397,143 @@
                                 });
                             }
                         }
-                    },
+                    }, // send category data
+                    {
+                        text: 'Send Category Data',
+                        className: 'btn btn-outline-warning btn-sm',
+                        action: function(e, dt, node, config) {
+                            // loading
+                            Swal.fire({
+                                title: 'Please Wait..',
+                                html: 'Sending Category Data..',
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                            });
+
+                            var count_category = $('#count-category').val();
+                            var limit_category = $('#limit-category').val();
+                            var offset_category = $('#offset-category').val();
+                            var count_category_now = $('#count-category-now').val();
+
+                            // Function to handle sending category data with recursion
+                            function sendCategoryData(offset) {
+                                $.ajax({
+                                    url: '/data-battery/send-category-partially',
+                                    method: 'POST',
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        limit: limit_category,
+                                        offset: offset
+                                    },
+                                    success: function(response) {
+                                        if (response.status == 'success') {
+                                            var message = '';
+                                            response.data.forEach(function(data) {
+                                                message +=
+                                                    '<span class="badge bg-success">' +
+                                                    data.message +
+                                                    '</span><br>';
+                                            });
+                                            count_category_now = parseInt(
+                                                count_category_now) + parseInt(
+                                                limit_category);
+                                            $('#count-category-now').val(
+                                                count_category_now);
+
+                                            var percent = (count_category_now /
+                                                count_category) * 100;
+                                            Swal.update({
+                                                html: 'Sending Category Data.. <br> <div class="progress"> <div class="progress-bar" role="progressbar" style="width: ' +
+                                                    percent +
+                                                    '%" aria-valuenow="' +
+                                                    percent +
+                                                    '" aria-valuemin="0" aria-valuemax="100"></div> </div> <div class="show-percentage"></div> <div class="show-message-progress"></div>',
+                                                allowOutsideClick: false,
+                                                showConfirmButton: false,
+                                                didOpen: () => {
+                                                    Swal.showLoading();
+                                                },
+                                                showCloseButton: false,
+                                            });
+
+                                            // update offset
+                                            offset_category = parseInt(
+                                                    offset_category) +
+                                                parseInt(limit_category);
+                                            $('#offset-category').val(offset_category);
+
+                                            // show percentage
+                                            $('.show-percentage').html(
+                                                percent.toFixed(2) + '%');
+
+                                            // show message progress
+                                            $('.show-message-progress').html(
+                                                message);
+
+
+                                            if (count_category_now < count_category) {
+                                                // Recursively call until all categories are sent
+                                                sendCategoryData(count_category_now);
+                                            } else {
+                                                Swal.fire(
+                                                    'Success!',
+                                                    'Category data has been sent.',
+                                                    'success'
+                                                );
+                                            }
+                                        } else {
+                                            Swal.fire(
+                                                'Error!',
+                                                'Failed to send category data.',
+                                                'error'
+                                            );
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        Swal.fire(
+                                            'Error!',
+                                            'Failed to send category data.',
+                                            'error'
+                                        );
+                                    }
+                                });
+                            }
+
+                            // Get the count of categories first before starting the send process
+                            $.ajax({
+                                url: '/data-battery/count-category',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    if (response.status == 'success') {
+
+
+                                        $('#count-category').val(response.data);
+                                        count_category = response.data;
+
+                                        // Start sending category data
+                                        sendCategoryData(offset_category);
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            response.message,
+                                            'error'
+                                        );
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Failed to count category data.',
+                                        'error'
+                                    );
+                                }
+                            });
+                        }
+                    }
                 ],
             });
         });

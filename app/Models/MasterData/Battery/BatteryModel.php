@@ -15,6 +15,17 @@ use App\Traits\DataTablesTrait;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
+// MODELS
+use App\Models\MasterData\Battery\BatteryBrandModel;
+use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
+use App\Models\MasterData\Battery\BatteryUsageTypeModel;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
+use App\Models\MasterData\Battery\BatteryTechnologyModel;
+use App\Models\MasterData\Battery\BatteryUrlModel;
+use App\Models\MasterData\Battery\BatteryCodeModel;
+use App\Models\MasterData\Battery\BatteryPriceModel;
+use App\Models\MasterData\Vehicle\VehicleBatteryModel;
+
 class BatteryModel extends Model implements Auditable
 {
     use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
@@ -102,6 +113,15 @@ class BatteryModel extends Model implements Auditable
     public function code(): HasOne
     {
         return $this->hasOne(BatteryCodeModel::class, 'battery_id', 'id');
+    }
+
+    /**
+     * Get battery vehicle battery.
+     */
+    public function vehicleBattery(): BelongsTo
+    {
+        return $this->belongsTo(VehicleBatteryModel::class, 'id', 'battery_id')
+            ->with('vehicle');
     }
 
     /**
@@ -213,5 +233,10 @@ class BatteryModel extends Model implements Auditable
     public function batteryPrices(): HasMany
     {
         return $this->hasMany(BatteryPriceModel::class, 'battery_id', 'id');
+    }
+
+    public function batteryPricesBelong(): BelongsTo
+    {
+        return $this->belongsTo(BatteryPriceModel::class, 'id', 'battery_id');
     }
 }

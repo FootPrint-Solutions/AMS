@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
-
-
+use App\Models\MasterData\Vehicle\VehicleModel;
 
 class DataBattery extends Controller
 {
@@ -89,6 +88,100 @@ class DataBattery extends Controller
         }
     }
 
+    public function countProduct()
+    {
+        try {
+            $product = BatteryModel::all();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to get product data',
+                'data' => count($product),
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get product data' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function sendProductPartially(Request $request)
+    {
+        try {
+            $limit = $request->limit;
+            $offset = $request->offset;
+
+            $product = BatteryModel::limit($limit)->offset($offset)->with('VehicleBattery', 'batteryPricesBelong')->get();
+            $dataProductStatus = [];
+
+            foreach ($product as $key) {
+                $categori = $key->VehicleBattery->vehicle->name;
+                dd($categori);
+                $category = $this->findCategoryWooByName($categori);
+                $price = (string) $key->batteryPricesBelong->price_retail;
+
+                $data = [
+                    'name' => $key->name,
+                    'type' => 'simple',
+                    'regular_price' => (string) $price,
+                    'description' => $key->description,
+                    'categories' => [
+                        [
+                            'id' => $category[0]->id,
+                        ],
+                    ],
+                ];
+
+                $productWoo = $this->findProductWooByName($key->name);
+
+                if ($productWoo == null || count($productWoo) == 0) {
+                    // Produk tidak ditemukan, buat produk baru
+                    $this->woocommerce->post('products', $data);
+
+                    $dataProductStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to send ' . $key->name . ' product',
+                    ];
+                } else {
+                    // Produk ditemukan, pastikan ID valid
+                    if (!isset($productWoo[0]->id)) {
+                        throw new \Exception('Invalid product ID for ' . $key->name);
+                    }
+
+                    // Lakukan update produk
+                    $this->woocommerce->put('products/' . $productWoo[0]->id, $data);
+
+                    $dataProductStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to update ' . $key->name . ' product',
+                    ];
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to send data product',
+                'data' => $dataProductStatus,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send product data' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Retrieves the details of a product.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request object.
+     *
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the product details.
+     *
+     * @throws \Throwable If an error occurs while retrieving the product details.
+     */
     public function viewDetails(Request $request)
     {
         try {
@@ -104,6 +197,128 @@ class DataBattery extends Controller
                 'status' => 'error',
                 'message' => 'Failed to get sales data' . $th->getMessage(),
                 'data' => null
+            ]);
+        }
+    }
+
+    /**
+     * Sends the product data to the WooCommerce API.
+     *
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the status, message, and data.
+     */
+    public function sendProduct()
+    {
+        try {
+            // set vehicle as category 
+            $vehicle = VehicleModel::all();
+
+            $dataCategoryStatus = [];
+            foreach ($vehicle as $cat) {
+                $category = $this->findCategoryWooByName($cat->name);
+                if ($category == null || count($category) == 0) {
+                    $this->woocommerce->post('products/categories', [
+                        'name' => $cat->name,
+                        'slug' => $cat->name,
+                    ]);
+
+                    // set data category status
+                    $dataCategoryStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to send ' . $cat->name . ' category',
+                    ];
+                } else {
+                    $this->woocommerce->put('products/categories/' . $category[0]->id, [
+                        'name' => $cat->name,
+                    ]);
+
+                    // set data category status
+                    $dataCategoryStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to update ' . $cat->name . ' category',
+                    ];
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to send ' . $cat->name . ' category',
+                'data' => $dataCategoryStatus,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send product data' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Count the number of categories.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function countCategory()
+    {
+        try {
+            $category = VehicleModel::all();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to get category data',
+                'data' => count($category),
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get category data' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function sendCategoryPartially(Request $request)
+    {
+        try {
+            $limit = $request->limit;
+            $offset = $request->offset;
+
+            $category = VehicleModel::limit($limit)->offset($offset)->get();
+            $dataCategoryStatus = [];
+            foreach ($category as $cat) {
+                $category = $this->findCategoryWooByName($cat->name);
+                if ($category == null || count($category) == 0) {
+                    $this->woocommerce->post('products/categories', [
+                        'name' => $cat->name,
+                    ]);
+
+                    // set data category status
+                    $dataCategoryStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to send ' . $cat->name . ' category',
+                    ];
+                } else {
+                    $this->woocommerce->put('products/categories/' . $category[0]->id, [
+                        'name' => $cat->name,
+                    ]);
+
+                    // set data category status
+                    $dataCategoryStatus[] = [
+                        'status' => 'success',
+                        'message' => 'Success to update ' . $cat->name . ' category',
+                    ];
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Success to send data Category',
+                'data' => $dataCategoryStatus,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send product data' . $th->getMessage(),
             ]);
         }
     }
@@ -261,8 +476,37 @@ class DataBattery extends Controller
         return null;
     }
 
+    /**
+     * Retrieves a product by its ID.
+     *
+     * @param int $id The ID of the product.
+     * @return mixed The product data.
+     */
     private function getProductById($id)
     {
         return $this->woocommerce->get('products/' . $id);
+    }
+
+
+    /**
+     * Find a WooCommerce category by name in the WooCommerce categories array.
+     *
+     * @param string $name
+     * @return array|null
+     */
+    private function findCategoryWooByName($name)
+    {
+        return $this->woocommerce->get('products/categories', ['name' => $name]);
+    }
+
+    /**
+     * Find a WooCommerce product by name in the WooCommerce products array.
+     *
+     * @param string $name
+     * @return array|null
+     */
+    private function findProductWooByName($name)
+    {
+        return $this->woocommerce->get('products', ['name' => $name]);
     }
 }
