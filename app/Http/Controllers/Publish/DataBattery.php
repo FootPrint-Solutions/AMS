@@ -116,10 +116,20 @@ class DataBattery extends Controller
             $dataProductStatus = [];
 
             foreach ($product as $key) {
-                $categori = $key->VehicleBattery->vehicle->name;
+                $categori = $key->VehicleBattery->vehicle->name ?? 'Uncategorized';
                 $categorySlug = strtolower(str_replace(' ', '-', $categori));
                 $category = $this->findCategoryWooBySlug($categorySlug);
                 $price = (string) $key->batteryPricesBelong->price_retail;
+
+                // jika category tidak ditemukan maka buat category baru
+                if ($category == null || count($category) == 0) {
+                    $this->woocommerce->post('products/categories', [
+                        'name' => $categori,
+                        'slug' => $categorySlug,
+                    ]);
+
+                    $category = $this->findCategoryWooBySlug($categorySlug);
+                }
 
                 $data = [
                     'name' => $key->name,
@@ -141,7 +151,7 @@ class DataBattery extends Controller
 
                     $dataProductStatus[] = [
                         'status' => 'success',
-                        'message' => 'Success to send ' . $key->name . ' product',
+                        'message' => 'Success to send ' . $key->name . ' product with category ' . $categori,
                     ];
                 } else {
                     // Produk ditemukan, pastikan ID valid
@@ -154,7 +164,7 @@ class DataBattery extends Controller
 
                     $dataProductStatus[] = [
                         'status' => 'success',
-                        'message' => 'Success to update ' . $key->name . ' product',
+                        'message' => 'Success to update ' . $key->name . ' product with category ' . $categori,
                     ];
                 }
             }
@@ -216,6 +226,7 @@ class DataBattery extends Controller
             foreach ($vehicle as $cat) {
                 $category = $this->findCategoryWooByName($cat->name);
                 if ($category == null || count($category) == 0) {
+                    $slug = strtolower(str_replace(' ', '-', $cat->name));
                     $this->woocommerce->post('products/categories', [
                         'name' => $cat->name,
                         'slug' => $cat->name,
@@ -297,6 +308,7 @@ class DataBattery extends Controller
                 if ($category == null || count($category) == 0) {
                     $this->woocommerce->post('products/categories', [
                         'name' => $cat->name,
+                        'slug' => $slug,
                     ]);
 
                     // set data category status
@@ -526,6 +538,8 @@ class DataBattery extends Controller
      */
     private function findCategoryWooBySlug($slug)
     {
-        return $this->woocommerce->get('products/categories', ['slug' => $slug]);
+        $category = $this->woocommerce->get('products/categories', ['slug' => $slug]);
+        Log::info('Category from WooCommerce:', ['category' => $category]);
+        return $category;
     }
 }
