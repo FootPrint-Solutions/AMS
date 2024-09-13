@@ -262,6 +262,49 @@
                                         html += '</div>';
                                         html += '</div>';
                                         html += '</div>';
+
+                                        // show detail items
+                                        html += '<div class="container">';
+                                        html += '<h5>Items</h5>';
+                                        html +=
+                                            '<table class="table table-bordered table-sm">';
+                                        html += '<thead>';
+                                        html += '<tr>';
+                                        html += '<th scope="col">#</th>';
+                                        html += '<th scope="col">Product</th>';
+                                        html += '<th scope="col">Quantity</th>';
+                                        html += '<th scope="col">Price</th>';
+                                        html += '<th scope="col">Total</th>';
+                                        html += '</tr>';
+                                        html += '</thead>';
+                                        html += '<tbody>';
+                                        var total = 0;
+                                        for (var i = 0; i < data.line_items
+                                            .length; i++) {
+                                            var item = data.line_items[i];
+                                            html += '<tr>';
+                                            html += '<td>' + (i + 1) + '</td>';
+                                            html += '<td>' + item.name + '</td>';
+                                            html += '<td>' + item.quantity + '</td>';
+                                            formatPrice = new Intl.NumberFormat(
+                                                'id-ID', {
+                                                    style: 'currency',
+                                                    currency: 'IDR'
+                                                }).format(item.price);
+                                            html += '<td>' + formatPrice + '</td>';
+                                            formatPrice = new Intl.NumberFormat(
+                                                'id-ID', {
+                                                    style: 'currency',
+                                                    currency: 'IDR'
+                                                }).format(item.total);
+                                            html += '<td>' + formatPrice + '</td>';
+                                            html += '</tr>';
+                                            total += item.total;
+                                        }
+
+                                        html += '</tbody>';
+                                        html += '</table>';
+
                                         html += '<div class="modal-footer">';
                                         html +=
                                             '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
