@@ -153,6 +153,10 @@ class DataBattery extends Controller
                         'status' => 'success',
                         'message' => 'Success to send ' . $key->name . ' product with category ' . $categori,
                     ];
+
+                    // set logs 
+                    Log::info('Product created', ['product' => $key->name]);
+                    Log::info('Response Create', ['response' => $response]);
                 } else {
                     // Produk ditemukan, pastikan ID valid
                     if (!isset($productWoo[0]->id)) {
@@ -160,7 +164,13 @@ class DataBattery extends Controller
                     }
 
                     // Lakukan update produk
-                    $this->woocommerce->put('products/' . $productWoo[0]->id, $data);
+                    $response =  $this->woocommerce->put('products/' . $productWoo[0]->id, $data);
+
+                    // set logs 
+                    Log::info('Product updated', ['product' => $key->name]);
+                    Log::info('Response Update', ['response' => $response]);
+
+
 
                     $dataProductStatus[] = [
                         'status' => 'success',
@@ -527,7 +537,7 @@ class DataBattery extends Controller
      */
     private function findProductWooByName($name)
     {
-        return $this->woocommerce->get('products', ['name' => $name]);
+        return $this->woocommerce->get('products', ['search' => $name]);
     }
 
     /**
