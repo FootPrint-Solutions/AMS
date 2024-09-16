@@ -130,6 +130,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/battery/export', [Battery::class, 'export'])->name('battery.export');
     Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory']);
     Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
+    Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.compress');
 
     // Battery Brand
     Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');

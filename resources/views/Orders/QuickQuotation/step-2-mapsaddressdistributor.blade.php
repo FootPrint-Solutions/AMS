@@ -73,7 +73,7 @@
                 <select class="form-select" id="shop_id" name="shop_id" required>
                     <option value="">-- Choose Distributor --</option>
                     @foreach ($distributor as $d)
-                        <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                    <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
                     @endforeach
                 </select>
             </div>
@@ -246,7 +246,7 @@
                                 .image + '" alt="Post Image">';
                         } else {
                             var baseUrl =
-                                "{{ asset('storage/image/battery/') }}";
+                                "{{ asset('storage/image/battery/compressed/') }}";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' +
                                 baseUrl +

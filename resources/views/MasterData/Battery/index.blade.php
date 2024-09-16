@@ -136,6 +136,51 @@
                             });
                         }
                     },
+                    // Compress Image Button
+                    {
+                        text: "<i class='fas fa-file-archive'></i> Compress Images",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            // disable button
+                            node.attr("disabled", true);
+                            // swal loading
+                            Swal.fire({
+                                title: 'Compressing Images',
+                                text: 'Please wait...',
+                                allowOutsideClick: false,
+                                onBeforeOpen: () => {
+                                    Swal.showLoading();
+                                },
+                                showConfirmButton: false,
+                            });
+                            $.ajax({
+                                url: '/battery/compress',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    // enable button
+                                    node.attr("disabled", false);
+                                    if (response.status == "success") {
+                                        // swal
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: response.message,
+                                        });
+                                    } else {
+                                        // swal
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.message,
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
                 ]),
                 language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,

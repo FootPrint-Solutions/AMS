@@ -8,8 +8,7 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label>Members Name </label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
-                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
                         Exist</span>
@@ -21,12 +20,11 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label>Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
-                        aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                            <option value="{{ $vehicle['id'] }}">
-                                {{ trim($vehicle['name']) }}
-                            </option>
+                        <option value="{{ $vehicle['id'] }}">
+                            {{ trim($vehicle['name']) }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -125,7 +123,7 @@
                             html += '<img class="img-fluid" src="' + vehicle.image +
                                 '" alt="Post Image">';
                         } else {
-                            var baseUrl = "{{ asset('storage/image/battery/') }}";
+                            var baseUrl = "{{ asset('storage/image/battery/compressed/') }}";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' + baseUrl + '/' + vehicle.image +
                                 '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
@@ -355,7 +353,7 @@
                                 .image + '" alt="Post Image">';
                         } else {
                             var baseUrl =
-                                "{{ asset('storage/image/battery/') }}";
+                                "{{ asset('storage/image/battery/compressed/') }}";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' +
                                 baseUrl +
