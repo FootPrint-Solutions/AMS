@@ -27,7 +27,7 @@ use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
-
+use Intervention\Image\Facades\Image;
 
 class Battery extends Controller
 {
@@ -314,6 +314,19 @@ class Battery extends Controller
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
                 $battery->image = basename($request->file("image")->store("public/image/battery"));
+
+                // compress image
+                $path = storage_path('app/public/image/battery/' . $battery->image);
+                $size = filesize($path);
+
+                if ($size > 1000000) {
+                    $img = Image::make($path);
+                    $img->resize(500, 500, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
+                    $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
+                    $img->save($path);
+                }
             }
 
             $status = $battery->save();
@@ -457,6 +470,19 @@ class Battery extends Controller
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
                 $battery->image = basename($request->file("image")->store("public/image/battery"));
+
+                // compress image
+                $path = storage_path('app/public/image/battery/' . $battery->image);
+                $size = filesize($path);
+
+                if ($size > 1000000) {
+                    $img = Image::make($path);
+                    $img->resize(500, 500, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
+                    $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
+                    $img->save($path);
+                }
             }
             $status = $battery->save();
 
@@ -623,6 +649,57 @@ class Battery extends Controller
         } catch (Exception $e) {
             // Logging error message.
             Log::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Compresses battery images if their size exceeds 1MB.
+     *
+     * This method retrieves all battery records from the database, checks each associated image file,
+     * and if the file size is greater than 1MB, it resizes the image to 500x500 pixels while maintaining
+     * the aspect ratio. The resized images are saved in a designated compressed directory.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *         Returns a JSON response indicating the success or failure of the operation.
+     *         On success, it returns a message stating that all images have been compressed successfully.
+     *         On failure, it logs the error and returns a message indicating the failure reason.
+     *
+     * @throws \Throwable
+     *         Throws an exception if any error occurs during the image processing.
+     */
+    public function compress()
+    {
+        try {
+            $batteries = BatteryModel::all();
+            foreach ($batteries as $battery) {
+                $path = storage_path('app/public/image/battery/' . $battery->image);
+
+                // check if file exists
+                if (file_exists($path)) {
+                    $size = filesize($path);
+
+                    if ($size > 1000000) {
+
+                        $img = Image::make($path);
+                        $img->resize(500, 500, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
+                        $img->save($path);
+                    }
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'All images have been compressed successfully'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to compress images' . $th->getMessage()
+            ]);
         }
     }
 }
