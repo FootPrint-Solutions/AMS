@@ -235,7 +235,7 @@
 
                 <button class="btn btn-block mb-2 fw-bold text-start" id="btn-post">
                     <div class="icon"><span class="material-icons">task</span></div>
-                    Post
+                    Post / Unpost
                 </button>
 
                 <button class="btn btn-block mb-2 fw-bold text-start" id="btn-invoice">
@@ -415,23 +415,32 @@
         // Post
         $("#btn-post").on("click", function() {
             let selected = getSelected();
+
+            if (selected.length > 1) {
+                Swal.fire({
+                    text: "Unable to post / unpost more than one sales order",
+                    icon: "error"
+                });
+                return;
+            }
+
             $.get("/sales-order/status", {
                 ids: selected
             }, function(data) {
-                if (data.allDrafts) {
-                    let formData = new FormData();
-                    formData.set("ids", selected);
-                    formData.set("_token", "{{ csrf_token() }}");
-                    sendSubmitRequest("/sales-order/post", formData, function() {
-                        $("#modal-action").modal("hide");
-                        refreshList();
-                    });
-                } else {
-                    Swal.fire({
-                        text: "Unable to post non-draft sales orders",
-                        icon: "error"
-                    });
-                }
+                // if (data.allDrafts) {
+                let formData = new FormData();
+                formData.set("id", selected);
+                formData.set("_token", "{{ csrf_token() }}");
+                sendSubmitRequest("/sales-order/post", formData, function() {
+                    $("#modal-action").modal("hide");
+                    refreshList();
+                });
+                // } else {
+                // Swal.fire({
+                //     text: "Unable to post non-draft sales orders",
+                //     icon: "error"
+                // });
+                // }
             });
 
         })
@@ -601,10 +610,10 @@
                 icon: "error"
             });
             return [];
-        } else {
-            $("#modal-action").modal("show");
-            return selected;
         }
+
+        $("#modal-action").modal("show");
+        return selected;
     }
 
     function viewDetail(orderId) {

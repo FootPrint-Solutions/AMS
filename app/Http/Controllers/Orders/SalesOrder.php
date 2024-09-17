@@ -392,10 +392,16 @@ class SalesOrder extends Controller
 
                     // Delete work order.
                     WorkOrderModel::where('sales_order_id', $request->id)->delete();
+
+                    $successMessage = "The selected sales order was successfully unposted!";
+                    $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
+
+                    $successMessage = "The selected sales order was successfully posted!";
+                    $failedMessage = "Failed to upost the selected sales order!";
                 }
 
                 if ($status)
@@ -406,7 +412,7 @@ class SalesOrder extends Controller
                 // Set a new response data to be sent.
                 return getResponseData(
                     $status,
-                    $status ? "The selected sales order was successfully posted!" : "Failed to post the selected sales order!"
+                    $status ? $successMessage : $failedMessage
                 );
             } else {
                 $ids = explode(",", $request->ids);
