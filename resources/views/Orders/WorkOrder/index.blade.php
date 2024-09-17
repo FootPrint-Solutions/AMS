@@ -4,17 +4,44 @@
     {{-- Form --}}
     <div class="d-none d-lg-block">
         <div class="card">
-            <div class="card-body">
-                {{-- Title --}}
-                <div class="page-header">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="page-title">Work Order</h3>
-                        </div>
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Work Order
+                        </h3>
                     </div>
                 </div>
-                <br>
+            </div>
+            <div class="card-body">
+                {{-- filter tanggal --}}
+                <div class="row mt-2">
+                    <div class="col-md-1 d-flex align-items-center">
+                        Date
+                    </div>
 
+                    <div class="col-md-4">
+                        <div class="row align-items-center">
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-work-order-date-start"
+                                    onchange="reloadTable()">
+                            </div>
+                            <div class="col-2 text-center">
+                                to
+                            </div>
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-work-order-date-end"
+                                    onchange="reloadTable()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-1"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
                 {{-- Table --}}
                 <table class="table table-striped" id="table-work-order">
                     <thead>
@@ -175,8 +202,10 @@
                 ajax: {
                     url: "/work-order/show",
                     type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.dateStart = document.getElementById('input-work-order-date-start').value;
+                        d.dateEnd = document.getElementById('input-work-order-date-end').value;
                     }
                 },
                 columnDefs: [{
@@ -465,6 +494,14 @@
 
             }
         });
+
+        function reloadTable() {
+            var dateStart = document.getElementById('input-work-order-date-start').value;
+            var dateEnd = document.getElementById('input-work-order-date-end').value;
+
+            // Reload the table.
+            table.ajax.reload(null, false);
+        }
 
         $('#form-upload-image').on('submit', function(e) {
             e.preventDefault();
