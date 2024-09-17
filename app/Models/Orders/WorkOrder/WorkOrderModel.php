@@ -122,30 +122,46 @@ class WorkOrderModel extends Model implements Auditable
         $dir = $request->input("order.0.dir");
         $start = $request->input("start");
         $length = $request->input("length");
+        $start_date = $request->input("dateStart");
+        $end_date = $request->input("dateEnd");
 
-        // get data from table work order for datatable
-        $data = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
+        // Get data from the work_orders table for the datatable
+        $query = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
             ->leftJoin('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
             ->leftJoin('customers', 'work_orders.customer_id', '=', 'customers.id')
             ->addSelect([
                 'qty' => WorkOrderBatteryModel::selectRaw('sum(quantity)')
                     ->whereColumn('work_order_id', 'work_orders.id')
             ])
-            ->where('work_orders.work_order_number', 'like', "%$search%")
-            ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
-            ->orWhere('customers.name', 'like', "%$search%")
+            ->where(function ($query) use ($search) {
+                $query->where('work_orders.work_order_number', 'like', "%$search%")
+                    ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
+                    ->orWhere('customers.name', 'like', "%$search%");
+            })
             ->orderBy('work_orders.id', 'desc')
             ->offset($start)
-            ->limit($length)
-            ->get();
+            ->limit($length);
 
-        $count = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
+        if (!empty($start_date) && !empty($end_date)) {
+            $query->whereBetween('work_orders.date', [$start_date, $end_date]);
+        }
+
+        $data = $query->get();
+
+        $countQuery = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
             ->leftJoin('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
             ->leftJoin('customers', 'work_orders.customer_id', '=', 'customers.id')
-            ->where('work_orders.work_order_number', 'like', "%$search%")
-            ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
-            ->orWhere('customers.name', 'like', "%$search%")
-            ->count();
+            ->where(function ($query) use ($search) {
+                $query->where('work_orders.work_order_number', 'like', "%$search%")
+                    ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
+                    ->orWhere('customers.name', 'like', "%$search%");
+            });
+
+        if (!empty($start_date) && !empty($end_date)) {
+            $countQuery->whereBetween('work_orders.date', [$start_date, $end_date]);
+        }
+
+        $count = $countQuery->count();
 
         return [
             'row' => $data,
