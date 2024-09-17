@@ -321,7 +321,7 @@ class Battery extends Controller
 
                 if ($size > 1000000) {
                     $img = Image::make($path);
-                    $img->resize(500, 500, function ($constraint) {
+                    $img->resize(100, 100, function ($constraint) {
                         $constraint->aspectRatio();
                     });
                     $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
@@ -477,7 +477,7 @@ class Battery extends Controller
 
                 if ($size > 1000000) {
                     $img = Image::make($path);
-                    $img->resize(500, 500, function ($constraint) {
+                    $img->resize(100, 100, function ($constraint) {
                         $constraint->aspectRatio();
                     });
                     $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
@@ -681,7 +681,7 @@ class Battery extends Controller
                     if ($size > 1000000) {
 
                         $img = Image::make($path);
-                        $img->resize(500, 500, function ($constraint) {
+                        $img->resize(100, 100, function ($constraint) {
                             $constraint->aspectRatio();
                         });
                         $path = storage_path('app/public/image/battery/compressed/' . $battery->image);

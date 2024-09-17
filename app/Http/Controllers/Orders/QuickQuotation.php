@@ -1168,7 +1168,7 @@ $arrayVehicle
                 $batteries['units'][] = $matches[0];
             }
             if ($key['image'] != null) {
-                $value['image'] = asset('storage/image/battery/' . $key['image']);
+                $value['image'] = asset('storage/image/battery/compressed/' . $key['image']);
             } else {
                 $value['image'] = null;
             }
