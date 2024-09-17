@@ -183,6 +183,12 @@ class SalesOrderModel extends Model implements Auditable
         $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
+
+        // filter tanggal
+        if ($request->dateStart && $request->dateEnd) {
+            $query->whereBetween('sales_orders.date', [$request->dateStart, $request->dateEnd]);
+        }
+
         $query->select($selectColumns);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);

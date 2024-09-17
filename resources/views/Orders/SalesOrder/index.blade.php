@@ -4,21 +4,50 @@
     {{-- Form --}}
     <div class="d-none d-lg-block">
         <div class="card">
-            <div class="card-body">
-                {{-- Title --}}
-                <div class="page-header">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="page-title">Sales Order</h3>
-                        </div>
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Sales Order</h3>
+                    </div>
 
-                        <div class="col-auto text-end float-end ms-auto download-grp">
-                            <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                                New Sales Order</button>
-                        </div>
+                    <div class="col-auto text-end float-end ms-auto download-grp">
+                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
+                            New Sales Order</button>
                     </div>
                 </div>
-                <br>
+            </div>
+            <div class="card-body">
+                {{-- filter tanggal --}}
+                <div class="row mt-2">
+                    <div class="col-md-1 d-flex align-items-center">
+                        Date
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="row align-items-center">
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-sales-order-date-start"
+                                    onchange="reloadTable()">
+                            </div>
+                            <div class="col-2 text-center">
+                                to
+                            </div>
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-sales-order-date-end"
+                                    onchange="reloadTable()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-1"></div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-body">
 
                 {{-- Table --}}
                 <table class="table table-striped" id="table-sales-order">
@@ -61,8 +90,10 @@
                 ajax: {
                     url: "/sales-order/show",
                     type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.dateStart = document.getElementById('input-sales-order-date-start').value;
+                        d.dateEnd = document.getElementById('input-sales-order-date-end').value;
                     }
                 },
                 columnDefs: [{
@@ -155,6 +186,14 @@
                 }
             });
         });
+
+        function reloadTable() {
+            var dateStart = document.getElementById('input-sales-order-date-start').value;
+            var dateEnd = document.getElementById('input-sales-order-date-end').value;
+
+            // Reload the table.
+            table.ajax.reload(null, false);
+        }
     </script>
 
     {{-- Modal More Action --}}
