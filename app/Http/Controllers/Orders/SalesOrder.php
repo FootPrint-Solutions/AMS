@@ -382,13 +382,21 @@ class SalesOrder extends Controller
             if (isset($request->id)) {
                 $salesOrder = SalesOrderModel::find($request->id);
 
-                if ($salesOrder->status !== 'draft') {
-                    return getResponseData(false, "Unable to post posted and completed sales order.");
+                if ($salesOrder->status === 'complete') {
+                    return getResponseData(false, "Unable to post completed sales order.");
                 }
 
-                $salesOrder->payment_status = "paid";
-                $salesOrder->status = "posted";
-                $status = $salesOrder->save();
+                if ($salesOrder->status === 'posted') {
+                    $salesOrder->status = 'draft';
+                    $status = $salesOrder->save();
+
+                    // Delete work order.
+                    WorkOrderModel::where('sales_order_id', $request->id)->delete();
+                } else {
+                    $salesOrder->payment_status = "paid";
+                    $salesOrder->status = "posted";
+                    $status = $salesOrder->save();
+                }
 
                 if ($status)
                     DB::commit();

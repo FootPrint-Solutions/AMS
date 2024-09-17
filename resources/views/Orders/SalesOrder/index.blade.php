@@ -141,7 +141,7 @@
                             }
 
                             // Show modal more action
-                            showModalMoreAction(selectedRows[0][10]);
+                            showModalMoreAction(selectedRows[0][10], selectedRows[0][11]);
                         }
                     }
                 ]),
@@ -172,7 +172,7 @@
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Post -->
                             <button class="btn btn-outline-success btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
-                                <i class="fas fa-file-text me-2"></i> Post
+                                <i class="fas fa-file-text me-2"></i> <span id="btn-post-text">Post</span>
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
@@ -215,9 +215,13 @@
             goToPage("/sales-order/create");
         });
 
-        function showModalMoreAction(id) {
+        function showModalMoreAction(id, posted) {
             // Show the modal.
             $('#modal-more-action').modal('show');
+
+            // Set button post text to Unpost if it's already posted.
+            if (posted == 'posted')
+                $("#btn-post-text").html("Unpost");
 
             // Set the id.
             $('#modal-more-action-id').val(id);
