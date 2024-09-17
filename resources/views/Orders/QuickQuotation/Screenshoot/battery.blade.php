@@ -113,7 +113,7 @@
     </div>
 </div>
 
-<img src="" alt="" id="image-coppy" class="img-responsive">
+<img src="" alt="" id="image-coppy">
 
 <script src="{{ asset('/js/html2canvas.min.js') }}"></script>
 
