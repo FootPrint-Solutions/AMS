@@ -163,51 +163,14 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        Dimensi
+                        Battery
                     </div>
                     <div class="col">
                         :
                     </div>
-                    <div class="col" id="dimensi_battery_detail_mobile_checkout">
+                    <div class="col" id="name_battery_detail_mobile_checkout">
 
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        Kapasitas
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col" id="kapasitas_battery_detail_mobile_checkout">
-
-                    </div>
-                </div>
-                {{-- cca --}}
-                <div class="row">
-                    <div class="col">
-                        CCA
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col" id="cca_battery_detail_mobile_checkout">
-
-                    </div>
-                </div>
-                {{-- Harga  --}}
-                <div class="row">
-                    <div class="col">
-                        Harga
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col" id="price_battery_detail_mobile_checkout">
-
-                    </div>
-                    <input type="hidden" name="price_battery_detail_input_mobile_checkout"
-                        id="price_battery_detail_input_mobile_checkout" class="form-control">
                 </div>
 
                 {{-- qty  --}}
@@ -221,6 +184,51 @@
                     <div class="col">
                         <input type="number" name="qty_battery_detail_input_mobile_checkout"
                             id="qty_battery_detail_input_mobile_checkout" value="1" class="form-control">
+                    </div>
+                </div>
+
+                {{-- Gross Price --}}
+                <div class="row">
+                    <div class="col">
+                        Gross Price
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <span id="price_battery_detail_mobile_checkout"></span>
+                        <input type="hidden" name="price_battery_detail_input_mobile_checkout"
+                            id="price_battery_detail_input_mobile_checkout">
+                    </div>
+                </div>
+
+                {{-- Tax --}}
+                <div class="row">
+                    <div class="col">
+                        Tax
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="text" name="tax_battery_detail_input_mobile_checkout"
+                            id="tax_battery_detail_input_mobile_checkout" value="" readonly
+                            class="form-control">
+                    </div>
+                </div>
+
+                {{-- Price + Tax  --}}
+                <div class="row">
+                    <div class="col">
+                        Price + Tax
+                    </div>
+                    <div class="col">
+                        :
+                    </div>
+                    <div class="col">
+                        <input type="text" name="battery_price_tax_detail_input_mobile_checkout"
+                            id="battery_price_tax_detail_input_mobile_checkout" value="0" readonly
+                            class="form-control">
                     </div>
                 </div>
 
@@ -238,22 +246,20 @@
                     </div>
                 </div>
 
-                {{-- tax --}}
+                {{-- Net Price --}}
                 <div class="row">
                     <div class="col">
-                        PPN
+                        Net Price
                     </div>
                     <div class="col">
                         :
                     </div>
                     <div class="col">
-                        <input type="text" name="tax_battery_detail_input_mobile_checkout"
-                            id="tax_battery_detail_input_mobile_checkout" value="11" readonly
+                        <input type="text" name="net_price_battery_detail_input_mobile_checkout"
+                            id="net_price_battery_detail_input_mobile_checkout" value="0" readonly
                             class="form-control">
                     </div>
                 </div>
-
-
 
                 {{-- subtotal  --}}
                 <div class="row">
@@ -436,23 +442,42 @@
             success: function(response) {
                 // show modal 
                 $("#battery_detail_checkout_mobile").modal('show');
-                response = response.data[0];
+                res = response.data[0];
                 var baseUrl = "{{ asset('storage/image/battery/') }}";
-                response.image = baseUrl + '/' + response.image;
+                res.image = baseUrl + '/' + res.image;
 
 
-                $("#image_battery_checkout_mobile").attr('src', response.image);
-                $("#dimensi_battery_detail_mobile_checkout").text(response.dimension_length + " x " +
-                    response.dimension_width + " x " + response.dimension_height);
-                $("#kapasitas_battery_detail_mobile_checkout").text(response.capacity);
-                $("#cca_battery_detail_mobile_checkout").text(response.standard_cca);
+                $("#image_battery_checkout_mobile").attr('src', res.image);
+                $("#name_battery_detail_mobile_checkout").text(res.name);
                 formatPriceRetail = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
                     currency: 'IDR'
-                }).format(response.price_retail);
+                }).format(res.price_retail);
                 $("#price_battery_detail_mobile_checkout").text(formatPriceRetail);
-                $("#price_battery_detail_input_mobile_checkout").val(response.price_retail);
-                $("#battery_id_detail_checkout_mobile").val(response.id);
+                $("#price_battery_detail_input_mobile_checkout").val(res.price_retail);
+                $("#tax_battery_detail_input_mobile_checkout").val(response.tax);
+
+
+                var pricetax = res.price_retail + (res.price_retail * response.tax / 100);
+                formatPriceTax = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                }).format(pricetax);
+                $("#battery_price_tax_detail_input_mobile_checkout").val(formatPriceTax);
+                $("#discount_battery_detail_input_mobile_checkout").val(res.battery_prices[0]
+                    .discount_price);
+
+
+                var netPrice = res.price_retail - res.battery_prices[0].discount_price;
+                var formatNetPrice = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                }).format(netPrice);
+                $("#net_price_battery_detail_input_mobile_checkout").val(formatNetPrice);
+
+
+                $("#battery_id_detail_checkout_mobile").val(res
+                    .id);
                 calculateSubtotalBatteryDetail();
             }
         });
@@ -476,9 +501,12 @@
             currency: 'IDR'
         }).format(subtotal);
         $("#subtotal_battery_detail_input_mobile_checkout").val(formatSubtotal);
+        $("#net_price_battery_detail_input_mobile_checkout").val(formatSubtotal);
 
         // set subtotal_checkout_mobile_
         $("#subtotal_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(subtotal);
+        // set price_net_checkout_mobile_
+        $("#price_net_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(unitPriceNet);
         // set discount_checkout_mobile_
         $("#discount_checkout_mobile_" + $("#battery_id_detail_checkout_mobile").val()).val(discount);
         // set qty_checkout_mobile_
@@ -661,7 +689,8 @@
                         currency: 'IDR'
                     }).format(TotalAmountHidden);
                     $("#grand_total_payment_details_mobile").text(formatTotalAmount);
-                    $("#invoice_number_payment_details_mobile").text(response.data.InvoiceNumber);
+                    $("#invoice_number_payment_details_mobile").text(response.data
+                        .InvoiceNumber);
 
                     // loop battery and set to battery-payment-details-mobile
                     var batteryHtml = "";
@@ -696,7 +725,8 @@
                             '<div class="payment-method" data-id="' + uniqueId + '">';
                         paymentMethodHtml +=
                             '<input type="radio" name="paymentMethod" id="' + uniqueId +
-                            '" value="' + paymentMethod.id + '" data-id="' + paymentMethod
+                            '" value="' + paymentMethod.id + '" data-id="' +
+                            paymentMethod
                             .id + '" onclick="selectPaymentMethodMobile(this)">';
                         paymentMethodHtml +=
                             '<label for="' + uniqueId + '">' + paymentMethod.name +

@@ -57,7 +57,9 @@ class SyncProductToWoo extends Command
 
         while ($offset < $total) {
 
-            $batteries = BatteryModel::orderBy('name', 'asc')->limit($limit)->offset($offset)->get();
+            $batteries = BatteryModel::orderBy('name', 'asc')->with('VehicleBattery')->limit($limit)->offset($offset)->get();
+
+            dd($batteries);
 
             $productUpdate = [];
             $productCreate = [];
@@ -105,6 +107,7 @@ class SyncProductToWoo extends Command
                         //         'src' => $battery_image_url,
                         //     ],
                         // ],
+                        'attributes' => []
                     ];
 
                     $this->info('Product ' . $battery->name . ' will be created');
@@ -125,49 +128,32 @@ class SyncProductToWoo extends Command
                         //         'src' => $battery_image_url,
                         //     ],
                         // ],
+
+                        // attribute
+
                     ];
 
                     $this->info('Product ' . $battery->name . ' will be updated');
                 }
             }
 
-            // Jika ada kategori yang perlu diperbarui, lakukan perbaruan
+
             if (!empty($categoryUpdate)) {
                 $this->woocommerce->post('products/categories/batch', ['update' => $categoryUpdate]);
             }
 
-            // Jika ada kategori yang perlu ditambahkan, lakukan penambahan
             if (!empty($categoryCreate)) {
                 $this->woocommerce->post('products/categories/batch', ['create' => $categoryCreate]);
             }
 
-            // Jika ada produk yang perlu diperbarui, lakukan perbaruan
             if (!empty($productUpdate)) {
                 $this->woocommerce->post('products/batch', ['update' => $productUpdate]);
             }
 
-            // Jika ada produk yang perlu ditambahkan, lakukan penambahan
             if (!empty($productCreate)) {
                 $resultProductCreate = $this->woocommerce->post('products/batch', ['create' => $productCreate]);
             }
 
-
-
-            // {
-            //     "create": [
-            //       {
-            //         "id": 801,
-            //         "name": "Woo Single #1",
-            //         "slug": "woo-single-1-4",
-            //         "permalink": "https://example.com/product/woo-single-1-4/",
-            //         "date_created": "2017-03-23T17:35:43",
-            //         "date_created_gmt": "2017-03-23T20:35:43",
-            //         "date_modified": "2017-03-23T17:35:43",
-            //         "date_modified_gmt": "2017-03-23T20:35:43",
-            //         "type": "simple",
-            //         "status": "publish",
-
-            // info product created
 
             if (isset($resultProductCreate)) {
                 // log info
