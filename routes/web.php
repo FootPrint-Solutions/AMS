@@ -376,6 +376,10 @@ Route::middleware(['auth'])->group(function () {
     // Data Category
     Route::get('/data-category', [DataCategory::class, 'index']);
     Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory']);
+    Route::post('/data-category/count-parent-category', [DataCategory::class, 'countParentCategory']);
+    Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially']);
+    Route::post('/data-category/count-category', [DataCategory::class, 'countCategory']);
+    Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
