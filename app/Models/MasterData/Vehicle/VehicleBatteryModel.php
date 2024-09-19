@@ -35,6 +35,7 @@ class VehicleBatteryModel extends Model implements Auditable
      */
     public function vehicle()
     {
-        return $this->belongsTo(VehicleModel::class, 'vehicle_id', 'id');
+        return $this->belongsTo(VehicleModel::class, 'vehicle_id', 'id')
+            ->with('brand');
     }
 }

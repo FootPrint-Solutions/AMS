@@ -367,6 +367,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially']);
     Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct']);
     Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially']);
+    Route::get('/data-battery/export/csv', [DataBattery::class, 'exportCsv']);
 
     // Sales Online
     Route::get('/sales-online', [SalesOnline::class, 'index']);

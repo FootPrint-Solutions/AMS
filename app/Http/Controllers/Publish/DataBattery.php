@@ -11,6 +11,13 @@ use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeImport;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+
 class DataBattery extends Controller
 {
     private $title = 'Data Battery';
@@ -466,6 +473,24 @@ class DataBattery extends Controller
                 'message' => 'Sync data to WooCommerce failed ' . $th->getMessage(),
             ]);
         }
+    }
+
+    public function exportCsv()
+    {
+        // Get file excell 
+        $file = public_path('template\Excel\Detailed_Vehicle_Database.xlsx');
+
+        // Read the file
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+
+        // Get the active sheet
+        $sheet = $spreadsheet->getActiveSheet();
+        // get all data from excell start from row 2
+        $data = $sheet->rangeToArray('A2:J' . $sheet->getHighestRow());
+
+
+        $battery = BatteryModel::with('vehicleBatteryBelong')->get();
+        return view('Publish.DataBattery.exportCsv', compact('battery', 'data'));
     }
 
     /**

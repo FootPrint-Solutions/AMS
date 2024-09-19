@@ -239,4 +239,10 @@ class BatteryModel extends Model implements Auditable
     {
         return $this->belongsTo(BatteryPriceModel::class, 'id', 'battery_id');
     }
+
+    public function vehicleBatteryBelong()
+    {
+        return $this->belongsTo(VehicleBatteryModel::class, 'id', 'battery_id')
+            ->with('vehicle');
+    }
 }
