@@ -478,7 +478,7 @@ class DataBattery extends Controller
     public function exportCsv()
     {
         // Get file excell 
-        $file = public_path('template\Excel\Detailed_Vehicle_Database.xlsx');
+        $file = public_path('template/Excel/Detailed_Vehicle_Database.xlsx');
 
         // Read the file
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
