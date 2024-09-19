@@ -59,8 +59,6 @@ class SyncProductToWoo extends Command
 
             $batteries = BatteryModel::orderBy('name', 'asc')->with('VehicleBattery')->limit($limit)->offset($offset)->get();
 
-            dd($batteries);
-
             $productUpdate = [];
             $productCreate = [];
             $categoryCreate = [];
