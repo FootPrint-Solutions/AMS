@@ -298,27 +298,60 @@
                              vehicle.id + '" data-check="0">+</button>';
                          html += '</div>';
                          html += '</div>';
+                         html += '<div class="text-carousell" id="stock' + vehicle.id +
+                             '"></div>';
                          html += '</div>';
                      });
 
                  }
                  $('.loop').html(html);
 
+                 var inventoryRequests = data.map(function(vehicle) {
+                     return $.ajax({
+                         url: "/inventory/get/" + vehicle.code,
+                         type: "GET",
+                         success: function(data) {
+                             // jika data 0 atau - atau null maka disable checkbox 
+                             if (data == 0 || data == '-' || data == null) {
+                                 $("#btn-owl-carousel").prop('disabled', true);
+                             } else {
+                                 $("#btn-owl-carousel").prop('disabled', false);
+                             }
 
-                 var owl = $('.loop');
-                 owl.owlCarousel({
-                     items: 2,
-                     loop: true,
-                     margin: 10,
-                     dots: true,
-                     responsive: {
-                         600: {
-                             items: 4
+                             // set stock
+                             $("#stock" + vehicle.id).html("Stock : " + data);
+                             // show code battery
+                             if (vehicle.code != null) {
+                                 $("#stock" + vehicle.id).append("<br>ID : " +
+                                     vehicle.code);
+                             } else {
+                                 $("#stock" + vehicle.id).append("<br>ID : -");
+                             }
+
+                             // insert data to vehicle
+                             vehicle.stock = data;
                          }
-                     },
+                     });
                  });
 
-                 $("#ResultRecommendationBatteryVehicleMobile").html('');
+                 $.when.apply($, inventoryRequests).done(function() {
+                     var owl = $('.loop');
+                     owl.owlCarousel({
+                         items: 2,
+                         loop: false,
+                         margin: 10,
+                         dots: true,
+                         responsive: {
+                             600: {
+                                 items: 4
+                             }
+                         },
+                     });
+
+                     $("#ResultRecommendationBatteryVehicleMobile").html('');
+                 });
+
+
              },
              error: function() {
                  var html =
@@ -332,6 +365,13 @@
      $(document).on('click', '#btn-owl-carousel', function() {
          var id = $(this).data('id');
          var check = $(this).data('check');
+         var stok = $("#stock" + id).text();
+
+         // check jika stok kosong
+         if (stok == 'Stock : 0' || stok == 'Stock : -' || stok == 'Stock : null') {
+             swal.fire("Error!", "Stock is empty", "error");
+             return;
+         }
 
          if (check == 0) {
              $(this).data('check', 1);
