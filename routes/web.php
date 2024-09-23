@@ -67,6 +67,9 @@ use App\Http\Controllers\Publish\SalesOnline;
 // Data Category
 use App\Http\Controllers\Publish\DataCategory;
 
+// Work Order Technician
+use App\Http\Controllers\Orders\WorkOrderInstruction;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -381,6 +384,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially']);
     Route::post('/data-category/count-category', [DataCategory::class, 'countCategory']);
     Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially']);
+
+    // Work Order Instruction
+    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index']);
+    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
