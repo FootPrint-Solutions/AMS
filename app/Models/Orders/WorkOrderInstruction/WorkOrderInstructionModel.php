@@ -15,6 +15,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 
 // MODEL
 use App\Models\Orders\WorkOrder\WorkOrderModel;
+use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
 
 class WorkOrderInstructionModel extends Model implements Auditable
 {
@@ -38,6 +39,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'work_orders.total',
             'sales_orders.address',
             'work_order_instructions.work_order_instruction_number',
+            'work_order_instructions.date_complete',
         ];
 
         $searchColumns = [
@@ -48,6 +50,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'customers.name',
             'work_orders.total',
             'sales_orders.address',
+            'work_order_instructions.date_complete',
         ];
 
         $query = self::query();
@@ -104,5 +107,11 @@ class WorkOrderInstructionModel extends Model implements Auditable
     {
         return $this->belongsTo(WorkOrderModel::class, 'work_order_id')
             ->with('salesOrder', 'customer');
+    }
+
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(WorkOrderInstructionPhotosModel::class, 'work_order_instruction_id');
     }
 }

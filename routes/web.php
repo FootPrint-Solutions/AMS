@@ -391,6 +391,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
     Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
     Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);
+    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);

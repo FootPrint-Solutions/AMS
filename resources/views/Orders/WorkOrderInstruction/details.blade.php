@@ -126,79 +126,84 @@
                         </ul>
 
                         <div class="tab-content twitter-bs-wizard-tab-content">
-                            <div class="tab-pane active" id="step-1" style="display: block;">
-                                <h5>Detail Pesanan</h5>
+                            <form action="/work-order-instruction/update" id="form" method="POST"
+                                enctype="multipart/form-data">
+                                <input type="hidden" name="work_order_instruction_id" id="work_order_instruction_id"
+                                    value="{{ $data->id }}">
+                                <div class="tab-pane active" id="step-1" style="display: block;">
+                                    <h5>Detail Pesanan</h5>
 
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="basicpill-pancard-input" class="form-label">Nama Pelanggan</label>
-                                            <input type="text" class="form-control" id="basicpill-pancard-input"
-                                                value="{{ $data->workOrder->customer->name }}" readonly>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="mb-3">
+                                                <label for="basicpill-pancard-input" class="form-label">Nama
+                                                    Pelanggan</label>
+                                                <input type="text" class="form-control" id="basicpill-pancard-input"
+                                                    value="{{ $data->workOrder->customer->name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="mb-3">
+                                                <label for="basicpill-vatno-input" class="form-label">Kendaraan</label>
+                                                <input type="text" class="form-control" id="basicpill-vatno-input"
+                                                    value="{{ $data->workOrder->salesOrder->vehicle->name }}" readonly>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="basicpill-vatno-input" class="form-label">Kendaraan</label>
-                                            <input type="text" class="form-control" id="basicpill-vatno-input"
-                                                value="{{ $data->workOrder->salesOrder->vehicle->name }}" readonly>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="mb-3">
+                                                <label for="basicpill-cstno-input" class="form-label">Lokasi
+                                                    Pelanggan</label>
+                                                <input type="text" class="form-control" id="basicpill-cstno-input"
+                                                    value="{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                        <?php
+                                        // foreach battery in sales order batteries
+                                        $batteries = $data->workOrder->salesOrder->batteries;
+                                        $batteryList = '';
+                                        
+                                        foreach ($batteries as $key) {
+                                            $batteryList .= $key->battery_name . ', ';
+                                        }
+                                        ?>
+                                        <div class="col-lg-6">
+                                            <div class="mb-3">
+                                                <label for="basicpill-servicetax-input" class="form-label">Aki yang
+                                                    dipesan</label>
+                                                <input type="text" class="form-control"
+                                                    id="basicpill-servicetax-input" value="{{ $batteryList }}" readonly>
+                                            </div>
                                         </div>
                                     </div>
+                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                        <li class="next"><a href="javascript: void(0);"
+                                                class="btn btn-primary seller-next-btn">Next <i
+                                                    class="bx bx-chevron-right ms-1"></i></a></li>
+                                    </ul>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="basicpill-cstno-input" class="form-label">Lokasi
-                                                Pelanggan</label>
-                                            <input type="text" class="form-control" id="basicpill-cstno-input"
-                                                value="{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-                                    <?php
-                                    // foreach battery in sales order batteries
-                                    $batteries = $data->workOrder->salesOrder->batteries;
-                                    $batteryList = '';
-                                    
-                                    foreach ($batteries as $key) {
-                                        $batteryList .= $key->battery_name . ', ';
-                                    }
-                                    ?>
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="basicpill-servicetax-input" class="form-label">Aki yang
-                                                dipesan</label>
-                                            <input type="text" class="form-control" id="basicpill-servicetax-input"
-                                                value="{{ $batteryList }}" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-                                <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                    <li class="next"><a href="javascript: void(0);"
-                                            class="btn btn-primary seller-next-btn">Next <i
-                                                class="bx bx-chevron-right ms-1"></i></a></li>
-                                </ul>
-                            </div>
 
-                            <div class="tab-pane" id="step-2" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Siapkan Peralatan</h5>
-                                    </div>
+                                <div class="tab-pane" id="step-2" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Siapkan Peralatan</h5>
+                                        </div>
 
-                                    <form>
+
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label for="basicpill-namecard-input"
                                                         class="form-label">Ampelas</label>
-                                                    <input type="checkbox" id="basicpill-namecard-input">
+                                                    <input type="checkbox" id="step2-Ampelas" name="step2-Ampelas">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Tester Aki</label>
-                                                    <input type="checkbox" id="basicpill-namecard-input">
+                                                    <input type="checkbox" id="step2-TesterAki" name="step2-TesterAki">
                                                 </div>
                                             </div>
                                         </div>
@@ -207,14 +212,15 @@
                                                 <div class="mb-3">
                                                     <label for="basicpill-cardno-input" class="form-label">Set Kunci
                                                         Pas</label>
-                                                    <input type="checkbox" id="basicpill-cardno-input">
+                                                    <input type="checkbox" id="step2-SetKunciPas"
+                                                        name="step2-SetKunciPas">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label for="basicpill-card-verification-input" class="form-label">Kain
                                                         Lap</label>
-                                                    <input type="checkbox" id="basicpill-card-verification-input">
+                                                    <input type="checkbox" id="step2-KainLap" name="step2-KainLap">
                                                 </div>
                                             </div>
                                         </div>
@@ -223,131 +229,139 @@
                                                 <div class="mb-3">
                                                     <label for="basicpill-expiration-input" class="form-label">Jumper
                                                         Portable</label>
-                                                    <input type="checkbox" id="basicpill-expiration-input">
+                                                    <input type="checkbox" id="step2-JumperPortable"
+                                                        name="step2-JumperPortable">
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
 
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-3" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Kenakan Jaket Akikita</h5>
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next">
+                                                <a id="step2-next-validate" href="javascript: void(0);"
+                                                    class="btn btn-primary">Next
+                                                    <i class="bx bx-chevron-right ms-1"></i></a>
+                                                <a style="display:none;" id="step2-next" href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next
+                                                    <i class="bx bx-chevron-right ms-1"></i></a>
+                                            </li>
+                                        </ul>
                                     </div>
-
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-4" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Siapkan Google Maps</h5>
+                                <div class="tab-pane" id="step-3" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Kenakan Jaket Akikita</h5>
+                                        </div>
+
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
-
-
-                                    Klik link dibawah ini untuk membuka Google Maps <br>
-                                    <a href="{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}"
-                                        target="_blank">{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}</a>
-                                    <br><br>
-
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-5" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Nyalakan Sharing Lokasi</h5>
+                                <div class="tab-pane" id="step-4" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Siapkan Google Maps</h5>
+                                        </div>
+
+
+                                        Klik link dibawah ini untuk membuka Google Maps <br>
+                                        <a href="{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}"
+                                            target="_blank">{{ 'https://maps.google.com/?q=' . $data->workOrder->salesOrder->latitude . ',' . $data->workOrder->salesOrder->longitude }}</a>
+                                        <br><br>
+
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
-
-
-                                    Tekan tombol <strong>start</strong> <br>
-
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-6" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Menuju Pelanggan</h5>
+                                <div class="tab-pane" id="step-5" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Nyalakan Sharing Lokasi</h5>
+                                        </div>
+
+
+                                        Tekan tombol <strong>start</strong> <br>
+
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
-
-                                    Nama Pelanggan: {{ $data->workOrder->customer->name }} <br>
-                                    Kendaraan: {{ $data->workOrder->salesOrder->vehicle->name }} <br>
-
-
-                                    Kontak Pelanggan Lewat WhatsApp <br>
-                                    <a href="https://wa.me/{{ $data->workOrder->salesOrder->customer->contact }}"
-                                        target="_blank">{{ $data->workOrder->salesOrder->customer->contact }}</a>
-                                    <br><br>
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-7" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Ganti Aki Pelanggan</h5>
+                                <div class="tab-pane" id="step-6" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Menuju Pelanggan</h5>
+                                        </div>
+
+                                        Nama Pelanggan: {{ $data->workOrder->customer->name }} <br>
+                                        Kendaraan: {{ $data->workOrder->salesOrder->vehicle->name }} <br>
+
+
+                                        Kontak Pelanggan Lewat WhatsApp <br>
+                                        <a href="https://wa.me/{{ $data->workOrder->salesOrder->customer->contact }}"
+                                            target="_blank">{{ $data->workOrder->salesOrder->customer->contact }}</a>
+                                        <br><br>
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
+                                </div>
 
-                                    <form>
+                                <div class="tab-pane" id="step-7" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Ganti Aki Pelanggan</h5>
+                                        </div>
+
+
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label for="basicpill-namecard-input" class="form-label">Buka kap
                                                         mesin / bonet</label>
-                                                    <input type="checkbox" id="basicpill-namecard-input">
+                                                    <input type="checkbox" id="step7-BukaKapMesin"
+                                                        name="step7-BukaKapMesin">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Lepaskan breket aki</label>
-                                                    <input type="checkbox" id="basicpill-namecard-input">
+                                                    <input type="checkbox" id="step7-LepaskanBreketAki"
+                                                        name="step7-LepaskanBreketAki">
                                                 </div>
                                             </div>
                                         </div>
@@ -356,7 +370,8 @@
                                                 <div class="mb-3">
                                                     <label for="basicpill-cardno-input" class="form-label">Gunakan jumper
                                                         dan ganti akinya</label>
-                                                    <input type="checkbox" id="basicpill-cardno-input">
+                                                    <input type="checkbox" id="step7-GunakanJumperGantiAki"
+                                                        name="step7-GunakanJumperGantiAki">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6">
@@ -364,7 +379,8 @@
                                                     <label for="basicpill-card-verification-input"
                                                         class="form-label">Pasang
                                                         Kembali breket aki</label>
-                                                    <input type="checkbox" id="basicpill-card-verification-input">
+                                                    <input type="checkbox" id="step7-PasangKembaliBreketAki"
+                                                        name="step7-PasangKembaliBreketAki">
                                                 </div>
                                             </div>
                                         </div>
@@ -374,39 +390,46 @@
                                                     <label for="basicpill-expiration-input" class="form-label">Hidupkan
                                                         kendaraan pelanggan & cek voltase pengisian daya aki (Kondisi baik:
                                                         13.8v - 14.5v)</label>
-                                                    <input type="checkbox" id="basicpill-expiration-input">
+                                                    <input type="checkbox" id="step7-HidupkanKendaraanCekVoltase"
+                                                        name="step7-HidupkanKendaraanCekVoltase">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label for="basicpill-expiration-input"
                                                         class="form-label">Daya</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-expiration-input">
+                                                    <input type="text" class="form-control" id="step7-Daya"
+                                                        name="step7-Daya">
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
 
 
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-8" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Tempelkan Stiker Akikita</h5>
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next">
+
+                                                <a href="javascript: void(0);" class="btn btn-primary"
+                                                    id="step7-next-validate">Next
+                                                    <i class="bx bx-chevron-right ms-1"></i></a>
+                                                <a style="display: none;" id="step7-next" href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a>
+                                            </li>
+                                        </ul>
                                     </div>
+                                </div>
 
-                                    <form>
+                                <div class="tab-pane" id="step-8" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Tempelkan Stiker Akikita</h5>
+                                        </div>
+
+
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
@@ -427,75 +450,73 @@
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="basicpill-cardno-input" class="form-label">Foto stiker
-                                                        Akikita di atas aki:</label>
-                                                    <input type="file" id="basicpill-cardno-input">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- sample image  --}}
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
                                                     <img src="{{ asset('storage/image/work-order/Contoh_Foto_Stiker.jpg') }}"
                                                         alt="sample image" class="img-fluid">
                                                 </div>
                                             </div>
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="basicpill-cardno-input" class="form-label">Foto stiker
+                                                        Akikita di atas aki:</label>
+                                                    <input type="file" accept="image/*" capture id="step8-FotoStiker"
+                                                        name="step8-FotoStiker">
+                                                </div>
+                                            </div>
                                         </div>
-                                    </form>
 
 
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-9" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Foto 2 Bukti Instalasi</h5>
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next">
+                                                <a href="javascript: void(0);" class="btn btn-primary"
+                                                    id="step8-next-validate">Next
+                                                    <i class="bx bx-chevron-right ms-1"></i></a>
+                                                <a style="display:none;" href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn" id="step8-next">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a>
+                                            </li>
+                                        </ul>
                                     </div>
+                                </div>
+
+                                <div class="tab-pane" id="step-9" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Foto 2 Bukti Instalasi</h5>
+                                        </div>
 
 
-                                    <form>
+
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     <label for="basicpill-namecard-input" class="form-label">Nomor
                                                         Produksi Aki</label>
-                                                    <input type="text" class="form-control"
-                                                        id="basicpill-namecard-input">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Foto</label>
-                                                    <input type="file" id="basicpill-namecard-input">
-
-                                                    {{-- sample image  --}}
-                                                    <div class="mb-3">
-                                                        <img src="{{ asset('storage/image/work-order/Contoh_Foto_Nomor_Produksi.jpg') }}"
-                                                            alt="sample image" class="img-fluid">
-                                                    </div>
-
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
-                                                    <label for="basicpill-cardno-input" class="form-label">Aki di dalam
-                                                        kap mesin bersama plat nomor kendaraan</label>
-                                                    <input type="file" id="basicpill-cardno-input">
+                                                    <label class="form-label">Contoh</label>
+                                                    {{-- sample image  --}}
+                                                    <div class="mb-3">
+                                                        <img src="{{ asset('storage/image/work-order/Contoh_Foto_Nomor_Produksi.jpg') }}"
+                                                            alt="sample image" class="img-fluid">
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <input type="file" id="step9-FotoNomorProduksi"
+                                                        name="step9-FotoNomorProduksi" accept="image/*" capture>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
                                             <div class="col-lg-6">
                                                 <div class="mb-3">
                                                     {{-- sample image  --}}
@@ -505,92 +526,109 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="basicpill-card-verification-input" class="form-label">Foto
+                                                        aki di dalam kap mesin bersama plat nomor kendaraan</label>
+                                                    <input type="file" id="step9-FotoAkiDalamKapMesin"
+                                                        name="step9-FotoAkiDalamKapMesin" accept="image/*" capture>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </form>
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
-
-                                </div>
-                            </div>
 
 
-                            <div class="tab-pane" id="step-10" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Tunggu Pembayaran</h5>
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next">
+                                                <a href="javascript: void(0);" class="btn btn-primary"
+                                                    id="step9-next-validate">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a>
+                                                <a style="display: none" href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn" id="step9-next">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a>
+                                            </li>
+                                        </ul>
+
                                     </div>
-
-                                    Kabarkan akikita di whatsapp, bahwa instalasi selesai. Lalu tunggu setelah pembayaran
-                                    diterima <br>
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-11" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Kembali ke Kantor</h5>
+
+                                <div class="tab-pane" id="step-10" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Tunggu Pembayaran</h5>
+                                        </div>
+
+                                        Kabarkan akikita di whatsapp, bahwa instalasi selesai. Lalu tunggu setelah
+                                        pembayaran
+                                        diterima <br>
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
-
-                                    Klik link dibawah ini untuk membuka Google Maps <br>
-                                    @php
-                                        $latitude = $data->workOrder->salesOrder->distributorShop->latitude ?? '';
-                                        $longitude = $data->workOrder->salesOrder->distributorShop->longitude ?? '';
-
-                                        if ($latitude == '' || $longitude == '') {
-                                            $url = '';
-                                        } else {
-                                            $url = 'https://maps.google.com/?q=' . $latitude . ',' . $longitude;
-                                        }
-                                    @endphp
-                                    <a href="{{ $url }}" target="_blank">{{ $url }}</a>
-                                    <br><br>
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        <li class="next"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-next-btn">Next <i
-                                                    class="bx bx-chevron-right ms-1"></i></a></li>
-                                    </ul>
                                 </div>
-                            </div>
 
-                            <div class="tab-pane" id="step-12" style="display: none; opacity: 1;">
-                                <div>
-                                    <div class="mb-4">
-                                        <h5>Selesaikan Work Order</h5>
+                                <div class="tab-pane" id="step-11" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Kembali ke Kantor</h5>
+                                        </div>
+
+                                        Klik link dibawah ini untuk membuka Google Maps <br>
+                                        @php
+                                            $latitude = $data->workOrder->salesOrder->distributorShop->latitude ?? '';
+                                            $longitude = $data->workOrder->salesOrder->distributorShop->longitude ?? '';
+
+                                            if ($latitude == '' || $longitude == '') {
+                                                $url = '';
+                                            } else {
+                                                $url = 'https://maps.google.com/?q=' . $latitude . ',' . $longitude;
+                                            }
+                                        @endphp
+                                        <a href="{{ $url }}" target="_blank">{{ $url }}</a>
+                                        <br><br>
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            <li class="next"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-next-btn">Next <i
+                                                        class="bx bx-chevron-right ms-1"></i></a></li>
+                                        </ul>
                                     </div>
-
-                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous disabled"><a href="javascript: void(0);"
-                                                class="btn btn-primary seller-previous-btn"><i
-                                                    class="bx bx-chevron-left me-1"></i> Previous</a></li>
-                                        {{-- // save change  --}}
-                                        <li class="float-end"><a href="javascript: void(0);" class="btn btn-primary">Save
-                                                Changes</a></li>
-                                    </ul>
-
                                 </div>
-                            </div>
 
+                                <div class="tab-pane" id="step-12" style="display: none; opacity: 1;">
+                                    <div>
+                                        <div class="mb-4">
+                                            <h5>Selesaikan Work Order</h5>
+                                        </div>
+
+                                        <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                            <li class="previous disabled"><a href="javascript: void(0);"
+                                                    class="btn btn-primary seller-previous-btn"><i
+                                                        class="bx bx-chevron-left me-1"></i> Previous</a></li>
+                                            {{-- // save change  --}}
+                                            <li class="float-end"><a href="javascript: void(0);" class="btn btn-primary"
+                                                    id="save-change-last-step">Save
+                                                    Changes</a></li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+
+                                {{-- input token --}}
+                                @csrf
+                            </form>
 
                         </div>
                     </div>
@@ -598,4 +636,115 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $("#step2-next-validate") // validate
+            .click(function() {
+                if ($("#step2-Ampelas").is(":checked") && $("#step2-TesterAki").is(":checked") &&
+                    $("#step2-SetKunciPas").is(":checked") && $("#step2-KainLap").is(":checked") &&
+                    $("#step2-JumperPortable").is(":checked")) {
+                    $("#step2-next").click();
+                } else {
+                    swal.fire({
+                        title: 'Peringatan',
+                        text: 'Harap centang semua peralatan yang sudah disiapkan',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+        $("#step7-next-validate") // validate
+            .click(function() {
+                if ($("#step7-BukaKapMesin").is(":checked") && $("#step7-LepaskanBreketAki").is(":checked") &&
+                    $("#step7-GunakanJumperGantiAki").is(":checked") && $("#step7-PasangKembaliBreketAki").is(
+                        ":checked") && $("#step7-HidupkanKendaraanCekVoltase").is(":checked") && $(
+                        "#step7-Daya").val() != '') {
+                    $("#step7-next").click();
+                } else {
+                    swal.fire({
+                        title: 'Peringatan',
+                        text: 'Harap centang semua langkah yang sudah dilakukan',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+        $("#step8-next-validate") // validate
+            .click(function() {
+                if ($("#step8-FotoStiker").val() != '') {
+                    $("#step8-next").click();
+                } else {
+                    swal.fire({
+                        title: 'Peringatan',
+                        text: 'Harap upload foto stiker',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+        $("#step9-next-validate") // validate
+            .click(function() {
+                if ($("#step9-FotoNomorProduksi").val() != '' && $("#step9-FotoAkiDalamKapMesin").val() != '') {
+                    $("#step9-next").click();
+                } else {
+                    swal.fire({
+                        title: 'Peringatan',
+                        text: 'Harap upload foto nomor produksi dan aki dalam kap mesin',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+        $("#save-change-last-step") // save change
+            .click(function() {
+                swal.fire({
+                    title: 'Peringatan',
+                    text: 'Apakah anda yakin ingin menyimpan perubahan?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // form submit to ajax
+                        var form = $('#form')[0];
+                        var formData = new FormData(form);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/work-order-instruction/update",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.status == 'success') {
+                                    swal.fire({
+                                        title: 'Berhasil',
+                                        text: 'Perubahan berhasil disimpan',
+                                        icon: 'success',
+                                        confirmButtonText: 'OK'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.href =
+                                                '/work-order-instruction';
+                                        }
+                                    });
+                                } else {
+                                    swal.fire({
+                                        title: 'Gagal',
+                                        text: 'Perubahan gagal disimpan',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+    </script>
 @endsection
