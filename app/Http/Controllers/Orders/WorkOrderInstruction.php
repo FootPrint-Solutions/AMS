@@ -22,6 +22,32 @@ class WorkOrderInstruction extends Controller
         );
     }
 
+    /**
+     * Display a listing of the work order instructions.
+     *
+     * This method handles the DataTables request and returns a JSON response
+     * containing the work order instructions data.
+     *
+     * @param \Illuminate\Http\Request $request The incoming request instance.
+     * 
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the work order instructions data.
+     * 
+     * The JSON response structure:
+     * - draw: The draw counter for DataTables.
+     * - recordsTotal: The total number of work order instructions.
+     * - recordsFiltered: The number of filtered work order instructions.
+     * - data: An array of work order instructions data, each containing:
+     *   - Row number
+     *   - Work order number
+     *   - Sales order number
+     *   - Formatted date
+     *   - Customer name
+     *   - Quantity
+     *   - Formatted total price
+     *   - Address
+     *   - ID
+     *   - Status
+     */
     public function show(Request $request)
     {
         // Get all DataTables requests.
@@ -49,9 +75,10 @@ class WorkOrderInstruction extends Controller
             $row[] = $no++;
             $row[] = $key->work_order_number;
             $row[] = $key->sales_order_number;
+            $row[] = $key->work_order_instruction_number;
             $row[] = formatDate($key->date);
-            $row[] = $key->customer_name;
-            $row[] = $key->qty;
+            $row[] = $key->date_complete ? formatDate($key->date_complete) : '';
+            $row[] = $key->name;
             $row[] = formatPrice($key->total);
             $row[] = $key->address;
             $row[] = $key->id;
@@ -65,5 +92,32 @@ class WorkOrderInstruction extends Controller
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
+    }
+
+    public function InstructionDetail($id)
+    {
+        if ($id == "login") {
+            return redirect()->route('login');
+        } else {
+            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
+            // dd($workOrderInstruction);
+            return view(
+                'Orders.WorkOrderInstruction.details',
+                getIndexData(
+                    $this->title,
+                    $workOrderInstruction
+                )
+            );
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $workOrderInstruction = WorkOrderInstructionModel::find($request->id);
+        $workOrderInstruction->delete();
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Work Order Instruction has been deleted'
+        ]);
     }
 }

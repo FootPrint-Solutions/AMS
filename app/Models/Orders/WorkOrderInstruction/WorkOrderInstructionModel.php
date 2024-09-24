@@ -13,6 +13,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
+// MODEL
+use App\Models\Orders\WorkOrder\WorkOrderModel;
+
 class WorkOrderInstructionModel extends Model implements Auditable
 {
     use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
@@ -34,6 +37,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'customers.name',
             'work_orders.total',
             'sales_orders.address',
+            'work_order_instructions.work_order_instruction_number',
         ];
 
         $searchColumns = [
@@ -62,5 +66,43 @@ class WorkOrderInstructionModel extends Model implements Auditable
         }
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'work_order_instructions.updated_at', 'direction' => 'desc']);
+    }
+
+    public static function newCode()
+    {
+        // Get the latest added code.
+        $latestCode = self::withTrashed()
+            ->orderByDesc('created_at')
+            ->first()?->work_order_instruction_number ?? null;
+
+        // Generate the new sales order code.
+        $year = substr($latestCode, 2, 2);
+        $month = substr($latestCode, 4, 2);
+        $currentYear = date('y');
+        $currentMonth = date('m');
+
+        $newCode = "WI";
+        if ($year == $currentYear) {
+            if ($month == $currentMonth) {
+                // Generate new code with new iteration only.
+                $iteration = substr($latestCode, 6);
+                $nextIteration = str_pad((int)$iteration + 1, strlen($iteration), '0', STR_PAD_LEFT);
+                $newCode .= $year . $month . $nextIteration;
+            } else {
+                // Generate new code with new month.
+                $newCode .= $year . $currentMonth . '00001';
+            }
+        } else {
+            // Generate new code with new year and new month.
+            $newCode .= $currentYear . $currentMonth . '00001';
+        }
+        return $newCode;
+    }
+
+    // RELATIONSHIPS WITH WORK ORDER
+    public function workOrder(): BelongsTo
+    {
+        return $this->belongsTo(WorkOrderModel::class, 'work_order_id')
+            ->with('salesOrder', 'customer');
     }
 }

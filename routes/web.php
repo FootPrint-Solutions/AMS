@@ -282,6 +282,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
     Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
     Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate']);
+    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction']);
     // work order mobile
     Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList']);
     Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail']);
@@ -388,6 +389,8 @@ Route::middleware(['auth'])->group(function () {
     // Work Order Instruction
     Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index']);
     Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
+    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
+    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);

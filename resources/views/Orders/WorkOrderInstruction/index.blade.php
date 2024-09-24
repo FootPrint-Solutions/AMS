@@ -49,6 +49,7 @@
                         <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Work Order Number</th>
                         <th scope="col">Sales Order Number</th>
+                        <th scope="col">Work Order Instruction Number</th>
                         <th scope="col">Date</th>
                         <th scope="col">Date Complete</th>
                         <th scope="col">Customer</th>
@@ -116,46 +117,13 @@
                                 return;
                             }
 
-                            // check if work order status is completed cannot be deleted
-                            if (selectedRows[0][9] == "completed") {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Work Order status is completed, cannot be deleted.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            deleteData(selectedRows[0][8]);
+                            deleteData(selectedRows[0][9]);
                         },
                         className: "btn btn-outline-danger btn-sm",
-                    }
-                    // add button print work order    
-                    , {
-                        text: "<i class='fas fa-print'></i> Print Work Order",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for printing work order.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
-
-                            // Download invoice as pdf.
-                            $("#work_order_id").val(selectedRows[0][8]);
-                            showModalPrint("/work-order-instruction/print/" + selectedRows[0][8]);
-                        },
-                        className: "btn btn-outline-secondary btn-sm",
                     },
-                    // add button print technician report
+                    // add copy button to copy work order
                     {
-                        text: "<i class='fas fa-print'></i> Print Technician Report",
+                        text: "<i class='fas fa-copy'></i> Copy Work Order",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -164,119 +132,49 @@
                             if (selectedRows.length !== 1) {
                                 Swal.fire({
                                     title: "Error",
-                                    text: "Please select a single row for printing technician report.",
+                                    text: "Please select a single row for copying work order.",
                                     icon: "error",
                                 });
                                 return;
                             }
 
-                            $("#work_order_id").val(selectedRows[0][8]);
+                            // check if work order status is completed cannot be copied
+                            var work_order_id = selectedRows[0][3];
+                            var url = window.location.origin + "/wo/" + work_order_id
 
-                            // show modal print technician report
-                            $('#modal-print-technician-report').modal('show');
-                            // redirect to print technician report
-                            // window.location = "/work-order-instruction/print-technician-report/" +
-                            //     selectedRows[0][8];
-                        },
-                        className: "btn btn-outline-secondary btn-sm",
-                    },
-                    // add upload image button 
-                    {
-                        text: "<i class='fas fa-upload'></i> Complete Work Order",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-                            if (selectedRows.length !== 1) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Please select a single row for Attach File.",
-                                    icon: "error",
-                                });
-                                return;
-                            }
+                            // swal copy work order
+                            Swal.fire({
+                                title: "Are you sure?",
+                                text: "You want to copy this work order?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes, copy it!",
+                                cancelButtonText: "No, cancel!",
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // copy 
+                                    var input = document.createElement('input');
+                                    input.setAttribute('value', url);
+                                    document.body.appendChild(input);
+                                    input.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(input);
 
-                            // get data production code ajax request
-                            $.ajax({
-                                url: "/work-order-instruction/production-code",
-                                type: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    work_order_id: selectedRows[0][8]
-                                },
-                                success: function(responseData) {
-                                    if (responseData.status == true) {
-                                        let batteries = responseData.production_code
-                                            .sales_order.batteries;
-                                        let batteriesHtml = ``;
-                                        batteriesHtml += `
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Production Code</th>
-                            <th>Battery Name</th>
-                            <th width="20%">Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+                                    // Show success message.
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: "Work order copied to clipboard.",
+                                        icon: "success",
+                                    });
 
-                                        batteries.forEach(function(battery) {
-                                            // jika battery production code null, maka tampilkan input text ganti dengan kosong
-                                            if (battery
-                                                .battery_production_code == null
-                                            ) {
-                                                battery
-                                                    .battery_production_code =
-                                                    '';
-                                            }
-                                            batteriesHtml += `
-                    <tr>
-                        <input type="hidden" name="battery_id[]" value="${battery.id}">
-                        <td><input type="text" name="production_code[]" value="${battery.battery_production_code}" class="form-control"></td>
-                        <td><input type="text" name="battery_name[]" value="${battery.battery_name}" class="form-control" readonly></td>
-                        <td><input type="number" name="battery_quantity[]" value="${battery.quantity}" class="form-control" readonly></td>
-                    </tr>
-                `;
-                                        });
-
-                                        batteriesHtml += `
-                    </tbody>
-                </table>
-            `;
-
-
-                                        $('.production_code_data').html(`
-                                            <div class="text-center">
-                                            <p>Work Order: ${responseData.production_code.work_order_number}</p>
-                                            </div>
-                                            <div class="batteries-data">${batteriesHtml}</div>`);
-                                    } else {
-                                        $('.production_code_data').html(`
-                                            <div class="text-center">
-                                                <p class="text-danger">Failed to load production code.</p>
-                                            </div>
-                                        `);
-                                    }
-                                },
-                                error: function(xhr) {
-                                    $('.production_code_data').html(`
-                                        <div class="text-center">
-                                            <p class="text-danger">Failed to load production code.</p>
-                                        </div>
-                                    `);
                                 }
                             });
-
-                            // show modal for upload image
-                            $('#modal-upload-complete-work-order-instruction').modal('show');
-                            $('#work_order_id_image').val(selectedRows[0][8]);
                         },
                         className: "btn btn-outline-primary btn-sm",
                     },
                 ],
-                language: getDatatablesLanguangeConfigurations("Work Order"),
+                language: getDatatablesLanguangeConfigurations("Work Order Instruction"),
                 select: true,
                 rowCallback: function(row, data) {
                     if (data[9] == "posted")
@@ -320,14 +218,22 @@
                             },
                             success: function(response) {
                                 // Show success message.
-                                Swal.fire({
-                                    title: "Success",
-                                    text: response.message,
-                                    icon: "success",
-                                });
+                                if (response.status == 'success') {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success",
+                                    });
 
-                                // Refresh the table.
-                                table.ajax.reload();
+                                    // Refresh the table.
+                                    table.ajax.reload();
+                                } else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error",
+                                    });
+                                }
                             },
                             error: function(xhr) {
                                 // Show error message.
