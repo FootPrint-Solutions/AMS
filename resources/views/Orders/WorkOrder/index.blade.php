@@ -222,7 +222,7 @@
                 buttons: [
                     // add delete button
                     {
-                        text: "<i class='fas fa-trash'></i> Delete Work Order",
+                        text: "<i class='fas fa-trash'></i> Delete WO",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -253,7 +253,7 @@
                     }
                     // add button print work order    
                     , {
-                        text: "<i class='fas fa-print'></i> Print Work Order",
+                        text: "<i class='fas fa-print'></i> Print WO",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -303,7 +303,7 @@
                     },
                     // add upload image button 
                     {
-                        text: "<i class='fas fa-upload'></i> Complete Work Order",
+                        text: "<i class='fas fa-upload'></i> Complete WO",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -398,7 +398,7 @@
                     },
                     // add work order instruction button copy link
                     {
-                        text: "<i class='fas fa-copy'></i> Copy Work Order Instruction",
+                        text: "<i class='fas fa-copy'></i> Copy WO Instruction",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
