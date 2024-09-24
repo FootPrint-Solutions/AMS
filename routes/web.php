@@ -67,6 +67,9 @@ use App\Http\Controllers\Publish\SalesOnline;
 // Data Category
 use App\Http\Controllers\Publish\DataCategory;
 
+// Work Order Technician
+use App\Http\Controllers\Orders\WorkOrderInstruction;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -279,6 +282,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
     Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
     Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate']);
+    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction']);
     // work order mobile
     Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList']);
     Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail']);
@@ -381,6 +385,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially']);
     Route::post('/data-category/count-category', [DataCategory::class, 'countCategory']);
     Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially']);
+
+    // Work Order Instruction
+    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index']);
+    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
+    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
+    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);
+    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);

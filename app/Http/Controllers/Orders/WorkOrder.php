@@ -21,6 +21,7 @@ use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\WorkOrder\TrackingModel;
 use App\Models\Settings\ImportTemplateModel;
+use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use Illuminate\Support\Facades\DB;
 
 class WorkOrder extends Controller
@@ -540,6 +541,52 @@ class WorkOrder extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to get tracking data. ' . $th->getMessage()
+            ]);
+        }
+    }
+
+    public function copyInstruction(Request $request)
+    {
+        try {
+            $workOrder = WorkOrderModel::find($request->work_order_instruction);
+
+            // if data is not found then return error
+            if (!$workOrder) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Work order not found.'
+                ]);
+            } else {
+                // check if work order instruction is already exist
+                $workOrderInstruction = WorkOrderInstructionModel::where('work_order_id', $workOrder->id)->first();
+
+                // if work order instruction is already exist then return error
+                if ($workOrderInstruction) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Work order instruction is already exist.',
+                        'data' => $workOrderInstruction
+                    ]);
+                } else {
+                    // copy work order instruction
+                    $workOrderInstruction = new WorkOrderInstructionModel();
+                    $workOrderInstruction->work_order_id = $workOrder->id;
+                    $workOrderInstruction->work_order_instruction_number = WorkOrderInstructionModel::newCode();
+                    $workOrderInstruction->date = date('Y-m-d');
+                    $workOrderInstruction->save();
+
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Work order instruction has been copied successfully.',
+                        'data' => $workOrderInstruction
+                    ]);
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to copy work order instruction.'
             ]);
         }
     }

@@ -396,6 +396,83 @@
                         },
                         className: "btn btn-outline-primary btn-sm",
                     },
+                    // add work order instruction button copy link
+                    {
+                        text: "<i class='fas fa-copy'></i> Copy Work Order Instruction",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for copying work order instruction.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // Copy the work order instruction to clipboard.
+                            let workOrderInstruction = selectedRows[0][8];
+                            // ajax request to copy work order instruction
+                            $.ajax({
+                                url: "/work-order/copy-instruction",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    work_order_instruction: workOrderInstruction
+                                },
+                                success: function(response) {
+                                    // Show success message.
+                                    if (response.status == 'success') {
+
+                                        // swal with input text copy link to clipboard
+                                        var url = window.location.origin + "/wo/" +
+                                            response.data.work_order_instruction_number
+                                        Swal.fire({
+                                            title: 'Copy Work Order Instruction',
+                                            input: 'text',
+                                            inputValue: url,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Copy',
+                                            showLoaderOnConfirm: true,
+                                            preConfirm: (value) => {
+                                                var input = document
+                                                    .createElement('input');
+                                                input.value = value;
+                                                document.body.appendChild(
+                                                    input);
+                                                input.select();
+                                                document.execCommand(
+                                                    'copy');
+                                                document.body.removeChild(
+                                                    input);
+
+                                                Swal.fire('Copied!', '',
+                                                    'success');
+                                            }
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: "Error",
+                                            text: response.message,
+                                            icon: "error",
+                                        });
+                                    }
+                                },
+                                error: function(xhr) {
+                                    // Show error message.
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: xhr.responseJSON.message,
+                                        icon: "error",
+                                    });
+                                }
+                            });
+                        },
+                        className: "btn btn-outline-secondary btn-sm",
+                    },
                 ],
                 language: getDatatablesLanguangeConfigurations("Work Order"),
                 select: true,
