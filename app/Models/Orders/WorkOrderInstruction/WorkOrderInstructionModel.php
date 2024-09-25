@@ -68,6 +68,17 @@ class WorkOrderInstructionModel extends Model implements Auditable
             });
         }
 
+        // if status is set, filter by status
+        if (!empty($request->status)) {
+            if ($request->status == 'complete') {
+                $query->whereNotNull('work_order_instructions.date_complete');
+            } else if ($request->status == 'uncomplete') {
+                $query->whereNull('work_order_instructions.date_complete');
+            } else {
+                $query->where('work_order_instructions.date_complete', $request->status);
+            }
+        }
+
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'work_order_instructions.updated_at', 'direction' => 'desc']);
     }
 

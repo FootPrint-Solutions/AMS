@@ -327,7 +327,7 @@
 
                                         Kontak Pelanggan Lewat WhatsApp <br>
                                         <a href="https://wa.me/{{ $data->workOrder->salesOrder->customer->contact }}"
-                                            target="_blank">{{ $data->workOrder->salesOrder->customer->contact }}</a>
+                                            target="_blank">+62{{ $data->workOrder->salesOrder->customer->contact }}</a>
                                         <br><br>
 
                                         <ul class="pager wizard twitter-bs-wizard-pager-link">
