@@ -250,4 +250,21 @@ class WorkOrderInstruction extends Controller
             'data' => $workOrderInstruction
         ]);
     }
+
+    public function lazyLoadList(Request $request)
+    {
+        try {
+            $workOrders = WorkOrderInstructionModel::lazyLoadList($request);
+            return response()->json([
+                'status' => true,
+                'work_orders' => $workOrders
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get work orders.'
+            ]);
+        }
+    }
 }

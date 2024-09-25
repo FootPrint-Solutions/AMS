@@ -458,11 +458,11 @@
       
             <h5>Photos</h5>
                 ${response.data.photos.map((photo, index) => `
-                                                                                                                                                          <div class="col">
-                                                                                                                                                                <h6>Step ${index + 8}</h6>
-                                                                                                                                                                <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
-                                                                                                                                                            </div>
-                                                                                                                                                    `).join('')}
+                                                                                                                                                                              <div class="col">
+                                                                                                                                                                                    <h6>Step ${index + 8}</h6>
+                                                                                                                                                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
+                                                                                                                                                                                </div>
+                                                                                                                                                                        `).join('')}
            
         </div>
         </div>
@@ -480,5 +480,35 @@
             });
 
         }
+
+        // copy-work-btn 
+        $(document).on('click', '.copy-work-btn', function() {
+            var workOrderId = $('#work_order_id_mobile').val();
+            var workOrderNumber = $('#work_order_number_mobile').val();
+            if (workOrderId) {
+                var url = window.location.origin + '/wo/' + workOrderId + '';
+                var input = document.createElement('input');
+                input.setAttribute('value', url);
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+
+                // Show success message.
+                Swal.fire({
+                    title: "Success",
+                    text: "Work order copied to clipboard.",
+                    icon: "success",
+                });
+
+            } else {
+                swal.fire({
+                    title: 'No Work Order Selected',
+                    text: 'Please select work order first',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
     </script>
 @endsection
