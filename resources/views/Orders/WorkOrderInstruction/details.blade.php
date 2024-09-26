@@ -710,9 +710,26 @@
                     cancelButtonText: 'Tidak'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        // swal loading
+                        swal.fire({
+                            title: 'Menyimpan',
+                            text: 'Mohon tunggu, sedang menyimpan perubahan',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            onBeforeOpen: () => {
+                                swal.showLoading();
+                            }
+                        });
+
                         // form submit to ajax
                         var form = $('#form')[0];
                         var formData = new FormData(form);
+
+                        // remove image 
+                        formData.delete('step8-FotoStiker');
+                        formData.delete('step9-FotoNomorProduksi');
+                        formData.delete('step9-FotoAkiDalamKapMesin');
 
                         $.ajax({
                             type: "POST",
@@ -746,5 +763,168 @@
                     }
                 });
             });
+
+
+        // when step8-FotoStiker is changed upload the image
+        $("#step8-FotoStiker").change(function() {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#step8-FotoStiker').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+
+            // swal loading upload
+            swal.fire({
+                title: 'Uploading',
+                text: 'Please wait while the image is being uploaded',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                onBeforeOpen: () => {
+                    swal.showLoading();
+                }
+            });
+
+            var form = $('#form')[0];
+            var formData = new FormData(form);
+
+            // set ket to image and append to formdata
+            formData.set('ket', 'step-8-image');
+
+            $.ajax({
+                type: "POST",
+                url: "/work-order-instruction/upload-image",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    swal.close();
+                    if (response.status == 'success') {
+                        swal.fire({
+                            title: 'Berhasil',
+                            text: 'Foto stiker berhasil diupload',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        swal.fire({
+                            title: 'Gagal',
+                            text: 'Foto stiker gagal diupload',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+
+        // when step9-FotoNomorProduksi is changed upload the image
+        $("#step9-FotoNomorProduksi").change(function() {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#step9-FotoNomorProduksi').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+
+            // swal loading upload
+            swal.fire({
+                title: 'Uploading',
+                text: 'Please wait while the image is being uploaded',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                onBeforeOpen: () => {
+                    swal.showLoading();
+                }
+            });
+
+            var form = $('#form')[0];
+            var formData = new FormData(form);
+
+            // set ket to image and append to formdata
+            formData.set('ket', 'step-9-1-image');
+
+            $.ajax({
+                type: "POST",
+                url: "/work-order-instruction/upload-image",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    swal.close();
+                    if (response.status == 'success') {
+                        swal.fire({
+                            title: 'Berhasil',
+                            text: 'Foto stiker berhasil diupload',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        swal.fire({
+                            title: 'Gagal',
+                            text: 'Foto stiker gagal diupload',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+
+        // when step9-FotoAkiDalamKapMesin is changed upload the image
+        $("#step9-FotoAkiDalamKapMesin").change(function() {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#step9-FotoAkiDalamKapMesin').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+
+            // swal loading upload
+            swal.fire({
+                title: 'Uploading',
+                text: 'Please wait while the image is being uploaded',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                onBeforeOpen: () => {
+                    swal.showLoading();
+                }
+            });
+
+            var form = $('#form')[0];
+            var formData = new FormData(form);
+
+            // set ket to image and append to formdata
+            formData.set('ket', 'step-9-2-image');
+
+            $.ajax({
+                type: "POST",
+                url: "/work-order-instruction/upload-image",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    swal.close();
+                    if (response.status == 'success') {
+                        swal.fire({
+                            title: 'Berhasil',
+                            text: 'Foto stiker berhasil diupload',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        swal.fire({
+                            title: 'Gagal',
+                            text: 'Foto stiker gagal diupload',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
     </script>
 @endsection
