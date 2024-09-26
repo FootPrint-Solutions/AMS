@@ -179,7 +179,7 @@ class WorkOrderInstruction extends Controller
             DB::beginTransaction();
 
             $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
-            $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d');
+            $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d H:i:s');
             $workOrderInstruction->save();
 
 
