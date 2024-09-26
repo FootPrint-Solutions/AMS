@@ -64,6 +64,11 @@ function formatDate($date, $format = "j M Y")
     return date_format(date_create($date), $format);
 }
 
+function formatDateTime($date, $format = "j M Y H:i")
+{
+    return date_format(date_create($date), $format);
+}
+
 /**
  * Convert a numeric price into its Indonesian terbilang representation.
  * Shout out to @cahsowan (https://gist.github.com/cahsowan/d315d54a59e4f14a6bab)!

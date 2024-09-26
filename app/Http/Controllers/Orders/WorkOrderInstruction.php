@@ -80,7 +80,7 @@ class WorkOrderInstruction extends Controller
             $row[] = $key->sales_order_number;
             $row[] = $key->work_order_instruction_number;
             $row[] = formatDate($key->date);
-            $row[] = $key->date_complete ? formatDate($key->date_complete) : '';
+            $row[] = $key->date_complete ? formatDateTime($key->date_complete) : '';
             $row[] = $key->name;
             $row[] = formatPrice($key->total);
             $row[] = $key->address;
