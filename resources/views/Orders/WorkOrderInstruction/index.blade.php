@@ -415,6 +415,8 @@
                     var baseUrl = "{{ asset('storage/image/work-order/instruction/') }}";
 
                     var html = '';
+                    var url = window.location.origin + '/wo/' + response.data.work_order_instruction_number +
+                    '';
                     html += `
     <div class="row">
         <div class="col-md-6">
@@ -451,6 +453,10 @@
                     <div class="col-md-4 font-weight-bold">Address</div>
                     <div class="col-md-8">${response.data.work_order.address}</div>
                 </div>
+                 <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Link WO Instruction</div>
+                    <div class="col-md-8">${url}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -458,11 +464,11 @@
       
             <h5>Photos</h5>
                 ${response.data.photos.map((photo, index) => `
-                                                                                                                                                                                  <div class="col">
-                                                                                                                                                                                        <h6>Step ${index + 8}</h6>
-                                                                                                                                                                                        <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
-                                                                                                                                                                                    </div>
-                                                                                                                                                                            `).join('')}
+                                                                                                                                                                                                              <div class="col">
+                                                                                                                                                                                                                    <h6>Step ${index + 8}</h6>
+                                                                                                                                                                                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
+                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                        `).join('')}
            
         </div>
         </div>
