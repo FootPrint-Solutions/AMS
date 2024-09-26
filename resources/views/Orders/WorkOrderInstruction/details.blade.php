@@ -774,6 +774,18 @@
             }
             reader.readAsDataURL(file);
 
+            // check file size if upper 500kb dont upload
+            if (file.size > 500000) {
+                swal.fire({
+                    title: 'Peringatan',
+                    text: 'Ukuran file melebihi 500kb',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                resetAllimage();
+                return;
+            }
+
             // swal loading upload
             swal.fire({
                 title: 'Uploading',
@@ -827,6 +839,17 @@
                 $('#step9-FotoNomorProduksi').attr('src', e.target.result);
             }
             reader.readAsDataURL(file);
+
+            if (file.size > 500000) {
+                swal.fire({
+                    title: 'Peringatan',
+                    text: 'Ukuran file melebihi 500kb',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                resetAllimage();
+                return;
+            }
 
             // swal loading upload
             swal.fire({
@@ -882,6 +905,17 @@
             }
             reader.readAsDataURL(file);
 
+            if (file.size > 500000) {
+                swal.fire({
+                    title: 'Peringatan',
+                    text: 'Ukuran file melebihi 500kb',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                resetAllimage();
+                return;
+            }
+
             // swal loading upload
             swal.fire({
                 title: 'Uploading',
@@ -926,5 +960,24 @@
                 }
             });
         });
+
+        // reset all image
+        function resetAllimage() {
+            $('#step8-FotoStiker').attr('src', '');
+            $('#step9-FotoNomorProduksi').attr('src', '');
+            $('#step9-FotoAkiDalamKapMesin').attr('src', '');
+
+            if ($("#step8-FotoStiker").val() != '') {
+                $("#step8-FotoStiker").val('');
+            }
+
+            if ($("#step9-FotoNomorProduksi").val() != '') {
+                $("#step9-FotoNomorProduksi").val('');
+            }
+
+            if ($("#step9-FotoAkiDalamKapMesin").val() != '') {
+                $("#step9-FotoAkiDalamKapMesin").val('');
+            }
+        }
     </script>
 @endsection
