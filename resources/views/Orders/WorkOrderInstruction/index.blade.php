@@ -61,11 +61,11 @@
                     <thead>
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">Work Order Number</th>
-                            <th scope="col">Sales Order Number</th>
-                            <th scope="col">Work Order Instruction Number</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Date Complete</th>
+                            <th scope="col">WO #</th>
+                            <th scope="col">SO #</th>
+                            <th scope="col">WO Instruction #</th>
+                            <th scope="col">Ordered Date</th>
+                            <th scope="col">Completed Date</th>
                             <th scope="col">Customer</th>
                             <th scope="col">Total (IDR)</th>
                             <th scope="col">Address</th>
@@ -458,11 +458,11 @@
       
             <h5>Photos</h5>
                 ${response.data.photos.map((photo, index) => `
-                                                                                                                                                                              <div class="col">
-                                                                                                                                                                                    <h6>Step ${index + 8}</h6>
-                                                                                                                                                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
-                                                                                                                                                                                </div>
-                                                                                                                                                                        `).join('')}
+                                                                                                                                                                                  <div class="col">
+                                                                                                                                                                                        <h6>Step ${index + 8}</h6>
+                                                                                                                                                                                        <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
+                                                                                                                                                                                    </div>
+                                                                                                                                                                            `).join('')}
            
         </div>
         </div>
