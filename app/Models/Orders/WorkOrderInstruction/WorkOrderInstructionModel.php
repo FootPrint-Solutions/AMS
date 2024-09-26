@@ -68,6 +68,17 @@ class WorkOrderInstructionModel extends Model implements Auditable
             });
         }
 
+        // if status is set, filter by status
+        if (!empty($request->status)) {
+            if ($request->status == 'complete') {
+                $query->whereNotNull('work_order_instructions.date_complete');
+            } else if ($request->status == 'uncomplete') {
+                $query->whereNull('work_order_instructions.date_complete');
+            } else {
+                $query->where('work_order_instructions.date_complete', $request->status);
+            }
+        }
+
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'work_order_instructions.updated_at', 'direction' => 'desc']);
     }
 
@@ -113,5 +124,48 @@ class WorkOrderInstructionModel extends Model implements Auditable
     public function photos(): HasMany
     {
         return $this->hasMany(WorkOrderInstructionPhotosModel::class, 'work_order_instruction_id');
+    }
+
+    public static function lazyLoadList($request)
+    {
+        $search = $request->input("search");
+        $order = $request->input("order.0.column");
+        $dir = $request->input("order.0.dir");
+        $start = $request->input("offset");
+        $length = $request->input("limit");
+
+        // get data from table work order for datatable
+        $data = self::select('work_order_instructions.id', 'work_order_instructions.work_order_instruction_number', 'work_order_instructions.date', 'work_order_instructions.date_complete', 'work_order_instructions.work_order_id', 'work_order_instructions.created_at', 'work_order_instructions.updated_at', 'work_orders.work_order_number', 'sales_orders.sales_order_number', 'customers.name', 'sales_orders.total')
+            ->join('work_orders', 'work_order_instructions.work_order_id', '=', 'work_orders.id')
+            ->join('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
+            ->join('customers', 'sales_orders.customer_id', '=', 'customers.id')
+            ->where('work_order_instructions.work_order_instruction_number', 'like', '%' . $search . '%')
+            ->orWhere('work_order_instructions.date', 'like', '%' . $search . '%')
+            ->orWhere('work_order_instructions.date_complete', 'like', '%' . $search . '%')
+            ->orWhere('work_orders.work_order_number', 'like', '%' . $search . '%')
+            ->orWhere('sales_orders.sales_order_number', 'like', '%' . $search . '%')
+            ->orWhere('customers.name', 'like', '%' . $search . '%')
+            ->orderBy('work_order_instructions.id', "desc")
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $count = self::select('work_order_instructions.id', 'work_order_instructions.work_order_instruction_number', 'work_order_instructions.date', 'work_order_instructions.date_complete', 'work_order_instructions.work_order_id', 'work_order_instructions.created_at', 'work_order_instructions.updated_at')
+            ->join('work_orders', 'work_order_instructions.work_order_id', '=', 'work_orders.id')
+            ->join('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
+            ->join('customers', 'sales_orders.customer_id', '=', 'customers.id')
+            ->where('work_order_instructions.work_order_instruction_number', 'like', '%' . $search . '%')
+            ->orWhere('work_order_instructions.date', 'like', '%' . $search . '%')
+            ->orWhere('work_order_instructions.date_complete', 'like', '%' . $search . '%')
+            ->orWhere('work_orders.work_order_number', 'like', '%' . $search . '%')
+            ->orWhere('sales_orders.sales_order_number', 'like', '%' . $search . '%')
+            ->orWhere('customers.name', 'like', '%' . $search . '%')
+            ->count();
+
+
+        return [
+            'row' => $data,
+            'count' => $count
+        ];
     }
 }

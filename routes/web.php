@@ -392,6 +392,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
     Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);
     Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update']);
+    Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail']);
+    Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList']);
+    Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Orders;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 // Models
-use App\Http\Controllers\Controller;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
 
@@ -169,6 +170,10 @@ class WorkOrderInstruction extends Controller
     public function update(Request $request)
     {
         try {
+
+            // db transaction
+            DB::beginTransaction();
+
             // Retrieve the images from the request
             $image1 = $request->file('step8-FotoStiker');
             $image2 = $request->file('step9-FotoNomorProduksi');
@@ -218,17 +223,47 @@ class WorkOrderInstruction extends Controller
                 ]
             );
 
+            DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Work Order Instruction has been updated',
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             // Log the error
             Log::error($th);
 
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Failed to update Work Order Instruction',
+            ]);
+        }
+    }
+
+    public function detail(Request $request)
+    {
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder', 'photos')->find($request->work_order_id);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Work Order Instruction data',
+            'data' => $workOrderInstruction
+        ]);
+    }
+
+    public function lazyLoadList(Request $request)
+    {
+        try {
+            $workOrders = WorkOrderInstructionModel::lazyLoadList($request);
+            return response()->json([
+                'status' => true,
+                'work_orders' => $workOrders
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get work orders.'
             ]);
         }
     }

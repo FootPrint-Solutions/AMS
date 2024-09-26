@@ -131,7 +131,7 @@
                                 <input type="hidden" name="work_order_instruction_id" id="work_order_instruction_id"
                                     value="{{ $data->id }}">
                                 <div class="tab-pane active" id="step-1" style="display: block;">
-                                    <h5>Detail Pesanan</h5>
+                                    <h5>1. Detail Pesanan</h5>
 
                                     <div class="row">
                                         <div class="col-lg-6">
@@ -188,7 +188,7 @@
                                 <div class="tab-pane" id="step-2" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Siapkan Peralatan</h5>
+                                            <h5>2. Siapkan Peralatan</h5>
                                         </div>
 
 
@@ -255,7 +255,7 @@
                                 <div class="tab-pane" id="step-3" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Kenakan Jaket Akikita</h5>
+                                            <h5>3. Kenakan Jaket Akikita</h5>
                                         </div>
 
 
@@ -273,7 +273,7 @@
                                 <div class="tab-pane" id="step-4" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Siapkan Google Maps</h5>
+                                            <h5>4. Siapkan Google Maps</h5>
                                         </div>
 
 
@@ -297,7 +297,7 @@
                                 <div class="tab-pane" id="step-5" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Nyalakan Sharing Lokasi</h5>
+                                            <h5>5. Nyalakan Sharing Lokasi</h5>
                                         </div>
 
 
@@ -318,7 +318,7 @@
                                 <div class="tab-pane" id="step-6" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Menuju Pelanggan</h5>
+                                            <h5>6. Menuju Pelanggan</h5>
                                         </div>
 
                                         Nama Pelanggan: {{ $data->workOrder->customer->name }} <br>
@@ -327,7 +327,7 @@
 
                                         Kontak Pelanggan Lewat WhatsApp <br>
                                         <a href="https://wa.me/{{ $data->workOrder->salesOrder->customer->contact }}"
-                                            target="_blank">{{ $data->workOrder->salesOrder->customer->contact }}</a>
+                                            target="_blank">+62{{ $data->workOrder->salesOrder->customer->contact }}</a>
                                         <br><br>
 
                                         <ul class="pager wizard twitter-bs-wizard-pager-link">
@@ -344,7 +344,7 @@
                                 <div class="tab-pane" id="step-7" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Ganti Aki Pelanggan</h5>
+                                            <h5>7. Ganti Aki Pelanggan</h5>
                                         </div>
 
 
@@ -426,7 +426,7 @@
                                 <div class="tab-pane" id="step-8" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Tempelkan Stiker Akikita</h5>
+                                            <h5>8. Tempelkan Stiker Akikita</h5>
                                         </div>
 
 
@@ -485,7 +485,7 @@
                                 <div class="tab-pane" id="step-9" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Foto 2 Bukti Instalasi</h5>
+                                            <h5>9. Foto 2 Bukti Instalasi</h5>
                                         </div>
 
 
@@ -558,7 +558,7 @@
                                 <div class="tab-pane" id="step-10" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Tunggu Pembayaran</h5>
+                                            <h5>10. Tunggu Pembayaran</h5>
                                         </div>
 
                                         Kabarkan akikita di whatsapp, bahwa instalasi selesai. Lalu tunggu setelah
@@ -579,7 +579,7 @@
                                 <div class="tab-pane" id="step-11" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Kembali ke Kantor</h5>
+                                            <h5>11. Kembali ke Kantor</h5>
                                         </div>
 
                                         Klik link dibawah ini untuk membuka Google Maps <br>
@@ -610,7 +610,7 @@
                                 <div class="tab-pane" id="step-12" style="display: none; opacity: 1;">
                                     <div>
                                         <div class="mb-4">
-                                            <h5>Selesaikan Work Order</h5>
+                                            <h5>12. Selesaikan Work Order</h5>
                                         </div>
 
                                         <ul class="pager wizard twitter-bs-wizard-pager-link">

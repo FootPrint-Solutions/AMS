@@ -2,65 +2,100 @@
 
 @section('content')
     {{-- Form --}}
-
-    <div class="card">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h3 class="page-title">Work Order Instruction
-                    </h3>
+    <div class="d-none d-lg-block">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Work Order Instruction
+                        </h3>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="card-body">
-            {{-- filter tanggal --}}
-            <div class="row mt-2">
-                <div class="col-md-1 d-flex align-items-center">
-                    Date
-                </div>
+            <div class="card-body">
+                {{-- filter tanggal --}}
+                <div class="row mt-2">
+                    <div class="col-md-1 d-flex align-items-center">
+                        Date
+                    </div>
 
-                <div class="col-md-4">
-                    <div class="row align-items-center">
-                        <div class="col-5">
-                            <input type="date" class="form-control" id="input-work-order-instruction-date-start"
-                                onchange="reloadTable()">
+                    <div class="col-md-4">
+                        <div class="row align-items-center">
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-work-order-instruction-date-start"
+                                    onchange="reloadTable()">
+                            </div>
+                            <div class="col-2 text-center">
+                                to
+                            </div>
+                            <div class="col-5">
+                                <input type="date" class="form-control" id="input-work-order-instruction-date-end"
+                                    onchange="reloadTable()">
+                            </div>
                         </div>
-                        <div class="col-2 text-center">
-                            to
-                        </div>
-                        <div class="col-5">
-                            <input type="date" class="form-control" id="input-work-order-instruction-date-end"
-                                onchange="reloadTable()">
+                    </div>
+
+                    <div class="col-md-1"></div>
+
+                    {{-- filter status complete --}}
+                    <div class="col-md-1 d-flex align-items-center">
+                        Status
+                    </div>
+
+                    <div class="col-md-5 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <select class="form-select" id="input-work-order-instruction-status" onchange="reloadTable()">
+                                <option value="">All Status</option>
+                                <option value="complete">Complete</option>
+                                <option value="uncomplete">Uncomplete</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-1"></div>
-
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                {{-- Table --}}
+                <table class="table table-striped" id="table-work-order-instruction">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Sales Order Number</th>
+                            <th scope="col">Work Order Instruction Number</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Date Complete</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Total (IDR)</th>
+                            <th scope="col">Address</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-body">
-            {{-- Table --}}
-            <table class="table table-striped" id="table-work-order-instruction">
-                <thead>
-                    <tr>
-                        <th scope="col" class="table-col-no">#</th>
-                        <th scope="col">Work Order Number</th>
-                        <th scope="col">Sales Order Number</th>
-                        <th scope="col">Work Order Instruction Number</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Date Complete</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Total (IDR)</th>
-                        <th scope="col">Address</th>
-                    </tr>
-                </thead>
-            </table>
+
+    @include('Mobile.Orders.WorkOrderInstruction.index')
+
+    {{-- modal detail --}}
+    <div class="modal fade" id="modal-detail" tabindex="-1" aria-labelledby="modal-detail" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Work Order Instruction Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-detail-body">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 
 
     <script>
@@ -86,6 +121,9 @@
                             .value;
                         d.dateEnd = document.getElementById('input-work-order-instruction-date-end')
                             .value;
+                        d.status = document.getElementById('input-work-order-instruction-status')
+                            .value;
+
                     }
                 },
                 columnDefs: [{
@@ -123,7 +161,7 @@
                     },
                     // add copy button to copy work order
                     {
-                        text: "<i class='fas fa-copy'></i> Copy Work Order",
+                        text: "<i class='fas fa-copy'></i> Copy WO Instruction",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
@@ -173,18 +211,39 @@
                         },
                         className: "btn btn-outline-primary btn-sm",
                     },
+                    // add view details button
+                    {
+                        text: "<i class='fas fa-eye'></i> View Details",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for viewing work order details.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            showModalDetail(selectedRows[0][9]);
+                        },
+                        className: "btn btn-outline-info btn-sm",
+                    },
                 ],
                 language: getDatatablesLanguangeConfigurations("Work Order Instruction"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[9] == "posted")
-                        $('td', row).addClass("text-success");
+                    if (data[5] != null && data[5] != "")
+                        $('td', row).addClass("text-info");
                     else if (data[9] == "completed")
                         $('td', row).addClass("text-info");
 
                     // double click to show modal detail
                     $(row).on('dblclick', function() {
-                        showModalDetail(data[8]);
+                        showModalDetail(selectedRows[0][9]);
                     });
                 }
             });
@@ -247,42 +306,12 @@
                     }
                 });
             }
-
-            function showModalDetail(id) {
-                $('#modal-detail').modal('show');
-                $('#modal-detail-body').html(`
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                `);
-                // ajax request to get work order detail
-                $.ajax({
-                    url: "/work-order-instruction/detail",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        work_order_id: id
-                    },
-                    success: function(response) {
-                        $('#modal-detail-body').html(response);
-                    },
-                    error: function(xhr) {
-                        $('#modal-detail-body').html(`
-                                    <div class="text-center">
-                                        <p class="text-danger">Failed to load work order detail.</p>
-                                    </div>
-                                `);
-                    }
-                });
-
-            }
         });
 
         function reloadTable() {
             var dateStart = document.getElementById('input-work-order-instruction-date-start').value;
             var dateEnd = document.getElementById('input-work-order-instruction-date-end').value;
+            var status = document.getElementById('input-work-order-instruction-status').value;
 
             // Reload the table.
             table.ajax.reload(null, false);
@@ -363,6 +392,123 @@
             // redirect to print technician report
             window.location = "/work-order-instruction/print-technician-report/" + workOrderId + "/" +
                 selectionPrintTechnicianReport;
+        });
+
+        function showModalDetail(id) {
+            $('#modal-detail').modal('show');
+            $('#modal-detail-body').html(`
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `);
+            // ajax request to get work order detail
+            $.ajax({
+                url: "/work-order-instruction/detail",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    work_order_id: id
+                },
+                success: function(response) {
+                    var baseUrl = "{{ asset('storage/image/work-order/instruction/') }}";
+
+                    var html = '';
+                    html += `
+    <div class="row">
+        <div class="col-md-6">
+            <div class="info-section">
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Work Order Number</div>
+                    <div class="col-md-8">${response.data.work_order.work_order_number}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Sales Order Number</div>
+                    <div class="col-md-8">${response.data.work_order.sales_order_id}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Work Order Instruction Number</div>
+                    <div class="col-md-8">${response.data.work_order_instruction_number}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Date</div>
+                    <div class="col-md-8">${response.data.date}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Date Complete</div>
+                    <div class="col-md-8">${response.data.date_complete}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Customer</div>
+                    <div class="col-md-8">${response.data.work_order.customer_id}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Total (IDR)</div>
+                    <div class="col-md-8">${response.data.work_order.total}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 font-weight-bold">Address</div>
+                    <div class="col-md-8">${response.data.work_order.address}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+      
+            <h5>Photos</h5>
+                ${response.data.photos.map((photo, index) => `
+                                                                                                                                                                              <div class="col">
+                                                                                                                                                                                    <h6>Step ${index + 8}</h6>
+                                                                                                                                                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
+                                                                                                                                                                                </div>
+                                                                                                                                                                        `).join('')}
+           
+        </div>
+        </div>
+`;
+
+                    $('#modal-detail-body').html(html);
+                },
+                error: function(xhr) {
+                    $('#modal-detail-body').html(`
+                                <div class="text-center">
+                                    <p class="text-danger">Failed to load work order detail.</p>
+                                </div>
+                            `);
+                }
+            });
+
+        }
+
+        // copy-work-btn 
+        $(document).on('click', '.copy-work-btn', function() {
+            var workOrderId = $('#work_order_id_mobile').val();
+            var workOrderNumber = $('#work_order_number_mobile').val();
+            if (workOrderId) {
+                var url = window.location.origin + '/wo/' + workOrderId + '';
+                var input = document.createElement('input');
+                input.setAttribute('value', url);
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+
+                // Show success message.
+                Swal.fire({
+                    title: "Success",
+                    text: "Work order copied to clipboard.",
+                    icon: "success",
+                });
+
+            } else {
+                swal.fire({
+                    title: 'No Work Order Selected',
+                    text: 'Please select work order first',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            }
         });
     </script>
 @endsection
