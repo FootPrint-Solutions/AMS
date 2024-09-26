@@ -464,11 +464,13 @@
       
             <h5>Photos</h5>
                 ${response.data.photos.map((photo, index) => `
-                                                                                                                                                                                                                  <div class="col">
-                                                                                                                                                                                                                       
-                                                                                                                                                                                                                        <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
-                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                            `).join('')}
+                                                <div class="col">
+                                                    ${photo.step === 'step8' ? '<h6>Sticker Akikita Photo</h6>' : ''}
+                                                    ${photo.step === 'step9' ? '<h6>Battery Production Number Photo</h6>' : ''}
+                                                    ${photo.step === 'step9-2' ? '<h6>Photo of battery under hood with vehicle license plate</h6>' : ''}
+                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
+                                                </div>
+                                            `).join('')}
            
         </div>
         </div>

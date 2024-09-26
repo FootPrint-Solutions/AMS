@@ -179,7 +179,7 @@ class WorkOrderInstruction extends Controller
             DB::beginTransaction();
 
             $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
-            $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d');
+            $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d H:i:s');
             $workOrderInstruction->save();
 
 
@@ -197,6 +197,8 @@ class WorkOrderInstruction extends Controller
                 [
                     'work_order_instruction_id' => $request->work_order_instruction_id,
                     'step' => 'step9',
+                ],
+                [
                     'image' => session('step-9-1')
                 ]
             );
@@ -204,7 +206,9 @@ class WorkOrderInstruction extends Controller
             WorkOrderInstructionPhotosModel::updateOrCreate(
                 [
                     'work_order_instruction_id' => $request->work_order_instruction_id,
-                    'step' => 'step9',
+                    'step' => 'step9-2',
+                ],
+                [
                     'image' => session('step-9-2')
                 ]
             );
