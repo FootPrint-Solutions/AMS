@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
 
+use Intervention\Image\Facades\Image;
+
 class WorkOrderInstruction extends Controller
 {
     private $title = 'Work Order Instruction';
@@ -269,18 +271,45 @@ class WorkOrderInstruction extends Controller
             if ($ket == 'step-8-image') {
                 if ($image1) {
                     $image1->move(public_path('storage/image/work-order/instruction'), $image1->getClientOriginalName());
+
+                    // compress image if size > 1MB
+                    $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    if ($img->filesize() > 1000000) {
+                        $img->resize(500, NULL, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    }
                 }
 
                 session(['step-8' => $image1->getClientOriginalName()]);
             } else if ($ket == 'step-9-1-image') {
                 if ($image2) {
                     $image2->move(public_path('storage/image/work-order/instruction'), $image2->getClientOriginalName());
+
+                    // compress image if size > 1MB
+                    $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    if ($img->filesize() > 1000000) {
+                        $img->resize(500, NULL, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    }
                 }
 
                 session(['step-9-1' => $image2->getClientOriginalName()]);
             } else if ($ket == 'step-9-2-image') {
                 if ($image3) {
                     $image3->move(public_path('storage/image/work-order/instruction'), $image3->getClientOriginalName());
+
+                    // compress image if size > 1MB
+                    $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    if ($img->filesize() > 1000000) {
+                        $img->resize(500, NULL, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
+                    }
                 }
 
                 session(['step-9-2' => $image3->getClientOriginalName()]);
