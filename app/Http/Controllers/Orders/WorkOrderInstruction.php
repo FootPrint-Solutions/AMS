@@ -113,6 +113,10 @@ class WorkOrderInstruction extends Controller
         if ($id == "login") {
             return redirect()->route('login');
         } else {
+            // uniq id to work order instruction number
+            $temp = $id . '' . rand(1000, 9999);
+            session(['temp_wo_instruction' => $temp]);
+
             $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
             // dd($workOrderInstruction);
             return view(
@@ -174,24 +178,6 @@ class WorkOrderInstruction extends Controller
             // db transaction
             DB::beginTransaction();
 
-            // Retrieve the images from the request
-            $image1 = $request->file('step8-FotoStiker');
-            $image2 = $request->file('step9-FotoNomorProduksi');
-            $image3 = $request->file('step9-FotoAkiDalamKapMesin');
-
-            if ($image1) {
-                $image1->move(public_path('storage/image/work-order/instruction'), $image1->getClientOriginalName());
-            }
-
-            if ($image2) {
-                $image2->move(public_path('storage/image/work-order/instruction'), $image2->getClientOriginalName());
-            }
-
-            if ($image3) {
-                $image3->move(public_path('storage/image/work-order/instruction'), $image3->getClientOriginalName());
-            }
-
-
             $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
             $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d');
             $workOrderInstruction->save();
@@ -203,7 +189,7 @@ class WorkOrderInstruction extends Controller
                     'step' => 'step8'
                 ],
                 [
-                    'image' => $image1->getClientOriginalName()
+                    'image' => session('step-8')
                 ]
             );
 
@@ -211,7 +197,7 @@ class WorkOrderInstruction extends Controller
                 [
                     'work_order_instruction_id' => $request->work_order_instruction_id,
                     'step' => 'step9',
-                    'image' => $image2->getClientOriginalName()
+                    'image' => session('step-9-1')
                 ]
             );
 
@@ -219,7 +205,7 @@ class WorkOrderInstruction extends Controller
                 [
                     'work_order_instruction_id' => $request->work_order_instruction_id,
                     'step' => 'step9',
-                    'image' => $image3->getClientOriginalName()
+                    'image' => session('step-9-2')
                 ]
             );
 
@@ -264,6 +250,48 @@ class WorkOrderInstruction extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to get work orders.'
+            ]);
+        }
+    }
+
+    public function uploadImage(Request $request)
+    {
+        try {
+            $image1 = $request->file('step8-FotoStiker');
+            $image2 = $request->file('step9-FotoNomorProduksi');
+            $image3 = $request->file('step9-FotoAkiDalamKapMesin');
+            $ket = $request->input('ket');
+
+            if ($ket == 'step-8-image') {
+                if ($image1) {
+                    $image1->move(public_path('storage/image/work-order/instruction'), $image1->getClientOriginalName());
+                }
+
+                session(['step-8' => $image1->getClientOriginalName()]);
+            } else if ($ket == 'step-9-1-image') {
+                if ($image2) {
+                    $image2->move(public_path('storage/image/work-order/instruction'), $image2->getClientOriginalName());
+                }
+
+                session(['step-9-1' => $image2->getClientOriginalName()]);
+            } else if ($ket == 'step-9-2-image') {
+                if ($image3) {
+                    $image3->move(public_path('storage/image/work-order/instruction'), $image3->getClientOriginalName());
+                }
+
+                session(['step-9-2' => $image3->getClientOriginalName()]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Image uploaded successfully',
+                'data' =>  $request->all()
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to upload image' . $th->getMessage()
             ]);
         }
     }
