@@ -139,12 +139,19 @@ class WorkOrderInstruction extends Controller
      */
     public function destroy(Request $request)
     {
-        $workOrderInstruction = WorkOrderInstructionModel::find($request->id);
-        $workOrderInstruction->delete();
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Work Order Instruction has been deleted'
-        ]);
+        $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_id);
+        if ($workOrderInstruction) {
+            $workOrderInstruction->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Work Order Instruction has been deleted'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Work Order Instruction not found'
+            ], 404);
+        }
     }
 
     /**
@@ -275,7 +282,7 @@ class WorkOrderInstruction extends Controller
                     // compress image if size > 1MB
                     $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
                     if ($img->filesize() > 1000000) {
-                        $img->resize(500, NULL, function ($constraint) {
+                        $img->resize(100, 100, function ($constraint) {
                             $constraint->aspectRatio();
                         });
                         $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
@@ -290,7 +297,7 @@ class WorkOrderInstruction extends Controller
                     // compress image if size > 1MB
                     $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
                     if ($img->filesize() > 1000000) {
-                        $img->resize(500, NULL, function ($constraint) {
+                        $img->resize(100, 100, function ($constraint) {
                             $constraint->aspectRatio();
                         });
                         $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
@@ -305,7 +312,7 @@ class WorkOrderInstruction extends Controller
                     // compress image if size > 1MB
                     $img = Image::make(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
                     if ($img->filesize() > 1000000) {
-                        $img->resize(500, NULL, function ($constraint) {
+                        $img->resize(100, 100, function ($constraint) {
                             $constraint->aspectRatio();
                         });
                         $img->save(public_path('storage/image/work-order/instruction/' . $image1->getClientOriginalName()));
