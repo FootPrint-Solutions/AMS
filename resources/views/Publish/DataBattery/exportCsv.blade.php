@@ -22,6 +22,7 @@
 <table>
     <thead>
         <tr>
+            <th>Battery Name</th>
             <th>Battery Size</th>
             <th>Brands & Names</th>
             <th>Years</th>
@@ -40,6 +41,9 @@
 
         @foreach ($groupedData as $batterySize => $items)
             <tr>
+                <td>
+                    {{ $items->first()[10] }}
+                </td>
                 <td>{{ $batterySize }}</td>
                 <td>
                     @php

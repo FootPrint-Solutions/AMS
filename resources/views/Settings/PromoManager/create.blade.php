@@ -74,7 +74,7 @@
                         <div class="col">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="battery-discount-all">
-                                <span class="input-group-text border-end">%</span>
+                                <span class="input-group-text border-end">Rp</span>
                             </div>
                         </div>
 
@@ -142,15 +142,16 @@
                                 <td>
                                     {{-- Discount Percentage --}}
                                     <div class="input-group">
-                                        <input type="text" class="form-control battery-discount"
-                                            id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
-                                            placeholder="Enter battery discount"
-                                            @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
-                                        <span class="input-group-text border-end">%</span>
+                                        <input type="text" class="form-control text-end battery-discountprice"
+                                            id="battery-discountprice-{{ $counter }}" name="batteriesdiscprice[]"
+                                            @isset($data['profile']['batteries']) value="{{ $battery['discount_price'] }}" @endisset>
+                                        <span class="input-group-text border-end">Rp</span>
                                     </div>
 
-                                    <input type="hidden" class="form-control text-end battery-discountprice"
-                                        id="battery-discountprice-{{ $counter }}" name="batteriesdiscprice[]">
+                                    <input type="hidden" class="form-control battery-discount"
+                                        id="battery-discount-{{ $counter }}" name="batteriesdisc[]"
+                                        placeholder="Enter battery discount"
+                                        @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
                                 </td>
 
                                 {{-- Net Price & Delete --}}
@@ -360,7 +361,7 @@
             });
         });
 
-        $(document).on("change keyup", ".battery-discount", function() {
+        $(document).on("change keyup", ".battery-discount, .battery-discountprice", function() {
             // Validate input value.
             let value = parseInt($(this).val(), 10);
             if (isNaN(value)) {
@@ -380,7 +381,7 @@
     <script>
         $(document).ready(function() {
             $("#btn-apply-discount").on('click', function() {
-                $(".battery-discount").val($("#battery-discount-all").val());
+                $(".battery-discountprice").val($("#battery-discount-all").val());
 
                 // Calculate the price based on applied discount.
                 $(".battery-discount").each(function() {
@@ -479,13 +480,23 @@
          */
         function calculatePriceDiscount(counter) {
             let priceRetail = parseInt($('#battery-priceretail-' + counter).val().replace(/\D/g, ''));
-            let discount = parseInt($('#battery-discount-' + counter).val());
-            let discountPrice = priceRetail * discount / 100;
+            let discount = parseInt($('#battery-discountprice-' + counter).val());
 
-            $("#battery-discountprice-" + counter).val(discountPrice);
-            $('#battery-pricenet-' + counter).val(priceRetail - discountPrice);
+            // No need to calculate percentage, just subtract the discount amount
+            let netPrice = priceRetail - discount;
 
-            formatPrice($(".battery-pricenet"));
+            // count the discount percentage
+            let discountPercentage = (discount / priceRetail) * 100;
+
+
+            // Set the calculated net price
+            $('#battery-pricenet-' + counter).val(netPrice);
+
+            // set the discount percentage
+            $('#battery-discount-' + counter).val(discountPercentage);
+
+            // Format the net price to display in a currency format
+            formatPrice($("#battery-pricenet-" + counter));
         }
 
         /**
