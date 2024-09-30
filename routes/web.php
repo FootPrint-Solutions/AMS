@@ -40,6 +40,7 @@ use App\Http\Controllers\Settings\MessageTemplate;
 use App\Http\Controllers\Settings\PaymentMethod;
 use App\Http\Controllers\Settings\PrintTemplate;
 use App\Http\Controllers\Settings\ImportTemplate;
+use App\Http\Controllers\Settings\UserManager;
 
 
 // ADMIN
@@ -396,6 +397,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList']);
     Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy']);
     Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage']);
+
+    // user manager 
+    Route::get('/user-manager', [UserManager::class, 'index']);
+    Route::post('/user-manager/show', [UserManager::class, 'show']);
+    Route::get('/user-manager/edit/{id}', [UserManager::class, 'edit']);
+    Route::post('/user-manager/destroy', [UserManager::class, 'destroy']);
+    Route::post('/user-manager/update', [UserManager::class, 'update']);
+    Route::get('/user-manager/create', [UserManager::class, 'create']);
+    Route::post('/user-manager/store', [UserManager::class, 'store']);
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
