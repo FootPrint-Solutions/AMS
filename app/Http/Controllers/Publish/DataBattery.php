@@ -488,6 +488,16 @@ class DataBattery extends Controller
         // get all data from excell start from row 2
         $data = $sheet->rangeToArray('A2:J' . $sheet->getHighestRow());
 
+        // get battery name from battery size category
+        foreach ($data as $key => $value) {
+            $battery = BatterySizeCategoryModel::where('name', $value[6])->with('batteries')->first();
+            $dataBatteryName = [];
+            foreach ($battery->batteries as $bat) {
+                $dataBatteryName[] = $bat->name;
+            }
+
+            $data[$key][10] = implode(', ', $dataBatteryName);
+        }
 
         $battery = BatteryModel::with('vehicleBatteryBelong')->get();
         return view('Publish.DataBattery.exportCsv', compact('battery', 'data'));
