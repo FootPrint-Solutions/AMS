@@ -387,7 +387,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially']);
 
     // Work Order Instruction
-    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index']);
+    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index');
     Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
     Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
     Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);

@@ -84,8 +84,8 @@ class WorkOrderInstruction extends Controller
             $row[] = formatDate($key->date);
             $row[] = $key->date_complete ? formatDateTime($key->date_complete) : '';
             $row[] = $key->name;
-            $row[] = formatPrice($key->total);
             $row[] = $key->address;
+            $row[] = $key->updated_by;
             $row[] = $key->id;
             $row[] = $key->status;
             $rows[] = $row;
@@ -114,21 +114,29 @@ class WorkOrderInstruction extends Controller
     {
         if ($id == "login") {
             return redirect()->route('login');
-        } else {
-            // uniq id to work order instruction number
-            $temp = $id . '' . rand(1000, 9999);
-            session(['temp_wo_instruction' => $temp]);
-
-            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
-            // dd($workOrderInstruction);
-            return view(
-                'Orders.WorkOrderInstruction.details',
-                getIndexData(
-                    $this->title,
-                    $workOrderInstruction
-                )
-            );
         }
+
+        // Generate a unique work order instruction number
+        session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
+
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')
+            ->where('work_order_instruction_number', $id)
+            ->first();
+
+        if (!$workOrderInstruction) {
+            return redirect()->route('work-order-instruction.index')
+                ->with('error', 'Work Order Instruction not found');
+        }
+
+        if ($workOrderInstruction->date_complete) {
+            return redirect()->route('work-order-instruction.index')
+                ->with('error', 'Work Order Instruction has been completed');
+        }
+
+        return view(
+            'Orders.WorkOrderInstruction.details',
+            getIndexData($this->title, $workOrderInstruction)
+        );
     }
 
     /**
@@ -242,7 +250,7 @@ class WorkOrderInstruction extends Controller
 
     public function detail(Request $request)
     {
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder', 'photos')->find($request->work_order_id);
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder', 'photos', 'updatedBy')->find($request->work_order_id);
         return response()->json([
             'status' => 'success',
             'message' => 'Work Order Instruction data',

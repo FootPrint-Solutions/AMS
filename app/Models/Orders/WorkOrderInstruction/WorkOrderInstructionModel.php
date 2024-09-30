@@ -12,14 +12,16 @@ use OwenIt\Auditing\Contracts\Auditable;
 // TRAITS
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use App\Traits\TracksUpdates;
 
 // MODEL
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
+use App\Models\User;
 
 class WorkOrderInstructionModel extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
+    use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait, TracksUpdates;
 
     /**
      * The table associated with the model.
@@ -40,6 +42,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'sales_orders.address',
             'work_order_instructions.work_order_instruction_number',
             'work_order_instructions.date_complete',
+            'users.name as updated_by',
         ];
 
         $searchColumns = [
@@ -51,13 +54,16 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'work_orders.total',
             'sales_orders.address',
             'work_order_instructions.date_complete',
+            'users.name',
         ];
 
         $query = self::query();
         $query->select($selectColumns)
             ->join('work_orders', 'work_order_instructions.work_order_id', '=', 'work_orders.id')
             ->join('sales_orders', 'work_orders.sales_order_id', '=', 'sales_orders.id')
-            ->join('customers', 'sales_orders.customer_id', '=', 'customers.id');
+            ->join('customers', 'sales_orders.customer_id', '=', 'customers.id')
+            ->leftJoin('users', 'work_order_instructions.updated_by', '=', 'users.id');
+
 
         if (!empty($request->search['value'])) {
             $searchValue = $request->search['value'];
@@ -167,5 +173,11 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'row' => $data,
             'count' => $count
         ];
+    }
+
+    // user relationship
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

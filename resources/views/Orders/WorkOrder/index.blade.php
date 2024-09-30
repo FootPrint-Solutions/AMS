@@ -398,7 +398,7 @@
                     },
                     // add work order instruction button copy link
                     {
-                        text: "<i class='fas fa-copy'></i> Copy WO Instruction",
+                        text: "<i class='fas fa-copy'></i> Copy & Add WO Instruction",
                         action: function(e, dt, node, config) {
                             // Get the selected row's id.
                             let selectedRows = table.rows({
