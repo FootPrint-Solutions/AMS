@@ -26,7 +26,7 @@
                 @isset($data['profile'])
                 @else
                     <div class="alert alert-warning" role="alert">
-                        <strong>Warning!</strong> New account password is username + 123.
+                        <strong>Warning!</strong> New account password is same like username.
                     </div>
                 @endisset
 
