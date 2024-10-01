@@ -194,7 +194,7 @@ class UserManager extends Controller
                 'name' => $request->input('name'),
                 'username' => $request->input('username'),
                 'email' => $request->input('email'),
-                'password' => Hash::make($request->input('username') . "123"),
+                'password' => Hash::make($request->input('username')),
                 'level' => $request->input('role'),
             );
 
