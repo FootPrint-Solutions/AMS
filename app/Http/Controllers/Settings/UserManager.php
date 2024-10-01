@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Log;
 
 // MODEL
 use App\Models\Settings\UserManagerModel;
+use App\Models\MenuParent;
+use App\Models\Menu;
 
 class UserManager extends Controller
 {
@@ -46,7 +48,10 @@ class UserManager extends Controller
         return view(
             "Settings.UserManager.create",
             getIndexData(
-                $this->title
+                $this->title,
+                array(
+                    'menu_parent' => MenuParent::with('menus')->orderBy('order', 'asc')->get(),
+                )
             )
         );
     }
@@ -62,6 +67,7 @@ class UserManager extends Controller
         return view('Settings.UserManager.create', array(
             'data' => array(
                 'profile' => UserManagerModel::find($id)->toArray(),
+                'menu_parent' => MenuParent::with('menus')->orderBy('order', 'asc')->get(),
             )
         ));
     }
@@ -149,8 +155,15 @@ class UserManager extends Controller
     {
         DB::beginTransaction();
         $id = $request->input('id');
+        $permission = '';
+
+        foreach ($request->input('permission') as $key) {
+            $permission .= $key . '|';
+        }
+
         $data = array(
             'level' => $request->input('role'),
+            'permission' => $permission
         );
 
         try {
@@ -190,12 +203,19 @@ class UserManager extends Controller
     {
         DB::beginTransaction();
         try {
+            $permission = '';
+
+            foreach ($request->input('permission') as $key) {
+                $permission .= $key . '|';
+            }
+
             $data = array(
                 'name' => $request->input('name'),
                 'username' => $request->input('username'),
                 'email' => $request->input('email'),
                 'password' => Hash::make($request->input('username')),
                 'level' => $request->input('role'),
+                'permission' => $permission
             );
 
             UserManagerModel::create($data);
