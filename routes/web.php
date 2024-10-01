@@ -82,6 +82,8 @@ use App\Http\Controllers\Orders\WorkOrderInstruction;
 |
 */
 
+// view_vehicle|add_vehicle|edit_vehicle|delete_vehicle|view_battery|add_battery|edit_battery|delete_battery|view_distributor|add_distributor|edit_distributor|delete_distributor|view_work_order_instruction|add_work_order_instruction|edit_work_order_instruction|delete_work_order_instruction|view_quick_quotation|add_quick_quotation|edit_quick_quotation|delete_quick_quotation|view_sales_order|add_sales_order|edit_sales_order|delete_sales_order|view_work_order|add_work_order|edit_work_order|delete_work_order|view_tracking_technician|add_tracking_technician|edit_tracking_technician|delete_tracking_technician|view_inventory|add_inventory|edit_inventory|delete_inventory|view_category_(_online_)|add_category_(_online_)|edit_category_(_online_)|delete_category_(_online_)|view_battery_(_online_)|add_battery_(_online_)|edit_battery_(_online_)|delete_battery_(_online_)|view_sales_(_online_)|add_sales_(_online_)|edit_sales_(_online_)|delete_sales_(_online_)|view_message_templates|add_message_templates|edit_message_templates|delete_message_templates|view_tax|add_tax|edit_tax|delete_tax|view_promo|add_promo|edit_promo|delete_promo|view_payment_method|add_payment_method|edit_payment_method|delete_payment_method|view_user_manager|add_user_manager|edit_user_manager|delete_user_manager|view_print_templates|add_print_templates|edit_print_templates|delete_print_templates|view_menu_manager|add_menu_manager|edit_menu_manager|delete_menu_manager|
+
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
     Route::get('/', [Dashboard::class, 'index']);
@@ -94,318 +96,318 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/company/update', [Company::class, 'update'])->name('company.update');
 
     // Customer
-    Route::get('/customer', [Customer::class, 'index']);
-    Route::post('/customer/show', [Customer::class, 'show'])->name('customer.show');
-    Route::get('/customer/create', [Customer::class, 'create']);
-    Route::get('/customer/edit/{id}', [Customer::class, 'edit'])->name('customer.edit');
-    Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store');
-    Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update');
-    Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle');
+    Route::get('/customer', [Customer::class, 'index'])->name('customer.index')->middleware('permission:view_customer');
+    Route::post('/customer/show', [Customer::class, 'show'])->name('customer.show')->middleware('permission:view_customer');
+    Route::get('/customer/create', [Customer::class, 'create'])->middleware('permission:add_customer');
+    Route::get('/customer/edit/{id}', [Customer::class, 'edit'])->name('customer.edit')->middleware('permission:edit_customer');
+    Route::post('/customer/store', [Customer::class, 'store'])->name('customer.store')->middleware('permission:add_customer');
+    Route::post('/customer/update', [Customer::class, 'update'])->name('customer.update')->middleware('permission:edit_customer');
+    Route::post('/customer/toggle', [Customer::class, 'updateStatus'])->name('customer.toggle')->middleware('permission:edit_customer');
 
     // Vehicle
-    Route::get('/vehicle', [Vehicle::class, 'index'])->name('vehicle.index');
-    Route::post('/vehicle/show', [Vehicle::class, 'show'])->name('vehicle.show');
-    Route::get('/vehicle/create', [Vehicle::class, 'create']);
-    Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit');
-    Route::post('/vehicle/store', [Vehicle::class, 'store'])->name('vehicle.store');
-    Route::post('/vehicle/update', [Vehicle::class, 'update'])->name('vehicle.update');
-    Route::post('/vehicle/toggle', [Vehicle::class, 'updateStatus'])->name('vehicle.toggle');
-    Route::post('/vehicle/import', [Vehicle::class, 'import'])->name('vehicle.import');
+    Route::get('/vehicle', [Vehicle::class, 'index'])->name('vehicle.index')->middleware('permission:view_vehicle');
+    Route::post('/vehicle/show', [Vehicle::class, 'show'])->name('vehicle.show')->middleware('permission:view_vehicle');
+    Route::get('/vehicle/create', [Vehicle::class, 'create'])->middleware('permission:add_vehicle');
+    Route::get('/vehicle/edit/{id}', [Vehicle::class, 'edit'])->name('vehicle.edit')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/store', [Vehicle::class, 'store'])->name('vehicle.store')->middleware('permission:add_vehicle');
+    Route::post('/vehicle/update', [Vehicle::class, 'update'])->name('vehicle.update')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/toggle', [Vehicle::class, 'updateStatus'])->name('vehicle.toggle')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/import', [Vehicle::class, 'import'])->name('vehicle.import')->middleware('permission:add_vehicle');
 
     // Vehicle Brand
-    Route::get('/vehicle/brand', [VehicleBrand::class, 'index'])->name('vehicle.brand.index');
-    Route::post('/vehicle/brand/show', [VehicleBrand::class, 'show'])->name('vehicle.brand.show');
-    Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create']);
-    Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('vehicle.brand.edit');
-    Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store');
-    Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update');
-    Route::post('/vehicle/brand/toggle', [VehicleBrand::class, 'updateStatus'])->name('vehicle.brand.toggle');
+    Route::get('/vehicle/brand', [VehicleBrand::class, 'index'])->name('vehicle.brand.index')->middleware('permission:view_vehicle');
+    Route::post('/vehicle/brand/show', [VehicleBrand::class, 'show'])->name('vehicle.brand.show')->middleware('permission:view_vehicle');
+    Route::get('/vehicle/brand/create', [VehicleBrand::class, 'create'])->middleware('permission:add_vehicle');
+    Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('vehicle.brand.edit')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store')->middleware('permission:add_vehicle');
+    Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/brand/toggle', [VehicleBrand::class, 'updateStatus'])->name('vehicle.brand.toggle')->middleware('permission:edit_vehicle');
 
     // Battery
-    Route::get('/battery', [Battery::class, 'index']);
-    Route::post('/battery/show', [Battery::class, 'show'])->name('battery.show');
-    Route::get('/battery/create', [Battery::class, 'create']);
-    Route::get('/battery/edit/{id}', [Battery::class, 'edit'])->name('battery.edit');
-    Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store');
-    Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update');
-    Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle');
-    Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import');
-    Route::post('/battery/import/price', [Battery::class, 'importPrice'])->name('battery.import.price');
-    Route::post('/battery/export', [Battery::class, 'export'])->name('battery.export');
-    Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory']);
-    Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword']);
-    Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.compress');
+    Route::get('/battery', [Battery::class, 'index'])->middleware('permission:view_battery')->name('battery.index');
+    Route::post('/battery/show', [Battery::class, 'show'])->name('battery.show')->middleware('permission:view_battery');
+    Route::get('/battery/create', [Battery::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/edit/{id}', [Battery::class, 'edit'])->name('battery.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/store', [Battery::class, 'store'])->name('battery.store')->middleware('permission:add_battery');
+    Route::post('/battery/update', [Battery::class, 'update'])->name('battery.update')->middleware('permission:edit_battery');
+    Route::post('/battery/toggle', [Battery::class, 'updateStatus'])->name('battery.toggle')->middleware('permission:edit_battery');
+    Route::post('/battery/import', [Battery::class, 'import'])->name('battery.import')->middleware('permission:add_battery');
+    Route::post('/battery/import/price', [Battery::class, 'importPrice'])->name('battery.import.price')->middleware('permission:add_battery');
+    Route::post('/battery/export', [Battery::class, 'export'])->name('battery.export')->middleware('permission:view_battery');
+    Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory'])->name('battery.size')->middleware('permission:view_battery');
+    Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword'])->name('battery.get')->middleware('permission:view_battery');
+    Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.compress')->middleware('permission:view_battery');
 
     // Battery Brand
-    Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index');
-    Route::post('/battery/brand/show', [BatteryBrand::class, 'show'])->name('battery.brand.show');
-    Route::get('/battery/brand/create', [BatteryBrand::class, 'create']);
-    Route::get('/battery/brand/edit/{id}', [BatteryBrand::class, 'edit'])->name('battery.brand.edit');
-    Route::post('/battery/brand/store', [BatteryBrand::class, 'store'])->name('battery.brand.store');
-    Route::post('/battery/brand/update', [BatteryBrand::class, 'update'])->name('battery.brand.update');
-    Route::post('/battery/brand/destroy', [BatteryBrand::class, 'destroy'])->name('battery.brand.destroy');
+    Route::get('/battery/brand', [BatteryBrand::class, 'index'])->name('battery.brand.index')->middleware('permission:view_battery');
+    Route::post('/battery/brand/show', [BatteryBrand::class, 'show'])->name('battery.brand.show')->middleware('permission:view_battery');
+    Route::get('/battery/brand/create', [BatteryBrand::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/brand/edit/{id}', [BatteryBrand::class, 'edit'])->name('battery.brand.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/brand/store', [BatteryBrand::class, 'store'])->name('battery.brand.store')->middleware('permission:add_battery');
+    Route::post('/battery/brand/update', [BatteryBrand::class, 'update'])->name('battery.brand.update')->middleware('permission:edit_battery');
+    Route::post('/battery/brand/destroy', [BatteryBrand::class, 'destroy'])->name('battery.brand.destroy')->middleware('permission:delete_battery');
 
     // Battery Subbrand Category
-    Route::get('/battery/subbrand', [BatterySubbrand::class, 'index'])->name('battery.subbrand.index');
-    Route::post('/battery/subbrand/show', [BatterySubbrand::class, 'show'])->name('battery.subbrand.show');
-    Route::get('/battery/subbrand/create', [BatterySubbrand::class, 'create']);
-    Route::get('/battery/subbrand/edit/{id}', [BatterySubbrand::class, 'edit'])->name('battery.subbrand.edit');
-    Route::post('/battery/subbrand/store', [BatterySubbrand::class, 'store'])->name('battery.subbrand.store');
-    Route::post('/battery/subbrand/update', [BatterySubbrand::class, 'update'])->name('battery.subbrand.update');
-    Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy');
+    Route::get('/battery/subbrand', [BatterySubbrand::class, 'index'])->name('battery.subbrand.index')->middleware('permission:view_battery');
+    Route::post('/battery/subbrand/show', [BatterySubbrand::class, 'show'])->name('battery.subbrand.show')->middleware('permission:view_battery');
+    Route::get('/battery/subbrand/create', [BatterySubbrand::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/subbrand/edit/{id}', [BatterySubbrand::class, 'edit'])->name('battery.subbrand.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/subbrand/store', [BatterySubbrand::class, 'store'])->name('battery.subbrand.store')->middleware('permission:add_battery');
+    Route::post('/battery/subbrand/update', [BatterySubbrand::class, 'update'])->name('battery.subbrand.update')->middleware('permission:edit_battery');
+    Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy')->middleware('permission:delete_battery');
 
     // Battery Usage Type
-    Route::get('/battery/usage', [BatteryUsage::class, 'index'])->name('battery.usage.index');
-    Route::post('/battery/usage/show', [BatteryUsage::class, 'show'])->name('battery.usage.show');
-    Route::get('/battery/usage/create', [BatteryUsage::class, 'create']);
-    Route::get('/battery/usage/edit/{id}', [BatteryUsage::class, 'edit'])->name('battery.usage.edit');
-    Route::post('/battery/usage/store', [BatteryUsage::class, 'store'])->name('battery.usage.store');
-    Route::post('/battery/usage/update', [BatteryUsage::class, 'update'])->name('battery.usage.update');
-    Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy');
+    Route::get('/battery/usage', [BatteryUsage::class, 'index'])->name('battery.usage.index')->middleware('permission:view_battery');
+    Route::post('/battery/usage/show', [BatteryUsage::class, 'show'])->name('battery.usage.show')->middleware('permission:view_battery');
+    Route::get('/battery/usage/create', [BatteryUsage::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/usage/edit/{id}', [BatteryUsage::class, 'edit'])->name('battery.usage.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/usage/store', [BatteryUsage::class, 'store'])->name('battery.usage.store')->middleware('permission:add_battery');
+    Route::post('/battery/usage/update', [BatteryUsage::class, 'update'])->name('battery.usage.update')->middleware('permission:edit_battery');
+    Route::post('/battery/usage/destroy', [BatteryUsage::class, 'destroy'])->name('battery.usage.destroy')->middleware('permission:delete_battery');
 
     // Battery Technology
-    Route::get('/battery/technology', [BatteryTechnology::class, 'index'])->name('battery.Technology.index');
-    Route::post('/battery/technology/show', [BatteryTechnology::class, 'show'])->name('battery.technology.show');
-    Route::get('/battery/technology/create', [BatteryTechnology::class, 'create']);
-    Route::get('/battery/technology/edit/{id}', [BatteryTechnology::class, 'edit'])->name('battery.technology.edit');
-    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store'])->name('battery.technology.store');
-    Route::post('/battery/technology/update', [BatteryTechnology::class, 'update'])->name('battery.technology.update');
-    Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy');
+    Route::get('/battery/technology', [BatteryTechnology::class, 'index'])->name('battery.Technology.index')->middleware('permission:view_battery');
+    Route::post('/battery/technology/show', [BatteryTechnology::class, 'show'])->name('battery.technology.show')->middleware('permission:view_battery');
+    Route::get('/battery/technology/create', [BatteryTechnology::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/technology/edit/{id}', [BatteryTechnology::class, 'edit'])->name('battery.technology.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/technology/store', [BatteryTechnology::class, 'store'])->name('battery.technology.store')->middleware('permission:add_battery');
+    Route::post('/battery/technology/update', [BatteryTechnology::class, 'update'])->name('battery.technology.update')->middleware('permission:edit_battery');
+    Route::post('/battery/technology/destroy', [BatteryTechnology::class, 'destroy'])->name('battery.technology.destroy')->middleware('permission:delete_battery');
 
     // Battery Size Category
-    Route::get('/battery/size', [BatterySize::class, 'index'])->name('battery.size.index');
-    Route::post('/battery/size/show', [BatterySize::class, 'show'])->name('battery.size.show');
-    Route::get('/battery/size/create', [BatterySize::class, 'create']);
-    Route::get('/battery/size/edit/{id}', [BatterySize::class, 'edit'])->name('battery.size.edit');
-    Route::post('/battery/size/store', [BatterySize::class, 'store'])->name('battery.size.store');
-    Route::post('/battery/size/update', [BatterySize::class, 'update'])->name('battery.size.update');
-    Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy');
+    Route::get('/battery/size', [BatterySize::class, 'index'])->name('battery.size.index')->middleware('permission:view_battery');
+    Route::post('/battery/size/show', [BatterySize::class, 'show'])->name('battery.size.show')->middleware('permission:view_battery');
+    Route::get('/battery/size/create', [BatterySize::class, 'create'])->middleware('permission:add_battery');
+    Route::get('/battery/size/edit/{id}', [BatterySize::class, 'edit'])->name('battery.size.edit')->middleware('permission:edit_battery');
+    Route::post('/battery/size/store', [BatterySize::class, 'store'])->name('battery.size.store')->middleware('permission:add_battery');
+    Route::post('/battery/size/update', [BatterySize::class, 'update'])->name('battery.size.update')->middleware('permission:edit_battery');
+    Route::post('/battery/size/destroy', [BatterySize::class, 'destroy'])->name('battery.size.destroy')->middleware('permission:delete_battery');
 
     // Distributor
-    Route::get('/distributor', [Distributor::class, 'index'])->name('distributor.index');
-    Route::post('/distributor/show', [Distributor::class, 'show']);
-    Route::get('/distributor/create', [Distributor::class, 'create']);
-    Route::get('/distributor/edit/{id}', [Distributor::class, 'edit']);
-    Route::post('/distributor/store', [Distributor::class, 'store']);
-    Route::post('/distributor/update', [Distributor::class, 'update']);
-    Route::post('/distributor/toggle', [Distributor::class, 'updateStatus']);
+    Route::get('/distributor', [Distributor::class, 'index'])->name('distributor.index')->middleware('permission:view_distributor');
+    Route::post('/distributor/show', [Distributor::class, 'show'])->name('distributor.show')->middleware('permission:view_distributor');
+    Route::get('/distributor/create', [Distributor::class, 'create'])->middleware('permission:add_distributor');
+    Route::get('/distributor/edit/{id}', [Distributor::class, 'edit'])->name('distributor.edit')->middleware('permission:edit_distributor');
+    Route::post('/distributor/store', [Distributor::class, 'store'])->name('distributor.store')->middleware('permission:add_distributor');
+    Route::post('/distributor/update', [Distributor::class, 'update'])->name('distributor.update')->middleware('permission:edit_distributor');
+    Route::post('/distributor/toggle', [Distributor::class, 'updateStatus'])->name('distributor.toggle')->middleware('permission:edit_distributor');
 
     // Distributor Shop
-    Route::get('/distributor/shop', [DistributorShop::class, 'index']);
-    Route::post('/distributor/shop/show', [DistributorShop::class, 'show']);
-    Route::get('/distributor/shop/create', [DistributorShop::class, 'create']);
-    Route::get('/distributor/shop/edit/{id}', [DistributorShop::class, 'edit']);
-    Route::post('/distributor/shop/store', [DistributorShop::class, 'store']);
-    Route::post('/distributor/shop/update', [DistributorShop::class, 'update']);
-    Route::post('/distributor/shop/toggle', [DistributorShop::class, 'updateStatus']);
-    Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show']);
-    Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create']);
-    Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit']);
-    Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store']);
-    Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBattery::class, 'storeBatch']);
-    Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update']);
-    Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy']);
+    Route::get('/distributor/shop', [DistributorShop::class, 'index'])->name('distributor.shop.index')->middleware('permission:view_distributor');
+    Route::post('/distributor/shop/show', [DistributorShop::class, 'show'])->name('distributor.shop.show')->middleware('permission:view_distributor');
+    Route::get('/distributor/shop/create', [DistributorShop::class, 'create'])->name('distributor.shop.create')->middleware('permission:add_distributor');
+    Route::get('/distributor/shop/edit/{id}', [DistributorShop::class, 'edit'])->name('distributor.shop.edit')->middleware('permission:edit_distributor');
+    Route::post('/distributor/shop/store', [DistributorShop::class, 'store'])->name('distributor.shop.store')->middleware('permission:add_distributor');
+    Route::post('/distributor/shop/update', [DistributorShop::class, 'update'])->name('distributor.shop.update')->middleware('permission:edit_distributor');
+    Route::post('/distributor/shop/toggle', [DistributorShop::class, 'updateStatus'])->name('distributor.shop.toggle')->middleware('permission:edit_distributor');
+    Route::post('/distributor/shop/battery/show', [DistributorShopBattery::class, 'show'])->name('distributor.shop.battery.show')->middleware('permission:view_distributor');
+    Route::get('/distributor/shop/battery/create/{shopId}/{distributorId}', [DistributorShopBattery::class, 'create'])->name('distributor.shop.battery.create')->middleware('permission:add_distributor');
+    Route::get('/distributor/shop/battery/edit/{id}', [DistributorShopBattery::class, 'edit'])->name('distributor.shop.battery.edit')->middleware('permission:edit_distributor');
+    Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, 'store'])->name('distributor.shop.battery.store')->middleware('permission:add_distributor');
+    Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBattery::class, 'storeBatch'])->name('distributor.shop.battery.store.batch')->middleware('permission:add_distributor');
+    Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update'])->name('distributor.shop.battery.update')->middleware('permission:edit_distributor');
+    Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy'])->name('distributor.shop.battery.destroy')->middleware('permission:delete_distributor');
 
     // Shop Technician
-    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index'])->name('distributor.technician.index');
-    Route::post('/distributor/technician/show', [DistributorShopTechnician::class, 'show']);
-    Route::get('/distributor/technician/create', [DistributorShopTechnician::class, 'create']);
-    Route::get('/distributor/technician/edit/{id}', [DistributorShopTechnician::class, 'edit']);
-    Route::post('/distributor/technician/store', [DistributorShopTechnician::class, 'store']);
-    Route::post('/distributor/technician/update', [DistributorShopTechnician::class, 'update']);
-    Route::post('/distributor/technician/destroy', [DistributorShopTechnician::class, 'destroy']);
+    Route::get('/distributor/technician', [DistributorShopTechnician::class, 'index'])->name('distributor.technician.index')->middleware('permission:view_distributor');
+    Route::post('/distributor/technician/show', [DistributorShopTechnician::class, 'show'])->name('distributor.technician.show')->middleware('permission:view_distributor');
+    Route::get('/distributor/technician/create', [DistributorShopTechnician::class, 'create'])->name('distributor.technician.create')->middleware('permission:add_distributor');
+    Route::get('/distributor/technician/edit/{id}', [DistributorShopTechnician::class, 'edit'])->name('distributor.technician.edit')->middleware('permission:edit_distributor');
+    Route::post('/distributor/technician/store', [DistributorShopTechnician::class, 'store'])->name('distributor.technician.store')->middleware('permission:add_distributor');
+    Route::post('/distributor/technician/update', [DistributorShopTechnician::class, 'update'])->name('distributor.technician.update')->middleware('permission:edit_distributor');
+    Route::post('/distributor/technician/destroy', [DistributorShopTechnician::class, 'destroy'])->name('distributor.technician.destroy')->middleware('permission:delete_distributor');
 
     // Inventory
     // Inventory
-    Route::get('/inventory', [Inventory::class, 'index']);
-    Route::get('/inventory/get/{name}', [Inventory::class, 'getStock']);
+    Route::get('/inventory', [Inventory::class, 'index'])->name('inventory.index')->middleware('permission:view_inventory');
+    Route::get('/inventory/get/{name}', [Inventory::class, 'getStock'])->name('inventory.get')->middleware('permission:view_inventory');
 
     // Orders
     // Quick Quotation
-    Route::get('/quotation/quick', [QuickQuotation::class, 'index']);
-    Route::get('/quotation/customer/find', [QuickQuotation::class, 'findCustomer'])->name('quotation.findCustomer');
-    Route::post('/quotation/customer/share', [QuickQuotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails');
-    Route::get('/quotation/customer/vehicle/find', [QuickQuotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer');
-    Route::get('/quotation/vehicle/find', [QuickQuotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle');
-    Route::get('/quotation/customer/maps/near', [QuickQuotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer');
-    Route::post('/quotation/battery/share', [QuickQuotation::class, 'shareBattery'])->name('quotation.shareBattery');
-    Route::get('/quotation/checkout', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview');
-    Route::get('/quotation/payment', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview');
-    Route::post('/quotation/battery/copy', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail');
-    Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice');
-    Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails');
-    Route::post('/quotation/save-data', [QuickQuotation::class, 'saveData'])->name('quotation.saveData');
-    Route::post('/quotation/customer/copy', [QuickQuotation::class, 'getCustomerCopyDetail'])->name('quotation.getCustomerCopyDetail');
-    Route::post('/quotation/checkout/copy', [QuickQuotation::class, 'getCheckoutCopyDetail'])->name('quotation.getCheckoutCopyDetail');
-    Route::post('/quotation/payment-details/copy', [QuickQuotation::class, 'getPaymentDetailsCopyDetail'])->name('quotation.getPaymentDetailsCopyDetail');
-    Route::get('/quotation/customer/findbycontact', [QuickQuotation::class, 'findCustomerByContact'])->name('quotation.findCustomerByContact');
-    Route::get('/quotation/battery/find', [QuickQuotation::class, 'findBattery'])->name('quotation.findBattery');
-    Route::get('/quotation/get-link-battery', [QuickQuotation::class, 'getLinkBattery'])->name('quotation.getLinkBattery');
-    Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor');
-    Route::get('/quotation/battery/autoComplete', [QuickQuotation::class, 'autoCompleteBattery'])->name('quotation.autoCompleteBattery');
-    Route::get('/quotation/work-order', [WorkOrder::class, 'index']);
-    Route::post('/quotation/battery/screenshot', [QuickQuotation::class, 'screenshotBattery'])->name('quotation.screenshotBattery');
-    Route::post('/quotation/battery/save-screenshoot', [QuickQuotation::class, 'saveScreenshoot'])->name('quotation.saveScreenshoot');
+    Route::get('/quotation/quick', [QuickQuotation::class, 'index'])->name('quotation.index')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/customer/find', [QuickQuotation::class, 'findCustomer'])->name('quotation.findCustomer')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/customer/share', [QuickQuotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/customer/vehicle/find', [QuickQuotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/vehicle/find', [QuickQuotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/customer/maps/near', [QuickQuotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/battery/share', [QuickQuotation::class, 'shareBattery'])->name('quotation.shareBattery')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/checkout', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/payment', [QuickQuotation::class, 'getPaymentPreview'])->name('quotation.getPaymentPreview')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/battery/copy', [QuickQuotation::class, 'getBatteryCopyDetail'])->name('quotation.getBatteryCopyDetail')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/share-invoice', [QuickQuotation::class, 'shareInvoice'])->name('quotation.shareInvoice')->middleware('permission:view_quick_quotation')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/share-payment-details', [QuickQuotation::class, 'sharePaymentDetails'])->name('quotation.sharePaymentDetails')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/save-data', [QuickQuotation::class, 'saveData'])->name('quotation.saveData')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/customer/copy', [QuickQuotation::class, 'getCustomerCopyDetail'])->name('quotation.getCustomerCopyDetail')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/checkout/copy', [QuickQuotation::class, 'getCheckoutCopyDetail'])->name('quotation.getCheckoutCopyDetail')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/payment-details/copy', [QuickQuotation::class, 'getPaymentDetailsCopyDetail'])->name('quotation.getPaymentDetailsCopyDetail')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/customer/findbycontact', [QuickQuotation::class, 'findCustomerByContact'])->name('quotation.findCustomerByContact')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/find', [QuickQuotation::class, 'findBattery'])->name('quotation.findBattery')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/get-link-battery', [QuickQuotation::class, 'getLinkBattery'])->name('quotation.getLinkBattery')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/distributor/find', [QuickQuotation::class, 'findDistributor'])->name('quotation.findDistributor')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoComplete', [QuickQuotation::class, 'autoCompleteBattery'])->name('quotation.autoCompleteBattery')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/work-order', [WorkOrder::class, 'index'])->name('quotation.workOrder')->middleware('permission:view_work_order');
+    Route::post('/quotation/battery/screenshot', [QuickQuotation::class, 'screenshotBattery'])->name('quotation.screenshotBattery')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/battery/save-screenshoot', [QuickQuotation::class, 'saveScreenshoot'])->name('quotation.saveScreenshoot')->middleware('permission:view_quick_quotation');
     // Quick Quotation Mobile
-    Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout']);
-    Route::post('/quotation/mobile/detail/battery', [QuickQuotation::class, 'getBatteryDetail']);
-    Route::post('/quotation/mobile/payment', [QuickQuotation::class, 'mobilePayment']);
-    Route::post('/quotation/mobile/save-data', [QuickQuotation::class, 'saveDataMobile']);
+    Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout'])->name('quotation.mobileCheckout')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/mobile/detail/battery', [QuickQuotation::class, 'getBatteryDetail'])->name('quotation.getBatteryDetail')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/mobile/payment', [QuickQuotation::class, 'mobilePayment'])->name('quotation.mobilePayment')->middleware('permission:view_quick_quotation');
+    Route::post('/quotation/mobile/save-data', [QuickQuotation::class, 'saveDataMobile'])->name('quotation.saveDataMobile')->middleware('permission:view_quick_quotation');
 
     // Sales Order
-    Route::get('/sales-order', [SalesOrder::class, 'index']);
-    Route::post('/sales-order/show', [SalesOrder::class, 'show']);
-    Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice']);
-    Route::get('/sales-order/create', [SalesOrder::class, 'create']);
-    Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit']);
-    Route::post('/sales-order/store', [SalesOrder::class, 'store']);
-    Route::post('/sales-order/update', [SalesOrder::class, 'update']);
-    Route::post('/sales-order/delete', [SalesOrder::class, 'destroy']);
-    Route::post('/sales-order/post', [SalesOrder::class, 'post']);
-    Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show']);
-    Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode']);
-    Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop']);
-    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate']);
-    Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink']);
-    Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink']);
+    Route::get('/sales-order', [SalesOrder::class, 'index'])->name('sales-order.index')->middleware('permission:view_sales_order');
+    Route::post('/sales-order/show', [SalesOrder::class, 'show'])->name('sales-order.show')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice'])->name('sales-order.invoice')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/create', [SalesOrder::class, 'create'])->middleware('permission:add_sales_order');
+    Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit'])->name('sales-order.edit')->middleware('permission:edit_sales_order');
+    Route::post('/sales-order/store', [SalesOrder::class, 'store'])->name('sales-order.store')->middleware('permission:add_sales_order');
+    Route::post('/sales-order/update', [SalesOrder::class, 'update'])->name('sales-order.update')->middleware('permission:edit_sales_order');
+    Route::post('/sales-order/delete', [SalesOrder::class, 'destroy'])->name('sales-order.delete')->middleware('permission:delete_sales_order');
+    Route::post('/sales-order/post', [SalesOrder::class, 'post'])->name('sales-order.post')->middleware('permission:edit_sales_order');
+    Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show'])->name('sales-order.battery.show')->middleware('permission:view_sales_order');
+    Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode'])->name('sales-order.battery.update.production-code')->middleware('permission:edit_sales_order');
+    Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop'])->name('sales-order.getTechnicianByShop')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate'])->name('sales-order.workOrderCreate')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink'])->name('sales-order.recreatePaymentLink')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink'])->name('sales-order.copyPaymentLink')->middleware('permission:view_sales_order');
     // Mobile
-    Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders']);
-    Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail']);
-    Route::get('/sales-order/status', [SalesOrder::class, 'getSalesOrderStatus']);
+    Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders'])->name('sales-order.getSalesOrders')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail'])->name('sales-order.getSalesOrderDetail')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/status', [SalesOrder::class, 'getSalesOrderStatus'])->name('sales-order.getSalesOrderStatus')->middleware('permission:view_sales_order');
 
     // Work Order
-    Route::get('/work-order', [WorkOrder::class, 'index']);
-    Route::post('/work-order/show', [WorkOrder::class, 'show']);
-    Route::post('/work-order/print/', [WorkOrder::class, 'print']);
-    Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage']);
-    Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport']);
-    Route::post('/work-order/delete', [WorkOrder::class, 'destroy']);
-    Route::post('/work-order/detail', [WorkOrder::class, 'detail']);
-    Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode']);
-    Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate']);
-    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction']);
+    Route::get('/work-order', [WorkOrder::class, 'index'])->name('work-order.index')->middleware('permission:view_work_order');
+    Route::post('/work-order/show', [WorkOrder::class, 'show'])->name('work-order.show')->middleware('permission:view_work_order');
+    Route::post('/work-order/print/', [WorkOrder::class, 'print'])->name('work-order.print')->middleware('permission:view_work_order');
+    Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage'])->name('work-order.uploadImage')->middleware('permission:view_work_order');
+    Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport'])->name('work-order.printTechnicianReport')->middleware('permission:view_work_order');
+    Route::post('/work-order/delete', [WorkOrder::class, 'destroy'])->name('work-order.delete')->middleware('permission:delete_work_order');
+    Route::post('/work-order/detail', [WorkOrder::class, 'detail'])->name('work-order.detail')->middleware('permission:view_work_order');
+    Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode'])->name('work-order.getProductionCode')->middleware('permission:view_work_order');
+    Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate'])->name('work-order.printTechnicianReportTemplate')->middleware('permission:view_work_order');
+    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction'])->name('work-order.copyInstruction')->middleware('permission:view_work_order');
     // work order mobile
-    Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList']);
-    Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail']);
-    Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy']);
-    Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile']);
-    Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile']);
+    Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList'])->name('work-order.lazyLoadList')->middleware('permission:view_work_order');
+    Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail'])->name('work-order.getWorkOrderDetail')->middleware('permission:view_work_order');
+    Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy'])->middleware('permission:delete_work_order');
+    Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile'])->name('work-order.printTechnicianReportMobile')->middleware('permission:view_work_order');
+    Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile'])->name('work-order.printMobile')->middleware('permission:view_work_order');
     // tracking
-    Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking']);
-    Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking']);
-    Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking']);
+    Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking'])->name('work-order.startTracking')->middleware('permission:view_work_order');
+    Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking'])->name('work-order.endTracking')->middleware('permission:view_work_order');
+    Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking'])->name('work-order.updateTracking')->middleware('permission:view_work_order');
 
     // tracking technician
-    Route::get('/tracking-technician', [TrackingTechnician::class, 'index']);
-    Route::post('/tracking-technician/show', [TrackingTechnician::class, 'show']);
-    Route::post('/tracking-technician/share', [TrackingTechnician::class, 'share']);
-    Route::post('/tracking-technician/delete', [TrackingTechnician::class, 'delete']);
+    Route::get('/tracking-technician', [TrackingTechnician::class, 'index'])->name('tracking-technician.index')->middleware('permission:view_tracking_technician');
+    Route::post('/tracking-technician/show', [TrackingTechnician::class, 'show'])->name('tracking-technician.show')->middleware('permission:view_tracking_technician');
+    Route::post('/tracking-technician/share', [TrackingTechnician::class, 'share'])->name('tracking-technician.share')->middleware('permission:view_tracking_technician');
+    Route::post('/tracking-technician/delete', [TrackingTechnician::class, 'delete'])->name('tracking-technician.delete')->middleware('permission:delete_tracking_technician');
 
     // Settings
     // Message Template
-    Route::get('/template/message', [MessageTemplate::class, 'index']);
-    Route::post('/template/message/update', [MessageTemplate::class, 'update']);
-    Route::get('/template/print', [PrintTemplate::class, 'index']);
-    Route::post('/template/print/update', [PrintTemplate::class, 'update']);
-    Route::post('/template/show', [PrintTemplate::class, 'show']);
-    Route::get('/template/create', [PrintTemplate::class, 'create']);
-    Route::post('/template/store', [PrintTemplate::class, 'store']);
-    Route::post('/template/destroy', [PrintTemplate::class, 'destroy']);
-    Route::get('/template/edit/{id}', [PrintTemplate::class, 'edit']);
-    Route::post('/template/update', [PrintTemplate::class, 'update']);
-    Route::get('/template/details/{id}', [PrintTemplate::class, 'details']);
-    Route::post('/template/print/update/details', [PrintTemplate::class, 'updateDetails']);
-    Route::post('/template/print/get/sub-task', [PrintTemplate::class, 'getSubTask']);
-    Route::post('/template/print/update/sub-task', [PrintTemplate::class, 'updateSubTask']);
-    Route::post('/template/print/delete/sub-task', [PrintTemplate::class, 'deleteSubTask']);
+    Route::get('/template/message', [MessageTemplate::class, 'index'])->name('message-template.index')->middleware('permission:view_message_templates');
+    Route::post('/template/message/update', [MessageTemplate::class, 'update'])->name('message-template.update')->middleware('permission:edit_message_templates');
+    Route::get('/template/print', [PrintTemplate::class, 'index'])->name('print-template.index')->middleware('permission:view_print_templates');
+    Route::post('/template/print/update', [PrintTemplate::class, 'update'])->middleware('permission:edit_print_templates');
+    Route::post('/template/show', [PrintTemplate::class, 'show'])->name('print-template.show')->middleware('permission:view_print_templates');
+    Route::get('/template/create', [PrintTemplate::class, 'create'])->middleware('permission:add_print_templates');
+    Route::post('/template/store', [PrintTemplate::class, 'store'])->name('print-template.store')->middleware('permission:add_print_templates');
+    Route::post('/template/destroy', [PrintTemplate::class, 'destroy'])->name('print-template.destroy')->middleware('permission:delete_print_templates');
+    Route::get('/template/edit/{id}', [PrintTemplate::class, 'edit'])->name('print-template.edit')->middleware('permission:edit_print_templates');
+    Route::post('/template/update', [PrintTemplate::class, 'update'])->middleware('permission:edit_print_templates');
+    Route::get('/template/details/{id}', [PrintTemplate::class, 'details'])->name('print-template.details')->middleware('permission:view_print_templates');
+    Route::post('/template/print/update/details', [PrintTemplate::class, 'updateDetails'])->name('print-template.update.details')->middleware('permission:edit_print_templates');
+    Route::post('/template/print/get/sub-task', [PrintTemplate::class, 'getSubTask'])->name('print-template.getSubTask')->middleware('permission:view_print_templates');
+    Route::post('/template/print/update/sub-task', [PrintTemplate::class, 'updateSubTask'])->name('print-template.update.subTask')->middleware('permission:edit_print_templates');
+    Route::post('/template/print/delete/sub-task', [PrintTemplate::class, 'deleteSubTask'])->name('print-template.delete.subTask')->middleware('permission:delete_print_templates');
 
     // Import Template
-    Route::post('/template/import/update', [ImportTemplate::class, 'update']);
-    Route::post('/template/import/delete', [ImportTemplate::class, 'delete']);
+    Route::post('/template/import/update', [ImportTemplate::class, 'update'])->name('import-template.update')->middleware('permission:edit_import_templates');
+    Route::post('/template/import/delete', [ImportTemplate::class, 'delete'])->name('import-template.delete')->middleware('permission:delete_import_templates');
 
     // Tax
-    Route::get('/tax', [Tax::class, 'index']);
-    Route::post('/tax/show', [Tax::class, 'show']);
-    Route::get('/tax/create', [Tax::class, 'create']);
-    Route::get('/tax/edit/{id}', [Tax::class, 'edit']);
-    Route::post('/tax/store', [Tax::class, 'store']);
-    Route::post('/tax/update', [Tax::class, 'update']);
-    Route::post('/tax/toggle', [Tax::class, 'updateStatus']);
-    Route::post('/tax/destroy', [Tax::class, 'destroy']);
+    Route::get('/tax', [Tax::class, 'index'])->name('tax.index')->middleware('permission:view_tax');
+    Route::post('/tax/show', [Tax::class, 'show'])->name('tax.show')->middleware('permission:view_tax');
+    Route::get('/tax/create', [Tax::class, 'create'])->middleware('permission:add_tax');
+    Route::get('/tax/edit/{id}', [Tax::class, 'edit'])->name('tax.edit')->middleware('permission:edit_tax');
+    Route::post('/tax/store', [Tax::class, 'store'])->name('tax.store')->middleware('permission:add_tax');
+    Route::post('/tax/update', [Tax::class, 'update'])->name('tax.update')->middleware('permission:edit_tax');
+    Route::post('/tax/toggle', [Tax::class, 'updateStatus'])->name('tax.toggle')->middleware('permission:edit_tax');
+    Route::post('/tax/destroy', [Tax::class, 'destroy'])->name('tax.destroy')->middleware('permission:delete_tax');
 
     // Payment Method
-    Route::get('/payment', [PaymentMethod::class, 'index']);
-    Route::post('/payment/show', [PaymentMethod::class, 'show']);
-    Route::get('/payment/create', [PaymentMethod::class, 'create']);
-    Route::get('/payment/edit/{id}', [PaymentMethod::class, 'edit']);
-    Route::post('/payment/store', [PaymentMethod::class, 'store']);
-    Route::post('/payment/update', [PaymentMethod::class, 'update']);
-    Route::post('/payment/toggle', [PaymentMethod::class, 'updateStatus']);
-    Route::post('/payment/destroy', [PaymentMethod::class, 'destroy']);
+    Route::get('/payment', [PaymentMethod::class, 'index'])->name('payment.index')->middleware('permission:view_payment_method');
+    Route::post('/payment/show', [PaymentMethod::class, 'show'])->name('payment.show')->middleware('permission:view_payment_method');
+    Route::get('/payment/create', [PaymentMethod::class, 'create'])->middleware('permission:add_payment_method');
+    Route::get('/payment/edit/{id}', [PaymentMethod::class, 'edit'])->name('payment.edit')->middleware('permission:edit_payment_method');
+    Route::post('/payment/store', [PaymentMethod::class, 'store'])->name('payment.store')->middleware('permission:add_payment_method');
+    Route::post('/payment/update', [PaymentMethod::class, 'update'])->name('payment.update')->middleware('permission:edit_payment_method');
+    Route::post('/payment/toggle', [PaymentMethod::class, 'updateStatus'])->name('payment.toggle')->middleware('permission:edit_payment_method');
+    Route::post('/payment/destroy', [PaymentMethod::class, 'destroy'])->name('payment.destroy')->middleware('permission:delete_payment_method');
 
     // Promo
-    Route::get('/promo', [Promo::class, 'index']);
-    Route::post('/promo/show', [Promo::class, 'show']);
-    Route::post('/promo/show/dashboard', [Promo::class, 'showDashboard']);
-    Route::get('/promo/create', [Promo::class, 'create']);
-    Route::get('/promo/edit/{id}', [Promo::class, 'edit']);
-    Route::post('/promo/store', [Promo::class, 'store']);
-    Route::post('/promo/update', [Promo::class, 'update']);
-    Route::post('/promo/toggle', [Promo::class, 'updateStatus']);
+    Route::get('/promo', [Promo::class, 'index'])->name('promo.index')->middleware('permission:view_promo');
+    Route::post('/promo/show', [Promo::class, 'show'])->name('promo.show')->middleware('permission:view_promo');
+    Route::post('/promo/show/dashboard', [Promo::class, 'showDashboard'])->name('promo.showDashboard')->middleware('permission:view_promo');
+    Route::get('/promo/create', [Promo::class, 'create'])->middleware('permission:add_promo');
+    Route::get('/promo/edit/{id}', [Promo::class, 'edit'])->name('promo.edit')->middleware('permission:edit_promo');
+    Route::post('/promo/store', [Promo::class, 'store'])->name('promo.store')->middleware('permission:add_promo');
+    Route::post('/promo/update', [Promo::class, 'update'])->name('promo.update')->middleware('permission:edit_promo');
+    Route::post('/promo/toggle', [Promo::class, 'updateStatus'])->name('promo.toggle')->middleware('permission:edit_promo');
 
     //profile
-    Route::get('/profile', [Profile::class, 'index']);
-    Route::post('/profile/update', [Profile::class, 'update']);
-    Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture']);
-    Route::post('/profile/password/update', [Profile::class, 'updatePassword']);
-    Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp']);
-    Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey']);
+    Route::get('/profile', [Profile::class, 'index'])->name('profile.index')->middleware('permission:view_profile');
+    Route::post('/profile/update', [Profile::class, 'update'])->name('profile.update')->middleware('permission:edit_profile');
+    Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture'])->name('profile.updateProfilePicture')->middleware('permission:edit_profile');
+    Route::post('/profile/password/update', [Profile::class, 'updatePassword'])->name('profile.updatePassword')->middleware('permission:edit_profile');
+    Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp'])->name('profile.deleteSessionWhatsapp')->middleware('permission:edit_profile');
+    Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey'])->name('profile.updateApiKey')->middleware('permission:edit_profile');
 
     // Data Battery
-    Route::get('/data-battery', [DataBattery::class, 'index']);
-    Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce']);
-    Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory']);
-    Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct']);
-    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails']);
-    Route::post('/data-battery/send-product', [DataBattery::class, 'sendProduct']);
-    Route::post('/data-battery/count-category', [DataBattery::class, 'countCategory']);
-    Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially']);
-    Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct']);
-    Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially']);
-    Route::get('/data-battery/export/csv', [DataBattery::class, 'exportCsv']);
+    Route::get('/data-battery', [DataBattery::class, 'index'])->name('data-battery.index')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce'])->name('data-battery.syncWooCommerce')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory'])->name('data-battery.syncCategory')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct'])->name('data-battery.syncProduct')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails'])->name('data-battery.viewDetails')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/send-product', [DataBattery::class, 'sendProduct'])->name('data-battery.sendProduct')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/count-category', [DataBattery::class, 'countCategory'])->name('data-battery.countCategory')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially'])->name('data-battery.sendCategoryPartially')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct'])->name('data-battery.countProduct')->middleware('permission:view_data_battery');
+    Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially'])->name('data-battery.sendProductPartially')->middleware('permission:view_data_battery');
+    Route::get('/data-battery/export/csv', [DataBattery::class, 'exportCsv'])->name('data-battery.exportCsv')->middleware('permission:view_data_battery');
 
     // Sales Online
-    Route::get('/sales-online', [SalesOnline::class, 'index']);
-    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails']);
-    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline']);
+    Route::get('/sales-online', [SalesOnline::class, 'index'])->name('sales-online.index')->middleware('permission:view_sales_online');
+    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails'])->name('sales-online.viewDetails')->middleware('permission:view_sales_online');
+    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline'])->name('sales-online.syncSalesOnline')->middleware('permission:view_sales_online');
 
     // Data Category
-    Route::get('/data-category', [DataCategory::class, 'index']);
-    Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory']);
-    Route::post('/data-category/count-parent-category', [DataCategory::class, 'countParentCategory']);
-    Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially']);
-    Route::post('/data-category/count-category', [DataCategory::class, 'countCategory']);
-    Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially']);
+    Route::get('/data-category', [DataCategory::class, 'index'])->name('data-category.index')->middleware('permission:view_data_category');
+    Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory'])->name('data-category.syncCategory')->middleware('permission:view_data_category');
+    Route::post('/data-category/count-parent-category', [DataCategory::class, 'countParentCategory'])->name('data-category.countParentCategory')->middleware('permission:view_data_category');
+    Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially'])->name('data-category.sendParentCategoryPartially')->middleware('permission:view_data_category');
+    Route::post('/data-category/count-category', [DataCategory::class, 'countCategory'])->name('data-category.countCategory')->middleware('permission:view_data_category');
+    Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially'])->name('data-category.sendCategoryPartially')->middleware('permission:view_data_category');
 
     // Work Order Instruction
-    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index');
-    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show']);
-    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail']);
-    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy']);
-    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update']);
-    Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail']);
-    Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList']);
-    Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy']);
-    Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage']);
+    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_work_order_instruction');
+    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show'])->name('work-order-instruction.show')->middleware('permission:view_work_order_instruction');
+    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail'])->name('work-order-instruction.instructionDetail')->middleware('permission:view_work_order_instruction');
+    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy'])->name('work-order-instruction.delete')->middleware('permission:delete_work_order_instruction');
+    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update'])->name('work-order-instruction.update')->middleware('permission:edit_work_order_instruction');
+    Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail'])->name('work-order-instruction.detail')->middleware('permission:view_work_order_instruction');
+    Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList'])->name('work-order-instruction.lazyLoadList')->middleware('permission:view_work_order_instruction');
+    Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy'])->middleware('permission:delete_work_order_instruction');
+    Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage'])->name('work-order-instruction.uploadImage')->middleware('permission:view_work_order_instruction');
 
     // user manager 
-    Route::get('/user-manager', [UserManager::class, 'index']);
-    Route::post('/user-manager/show', [UserManager::class, 'show']);
-    Route::get('/user-manager/edit/{id}', [UserManager::class, 'edit']);
-    Route::post('/user-manager/destroy', [UserManager::class, 'destroy']);
-    Route::post('/user-manager/update', [UserManager::class, 'update']);
-    Route::get('/user-manager/create', [UserManager::class, 'create']);
-    Route::post('/user-manager/store', [UserManager::class, 'store']);
+    Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
+    Route::post('/user-manager/show', [UserManager::class, 'show'])->name('user-manager.show')->middleware('permission:view_user_manager');
+    Route::get('/user-manager/edit/{id}', [UserManager::class, 'edit'])->name('user-manager.edit')->middleware('permission:edit_user_manager');
+    Route::post('/user-manager/destroy', [UserManager::class, 'destroy'])->name('user-manager.destroy')->middleware('permission:delete_user_manager');
+    Route::post('/user-manager/update', [UserManager::class, 'update'])->name('user-manager.update')->middleware('permission:edit_user_manager');
+    Route::get('/user-manager/create', [UserManager::class, 'create'])->middleware('permission:add_user_manager');
+    Route::post('/user-manager/store', [UserManager::class, 'store'])->name('user-manager.store')->middleware('permission:add_user_manager');
 
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
@@ -422,17 +424,17 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['developer'])->group(function () {
     // Menu Manager
-    Route::get('/menu', [Menu::class, 'index']);
-    Route::post('/menu/show', [Menu::class, 'show']);
-    Route::get('/menu/create', [Menu::class, 'create']);
-    Route::get('/menu/edit/{id}', [Menu::class, 'edit']);
-    Route::post('/menu/store', [Menu::class, 'store']);
-    Route::post('/menu/update', [Menu::class, 'update']);
-    Route::post('/menu/destroy', [Menu::class, 'destroy']);
-    Route::get('/menu/refresh', [Menu::class, 'refresh']);
-    Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu']);
-    Route::get('/menu/parent/create', [MenuParent::class, 'create']);
-    Route::post('/menu/parent/store', [MenuParent::class, 'store']);
+    Route::get('/menu', [Menu::class, 'index'])->name('menu.index')->middleware('permission:view_menu');
+    Route::post('/menu/show', [Menu::class, 'show'])->name('menu.show')->middleware('permission:view_menu');
+    Route::get('/menu/create', [Menu::class, 'create'])->middleware('permission:add_menu');
+    Route::get('/menu/edit/{id}', [Menu::class, 'edit'])->name('menu.edit')->middleware('permission:edit_menu');
+    Route::post('/menu/store', [Menu::class, 'store'])->name('menu.store')->middleware('permission:add_menu');
+    Route::post('/menu/update', [Menu::class, 'update'])->name('menu.update')->middleware('permission:edit_menu');
+    Route::post('/menu/destroy', [Menu::class, 'destroy'])->name('menu.destroy')->middleware('permission:delete_menu');
+    Route::get('/menu/refresh', [Menu::class, 'refresh'])->name('menu.refresh')->middleware('permission:view_menu');
+    Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu'])->name('menu.getMenu')->middleware('permission:view_menu');
+    Route::get('/menu/parent/create', [MenuParent::class, 'create'])->middleware('permission:add_menu');
+    Route::post('/menu/parent/store', [MenuParent::class, 'store'])->name('menu.parent.store')->middleware('permission:add_menu');
     Route::get('/logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 });
 
