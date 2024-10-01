@@ -1,6 +1,17 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        .local-forms {
+            margin-bottom: 1rem;
+        }
+
+        .login-danger {
+            color: red;
+        }
+    </style>
+    {{-- Page Title --}}
+
     @php
         $profileLabel = isset($data['profile']) ? 'Edit' : 'Create';
     @endphp
@@ -80,13 +91,63 @@
                     </div>
                 </div>
 
+
+                <center>
+                    <table border="1" cellpadding="10" cellspacing="0" class="table table-bordered bg-light">
+                        <thead>
+                            <tr>
+                                <th>Menu</th>
+                                <th>View</th>
+                                <th>Add</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- Loop menu parent and menus --}}
+                            @foreach ($data['menu_parent'] as $menu)
+                                <tr>
+                                    <td colspan="5"><strong>{{ $menu->name }}</strong></td>
+                                </tr>
+
+                                @foreach ($menu->menus as $child)
+                                    <tr>
+                                        <td>{{ $child->name }}</td>
+                                        @php
+                                            $actions = ['view', 'add', 'edit', 'delete'];
+                                        @endphp
+
+                                        {{-- Loop through actions and create checkboxes --}}
+                                        @foreach ($actions as $action)
+                                            @php
+                                                $slugname = str_replace(' ', '_', strtolower($child->name));
+                                                $permissions = isset($data['profile']['permission'])
+                                                    ? explode('|', $data['profile']['permission'])
+                                                    : [];
+                                            @endphp
+                                            <td>
+                                                <input type="checkbox" name="permission[]"
+                                                    value="{{ $action }}_{{ $slugname }}"
+                                                    id="{{ $child->id }}_{{ $action }}"
+                                                    @if (in_array($action . '_' . $slugname, $permissions)) checked @endif>
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
+                </center>
+
+
+
                 {{-- Id --}}
                 @isset($data['profile'])
                     <input type="hidden" name="id" value="{{ $data['profile']['id'] }}">
                 @endisset
 
                 {{-- Buttons --}}
-                <div class="d-flex flex-row-reverse">
+                <div class="d-flex flex-row-reverse mt-5">
                     <button type="submit" class="btn btn-success mx-1" id="btn-save"
                         @isset($data['profile'])
                     value="update">
@@ -130,6 +191,35 @@
 
             $("#form-user").on("reset", function() {
                 goToPage("/user-manager");
+            });
+
+
+            // role on change event
+            $("#role").on("change", function() {
+                let role = $(this).val();
+                let checkboxes = $("input[type='checkbox']");
+                let developerPermissions = ["view_menu_manager", "add_menu_manager", "edit_menu_manager",
+                    "delete_menu_manager"
+                ];
+                let technicianPermissions = ["view_work_order_instruction", "add_work_order_instruction",
+                    "edit_work_order_instruction", "delete_work_order_instruction"
+                ];
+
+                checkboxes.prop("checked", false).prop("disabled", false);
+
+                if (role == "user") {
+                    checkboxes.prop("checked", true);
+                    developerPermissions.forEach(function(permission) {
+                        $(`input[type='checkbox'][value='${permission}']`).prop("checked", false)
+                            .prop("disabled", true);
+                    });
+                } else if (role == "developer") {
+                    checkboxes.prop("checked", true);
+                } else if (role == "technician") {
+                    technicianPermissions.forEach(function(permission) {
+                        $(`input[type='checkbox'][value='${permission}']`).prop("checked", true);
+                    });
+                }
             });
         });
     </script>

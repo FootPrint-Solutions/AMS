@@ -75,4 +75,19 @@ class User extends Authenticatable
 
         return self::getAllRows($request, $query, self::$selectColumns);
     }
+
+    /**
+     * Checks if the user has a specific permission.
+     *
+     * This method splits the user's permissions string into an array using the '|' delimiter
+     * and checks if the specified permission exists within that array.
+     *
+     * @param string $permission The permission to check for.
+     * @return bool True if the user has the specified permission, false otherwise.
+     */
+    public function hasPermission($permission)
+    {
+        $permissions = explode('|', $this->permission);
+        return in_array($permission, $permissions);
+    }
 }
