@@ -390,15 +390,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially'])->name('data-category.sendCategoryPartially')->middleware('permission:view_data_category');
 
     // Work Order Instruction
-    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_work_order_instruction');
-    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show'])->name('work-order-instruction.show')->middleware('permission:view_work_order_instruction');
-    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail'])->name('work-order-instruction.instructionDetail')->middleware('permission:view_work_order_instruction');
-    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy'])->name('work-order-instruction.delete')->middleware('permission:delete_work_order_instruction');
-    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update'])->name('work-order-instruction.update')->middleware('permission:edit_work_order_instruction');
-    Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail'])->name('work-order-instruction.detail')->middleware('permission:view_work_order_instruction');
-    Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList'])->name('work-order-instruction.lazyLoadList')->middleware('permission:view_work_order_instruction');
-    Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy'])->middleware('permission:delete_work_order_instruction');
-    Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage'])->name('work-order-instruction.uploadImage')->middleware('permission:view_work_order_instruction');
+    Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_wo_instruction');
+    Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show'])->name('work-order-instruction.show')->middleware('permission:view_wo_instruction');
+    Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail'])->name('work-order-instruction.instructionDetail')->middleware('permission:view_wo_instruction');
+    Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy'])->name('work-order-instruction.delete')->middleware('permission:delete_wo_instruction');
+    Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update'])->name('work-order-instruction.update')->middleware('permission:edit_wo_instruction');
+    Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail'])->name('work-order-instruction.detail')->middleware('permission:view_wo_instruction');
+    Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList'])->name('work-order-instruction.lazyLoadList')->middleware('permission:view_wo_instruction');
+    Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy'])->middleware('permission:delete_wo_instruction');
+    Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage'])->name('work-order-instruction.uploadImage')->middleware('permission:view_wo_instruction');
 
     // user manager 
     Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
@@ -424,17 +424,17 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['developer'])->group(function () {
     // Menu Manager
-    Route::get('/menu', [Menu::class, 'index'])->name('menu.index')->middleware('permission:view_menu');
-    Route::post('/menu/show', [Menu::class, 'show'])->name('menu.show')->middleware('permission:view_menu');
-    Route::get('/menu/create', [Menu::class, 'create'])->middleware('permission:add_menu');
-    Route::get('/menu/edit/{id}', [Menu::class, 'edit'])->name('menu.edit')->middleware('permission:edit_menu');
-    Route::post('/menu/store', [Menu::class, 'store'])->name('menu.store')->middleware('permission:add_menu');
-    Route::post('/menu/update', [Menu::class, 'update'])->name('menu.update')->middleware('permission:edit_menu');
-    Route::post('/menu/destroy', [Menu::class, 'destroy'])->name('menu.destroy')->middleware('permission:delete_menu');
-    Route::get('/menu/refresh', [Menu::class, 'refresh'])->name('menu.refresh')->middleware('permission:view_menu');
-    Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu'])->name('menu.getMenu')->middleware('permission:view_menu');
-    Route::get('/menu/parent/create', [MenuParent::class, 'create'])->middleware('permission:add_menu');
-    Route::post('/menu/parent/store', [MenuParent::class, 'store'])->name('menu.parent.store')->middleware('permission:add_menu');
+    Route::get('/menu', [Menu::class, 'index'])->name('menu.index')->middleware('permission:view_menu_manager');
+    Route::post('/menu/show', [Menu::class, 'show'])->name('menu.show')->middleware('permission:view_menu_manager');
+    Route::get('/menu/create', [Menu::class, 'create'])->middleware('permission:add_menu_manager');
+    Route::get('/menu/edit/{id}', [Menu::class, 'edit'])->name('menu.edit')->middleware('permission:edit_menu_manager');
+    Route::post('/menu/store', [Menu::class, 'store'])->name('menu.store')->middleware('permission:add_menu_manager');
+    Route::post('/menu/update', [Menu::class, 'update'])->name('menu.update')->middleware('permission:edit_menu_manager');
+    Route::post('/menu/destroy', [Menu::class, 'destroy'])->name('menu.destroy')->middleware('permission:delete_menu_manager');
+    Route::get('/menu/refresh', [Menu::class, 'refresh'])->name('menu.refresh')->middleware('permission:view_menu_manager');
+    Route::get('/menu/get/parent/{id}', [Menu::class, 'getMenu'])->name('menu.getMenu')->middleware('permission:view_menu_manager');
+    Route::get('/menu/parent/create', [MenuParent::class, 'create'])->middleware('permission:add_menu_manager');
+    Route::post('/menu/parent/store', [MenuParent::class, 'store'])->name('menu.parent.store')->middleware('permission:add_menu_manager');
     Route::get('/logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 });
 
