@@ -82,7 +82,7 @@ use App\Http\Controllers\Orders\WorkOrderInstruction;
 |
 */
 
-// view_vehicle|add_vehicle|edit_vehicle|delete_vehicle|view_battery|add_battery|edit_battery|delete_battery|view_distributor|add_distributor|edit_distributor|delete_distributor|view_work_order_instruction|add_work_order_instruction|edit_work_order_instruction|delete_work_order_instruction|view_quick_quotation|add_quick_quotation|edit_quick_quotation|delete_quick_quotation|view_sales_order|add_sales_order|edit_sales_order|delete_sales_order|view_work_order|add_work_order|edit_work_order|delete_work_order|view_tracking_technician|add_tracking_technician|edit_tracking_technician|delete_tracking_technician|view_inventory|add_inventory|edit_inventory|delete_inventory|view_category_(_online_)|add_category_(_online_)|edit_category_(_online_)|delete_category_(_online_)|view_battery_(_online_)|add_battery_(_online_)|edit_battery_(_online_)|delete_battery_(_online_)|view_sales_(_online_)|add_sales_(_online_)|edit_sales_(_online_)|delete_sales_(_online_)|view_message_templates|add_message_templates|edit_message_templates|delete_message_templates|view_tax|add_tax|edit_tax|delete_tax|view_promo|add_promo|edit_promo|delete_promo|view_payment_method|add_payment_method|edit_payment_method|delete_payment_method|view_user_manager|add_user_manager|edit_user_manager|delete_user_manager|view_print_templates|add_print_templates|edit_print_templates|delete_print_templates|view_menu_manager|add_menu_manager|edit_menu_manager|delete_menu_manager|
+// view_vehicle|add_vehicle|edit_vehicle|delete_vehicle|view_battery|add_battery|edit_battery|delete_battery|view_distributor|add_distributor|edit_distributor|delete_distributor|view_work_order_instruction|add_work_order_instruction|edit_work_order_instruction|delete_work_order_instruction|view_quick_quotation|add_quick_quotation|edit_quick_quotation|delete_quick_quotation|view_sales_order_(so)|add_sales_order_(so)|edit_sales_order_(so)|delete_sales_order_(so)|view_work_order|add_work_order|edit_work_order|delete_work_order|view_tracking_technician|add_tracking_technician|edit_tracking_technician|delete_tracking_technician|view_inventory|add_inventory|edit_inventory|delete_inventory|view_category_(_online_)|add_category_(_online_)|edit_category_(_online_)|delete_category_(_online_)|view_battery_(_online_)|add_battery_(_online_)|edit_battery_(_online_)|delete_battery_(_online_)|view_sales_(_online_)|add_sales_(_online_)|edit_sales_(_online_)|delete_sales_(_online_)|view_message_templates|add_message_templates|edit_message_templates|delete_message_templates|view_tax|add_tax|edit_tax|delete_tax|view_promo|add_promo|edit_promo|delete_promo|view_payment_method|add_payment_method|edit_payment_method|delete_payment_method|view_user_manager|add_user_manager|edit_user_manager|delete_user_manager|view_print_templates|add_print_templates|edit_print_templates|delete_print_templates|view_menu_manager|add_menu_manager|edit_menu_manager|delete_menu_manager|
 
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
@@ -255,47 +255,47 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/quotation/mobile/save-data', [QuickQuotation::class, 'saveDataMobile'])->name('quotation.saveDataMobile')->middleware('permission:view_quick_quotation');
 
     // Sales Order
-    Route::get('/sales-order', [SalesOrder::class, 'index'])->name('sales-order.index')->middleware('permission:view_sales_order');
-    Route::post('/sales-order/show', [SalesOrder::class, 'show'])->name('sales-order.show')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice'])->name('sales-order.invoice')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/create', [SalesOrder::class, 'create'])->middleware('permission:add_sales_order');
-    Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit'])->name('sales-order.edit')->middleware('permission:edit_sales_order');
-    Route::post('/sales-order/store', [SalesOrder::class, 'store'])->name('sales-order.store')->middleware('permission:add_sales_order');
-    Route::post('/sales-order/update', [SalesOrder::class, 'update'])->name('sales-order.update')->middleware('permission:edit_sales_order');
-    Route::post('/sales-order/delete', [SalesOrder::class, 'destroy'])->name('sales-order.delete')->middleware('permission:delete_sales_order');
-    Route::post('/sales-order/post', [SalesOrder::class, 'post'])->name('sales-order.post')->middleware('permission:edit_sales_order');
-    Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show'])->name('sales-order.battery.show')->middleware('permission:view_sales_order');
-    Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode'])->name('sales-order.battery.update.production-code')->middleware('permission:edit_sales_order');
-    Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop'])->name('sales-order.getTechnicianByShop')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate'])->name('sales-order.workOrderCreate')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink'])->name('sales-order.recreatePaymentLink')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink'])->name('sales-order.copyPaymentLink')->middleware('permission:view_sales_order');
+    Route::get('/sales-order', [SalesOrder::class, 'index'])->name('sales-order.index')->middleware('permission:view_sales_order_(so)');
+    Route::post('/sales-order/show', [SalesOrder::class, 'show'])->name('sales-order.show')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice'])->name('sales-order.invoice')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/create', [SalesOrder::class, 'create'])->middleware('permission:add_sales_order_(so)');
+    Route::get('/sales-order/edit/{id}', [SalesOrder::class, 'edit'])->name('sales-order.edit')->middleware('permission:edit_sales_order_(so)');
+    Route::post('/sales-order/store', [SalesOrder::class, 'store'])->name('sales-order.store')->middleware('permission:add_sales_order_(so)');
+    Route::post('/sales-order/update', [SalesOrder::class, 'update'])->name('sales-order.update')->middleware('permission:edit_sales_order_(so)');
+    Route::post('/sales-order/delete', [SalesOrder::class, 'destroy'])->name('sales-order.delete')->middleware('permission:delete_sales_order_(so)');
+    Route::post('/sales-order/post', [SalesOrder::class, 'post'])->name('sales-order.post')->middleware('permission:edit_sales_order_(so)');
+    Route::post('/sales-order/battery/show', [SalesOrderBattery::class, 'show'])->name('sales-order.battery.show')->middleware('permission:view_sales_order_(so)');
+    Route::post('/sales-order/battery/update/production-code', [SalesOrderBattery::class, 'updateProductionCode'])->name('sales-order.battery.update.production-code')->middleware('permission:edit_sales_order_(so)');
+    Route::get('/sales-order/technician/get/{shopId}', [SalesOrder::class, 'getTechnicianByShop'])->name('sales-order.getTechnicianByShop')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate'])->name('sales-order.workOrderCreate')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink'])->name('sales-order.recreatePaymentLink')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink'])->name('sales-order.copyPaymentLink')->middleware('permission:view_sales_order_(so)');
     // Mobile
-    Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders'])->name('sales-order.getSalesOrders')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail'])->name('sales-order.getSalesOrderDetail')->middleware('permission:view_sales_order');
-    Route::get('/sales-order/status', [SalesOrder::class, 'getSalesOrderStatus'])->name('sales-order.getSalesOrderStatus')->middleware('permission:view_sales_order');
+    Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders'])->name('sales-order.getSalesOrders')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail'])->name('sales-order.getSalesOrderDetail')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/status', [SalesOrder::class, 'getSalesOrderStatus'])->name('sales-order.getSalesOrderStatus')->middleware('permission:view_sales_order_(so)');
 
     // Work Order
-    Route::get('/work-order', [WorkOrder::class, 'index'])->name('work-order.index')->middleware('permission:view_work_order');
-    Route::post('/work-order/show', [WorkOrder::class, 'show'])->name('work-order.show')->middleware('permission:view_work_order');
-    Route::post('/work-order/print/', [WorkOrder::class, 'print'])->name('work-order.print')->middleware('permission:view_work_order');
-    Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage'])->name('work-order.uploadImage')->middleware('permission:view_work_order');
-    Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport'])->name('work-order.printTechnicianReport')->middleware('permission:view_work_order');
-    Route::post('/work-order/delete', [WorkOrder::class, 'destroy'])->name('work-order.delete')->middleware('permission:delete_work_order');
-    Route::post('/work-order/detail', [WorkOrder::class, 'detail'])->name('work-order.detail')->middleware('permission:view_work_order');
-    Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode'])->name('work-order.getProductionCode')->middleware('permission:view_work_order');
-    Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate'])->name('work-order.printTechnicianReportTemplate')->middleware('permission:view_work_order');
-    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction'])->name('work-order.copyInstruction')->middleware('permission:view_work_order');
+    Route::get('/work-order', [WorkOrder::class, 'index'])->name('work-order.index')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/show', [WorkOrder::class, 'show'])->name('work-order.show')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/print/', [WorkOrder::class, 'print'])->name('work-order.print')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/upload-image', [WorkOrder::class, 'uploadImage'])->name('work-order.uploadImage')->middleware('permission:view_work_order_(wo)');
+    Route::get('/work-order/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReport'])->name('work-order.printTechnicianReport')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/delete', [WorkOrder::class, 'destroy'])->name('work-order.delete')->middleware('permission:delete_work_order_(wo)');
+    Route::post('/work-order/detail', [WorkOrder::class, 'detail'])->name('work-order.detail')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/production-code', [WorkOrder::class, 'getProductionCode'])->name('work-order.getProductionCode')->middleware('permission:view_work_order_(wo)');
+    Route::get('/work-order/print-technician-report/{id}/{selectionPrintTechnicianReport}', [WorkOrder::class, 'printTechnicianReportTemplate'])->name('work-order.printTechnicianReportTemplate')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/copy-instruction', [WorkOrder::class, 'copyInstruction'])->name('work-order.copyInstruction')->middleware('permission:view_work_order_(wo)');
     // work order mobile
-    Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList'])->name('work-order.lazyLoadList')->middleware('permission:view_work_order');
-    Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail'])->name('work-order.getWorkOrderDetail')->middleware('permission:view_work_order');
-    Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy'])->middleware('permission:delete_work_order');
-    Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile'])->name('work-order.printTechnicianReportMobile')->middleware('permission:view_work_order');
-    Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile'])->name('work-order.printMobile')->middleware('permission:view_work_order');
+    Route::get('/work-order/mobile/lazy-load/list', [WorkOrder::class, 'lazyLoadList'])->name('work-order.lazyLoadList')->middleware('permission:view_work_order_(wo)');
+    Route::get('/work-order/mobile/detail', [WorkOrder::class, 'getWorkOrderDetail'])->name('work-order.getWorkOrderDetail')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/mobile/delete', [WorkOrder::class, 'destroy'])->middleware('permission:delete_work_order_(wo)');
+    Route::get('/work-order/mobile/print-technician-report/{id}', [WorkOrder::class, 'printTechnicianReportMobile'])->name('work-order.printTechnicianReportMobile')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/mobile/print/', [WorkOrder::class, 'printMobile'])->name('work-order.printMobile')->middleware('permission:view_work_order_(wo)');
     // tracking
-    Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking'])->name('work-order.startTracking')->middleware('permission:view_work_order');
-    Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking'])->name('work-order.endTracking')->middleware('permission:view_work_order');
-    Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking'])->name('work-order.updateTracking')->middleware('permission:view_work_order');
+    Route::post('/work-order/mobile/track/start', [WorkOrder::class, 'startTracking'])->name('work-order.startTracking')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/mobile/track/end', [WorkOrder::class, 'endTracking'])->name('work-order.endTracking')->middleware('permission:view_work_order_(wo)');
+    Route::post('/work-order/mobile/track/update', [WorkOrder::class, 'updateTracking'])->name('work-order.updateTracking')->middleware('permission:view_work_order_(wo)');
 
     // tracking technician
     Route::get('/tracking-technician', [TrackingTechnician::class, 'index'])->name('tracking-technician.index')->middleware('permission:view_tracking_technician');
@@ -364,30 +364,30 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey'])->name('profile.updateApiKey')->middleware('permission:edit_profile');
 
     // Data Battery
-    Route::get('/data-battery', [DataBattery::class, 'index'])->name('data-battery.index')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce'])->name('data-battery.syncWooCommerce')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory'])->name('data-battery.syncCategory')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct'])->name('data-battery.syncProduct')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails'])->name('data-battery.viewDetails')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/send-product', [DataBattery::class, 'sendProduct'])->name('data-battery.sendProduct')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/count-category', [DataBattery::class, 'countCategory'])->name('data-battery.countCategory')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially'])->name('data-battery.sendCategoryPartially')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct'])->name('data-battery.countProduct')->middleware('permission:view_data_battery');
-    Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially'])->name('data-battery.sendProductPartially')->middleware('permission:view_data_battery');
-    Route::get('/data-battery/export/csv', [DataBattery::class, 'exportCsv'])->name('data-battery.exportCsv')->middleware('permission:view_data_battery');
+    Route::get('/data-battery', [DataBattery::class, 'index'])->name('data-battery.index')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce'])->name('data-battery.syncWooCommerce')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/sync-category', [DataBattery::class, 'syncCategory'])->name('data-battery.syncCategory')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/sync-product', [DataBattery::class, 'syncProduct'])->name('data-battery.syncProduct')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/view-details', [DataBattery::class, 'viewDetails'])->name('data-battery.viewDetails')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/send-product', [DataBattery::class, 'sendProduct'])->name('data-battery.sendProduct')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/count-category', [DataBattery::class, 'countCategory'])->name('data-battery.countCategory')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/send-category-partially', [DataBattery::class, 'sendCategoryPartially'])->name('data-battery.sendCategoryPartially')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/count-product', [DataBattery::class, 'countProduct'])->name('data-battery.countProduct')->middleware('permission:view_battery_(_online_)');
+    Route::post('/data-battery/send-product-partially', [DataBattery::class, 'sendProductPartially'])->name('data-battery.sendProductPartially')->middleware('permission:view_battery_(_online_)');
+    Route::get('/data-battery/export/csv', [DataBattery::class, 'exportCsv'])->name('data-battery.exportCsv')->middleware('permission:view_battery_(_online_)');
 
     // Sales Online
-    Route::get('/sales-online', [SalesOnline::class, 'index'])->name('sales-online.index')->middleware('permission:view_sales_online');
-    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails'])->name('sales-online.viewDetails')->middleware('permission:view_sales_online');
-    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline'])->name('sales-online.syncSalesOnline')->middleware('permission:view_sales_online');
+    Route::get('/sales-online', [SalesOnline::class, 'index'])->name('sales-online.index')->middleware('permission:view_sales_(_online_)');
+    Route::post('/sales-online/view-details', [SalesOnline::class, 'viewDetails'])->name('sales-online.viewDetails')->middleware('permission:view_sales_(_online_)');
+    Route::post('/sales-online/sync-sales-online', [SalesOnline::class, 'syncSalesOnline'])->name('sales-online.syncSalesOnline')->middleware('permission:view_sales_(_online_)');
 
     // Data Category
-    Route::get('/data-category', [DataCategory::class, 'index'])->name('data-category.index')->middleware('permission:view_data_category');
-    Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory'])->name('data-category.syncCategory')->middleware('permission:view_data_category');
-    Route::post('/data-category/count-parent-category', [DataCategory::class, 'countParentCategory'])->name('data-category.countParentCategory')->middleware('permission:view_data_category');
-    Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially'])->name('data-category.sendParentCategoryPartially')->middleware('permission:view_data_category');
-    Route::post('/data-category/count-category', [DataCategory::class, 'countCategory'])->name('data-category.countCategory')->middleware('permission:view_data_category');
-    Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially'])->name('data-category.sendCategoryPartially')->middleware('permission:view_data_category');
+    Route::get('/data-category', [DataCategory::class, 'index'])->name('data-category.index')->middleware('permission:view_category_(_online_)');
+    Route::post('/data-category/sync-category', [DataCategory::class, 'syncCategory'])->name('data-category.syncCategory')->middleware('permission:view_category_(_online_)');
+    Route::post('/data-category/count-parent-category', [DataCategory::class, 'countParentCategory'])->name('data-category.countParentCategory')->middleware('permission:view_category_(_online_)');
+    Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially'])->name('data-category.sendParentCategoryPartially')->middleware('permission:view_category_(_online_)');
+    Route::post('/data-category/count-category', [DataCategory::class, 'countCategory'])->name('data-category.countCategory')->middleware('permission:view_category_(_online_)');
+    Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially'])->name('data-category.sendCategoryPartially')->middleware('permission:view_category_(_online_)');
 
     // Work Order Instruction
     Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_wo_instruction');
