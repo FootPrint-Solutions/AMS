@@ -60,7 +60,8 @@ class SalesOrderModel extends Model implements Auditable
         'payment_method_id',
         'payment_status',
         'midtrans_invoice_number',
-        'midtrans_payment_link'
+        'midtrans_payment_link',
+        'alternative_address'
     ];
 
     /**

@@ -275,6 +275,7 @@
                 }).get();
                 var Latitude = $("#Latitude").val();
                 var Longitude = $("#Longitude").val();
+                var alternative_address = $("#alternative_address").val();
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -344,7 +345,8 @@
                         IdCustomer: IdCustomer,
                         Battery: Battery,
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        DistributorShopId: DistributorShopId
+                        DistributorShopId: DistributorShopId,
+                        alternative_address: alternative_address
                     };
 
                     $.ajax({
@@ -468,6 +470,7 @@
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
                     var typeDiscount = $("#type-discount").val();
+                    var alternative_address = $("#alternative_address").val();
 
                     var data = {
                         FullName: FullName,
@@ -500,7 +503,8 @@
                         TaxRow: TaxRow,
                         TaxPriceRow: TaxPriceRow,
                         typeDiscount: typeDiscount,
-                        _token: $('meta[name="csrf-token"]').attr('content')
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        alternative_address: alternative_address
                     };
 
                     $.ajax({
@@ -838,6 +842,7 @@
                 var DiscountRupiah = $("#discount-rupiah").val();
                 var DiscountPercentage = $("#discount-percent").val();
                 var typeDiscount = $("#type-discount").val();
+                var alternative_address = $("#alternative_address").val();
 
                 var data = {
                     FullName: FullName,
@@ -877,7 +882,8 @@
                     TaxPayment: TaxPayment,
                     TaxPricePayment: TaxPricePayment,
                     BatteryIdCheckout: BatteryIdCheckout,
-                    typeDiscount: typeDiscount
+                    typeDiscount: typeDiscount,
+                    alternative_address: alternative_address
                 };
 
                 $.ajax({
@@ -1050,7 +1056,8 @@
         }
 
         function initMapDekstop() {
-            initializeMap('map-customer-address', 'AddressCustomer', 'Latitude', 'Longitude', markerDesktop, mapDesktop);
+            initializeMap('map-customer-address', 'alternative_address', 'Latitude', 'Longitude', markerDesktop,
+                mapDesktop);
         }
     </script>
     <script async

@@ -356,13 +356,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/promo/toggle', [Promo::class, 'updateStatus'])->name('promo.toggle')->middleware('permission:edit_promo');
 
     //profile
-    Route::get('/profile', [Profile::class, 'index'])->name('profile.index')->middleware('permission:view_profile');
-    Route::post('/profile/update', [Profile::class, 'update'])->name('profile.update')->middleware('permission:edit_profile');
-    Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture'])->name('profile.updateProfilePicture')->middleware('permission:edit_profile');
-    Route::post('/profile/password/update', [Profile::class, 'updatePassword'])->name('profile.updatePassword')->middleware('permission:edit_profile');
-    Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp'])->name('profile.deleteSessionWhatsapp')->middleware('permission:edit_profile');
-    Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey'])->name('profile.updateApiKey')->middleware('permission:edit_profile');
-
+    Route::get('/profile', [Profile::class, 'index'])->name('profile.index');
+    Route::post('/profile/update', [Profile::class, 'update'])->name('profile.update');
+    Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture'])->name('profile.updateProfilePicture');
+    Route::post('/profile/password/update', [Profile::class, 'updatePassword'])->name('profile.updatePassword');
+    Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp'])->name('profile.deleteSessionWhatsapp');
+    Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey'])->name('profile.updateApiKey');
     // Data Battery
     Route::get('/data-battery', [DataBattery::class, 'index'])->name('data-battery.index')->middleware('permission:view_battery_(_online_)');
     Route::post('/data-battery/sync-woocommerce', [DataBattery::class, 'syncWooCommerce'])->name('data-battery.syncWooCommerce')->middleware('permission:view_battery_(_online_)');

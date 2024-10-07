@@ -128,6 +128,11 @@
                                                     response.message,
                                                     'success'
                                                 )
+
+                                                // refresh page 
+                                                setTimeout(function() {
+                                                    location.reload();
+                                                }, 2000);
                                             } else {
                                                 Swal.fire(
                                                     'Error!',

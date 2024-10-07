@@ -72,7 +72,7 @@
             <td>
                 {{ $data['profile']['customer']['name'] }} (+62 {{ $data['profile']['customer']['contact'] }})<br>
                 {{ $data['profile']['customer']['email'] }}<br>
-                {{ $data['profile']['address'] }}
+                {{ $data['profile']['address'] }}, {{ $data['profile']['alternative_address'] }}
             </td>
         </tr>
     </table>

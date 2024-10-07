@@ -304,6 +304,7 @@ $arrayBattery
             $BatteryData = BatteryModel::getBatteryDistributor($request->input('Battery'), $request->input('DistributorShopId'));
         }
         $tax = TaxModel::where('status', '1')->first()->percentage;
+        $alternativeAddress = $request->input('alternative_address');
 
         $data = [
             'Fullname' => $Fullname,
@@ -318,6 +319,7 @@ $arrayBattery
             'Distributor' => $distributorChecked,
             'DistributorTechnician' => $distributorTechnician,
             'tax' => $tax,
+            'alternativeAddress' => $alternativeAddress
         ];
 
         return view('Orders.QuickQuotation.step-3-checkoutpreview', $data);
@@ -349,6 +351,7 @@ $arrayBattery
         $TaxPriceRow = $request->input('TaxPriceRow');
         $PaymentMethod = PaymentMethodModel::all()->toArray();
         $typeDiscount = $request->input('typeDiscount');
+        $alternativeAddress = $request->input('alternative_address');
         if ($typeDiscount == 'rupiah') {
             $Discount = $request->input('DiscountRupiah') ?? 0;
         } else {
@@ -411,6 +414,7 @@ $arrayBattery
             'Subtotal' => $request->input('subtotal') ?? 0,
             'PaymentMethod' => $PaymentMethod,
             'typeDiscount' => $typeDiscount,
+            'alternativeAddress' => $alternativeAddress
         ];
 
 
@@ -795,6 +799,7 @@ $arrayBattery
                 'payment_status' => "pending",
                 'status' => "draft",
                 'address' => $request->input('AddressCustomer'),
+                'alternative_address' => $request->input('alternative_address'),
                 'latitude' => $request->input('Latitude'),
                 'longitude' => $request->input('Longitude'),
                 'date' => date('Y-m-d')
@@ -813,7 +818,7 @@ $arrayBattery
                         $DiscountPrice = $request->input('DiscountPayment')[$key];
                         $Subtotal = $request->input('SubtotalPayment')[$key];
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
+                        $DiscountPercent = ($DiscountPrice + $TaxPrice) != 0 ? ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100 : 0;
                     } else {
                         $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
@@ -821,7 +826,7 @@ $arrayBattery
                         $DiscountPrice = $request->input('DiscountPayment')[$key];
                         $Subtotal = $request->input('SubtotalPayment')[$key];
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100;
+                        $DiscountPercent = ($DiscountPrice + $TaxPrice) != 0 ? ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100 : 0;
                     }
                     $dataProduct[] = [
                         'sales_order_id' => $Quotation->id,
@@ -849,6 +854,8 @@ $arrayBattery
                 return getResponseData(true, "Data saved successfully");
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
             return getResponseData(false, "Failed to save data => " . $th->getMessage());
         }
     }
