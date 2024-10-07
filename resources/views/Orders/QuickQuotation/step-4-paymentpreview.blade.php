@@ -26,7 +26,7 @@
                         <p class="invoice-details invoice-details-two">
                             62{{ $ContactNumber }} <br>
                             {{ $EmailCustomer }} <br>
-                            {{ $AddressCustomer }}, <br>
+                            {{ $AddressCustomer }}, {{ $alternativeAddress }}
                         </p>
                     </div>
                 </div>

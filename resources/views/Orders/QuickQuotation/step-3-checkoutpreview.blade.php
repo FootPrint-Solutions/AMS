@@ -29,7 +29,7 @@
             </strong>
             <p class="invoice-details invoice-details-two mt-3">
                 {{ $Fullname }} <br>
-                {{ $AddressCustomer }},<br>
+                {{ $AddressCustomer }}, {{ $alternativeAddress }}<br>
                 {{ $EmailCustomer }}, 62{{ $ContactNumber }} <br>
             </p>
         </div>

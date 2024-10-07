@@ -41,16 +41,8 @@
             <div class="form-group local-forms">
                 <label>Address Customer <span class="login-danger">*</span></label>
 
-
-                {{-- <textarea class="form-control" id="AddressCustomer" name="AddressCustomer" placeholder="Enter Addres Customer"
-                                                    value="" required autocomplete="off"></textarea> --}}
-
                 <input type="text" class="form-control" id="AddressCustomer" name="AddressCustomer">
             </div>
-
-            <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
-            <input type="hidden" name="Latitude" id="Latitude" value="">
-            <input type="hidden" name="Longitude" id="Longitude" value="">
         </div>
 
         <div class="col-lg-6 d-none">
@@ -63,12 +55,22 @@
                 <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
                     <option value="">Select Distributor Shop</option>
                 </select>
+
+                <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
+                    Maps Distributor Shop</button>
             </div>
         </div>
 
         <div class="col-lg-6">
-            <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
-                Maps Distributor Shop</button>
+            {{-- alternative address --}}
+            <div class="form-group local-forms">
+                <label>Alternative Address ( Pin Location )</label>
+                <textarea name="alternative_address" id="alternative_address" class="form-control" cols="30" rows="10"></textarea>
+
+                <input type="hidden" name="IdCustomer" id="IdCustomer" value="">
+                <input type="hidden" name="Latitude" id="Latitude" value="">
+                <input type="hidden" name="Longitude" id="Longitude" value="">
+            </div>
         </div>
     </div>
 
@@ -176,7 +178,7 @@
                         $('#AutoCompleteFullNameCustomerContact').html('');
                         $("#EmailCustomer").val('');
                         // $("#FullName").val('');
-                        $("#AddressCustomer").val('');
+                        $("#alternative_address").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
                         $("#Longitude").val('');
@@ -189,7 +191,7 @@
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
             // $("#FullName").val('');
-            $("#AddressCustomer").val('');
+            $("#alternative_address").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
             $("#IdCustomer").val('');
@@ -221,7 +223,7 @@
                         $('#AutoCompleteFullNameCustomer').html('');
                         $("#EmailCustomer").val('');
                         // $("#ContactNumber").val('');
-                        $("#AddressCustomer").val('');
+                        $("#alternative_address").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
                         $("#Longitude").val('');
@@ -234,7 +236,7 @@
             $('#AutoCompleteFullNameCustomer').html('');
             $("#EmailCustomer").val('');
             // $("#ContactNumber").val('');
-            $("#AddressCustomer").val('');
+            $("#alternative_address").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
             $("#IdCustomer").val('');
@@ -264,7 +266,7 @@
             var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
-            $('#AddressCustomer').val(suggestions[index].address);
+            $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
@@ -312,7 +314,7 @@
             var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
-            $('#AddressCustomer').val(suggestions[index].address);
+            $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
@@ -431,7 +433,7 @@
 
 
     function showMapsDistributor() {
-        var address = $('#AddressCustomer').val();
+        var address = $('#alternative_address').val();
         var latitude = $('#Latitude').val();
         var longitude = $('#Longitude').val();
         var idCustomer = $('#IdCustomer').val();
