@@ -92,8 +92,8 @@
                                 <?php else : ?>
                                     <td class="item" style="background-color: white;">
                                         <s style="color:#89837c;"><?= $values[$i]['original'] ?></s><br>
-                                        <b style="background-color: #ff0000; display: block;"> Disc
-                                            <?= $values[$i]['discount'] ?>%</b>
+                                        <b style="background-color: #ff0000; display: block;">Disc
+                                            <?= $values[$i]['price_discount'] ?></b>
                                         <strong style="color:#010202;">Netto: <?= $values[$i]['netto'] ?></strong>
                                     </td>
                                 <?php endif; ?>

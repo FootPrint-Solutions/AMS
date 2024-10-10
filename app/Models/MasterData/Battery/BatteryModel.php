@@ -204,7 +204,7 @@ class BatteryModel extends Model implements Auditable
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
     {
         $batteryData = DB::table('batteries')
-            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount_price')
             ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
             ->whereIn('batteries.id', $selectedBatteryIds)
             ->get();
