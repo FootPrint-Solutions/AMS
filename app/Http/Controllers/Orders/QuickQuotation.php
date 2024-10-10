@@ -448,7 +448,7 @@ $arrayBattery
         $Fullname = $request->input('FullName');
         $batteries = BatteryModel::join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id', 'left')
             ->whereIn('batteries.id', $batteryIds)
-            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount_price')
             ->get();
         $Tax = TaxModel::where('status', '1')->first()->percentage;
 
@@ -474,8 +474,8 @@ $arrayBattery
             $arrayBattery .= "*CCA* : " . $battery->standard_cca . " A\r";
             $arrayBattery .= "*Garansi* : " . $battery->warranty . " Bulan\r";
             $arrayBattery .= "*Harga* : Rp. " . number_format($grossPriceWithTax, 0, "", ".") . "\r";
-            $arrayBattery .= "*Discount* : " . number_format($discount, 0, "", ".") . "%\r";
-            $arrayBattery .= "*Harga + PPN* : Rp. " . number_format($price_tax, 0, "", ".") . "\r";
+            $arrayBattery .= "*Discount* : Rp. " . number_format($battery->discount_price, 0, "", ".") . "\r";
+            $arrayBattery .= "*Harga + PPN* : Rp. " . number_format($battery->price_net, 0, "", ".") . "\r";
 
             $arrayBattery .= "\r";
         }
@@ -1100,7 +1100,7 @@ $arrayVehicle
             ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
             ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
             ->orderBy('batteries.name', 'asc')
-            ->select('batteries.*', 'battery_size_categories.name as size_category', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount')
+            ->select('batteries.*', 'battery_size_categories.name as size_category', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount', 'battery_prices.discount_price')
             ->limit(10)
             ->get();
         $tax = TaxModel::where('status', '1')->first();
@@ -1197,12 +1197,13 @@ $arrayVehicle
             $batteries['cca'][] = $key['standard_cca'] . " A";
             $batteries['warranties'][] = $key['warranty'] . ' bulan';
             $pricePPn = $batteryPrices[0]['price_retail'] + ($batteryPrices[0]['price_retail'] * $Tax / 100);
-            $priceDiscount = $pricePPn * $batteryPrices[0]['discount'] / 100;
-            $priceNetto = $pricePPn - $priceDiscount;
+            $priceDiscount = $batteryPrices[0]['discount_price'];
+            $priceNetto = $batteryPrices[0]['price_net'];
             $batteries['prices'][] = [
                 'original' =>  "Rp. " . number_format($pricePPn, 0, "", "."),
                 'discount' => number_format($batteryPrices[0]['discount'], 0, "", ".") . "",
                 'netto' => "Rp. " . number_format($priceNetto, 0, "", "."),
+                'price_discount' => "Rp. " . number_format($priceDiscount, 0, "", "."),
             ];
         }
 

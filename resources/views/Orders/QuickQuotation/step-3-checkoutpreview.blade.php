@@ -72,7 +72,7 @@
                         $price_retail = $battery->price_retail_original;
                         $price_net = $battery->price_net;
                         $price_tax = $price_retail + ($price_retail * $tax) / 100;
-                        $discount_price = ($price_retail * $discount) / 100;
+                        $discount_price = $battery->discount_price;
                     } else {
                         $discount = 0;
                         $price_retail = $battery->price_retail;

@@ -175,16 +175,17 @@
                             html +=
                                 '<li class="list-group-item"><div ><div >Harga :</div><div ><span class="price-original position-relative">Rp. ' +
                                 Number(price_with_tax).toLocaleString('id-ID') +
-                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
-                                Number(vehicle.discount) + ' %</span> </span></div></div></li>';
+                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc Rp. ' +
+                                Number(vehicle.discount_price).toLocaleString('id-ID') + ' </span> </span></div></div></li>';
                             var price_with_tax = vehicle.price_retail_original + (vehicle
                                 .price_retail_original * (vehicle.tax / 100));
                             var price_discount = vehicle.price_retail_original - (vehicle
                                 .price_retail_original * (vehicle.discount / 100));
                             var price_tax = price_discount + (price_discount * (vehicle.tax / 100));
+                            // var price_tax = vehicle.price_retail_original - vehicle.
                             html +=
                                 '<li class="list-group-item" style="font-size: 14px;"><div ><div >Harga + PPN :</div><div ><span class="price-discount">Rp. ' +
-                                Number((price_tax))
+                                Number((vehicle.price_net))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';
@@ -405,16 +406,16 @@
                                 '<li class="list-group-item"><div class="row"><div >Harga :</div><div ><span class="price-original position-relative">Rp. ' +
                                 Number(price_with_tax).toLocaleString(
                                     'id-ID') +
-                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc ' +
-                                Number(vehicle.discount) +
-                                ' %</span> </span></div></div></li>';
+                                '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc Rp. ' +
+                                Number(vehicle.discount_price).toLocaleString('id-ID') +
+                                '</span> </span></div></div></li>';
                             var price_discount = vehicle.price_retail_original - (vehicle
                                 .price_retail_original * (vehicle.discount / 100));
                             var price_tax = price_discount + (price_discount * (vehicle
                                 .tax / 100));
                             html +=
                                 '<li class="list-group-item" style="font-size: 14px;"><div class="row"><div >Harga + PPN :</div><div ><span class="price-discount">Rp. ' +
-                                Number((price_tax))
+                                Number((vehicle.price_net))
                                 .toLocaleString(
                                     'id-ID') +
                                 '</span></div></div></li>';
