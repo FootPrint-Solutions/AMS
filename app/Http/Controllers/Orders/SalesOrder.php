@@ -176,6 +176,13 @@ class SalesOrder extends Controller
             // payment method badge
             $paymentMethodBadge = " <span class='badge badge-info'>$key->payment_method_name</span>";
 
+            // source platfrom badge
+            if ($key->source_platform == 'woocommerce') {
+                $sourcePlatformBadge = " <span class='badge badge-info text-dark'>$key->source_platform - $key->source_id</span>";
+            } else {
+                $sourcePlatformBadge = "";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
@@ -186,7 +193,7 @@ class SalesOrder extends Controller
             $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
-            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge;
+            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge . $sourcePlatformBadge;
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
             $row[] = $key->id;
             $row[] = $key->status;
