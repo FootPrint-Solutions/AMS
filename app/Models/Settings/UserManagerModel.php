@@ -27,6 +27,7 @@ class UserManagerModel extends Model
         'email',
         'password',
         'level',
+        'permission',
     ];
 
 

@@ -65,6 +65,7 @@ class UserManager extends Controller
     public function edit($id)
     {
         return view('Settings.UserManager.create', array(
+            'title' => $this->title,
             'data' => array(
                 'profile' => UserManagerModel::find($id)->toArray(),
                 'menu_parent' => MenuParent::with('menus')->orderBy('order', 'asc')->get(),
