@@ -200,9 +200,17 @@ class DistributorShop extends Controller
         try {
             $shop = DistributorShopModel::find($request->id);
 
+            if (!$shop) {
+                return getResponseData(false, "Shop not found!");
+            }
+
             // Check whether distributor is active or inactive.
-            $distributorStatus = DistributorModel::find($shop->distributor_id)->status;
-            if ($distributorStatus !== null && $distributorStatus == 0) {
+            $distributor = DistributorModel::find($shop->distributor_id);
+            if (!$distributor) {
+                return getResponseData(false, "Distributor not found!");
+            }
+
+            if ($distributor->status == 0) {
                 // If inactive, the shop status cannot be changed.
                 return getResponseData(
                     false,
