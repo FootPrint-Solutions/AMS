@@ -65,6 +65,58 @@
         </div>
     </div>
 
+    {{--  modal form to choose vehicle, distributor, and technician --}}
+    <div class="modal fade" id="modalSaveSalesOrder" tabindex="-1" role="dialog"
+        aria-labelledby="modalSaveSalesOrderLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" id="modal-save-sales-order">
+                {{-- form --}}
+                <form action="{{ route('sales-online.saveToSalesOrders') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalSaveSalesOrderLabel">Save Sales Online to Sales Orders</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Choose Vehicle</h5>
+                                <select class="form-select" name="vehicle_id" required>
+                                    <option value="">Choose Vehicle</option>
+                                    @foreach ($data['Vehicles'] as $vehicle)
+                                        <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Choose Distributor</h5>
+                                <select class="form-select" name="distributor_id" id="distributor_id" required>
+                                    <option value="">Choose Distributor</option>
+                                    @foreach ($data['Distributors'] as $distributor)
+                                        <option value="{{ $distributor->id }}">{{ $distributor->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h5>Choose Technician</h5>
+                                <select class="form-select" name="technician_id">
+                                    <option value="">Choose Technician</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="hidden" name="sales_online_number" id="sales_online_number">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="save-to-sales-orders">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // set DataTable
@@ -327,9 +379,124 @@
                                 });
                             }
                         }
+                    },
+                    // button save to sales orders
+                    {
+                        text: 'Save to Sales Orders',
+                        className: 'btn btn-outline-warning btn-sm',
+                        action: function(e, dt, node, config) {
+                            var data = dt.rows({
+                                selected: true
+                            }).data();
+                            if (data.length == 0) {
+                                Swal.fire(
+                                    'Error!',
+                                    'Please select at least one row.',
+                                    'error'
+                                )
+                            } else {
+                                var sales_online_number = data[0][1];
+                                // show modal with form to choose vehicle, distributor, and technician
+                                $('#modalSaveSalesOrder').modal('show');
+                                $('#sales_online_number').val(sales_online_number);
+                            }
+                        }
                     }
                 ],
             });
+        });
+
+        // get technician based on distributor
+        $('#distributor_id').change(function() {
+            var distributor_id = $(this).val();
+            $.ajax({
+                url: '/sales-online/get-technician',
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    distributor_id: distributor_id
+                },
+                success: function(response) {
+                    var html = '<option value="">Choose Technician</option>';
+                    for (var i = 0; i < response.data.length; i++) {
+                        var technician = response.data[i];
+                        html += '<option value="' + technician.id + '">' + technician
+                            .name + '</option>';
+                    }
+                    $('select[name="technician_id"]').html(html);
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire(
+                        'Error!',
+                        'Failed to get technician.',
+                        'error'
+                    )
+                }
+            });
+        });
+
+        // save to sales orders
+        $('#save-to-sales-orders').click(function() {
+            var vehicle_id = $('select[name="vehicle_id"]').val();
+            var distributor_id = $('select[name="distributor_id"]').val();
+            var technician_id = $('select[name="technician_id"]').val();
+            var sales_online_number = $('#sales_online_number').val();
+            if (vehicle_id == '' || distributor_id == '') {
+                Swal.fire(
+                    'Error!',
+                    'Please choose vehicle, distributor.',
+                    'error'
+                )
+            } else {
+                // loading 
+                Swal.fire({
+                    title: 'Please Wait..',
+                    html: 'Saving to Sales Orders..',
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                    allowOutsideClick: false
+                });
+                // ajax request
+                $.ajax({
+                    url: '/sales-online/save-to-sales-orders',
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        vehicle_id: vehicle_id,
+                        distributor_id: distributor_id,
+                        technician_id: technician_id,
+                        sales_online_number: sales_online_number
+                    },
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            Swal.fire(
+                                'Success!',
+                                response.message,
+                                'success'
+                            )
+
+                            // refresh page 
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            )
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire(
+                            'Error!',
+                            'Failed to save to sales orders.',
+                            'error'
+                        )
+                    }
+                });
+            }
         });
     </script>
 @endsection
