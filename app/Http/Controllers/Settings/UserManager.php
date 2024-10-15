@@ -122,7 +122,35 @@ class UserManager extends Controller
     {
         DB::beginTransaction();
         try {
+
+            // check if session user is not the same with the user that will be deleted
             $id = $request->input('id');
+            $user = UserManagerModel::find($id);
+
+            if ($user->username == Auth::user()->username) {
+                return getResponseData(
+                    false,
+                    "You can't delete your own account!"
+                );
+            }
+
+            // check if user session is technician and trying to delete other technician account 
+            $level = Auth::user()->level;
+            if ($level == 'technician') {
+                return getResponseData(
+                    false,
+                    "You can't delete technician account!"
+                );
+            }
+
+            // check if user session is user and trying to delete developer account
+            if ($level == 'user' && $user->level == 'developer') {
+                return getResponseData(
+                    false,
+                    "You can't delete developer account!"
+                );
+            }
+
             UserManagerModel::destroy($id);
 
             DB::commit();
