@@ -202,7 +202,9 @@
                     "delete_menu_manager"
                 ];
                 let technicianPermissions = ["view_work_order_instruction", "add_work_order_instruction",
-                    "edit_work_order_instruction", "delete_work_order_instruction"
+                    "edit_work_order_instruction", "delete_work_order_instruction",
+                    "view_wo_instruction", "add_wo_instruction", "edit_wo_instruction",
+                    "delete_wo_instruction"
                 ];
 
                 checkboxes.prop("checked", false).prop("disabled", false);
