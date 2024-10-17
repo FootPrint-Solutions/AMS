@@ -23,9 +23,9 @@ class DataCategory extends Controller
     {
         // Initialize WooCommerce Client in the constructor
         $this->woocommerce = new Client(
-            'https://wp.raden.social/',
-            'ck_e69e713763c055f1a63f9057dfae0bb595775815',
-            'cs_1e35df9199bb4cd6e9e1774bf11e0831f089763e',
+            'https://akikita.web.id/',
+            'ck_7034e6f1e7a7d3b705df60c37bb003c6a1ca6f9b',
+            'cs_b7973fc68cdd299d2ad6647989872e517d88cab0',
             [
                 'version' => 'wc/v3',
             ]
