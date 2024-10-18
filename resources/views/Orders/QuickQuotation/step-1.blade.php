@@ -160,12 +160,12 @@
                         if (vehicle.discount == 0) {
                             html +=
                                 '<li class="list-group-item"><div ><div >Harga :</div><div >Rp. ' +
-                                Number((vehicle.price_retail))
+                                Number((vehicle.price_net))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
                             html +=
                                 '<li class="list-group-item" style="font-size: 14px;"><div ><div >Harga + PPN :</div><div >Rp. ' +
-                                Number((vehicle.price_retail * (1 + vehicle.tax / 100)))
+                                Number((vehicle.price_net * (1 + vehicle.tax / 100)))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
@@ -176,7 +176,8 @@
                                 '<li class="list-group-item"><div ><div >Harga :</div><div ><span class="price-original position-relative">Rp. ' +
                                 Number(price_with_tax).toLocaleString('id-ID') +
                                 '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: 15px;">Disc Rp. ' +
-                                Number(vehicle.discount_price).toLocaleString('id-ID') + ' </span> </span></div></div></li>';
+                                Number(vehicle.discount_price).toLocaleString('id-ID') +
+                                ' </span> </span></div></div></li>';
                             var price_with_tax = vehicle.price_retail_original + (vehicle
                                 .price_retail_original * (vehicle.tax / 100));
                             var price_discount = vehicle.price_retail_original - (vehicle
@@ -390,12 +391,12 @@
                         if (vehicle.discount == 0) {
                             html +=
                                 '<li class="list-group-item"><div class="row"><div >Harga :</div><div >Rp. ' +
-                                Number((vehicle.price_retail))
+                                Number((vehicle.price_net))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
                             html +=
                                 '<li class="list-group-item" style="font-size: 14px;"><div class="row"><div >Harga + PPN :</div><div >Rp. ' +
-                                Number((vehicle.price_retail * (1 + vehicle.tax / 100)))
+                                Number((vehicle.price_net * (1 + vehicle.tax / 100)))
                                 .toLocaleString('id-ID') +
                                 '</div></div></li>';
                             html += '<li class="list-group-item"></li>';
