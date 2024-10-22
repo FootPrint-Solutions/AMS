@@ -9,6 +9,7 @@ use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryCodeModel;
+use app\Models\MasterData\Battery\BatteryPriceModel;
 
 
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -99,6 +100,14 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
             $code->code = BatteryCodeModel::generateCode();
             $code->battery_id = $battery->id;
             $code->save();
+
+            $batteryPrices = BatteryPriceModel::where('battery_id', $battery->id)->first();
+            if (!$batteryPrices) {
+                $batteryPrices = new BatteryPriceModel();
+                $batteryPrices->battery_id = $battery->id;
+            }
+            $batteryPrices->price_retail = $priceRetail;
+            $batteryPrices->save();
 
             $this->totalInsertedRows++;
             return $battery;

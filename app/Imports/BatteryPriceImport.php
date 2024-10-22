@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use app\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -108,6 +109,19 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
         } else {
             $this->unimportedRows[] = $row;
         }
+
+        $batteryPrices = BatteryPriceModel::where('battery_id', $batteryId)->get();
+        if ($batteryPrices->count() > 0) {
+            $batteryPrice = $batteryPrices->first();
+            $batteryPrice->price_retail = $newPrice;
+            $batteryPrice->save();
+        } else {
+            $batteryPrice = new BatteryPriceModel();
+            $batteryPrice->battery_id = $batteryId;
+            $batteryPrice->price_retail = $newPrice;
+            $batteryPrice->save();
+        }
+
         return $battery;
     }
 
