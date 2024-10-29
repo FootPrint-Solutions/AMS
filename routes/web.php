@@ -71,6 +71,9 @@ use App\Http\Controllers\Publish\DataCategory;
 // Work Order Technician
 use App\Http\Controllers\Orders\WorkOrderInstruction;
 
+// Audit
+use App\Http\Controllers\Developer\Audit;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -437,6 +440,10 @@ Route::middleware(['developer'])->group(function () {
     Route::get('/menu/parent/create', [MenuParent::class, 'create'])->middleware('permission:add_menu_manager');
     Route::post('/menu/parent/store', [MenuParent::class, 'store'])->name('menu.parent.store')->middleware('permission:add_menu_manager');
     Route::get('/logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+
+    // Audit
+    Route::get('/audit', [Audit::class, 'index'])->name('audit.index')->middleware('permission:view_audit_log');
+    Route::post('/audit/show', [Audit::class, 'show'])->name('audit.show')->middleware('permission:view_audit_log');
 });
 
 // Auth
