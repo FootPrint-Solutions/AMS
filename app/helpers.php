@@ -110,3 +110,9 @@ function formatDateWoo($date)
 {
     return date_format(date_create($date), "Y-m-d");
 }
+
+function formatTanggal($date)
+{
+    // 2024-04-28T23:41:51.000000Z to 2024-04-28 23:41:51
+    return date_format(date_create($date), "Y-m-d H:i:s");
+}
