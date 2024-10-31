@@ -12,7 +12,7 @@ class WorkOrderInstructionTemplate extends Controller
     public function index()
     {
         return view(
-            'settings.WorkOrderInstruction.index',
+            'Settings.WorkOrderInstruction.index',
             getIndexData(
                 $this->title
             )
