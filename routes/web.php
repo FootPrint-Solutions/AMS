@@ -74,6 +74,9 @@ use App\Http\Controllers\Orders\WorkOrderInstruction;
 // Audit
 use App\Http\Controllers\Developer\Audit;
 
+// Work Order Instruction Template
+use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -403,6 +406,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList'])->name('work-order-instruction.lazyLoadList')->middleware('permission:view_wo_instruction');
     Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy'])->middleware('permission:delete_wo_instruction');
     Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage'])->name('work-order-instruction.uploadImage')->middleware('permission:view_wo_instruction');
+
+
+    // WO Instruction Template
+    Route::get('/wo-instruction-template', [WorkOrderInstructionTemplate::class, 'index'])->name('wo-instruction-template.index')->middleware('permission:view_wo_instruction_template');
 
     // user manager 
     Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
