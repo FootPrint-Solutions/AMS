@@ -1173,6 +1173,8 @@ $arrayVehicle
             $batteries['categories'][] = $key['brand']['name'] . ' ' . $key['subbrand_category']['name'];
             if (preg_match('/[0-9A-Z]+[0-9A-Z]$/', $key['name'], $matches)) {
                 $batteries['units'][] = $matches[0];
+            } else {
+                $batteries['units'][] = $key['name'];
             }
             if ($key['image'] != null) {
                 $value['image'] = asset('storage/image/battery/compressed/' . $key['image']);
