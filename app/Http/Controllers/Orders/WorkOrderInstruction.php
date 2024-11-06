@@ -190,6 +190,7 @@ class WorkOrderInstruction extends Controller
      */
     public function update(Request $request)
     {
+        dd($request->all());
         try {
 
             // db transaction
@@ -368,7 +369,12 @@ class WorkOrderInstruction extends Controller
             ->where('work_order_instruction_number', $id)
             ->first();
 
-        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::with('details');
+        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::with('details')->get();
+
+        $data = array(
+            'workOrderInstruction' => $workOrderInstruction,
+            'workOrderInstructionTemplate' => $workOrderInstructionTemplate
+        );
 
         if (!$workOrderInstruction) {
             return redirect()->route('work-order-instruction.index')
@@ -382,7 +388,7 @@ class WorkOrderInstruction extends Controller
 
         return view(
             'Orders.WorkOrderInstruction.detail-new',
-            getIndexData($this->title, $workOrderInstruction, $workOrderInstructionTemplate)
+            getIndexData($this->title, $data)
         );
     }
 }

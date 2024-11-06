@@ -16,24 +16,24 @@ class WorkOrderInstructionTemplate extends Controller
 
     public function index()
     {
-        $data = WorkOrderInstructionTemplateModel::with('details')->get();
-        // dd($data);
-        if ($data->isEmpty()) {
-            return view(
-                'Settings.WorkOrderInstruction.index',
-                getIndexData(
-                    $this->title
-                )
-            );
-        } else {
-            return view(
-                'Settings.WorkOrderInstruction.edit',
-                getIndexData(
-                    $this->title,
-                    $data
-                )
-            );
-        }
+        // $data = WorkOrderInstructionTemplateModel::with('details')->get();
+        // // dd($data);
+        // if ($data->isEmpty()) {
+        return view(
+            'Settings.WorkOrderInstruction.index',
+            getIndexData(
+                $this->title
+            )
+        );
+        // } else {
+        //     return view(
+        //         'Settings.WorkOrderInstruction.edit',
+        //         getIndexData(
+        //             $this->title,
+        //             $data
+        //         )
+        //     );
+        // }
     }
 
     public function store(Request $request)
@@ -42,11 +42,6 @@ class WorkOrderInstructionTemplate extends Controller
 
         try {
             DB::beginTransaction();
-
-            // delete all data first 
-            WorkOrderInstructionTemplateDetailsModel::truncate();
-            WorkOrderInstructionTemplateModel::truncate();
-
 
             $master = new WorkOrderInstructionTemplateModel();
             $master->name = $data['title'];
