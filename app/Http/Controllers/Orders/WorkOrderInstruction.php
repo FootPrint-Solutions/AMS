@@ -369,7 +369,7 @@ class WorkOrderInstruction extends Controller
             ->where('work_order_instruction_number', $id)
             ->first();
 
-        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::with('details')->get();
+        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
 
         $data = array(
             'workOrderInstruction' => $workOrderInstruction,
