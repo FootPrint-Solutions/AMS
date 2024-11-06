@@ -15,58 +15,76 @@
             {{-- Title --}}
             <div class="row align-items-center">
                 <div class="col">
-                    <h3 class="page-title text-center">Work Order Instruction Template Configuration</h3>
+                    <h3 class="page-title text-center">Edit Work Order Instruction Template</h3>
                 </div>
             </div>
         </div>
     </div>
 
     {{-- bagi menjadi dua colom --}}
-    <form action="{{ route('wo-instruction-template.store') }}" method="POST">
+    <form action="{{ route('wo-instruction-template.edit') }}" method="POST">
         @csrf
+        @method('PUT')
         <div class="row">
             <div class="col-md-9">
-                <div class="card shadow" id="step-1">
-                    <div class="card-header">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h3 class="page-title text-center">Step 1</h3>
+                @foreach ($data as $step)
+                    <div class="card shadow" id="step-{{ $loop->index + 1 }}">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h3 class="page-title text-center">Step {{ $loop->index + 1 }}</h3>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-danger btn-sm" onclick="deleteStep({{ $loop->index + 1 }})"><i
+                                            class="fas fa-trash"></i></button>
+                                </div>
                             </div>
-                            <div class="col-auto">
-                                <button class="btn btn-danger btn-sm" onclick="deleteStep(1)"><i
-                                        class="fas fa-trash"></i></button>
+                            <div class="row mt-2">
+                                <div class="col-md-2 d-flex align-items-center">
+                                    Title
+                                </div>
+                                <div class="col-md">
+                                    <input type="text" class="form-control"
+                                        id="input-work-order-instruction-title-step-{{ $loop->index + 1 }}"
+                                        name="input-work-order-instruction-title[]" value="{{ $step->title }}" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="row mt-2">
-                            <div class="col-md-2 d-flex align-items-center">
-                                Title
+                        <div class="card-body">
+                            <div class="row mt-2">
+                                <div class="col-md-2 d-flex align-items-center">
+                                    Description
+                                </div>
+                                <div class="col-md">
+                                    <textarea class="form-control" id="input-work-order-instruction-description-step-{{ $loop->index + 1 }}"
+                                        name="input-work-order-instruction-description[]" required>{{ $step->description }}</textarea>
+                                </div>
                             </div>
-                            <div class="col-md">
-                                <input type="text" class="form-control" id="input-work-order-instruction-title-step-1"
-                                    name="input-work-order-instruction-title[]" required>
+                            <div class="input-div-step-{{ $loop->index + 1 }} mt-3">
+                                @foreach ($step->inputs as $input)
+                                    <div class="row mt-2">
+                                        <div class="col-md-2 d-flex align-items-center">
+                                            {{ $input->question }}
+                                        </div>
+                                        <div class="col-md">
+                                            <input type="{{ $input->type }}" class="form-control"
+                                                name="input-work-order-instruction-input-{{ $input->type }}[]"
+                                                value="{{ $input->value }}" {{ $input->required ? 'required' : '' }}>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <button type="button" class="btn btn-primary btn-sm btn-add-input" id="btn-add-input"
+                                        data-step="{{ $loop->index + 1 }}" onclick="addInputModal(this)"><i
+                                            class="fas fa-plus"></i>
+                                        Add Input</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row mt-2">
-                            <div class="col-md-2 d-flex align-items-center">
-                                Description
-                            </div>
-                            <div class="col-md">
-                                <textarea class="form-control" id="input-work-order-instruction-description-step-1"
-                                    name="input-work-order-instruction-description[]" required></textarea>
-                            </div>
-                        </div>
-                        <div class="input-div-step-1 mt-3"></div>
-                        <div class="row mt-2">
-                            <div class="col-md-2 d-flex align-items-center">
-                                <button type="button" class="btn btn-primary btn-sm btn-add-input" id="btn-add-input"
-                                    data-step="1" onclick="addInputModal(this)"><i class="fas fa-plus"></i>
-                                    Add Input</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
 
                 <div class="step-div mt-3"></div>
             </div>
@@ -82,127 +100,25 @@
                     </div>
                     <div class="card-body">
                         {{-- button add new step --}}
-                        <button type="button" class="btn btn-primary btn-lg w-100 mb-2" data-step="1" onclick="addStep()">
+                        <button type="button" class="btn btn-primary btn-lg w-100 mb-2"
+                            data-step="{{ $data->steps->count() }}" onclick="addStep()">
                             <i class="fas fa-plus"></i> Add New Step
                         </button>
                         {{-- button save all data --}}
                         <button id="save-button" class="btn btn-success btn-lg w-100 mt-3" type="submit">
                             <i class="fas fa-save"></i> Save
                         </button>
-
-                        <div class="mt-3">
-                            <h5>Variable Data</h5>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<ADDRESSCUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<ADDRESSCUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<NAMECUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<NAMECUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<PHONECUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<PHONECUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<EMAILCUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<EMAILCUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<VEHICLECUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<VEHICLECUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="text" value="<BATTERYCUSTOMER>" readonly class="form-control">
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="copyToClipboard('<BATTERYCUSTOMER>')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- modalInputOption --}}
-        <div class="modal fade" id="modalInputOption" tabindex="-1" aria-labelledby="modalInputOptionLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalInputOptionLabel">Add Input Option</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="input-work-order-instruction-input-step-modal-hidden"
-                            name="input-work-order-instruction-input-step-modal-hidden" value="1">
-                        <div class="row">
-                            <div class="col-md-2 d-flex align-items-center">
-                                Input Type
-                            </div>
-                            <div class="col-md">
-                                <select class="form-select" id="input-work-order-instruction-input-input-type"
-                                    name="input-work-order-instruction-input-input-type" onchange="changeInputType()">
-                                    <option value="text">Text</option>
-                                    <option value="number">Number</option>
-                                    <option value="date">Date</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="radio">Radio</option>
-                                    <option value="select">Select</option>
-                                    <option value="image">Image</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center d-none"
-                                id="input-work-order-instruction-input-group-label">
-                                Group
-                            </div>
-                            <div class="col-md d-none" id="input-work-order-instruction-input-group">
-                                <select class="form-select" id="input-work-order-instruction-input-group-select"
-                                    name="input-work-order-instruction-input-group-select">
-                                    @for ($i = 1; $i <= 10; $i++)
-                                        <option value="{{ $i }}">{{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addOption()">Add
-                                    Option</button>
-                            </div>
-                        </div>
-
-                        <div class="form-input-option mt-3"></div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="addInput()">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <input type="hidden" id="last-step" value="1">
+        <input type="hidden" id="last-step" value="{{ $data->steps->count() }}">
     </form>
 
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     <script>
-        let step = 1;
+        let step = {{ $data->steps->count() }};
         let stepDiv = $('.step-div');
 
         function addStep() {
@@ -224,7 +140,7 @@
                                 <h3 class="page-title text-center">Step ${step}</h3>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteStep(${step})"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteStep(${step})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                         <div class="row mt-2">
@@ -509,8 +425,8 @@
                     });
                     // send ajax request
                     $.ajax({
-                        url: "{{ route('wo-instruction-template.store') }}",
-                        type: "POST",
+                        url: "{{ route('wo-instruction-template.update', $data->id) }}",
+                        type: "PUT",
                         data: {
                             "_token": "{{ csrf_token() }}",
                             "title": title,
@@ -523,25 +439,12 @@
                             "input_count": input_count
                         },
                         success: function(response) {
-                            if (response.status == 'error') {
-                                toastr.error(response.message);
-                            } else {
-                                toastr.success('Data saved successfully');
-                            }
+                            // respon toastr
+                            toastr.success('Data updated successfully');
                         }
                     });
                 }
             });
         });
-
-        function copyToClipboard(text) {
-            var dummy = document.createElement("textarea");
-            document.body.appendChild(dummy);
-            dummy.value = text;
-            dummy.select();
-            document.execCommand("copy");
-            document.body.removeChild(dummy);
-            toastr.success('Copied to clipboard');
-        }
     </script>
 @endsection

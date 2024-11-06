@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 // Models
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
-
+use App\Models\Settings\WorkOrderInstructionTemplateModel;
 use Intervention\Image\Facades\Image;
 
 class WorkOrderInstruction extends Controller
@@ -342,5 +342,47 @@ class WorkOrderInstruction extends Controller
                 'message' => 'Failed to upload image' . $th->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Display the details of a specific work order instruction.
+     *
+     * This method retrieves the details of a work order instruction based on the provided ID.
+     * If the ID is "login", it redirects the user to the login route.
+     * Otherwise, it fetches the work order instruction details from the database and returns
+     * the view with the retrieved data.
+     *
+     * @param string $id The ID of the work order instruction or the string "login".
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View The redirect response to the login route or the view with the work order instruction details.
+     */
+    public function InstructionDetailNew($id)
+    {
+        if ($id == "login") {
+            return redirect()->route('login');
+        }
+
+        // Generate a unique work order instruction number
+        session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
+
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')
+            ->where('work_order_instruction_number', $id)
+            ->first();
+
+        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::with('details');
+
+        if (!$workOrderInstruction) {
+            return redirect()->route('work-order-instruction.index')
+                ->with('error', 'Work Order Instruction not found');
+        }
+
+        if ($workOrderInstruction->date_complete) {
+            return redirect()->route('work-order-instruction.index')
+                ->with('error', 'Work Order Instruction has been completed');
+        }
+
+        return view(
+            'Orders.WorkOrderInstruction.detail-new',
+            getIndexData($this->title, $workOrderInstruction, $workOrderInstructionTemplate)
+        );
     }
 }
