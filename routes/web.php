@@ -400,6 +400,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_wo_instruction');
     Route::post('/work-order-instruction/show', [WorkOrderInstruction::class, 'show'])->name('work-order-instruction.show')->middleware('permission:view_wo_instruction');
     Route::get('/wo/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetail'])->name('work-order-instruction.instructionDetail')->middleware('permission:view_wo_instruction');
+    Route::get('/wo-new/{work_order_instruction_number}', [WorkOrderInstruction::class, 'InstructionDetailNew'])->name('work-order-instruction.instructionDetailNew')->middleware('permission:view_wo_instruction');
     Route::post('/work-order-instruction/delete', [WorkOrderInstruction::class, 'destroy'])->name('work-order-instruction.delete')->middleware('permission:delete_wo_instruction');
     Route::post('/work-order-instruction/update', [WorkOrderInstruction::class, 'update'])->name('work-order-instruction.update')->middleware('permission:edit_wo_instruction');
     Route::post('/work-order-instruction/detail', [WorkOrderInstruction::class, 'detail'])->name('work-order-instruction.detail')->middleware('permission:view_wo_instruction');
@@ -410,6 +411,10 @@ Route::middleware(['auth'])->group(function () {
 
     // WO Instruction Template
     Route::get('/wo-instruction-template', [WorkOrderInstructionTemplate::class, 'index'])->name('wo-instruction-template.index')->middleware('permission:view_wo_instruction_template');
+    Route::post('/wo-instruction-template/show', [WorkOrderInstructionTemplate::class, 'show'])->name('wo-instruction-template.show')->middleware('permission:view_wo_instruction_template');
+    Route::get('/wo-instruction-template/create', [WorkOrderInstructionTemplate::class, 'create'])->middleware('permission:add_wo_instruction_template');
+    Route::get('/wo-instruction-template/edit', [WorkOrderInstructionTemplate::class, 'edit'])->name('wo-instruction-template.edit')->middleware('permission:edit_wo_instruction_template');
+    Route::post('/wo-instruction-template/store', [WorkOrderInstructionTemplate::class, 'store'])->name('wo-instruction-template.store')->middleware('permission:add_wo_instruction_template');
 
     // user manager 
     Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
