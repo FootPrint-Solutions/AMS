@@ -163,8 +163,8 @@
                                     <option value="number">Number</option>
                                     <option value="date">Date</option>
                                     <option value="checkbox">Checkbox</option>
-                                    <option value="radio">Radio</option>
-                                    <option value="select">Select</option>
+                                    {{-- <option value="radio">Radio</option>
+                                    <option value="select">Select</option> --}}
                                     <option value="image">Image</option>
                                 </select>
                             </div>
