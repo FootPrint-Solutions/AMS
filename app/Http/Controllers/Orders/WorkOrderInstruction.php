@@ -19,12 +19,7 @@ class WorkOrderInstruction extends Controller
 
     public function index()
     {
-        return view(
-            'Orders.WorkOrderInstruction.index',
-            getIndexData(
-                $this->title
-            )
-        );
+        return view('Orders.WorkOrderInstruction.index', getIndexData($this->title));
     }
 
     /**
@@ -34,9 +29,9 @@ class WorkOrderInstruction extends Controller
      * containing the work order instructions data.
      *
      * @param \Illuminate\Http\Request $request The incoming request instance.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse The JSON response containing the work order instructions data.
-     * 
+     *
      * The JSON response structure:
      * - draw: The draw counter for DataTables.
      * - recordsTotal: The total number of work order instructions.
@@ -56,8 +51,8 @@ class WorkOrderInstruction extends Controller
     public function show(Request $request)
     {
         // Get all DataTables requests.
-        $draw = $request->input("draw");
-        $start = $request->input("start");
+        $draw = $request->input('draw');
+        $start = $request->input('start');
 
         // Get customer data (rows and count).
         $data = WorkOrderInstructionModel::allForDataTables($request);
@@ -65,14 +60,14 @@ class WorkOrderInstruction extends Controller
         // Set rows to be displayed in customer table.
         $rows = [];
         $no = $start + 1;
-        foreach ($data["row"] as $key) {
+        foreach ($data['row'] as $key) {
             // Set the status badge class name depending on the status.
-            if ($key->status == "paid") {
-                $statusBadgeClass = "badge-success";
-            } else if ($key->status == "pending") {
-                $statusBadgeClass = "badge-warning";
+            if ($key->status == 'paid') {
+                $statusBadgeClass = 'badge-success';
+            } elseif ($key->status == 'pending') {
+                $statusBadgeClass = 'badge-warning';
             } else {
-                $statusBadgeClass = "badge-danger";
+                $statusBadgeClass = 'badge-danger';
             }
 
             // Set an array for each row.
@@ -91,12 +86,12 @@ class WorkOrderInstruction extends Controller
             $rows[] = $row;
         }
 
-        return response()->json(array(
-            "draw" => $draw,
-            "recordsTotal" => WorkOrderInstructionModel::count(),
-            "recordsFiltered" => $data["count"],
-            "data" => $rows
-        ));
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => WorkOrderInstructionModel::count(),
+            'recordsFiltered' => $data['count'],
+            'data' => $rows,
+        ]);
     }
 
     /**
@@ -112,31 +107,24 @@ class WorkOrderInstruction extends Controller
      */
     public function InstructionDetail($id)
     {
-        if ($id == "login") {
+        if ($id == 'login') {
             return redirect()->route('login');
         }
 
         // Generate a unique work order instruction number
         session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
 
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')
-            ->where('work_order_instruction_number', $id)
-            ->first();
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
 
         if (!$workOrderInstruction) {
-            return redirect()->route('work-order-instruction.index')
-                ->with('error', 'Work Order Instruction not found');
+            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction not found');
         }
 
         if ($workOrderInstruction->date_complete) {
-            return redirect()->route('work-order-instruction.index')
-                ->with('error', 'Work Order Instruction has been completed');
+            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction has been completed');
         }
 
-        return view(
-            'Orders.WorkOrderInstruction.details',
-            getIndexData($this->title, $workOrderInstruction)
-        );
+        return view('Orders.WorkOrderInstruction.details', getIndexData($this->title, $workOrderInstruction));
     }
 
     /**
@@ -152,13 +140,16 @@ class WorkOrderInstruction extends Controller
             $workOrderInstruction->delete();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Work Order Instruction has been deleted'
+                'message' => 'Work Order Instruction has been deleted',
             ]);
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Work Order Instruction not found'
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Work Order Instruction not found',
+                ],
+                404,
+            );
         }
     }
 
@@ -169,18 +160,18 @@ class WorkOrderInstruction extends Controller
      * and updating the related database records.
      *
      * @param \Illuminate\Http\Request $request The incoming request instance containing the data to update.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse A JSON response indicating the status of the update operation.
-     * 
+     *
      * @throws \Throwable If an error occurs during the update process.
-     * 
+     *
      * The request is expected to contain the following:
      * - 'step8-FotoStiker': The image file for step 8.
      * - 'step9-FotoNomorProduksi': The image file for step 9.
      * - 'step9-FotoAkiDalamKapMesin': The image file for step 9.
      * - 'work_order_instruction_id': The ID of the work order instruction to update.
      * - 'date_complete' (optional): The completion date of the work order instruction.
-     * 
+     *
      * The method performs the following actions:
      * 1. Retrieves the images from the request.
      * 2. Moves the images to the public storage path.
@@ -192,7 +183,6 @@ class WorkOrderInstruction extends Controller
     {
         dd($request->all());
         try {
-
             // db transaction
             DB::beginTransaction();
 
@@ -200,15 +190,14 @@ class WorkOrderInstruction extends Controller
             $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d H:i:s');
             $workOrderInstruction->save();
 
-
             WorkOrderInstructionPhotosModel::updateOrCreate(
                 [
                     'work_order_instruction_id' => $request->work_order_instruction_id,
-                    'step' => 'step8'
+                    'step' => 'step8',
                 ],
                 [
-                    'image' => session('step-8')
-                ]
+                    'image' => session('step-8'),
+                ],
             );
 
             WorkOrderInstructionPhotosModel::updateOrCreate(
@@ -217,8 +206,8 @@ class WorkOrderInstruction extends Controller
                     'step' => 'step9',
                 ],
                 [
-                    'image' => session('step-9-1')
-                ]
+                    'image' => session('step-9-1'),
+                ],
             );
 
             WorkOrderInstructionPhotosModel::updateOrCreate(
@@ -227,8 +216,8 @@ class WorkOrderInstruction extends Controller
                     'step' => 'step9-2',
                 ],
                 [
-                    'image' => session('step-9-2')
-                ]
+                    'image' => session('step-9-2'),
+                ],
             );
 
             DB::commit();
@@ -255,7 +244,7 @@ class WorkOrderInstruction extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Work Order Instruction data',
-            'data' => $workOrderInstruction
+            'data' => $workOrderInstruction,
         ]);
     }
 
@@ -265,13 +254,13 @@ class WorkOrderInstruction extends Controller
             $workOrders = WorkOrderInstructionModel::lazyLoadList($request);
             return response()->json([
                 'status' => true,
-                'work_orders' => $workOrders
+                'work_orders' => $workOrders,
             ]);
         } catch (\Throwable $th) {
             Log::error($th);
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to get work orders.'
+                'message' => 'Failed to get work orders.',
             ]);
         }
     }
@@ -299,7 +288,7 @@ class WorkOrderInstruction extends Controller
                 }
 
                 session(['step-8' => $image1->getClientOriginalName()]);
-            } else if ($ket == 'step-9-1-image') {
+            } elseif ($ket == 'step-9-1-image') {
                 if ($image2) {
                     $image2->move(public_path('storage/image/work-order/instruction'), $image2->getClientOriginalName());
 
@@ -314,7 +303,7 @@ class WorkOrderInstruction extends Controller
                 }
 
                 session(['step-9-1' => $image2->getClientOriginalName()]);
-            } else if ($ket == 'step-9-2-image') {
+            } elseif ($ket == 'step-9-2-image') {
                 if ($image3) {
                     $image3->move(public_path('storage/image/work-order/instruction'), $image3->getClientOriginalName());
 
@@ -334,13 +323,13 @@ class WorkOrderInstruction extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Image uploaded successfully',
-                'data' =>  $request->all()
+                'data' => $request->all(),
             ]);
         } catch (\Throwable $th) {
             Log::error($th);
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to upload image' . $th->getMessage()
+                'message' => 'Failed to upload image' . $th->getMessage(),
             ]);
         }
     }
@@ -358,37 +347,30 @@ class WorkOrderInstruction extends Controller
      */
     public function InstructionDetailNew($id)
     {
-        if ($id == "login") {
+        if ($id == 'login') {
             return redirect()->route('login');
         }
 
         // Generate a unique work order instruction number
         session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
 
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')
-            ->where('work_order_instruction_number', $id)
-            ->first();
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
 
         $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
 
-        $data = array(
+        $data = [
             'workOrderInstruction' => $workOrderInstruction,
-            'workOrderInstructionTemplate' => $workOrderInstructionTemplate
-        );
+            'workOrderInstructionTemplate' => $workOrderInstructionTemplate,
+        ];
 
         if (!$workOrderInstruction) {
-            return redirect()->route('work-order-instruction.index')
-                ->with('error', 'Work Order Instruction not found');
+            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction not found');
         }
 
         if ($workOrderInstruction->date_complete) {
-            return redirect()->route('work-order-instruction.index')
-                ->with('error', 'Work Order Instruction has been completed');
+            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction has been completed');
         }
 
-        return view(
-            'Orders.WorkOrderInstruction.detail-new',
-            getIndexData($this->title, $data)
-        );
+        return view('Orders.WorkOrderInstruction.detail-new', getIndexData($this->title, $data));
     }
 }
