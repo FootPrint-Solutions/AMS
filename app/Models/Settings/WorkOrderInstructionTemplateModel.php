@@ -16,6 +16,16 @@ class WorkOrderInstructionTemplateModel extends Model
      */
     protected $table = 'work_order_instruction_templates';
 
+    // The attributes that are mass assignable.
+    protected $fillable = [
+        'id',
+        'name',
+        'description',
+        'instruction',
+        'created_by',
+        'updated_by',
+    ];
+
     // relationship with WorkOrderInstructionTemplateDetailsModel
     public function details()
     {

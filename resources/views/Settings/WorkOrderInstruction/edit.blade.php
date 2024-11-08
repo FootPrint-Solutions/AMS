@@ -24,10 +24,10 @@
     {{-- bagi menjadi dua colom --}}
     <form action="{{ route('wo-instruction-template.edit') }}" method="POST">
         @csrf
-        @method('PUT')
         <div class="row">
             <div class="col-md-9">
                 @foreach ($data as $step)
+                    <input type="hidden" name="input-id[]" value="{{ $step->id }}" id="input-id-{{ $loop->index + 1 }}">
                     <div class="card shadow" id="step-{{ $loop->index + 1 }}">
                         <div class="card-header">
                             <div class="row align-items-center">
@@ -35,8 +35,8 @@
                                     <h3 class="page-title text-center">Step {{ $loop->index + 1 }}</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <button class="btn btn-danger btn-sm" onclick="deleteStep({{ $loop->index + 1 }})"><i
-                                            class="fas fa-trash"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                        onclick="deleteStep({{ $loop->index + 1 }})"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -46,7 +46,7 @@
                                 <div class="col-md">
                                     <input type="text" class="form-control"
                                         id="input-work-order-instruction-title-step-{{ $loop->index + 1 }}"
-                                        name="input-work-order-instruction-title[]" value="{{ $step->title }}" required>
+                                        name="input-work-order-instruction-title[]" value="{{ $step->name }}" required>
                                 </div>
                             </div>
                         </div>
@@ -61,18 +61,46 @@
                                 </div>
                             </div>
                             <div class="input-div-step-{{ $loop->index + 1 }} mt-3">
-                                @foreach ($step->inputs as $input)
-                                    <div class="row mt-2">
-                                        <div class="col-md-2 d-flex align-items-center">
-                                            {{ $input->question }}
-                                        </div>
-                                        <div class="col-md">
-                                            <input type="{{ $input->type }}" class="form-control"
-                                                name="input-work-order-instruction-input-{{ $input->type }}[]"
-                                                value="{{ $input->value }}" {{ $input->required ? 'required' : '' }}>
-                                        </div>
-                                    </div>
-                                @endforeach
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Question</th>
+                                            <th>Input Type</th>
+                                            <th>Group</th>
+                                            <th>Required</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($step->details as $input)
+                                            <tr>
+                                                <td>{{ $loop->index + 1 }}
+                                                    <input type="hidden" name="input-step[]"
+                                                        value="{{ $loop->index + 1 }}">
+                                                    <input type="hidden" name="input-count[]"
+                                                        value="{{ $loop->index + 1 }}">
+                                                </td>
+                                                <td>{{ $input->instruction }}
+                                                    <input type="hidden" name="input-question[]"
+                                                        value="{{ $input->instruction }}">
+                                                </td>
+                                                <td>{{ $input->type }}
+                                                    <input type="hidden" name="input-type[]" value="{{ $input->type }}">
+                                                </td>
+                                                <td>{{ $input->group }}
+                                                    <input type="hidden" name="input-group[]" value="{{ $input->group }}">
+                                                </td>
+                                                <td>{{ $input->required ? 'Yes' : 'No' }}
+                                                    <input type="hidden" name="input-required[]"
+                                                        value="{{ $input->required }}">
+                                                </td>
+                                                <td><button class="btn btn-danger btn-sm"
+                                                        onclick="deleteOption(this)">Delete</button></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-2 d-flex align-items-center">
@@ -100,25 +128,128 @@
                     </div>
                     <div class="card-body">
                         {{-- button add new step --}}
-                        <button type="button" class="btn btn-primary btn-lg w-100 mb-2"
-                            data-step="{{ $data->steps->count() }}" onclick="addStep()">
+                        <button type="button" class="btn btn-primary btn-lg w-100 mb-2" data-step="{{ $data->count() }}"
+                            onclick="addStep()">
                             <i class="fas fa-plus"></i> Add New Step
                         </button>
                         {{-- button save all data --}}
-                        <button id="save-button" class="btn btn-success btn-lg w-100 mt-3" type="submit">
+                        <button id="save-button" class="btn btn-success btn-lg w-100 mt-3" type="button">
                             <i class="fas fa-save"></i> Save
                         </button>
+
+                        <div class="mt-3">
+                            <h5>Variable Data</h5>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<ADDRESSCUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<ADDRESSCUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<NAMECUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<NAMECUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<PHONECUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<PHONECUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<EMAILCUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<EMAILCUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<VEHICLECUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<VEHICLECUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<BATTERYCUSTOMER>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<BATTERYCUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <input type="hidden" id="last-step" value="{{ $data->steps->count() }}">
+        <input type="hidden" id="last-step" value="{{ $data->count() }}">
     </form>
+
+    {{-- modalInputOption --}}
+    <div class="modal fade" id="modalInputOption" tabindex="-1" aria-labelledby="modalInputOptionLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInputOptionLabel">Add Input Option</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="input-work-order-instruction-input-step-modal-hidden"
+                        name="input-work-order-instruction-input-step-modal-hidden" value="1">
+                    <div class="row">
+                        <div class="col-md-2 d-flex align-items-center">
+                            Input Type
+                        </div>
+                        <div class="col-md">
+                            <select class="form-select" id="input-work-order-instruction-input-input-type"
+                                name="input-work-order-instruction-input-input-type" onchange="changeInputType()">
+                                <option value="text">Text</option>
+                                <option value="number">Number</option>
+                                <option value="date">Date</option>
+                                <option value="checkbox">Checkbox</option>
+                                {{-- <option value="radio">Radio</option>
+                            <option value="select">Select</option> --}}
+                                <option value="image">Image</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center d-none"
+                            id="input-work-order-instruction-input-group-label">
+                            Group
+                        </div>
+                        <div class="col-md d-none" id="input-work-order-instruction-input-group">
+                            <select class="form-select" id="input-work-order-instruction-input-group-select"
+                                name="input-work-order-instruction-input-group-select">
+                                @for ($i = 1; $i <= 10; $i++)
+                                    <option value="{{ $i }}">{{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="addOption()">Add
+                                Option</button>
+                        </div>
+                    </div>
+
+                    <div class="form-input-option mt-3"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addInput()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     <script>
-        let step = {{ $data->steps->count() }};
+        let step = @json($data->count());
         let stepDiv = $('.step-div');
 
         function addStep() {
@@ -311,6 +442,47 @@
                 return;
             }
 
+            // check id exist
+            const id = $('#input-id-' + step).val();
+            if (id) {
+                // confirm delete because it will delete all data
+                swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You will not be able to recover this step and its data!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // send ajax request
+                        $.ajax({
+                            url: "{{ route('wo-instruction-template.delete') }}",
+                            type: "POST",
+                            data: {
+                                "_token": "{{ csrf_token() }}",
+                                "id": id
+                            },
+                            success: function(response) {
+                                // remove tinyMCE Last step and reinit tinyMCE
+                                const editor = tinymce.get(
+                                    `input-work-order-instruction-description-step-${step}`);
+                                if (editor) {
+                                    editor.remove();
+                                }
+
+                                $(`#step-${step}`).remove();
+                                $('#last-step').val(parseInt($('#last-step').val()) - 1);
+
+                                // respon toastr
+                                toastr.success('Data deleted successfully');
+                            }
+                        });
+                    }
+                });
+                return;
+            }
+
             $(`#step-${step}`).remove();
             $('#last-step').val(parseInt($('#last-step').val()) - 1);
         }
@@ -404,8 +576,12 @@
             initTinyMCE('textarea');
             $('#save-button').on('click', function(event) {
                 var total_steps = $('#last-step').val();
+                // disable button
+                $('#save-button').prop('disabled', true);
+
                 // loop through each step
                 for (var i = 1; i <= total_steps; i++) {
+                    var id = $('#input-id-' + i).val();
                     var title = $('#input-work-order-instruction-title-step-' + i).val();
                     var description = tinymce.get('input-work-order-instruction-description-step-' + i)
                         .getContent();
@@ -425,10 +601,11 @@
                     });
                     // send ajax request
                     $.ajax({
-                        url: "{{ route('wo-instruction-template.update', $data->id) }}",
-                        type: "PUT",
+                        url: "{{ route('wo-instruction-template.edit') }}",
+                        type: "POST",
                         data: {
                             "_token": "{{ csrf_token() }}",
+                            "id": id,
                             "title": title,
                             "description": description,
                             "step": step,
@@ -444,7 +621,19 @@
                         }
                     });
                 }
+                // enable button
+                $('#save-button').prop('disabled', false);
             });
         });
+
+        function copyToClipboard(text) {
+            var dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            toastr.success('Copied to clipboard');
+        }
     </script>
 @endsection
