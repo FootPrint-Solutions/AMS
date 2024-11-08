@@ -26,4 +26,9 @@ class WorkOrderInstructionTemplateDetailsModel extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function template()
+    {
+        return $this->belongsTo(WorkOrderInstructionTemplateModel::class, 'work_order_instruction_template_id');
+    }
 }

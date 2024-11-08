@@ -93,7 +93,7 @@
                                                 </td>
                                                 <td>{{ $input->is_required ? 'Yes' : 'No' }}
                                                     <input type="hidden" name="input-required[]"
-                                                        value="{{ $input->required }}">
+                                                        value="{{ $input->is_required }}">
                                                 </td>
                                                 <td><button class="btn btn-danger btn-sm"
                                                         onclick="deleteOption(this)">Delete</button></td>

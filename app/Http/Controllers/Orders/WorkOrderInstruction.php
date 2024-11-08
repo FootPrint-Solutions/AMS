@@ -12,6 +12,8 @@ use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
 use App\Models\Settings\WorkOrderInstructionTemplateModel;
 use Intervention\Image\Facades\Image;
+use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionTemplateAnswerModel;
+use App\Models\Settings\WorkOrderInstructionTemplateDetailsModel;
 
 class WorkOrderInstruction extends Controller
 {
@@ -181,7 +183,6 @@ class WorkOrderInstruction extends Controller
      */
     public function update(Request $request)
     {
-        dd($request->all());
         try {
             // db transaction
             DB::beginTransaction();
@@ -240,7 +241,7 @@ class WorkOrderInstruction extends Controller
 
     public function detail(Request $request)
     {
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder', 'photos', 'updatedBy')->find($request->work_order_id);
+        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder', 'photos', 'updatedBy', 'answers')->find($request->work_order_id);
         return response()->json([
             'status' => 'success',
             'message' => 'Work Order Instruction data',
@@ -372,5 +373,85 @@ class WorkOrderInstruction extends Controller
         }
 
         return view('Orders.WorkOrderInstruction.detail-new', getIndexData($this->title, $data));
+    }
+
+    public function updateNew(Request $request)
+    {
+        try {
+            // Begin database transaction
+            DB::beginTransaction();
+
+            // Find and update the work order instruction
+            $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
+            $workOrderInstruction->date_complete = $request->date_complete ?? date('Y-m-d H:i:s');
+            $workOrderInstruction->save();
+
+            // Retrieve details from the request
+            $details = $request->details;
+            $workOrder = WorkOrderInstructionModel::with('workOrder')->find($request->work_order_instruction_id);
+
+            foreach ($details as $key => $value) {
+                // Find the detail question and template
+                $detailQuestion = WorkOrderInstructionTemplateDetailsModel::with('template')->find($key);
+
+                // Check if the detail is of type 'image'
+                if ($detailQuestion && $detailQuestion->type == 'image' && $value instanceof \Illuminate\Http\UploadedFile) {
+                    // Retrieve the uploaded file
+                    $image = $value;
+
+                    // Move the image to the desired directory
+                    $imagePath = 'storage/image/work-order/instruction';
+                    $imageName = $image->getClientOriginalName();
+                    $image->move(public_path($imagePath), $imageName);
+
+                    // Compress the image if its size is greater than 1MB
+                    $img = Image::make(public_path("$imagePath/$imageName"));
+                    if ($img->filesize() > 1000000) {
+                        $img->resize(100, 100, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $img->save(public_path("$imagePath/$imageName"));
+                    }
+                } else {
+                    // Handle non-image details
+                    $imageName = $value;
+                }
+
+                // Create and save the answer
+                $answer = new WorkOrderInstructionTemplateAnswerModel([
+                    'work_order_id' => $workOrder->workOrder->id,
+                    'work_order_instruction_id' => $workOrder->id,
+                    'name' => $detailQuestion->template->name,
+                    'description' => $detailQuestion->template->description,
+                    'instruction' => $detailQuestion->instruction,
+                    'instruction_step' => $detailQuestion->template->instruction,
+                    'type' => $detailQuestion->type,
+                    'group' => $detailQuestion->group,
+                    'is_required' => $detailQuestion->is_required,
+                    'created_by' => auth()->user()->id,
+                    'updated_by' => auth()->user()->id,
+                    'answer' => $imageName, // Save the image name or value
+                ]);
+
+                $answer->save();
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Work Order Instruction has been updated',
+            ]);
+        } catch (\Throwable $th) {
+            // Rollback the transaction in case of an error
+            DB::rollBack();
+            Log::error($th);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update Work Order Instruction',
+            ]);
+        }
     }
 }

@@ -412,13 +412,14 @@
         function showModalDetail(id) {
             $('#modal-detail').modal('show');
             $('#modal-detail-body').html(`
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            `);
-            // ajax request to get work order detail
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `);
+
+            // AJAX request to get work order detail
             $.ajax({
                 url: "/work-order-instruction/detail",
                 type: "POST",
@@ -427,87 +428,113 @@
                     work_order_id: id
                 },
                 success: function(response) {
-                    var baseUrl = "{{ asset('storage/image/work-order/instruction/') }}";
+                    const baseUrl = "{{ asset('storage/image/work-order/instruction/') }}";
+                    const {
+                        work_order,
+                        work_order_instruction_number,
+                        date,
+                        date_complete,
+                        photos,
+                        answers,
+                        updated_by
+                    } = response.data;
+                    const url = `${window.location.origin}/wo/${work_order_instruction_number}`;
 
-                    var html = '';
-                    var url = window.location.origin + '/wo/' + response.data.work_order_instruction_number +
-                        '';
-                    html += `
-    <div class="row">
-        <div class="col-md-6">
-            <div class="info-section">
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Work Order Number</div>
-                    <div class="col-md-8">${response.data.work_order.work_order_number}</div>
+                    // HTML template for work order details
+                    let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-section">
+                            ${generateInfoRow("Work Order Number", work_order.work_order_number)}
+                            ${generateInfoRow("Sales Order Number", work_order.sales_order_id)}
+                            ${generateInfoRow("Work Order Instruction Number", work_order_instruction_number)}
+                            ${generateInfoRow("Date", date)}
+                            ${generateInfoRow("Date Complete", date_complete || "-")}
+                            ${generateInfoRow("Customer", work_order.customer_id)}
+                            ${generateInfoRow("Total (IDR)", work_order.total)}
+                            ${generateInfoRow("Address", work_order.address)}
+                            ${generateInfoRow("Link WO Instruction", `<a href="${url}" target="_blank">${url}</a>`)}
+                            ${generateInfoRow("Technicians", updated_by ? updated_by.name : "-")}
+                        </div>
+                    </div>
                 </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Sales Order Number</div>
-                    <div class="col-md-8">${response.data.work_order.sales_order_id}</div>
+                <div class="row">
+                    <h5 class="mt-4">Photos</h5>
+                    <div class="d-flex flex-wrap gap-3">
+                        ${generatePhotoGallery(photos, baseUrl)}
+                    </div>
                 </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Work Order Instruction Number</div>
-                    <div class="col-md-8">${response.data.work_order_instruction_number}</div>
+                <div class="col-md-12 mt-4">
+                    <h5>Instructions</h5>
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Step</th>
+                                <th scope="col">Instruction</th>
+                                <th scope="col">Answer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateInstructionRows(answers, baseUrl)}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Date</div>
-                    <div class="col-md-8">${response.data.date}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Date Complete</div>
-                    <div class="col-md-8">${response.data.date_complete || '-'}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Customer</div>
-                    <div class="col-md-8">${response.data.work_order.customer_id}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Total (IDR)</div>
-                    <div class="col-md-8">${response.data.work_order.total}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Address</div>
-                    <div class="col-md-8">${response.data.work_order.address}</div>
-                </div>
-                 <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Link WO Instruction</div>
-                    <div class="col-md-8">${url}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-4 font-weight-bold">Technicians</div>
-                    <div class="col-md-8">${response.data.updated_by ? response.data.updated_by.name : '-'}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-      
-            <h5>Photos</h5>
-                ${response.data.photos.map((photo, index) => `
-                                                                                                <div class="col">
-                                                                                                    ${photo.step === 'step8' ? '<h6>Sticker Akikita Photo</h6>' : ''}
-                                                                                                    ${photo.step === 'step9' ? '<h6>Battery Production Number Photo</h6>' : ''}
-                                                                                                    ${photo.step === 'step9-2' ? '<h6>Photo of battery under hood with vehicle license plate</h6>' : ''}
-                                                                                                    <img src="${baseUrl}/${photo.image}" width="150px" alt="Step ${index + 8} photo">
-                                                                                                </div>
-                                                                                            `).join('')}
-           
-        </div>
-        </div>
-`;
+            `;
 
                     $('#modal-detail-body').html(html);
                 },
                 error: function(xhr) {
                     $('#modal-detail-body').html(`
-                                <div class="text-center">
-                                    <p class="text-danger">Failed to load work order detail.</p>
-                                </div>
-                            `);
+                <div class="text-center">
+                    <p class="text-danger">Failed to load work order detail.</p>
+                </div>
+            `);
                 }
             });
 
-        }
+            // Helper function to generate information row
+            function generateInfoRow(label, value) {
+                return `
+            <div class="row mb-2">
+                <div class="col-md-4 font-weight-bold">${label}</div>
+                <div class="col-md-8">${value}</div>
+            </div>
+        `;
+            }
 
+            // Helper function to generate photo gallery
+            function generatePhotoGallery(photos, baseUrl) {
+                return photos.map((photo, index) => {
+                    let caption = "";
+                    if (photo.step === "step8") caption = "Sticker Akikita Photo";
+                    if (photo.step === "step9") caption = "Battery Production Number Photo";
+                    if (photo.step === "step9-2") caption =
+                        "Photo of battery under hood with vehicle license plate";
+
+                    return `
+                <div class="photo-item text-center">
+                    ${caption ? `<h6>${caption}</h6>` : ""}
+                    <img src="${baseUrl}/${photo.image}" width="150px" class="img-thumbnail" alt="Step ${index + 8} photo">
+                </div>
+            `;
+                }).join('');
+            }
+
+            // Helper function to generate instruction rows
+            function generateInstructionRows(answers, baseUrl) {
+                return answers.map((instruction, index) => `
+            <tr>
+                <td>${instruction.instruction_step}</td>
+                <td>${instruction.instruction}</td>
+                <td>
+                    ${instruction.type === "image" 
+                        ? `<img src="${baseUrl}/${instruction.answer}" width="150px" class="img-thumbnail" alt="Step ${index + 1} photo">` 
+                        : instruction.answer}
+                </td>
+            </tr>
+        `).join('');
+            }
+        }
         // copy-work-btn 
         $(document).on('click', '.copy-work-btn', function() {
             var workOrderId = $('#work_order_id_mobile').val();
