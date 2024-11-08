@@ -23,7 +23,7 @@
                         </ul>
 
                         <div class="tab-content twitter-bs-wizard-tab-content">
-                            <form action="/work-order-instruction/update" id="form" method="POST"
+                            <form action="/work-order-instruction/update-new" id="form" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="work_order_instruction_id" id="work_order_instruction_id"
@@ -81,46 +81,35 @@
                                                                 <div class="form-group">
                                                                     <label for="detail-{{ $detail->id }}"
                                                                         class="form-label">{{ e($detail->instruction) }}</label>
-                                                                    @if ($detail->type == 'checkbox')
-                                                                        @php
-                                                                            $class = '';
-                                                                            $value = $detail->id;
-                                                                        @endphp
-                                                                    @else
-                                                                        @php
-                                                                            $class = 'form-control';
-                                                                            $value = '';
-                                                                        @endphp
-                                                                    @endif
-
-                                                                    @if ($detail->type == 'image')
-                                                                        @php
-                                                                            $type = 'file';
-                                                                            $accept = "accept='image/*'";
-                                                                        @endphp
-                                                                    @else
-                                                                        @php
-                                                                            $type = $detail->type;
-                                                                            $accept = '';
-                                                                        @endphp
-                                                                    @endif
-
-                                                                    @if ($detail->is_required)
-                                                                        @php
-                                                                            $required = 'required';
-                                                                        @endphp
-                                                                    @else
-                                                                        @php
-                                                                            $required = '';
-                                                                        @endphp
-                                                                    @endif
-
+                                                                    @php
+                                                                        $class =
+                                                                            $detail->type == 'checkbox'
+                                                                                ? ''
+                                                                                : 'form-control';
+                                                                        $value =
+                                                                            $detail->type == 'checkbox'
+                                                                                ? $detail->id
+                                                                                : '';
+                                                                        $type =
+                                                                            $detail->type == 'image'
+                                                                                ? 'file'
+                                                                                : $detail->type;
+                                                                        $accept =
+                                                                            $detail->type == 'image'
+                                                                                ? "accept='image/*'"
+                                                                                : '';
+                                                                        $required = $detail->is_required
+                                                                            ? 'required'
+                                                                            : '';
+                                                                    @endphp
                                                                     <input type="{{ $type }}"
                                                                         class="{{ $class }}"
                                                                         id="detail-{{ $detail->id }}"
                                                                         name="details[{{ $detail->id }}]"
                                                                         value="{{ $value }}" {{ $required }}
                                                                         {{ $accept }}>
+                                                                    <input type="hidden" name="detail_ids[]"
+                                                                        value="{{ $detail->id }}">
                                                                 </div>
                                                             </div>
                                                         @endforeach
@@ -131,7 +120,7 @@
                                             <ul class="pager wizard twitter-bs-wizard-pager-link">
                                                 @if ($loop->last)
                                                     <li class="save">
-                                                        <button type="submit" class="btn btn-success">Save <i
+                                                        <button type="button" class="btn btn-success btn-save">Save <i
                                                                 class="bx bx-check-circle ms-1"></i></button>
                                                     </li>
                                                 @else
@@ -155,7 +144,7 @@
 
     <script>
         $(document).ready(function() {
-            $('.seller-next-btn').click(function() {
+            $('.seller-next-btn').click(function(event) {
                 // check if all required fields are filled
                 let requiredFields = $(this).closest('.tab-pane').find('input[required]');
                 let isValid = true;
@@ -173,9 +162,59 @@
                     $(this).closest('.tab-pane').next().show();
                 } else {
                     alert('Please fill all required fields');
+                    event.preventDefault();
+                }
+            });
+
+            $('.btn-save').click(function() {
+                // check if all required fields are filled
+                let requiredFields = $(this).closest('.tab-pane').find('input[required]');
+                let isValid = true;
+
+                requiredFields.each(function() {
+                    if ($(this).val() == '') {
+                        isValid = false;
+                    }
+                });
+
+                if (isValid) {
+                    $.ajax({
+                        url: $('#form').attr('action'),
+                        method: 'POST',
+                        data: new FormData($('#form')[0]),
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            if (response.status == 'success') {
+                                swal.fire({
+                                    title: 'success',
+                                    text: response.message,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                });
+                                window.location.href = '/work-order-instruction';
+                            } else {
+                                swal.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            swal.fire({
+                                title: 'Error',
+                                text: xhr.responseJSON.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                            });
+                        }
+                    });
+                } else {
+                    alert('Please fill all required fields');
                 }
 
-                return false;
             });
         });
     </script>

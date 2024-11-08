@@ -18,6 +18,7 @@ use App\Traits\TracksUpdates;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionPhotosModel;
 use App\Models\User;
+use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionTemplateAnswerModel;
 
 class WorkOrderInstructionModel extends Model implements Auditable
 {
@@ -179,5 +180,11 @@ class WorkOrderInstructionModel extends Model implements Auditable
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    // answer relationship
+    public function answers(): HasMany
+    {
+        return $this->hasMany(WorkOrderInstructionTemplateAnswerModel::class, 'work_order_instruction_id');
     }
 }

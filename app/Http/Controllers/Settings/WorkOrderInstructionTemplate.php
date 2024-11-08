@@ -116,6 +116,9 @@ class WorkOrderInstructionTemplate extends Controller
                         'updated_by' => auth()->user()->id,
                     ]);
                 }
+            } else {
+                // delete all details first
+                WorkOrderInstructionTemplateDetailsModel::where('work_order_instruction_template_id', $master->id)->delete();
             }
 
             DB::commit();
@@ -139,8 +142,8 @@ class WorkOrderInstructionTemplate extends Controller
         try {
             DB::beginTransaction();
 
-            WorkOrderInstructionTemplateModel::where('id', $data['id'])->delete();
             WorkOrderInstructionTemplateDetailsModel::where('work_order_instruction_template_id', $data['id'])->delete();
+            WorkOrderInstructionTemplateModel::where('id', $data['id'])->delete();
 
             DB::commit();
             return response()->json([
