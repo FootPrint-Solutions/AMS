@@ -91,7 +91,7 @@
                                                 <td>{{ $input->group }}
                                                     <input type="hidden" name="input-group[]" value="{{ $input->group }}">
                                                 </td>
-                                                <td>{{ $input->required ? 'Yes' : 'No' }}
+                                                <td>{{ $input->is_required ? 'Yes' : 'No' }}
                                                     <input type="hidden" name="input-required[]"
                                                         value="{{ $input->required }}">
                                                 </td>
