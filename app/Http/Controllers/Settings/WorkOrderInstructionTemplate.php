@@ -16,7 +16,7 @@ class WorkOrderInstructionTemplate extends Controller
 
     public function index()
     {
-        $data = WorkOrderInstructionTemplateModel::with('details')->get();
+        $data = WorkOrderInstructionTemplateModel::with('details')->orderBy('instruction', 'asc')->get();
         // dd($data);
         if ($data->isEmpty()) {
             return view(
