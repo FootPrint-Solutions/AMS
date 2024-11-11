@@ -458,7 +458,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row d-none">
                     <h5 class="mt-4">Photos</h5>
                     <div class="d-flex flex-wrap gap-3">
                         ${generatePhotoGallery(photos, baseUrl)}
@@ -469,7 +469,7 @@
                     <table class="table table-striped table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">Step</th>
+                                <th scope="col" width="20px">Step</th>
                                 <th scope="col">Instruction</th>
                                 <th scope="col">Answer</th>
                             </tr>
