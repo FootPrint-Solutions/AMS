@@ -79,8 +79,7 @@
                                                         @foreach ($key->details as $detail)
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label for="detail-{{ $detail->id }}"
-                                                                        class="form-label">{{ e($detail->instruction) }}</label>
+
                                                                     @php
                                                                         $class =
                                                                             $detail->type == 'checkbox'
@@ -108,6 +107,8 @@
                                                                         name="details[{{ $detail->id }}]"
                                                                         value="{{ $value }}" {{ $required }}
                                                                         {{ $accept }}>
+                                                                    <label for="detail-{{ $detail->id }}"
+                                                                        class="form-label">{{ e($detail->instruction) }}</label>
                                                                     <input type="hidden" name="detail_ids[]"
                                                                         value="{{ $detail->id }}">
                                                                 </div>

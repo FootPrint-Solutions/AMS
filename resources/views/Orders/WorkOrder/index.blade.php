@@ -429,18 +429,33 @@
 
                                         // swal with input text copy link to clipboard
                                         var url = window.location.origin + "/wo/" +
-                                            response.data.work_order_instruction_number
+                                            response.data.work_order_instruction_number;
+                                        var urlnew = window.location.origin +
+                                            "/wo-new/" + response.data
+                                            .work_order_instruction_number;
                                         Swal.fire({
                                             title: 'Copy Work Order Instruction',
-                                            input: 'text',
-                                            inputValue: url,
+                                            html: `
+                                                <div>
+                                                    <label for="url">Old URL:</label>
+                                                    <input id="url" type="text" class="swal2-input" value="${url}">
+                                                </div>
+                                                <div>
+                                                    <label for="urlnew">New URL:</label>
+                                                    <input id="urlnew" type="text" class="swal2-input" value="${urlnew}">
+                                                </div>
+                                            `,
                                             showCancelButton: true,
-                                            confirmButtonText: 'Copy',
+                                            confirmButtonText: 'Copy New URL',
+                                            cancelButtonText: 'Copy Old URL',
                                             showLoaderOnConfirm: true,
-                                            preConfirm: (value) => {
+                                            preConfirm: () => {
                                                 var input = document
                                                     .createElement('input');
-                                                input.value = value;
+                                                input.value = document
+                                                    .getElementById(
+                                                        'urlnew')
+                                                    .value;
                                                 document.body.appendChild(
                                                     input);
                                                 input.select();
@@ -448,7 +463,24 @@
                                                     'copy');
                                                 document.body.removeChild(
                                                     input);
-
+                                                Swal.fire('Copied!', '',
+                                                    'success');
+                                            }
+                                        }).then((result) => {
+                                            if (result.dismiss === Swal
+                                                .DismissReason.cancel) {
+                                                var input = document
+                                                    .createElement('input');
+                                                input.value = document
+                                                    .getElementById('url')
+                                                    .value;
+                                                document.body.appendChild(
+                                                    input);
+                                                input.select();
+                                                document.execCommand(
+                                                    'copy');
+                                                document.body.removeChild(
+                                                    input);
                                                 Swal.fire('Copied!', '',
                                                     'success');
                                             }
