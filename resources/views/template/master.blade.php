@@ -11,7 +11,9 @@
     <link rel="shortcut icon" href="/img/logos/32x32.png">
 
     {{-- Fontfamily --}}
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&amp;display=swap"
+        rel="stylesheet">
 
     {{-- Bootstrap CSS --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -63,6 +65,15 @@
 
         * {
             font-family: 'Poppins', sans-serif;
+        }
+
+        /* body {
+            transform: scale(0.8);
+            transform-origin: top left;
+            width: a
+        } */
+        body {
+            zoom: 80%;
         }
     </style>
 

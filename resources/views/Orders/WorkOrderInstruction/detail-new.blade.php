@@ -36,7 +36,23 @@
                                         )
                                             ->pluck('battery_name')
                                             ->toArray();
-
+                                        $linkgooglemaps =
+                                            'https://maps.google.com/?q=' .
+                                            $data['workOrderInstruction']['workOrder']['salesOrder']['latitude'] .
+                                            ',' .
+                                            $data['workOrderInstruction']['workOrder']['salesOrder']['longitude'];
+                                        $linkgoogleMapsDistributor =
+                                            'https://maps.google.com/?q=' .
+                                            $data['workOrderInstruction']['workOrder']['salesOrder']['distributorShop'][
+                                                'latitude'
+                                            ] .
+                                            ',' .
+                                            $data['workOrderInstruction']['workOrder']['salesOrder']['distributorShop'][
+                                                'longitude'
+                                            ];
+                                        $phoneWhatsApp =
+                                            'https://wa.me/62' .
+                                            $data['workOrderInstruction']['workOrder']['customer']['contact'];
                                         $replacements = [
                                             '<ADDRESSCUSTOMER>' => e(
                                                 $data['workOrderInstruction']['workOrder']['address'],
@@ -44,9 +60,7 @@
                                             '<NAMECUSTOMER>' => e(
                                                 $data['workOrderInstruction']['workOrder']['customer']['name'],
                                             ),
-                                            '<PHONECUSTOMER>' => e(
-                                                $data['workOrderInstruction']['workOrder']['customer']['phone'],
-                                            ),
+                                            '<PHONECUSTOMER>' => e($phoneWhatsApp),
                                             '<EMAILCUSTOMER>' => e(
                                                 $data['workOrderInstruction']['workOrder']['customer']['email'],
                                             ),
@@ -56,6 +70,8 @@
                                                 ],
                                             ),
                                             '<BATTERYCUSTOMER>' => e(implode(', ', $batteries)),
+                                            '<ADDRESSCUSTOMERLINK>' => e($linkgooglemaps),
+                                            '<ADDRESSSHOP>' => e($linkgoogleMapsDistributor),
                                         ];
 
                                         // Decode HTML entities and apply replacements
@@ -101,14 +117,26 @@
                                                                             ? 'required'
                                                                             : '';
                                                                     @endphp
-                                                                    <input type="{{ $type }}"
-                                                                        class="{{ $class }}"
-                                                                        id="detail-{{ $detail->id }}"
-                                                                        name="details[{{ $detail->id }}]"
-                                                                        value="{{ $value }}" {{ $required }}
-                                                                        {{ $accept }}>
-                                                                    <label for="detail-{{ $detail->id }}"
-                                                                        class="form-label">{{ e($detail->instruction) }}</label>
+                                                                    @if ($detail->type == 'checkbox')
+                                                                        <input type="{{ $type }}"
+                                                                            class="{{ $class }}"
+                                                                            id="detail-{{ $detail->id }}"
+                                                                            name="details[{{ $detail->id }}]"
+                                                                            value="{{ $value }}"
+                                                                            {{ $required }} {{ $accept }}>
+                                                                        <label for="detail-{{ $detail->id }}"
+                                                                            class="form-label">{{ e($detail->instruction) }}</label>
+                                                                    @else
+                                                                        <label for="detail-{{ $detail->id }}"
+                                                                            class="form-label">{{ e($detail->instruction) }}</label>
+                                                                        <input type="{{ $type }}"
+                                                                            class="{{ $class }}"
+                                                                            id="detail-{{ $detail->id }}"
+                                                                            name="details[{{ $detail->id }}]"
+                                                                            value="{{ $value }}"
+                                                                            {{ $required }} {{ $accept }}>
+                                                                    @endif
+
                                                                     <input type="hidden" name="detail_ids[]"
                                                                         value="{{ $detail->id }}">
                                                                 </div>

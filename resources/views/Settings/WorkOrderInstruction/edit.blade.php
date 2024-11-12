@@ -9,6 +9,12 @@
             top: 65px;
             z-index: 1000;
         }
+
+        /* scrollable y */
+        .scrollable-y {
+            overflow-y: scroll;
+            height: 400px;
+        }
     </style>
     <div class="card shadow">
         <div class="card-header">
@@ -137,7 +143,7 @@
                             <i class="fas fa-save"></i> Save
                         </button>
 
-                        <div class="mt-3">
+                        <div class="mt-3 scrollable-y">
                             <h5 class="text-primary">Variable Data</h5>
                             <p class="text-muted">Variable data is only available for the description field</p>
                             <div class="input-group mb-2">
@@ -179,6 +185,20 @@
                                 <input type="text" value="<BATTERYCUSTOMER>" readonly class="form-control">
                                 <button class="btn btn-outline-secondary" type="button"
                                     onclick="copyToClipboard('<BATTERYCUSTOMER>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<ADDRESSCUSTOMERLINK>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<ADDRESSCUSTOMERLINK>')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" value="<ADDRESSSHOP>" readonly class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('<ADDRESSSHOP>')">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </div>
@@ -642,7 +662,7 @@
         $(document).ready(function() {
             for (var i = 1; i <= step; i++) {
                 if (i !== step) {
-                    $('#step-' + i + ' button').remove();
+                    $('#step-' + i + ' .btn-danger').not('.btn-add-input').remove();
                 }
             }
         });
