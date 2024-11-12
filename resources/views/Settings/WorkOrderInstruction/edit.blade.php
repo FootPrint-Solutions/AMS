@@ -138,7 +138,8 @@
                         </button>
 
                         <div class="mt-3">
-                            <h5>Variable Data</h5>
+                            <h5 class="text-primary">Variable Data</h5>
+                            <p class="text-muted">Variable data is only available for the description field</p>
                             <div class="input-group mb-2">
                                 <input type="text" value="<ADDRESSCUSTOMER>" readonly class="form-control">
                                 <button class="btn btn-outline-secondary" type="button"
@@ -476,6 +477,7 @@
 
                                 // respon toastr
                                 toastr.success('Data deleted successfully');
+                                location.reload();
                             }
                         });
                     }
@@ -635,5 +637,14 @@
             document.body.removeChild(dummy);
             toastr.success('Copied to clipboard');
         }
+
+
+        $(document).ready(function() {
+            for (var i = 1; i <= step; i++) {
+                if (i !== step) {
+                    $('#step-' + i + ' button').remove();
+                }
+            }
+        });
     </script>
 @endsection
