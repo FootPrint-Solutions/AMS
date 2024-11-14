@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MasterData\Battery\Battery;
+use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use Illuminate\Http\Request;
 
@@ -140,6 +141,63 @@ class Filter extends Controller
             ];
 
             return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Data not found',
+                'data' => []
+            ];
+
+            return response()->json($response, 500);
+        }
+    }
+
+    function battery()
+    {
+        try {
+            $batteries = BatteryModel::all();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Data found',
+                'data' => $batteries
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Data not found',
+                'data' => []
+            ];
+
+            return response()->json($response, 500);
+        }
+    }
+
+    function batteryFind($battery)
+    {
+        try {
+            $battery = BatteryModel::where('id', $battery)->with('brand', 'subbrandCategory', 'sizeCategory', 'technology', 'code', 'batteryPrices', 'vehicleBattery')->get();
+            // jika data tidak ditemukan
+            if (empty($battery) || $battery->isEmpty()) {
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Data not found',
+                    'data' => []
+                ];
+
+                return response()->json($response, 404);
+            } else {
+
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Data found',
+                    'data' => $battery
+                ];
+
+                return response()->json($response);
+            }
         } catch (\Exception $e) {
             $response = [
                 'status' => 'error',
