@@ -358,7 +358,7 @@ class WorkOrderInstruction extends Controller
         $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
 
         if ($workOrderInstruction->workOrder == null) {
-            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order not found');
+            return redirect()->route('dashboard')->with('error', 'Work Order not found');
         }
 
         $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
@@ -369,11 +369,11 @@ class WorkOrderInstruction extends Controller
         ];
 
         if (!$workOrderInstruction) {
-            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction not found');
+            return redirect()->route('dashboard')->with('error', 'Work Order Instruction not found');
         }
 
         if ($workOrderInstruction->date_complete) {
-            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction has been completed');
+            return redirect()->route('dashboard')->with('error', 'Work Order Instruction has been completed');
         }
 
         return view('Orders.WorkOrderInstruction.detail-new', getIndexData($this->title, $data));
