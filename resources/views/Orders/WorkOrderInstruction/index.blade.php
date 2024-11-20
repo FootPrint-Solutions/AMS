@@ -445,14 +445,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="info-section">
-                            ${generateInfoRow("Work Order Number", work_order.work_order_number)}
-                            ${generateInfoRow("Sales Order Number", work_order.sales_order_id)}
+                            ${generateInfoRow("Work Order Number", work_order ? work_order.work_order_number : "-")}
+                            ${generateInfoRow("Sales Order Number", work_order ? work_order.sales_order_number : "-")}
                             ${generateInfoRow("Work Order Instruction Number", work_order_instruction_number)}
                             ${generateInfoRow("Date", date)}
                             ${generateInfoRow("Date Complete", date_complete || "-")}
-                            ${generateInfoRow("Customer", work_order.customer_id)}
-                            ${generateInfoRow("Total (IDR)", work_order.total)}
-                            ${generateInfoRow("Address", work_order.address)}
+                            ${generateInfoRow("Customer", work_order ? work_order.customer_id : "-")}
+                            ${generateInfoRow("Total (IDR)", work_order ? work_order.total : "-")}
+                            ${generateInfoRow("Address", work_order ? work_order.address : "-")}
                             ${generateInfoRow("Link WO Instruction", `<a href="${url}" target="_blank">${url}</a>`)}
                             ${generateInfoRow("Technicians", updated_by ? updated_by.name : "-")}
                         </div>
