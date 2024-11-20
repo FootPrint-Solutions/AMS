@@ -39,26 +39,30 @@ class DataCategory extends Controller
      */
     public function index()
     {
+        try {
+            // check if session has product data already
+            if (session()->has('categoryData')) {
+                $categoryData = session('categoryData');
+            } else {
+                $categoryData = $this->getCategoryAll();
+                session(['categoryData' => $categoryData]);
+            }
 
-        // check if session has product data already
-        if (session()->has('categoryData')) {
-            $categoryData = session('categoryData');
-        } else {
-            $categoryData = $this->getCategoryAll();
-            session(['categoryData' => $categoryData]);
+            $data = array(
+                'category' => $categoryData,
+            );
+
+            return view(
+                'Publish.DataCategory.index',
+                getIndexData(
+                    $this->title,
+                    $data
+                )
+            );
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return redirect()->route('dashboard')->with('error', 'Failed to get data battery category');
         }
-
-        $data = array(
-            'category' => $categoryData,
-        );
-
-        return view(
-            'Publish.DataCategory.index',
-            getIndexData(
-                $this->title,
-                $data
-            )
-        );
     }
 
     /**

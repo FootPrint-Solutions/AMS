@@ -48,28 +48,33 @@ class SalesOnline extends Controller
      */
     public function index()
     {
-        // check if session has sales data already
-        if (session()->has('salesData')) {
-            $salesData = session('salesData');
-        } else {
-            $salesData = $this->getSalesAll();
-            session(['salesData' => $salesData]);
+        try {
+            // check if session has sales data already
+            if (session()->has('salesData')) {
+                $salesData = session('salesData');
+            } else {
+                $salesData = $this->getSalesAll();
+                session(['salesData' => $salesData]);
+            }
+
+            $data = array(
+                'Sales' => $salesData,
+                'Vehicles' => VehicleModel::orderBy('name', 'asc')->get(),
+                'Distributors' => DistributorShopModel::orderBy('name', 'asc')->get(),
+                'Customers' => CustomerModel::orderBy('name', 'asc')->get(),
+            );
+
+            return view(
+                'Publish.SalesOnline.index',
+                getIndexData(
+                    $this->title,
+                    $data
+                )
+            );
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return redirect()->route('dashboard')->with('error', 'Failed to get data sales online');
         }
-
-        $data = array(
-            'Sales' => $salesData,
-            'Vehicles' => VehicleModel::orderBy('name', 'asc')->get(),
-            'Distributors' => DistributorShopModel::orderBy('name', 'asc')->get(),
-            'Customers' => CustomerModel::orderBy('name', 'asc')->get(),
-        );
-
-        return view(
-            'Publish.SalesOnline.index',
-            getIndexData(
-                $this->title,
-                $data
-            )
-        );
     }
 
     /**
