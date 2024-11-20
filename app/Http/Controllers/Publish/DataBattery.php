@@ -48,26 +48,29 @@ class DataBattery extends Controller
      */
     public function index()
     {
+        try {
+            if (session()->has('productData')) {
+                $productData = session('productData');
+            } else {
+                $productData = $this->getProductAll();
+                session(['productData' => $productData]);
+            }
 
-        // check if session has product data already
-        if (session()->has('productData')) {
-            $productData = session('productData');
-        } else {
-            $productData = $this->getProductAll();
-            session(['productData' => $productData]);
+            $data = array(
+                'products' => $productData,
+            );
+
+            return view(
+                'Publish.DataBattery.index',
+                getIndexData(
+                    $this->title,
+                    $data
+                )
+            );
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return redirect()->route('dashboard')->with('error', 'Failed to get data battery');
         }
-
-        $data = array(
-            'products' => $productData,
-        );
-
-        return view(
-            'Publish.DataBattery.index',
-            getIndexData(
-                $this->title,
-                $data
-            )
-        );
     }
 
     /**
