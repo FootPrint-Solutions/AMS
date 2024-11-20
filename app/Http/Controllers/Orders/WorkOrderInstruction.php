@@ -399,50 +399,52 @@ class WorkOrderInstruction extends Controller
             $details = $request->details;
             $workOrder = WorkOrderInstructionModel::with('workOrder')->find($request->work_order_instruction_id);
 
-            foreach ($details as $key => $value) {
-                // Find the detail question and template
-                $detailQuestion = WorkOrderInstructionTemplateDetailsModel::with('template')->find($key);
+            if ($details && !is_null($details)) {
+                foreach ($details as $key => $value) {
+                    // Find the detail question and template
+                    $detailQuestion = WorkOrderInstructionTemplateDetailsModel::with('template')->find($key);
 
-                // Check if the detail is of type 'image'
-                if ($detailQuestion && $detailQuestion->type == 'image' && $value instanceof \Illuminate\Http\UploadedFile) {
-                    // Retrieve the uploaded file
-                    $image = $value;
+                    // Check if the detail is of type 'image'
+                    if ($detailQuestion && $detailQuestion->type == 'image' && $value instanceof \Illuminate\Http\UploadedFile) {
+                        // Retrieve the uploaded file
+                        $image = $value;
 
-                    // Move the image to the desired directory
-                    $imagePath = 'storage/image/work-order/instruction';
-                    $imageName = $image->getClientOriginalName();
-                    $image->move(public_path($imagePath), $imageName);
+                        // Move the image to the desired directory
+                        $imagePath = 'storage/image/work-order/instruction';
+                        $imageName = $image->getClientOriginalName();
+                        $image->move(public_path($imagePath), $imageName);
 
-                    // Compress the image if its size is greater than 1MB
-                    $img = Image::make(public_path("$imagePath/$imageName"));
-                    if ($img->filesize() > 1000000) {
-                        $img->resize(100, 100, function ($constraint) {
-                            $constraint->aspectRatio();
-                        });
-                        $img->save(public_path("$imagePath/$imageName"));
+                        // Compress the image if its size is greater than 1MB
+                        $img = Image::make(public_path("$imagePath/$imageName"));
+                        if ($img->filesize() > 1000000) {
+                            $img->resize(100, 100, function ($constraint) {
+                                $constraint->aspectRatio();
+                            });
+                            $img->save(public_path("$imagePath/$imageName"));
+                        }
+                    } else {
+                        // Handle non-image details
+                        $imageName = $value;
                     }
-                } else {
-                    // Handle non-image details
-                    $imageName = $value;
+
+                    // Create and save the answer
+                    $answer = new WorkOrderInstructionTemplateAnswerModel([
+                        'work_order_id' => $workOrder->workOrder->id,
+                        'work_order_instruction_id' => $workOrder->id,
+                        'name' => $detailQuestion->template->name,
+                        'description' => $detailQuestion->template->description,
+                        'instruction' => $detailQuestion->instruction,
+                        'instruction_step' => $detailQuestion->template->instruction,
+                        'type' => $detailQuestion->type,
+                        'group' => $detailQuestion->group,
+                        'is_required' => $detailQuestion->is_required,
+                        'created_by' => auth()->user()->id,
+                        'updated_by' => auth()->user()->id,
+                        'answer' => $imageName, // Save the image name or value
+                    ]);
+
+                    $answer->save();
                 }
-
-                // Create and save the answer
-                $answer = new WorkOrderInstructionTemplateAnswerModel([
-                    'work_order_id' => $workOrder->workOrder->id,
-                    'work_order_instruction_id' => $workOrder->id,
-                    'name' => $detailQuestion->template->name,
-                    'description' => $detailQuestion->template->description,
-                    'instruction' => $detailQuestion->instruction,
-                    'instruction_step' => $detailQuestion->template->instruction,
-                    'type' => $detailQuestion->type,
-                    'group' => $detailQuestion->group,
-                    'is_required' => $detailQuestion->is_required,
-                    'created_by' => auth()->user()->id,
-                    'updated_by' => auth()->user()->id,
-                    'answer' => $imageName, // Save the image name or value
-                ]);
-
-                $answer->save();
             }
 
             // Commit the transaction
