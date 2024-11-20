@@ -312,16 +312,24 @@ class WorkOrder extends Controller
     public function destroy(Request $request)
     {
         try {
-            $workOrder = WorkOrderModel::find($request->work_order_id);
-            $workOrder->delete();
-            return response()->json([
-                'success' => true,
-                'message' => 'Work order deleted successfully.'
-            ]);
+            $workOrderInstruction = WorkOrderInstructionModel::where('work_order_id', $request->work_order_id)->first();
+            if ($workOrderInstruction) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Work order instruction is already exist.'
+                ]);
+            } else {
+                $workOrder = WorkOrderModel::find($request->work_order_id);
+                $workOrder->delete();
+                return response()->json([
+                    'success' => 'success',
+                    'message' => 'Work order deleted successfully.'
+                ]);
+            }
         } catch (\Throwable $th) {
             Log::error($th);
             return response()->json([
-                'success' => false,
+                'success' => 'error',
                 'message' => 'Failed to delete work order.'
             ]);
         }
