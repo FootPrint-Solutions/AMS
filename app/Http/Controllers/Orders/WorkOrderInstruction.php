@@ -348,35 +348,40 @@ class WorkOrderInstruction extends Controller
      */
     public function InstructionDetailNew($id)
     {
-        if ($id == 'login') {
-            return redirect()->route('login');
+        try {
+            if ($id == 'login') {
+                return redirect()->route('login');
+            }
+
+            // Generate a unique work order instruction number
+            session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
+
+            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
+
+            if (!$workOrderInstruction || $workOrderInstruction->workOrder == null) {
+                return redirect()->route('dashboard')->with('error', 'Work Order not found');
+            }
+
+            $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
+
+            $data = [
+                'workOrderInstruction' => $workOrderInstruction,
+                'workOrderInstructionTemplate' => $workOrderInstructionTemplate,
+            ];
+
+            if (!$workOrderInstruction) {
+                return redirect()->route('dashboard')->with('error', 'Work Order Instruction not found');
+            }
+
+            if ($workOrderInstruction->date_complete) {
+                return redirect()->route('dashboard')->with('error', 'Work Order Instruction has been completed');
+            }
+
+            return view('Orders.WorkOrderInstruction.detail-new', getIndexData($this->title, $data));
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return redirect()->route('dashboard')->with('error', 'Failed to load Work Order Instruction, please contact the administrator');
         }
-
-        // Generate a unique work order instruction number
-        session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
-
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
-
-        if ($workOrderInstruction->workOrder == null) {
-            return redirect()->route('dashboard')->with('error', 'Work Order not found');
-        }
-
-        $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
-
-        $data = [
-            'workOrderInstruction' => $workOrderInstruction,
-            'workOrderInstructionTemplate' => $workOrderInstructionTemplate,
-        ];
-
-        if (!$workOrderInstruction) {
-            return redirect()->route('dashboard')->with('error', 'Work Order Instruction not found');
-        }
-
-        if ($workOrderInstruction->date_complete) {
-            return redirect()->route('dashboard')->with('error', 'Work Order Instruction has been completed');
-        }
-
-        return view('Orders.WorkOrderInstruction.detail-new', getIndexData($this->title, $data));
     }
 
     public function updateNew(Request $request)
