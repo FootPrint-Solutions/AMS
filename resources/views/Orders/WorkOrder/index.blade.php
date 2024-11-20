@@ -549,12 +549,21 @@
                                 work_order_id: id
                             },
                             success: function(response) {
-                                // Show success message.
-                                Swal.fire({
-                                    title: "Success",
-                                    text: response.message,
-                                    icon: "success",
-                                });
+                                if (response.status == 'error') {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error",
+                                    });
+                                    return;
+                                } else {
+                                    // Show success message.
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success",
+                                    });
+                                }
 
                                 // Refresh the table.
                                 table.ajax.reload();
