@@ -23,6 +23,12 @@
         }
     </style>
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @if (auth()->user()->level == 'technician')
     @else
         {{-- Header --}}

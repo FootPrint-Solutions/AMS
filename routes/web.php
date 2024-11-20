@@ -91,7 +91,7 @@ use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
 
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
-    Route::get('/', [Dashboard::class, 'index']);
+    Route::get('/', [Dashboard::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [Dashboard::class, 'index']);
     Route::get('/dashboard/chart/revenue', [Dashboard::class, 'getRevenueChart']);
 
