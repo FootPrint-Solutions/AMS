@@ -223,6 +223,9 @@
             });
 
             $('.btn-save').click(function() {
+                // disable button to prevent double click
+                $(this).prop('disabled', true);
+
                 // check if all required fields are filled
                 let requiredFields = $(this).closest('.tab-pane').find('input[required]');
                 let isValid = true;
@@ -234,6 +237,17 @@
                 });
 
                 if (isValid) {
+                    swal.fire({
+                        title: 'Loading',
+                        text: 'Please wait...',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        onBeforeOpen: () => {
+                            swal.showLoading();
+                        }
+                    });
+
                     $.ajax({
                         url: $('#form').attr('action'),
                         method: 'POST',
@@ -243,12 +257,13 @@
                         success: function(response) {
                             if (response.status == 'success') {
                                 swal.fire({
-                                    title: 'success',
+                                    title: 'Success',
                                     text: response.message,
                                     icon: 'success',
                                     confirmButtonText: 'OK',
+                                }).then(() => {
+                                    window.location.href = '/work-order-instruction';
                                 });
-                                window.location.href = '/work-order-instruction';
                             } else {
                                 swal.fire({
                                     title: 'Error',
@@ -256,6 +271,8 @@
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                 });
+
+                                $(this).prop('disabled', false);
                             }
                         },
                         error: function(xhr) {
@@ -265,10 +282,19 @@
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                             });
+
+                            $(this).prop('disabled', false);
                         }
                     });
                 } else {
-                    alert('Please fill all required fields');
+                    swal.fire({
+                        title: 'Error',
+                        text: 'Please fill all required fields',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
+
+                    $(this).prop('disabled', false);
                 }
 
             });
