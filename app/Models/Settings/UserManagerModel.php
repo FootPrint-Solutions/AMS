@@ -4,14 +4,15 @@ namespace App\Models\Settings;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class UserManagerModel extends Model
+class UserManagerModel extends Model implements Auditable
 {
-    use HasFactory, DataTablesTrait;
+    use HasFactory, DataTablesTrait, AuditableTrait;
 
     /**
      * The table associated with the model.

@@ -417,6 +417,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wo-instruction-template/edit', [WorkOrderInstructionTemplate::class, 'update'])->name('wo-instruction-template.edit')->middleware('permission:edit_wo_instruction_template');
     Route::post('/wo-instruction-template/store', [WorkOrderInstructionTemplate::class, 'store'])->name('wo-instruction-template.store')->middleware('permission:add_wo_instruction_template');
     Route::post('/wo-instruction-template/destroy', [WorkOrderInstructionTemplate::class, 'destroy'])->name('wo-instruction-template.delete')->middleware('permission:delete_wo_instruction_template');
+    Route::get('/wo-instruction-template/option/{id}', [WorkOrderInstructionTemplate::class, 'option'])->name('wo-instruction-template.option')->middleware('permission:view_wo_instruction_template');
+    Route::post('/wo-instruction-template/store/option', [WorkOrderInstructionTemplate::class, 'storeOption'])->name('wo-instruction-template.storeOption')->middleware('permission:add_wo_instruction_template');
+    Route::post('/wo-instruction-template/destroy/option', [WorkOrderInstructionTemplate::class, 'destroyOption'])->name('wo-instruction-template.deleteOption')->middleware('permission:delete_wo_instruction_template');
+    Route::post('/wo-instruction-template/toggle-status/option', [WorkOrderInstructionTemplate::class, 'toggleStatusOption'])->name('wo-instruction-template.toggleStatusOption')->middleware('permission:edit_wo_instruction_template');
 
     // user manager 
     Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
