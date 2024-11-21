@@ -4,10 +4,13 @@ namespace App\Models\Settings;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class WorkOrderInstructionTemplateDetailsModel extends Model
+use OwenIt\Auditing\Auditable as AuditableTrait;
+
+class WorkOrderInstructionTemplateDetailsModel extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     /**
      * The table associated with the model.

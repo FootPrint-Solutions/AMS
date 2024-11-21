@@ -14,6 +14,7 @@ use App\Models\Settings\WorkOrderInstructionTemplateModel;
 use Intervention\Image\Facades\Image;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionTemplateAnswerModel;
 use App\Models\Settings\WorkOrderInstructionTemplateDetailsModel;
+use App\Models\Settings\WorkOrderInstructionTemplateOptionModel;
 
 class WorkOrderInstruction extends Controller
 {
@@ -362,7 +363,13 @@ class WorkOrderInstruction extends Controller
                 return redirect()->route('dashboard')->with('error', 'Work Order not found');
             }
 
-            $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->with('details')->get();
+            $workOrderInstructionTemplateOption = WorkOrderInstructionTemplateOptionModel::where('status', 1)->get();
+
+            if (!$workOrderInstructionTemplateOption->isEmpty()) {
+                $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->where('work_order_instruction_template_option_id', $workOrderInstructionTemplateOption[0]->id)->with('details')->get();
+            } else {
+                return redirect()->route('dashboard')->with('error', 'Work Order Instruction Template not found');
+            }
 
             $data = [
                 'workOrderInstruction' => $workOrderInstruction,

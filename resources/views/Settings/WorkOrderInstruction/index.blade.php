@@ -30,6 +30,16 @@
     {{-- bagi menjadi dua colom --}}
     <form action="{{ route('wo-instruction-template.store') }}" method="POST">
         @csrf
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="template-option-name" class="form-label">Template Name</label>
+                <input type="text" class="form-control" name="template-option-name" id="template-option-name"
+                    placeholder="Enter template option name" required value="{{ $data['dataOption']['name'] }}">
+                <input type="hidden" name="template-option-id" id="template-option-id"
+                    value="{{ $data['dataOption']['id'] }}">
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-9">
                 <div class="card shadow" id="step-1">
@@ -82,7 +92,8 @@
                         {{-- Title --}}
                         <div class="row align-items-center">
                             <div class="col">
-                                <h3 class="page-title text-center text-light">Work Order Instruction Template Detail</h3>
+                                <h3 class="page-title text-center text-light">Work Order Instruction Template Detail
+                                </h3>
                             </div>
                         </div>
                     </div>
@@ -510,6 +521,8 @@
             initTinyMCE('textarea');
             $('#save-button').on('click', function(event) {
                 var total_steps = $('#last-step').val();
+                var title_template = $('#template-option-name').val();
+                var id = $('#template-option-id').val();
                 // loop through each step
                 for (var i = 1; i <= total_steps; i++) {
                     var title = $('#input-work-order-instruction-title-step-' + i).val();
@@ -521,6 +534,17 @@
                     var input_group = [];
                     var input_required = [];
                     var input_count = [];
+
+                    if (description === '') {
+                        toastr.error('Description cannot be empty');
+                        return;
+                    }
+
+                    if (title === '') {
+                        toastr.error('Title cannot be empty');
+                        return;
+                    }
+
                     // loop through each input
                     $('.input-div-step-' + i + ' table tbody tr').each(function() {
                         input_question.push($(this).find('td:nth-child(2) input').val());
@@ -542,7 +566,10 @@
                             "input_type": input_type,
                             "input_group": input_group,
                             "input_required": input_required,
-                            "input_count": input_count
+                            "input_count": input_count,
+                            "total_steps": total_steps,
+                            "id_template": id,
+                            "title_template": title_template
                         },
                         success: function(response) {
                             if (response.status == 'error') {
