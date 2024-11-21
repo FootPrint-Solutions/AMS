@@ -224,6 +224,8 @@
         </div>
 
         <input type="hidden" id="last-step" value="{{ $data->count() }}">
+        <input type="hidden" id="end-step-count">
+        <input type="hidden" id="start-step-count">
     </form>
 
     {{-- modalInputOption --}}
@@ -617,7 +619,8 @@
                 var id_template = $('#template-option-id').val();
                 // disable button
                 $('#save-button').prop('disabled', true);
-
+                $('#save-button').html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+                var hasError = false;
                 // loop through each step
                 for (var i = 1; i <= total_steps; i++) {
                     var id = $('#input-id-' + i).val();
@@ -672,11 +675,20 @@
                         success: function(response) {
                             // respon toastr
                             toastr.success('Data updated successfully');
+                            $('#start-step-count').val(i);
+                            var start = $('#start-step-count').val() - 1;
+
+                            if (start == total_steps) {
+                                $('#save-button').prop('disabled', false);
+                                $('#save-button').html('<i class="fas fa-save"></i> Save');
+                            }
+                        },
+                        error: function() {
+                            toastr.error('Error updating step ' + step);
+                            hasError = true;
                         }
                     });
                 }
-                // enable button
-                $('#save-button').prop('disabled', false);
             });
         });
 

@@ -230,6 +230,8 @@
         </div>
 
         <input type="hidden" id="last-step" value="1">
+        <input type="hidden" id="end-step-count">
+        <input type="hidden" id="start-step-count">
     </form>
 
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
@@ -520,9 +522,14 @@
         $(document).ready(function() {
             initTinyMCE('textarea');
             $('#save-button').on('click', function(event) {
+                // disable save button
+                $('#save-button').prop('disabled', true);
+                $('#save-button').html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+                var hasError = false;
                 var total_steps = $('#last-step').val();
                 var title_template = $('#template-option-name').val();
                 var id = $('#template-option-id').val();
+                $('#end-step-count').val(total_steps);
                 // loop through each step
                 for (var i = 1; i <= total_steps; i++) {
                     var title = $('#input-work-order-instruction-title-step-' + i).val();
@@ -576,7 +583,20 @@
                                 toastr.error(response.message);
                             } else {
                                 toastr.success('Data saved successfully');
+                                $('#start-step-count').val(i);
+                                var start = $('#start-step-count').val() - 1;
+
+                                if (start == total_steps) {
+                                    $('#save-button').prop('disabled', false);
+                                    $('#save-button').html('<i class="fas fa-save"></i> Save');
+                                    window.location.href =
+                                        "{{ route('wo-instruction-template.index') }}";
+                                }
                             }
+                        },
+                        error: function(response) {
+                            toastr.error('Error saving data');
+                            hasError = true;
                         }
                     });
                 }
