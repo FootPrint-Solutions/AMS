@@ -55,7 +55,7 @@
                             <h2>Sign in</h2>
                             <!-- Form -->
                             <form action="/auth" method="post">
-                                @csrf
+                                {{ csrf_field() }}
                                 <div class="form-group">
                                     <label>Username <span class="login-danger">*</span></label>
                                     <input class="form-control" type="text" autofocus name="username" required>
