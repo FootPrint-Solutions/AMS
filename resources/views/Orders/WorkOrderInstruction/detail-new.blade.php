@@ -194,11 +194,6 @@
             if (currentStep) {
                 $('.tab-pane').removeClass('active').hide();
                 $(`#${currentStep}`).addClass('active').show();
-
-                let details = $(`#${currentStep}`).find('input[name^="details"]');
-                details.each(function() {
-                    $(this).val(localStorage.getItem($(this).attr('name')));
-                });
             }
 
             $('.next-check').click(function() {
@@ -243,10 +238,6 @@
                     nextTab.addClass('active').show();
 
                     localStorage.setItem('currentStep', nextTab.attr('id'));
-                    let details = currentTab.find('input[name^="details"]');
-                    details.each(function() {
-                        localStorage.setItem($(this).attr('name'), $(this).val());
-                    });
                 } else {
                     alert('Please fill all required fields');
                     event.preventDefault();
@@ -261,10 +252,6 @@
                 prevTab.addClass('active').show();
 
                 localStorage.setItem('currentStep', prevTab.attr('id'));
-                let details = currentTab.find('input[name^="details"]');
-                details.each(function() {
-                    localStorage.setItem($(this).attr('name'), $(this).val());
-                });
             });
 
             $('.btn-save').click(function() {
@@ -342,6 +329,25 @@
                     $(this).prop('disabled', false);
                 }
 
+            });
+
+            $('input, select, textarea').each(function() {
+                let name = $(this).attr('name');
+                if (name && localStorage.getItem(name)) {
+                    $(this).val(localStorage.getItem(name));
+                }
+            });
+
+            $('input, select, textarea').on('input change', function() {
+                let name = $(this).attr('name');
+                let value = $(this).val();
+                if (name) {
+                    localStorage.setItem(name, value);
+                }
+            });
+
+            $('.btn-save').click(function() {
+                localStorage.clear();
             });
         });
     </script>
