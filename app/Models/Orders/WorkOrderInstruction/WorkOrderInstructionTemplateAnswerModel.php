@@ -24,6 +24,7 @@ class WorkOrderInstructionTemplateAnswerModel extends Model
     protected $fillable = [
         'work_order_id',
         'work_order_instruction_id',
+        'work_order_instruction_template_detail_id',
         'name',
         'description',
         'instruction',
