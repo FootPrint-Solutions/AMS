@@ -116,6 +116,9 @@
                                                                         $required = $detail->is_required
                                                                             ? 'required'
                                                                             : '';
+                                                                        $required_sign = $required
+                                                                            ? " <span class='text-danger'><b>*</b></span>"
+                                                                            : '';
                                                                     @endphp
                                                                     @if ($detail->type == 'checkbox')
                                                                         <input type="{{ $type }}"
@@ -126,9 +129,10 @@
                                                                             {{ $required }} {{ $accept }}>
                                                                         <label for="detail-{{ $detail->id }}"
                                                                             class="form-label">{{ e($detail->instruction) }}</label>
+                                                                        {!! $required_sign !!}
                                                                     @else
                                                                         <label for="detail-{{ $detail->id }}"
-                                                                            class="form-label">{{ e($detail->instruction) }}</label>
+                                                                            class="form-label">{{ e($detail->instruction) }}</label>{!! $required_sign !!}
                                                                         <input type="{{ $type }}"
                                                                             class="{{ $class }}"
                                                                             id="detail-{{ $detail->id }}"
