@@ -186,14 +186,30 @@
                                 title: "Copy Work Order",
                                 text: "Do you want to copy this work order?",
                                 icon: "warning",
+                                html: `<div class="form-group">
+                                    <label for="print_option">Select Copy Work Order</label>
+                                    <select class="form-select" id="print_option">
+                                        @foreach ($data['print_options'] as $key => $value)
+                                            <option value="{{ $value['id'] }}">{{ $value['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>`,
                                 showCancelButton: true,
                                 confirmButtonText: "Copy New WO Instruction Link",
                                 cancelButtonText: "Copy Old WO Instruction Link",
-                                reverseButtons: true
+                                reverseButtons: true,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
                                     // copy new work order
                                     var input = document.createElement('input');
+                                    var print_option = document.getElementById(
+                                        'print_option').value;
+                                    var decode = window.btoa(work_order_id + '/' +
+                                        print_option);
+                                    var newurl = window.location.origin + "/wo-new/" +
+                                        decode;
                                     input.setAttribute('value', newurl);
                                     document.body.appendChild(input);
                                     input.select();
@@ -209,6 +225,8 @@
                                 } else {
                                     // copy old work order
                                     var input = document.createElement('input');
+                                    var decode = window.btoa(work_order_id);
+                                    var url = window.location.origin + "/wo/" + decode;
                                     input.setAttribute('value', url);
                                     document.body.appendChild(input);
                                     input.select();

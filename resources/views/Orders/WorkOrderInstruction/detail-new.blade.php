@@ -9,7 +9,7 @@
                 </div>
                 <div class="card-body">
                     <div id="basic-pills-wizard" class="twitter-bs-wizard">
-                        <ul class="twitter-bs-wizard-nav nav nav-pills nav-justified">
+                        <ul class="twitter-bs-wizard-nav nav nav-pills nav-justified d-none">
                             @foreach ($data['workOrderInstructionTemplate'] as $key)
                                 <li class="nav-item {{ $loop->first ? 'active' : '' }}">
                                     <a href="#step-{{ $key->id }}" class="nav-link" data-toggle="tab">
@@ -147,19 +147,32 @@
                                                 @endif
                                             </div>
                                             <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                                {{-- button Sebelumnya --}}
+                                                @if ($loop->first)
+                                                    <li class="previous d-none">
+                                                        <a href="javascript:void(0);" class="btn btn-primary">Sebelumnya <i
+                                                                class="bx bx-chevron-left ms-1"></i></a>
+                                                    </li>
+                                                @else
+                                                    <li class="previous">
+                                                        <a href="javascript:void(0);" class="btn btn-primary">Sebelumnya <i
+                                                                class="bx bx-chevron-left ms-1"></i></a>
+                                                    </li>
+                                                @endif
                                                 @if ($loop->last)
-                                                    <li class="save">
-                                                        <button type="button" class="btn btn-success btn-save">Save <i
+                                                    <li class="next save">
+                                                        <button type="button btn btn-primary next-check"
+                                                            class="btn btn-success btn-save">Selesai <i
                                                                 class="bx bx-check-circle ms-1"></i></button>
                                                     </li>
                                                 @else
                                                     <li class="next">
-                                                        <a class="btn btn-primary next-check">Next <i
+                                                        <a class="btn btn-primary next-check">Lanjut <i
                                                                 class="bx bx-chevron-right ms-1"></i></a>
                                                     </li>
                                                     <li class="next d-none">
                                                         <a href="javascript:void(0);"
-                                                            class="btn btn-primary seller-next-btn" id="next-step">Next <i
+                                                            class="btn btn-primary seller-next-btn" id="next-step">Lanjut <i
                                                                 class="bx bx-chevron-right ms-1"></i></a>
                                                     </li>
                                                 @endif
@@ -177,6 +190,17 @@
 
     <script>
         $(document).ready(function() {
+            let currentStep = localStorage.getItem('currentStep');
+            if (currentStep) {
+                $('.tab-pane').removeClass('active').hide();
+                $(`#${currentStep}`).addClass('active').show();
+
+                let details = $(`#${currentStep}`).find('input[name^="details"]');
+                details.each(function() {
+                    $(this).val(localStorage.getItem($(this).attr('name')));
+                });
+            }
+
             $('.next-check').click(function() {
                 // check if all required fields are filled
                 let requiredFields = $(this).closest('.tab-pane').find('input[required]');
@@ -212,14 +236,35 @@
                 });
 
                 if (isValid) {
-                    $(this).closest('.tab-pane').removeClass('active');
-                    $(this).closest('.tab-pane').next().addClass('active');
-                    $(this).closest('.tab-pane').hide();
-                    $(this).closest('.tab-pane').next().show();
+                    let currentTab = $(this).closest('.tab-pane');
+                    let nextTab = currentTab.next();
+
+                    currentTab.removeClass('active').hide();
+                    nextTab.addClass('active').show();
+
+                    localStorage.setItem('currentStep', nextTab.attr('id'));
+                    let details = currentTab.find('input[name^="details"]');
+                    details.each(function() {
+                        localStorage.setItem($(this).attr('name'), $(this).val());
+                    });
                 } else {
                     alert('Please fill all required fields');
                     event.preventDefault();
                 }
+            });
+
+            $('.previous').click(function() {
+                let currentTab = $(this).closest('.tab-pane');
+                let prevTab = currentTab.prev();
+
+                currentTab.removeClass('active').hide();
+                prevTab.addClass('active').show();
+
+                localStorage.setItem('currentStep', prevTab.attr('id'));
+                let details = currentTab.find('input[name^="details"]');
+                details.each(function() {
+                    localStorage.setItem($(this).attr('name'), $(this).val());
+                });
             });
 
             $('.btn-save').click(function() {

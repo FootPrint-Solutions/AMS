@@ -320,7 +320,6 @@ class WorkOrderInstructionTemplate extends Controller
         try {
             DB::beginTransaction();
 
-            WorkOrderInstructionTemplateOptionModel::where('id', '!=', $data['id'])->update(['status' => 0]);
             $status = WorkOrderInstructionTemplateOptionModel::find($data['id']);
             $status->status = !$status->status;
             $status->save();

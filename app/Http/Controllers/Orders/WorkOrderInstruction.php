@@ -22,7 +22,10 @@ class WorkOrderInstruction extends Controller
 
     public function index()
     {
-        return view('Orders.WorkOrderInstruction.index', getIndexData($this->title));
+        $data = array(
+            'print_options' => WorkOrderInstructionTemplateOptionModel::where('status', 1)->get(),
+        );
+        return view('Orders.WorkOrderInstruction.index', getIndexData($this->title, $data));
     }
 
     /**
@@ -110,24 +113,31 @@ class WorkOrderInstruction extends Controller
      */
     public function InstructionDetail($id)
     {
-        if ($id == 'login') {
-            return redirect()->route('login');
+        try {
+            $id = base64_decode($id);
+            $id = explode('/', $id);
+            if ($id['0'] == 'login') {
+                return redirect()->route('login');
+            }
+
+            // Generate a unique work order instruction number
+            session(['temp_wo_instruction' => $id['0'] . rand(1000, 9999)]);
+
+            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id['0'])->first();
+
+            if (!$workOrderInstruction) {
+                return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction not found');
+            }
+
+            if ($workOrderInstruction->date_complete) {
+                return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction has been completed');
+            }
+
+            return view('Orders.WorkOrderInstruction.details', getIndexData($this->title, $workOrderInstruction));
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return redirect()->route('work-order-instruction.index')->with('error', 'Failed to load Work Order Instruction, please contact the administrator');
         }
-
-        // Generate a unique work order instruction number
-        session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
-
-        $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
-
-        if (!$workOrderInstruction) {
-            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction not found');
-        }
-
-        if ($workOrderInstruction->date_complete) {
-            return redirect()->route('work-order-instruction.index')->with('error', 'Work Order Instruction has been completed');
-        }
-
-        return view('Orders.WorkOrderInstruction.details', getIndexData($this->title, $workOrderInstruction));
     }
 
     /**
@@ -350,20 +360,22 @@ class WorkOrderInstruction extends Controller
     public function InstructionDetailNew($id)
     {
         try {
-            if ($id == 'login') {
+            $id = base64_decode($id);
+            $id = explode('/', $id);
+            if ($id['0'] == 'login') {
                 return redirect()->route('login');
             }
 
             // Generate a unique work order instruction number
-            session(['temp_wo_instruction' => $id . rand(1000, 9999)]);
+            session(['temp_wo_instruction' => $id['0'] . rand(1000, 9999)]);
 
-            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id)->first();
+            $workOrderInstruction = WorkOrderInstructionModel::with('workOrder')->where('work_order_instruction_number', $id['0'])->first();
 
             if (!$workOrderInstruction || $workOrderInstruction->workOrder == null) {
                 return redirect()->route('dashboard')->with('error', 'Work Order not found');
             }
 
-            $workOrderInstructionTemplateOption = WorkOrderInstructionTemplateOptionModel::where('status', 1)->get();
+            $workOrderInstructionTemplateOption = WorkOrderInstructionTemplateOptionModel::where(['status' => 1, 'id' => $id['1']])->get();
 
             if (!$workOrderInstructionTemplateOption->isEmpty()) {
                 $workOrderInstructionTemplate = WorkOrderInstructionTemplateModel::orderBy('instruction', 'asc')->where('work_order_instruction_template_option_id', $workOrderInstructionTemplateOption[0]->id)->with('details')->get();
@@ -438,6 +450,7 @@ class WorkOrderInstruction extends Controller
                     $answer = new WorkOrderInstructionTemplateAnswerModel([
                         'work_order_id' => $workOrder->workOrder->id,
                         'work_order_instruction_id' => $workOrder->id,
+                        'work_order_instruction_template_detail_id' => $key,
                         'name' => $detailQuestion->template->name,
                         'description' => $detailQuestion->template->description,
                         'instruction' => $detailQuestion->instruction,
@@ -447,7 +460,7 @@ class WorkOrderInstruction extends Controller
                         'is_required' => $detailQuestion->is_required,
                         'created_by' => auth()->user()->id,
                         'updated_by' => auth()->user()->id,
-                        'answer' => $imageName, // Save the image name or value
+                        'answer' => $imageName ?? 'Tidak ada jawaban',
                     ]);
 
                     $answer->save();
