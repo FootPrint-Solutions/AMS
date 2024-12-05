@@ -5,12 +5,13 @@ namespace App\Models\Settings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
 class WorkOrderInstructionTemplateModel extends Model implements Auditable
 {
-    use HasFactory, AuditableTrait;
+    use HasFactory, AuditableTrait, SoftDeletes;
 
     /**
      * The table associated with the model.

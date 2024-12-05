@@ -117,7 +117,7 @@
                                                                             ? 'required'
                                                                             : '';
                                                                         $required_sign = $required
-                                                                            ? " <span class='text-danger'><b>*</b></span>"
+                                                                            ? " <span class='text-danger'><b>*</span>"
                                                                             : '';
                                                                     @endphp
                                                                     @if ($detail->type == 'checkbox')
