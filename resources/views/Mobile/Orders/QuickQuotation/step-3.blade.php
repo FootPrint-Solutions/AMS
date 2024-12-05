@@ -6,7 +6,7 @@
         <div class="card-body">
             <div class="container">
                 <h5 id="full_name_customer_checkout_mobile"></h5>
-                <h5 id="address_customer_checkout_mobile"></h5>
+                <h5 id="address_customer_checkout_mobile"></h5>, <h5 id="address_customer_checkout_mobile_alternative"></h5>
                 <h5><span id="email_customer_checkout_mobile"></span>, <span id="number_customer_checkout_mobile"></span>
                 </h5>
             </div>
@@ -615,6 +615,7 @@
         var Latitude = $("#latitude_input_mobile").val();
         var Longitude = $("#longitude_input_mobile").val();
         var AddressCustomer = $('#address_input_mobile').val();
+        var AddressCustomerAlternative = $('#address_input_mobile_alternative').val();
         var Battery = [];
         var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
         var PriceTabel = []; // Menambahkan array untuk menyimpan harga
@@ -654,6 +655,7 @@
             Latitude: Latitude,
             Longitude: Longitude,
             AddressCustomer: AddressCustomer,
+            AddressCustomerAlternative: AddressCustomerAlternative,
             typeDiscount: typeDiscount,
             EmailCustomer: EmailCustomer,
             _token: $('meta[name="csrf-token"]').attr('content')
@@ -684,6 +686,7 @@
                     $("#number_customer_payment_details_mobile").text(ContactNumber);
                     $("#email_customer_payment_details_mobile").text(EmailCustomer);
                     $("#address_customer_payment_details_mobile").text(AddressCustomer);
+                    $("#address_customer_payment_details_mobile_alternative").text(AddressCustomerAlternative);
                     formatTotalAmount = new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR'
