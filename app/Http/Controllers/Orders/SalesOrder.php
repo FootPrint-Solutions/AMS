@@ -78,7 +78,6 @@ class SalesOrder extends Controller
      */
     public function create()
     {
-        Log::info(DistributorShopModel::with(['distributor'])->get()->toArray());
         return view(
             'Orders.SalesOrder.create',
             getIndexData(
