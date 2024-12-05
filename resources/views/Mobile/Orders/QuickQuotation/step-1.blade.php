@@ -13,7 +13,6 @@
          <div class="col-lg-6">
              <div class="mb-3 form-group local-forms">
                  <label class="form-label">Members Name
-                     <span class="login-danger">*</span>
                  </label>
                  <input type="text" class="form-control" id="members_name_input_mobile"
                      name="members_name_input_mobile" required>
@@ -501,10 +500,10 @@
          var members_name_input_mobile = $('#members_name_input_mobile').val();
          var vehicle_customer_input_mobile = $('#vehicle_customer_input_mobile').val();
 
-         if (members_name_input_mobile == '') {
-             swal.fire("Error!", "Members Name is required", "error");
-             return;
-         }
+         //  if (members_name_input_mobile == '') {
+         //      swal.fire("Error!", "Members Name is required", "error");
+         //      return;
+         //  }
 
          if (vehicle_customer_input_mobile == null) {
              swal.fire("Error!", "Vehicle Customer is required", "error");

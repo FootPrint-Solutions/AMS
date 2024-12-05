@@ -1265,6 +1265,7 @@ $arrayVehicle
                 'Fullname' => $request->input('FullName'),
                 'ContactNumber' => $request->input('ContactNumber'),
                 'AddressCustomer' => $request->input('AddressCustomer'),
+                'AlternativeAddress' => $request->input('AddressCustomerAlternative'),
                 'EmailCustomer' => $request->input('EmailCustomer'),
                 'VehicleCustomer' => VehicleModel::whereIn('id', $request->input('VehicleCustomer'))->pluck('name')->toArray(),
                 'Battery' => BatteryModel::getBatteryData($request->input('Battery'))->toArray(),
@@ -1328,6 +1329,7 @@ $arrayVehicle
                 'Price' => $request->input('Price'),
                 'EmailCustomer' => $request->input('EmailCustomer'),
                 'AddressCustomer' => $request->input('AddressCustomer'),
+                'AddressCustomerAlternative' => $request->input('AddressCustomerAlternative'),
                 'InvoiceNumber' => $request->session()->get('invoice', SalesOrderModel::newCode()),
                 'PaymentMethod' => PaymentMethodModel::all()->toArray()
             );
@@ -1353,6 +1355,7 @@ $arrayVehicle
             $FullName = $request->input('FullName');
             $ContactNumber = $request->input('ContactNumber');
             $AddressCustomer = $request->input('AddressCustomer');
+            $AddressCustomerAlternative = $request->input('AddressCustomerAlternative');
             $VehicleCustomer = $request->input('VehicleCustomer');
             $Latitude = $request->input('Latitude');
             $Longitude = $request->input('Longitude');
@@ -1402,6 +1405,7 @@ $arrayVehicle
                 'payment_status' => "pending",
                 'status' => "draft",
                 'address' => $AddressCustomer,
+                'alternative_address' => $AddressCustomerAlternative,
                 'latitude' => $Latitude,
                 'longitude' => $Longitude,
                 'date' => date('Y-m-d')

@@ -20,6 +20,7 @@
                         <p class="mb-0" id="number_customer_payment_details_mobile"></p>
                         <p class="mb-0" id="email_customer_payment_details_mobile"></p>
                         <p class="mb-0" id="address_customer_payment_details_mobile"></p>
+                        <p class="mb-0" id="address_customer_payment_details_mobile_alternative"></p>
                     </div>
                 </div>
 
@@ -366,6 +367,7 @@
         var EmailCustomer = $("#email_customer_input_mobile").val();
         var ContactNumber = $("#contact_input_mobile").val();
         var AddressCustomer = $('#address_input_mobile').val();
+        var AddressCustomerAlternative = $('#address_input_mobile_alternative').val();
         var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
         var Latitude = $("#latitude_input_mobile").val();
         var Longitude = $("#longitude_input_mobile").val();
@@ -498,6 +500,7 @@
             EmailCustomer: EmailCustomer,
             ContactNumber: ContactNumber,
             AddressCustomer: AddressCustomer,
+            AddressCustomerAlternative: AddressCustomerAlternative,
             VehicleCustomer: VehicleCustomer,
             Latitude: Latitude,
             Longitude: Longitude,
