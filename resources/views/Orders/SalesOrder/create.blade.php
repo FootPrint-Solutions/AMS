@@ -39,10 +39,10 @@
                                 <input type="text" class="form-control" id="sales-order-number" name="salesordernumber"
                                     placeholder="Enter distributor name" required readonly
                                     @isset($data['profile'])
-                            value="{{ $data['profile']['sales_order_number'] }}"
-                        @else
-                            value="{{ $data['number'] }}"
-                        @endisset>
+                                value="{{ $data['profile']['sales_order_number'] }}"
+                                @else
+                                value="{{ $data['number'] }}"
+                                @endisset>
                             </div>
                         </div>
 
@@ -52,10 +52,10 @@
                                 <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
-                            value="{{ $data['profile']['date'] }}"
-                        @else
-                            value="{{ date('Y-m-d') }}"
-                        @endisset>
+                                value="{{ $data['profile']['date'] }}"
+                                @else
+                                value="{{ date('Y-m-d') }}"
+                                @endisset>
                             </div>
                         </div>
 
@@ -70,7 +70,8 @@
                                             @foreach ($data['customers'] as $customer)
                                                 <option value="{{ $customer['id'] }}"
                                                     @if (isset($data['profile']) && $data['profile']['customer_id'] == $customer['id']) selected @endif>
-                                                    {{ $customer['name'] }}</option>
+                                                    {{ $customer['name'] }}
+                                                </option>
                                             @endforeach
                                             <option value="new">Quick add new customer</option>
                                         </select>
@@ -157,7 +158,8 @@
                                     @foreach ($data['vehicles'] as $vehicle)
                                         <option value="{{ $vehicle['id'] }}"
                                             @if (isset($data['profile']) && $data['profile']['vehicle_id'] == $vehicle['id']) selected @endif>
-                                            {{ $vehicle['name'] }}</option>
+                                            {{ $vehicle['name'] }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -432,7 +434,8 @@
                                     @foreach ($data['payment_methods'] as $method)
                                         <option value="{{ $method['id'] }}"
                                             @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
-                                            {{ $method['name'] }}</option>
+                                            {{ $method['name'] }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -465,10 +468,10 @@
                 {{-- Create Button --}}
                 <button type="submit" class="btn btn-success mx-1" id="btn-save"
                     @if (isset($data['profile'])) value="update">
-                    Update
-                @else
-                    value="create">
-                    Create @endif
+                        Update
+                        @else
+                        value="create">
+                        Create @endif
                     Quotation </button>
 
                     {{-- Cancel Button --}}
@@ -482,7 +485,7 @@
     @include('Mobile.SalesOrder.create')
 
     {{-- Address Modal --}}
-    @include('maps.addressmodal')
+    @include('maps.AddressModal')
 
     <script>
         $(document).ready(function() {
