@@ -196,7 +196,7 @@
                                 </div>`,
                                 showCancelButton: true,
                                 confirmButtonText: "Copy New WO Instruction Link",
-                                cancelButtonText: "Copy Old WO Instruction Link",
+                                // cancelButtonText: "Copy Old WO Instruction Link",
                                 reverseButtons: true,
                                 allowOutsideClick: false,
                                 allowEscapeKey: false,
@@ -224,21 +224,21 @@
                                     });
                                 } else {
                                     // copy old work order
-                                    var input = document.createElement('input');
-                                    var decode = window.btoa(work_order_id);
-                                    var url = window.location.origin + "/wo/" + decode;
-                                    input.setAttribute('value', url);
-                                    document.body.appendChild(input);
-                                    input.select();
-                                    document.execCommand('copy');
-                                    document.body.removeChild(input);
+                                    // var input = document.createElement('input');
+                                    // var decode = window.btoa(work_order_id);
+                                    // var url = window.location.origin + "/wo/" + decode;
+                                    // input.setAttribute('value', url);
+                                    // document.body.appendChild(input);
+                                    // input.select();
+                                    // document.execCommand('copy');
+                                    // document.body.removeChild(input);
 
-                                    // Show success message.
-                                    Swal.fire({
-                                        title: "Success",
-                                        text: "Work order copied to clipboard.",
-                                        icon: "success",
-                                    });
+                                    // // Show success message.
+                                    // Swal.fire({
+                                    //     title: "Success",
+                                    //     text: "Work order copied to clipboard.",
+                                    //     icon: "success",
+                                    // });
                                 }
                             });
                         },

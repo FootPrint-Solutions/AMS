@@ -116,8 +116,10 @@
                                                     <input type="hidden" name="input-required[]"
                                                         value="{{ $input->is_required }}">
                                                 </td>
-                                                <td><button class="btn btn-danger btn-sm"
-                                                        onclick="deleteOption(this)">Delete</button></td>
+                                                <td>
+                                                    <button class="btn btn-danger btn-sm"
+                                                        onclick="deleteOption(this)">Delete</button>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -286,8 +288,9 @@
     </div>
 
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+    <input type="data-count" value="{{ $data->count() }}" id="data-count" hidden>
     <script>
-        let step = @json($data->count());
+        let step = parseInt($('#data-count').val());
         let stepDiv = $('.step-div');
 
         function addStep() {
@@ -429,7 +432,7 @@
                     <td><input type="text" class="form-control" name="input-work-order-instruction-input-question[]"></td>
                     <td>${inputType}</td>
                     <td>${inputGroup}</td>
-                    <td><input type="checkbox" name="input-work-order-instruction-input-required[]"></td>
+                    <td><input type="checkbox" name="input-work-order-instruction-input-required[]" checked></td>
                     <td><button class="btn btn-danger btn-sm" onclick="deleteOption(this)">Delete</button></td>
                 </tr>
             `;
@@ -439,6 +442,49 @@
         function deleteOption(button) {
             $(button).closest('tr').remove();
             updateRowNumbers();
+        }
+
+        function editOption(button) {
+            const tr = $(button).closest('tr');
+            const inputQuestion = tr.find('td:nth-child(2) input').val();
+            const inputType = tr.find('td:nth-child(3) input').val();
+            const inputGroup = tr.find('td:nth-child(4) input').val();
+            const inputRequired = tr.find('td:nth-child(5) input').val();
+
+            $('#input-work-order-instruction-input-input-type').val(inputType);
+            $('#input-work-order-instruction-input-group-select').val(inputGroup);
+
+            const inputOption = $('.form-input-option');
+            inputOption.html('');
+            inputOption.append(`
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Question</th>
+                            <th>Input Type</th>
+                            <th>Group</th>
+                            <th>Required</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            `);
+
+            const optionRow = `
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" class="form-control" name="input-work-order-instruction-input-question[]" value="${inputQuestion}"></td>
+                    <td>${inputType}</td>
+                    <td>${inputGroup}</td>
+                    <td><input type="checkbox" name="input-work-order-instruction-input-required[]" ${inputRequired === '1' ? 'checked' : ''}></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteOption(this)">Delete</button></td>
+                </tr>
+            `;
+            inputOption.find('table tbody').append(optionRow);
+
+            $('#modalInputOption').modal('show');
         }
 
         function updateRowNumbers() {

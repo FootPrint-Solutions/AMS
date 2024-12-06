@@ -14,6 +14,10 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'server/midtrans/notificationHandler',
         'server/midtrans/notificationHandler/*',
-        '/midtrans/notification'
+        '/midtrans/notification',
+        '/auth/*',
+        '/auth/login',
+        '/auth/logout',
+        '/login',
     ];
 }

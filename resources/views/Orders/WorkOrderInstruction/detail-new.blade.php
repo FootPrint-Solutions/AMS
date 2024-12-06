@@ -241,7 +241,7 @@
                     currentTab.removeClass('active').hide();
                     nextTab.addClass('active').show();
 
-                    localStorage.setItem('currentStep', nextTab.attr('id'));
+                    // localStorage.setItem('currentStep', nextTab.attr('id'));
                 } else {
                     alert('Please fill all required fields');
                     event.preventDefault();
@@ -255,7 +255,7 @@
                 currentTab.removeClass('active').hide();
                 prevTab.addClass('active').show();
 
-                localStorage.setItem('currentStep', prevTab.attr('id'));
+                // localStorage.setItem('currentStep', prevTab.attr('id'));
             });
 
             $('.btn-save').click(function() {
@@ -298,7 +298,8 @@
                                     icon: 'success',
                                     confirmButtonText: 'OK',
                                 }).then(() => {
-                                    window.location.href = '/work-order-instruction';
+                                    // close tab after success
+                                    window.close();
                                 });
                             } else {
                                 swal.fire({
@@ -337,17 +338,17 @@
 
             $('input, select, textarea').each(function() {
                 let name = $(this).attr('name');
-                if (name && localStorage.getItem(name)) {
-                    $(this).val(localStorage.getItem(name));
-                }
+                // if (name && localStorage.getItem(name)) {
+                //     $(this).val(localStorage.getItem(name));
+                // }
             });
 
             $('input, select, textarea').on('input change', function() {
                 let name = $(this).attr('name');
                 let value = $(this).val();
-                if (name) {
-                    localStorage.setItem(name, value);
-                }
+                // if (name) {
+                //     localStorage.setItem(name, value);
+                // }
             });
 
             $('.btn-save').click(function() {

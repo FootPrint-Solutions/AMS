@@ -23,6 +23,7 @@ use App\Models\Orders\WorkOrder\TrackingModel;
 use App\Models\Settings\ImportTemplateModel;
 use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionModel;
 use Illuminate\Support\Facades\DB;
+use App\Models\Settings\WorkOrderInstructionTemplateOptionModel;
 
 class WorkOrder extends Controller
 {
@@ -30,10 +31,14 @@ class WorkOrder extends Controller
 
     public function index()
     {
+        $data = array(
+            'print_options' => WorkOrderInstructionTemplateOptionModel::where('status', 1)->get(),
+        );
         return view(
             'Orders.WorkOrder.index',
             getIndexData(
-                $this->title
+                $this->title,
+                $data
             )
         );
     }
