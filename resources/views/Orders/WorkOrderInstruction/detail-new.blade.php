@@ -194,11 +194,11 @@
 
     <script>
         $(document).ready(function() {
-            let currentStep = localStorage.getItem('currentStep');
-            if (currentStep) {
-                $('.tab-pane').removeClass('active').hide();
-                $(`#${currentStep}`).addClass('active').show();
-            }
+            // let currentStep = localStorage.getItem('currentStep');
+            // if (currentStep) {
+            //     $('.tab-pane').removeClass('active').hide();
+            //     $(`#${currentStep}`).addClass('active').show();
+            // }
 
             $('.next-check').click(function() {
                 // check if all required fields are filled
