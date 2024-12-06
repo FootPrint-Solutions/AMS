@@ -117,7 +117,7 @@
                                                                             ? 'required'
                                                                             : '';
                                                                         $required_sign = $required
-                                                                            ? " <span class='text-danger'><b>*</span>"
+                                                                            ? " <span class='text-danger'><b>*</b></span>"
                                                                             : '';
                                                                     @endphp
                                                                     @if ($detail->type == 'checkbox')
@@ -194,7 +194,7 @@
 
     <script>
         $(document).ready(function() {
-            // let currentStep = localStorage.getItem('currentStep');
+            let currentStep = localStorage.getItem('currentStep');
             // if (currentStep) {
             //     $('.tab-pane').removeClass('active').hide();
             //     $(`#${currentStep}`).addClass('active').show();
