@@ -426,63 +426,74 @@
                                 success: function(response) {
                                     // Show success message.
                                     if (response.status == 'success') {
-
-                                        // swal with input text copy link to clipboard
-                                        var url = window.location.origin + "/wo/" +
-                                            response.data.work_order_instruction_number;
-                                        var urlnew = window.location.origin +
-                                            "/wo-new/" + response.data
+                                        var work_order_idddd = response.data
                                             .work_order_instruction_number;
+                                        alert(work_order_idddd);
                                         Swal.fire({
-                                            title: 'Copy Work Order Instruction',
-                                            html: `
-                                                <div>
-                                                    <label for="url">Old URL:</label>
-                                                    <input id="url" type="text" class="swal2-input" value="${url}">
-                                                </div>
-                                                <div>
-                                                    <label for="urlnew">New URL:</label>
-                                                    <input id="urlnew" type="text" class="swal2-input" value="${urlnew}">
-                                                </div>
-                                            `,
+                                            title: "Copy Work Order",
+                                            text: "Do you want to copy this work order?",
+                                            icon: "warning",
+                                            html: `<div class="form-group">
+                                    <label for="print_option">Select Copy Work Order</label>
+                                    <select class="form-select" id="print_option_datax">
+                                        @foreach ($data['print_options'] as $key => $value)
+                                            <option value="{{ $value['id'] }}">{{ $value['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>`,
                                             showCancelButton: true,
-                                            confirmButtonText: 'Copy New URL',
-                                            cancelButtonText: 'Copy Old URL',
-                                            showLoaderOnConfirm: true,
-                                            preConfirm: () => {
-                                                var input = document
-                                                    .createElement('input');
-                                                input.value = document
-                                                    .getElementById(
-                                                        'urlnew')
-                                                    .value;
-                                                document.body.appendChild(
-                                                    input);
-                                                input.select();
-                                                document.execCommand(
-                                                    'copy');
-                                                document.body.removeChild(
-                                                    input);
-                                                Swal.fire('Copied!', '',
-                                                    'success');
-                                            }
+                                            confirmButtonText: "Copy New WO Instruction Link",
+                                            // cancelButtonText: "Copy Old WO Instruction Link",
+                                            reverseButtons: true,
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false,
                                         }).then((result) => {
-                                            if (result.dismiss === Swal
-                                                .DismissReason.cancel) {
+                                            if (result.isConfirmed) {
+                                                // copy new work order
                                                 var input = document
                                                     .createElement('input');
-                                                input.value = document
-                                                    .getElementById('url')
+                                                var print_option = document
+                                                    .getElementById(
+                                                        'print_option_datax')
                                                     .value;
+                                                var decode = window.btoa(
+                                                    work_order_idddd + '/' +
+                                                    print_option);
+                                                var newurl = window.location
+                                                    .origin + "/wo-new/" +
+                                                    decode;
+                                                input.setAttribute('value',
+                                                    newurl);
                                                 document.body.appendChild(
                                                     input);
                                                 input.select();
-                                                document.execCommand(
-                                                    'copy');
+                                                document.execCommand('copy');
                                                 document.body.removeChild(
                                                     input);
-                                                Swal.fire('Copied!', '',
-                                                    'success');
+
+                                                // Show success message.
+                                                Swal.fire({
+                                                    title: "Success",
+                                                    text: "Work order copied to clipboard.",
+                                                    icon: "success",
+                                                });
+                                            } else {
+                                                // copy old work order
+                                                // var input = document.createElement('input');
+                                                // var decode = window.btoa(work_order_id);
+                                                // var url = window.location.origin + "/wo/" + decode;
+                                                // input.setAttribute('value', url);
+                                                // document.body.appendChild(input);
+                                                // input.select();
+                                                // document.execCommand('copy');
+                                                // document.body.removeChild(input);
+
+                                                // // Show success message.
+                                                // Swal.fire({
+                                                //     title: "Success",
+                                                //     text: "Work order copied to clipboard.",
+                                                //     icon: "success",
+                                                // });
                                             }
                                         });
                                     } else {

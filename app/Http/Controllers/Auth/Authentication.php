@@ -37,18 +37,41 @@ class Authentication extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required'],
-        ]);
+        try {
+            $credentials = $request->validate([
+                'username' => ['required', 'string'],
+                'password' => ['required'],
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+            if (Auth::attempt($credentials)) {
+                $request->session()->regenerate();
 
-            return redirect()->intended('dashboard');
+                // return redirect()->intended('dashboard');
+
+                $data = array(
+                    'status' => 'success',
+                    'message' => 'Login success',
+                    'redirect' => '/dashboard',
+                );
+            } else {
+                $data = array(
+                    'status' => 'error',
+                    'message' => 'Login failed, please check your credentials',
+                );
+            }
+
+            return response()->json($data);
+
+            // return back()->with('loginError', 'Login failed, please check your credentials');
+        } catch (\Throwable $th) {
+            $data = array(
+                'status' => 'error',
+                'message' => 'Login failed, please check your credentials',
+            );
+
+            return response()->json($data);
+            // return back()->with('loginError', 'Login failed, please check your credentials');
         }
-
-        return back()->with('loginError', 'Login failed, please check your credentials');
     }
 
     public function logout(Request $request)

@@ -92,6 +92,7 @@ use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
 Route::middleware(['auth'])->group(function () {
     // DASHBOARD
     Route::get('/', [Dashboard::class, 'index'])->name('dashboard');
+    Route::get('/auth', [Authentication::class, 'index'])->name('auth.index');
     Route::get('/dashboard', [Dashboard::class, 'index']);
     Route::get('/dashboard/chart/revenue', [Dashboard::class, 'getRevenueChart']);
 
@@ -466,13 +467,13 @@ Route::middleware(['developer'])->group(function () {
 
 // Auth
 Route::middleware(['guest'])->group(function () {
-    Route::get('/login', [Authentication::class, 'index'])->name('login');
-    Route::post('/auth', [Authentication::class, 'authenticate'])->name('auth.authenticate');
-
     // Midtrans Core API
     Route::post('/midtrans/snap/token', [Midtrans::class, 'createSnapToken']);
     Route::post('/midtrans/notification', [Midtrans::class, 'notificationHandler']);
 });
+
+Route::get('/login', [Authentication::class, 'index'])->name('login');
+Route::post('/auth', [Authentication::class, 'authenticate'])->name('auth.authenticate');
 
 // route for all user to tracking order
 Route::get('/tracking/{order_id}', [WorkOrder::class, 'trackingOrder']);

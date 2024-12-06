@@ -54,8 +54,8 @@
 
                             <h2>Sign in</h2>
                             <!-- Form -->
-                            <form action="/auth" method="post">
-                                {{ csrf_field() }}
+                            <form action="/auth">
+                                @csrf
                                 <div class="form-group">
                                     <label>Username <span class="login-danger">*</span></label>
                                     <input class="form-control" type="text" autofocus name="username" required>
@@ -78,7 +78,8 @@
                                     <a href="forgot-password.html">Forgot Password?</a>
                                 </div> --}}
                                 <div class="form-group">
-                                    <button class="btn btn-primary btn-block" type="submit">Login</button>
+                                    <button class="btn btn-primary btn-block" type="button"
+                                        id="btn-login">Login</button>
                                 </div>
                             </form>
                             <!-- /Form -->
@@ -116,6 +117,35 @@
 
     <!-- Custom JS -->
     <script src="{{ asset('/js/script.js') }}"></script>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#btn-login').click(function() {
+                var username = $('input[name="username"]').val();
+                var password = $('input[name="password"]').val();
+                var _token = $('input[name="_token"]').val();
+
+                $.ajax({
+                    url: '/auth',
+                    type: 'POST',
+                    data: {
+                        username: username,
+                        password: password,
+                        _token: _token
+                    },
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            window.location.href = '/dashboard';
+                        } else {
+                            swal("Error", response.message, "error");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 
 </body>
 

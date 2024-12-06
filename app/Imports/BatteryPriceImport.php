@@ -4,7 +4,7 @@ namespace App\Imports;
 
 use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryModel;
-use app\Models\MasterData\Battery\BatteryPriceModel;
+use App\Models\MasterData\Battery\BatteryPriceModel;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithEvents;
