@@ -428,7 +428,7 @@
                                     if (response.status == 'success') {
                                         var work_order_idddd = response.data
                                             .work_order_instruction_number;
-                                        alert(work_order_idddd);
+                                        // alert(work_order_idddd);
                                         Swal.fire({
                                             title: "Copy Work Order",
                                             text: "Do you want to copy this work order?",
