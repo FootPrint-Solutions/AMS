@@ -15,6 +15,10 @@ class Authentication extends Controller
 {
     public function index()
     {
+        if (Auth::check()) {
+            return redirect('/dashboard');
+        }
+
         // Set menu session.
         session([
             'menu' => MenuParent::with(['menus' => function ($query) {
@@ -46,12 +50,10 @@ class Authentication extends Controller
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
 
-                // return redirect()->intended('dashboard');
-
                 $data = array(
                     'status' => 'success',
                     'message' => 'Login success',
-                    'redirect' => '/dashboard',
+                    'redirect' =>  redirect()->intended('/')->getTargetUrl(),
                 );
             } else {
                 $data = array(
