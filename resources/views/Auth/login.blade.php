@@ -123,6 +123,9 @@
     <script>
         $(document).ready(function() {
             $('#btn-login').click(function() {
+                // disabled button
+                $(this).attr('disabled', true);
+                $(this).html('Loading...');
                 var username = $('input[name="username"]').val();
                 var password = $('input[name="password"]').val();
                 var _token = $('input[name="_token"]').val();
@@ -137,10 +140,15 @@
                     },
                     success: function(response) {
                         if (response.status == 'success') {
-                            window.location.href = '/dashboard';
+                            window.location.href = response.redirect;
                         } else {
                             swal("Error", response.message, "error");
+                            $('#btn-login').attr('disabled', false);
+                            $('#btn-login').html('Login');
                         }
+                    },
+                    error: function(xhr, status, error) {
+                        location.reload();
                     }
                 });
             });
