@@ -265,6 +265,88 @@
                         },
                         className: "btn btn-outline-info btn-sm",
                     },
+                    // add set to uncomplete button
+                    {
+                        text: "<i class='fas fa-undo'></i> Set to Uncomplete",
+                        action: function(e, dt, node, config) {
+                            // Get the selected row's id.
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for setting work order to uncomplete.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            // check if work order status is completed cannot be set to uncomplete
+                            var work_order_id = selectedRows[0][9];
+                            var work_order_status = selectedRows[0][9];
+                            if (work_order_status == "completed") {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Work order status is completed, cannot be set to uncomplete.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+
+                            Swal.fire({
+                                title: "Set to Uncomplete",
+                                text: "Do you want to set this work order instruction to uncomplete?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes, set to uncomplete!",
+                                cancelButtonText: "No, cancel!",
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "/work-order-instruction/set-uncomplete",
+                                        type: "POST",
+                                        data: {
+                                            _token: "{{ csrf_token() }}",
+                                            work_order_instruction_id: work_order_id
+                                        },
+                                        success: function(response) {
+                                            // Show success message.
+                                            if (response.status == 'success') {
+                                                Swal.fire({
+                                                    title: "Success",
+                                                    text: response
+                                                        .message,
+                                                    icon: "success",
+                                                });
+
+                                                // Refresh the table.
+                                                table.ajax.reload();
+                                            } else {
+                                                Swal.fire({
+                                                    title: "Error",
+                                                    text: response
+                                                        .message,
+                                                    icon: "error",
+                                                });
+                                            }
+                                        },
+                                        error: function(xhr) {
+                                            // Show error message.
+                                            Swal.fire({
+                                                title: "Error",
+                                                text: xhr.responseJSON
+                                                    .message,
+                                                icon: "error",
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        className: "btn btn-outline-warning btn-sm",
+                    },
                 ],
                 language: getDatatablesLanguangeConfigurations("Work Order Instruction"),
                 select: true,

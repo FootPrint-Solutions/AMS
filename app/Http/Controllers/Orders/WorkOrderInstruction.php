@@ -485,4 +485,30 @@ class WorkOrderInstruction extends Controller
             ]);
         }
     }
+
+    public function setUncomplete(Request $request)
+    {
+        try {
+            $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
+            if (!$workOrderInstruction) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Work Order Instruction not found',
+                ], 404);
+            }
+            $workOrderInstruction->date_complete = null;
+            $workOrderInstruction->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Work Order Instruction has been set to uncomplete',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to set Work Order Instruction to uncomplete ' . $th->getMessage(),
+            ]);
+        }
+    }
 }

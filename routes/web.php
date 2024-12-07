@@ -396,6 +396,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/data-category/send-parent-category-partially', [DataCategory::class, 'sendParentCategoryPartially'])->name('data-category.sendParentCategoryPartially')->middleware('permission:view_category_(_online_)');
     Route::post('/data-category/count-category', [DataCategory::class, 'countCategory'])->name('data-category.countCategory')->middleware('permission:view_category_(_online_)');
     Route::post('/data-category/send-category-partially', [DataCategory::class, 'sendCategoryPartially'])->name('data-category.sendCategoryPartially')->middleware('permission:view_category_(_online_)');
+    Route::post('/work-order-instruction/set-uncomplete', [WorkOrderInstruction::class, 'setUncomplete'])->name('work-order-instruction.setUncomplete')->middleware('permission:view_wo_instruction');
 
     // Work Order Instruction
     Route::get('/work-order-instruction', [WorkOrderInstruction::class, 'index'])->name('work-order-instruction.index')->middleware('permission:view_wo_instruction');
