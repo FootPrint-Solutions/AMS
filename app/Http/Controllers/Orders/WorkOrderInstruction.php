@@ -578,4 +578,29 @@ class WorkOrderInstruction extends Controller
             ]);
         }
     }
+
+    public function deleteInstruction(Request $request)
+    {
+        try {
+            $workOrderInstruction = WorkOrderInstructionTemplateAnswerModel::find($request->instruction_id);
+            if (!$workOrderInstruction) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Work Order Instruction not found',
+                ], 404);
+            }
+            $workOrderInstruction->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Work Order Instruction has been deleted',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete Work Order Instruction',
+            ]);
+        }
+    }
 }
