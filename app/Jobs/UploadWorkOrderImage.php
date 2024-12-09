@@ -25,24 +25,28 @@ class UploadWorkOrderImage implements ShouldQueue
 
     public function handle()
     {
-        ini_set('memory_limit', '512M');
+        try {
+            ini_set('memory_limit', '512M');
 
-        // Pindahkan file dari direktori sementara
-        $tempFile = storage_path("app/{$this->tempPath}");
-        $destination = public_path("{$this->imagePath}/{$this->imageName}");
+            // Pindahkan file dari direktori sementara
+            $tempFile = storage_path("app/{$this->tempPath}");
+            $destination = public_path("{$this->imagePath}/{$this->imageName}");
 
-        if (file_exists($tempFile)) {
-            copy($tempFile, $destination);
-            unlink($tempFile); // Hapus file sementara
+            if (file_exists($tempFile)) {
+                copy($tempFile, $destination);
+                unlink($tempFile); // Hapus file sementara
 
-            $img = Image::make($destination)->resize(100, 100, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
+                $img = Image::make($destination)->resize(100, 100, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
 
-            if ($img->filesize() > 1000000) {
-                $img->save($destination, 75);
+                if ($img->filesize() > 1000000) {
+                    $img->save($destination, 75);
+                }
             }
+        } catch (\Throwable $th) {
+            // Do nothing
         }
     }
 }
