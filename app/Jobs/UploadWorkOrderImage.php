@@ -8,31 +8,38 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 class UploadWorkOrderImage implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $image, $imagePath, $imageName;
+    protected $tempPath, $imagePath, $imageName;
 
-    public function __construct($image, $imagePath, $imageName)
+    public function __construct($tempPath, $imagePath, $imageName)
     {
-        $this->image = $image;
+        $this->tempPath = $tempPath;
         $this->imagePath = $imagePath;
         $this->imageName = $imageName;
     }
 
     public function handle()
     {
-        // Upload the image
-        $this->image->move(public_path($this->imagePath), $this->imageName);
+        // Pindahkan file dari direktori sementara
+        $tempFile = storage_path("app/{$this->tempPath}");
+        $destination = public_path("{$this->imagePath}/{$this->imageName}");
 
-        // Compress if larger than 1MB
-        $img = Image::make(public_path("{$this->imagePath}/{$this->imageName}"));
-        if ($img->filesize() > 1000000) {
-            $img->resize(100, 100, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save(public_path("{$this->imagePath}/{$this->imageName}"));
+        if (file_exists($tempFile)) {
+            copy($tempFile, $destination);
+            unlink($tempFile); // Hapus file sementara
+
+            // Kompres file jika lebih dari 1MB
+            $img = Image::make($destination);
+            if ($img->filesize() > 1000000) {
+                $img->resize(100, 100, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destination);
+            }
         }
     }
 }

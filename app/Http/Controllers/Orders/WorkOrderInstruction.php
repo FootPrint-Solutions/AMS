@@ -17,6 +17,7 @@ use App\Models\Settings\WorkOrderInstructionTemplateDetailsModel;
 use App\Models\Settings\WorkOrderInstructionTemplateOptionModel;
 
 use App\Jobs\UploadWorkOrderImage;
+use Illuminate\Support\Facades\Storage;
 
 class WorkOrderInstruction extends Controller
 {
@@ -531,12 +532,14 @@ class WorkOrderInstruction extends Controller
                     $detailQuestion = WorkOrderInstructionTemplateDetailsModel::with('template')->find($key);
 
                     if ($detailQuestion && $detailQuestion->type == 'image' && $value instanceof \Illuminate\Http\UploadedFile) {
-                        $image = $value;
-                        $imagePath = 'storage/image/work-order/instruction';
-                        $imageName = uniqid() . '_' . $image->getClientOriginalName();
+                        // Pindahkan file ke direktori sementara
+                        $tempPath = $value->store('temp');
 
-                        // Dispatch the job
-                        UploadWorkOrderImage::dispatch($image, $imagePath, $imageName);
+                        // Dispatch job dengan path sementara
+                        $imageName = uniqid() . '_' . $value->getClientOriginalName();
+                        $imagePath = 'storage/image/work-order/instruction';
+
+                        UploadWorkOrderImage::dispatch($tempPath, $imagePath, $imageName);
                     } else {
                         $imageName = $value;
                     }
