@@ -140,7 +140,8 @@
                     },
                     success: function(response) {
                         if (response.status == 'success') {
-                            window.location.href = response.redirect;
+                            // window.location.href = response.redirect;
+                            window.open(response.redirect, '_self');
                         } else {
                             swal("Error", response.message, "error");
                             $('#btn-login').attr('disabled', false);
