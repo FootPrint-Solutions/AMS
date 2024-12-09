@@ -409,7 +409,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/work-order-instruction/mobile/lazy-load/list', [WorkOrderInstruction::class, 'lazyLoadList'])->name('work-order-instruction.lazyLoadList')->middleware('permission:view_wo_instruction');
     Route::post('/work-order-instruction/mobile/delete', [WorkOrderInstruction::class, 'destroy'])->middleware('permission:delete_wo_instruction');
     Route::post('/work-order-instruction/upload-image', [WorkOrderInstruction::class, 'uploadImage'])->name('work-order-instruction.uploadImage')->middleware('permission:view_wo_instruction');
-    Route::post('/work-order-instruction/update-new', [WorkOrderInstruction::class, 'updateNew'])->name('work-order-instruction.updateNew')->middleware('permission:edit_wo_instruction');
+    Route::post('/work-order-instruction/update-new', [WorkOrderInstruction::class, 'updateNewQueue'])->name('work-order-instruction.updateNew')->middleware('permission:edit_wo_instruction');
 
 
     // WO Instruction Template
