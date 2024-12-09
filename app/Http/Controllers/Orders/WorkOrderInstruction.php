@@ -16,6 +16,8 @@ use App\Models\Orders\WorkOrderInstruction\WorkOrderInstructionTemplateAnswerMod
 use App\Models\Settings\WorkOrderInstructionTemplateDetailsModel;
 use App\Models\Settings\WorkOrderInstructionTemplateOptionModel;
 
+use App\Jobs\UploadWorkOrderImage;
+
 class WorkOrderInstruction extends Controller
 {
     private $title = 'Work Order Instruction';
@@ -508,6 +510,68 @@ class WorkOrderInstruction extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to set Work Order Instruction to uncomplete ' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function updateNewQueue(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_instruction_id);
+            $workOrderInstruction->date_complete = $request->date_complete ?? now();
+            $workOrderInstruction->save();
+
+            $details = $request->details;
+            $workOrder = WorkOrderInstructionModel::with('workOrder')->find($request->work_order_instruction_id);
+
+            if ($details && !is_null($details)) {
+                foreach ($details as $key => $value) {
+                    $detailQuestion = WorkOrderInstructionTemplateDetailsModel::with('template')->find($key);
+
+                    if ($detailQuestion && $detailQuestion->type == 'image' && $value instanceof \Illuminate\Http\UploadedFile) {
+                        $image = $value;
+                        $imagePath = 'storage/image/work-order/instruction';
+                        $imageName = uniqid() . '_' . $image->getClientOriginalName();
+
+                        // Dispatch the job
+                        UploadWorkOrderImage::dispatch($image, $imagePath, $imageName);
+                    } else {
+                        $imageName = $value;
+                    }
+
+                    WorkOrderInstructionTemplateAnswerModel::create([
+                        'work_order_id' => $workOrder->workOrder->id,
+                        'work_order_instruction_id' => $workOrder->id,
+                        'work_order_instruction_template_detail_id' => $key,
+                        'name' => $detailQuestion->template->name,
+                        'description' => $detailQuestion->template->description,
+                        'instruction' => $detailQuestion->instruction,
+                        'instruction_step' => $detailQuestion->template->instruction,
+                        'type' => $detailQuestion->type,
+                        'group' => $detailQuestion->group,
+                        'is_required' => $detailQuestion->is_required,
+                        'created_by' => auth()->user()->id,
+                        'updated_by' => auth()->user()->id,
+                        'answer' => $imageName ?? 'Tidak ada jawaban',
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Work Order Instruction has been updated',
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update Work Order Instruction',
             ]);
         }
     }
