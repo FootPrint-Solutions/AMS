@@ -25,6 +25,8 @@ class UploadWorkOrderImage implements ShouldQueue
 
     public function handle()
     {
+        ini_set('memory_limit', '512M');
+
         // Pindahkan file dari direktori sementara
         $tempFile = storage_path("app/{$this->tempPath}");
         $destination = public_path("{$this->imagePath}/{$this->imageName}");
@@ -33,12 +35,13 @@ class UploadWorkOrderImage implements ShouldQueue
             copy($tempFile, $destination);
             unlink($tempFile); // Hapus file sementara
 
-            // Kompres file jika lebih dari 1MB
-            $img = Image::make($destination);
+            $img = Image::make($destination)->resize(100, 100, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+
             if ($img->filesize() > 1000000) {
-                $img->resize(100, 100, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destination);
+                $img->save($destination, 75);
             }
         }
     }
