@@ -572,6 +572,7 @@
                                 <th scope="col" width="20px">Step</th>
                                 <th scope="col">Instruction</th>
                                 <th scope="col">Answer</th>
+                                <th scope="col" width="20px">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -631,6 +632,11 @@
                         ? `<img src="${baseUrl}/${instruction.answer}" width="150px" class="img-thumbnail" alt="Step ${index + 1} photo">` 
                         : instruction.answer}
                 </td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteInstruction(${instruction.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
             }
@@ -664,5 +670,55 @@
                 });
             }
         });
+
+        function deleteInstruction(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will not be able to recover this instruction!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/work-order-instruction/delete-instruction",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            instruction_id: id
+                        },
+                        success: function(response) {
+                            // Show success message.
+                            if (response.status == 'success') {
+                                Swal.fire({
+                                    title: "Success",
+                                    text: response.message,
+                                    icon: "success",
+                                });
+
+                                table.ajax.reload();
+                                $('#modal-detail').modal('hide');
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: "error",
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            // Show error message.
+                            Swal.fire({
+                                title: "Error",
+                                text: xhr.responseJSON.message,
+                                icon: "error",
+                            });
+                        }
+                    });
+                }
+            });
+        }
     </script>
 @endsection

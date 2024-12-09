@@ -300,6 +300,11 @@
                                 }).then(() => {
                                     // close tab after success
                                     window.close();
+                                    if (window.opener) {
+                                        window.opener.location.reload();
+                                    } else {
+                                        window.location.reload();
+                                    }
                                 });
                             } else {
                                 swal.fire({

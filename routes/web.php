@@ -423,6 +423,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wo-instruction-template/store/option', [WorkOrderInstructionTemplate::class, 'storeOption'])->name('wo-instruction-template.storeOption')->middleware('permission:add_wo_instruction_template');
     Route::post('/wo-instruction-template/destroy/option', [WorkOrderInstructionTemplate::class, 'destroyOption'])->name('wo-instruction-template.deleteOption')->middleware('permission:delete_wo_instruction_template');
     Route::post('/wo-instruction-template/toggle-status/option', [WorkOrderInstructionTemplate::class, 'toggleStatusOption'])->name('wo-instruction-template.toggleStatusOption')->middleware('permission:edit_wo_instruction_template');
+    Route::post('/work-order-instruction/delete-instruction', [WorkOrderInstruction::class, 'deleteInstruction'])->name('work-order-instruction.deleteInstruction')->middleware('permission:delete_wo_instruction');
 
     // user manager 
     Route::get('/user-manager', [UserManager::class, 'index'])->name('user-manager.index')->middleware('permission:view_user_manager');
