@@ -546,7 +546,7 @@
                     <div class="col-md-6">
                         <div class="info-section">
                             ${generateInfoRow("Work Order Number", work_order ? work_order.work_order_number : "-")}
-                            ${generateInfoRow("Sales Order Number", work_order ? work_order.sales_order_number : "-")}
+                            ${generateInfoRow("Sales Order Number", work_order ? work_order.sales_order.sales_order_number : "-")}
                             ${generateInfoRow("Work Order Instruction Number", work_order_instruction_number)}
                             ${generateInfoRow("Date", date)}
                             ${generateInfoRow("Date Complete", date_complete || "-")}

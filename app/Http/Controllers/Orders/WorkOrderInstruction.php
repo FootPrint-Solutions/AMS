@@ -152,6 +152,13 @@ class WorkOrderInstruction extends Controller
     public function destroy(Request $request)
     {
         $workOrderInstruction = WorkOrderInstructionModel::find($request->work_order_id);
+        // Check if the Work Order Instruction date_complete is not null
+        if ($workOrderInstruction->date_complete) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Work Order Instruction has been completed',
+            ]);
+        }
         if ($workOrderInstruction) {
             $workOrderInstruction->delete();
             return response()->json([
