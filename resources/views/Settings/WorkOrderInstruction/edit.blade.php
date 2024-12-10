@@ -682,6 +682,8 @@
 
                     if (description === '') {
                         toastr.error('Description cannot be empty');
+                        $('#save-button').prop('disabled', false);
+                        $('#save-button').html('<i class="fas fa-save"></i> Save');
                         return;
                     }
 
@@ -727,6 +729,8 @@
                             if (start == total_steps) {
                                 $('#save-button').prop('disabled', false);
                                 $('#save-button').html('<i class="fas fa-save"></i> Save');
+                                window.location.href =
+                                    "{{ route('wo-instruction-template.index') }}";
                             }
                         },
                         error: function() {
