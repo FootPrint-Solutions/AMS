@@ -36,14 +36,14 @@ class UploadWorkOrderImage implements ShouldQueue
                 copy($tempFile, $destination);
                 unlink($tempFile); // Hapus file sementara
 
-                $img = Image::make($destination)->resize(300, 300, function ($constraint) {
+                $img = Image::make($destination)->resize(900, 900, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
 
-                if ($img->filesize() > 1000000) {
-                    $img->save($destination, 50);
-                }
+                // if ($img->filesize() > 1000000) {
+                $img->save($destination);
+                // }
             }
         } catch (\Throwable $th) {
             // Do nothing
