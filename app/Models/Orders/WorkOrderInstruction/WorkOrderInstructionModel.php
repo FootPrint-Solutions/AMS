@@ -86,6 +86,10 @@ class WorkOrderInstructionModel extends Model implements Auditable
             }
         }
 
+        if (!empty($request->dateStart) && !empty($request->dateEnd)) {
+            $query->whereBetween('work_order_instructions.date', [$request->dateStart, $request->dateEnd]);
+        }
+
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'work_order_instructions.updated_at', 'direction' => 'desc']);
     }
 
