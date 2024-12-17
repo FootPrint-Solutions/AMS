@@ -110,6 +110,21 @@ class VehicleModel extends Model implements Auditable
             ->get();
     }
 
+    public static function getBatteryRecomendationWithCategory($ids)
+    {
+        return self::whereIn('batteries.id', $ids)
+            ->distinct('batteries.id')
+            ->where('batteries.deleted_at', null)
+            ->where('batteries.status', 1)
+            ->join('vehicle_battery_size_category', 'vehicles.id', '=', 'vehicle_battery_size_category.vehicle_id')
+            ->leftjoin('battery_size_categories', 'vehicle_battery_size_category.battery_size_category_id', '=', 'battery_size_categories.id')
+            ->join('batteries', 'vehicle_battery_size_category.battery_size_category_id', '=', 'batteries.size_category_id')
+            ->join('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id', 'left')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select('batteries.id', 'batteries.id AS battery_id', 'batteries.name', 'batteries.image', 'batteries.warranty', 'batteries.price_retail', 'battery_size_categories.name as size_category', 'batteries.dimension_length', 'batteries.dimension_width', 'batteries.dimension_height', 'batteries.standard_cca', 'batteries.capacity',  'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original', 'battery_prices.discount', 'battery_codes.code', 'battery_prices.discount_price')
+            ->get();
+    }
+
     public static function FindSubBattery($ids)
     {
         return self::where('vehicles.id', $ids)

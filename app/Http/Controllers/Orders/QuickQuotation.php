@@ -15,6 +15,7 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
+use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
@@ -54,6 +55,7 @@ class QuickQuotation extends Controller
                 'Quick Quotation',
                 array(
                     'Vehicle' => VehicleModel::all()->where('status', 1)->toArray(),
+                    'BatteryCategory' => BatterySizeCategoryModel::orderBy('name', 'asc')->get()->toArray(),
                     'datalatlong ' => $datalatlong,
                     'distibutor' => $Distibutor
                 )
@@ -144,11 +146,23 @@ $arrayVehicle";
     public function findVehicleByIdVehicle(Request $request)
     {
         $ids = $request->input('id');
-        if ($request->input('shop_id')) {
-            $results = VehicleModel::getBatteryRecomendationWithDistributor($ids, $request->input('shop_id'));
+        $custom = $request->input('custom');
+        $category = $request->input('category');
+        $idcustom = explode(",", $request->input('name'));
+
+        if (isset($custom)) {
+            if ($idcustom) {
+                $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+            } else {
+                $results = VehicleModel::getBatteryRecomendationWithOutDistributor($ids, $request->input('shop_id'));
+            }
         } else {
-            // $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
-            $results = VehicleModel::getBatteryRecomendationWithOutDistributor($ids, $request->input('shop_id'));
+            if ($request->input('shop_id')) {
+                $results = VehicleModel::getBatteryRecomendationWithDistributor($ids, $request->input('shop_id'));
+            } else {
+                // $results = VehicleModel::whereIn('id', $ids)->with('batteries')->get()->pluck('batteries')->flatten();
+                $results = VehicleModel::getBatteryRecomendationWithOutDistributor($ids, $request->input('shop_id'));
+            }
         }
         $tax = TaxModel::where('status', '1')->first();
         if ($tax && $results) {
@@ -1454,5 +1468,17 @@ $arrayVehicle
                 'message' => 'Failed to get data. ' . $th->getMessage()
             ]);
         }
+    }
+
+    public function findBatteryByCategory(Request $request)
+    {
+        $query = $request->input('category');
+        $results = BatteryModel::where('size_category_id', $query)->get();
+        return response()->json(
+            [
+                'status' => 'success',
+                'data' => $results
+            ]
+        );
     }
 }

@@ -8,7 +8,8 @@
             <div class="col-lg-6">
                 <div class="form-group local-forms">
                     <label>Members Name </label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
+                        placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
                         Exist</span>
@@ -20,18 +21,55 @@
             <div class="col-lg-8">
                 <div class="form-group local-forms">
                     <label>Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select" aria-label="Default select example">
+                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
+                        aria-label="Default select example">
                         @foreach ($data['Vehicle'] as $vehicle)
-                        <option value="{{ $vehicle['id'] }}">
-                            {{ trim($vehicle['name']) }}
-                        </option>
+                            <option value="{{ $vehicle['id'] }}">
+                                {{ trim($vehicle['name']) }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
             </div>
-            <div class="col-lg-6">
-
+            <div class="col-lg-4">
+                <div class="checkbox">
+                    <label for="custom-vehicle">
+                        <input type="checkbox" name="checkbox" id="custom-vehicle" name="custom-vehicle"> Custom Vehicle
+                    </label>
+                </div>
             </div>
+        </div>
+
+        <div class="row d-none" id="custom-vehicle-form">
+            <div class="col">
+                <div class="form-group local-forms">
+                    <label>Battery Category</label>
+                    <select name="BatteryCategory" id="BatteryCategory" class="form-select"
+                        aria-label="Default select example">
+                        <option value="">Select Battery Category</option>
+                        @foreach ($data['BatteryCategory'] as $category)
+                            <option value="{{ $category['id'] }}">
+                                {{ trim($category['name']) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            {{-- battery name --}}
+            <div class="col">
+                <div class="form-group local-forms">
+                    <label>Battery Name</label>
+                    <select name="BatteryName" id="BatteryName" class="form-select" aria-label="Default select example">
+                        <option value="">Select Battery Name</option>
+                    </select>
+                </div>
+            </div>
+            {{-- button add battery --}}
+            <div class="col">
+                <button type="button" class="btn btn-primary" id="btnAddBattery">Show Battery</button>
+            </div>
+
+            <input type="hidden" name="IdBatteryArray" id="IdBatteryArray">
         </div>
     </form>
 
@@ -78,16 +116,76 @@
         $('#VehicleCustomer').on('change', function() {
             getBatteryByVehicle();
         });
+
+        $('#custom-vehicle').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#custom-vehicle-form').removeClass('d-none');
+            } else {
+                $('#custom-vehicle-form').addClass('d-none');
+            }
+        });
+
+        $('#BatteryCategory').on('change', function() {
+            var BatteryCategory = $(this).val();
+            if (BatteryCategory.length == 0) {
+                return;
+            }
+
+            $.ajax({
+                url: "/quotation/battery/findbycategory",
+                type: "GET",
+                data: {
+                    category: BatteryCategory
+                },
+                success: function(data) {
+                    // if status success
+                    if (data.status == 'success') {
+                        var html = '<option value="">Select Battery Name</option>';
+                        data.data.forEach(function(battery) {
+                            html += '<option value="' + battery.id + '">' + battery
+                                .name + '</option>';
+                        });
+                        $('#BatteryName').html(html);
+                    } else {
+                        swal.fire("Error!", data.message, "error");
+                    }
+                }
+            });
+        });
+
+        $('#btnAddBattery').on('click', function() {
+            var BatteryName = $('#BatteryName').val();
+            var BatteryCategory = $('#BatteryCategory').val();
+            var IdBatteryArray = $('#IdBatteryArray').val();
+
+            if (BatteryName.length == 0) {
+                swal.fire("Error!", "Please select battery name", "error");
+                return;
+            }
+
+            if (IdBatteryArray.length == 0) {
+                $('#IdBatteryArray').val(BatteryName);
+            } else {
+                if (!IdBatteryArray.split(',').includes(BatteryName)) {
+                    $('#IdBatteryArray').val(IdBatteryArray + ',' + BatteryName);
+                }
+            }
+
+            getBatteryByVehicle();
+        });
     });
 
     function getBatteryByVehicle() {
         var VehicleCustomer = $('#VehicleCustomer').val();
+        var custom = $('#custom-vehicle').is(':checked');
 
-        if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
-            var html =
-                '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Vehicle Selected</div>';
-            $('#ResultRecommendationBatteryVehicle').html(html);
-            return;
+        if (!custom) {
+            if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
+                var html =
+                    '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Vehicle Selected</div>';
+                $('#ResultRecommendationBatteryVehicle').html(html);
+                return;
+            }
         }
 
         var html = '<div class="spinner-border text-primary text-center" role="status">';
@@ -96,12 +194,24 @@
         $('#ResultRecommendationBatteryVehicle').html(html);
         $("#ResultRecommendationStockBatteryVehicle").html("");
 
+        // array data
+        if (custom) {
+            data = {
+                id: VehicleCustomer,
+                custom: $('#custom-vehicle').is(':checked'),
+                category: $('#BatteryCategory').val(),
+                name: $('#IdBatteryArray').val()
+            }
+        } else {
+            data = {
+                id: VehicleCustomer,
+            }
+        }
+
         $.ajax({
             url: "/quotation/vehicle/find",
             type: "GET",
-            data: {
-                id: VehicleCustomer
-            },
+            data: data,
             success: function(data) {
                 var html = '';
                 if (data.length === 0) {
@@ -209,6 +319,11 @@
                                 .id + ' id="checkBoxBattery' + vehicle
                                 .id + '"> Select Battery ';
                         }
+                        if (custom) {
+                            html +=
+                                '<button type="button" class="btn btn-danger btn-xs" onclick="removeBattery(' +
+                                vehicle.id + ')"><i class="fas fa-trash"></i></button>';
+                        }
 
                         html += '</label>';
                         html += '</div>';
@@ -260,6 +375,17 @@
                 }
             }
         });
+    }
+
+    function removeBattery(id) {
+        var IdBatteryArray = $('#IdBatteryArray').val();
+        var array = IdBatteryArray.split(',');
+        var index = array.indexOf(id.toString());
+        if (index > -1) {
+            array.splice(index, 1);
+        }
+        $('#IdBatteryArray').val(array.join());
+        getBatteryByVehicle();
     }
 
     $("#btnCopyAddress").on('click', function() {
