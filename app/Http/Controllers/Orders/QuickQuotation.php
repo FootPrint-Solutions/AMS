@@ -1481,4 +1481,135 @@ $arrayVehicle
             ]
         );
     }
+
+    public function filterBatteryByCategory(Request $request)
+    {
+        try {
+            $query = $request->input('category');
+            $results = BatteryModel::where('size_category_id', $query)->select('standard_cca')->distinct()->get();
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'data' => $results
+                ]
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to get data. ' . $th->getMessage()
+                ]
+            );
+        }
+    }
+
+    public function filterBatteryByCCA(Request $request)
+    {
+        try {
+            $category = $request->input('category');
+            $query = $request->input('cca');
+            if ($query == 'all') {
+                $results = BatteryModel::where('size_category_id', $category)->select('capacity')->distinct()->get();
+            } else {
+                $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $query)->select('capacity')->distinct()->get();
+            }
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'data' => $results
+                ]
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to get data. ' . $th->getMessage()
+                ]
+            );
+        }
+    }
+
+    public function filterBatteryByCapacity(Request $request)
+    {
+        try {
+            $category = $request->input('category');
+            $cca = $request->input('cca');
+            $query = $request->input('capacity');
+            if ($cca == 'all') {
+                if ($query == 'all') {
+                    $results = BatteryModel::where('size_category_id', $category)->select('dimension_length', 'dimension_width', 'dimension_height')->distinct()->get();
+                } else {
+                    $results = BatteryModel::where('size_category_id', $category)->where('capacity', $query)->select('dimension_length', 'dimension_width', 'dimension_height')->distinct()->get();
+                }
+            } else {
+                $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $cca)->where('capacity', $query)->select('dimension_length', 'dimension_width', 'dimension_height')->distinct()->get();
+            }
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'data' => $results
+                ]
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to get data. ' . $th->getMessage()
+                ]
+            );
+        }
+    }
+
+    public function filterBatteryByDimension(Request $request)
+    {
+        try {
+            $category = $request->input('category');
+            $cca = $request->input('cca');
+            $capacity = $request->input('capacity');
+            $query = $request->input('dimension');
+            $query = explode(',', $query);
+            if ($cca == 'all') {
+                if ($capacity == 'all') {
+                    if ($query[0] == 'all') {
+                        $results = BatteryModel::where('size_category_id', $category)->get();
+                    } else {
+                        $results = BatteryModel::where('size_category_id', $category)->where('dimension_length', $query[0])->where('dimension_width', $query[1])->where('dimension_height', $query[2])->get();
+                    }
+                } else {
+                    if ($query[0] == 'all') {
+                        $results = BatteryModel::where('size_category_id', $category)->where('capacity', $capacity)->get();
+                    } else {
+                        $results = BatteryModel::where('size_category_id', $category)->where('capacity', $capacity)->where('dimension_length', $query[0])->where('dimension_width', $query[1])->where('dimension_height', $query[2])->get();
+                    }
+                }
+            } else {
+                if ($capacity == 'all') {
+                    if ($query[0] == 'all') {
+                        $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $cca)->get();
+                    } else {
+                        $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $cca)->where('dimension_length', $query[0])->where('dimension_width', $query[1])->where('dimension_height', $query[2])->get();
+                    }
+                } else {
+                    if ($query[0] == 'all') {
+                        $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $cca)->where('capacity', $capacity)->get();
+                    } else {
+                        $results = BatteryModel::where('size_category_id', $category)->where('standard_cca', $cca)->where('capacity', $capacity)->where('dimension_length', $query[0])->where('dimension_width', $query[1])->where('dimension_height', $query[2])->get();
+                    }
+                }
+            }
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'data' => $results
+                ]
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to get data. ' . $th->getMessage()
+                ]
+            );
+        }
+    }
 }
