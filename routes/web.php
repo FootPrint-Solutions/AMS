@@ -254,7 +254,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/work-order', [WorkOrder::class, 'index'])->name('quotation.workOrder')->middleware('permission:view_work_order');
     Route::post('/quotation/battery/screenshot', [QuickQuotation::class, 'screenshotBattery'])->name('quotation.screenshotBattery')->middleware('permission:view_quick_quotation');
     Route::post('/quotation/battery/save-screenshoot', [QuickQuotation::class, 'saveScreenshoot'])->name('quotation.saveScreenshoot')->middleware('permission:view_quick_quotation');
-    Route::get('/quotation/battery/findbycategory', [QuickQuotation::class, 'findBatteryByCategory'])->name('quotation.findBatteryByCategory')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/filter/category', [QuickQuotation::class, 'filterBatteryByCategory'])->name('quotation.filterBatteryByCategory')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/filter/cca', [QuickQuotation::class, 'filterBatteryByCCA'])->name('quotation.filterBatteryByCCA')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/filter/capacity', [QuickQuotation::class, 'filterBatteryByCapacity'])->name('quotation.filterBatteryByCapacity')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/filter/dimension', [QuickQuotation::class, 'filterBatteryByDimension'])->name('quotation.filterBatteryByDimension')->middleware('permission:view_quick_quotation');
 
     // Quick Quotation Mobile
     Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout'])->name('quotation.mobileCheckout')->middleware('permission:view_quick_quotation');

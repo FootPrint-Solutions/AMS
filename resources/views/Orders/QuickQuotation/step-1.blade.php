@@ -55,12 +55,45 @@
                     </select>
                 </div>
             </div>
+
+            {{-- battery cca --}}
+            <div class="col">
+                <div class="form-group local-forms">
+                    <label>Battery CCA</label>
+                    <select name="BatteryCCA" id="BatteryCCA" class="form-select" aria-label="Default select example">
+                        <option value="all">Select All</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- battery capacity --}}
+            <div class="col">
+                <div class="form-group local-forms">
+                    <label>Battery Capacity</label>
+                    <select name="BatteryCapacity" id="BatteryCapacity" class="form-select"
+                        aria-label="Default select example">
+                        <option value="all">Select All</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- battery dimension --}}
+            <div class="col">
+                <div class="form-group local-forms">
+                    <label>Battery Dimension</label>
+                    <select name="BatteryDimension" id="BatteryDimension" class="form-select"
+                        aria-label="Default select example">
+                        <option value="all">Select All</option>
+                    </select>
+                </div>
+            </div>
+
             {{-- battery name --}}
             <div class="col">
                 <div class="form-group local-forms">
                     <label>Battery Name</label>
                     <select name="BatteryName" id="BatteryName" class="form-select" aria-label="Default select example">
-                        <option value="">Select Battery Name</option>
+                        <option value="all">Select All</option>
                     </select>
                 </div>
             </div>
@@ -95,7 +128,8 @@
 </div>
 
 <!-- Modal screenshoot -->
-<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
+<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -132,17 +166,119 @@
             }
 
             $.ajax({
-                url: "/quotation/battery/findbycategory",
+                url: "/quotation/battery/filter/category",
                 type: "GET",
                 data: {
                     category: BatteryCategory
                 },
                 success: function(data) {
-                    // if status success
                     if (data.status == 'success') {
-                        var html = '<option value="">Select Battery Name</option>';
-                        data.data.forEach(function(battery) {
-                            html += '<option value="' + battery.id + '">' + battery
+                        var html = '<option value="all">Select All</option>';
+                        data.data.forEach(function(item) {
+                            html += '<option value="' + item.standard_cca + '">' +
+                                item.standard_cca + '</option>';
+                        });
+                        $('#BatteryCCA').html(html);
+
+                        $('#BatteryCCA').trigger('change');
+                    } else {
+                        swal.fire("Error!", data.message, "error");
+                    }
+                }
+            });
+        });
+
+        $('#BatteryCCA').on('change', function() {
+            var BatteryCategory = $('#BatteryCategory').val();
+            var BatteryCCA = $(this).val();
+            if (BatteryCCA.length == 0) {
+                return;
+            }
+
+            $.ajax({
+                url: "/quotation/battery/filter/cca",
+                type: "GET",
+                data: {
+                    category: BatteryCategory,
+                    cca: BatteryCCA
+                },
+                success: function(data) {
+                    if (data.status == 'success') {
+                        var html = '<option value="all">Select All</option>';
+                        data.data.forEach(function(item) {
+                            html += '<option value="' + item.capacity + '">' +
+                                item.capacity + '</option>';
+                        });
+                        $('#BatteryCapacity').html(html);
+
+                        $('#BatteryCapacity').trigger('change');
+                    } else {
+                        swal.fire("Error!", data.message, "error");
+                    }
+                }
+            });
+        });
+
+        $('#BatteryCapacity').on('change', function() {
+            var BatteryCategory = $('#BatteryCategory').val();
+            var BatteryCCA = $('#BatteryCCA').val();
+            var BatteryCapacity = $(this).val();
+            if (BatteryCapacity.length == 0) {
+                return;
+            }
+
+            $.ajax({
+                url: "/quotation/battery/filter/capacity",
+                type: "GET",
+                data: {
+                    category: BatteryCategory,
+                    cca: BatteryCCA,
+                    capacity: BatteryCapacity
+                },
+                success: function(data) {
+                    if (data.status == 'success') {
+                        var html = '<option value="all">Select All</option>';
+                        data.data.forEach(function(item) {
+                            html += '<option value="' + item.dimension_length +
+                                ',' + item.dimension_width +
+                                ',' + item.dimension_height + '">' + item
+                                .dimension_length + ' x ' +
+                                item.dimension_width + ' x ' + item
+                                .dimension_height + ' mm</option>';
+                        });
+                        $('#BatteryDimension').html(html);
+
+                        $('#BatteryDimension').trigger('change');
+                    } else {
+                        swal.fire("Error!", data.message, "error");
+                    }
+                }
+            });
+        });
+
+        $('#BatteryDimension').on('change', function() {
+            var BatteryCategory = $('#BatteryCategory').val();
+            var BatteryCCA = $('#BatteryCCA').val();
+            var BatteryCapacity = $('#BatteryCapacity').val();
+            var BatteryDimension = $(this).val();
+            if (BatteryDimension.length == 0) {
+                return;
+            }
+
+            $.ajax({
+                url: "/quotation/battery/filter/dimension",
+                type: "GET",
+                data: {
+                    category: BatteryCategory,
+                    cca: BatteryCCA,
+                    capacity: BatteryCapacity,
+                    dimension: BatteryDimension
+                },
+                success: function(data) {
+                    if (data.status == 'success') {
+                        var html = '<option value="all">Select All</option>';
+                        data.data.forEach(function(item) {
+                            html += '<option value="' + item.id + '">' + item
                                 .name + '</option>';
                         });
                         $('#BatteryName').html(html);
@@ -164,10 +300,38 @@
             }
 
             if (IdBatteryArray.length == 0) {
-                $('#IdBatteryArray').val(BatteryName);
+                if (BatteryName == 'all') {
+                    $('#IdBatteryArray').val('');
+                    $('#BatteryName option').each(function() {
+                        if ($(this).val() !== 'all') {
+                            if (IdBatteryArray.length == 0) {
+                                IdBatteryArray = $(this).val();
+                            } else {
+                                IdBatteryArray += ',' + $(this).val();
+                            }
+                        }
+                    });
+                    $('#IdBatteryArray').val(IdBatteryArray);
+                } else {
+                    $('#IdBatteryArray').val(BatteryName);
+                }
             } else {
-                if (!IdBatteryArray.split(',').includes(BatteryName)) {
-                    $('#IdBatteryArray').val(IdBatteryArray + ',' + BatteryName);
+                if (BatteryName == 'all') {
+                    $('#IdBatteryArray').val('');
+                    $('#BatteryName option').each(function() {
+                        if ($(this).val() !== 'all') {
+                            if (IdBatteryArray.length == 0) {
+                                IdBatteryArray = $(this).val();
+                            } else {
+                                IdBatteryArray += ',' + $(this).val();
+                            }
+                        }
+                    });
+                    $('#IdBatteryArray').val(IdBatteryArray);
+                } else {
+                    if (!IdBatteryArray.split(',').includes(BatteryName)) {
+                        $('#IdBatteryArray').val(IdBatteryArray + ',' + BatteryName);
+                    }
                 }
             }
 
