@@ -176,6 +176,19 @@ class SalesOrderModel extends Model implements Auditable
         ];
         $searchColumns = ['sales_order_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
+        $orderColumns = [
+            'sales_order_number',
+            'date',
+            'customer_name',
+            'vehicle_name',
+            'shop_name',
+            'distributor_name',
+            'technician_name',
+            'total',
+            'payment_method_name',
+            'status'
+        ];
+
         // Build the query to obtain all rows.
         $query = self::query();
         $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
@@ -192,7 +205,7 @@ class SalesOrderModel extends Model implements Auditable
 
         $query->select($selectColumns);
 
-        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+        return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
     }
 
     public static function CreateWorkOrder($id)

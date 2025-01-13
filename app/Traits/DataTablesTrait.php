@@ -54,4 +54,44 @@ trait DataTablesTrait
                 ->get(),
         );
     }
+
+    public static function getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns = null, $orderDefault = null, $orderColumnCustom)
+    {
+        // Get DataTables configuration request.
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
+
+        // Searching process.
+        if ($searchColumns != null && $searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $searchColumns) {
+                foreach ($searchColumns as $column) {
+                    $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
+                }
+            });
+        }
+
+        // Ordering process.
+        if ($orderColumn !== null) {
+            $columnName = $orderColumnCustom[$orderColumn] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        } else {
+            if ($orderDefault !== null) {
+                $query->orderBy($orderDefault["column"], $orderDefault["direction"]);
+            } else {
+                $query->orderBy("updated_at", "desc");
+            }
+        }
+
+        return array(
+            "count" => $query->count(),
+            "row" => $query->skip($start)
+                ->take($length)
+                ->get(),
+        );
+    }
 }
