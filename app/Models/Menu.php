@@ -37,6 +37,8 @@ class Menu extends Model
      */
     private static $selectColumns = ['menus.id', 'menus.name AS menu_name', 'menu_parents.name AS menu_parent_name', 'menus.hide'];
 
+    private static $searchColumns = ['menus.id', 'menus.name', 'menu_parents.name'];
+
     /**
      * Get the menu parent that includes the menu.
      */
@@ -158,7 +160,7 @@ class Menu extends Model
             ->join('menu_parents', 'menu_parents.id', '=', 'menus.parent_id');
         $query->select(self::$selectColumns);
 
-        return self::getAllRows($request, $query, self::$selectColumns, self::$selectColumns, ['column' => 'menu_parents.order', 'direction' => 'asc']);
+        return self::getAllRowMenu($request, $query, self::$selectColumns, self::$searchColumns, ['column' => 'menu_parents.order', 'direction' => 'asc'], '');
     }
 
     /**
