@@ -125,6 +125,14 @@ class BatteryModel extends Model implements Auditable
     }
 
     /**
+     * Get Battery Urls.
+     */
+    public function batteryUrl(): HasMany
+    {
+        return $this->hasMany(BatteryUrlModel::class, 'battery_id', 'id');
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
