@@ -32,7 +32,7 @@ class SalesOnline extends Controller
     {
         // Initialize WooCommerce Client in the constructor
         $this->woocommerce = new Client(
-            'https://shop.akikita.web.id/',
+            'https://store.akikita.web.id/',
             'ck_ea9f16edf6ec05f9b4529c59a9a632341b97ed93',
             'cs_ab7ee40a172691063fd70af899c70aec192c70df',
             [
