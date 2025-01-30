@@ -32,9 +32,9 @@ class DataBattery extends Controller
     {
         // Initialize WooCommerce Client in the constructor
         $this->woocommerce = new Client(
-            'https://akikita.web.id/',
-            'ck_7034e6f1e7a7d3b705df60c37bb003c6a1ca6f9b',
-            'cs_b7973fc68cdd299d2ad6647989872e517d88cab0',
+            'https://shop.akikita.web.id/',
+            'ck_ea9f16edf6ec05f9b4529c59a9a632341b97ed93',
+            'cs_ab7ee40a172691063fd70af899c70aec192c70df',
             [
                 'version' => 'wc/v3',
             ]
