@@ -293,8 +293,6 @@
                                         html += '<tr>';
                                         html += '<td>City</td>';
                                         html += '<td>' + data.billing.city + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
                                         html += '<td>State</td>';
                                         html += '<td>' + data.billing.state + '</td>';
                                         html += '</tr>';
@@ -302,8 +300,6 @@
                                         html += '<td>Postcode</td>';
                                         html += '<td>' + data.billing.postcode +
                                             '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
                                         html += '<td>Country</td>';
                                         html += '<td>' + data.billing.country + '</td>';
                                         html += '</tr>';
