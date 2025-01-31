@@ -282,12 +282,14 @@
                                             '<table class="table table-borderless">';
                                         html += '<tr>';
                                         html += '<td>Name</td>';
-                                        html += '<td>' + data.billing.first_name + ' ' +
+                                        html += '<td colspan="2">' + data.billing
+                                            .first_name + ' ' +
                                             data.billing.last_name + '</td>';
                                         html += '</tr>';
                                         html += '<tr>';
                                         html += '<td>Address</td>';
-                                        html += '<td>' + data.billing.address_1 +
+                                        html += '<td colspan="2">' + data.billing
+                                            .address_1 +
                                             '</td>';
                                         html += '</tr>';
                                         html += '<tr>';
