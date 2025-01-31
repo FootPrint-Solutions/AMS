@@ -105,9 +105,17 @@ class Filter extends Controller
 
             $details = [];
             foreach ($data as $row) {
-                $battery = BatterySizeCategoryModel::where('name', $row[6])->with('batteries')->first();
-                $alternateBattery = BatterySizeCategoryModel::where('name', $row[7])->with('batteries')->first();
                 if ($row[0] == $model) {
+                    $battery = BatterySizeCategoryModel::where('name', $row[6])->with('batteries')->first();
+                    $alternateBattery = BatterySizeCategoryModel::where('name', $row[7])->with('batteries')->first();
+
+                    $batteries = $battery ? $battery->batteries : collect();
+                    $alternateBatteries = $alternateBattery ? $alternateBattery->batteries : collect();
+
+                    $allBatteries = $batteries->merge($alternateBatteries);
+                    $maxPriceBattery = $allBatteries->sortByDesc('price_retail')->first();
+                    $minPriceBattery = $allBatteries->sortBy('price_retail')->first();
+
                     $details[] = [
                         'model' => $row[0],
                         'brand' => $row[5],
@@ -116,39 +124,51 @@ class Filter extends Controller
                         'fuel_type' => $row[3],
                         'transmission' => $row[4],
                         'battery_size_category' => $row[6],
-                        'batteries' => $battery->batteries,
+                        'batteries' => $batteries,
                         'alternate_battery_size_category' => $row[7],
-                        'alternate_batteries' => $alternateBattery->batteries
+                        'alternate_batteries' => $alternateBatteries,
+                        'max_price_battery' => $maxPriceBattery,
+                        'min_price_battery' => $minPriceBattery
                     ];
                 }
             }
 
-            // jika data tidak ditemukan
+            foreach ($details as $key => $detail) {
+                foreach ($detail['batteries'] as $batteryKey => $battery) {
+                    $details[$key]['batteries'][$batteryKey]['is_max_price'] = $battery['id'] == $detail['max_price_battery']['id'];
+                    $details[$key]['batteries'][$batteryKey]['is_min_price'] = $battery['id'] == $detail['min_price_battery']['id'];
+                }
+
+                foreach ($detail['alternate_batteries'] as $altBatteryKey => $altBattery) {
+                    $details[$key]['alternate_batteries'][$altBatteryKey]['is_max_price'] = $altBattery['id'] == $detail['max_price_battery']['id'];
+                    $details[$key]['alternate_batteries'][$altBatteryKey]['is_min_price'] = $altBattery['id'] == $detail['min_price_battery']['id'];
+                }
+            }
+
+            foreach ($details as $key => $detail) {
+                unset($details[$key]['max_price_battery']);
+                unset($details[$key]['min_price_battery']);
+            }
+
             if (empty($details)) {
-                $response = [
+                return response()->json([
                     'status' => 'error',
                     'message' => 'Data not found',
                     'data' => []
-                ];
-
-                return response()->json($response, 404);
+                ], 404);
             }
 
-            $response = [
+            return response()->json([
                 'status' => 'success',
                 'message' => 'Data found',
                 'data' => $details
-            ];
-
-            return response()->json($response);
+            ]);
         } catch (\Exception $e) {
-            $response = [
+            return response()->json([
                 'status' => 'error',
                 'message' => 'Data not found',
                 'data' => []
-            ];
-
-            return response()->json($response, 500);
+            ], 500);
         }
     }
 
