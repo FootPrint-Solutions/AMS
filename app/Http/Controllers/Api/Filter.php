@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\MasterData\Battery\Battery;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
+use App\Models\MasterData\Vehicle\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleModel;
 use Illuminate\Http\Request;
 
 class Filter extends Controller
@@ -16,19 +18,7 @@ class Filter extends Controller
     public function brand(Request $request)
     {
         try {
-            $file = public_path('template/excel/Detailed_Vehicle_Database.xlsx');
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-            $sheet = $spreadsheet->getActiveSheet();
-            $data = $sheet->rangeToArray('A2:J' . $sheet->getHighestRow());
-
-            $brands = [];
-            foreach ($data as $row) {
-                if (!empty($row[5])) {
-                    $brands[] = $row[5];
-                }
-            }
-
-            $brands = array_unique($brands);
+            $brands = VehicleBrandModel::where('status', 1)->get()->toArray();
             $brands = array_values($brands); // Re-index the array
             $response = [
                 'status' => 'success',
@@ -51,19 +41,7 @@ class Filter extends Controller
     public function brandFind($brand)
     {
         try {
-            $file = public_path('template/excel/Detailed_Vehicle_Database.xlsx');
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-            $sheet = $spreadsheet->getActiveSheet();
-            $data = $sheet->rangeToArray('A2:J' . $sheet->getHighestRow());
-
-            $models = [];
-            foreach ($data as $row) {
-                if ($row[5] == $brand) {
-                    $models[] = $row[0];
-                }
-            }
-
-            $models = array_unique($models);
+            $models = VehicleModel::where(['brand_id' => $brand, 'status' => 1])->with('batterySizeCategories', 'year', 'fuelVehicle', 'transmission')->get()->toArray();
             $models = array_values($models); // Re-index the array
 
             // jika data tidak ditemukan
@@ -88,7 +66,7 @@ class Filter extends Controller
             $response = [
                 'status' => 'error',
                 'message' => 'Data not found',
-                'data' => []
+                'data' => $e->getMessage()
             ];
 
             return response()->json($response, 500);
