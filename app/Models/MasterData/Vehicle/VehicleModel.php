@@ -33,7 +33,7 @@ class VehicleModel extends Model implements Auditable
      *
      * @var array
      */
-    protected $fillable = ['name', 'brand_id', 'url'];
+    protected $fillable = ['name', 'brand_id', 'url', 'status', 'vehicle_years_id', 'vehicle_fuels_id', 'vehicle_transmissions_id'];
 
     /**
      * Get vehicle brand.

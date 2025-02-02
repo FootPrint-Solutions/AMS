@@ -68,7 +68,42 @@
                             </select>
                         </div>
                     </div>
+                </div>
 
+                {{-- Year --}}
+                <div class="form-group local-forms">
+                    <label for="brand">Year <span class="login-danger">*</span></label>
+                    <select class="form-control" id="year" name="year" required>
+                        <option></option>
+                        @foreach ($data['years'] as $year)
+                            <option value="{{ $year['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_years_id'] == $year['id']) selected @endif>
+                                {{ $year['start_year'] }} - {{ $year['end_year'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Fuel --}}
+                <div class="form-group local-forms">
+                    <label for="fuel">Fuel <span class="login-danger">*</span></label>
+                    <select class="form-control" id="fuel" name="fuel" required>
+                        <option></option>
+                        @foreach ($data['fuels'] as $fuel)
+                            <option value="{{ $fuel['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_fuels_id'] == $fuel['id']) selected @endif>
+                                {{ $fuel['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Transmission --}}
+                <div class="form-group local-forms">
+                    <label for="transmission">Transmission <span class="login-danger">*</span></label>
+                    <select class="form-control" id="transmission" name="transmission" required>
+                        <option></option>
+                        @foreach ($data['transmissions'] as $transmission)
+                            <option value="{{ $transmission['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_transmissions_id'] == $transmission['id']) selected @endif>
+                                {{ $transmission['name'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 {{-- Hidden Inputs --}}
