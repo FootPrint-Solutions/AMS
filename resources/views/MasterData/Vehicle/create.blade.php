@@ -140,6 +140,10 @@
                 placeholder: "Enter vehicle primary battery size category"
             });
 
+            $('#year').select2({
+                placeholder: "Enter vehicle year"
+            });
+
 
             $("#brand").on("select2:select", function(e) {
                 console.log(e.params.data.id);
