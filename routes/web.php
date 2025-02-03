@@ -11,6 +11,9 @@ use App\Http\Controllers\MasterData\Company\Company;
 use App\Http\Controllers\MasterData\Customer\Customer;
 use App\Http\Controllers\MasterData\Vehicle\Vehicle;
 use App\Http\Controllers\MasterData\Vehicle\VehicleBrand;
+use App\Http\Controllers\MasterData\Vehicle\VehicleYear;
+use App\Http\Controllers\MasterData\Vehicle\VehicleFuel;
+use App\Http\Controllers\MasterData\Vehicle\VehicleTransmission;
 use App\Http\Controllers\MasterData\Battery\Battery;
 use App\Http\Controllers\MasterData\Battery\BatteryBrand;
 use App\Http\Controllers\MasterData\Battery\BatterySubbrand;
@@ -128,6 +131,33 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store')->middleware('permission:add_vehicle');
     Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update')->middleware('permission:edit_vehicle');
     Route::post('/vehicle/brand/toggle', [VehicleBrand::class, 'updateStatus'])->name('vehicle.brand.toggle')->middleware('permission:edit_vehicle');
+
+    // Vehicle Year
+    Route::get('/vehicle/year', [VehicleYear::class, 'index'])->name('vehicle.year.index')->middleware('permission:view_vehicle');
+    Route::post('/vehicle/year/show', [VehicleYear::class, 'show'])->name('vehicle.year.show')->middleware('permission:view_vehicle');
+    Route::get('/vehicle/year/create', [VehicleYear::class, 'create'])->middleware('permission:add_vehicle');
+    Route::get('/vehicle/year/edit/{id}', [VehicleYear::class, 'edit'])->name('vehicle.year.edit')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/year/store', [VehicleYear::class, 'store'])->name('vehicle.year.store')->middleware('permission:add_vehicle');
+    Route::post('/vehicle/year/update', [VehicleYear::class, 'update'])->name('vehicle.year.update')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/year/toggle', [VehicleYear::class, 'updateStatus'])->name('vehicle.year.toggle')->middleware('permission:edit_vehicle');
+
+    // Vehicle Fuel
+    Route::get('/vehicle/fuel', [VehicleFuel::class, 'index'])->name('vehicle.fuel.index')->middleware('permission:view_vehicle');
+    Route::post('/vehicle/fuel/show', [VehicleFuel::class, 'show'])->name('vehicle.fuel.show')->middleware('permission:view_vehicle');
+    Route::get('/vehicle/fuel/create', [VehicleFuel::class, 'create'])->middleware('permission:add_vehicle');
+    Route::get('/vehicle/fuel/edit/{id}', [VehicleFuel::class, 'edit'])->name('vehicle.fuel.edit')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/fuel/store', [VehicleFuel::class, 'store'])->name('vehicle.fuel.store')->middleware('permission:add_vehicle');
+    Route::post('/vehicle/fuel/update', [VehicleFuel::class, 'update'])->name('vehicle.fuel.update')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/fuel/toggle', [VehicleFuel::class, 'updateStatus'])->name('vehicle.fuel.toggle')->middleware('permission:edit_vehicle');
+
+    // Vehicle Transmission
+    Route::get('/vehicle/transmission', [VehicleTransmission::class, 'index'])->name('vehicle.transmission.index')->middleware('permission:view_vehicle');
+    Route::post('/vehicle/transmission/show', [VehicleTransmission::class, 'show'])->name('vehicle.transmission.show')->middleware('permission:view_vehicle');
+    Route::get('/vehicle/transmission/create', [VehicleTransmission::class, 'create'])->middleware('permission:add_vehicle');
+    Route::get('/vehicle/transmission/edit/{id}', [VehicleTransmission::class, 'edit'])->name('vehicle.transmission.edit')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/transmission/store', [VehicleTransmission::class, 'store'])->name('vehicle.transmission.store')->middleware('permission:add_vehicle');
+    Route::post('/vehicle/transmission/update', [VehicleTransmission::class, 'update'])->name('vehicle.transmission.update')->middleware('permission:edit_vehicle');
+    Route::post('/vehicle/transmission/toggle', [VehicleTransmission::class, 'updateStatus'])->name('vehicle.transmission.toggle')->middleware('permission:edit_vehicle');
 
     // Battery
     Route::get('/battery', [Battery::class, 'index'])->middleware('permission:view_battery')->name('battery.index');

@@ -14,6 +14,9 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
+use App\Models\MasterData\Vehicle\VehicleYearModel;
+use App\Models\MasterData\Vehicle\VehicleFuelModel;
+use App\Models\MasterData\Vehicle\VehicleTransmissionModel;
 
 // IMPORT CLASS
 use App\Imports\VehicleImport;
@@ -55,6 +58,9 @@ class Vehicle extends Controller
                 array(
                     'brands' => VehicleBrandModel::where('status', 1)->get()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
+                    'years' => VehicleYearModel::all()->toArray(),
+                    'fuels' => VehicleFuelModel::all()->toArray(),
+                    'transmissions' => VehicleTransmissionModel::all()->toArray(),
                 )
             )
         );
@@ -94,6 +100,9 @@ class Vehicle extends Controller
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
                     'primary_battery' => $primaryBattery,
+                    'years' => VehicleYearModel::all()->toArray(),
+                    'fuels' => VehicleFuelModel::all()->toArray(),
+                    'transmissions' => VehicleTransmissionModel::all()->toArray(),
                 )
             )
         );
@@ -168,11 +177,17 @@ class Vehicle extends Controller
                     'name' => 'required|string',
                     'brand' => 'required',
                     'newbrand' => 'required_if:brand,new',
+                    'year' => 'required',
+                    'fuel' => 'required',
+                    'transmission' => 'required',
                 ],
                 [
                     'name.required' => 'Vehicle name is required!',
                     'brand.required' => 'Vehicle brand is required!',
-                    'newbrand.required_if' => 'Vehicle brand is required!'
+                    'newbrand.required_if' => 'Vehicle brand is required!',
+                    'year.required' => 'Vehicle year is required!',
+                    'fuel.required' => 'Vehicle fuel is required!',
+                    'transmission.required' => 'Vehicle transmission is required!',
                 ]
             );
 
@@ -191,6 +206,9 @@ class Vehicle extends Controller
                 $vehicle->brand_id = $validatedData['brand'];
             }
 
+            $vehicle->vehicle_years_id = $request->year;
+            $vehicle->vehicle_fuels_id = $request->fuel;
+            $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
             $status = $vehicle->save();
 
@@ -248,11 +266,17 @@ class Vehicle extends Controller
                     'name' => 'required|string',
                     'brand' => 'required',
                     'newbrand' => 'required_if:brand,new',
+                    'year' => 'required',
+                    'fuel' => 'required',
+                    'transmission' => 'required',
                 ],
                 [
                     'name.required' => 'Vehicle name is required!',
                     'brand.required' => 'Vehicle brand is required!',
-                    'newbrand.required_if' => 'Vehicle brand is required!'
+                    'newbrand.required_if' => 'Vehicle brand is required!',
+                    'year.required' => 'Vehicle year is required!',
+                    'fuel.required' => 'Vehicle fuel is required!',
+                    'transmission.required' => 'Vehicle transmission is required!',
                 ]
             );
 
@@ -271,6 +295,9 @@ class Vehicle extends Controller
                 $vehicle->brand_id = $validatedData['brand'];
             }
 
+            $vehicle->vehicle_years_id = $request->year;
+            $vehicle->vehicle_fuels_id = $request->fuel;
+            $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
             $status = $vehicle->save();
 

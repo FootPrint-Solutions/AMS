@@ -12,6 +12,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Vehicle\VehicleFuelModel;
+use App\Models\MasterData\Vehicle\VehicleTransmissionModel;
+use App\Models\MasterData\Vehicle\VehicleYearModel;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
@@ -33,7 +36,7 @@ class VehicleModel extends Model implements Auditable
      *
      * @var array
      */
-    protected $fillable = ['name', 'brand_id', 'url'];
+    protected $fillable = ['name', 'brand_id', 'url', 'status', 'vehicle_years_id', 'vehicle_fuels_id', 'vehicle_transmissions_id'];
 
     /**
      * Get vehicle brand.
@@ -59,6 +62,30 @@ class VehicleModel extends Model implements Auditable
     {
         return $this->belongsToMany(BatterySizeCategoryModel::class, 'vehicle_battery_size_category', 'vehicle_id', 'battery_size_category_id')
             ->withTimestamps();
+    }
+
+    /**
+     * Get the vehicle year.
+     */
+    public function year(): BelongsTo
+    {
+        return $this->belongsTo(VehicleYearModel::class, 'vehicle_years_id');
+    }
+
+    /**
+     * Get the vehicle fuel type.
+     */
+    public function fuelVehicle(): BelongsTo
+    {
+        return $this->belongsTo(VehicleFuelModel::class, 'vehicle_fuels_id');
+    }
+
+    /**
+     * Get the vehicle transmission type.
+     */
+    public function transmission(): BelongsTo
+    {
+        return $this->belongsTo(VehicleTransmissionModel::class, 'vehicle_transmissions_id');
     }
 
     /**
