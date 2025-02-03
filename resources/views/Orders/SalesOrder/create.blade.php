@@ -307,17 +307,16 @@
                                     {{-- Discount --}}
                                     <td>
                                         <div class="input-group">
-                                            <input type="text" class="form-control text-end battery-discount"
-                                                id="battery-discount-{{ $counter }}" name="batteriesdiscount[]"
-                                                placeholder="Enter item discount" required
-                                                @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['discount'] }}" @endisset>
-                                            <span class="input-group-text border-end">%</span>
+                                            <span class="input-group-text border-end">IDR</span>
+                                            <input type="text" class="form-control text-end battery-discountprice"
+                                                id="battery-discountprice-{{ $counter }}"
+                                                name="batteriesdiscountprice[]" placeholder="Enter item discount price"
+                                                required @isset($data['profile']['batteries']) readonly @endisset
+                                                @isset($data['profile']['batteries']) value="{{ $battery['discount_price'] }}" @endisset>
                                         </div>
 
-                                        <input type="hidden" class="form-control text-end battery-discountprice"
-                                            id="battery-discountprice-{{ $counter }}"
-                                            name="batteriesdiscountprice[]">
+                                        <input type="hidden" class="form-control text-end battery-discount"
+                                            id="battery-discount-{{ $counter }}" name="batteriesdiscount[]">
                                     </td>
 
                                     {{-- Net Price --}}
@@ -663,7 +662,7 @@
             });
         });
 
-        $(document).on("change keyup", ".battery-discount, #tax, #discount, #discount-price-value, #extra-discount",
+        $(document).on("change keyup", ".battery-discountprice, #tax, #discount, #discount-price-value, #extra-discount",
             function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
@@ -745,11 +744,10 @@
                 row.find(".battery-priceaftertax").val(priceAfterTax);
 
                 // Count price + tax - discount.
-                let discount = parseInt(row.find(".battery-discount").val());
-                let discountPrice = Math.round(priceAfterTax * discount / 100);
-                row.find(".battery-discountprice").val(discountPrice);
+                let discountPrice = parseInt(row.find(".battery-discountprice").val().replace(/\D/g, ''));
+                let discount = discountPrice / priceAfterTax * 100;
+                row.find(".battery-discount").val(discount);
                 $(this).val(priceAfterTax - discountPrice);
-
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     subtotal += value;
@@ -762,14 +760,8 @@
             $("#subtotal").val(subtotal);
 
             // Obtain and calculate discount and tax value.
-            let discount;
-            if (!discountPriceIsChanged) {
-                discount = Math.round(subtotal * parseFloat($("#discount").val()) / 100);
-                $("#discount-price-value").val(discount);
-            } else {
-                discount = $("#discount-price-value").val();
-                $("#discount").val(Math.round(discount / subtotal * 100));
-            }
+            let discount = parseInt($("#discount-price-value").val().replace(/\D/g, '')) || 0;
+            $("#discount").val(Math.round(discount / subtotal * 100));
 
             // Calculate total value.
             let total = (subtotal - discount);
