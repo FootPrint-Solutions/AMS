@@ -8,6 +8,7 @@ use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Vehicle\VehicleBrandModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\MasterData\Vehicle\VehicleBatterySizeCategoryModel;
 use Illuminate\Http\Request;
 
 class Filter extends Controller
@@ -73,59 +74,52 @@ class Filter extends Controller
         }
     }
 
-    public function modelFind($model)
+    public function modelFind($vehicle_id)
     {
         try {
-            $file = public_path('template/excel/Detailed_Vehicle_Database.xlsx');
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-            $sheet = $spreadsheet->getActiveSheet();
-            $data = $sheet->rangeToArray('A2:J' . $sheet->getHighestRow());
+            $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)->get();
+            $vehicleModel = VehicleModel::where('id', $vehicle_id)->first();
+            $data = $vehicleBatterySizeCategory->toArray();
 
             $details = [];
             foreach ($data as $row) {
-                if ($row[0] == $model) {
-                    $battery = BatterySizeCategoryModel::where('name', $row[6])->with('batteries')->first();
-                    $alternateBattery = BatterySizeCategoryModel::where('name', $row[7])->with('batteries')->first();
+                $battery = BatterySizeCategoryModel::where('id', $row['battery_size_category_id'])->with('batteries')->first();
 
-                    $batteries = $battery ? $battery->batteries : collect();
-                    $alternateBatteries = $alternateBattery ? $alternateBattery->batteries : collect();
+                $batteries = $battery ? $battery->batteries : collect();
 
-                    $allBatteries = $batteries->merge($alternateBatteries);
-                    $maxPriceBattery = $allBatteries->sortByDesc('price_retail')->first();
-                    $minPriceBattery = $allBatteries->sortBy('price_retail')->first();
+                $maxPriceBattery = $batteries->sortByDesc('price_retail')->first();
+                $minPriceBattery = $batteries->sortBy('price_retail')->first();
 
-                    $details[] = [
-                        'model' => $row[0],
-                        'brand' => $row[5],
-                        'starting_year' => $row[1],
-                        'ending_year' => $row[2],
-                        'fuel_type' => $row[3],
-                        'transmission' => $row[4],
-                        'battery_size_category' => $row[6],
-                        'batteries' => $batteries,
-                        'alternate_battery_size_category' => $row[7],
-                        'alternate_batteries' => $alternateBatteries,
-                        'max_price_battery' => $maxPriceBattery,
-                        'min_price_battery' => $minPriceBattery
-                    ];
+                foreach ($batteries as $battery) {
+                    $battery['is_max_price'] = false;
+                    $battery['is_min_price'] = false;
+                    $details[] = $battery;
+                }
+
+                if ($maxPriceBattery) {
+                    $maxPriceBattery['is_max_price'] = true;
+                }
+
+                if ($minPriceBattery) {
+                    $minPriceBattery['is_min_price'] = true;
                 }
             }
 
-            foreach ($details as $key => $detail) {
-                foreach ($detail['batteries'] as $batteryKey => $battery) {
-                    $details[$key]['batteries'][$batteryKey]['is_max_price'] = $battery['id'] == $detail['max_price_battery']['id'];
-                    $details[$key]['batteries'][$batteryKey]['is_min_price'] = $battery['id'] == $detail['min_price_battery']['id'];
-                }
-
-                foreach ($detail['alternate_batteries'] as $altBatteryKey => $altBattery) {
-                    $details[$key]['alternate_batteries'][$altBatteryKey]['is_max_price'] = $altBattery['id'] == $detail['max_price_battery']['id'];
-                    $details[$key]['alternate_batteries'][$altBatteryKey]['is_min_price'] = $altBattery['id'] == $detail['min_price_battery']['id'];
-                }
+            $details = collect($details)->unique('id')->values()->all();
+            foreach ($details as $key => $value) {
+                $details[$key]['is_max_price'] = false;
+                $details[$key]['is_min_price'] = false;
             }
 
-            foreach ($details as $key => $detail) {
-                unset($details[$key]['max_price_battery']);
-                unset($details[$key]['min_price_battery']);
+            $maxPriceBattery = collect($details)->sortByDesc('price_retail')->first();
+            $minPriceBattery = collect($details)->sortBy('price_retail')->first();
+
+            if ($maxPriceBattery) {
+                $maxPriceBattery['is_max_price'] = true;
+            }
+
+            if ($minPriceBattery) {
+                $minPriceBattery['is_min_price'] = true;
             }
 
             if (empty($details)) {
@@ -139,13 +133,13 @@ class Filter extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data found',
-                'data' => $details
+                'data' => ['batteries' => $details, 'vehicle' => $vehicleModel]
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Data not found',
-                'data' => []
+                'data' => $e->getMessage()
             ], 500);
         }
     }
