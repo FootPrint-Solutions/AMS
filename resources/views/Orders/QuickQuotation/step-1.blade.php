@@ -1,3 +1,17 @@
+<style>
+    .group-box-panel-title {
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    .group-box-panel {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+</style>
 <div>
     <div class="mb-4">
         <h5>Enter Your Vehicle Details</h5>
@@ -40,69 +54,76 @@
             </div>
         </div>
 
-        <div class="row d-none" id="custom-vehicle-form">
-            <div class="col">
-                <div class="form-group local-forms">
-                    <label>Battery Category</label>
-                    <select name="BatteryCategory" id="BatteryCategory" class="form-select"
-                        aria-label="Default select example">
-                        <option value="">Select Battery Category</option>
-                        @foreach ($data['BatteryCategory'] as $category)
-                            <option value="{{ $category['id'] }}">
-                                {{ trim($category['name']) }}
-                            </option>
-                        @endforeach
-                    </select>
+        <div class="group-box-panel d-none" id="group-box">
+            {{-- <div class="group-box-panel-title">
+                Custom Vehicle Filter
+            </div> --}}
+            <div class="row d-none mt-3" id="custom-vehicle-form">
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label>Battery Category</label>
+                        <select name="BatteryCategory" id="BatteryCategory" class="form-select"
+                            aria-label="Default select example">
+                            <option value="">Select Battery Category</option>
+                            @foreach ($data['BatteryCategory'] as $category)
+                                <option value="{{ $category['id'] }}">
+                                    {{ trim($category['name']) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            {{-- battery cca --}}
-            <div class="col">
-                <div class="form-group local-forms">
-                    <label>Battery CCA</label>
-                    <select name="BatteryCCA" id="BatteryCCA" class="form-select" aria-label="Default select example">
-                        <option value="all">Select All</option>
-                    </select>
+                {{-- battery cca --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label>Battery CCA</label>
+                        <select name="BatteryCCA" id="BatteryCCA" class="form-select"
+                            aria-label="Default select example">
+                            <option value="all">Select All</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            {{-- battery capacity --}}
-            <div class="col">
-                <div class="form-group local-forms">
-                    <label>Battery Capacity</label>
-                    <select name="BatteryCapacity" id="BatteryCapacity" class="form-select"
-                        aria-label="Default select example">
-                        <option value="all">Select All</option>
-                    </select>
+                {{-- battery capacity --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label>Battery Capacity</label>
+                        <select name="BatteryCapacity" id="BatteryCapacity" class="form-select"
+                            aria-label="Default select example">
+                            <option value="all">Select All</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            {{-- battery dimension --}}
-            <div class="col">
-                <div class="form-group local-forms">
-                    <label>Battery Dimension</label>
-                    <select name="BatteryDimension" id="BatteryDimension" class="form-select"
-                        aria-label="Default select example">
-                        <option value="all">Select All</option>
-                    </select>
+                {{-- battery dimension --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label>Battery Dimension</label>
+                        <select name="BatteryDimension" id="BatteryDimension" class="form-select"
+                            aria-label="Default select example">
+                            <option value="all">Select All</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            {{-- battery name --}}
-            <div class="col">
-                <div class="form-group local-forms">
-                    <label>Battery Name</label>
-                    <select name="BatteryName" id="BatteryName" class="form-select" aria-label="Default select example">
-                        <option value="all">Select All</option>
-                    </select>
+                {{-- battery name --}}
+                <div class="col">
+                    <div class="form-group local-forms">
+                        <label>Battery Name</label>
+                        <select name="BatteryName" id="BatteryName" class="form-select"
+                            aria-label="Default select example">
+                            <option value="all">Select All</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            {{-- button add battery --}}
-            <div class="col">
-                <button type="button" class="btn btn-primary" id="btnAddBattery">Show Battery</button>
-            </div>
+                {{-- button add battery --}}
+                <div class="col">
+                    <button type="button" class="btn btn-primary" id="btnAddBattery">Show Battery</button>
+                </div>
 
-            <input type="hidden" name="IdBatteryArray" id="IdBatteryArray">
+                <input type="hidden" name="IdBatteryArray" id="IdBatteryArray">
+            </div>
         </div>
     </form>
 
@@ -154,8 +175,10 @@
         $('#custom-vehicle').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#custom-vehicle-form').removeClass('d-none');
+                $("#group-box").removeClass('d-none');
             } else {
                 $('#custom-vehicle-form').addClass('d-none');
+                $("#group-box").addClass('d-none');
             }
         });
 
