@@ -828,19 +828,17 @@ $arrayBattery
                     if ($request->input('DiscountPayment')[$key] != 0) {
                         $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                        $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                        $DiscountPrice = $request->input('DiscountPayment')[$key];
-                        $Subtotal = $request->input('SubtotalPayment')[$key];
+                        $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                        $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = ($DiscountPrice + $TaxPrice) != 0 ? ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100 : 0;
+                        $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
                     } else {
                         $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                        $NetPrice = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                        $DiscountPrice = $request->input('DiscountPayment')[$key];
-                        $Subtotal = $request->input('SubtotalPayment')[$key];
+                        $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                        $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = ($DiscountPrice + $TaxPrice) != 0 ? ($DiscountPrice / ($DiscountPrice + $TaxPrice)) * 100 : 0;
+                        $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
                     }
                     $dataProduct[] = [
                         'sales_order_id' => $Quotation->id,
@@ -858,6 +856,8 @@ $arrayBattery
                     ];
                 }
             }
+
+            // sum price_net and sum discount_price
 
             $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
             if (!$QuuotationBattery) {
@@ -1610,6 +1610,24 @@ $arrayVehicle
                     'message' => 'Failed to get data. ' . $th->getMessage()
                 ]
             );
+        }
+    }
+
+
+    public function fixDetailPercentage()
+    {
+        $batteries = SalesOrderBatteryModel::all();
+        foreach ($batteries as $price) {
+            if ($price->discount == 100) {
+                $discount_rupiah = $price->discount_price;
+                $battery_price = $price->battery_price_retail;
+
+                if ($battery_price > 0) {
+                    $discount = ($discount_rupiah / $battery_price) * 100;
+                    $price->discount = $discount;
+                    $price->save();
+                }
+            }
         }
     }
 }
