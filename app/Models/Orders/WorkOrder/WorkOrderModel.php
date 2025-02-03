@@ -118,12 +118,23 @@ class WorkOrderModel extends Model implements Auditable
     public static function allForDataTables($request)
     {
         $search = $request->input("search.value");
-        $order = $request->input("order.0.column");
-        $dir = $request->input("order.0.dir");
+        $order = $request->input("order.0.column") ?? 0;
+        $dir = $request->input("order.0.dir") ?? 'asc';
         $start = $request->input("start");
         $length = $request->input("length");
         $start_date = $request->input("dateStart");
         $end_date = $request->input("dateEnd");
+
+        $OrderColumns = [
+            'id',
+            'work_order_number',
+            'sales_order_number',
+            'date',
+            'customer_name',
+            'qty',
+            'total',
+            'address',
+        ];
 
         // Get data from the work_orders table for the datatable
         $query = self::select('work_orders.*', 'sales_orders.sales_order_number', 'customers.name as customer_name')
@@ -138,7 +149,7 @@ class WorkOrderModel extends Model implements Auditable
                     ->orWhere('sales_orders.sales_order_number', 'like', "%$search%")
                     ->orWhere('customers.name', 'like', "%$search%");
             })
-            ->orderBy('work_orders.id', 'desc')
+            ->orderBy($OrderColumns[$order], $dir)
             ->offset($start)
             ->limit($length);
 
