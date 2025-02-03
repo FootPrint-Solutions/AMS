@@ -382,7 +382,7 @@
                         <div class="row">
                             <div class="col">
                                 {{-- Discount Percentage --}}
-                                <div class="input-group" id="discount-percentage">
+                                <div class="input-group d-none" id="discount-percentage">
                                     <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
                                         name="discount"
                                         @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
@@ -391,7 +391,7 @@
                                 </div>
 
                                 {{-- Discount Price --}}
-                                <div class="input-group d-none" id="discount-price">
+                                <div class="input-group" id="discount-price">
                                     <span class="input-group-text border-end">IDR</span>
                                     <input type="text" class="form-control text-end" id="discount-price-value"
                                         name="discountprice" @isset($data['profile']['discount']) readonly @endisset
@@ -402,7 +402,7 @@
 
                             <div class="col-sm-2">
                                 <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                    data-offlabel="%" data-onlabel="IDR">
+                                    data-offlabel="%" data-onlabel="IDR" checked readonly>
                             </div>
                         </div>
                     </td>
