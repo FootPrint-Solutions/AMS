@@ -123,7 +123,7 @@ trait DataTablesTrait
             if ($orderDefault !== null) {
                 $query->orderBy($orderDefault["column"], $orderDefault["direction"]);
             } else {
-                $query->orderBy("updated_at", "desc");
+                // $query->orderBy("updated_at", "desc");
             }
         }
 
