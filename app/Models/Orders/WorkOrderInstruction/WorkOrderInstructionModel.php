@@ -103,7 +103,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             $query->whereBetween('work_order_instructions.date', [$request->dateStart, $request->dateEnd]);
         }
 
-        return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
+        return self::getAllRowWorkOrderInstruction($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
     }
 
     public static function newCode()
