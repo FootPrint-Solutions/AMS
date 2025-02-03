@@ -58,6 +58,19 @@ class WorkOrderInstructionModel extends Model implements Auditable
             'users.name',
         ];
 
+        $orderColumns =
+            [
+                'work_order_instructions.id',
+                'work_orders.work_order_number',
+                'sales_orders.sales_order_number',
+                'work_order_instructions.work_order_instruction_number',
+                'work_order_instructions.date',
+                'work_order_instructions.date_complete',
+                'customers.name',
+                'sales_orders.address',
+                'users.name as updated_by',
+            ];
+
         $query = self::query();
         $query->select($selectColumns)
             ->join('work_orders', 'work_order_instructions.work_order_id', '=', 'work_orders.id')
@@ -90,7 +103,7 @@ class WorkOrderInstructionModel extends Model implements Auditable
             $query->whereBetween('work_order_instructions.date', [$request->dateStart, $request->dateEnd]);
         }
 
-        return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'work_order_instructions.updated_at', 'direction' => 'desc']);
+        return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
     }
 
     public static function newCode()
