@@ -288,7 +288,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/quotation/battery/filter/cca', [QuickQuotation::class, 'filterBatteryByCCA'])->name('quotation.filterBatteryByCCA')->middleware('permission:view_quick_quotation');
     Route::get('/quotation/battery/filter/capacity', [QuickQuotation::class, 'filterBatteryByCapacity'])->name('quotation.filterBatteryByCapacity')->middleware('permission:view_quick_quotation');
     Route::get('/quotation/battery/filter/dimension', [QuickQuotation::class, 'filterBatteryByDimension'])->name('quotation.filterBatteryByDimension')->middleware('permission:view_quick_quotation');
-    Route::get('quotation/fix/detail_percentage', [QuickQuotation::class, 'fixDetailPercentage'])->name('quotation.fixDetailPercentage')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/fix/detail_percentage', [QuickQuotation::class, 'fixDetailPercentage'])->name('quotation.fixDetailPercentage')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoCompleteCategory', [QuickQuotation::class, 'autoCompleteBatteryCategory'])->name('quotation.autoCompleteBatteryCategory')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoCompleteCCA', [QuickQuotation::class, 'autoCompleteBatteryCCA'])->name('quotation.autoCompleteBatteryCCA')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoCompleteCapacity', [QuickQuotation::class, 'autoCompleteBatteryCapacity'])->name('quotation.autoCompleteBatteryCapacity')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoCompleteDimension', [QuickQuotation::class, 'autoCompleteBatteryDimension'])->name('quotation.autoCompleteBatteryDimension')->middleware('permission:view_quick_quotation');
+    Route::get('/quotation/battery/autoCompleteName', [QuickQuotation::class, 'autoCompleteBatteryName'])->name('quotation.autoCompleteBatteryName')->middleware('permission:view_quick_quotation');
 
     // Quick Quotation Mobile
     Route::post('/quotation/mobile/checkout', [QuickQuotation::class, 'mobileCheckout'])->name('quotation.mobileCheckout')->middleware('permission:view_quick_quotation');
