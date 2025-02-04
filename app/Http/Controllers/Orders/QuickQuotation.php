@@ -1630,4 +1630,58 @@ $arrayVehicle
             }
         }
     }
+
+    public function autoCompleteBatteryCategory(Request $request)
+    {
+        $query = $request->input('q');
+        $results = BatterySizeCategoryModel::where('name', 'like', '%' . $query . '%')->get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBatteryCCA(Request $request)
+    {
+        $query = $request->input('q');
+        $results = BatteryModel::where('standard_cca', 'like', '%' . $query . '%')->select('standard_cca')->distinct()->get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBatteryCapacity(Request $request)
+    {
+        $query = $request->input('q');
+        $results = BatteryModel::where('capacity', 'like', '%' . $query . '%')->select('capacity')->distinct()->get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBatteryDimension(Request $request)
+    {
+        $query = $request->input('q');
+        $results = BatteryModel::where('dimension_length', 'like', '%' . $query . '%')->select('dimension_length', 'dimension_width', 'dimension_height')->distinct()->get();
+        return response()->json($results);
+    }
+
+    public function autoCompleteBatteryName(Request $request)
+    {
+        $query = $request->input('q');
+        $category = $request->input('category') ?? 'all';
+        $cca = $request->input('cca') ?? 'all';
+        $capacity = $request->input('capacity') ?? 'all';
+        $dimension = $request->input('dimension') ?? 'all';
+
+        $results = BatteryModel::where('name', 'like', '%' . $query . '%');
+        if ($category != 'all') {
+            $results = $results->where('size_category_id', $category);
+        }
+        if ($cca != 'all') {
+            $results = $results->where('standard_cca', $cca);
+        }
+        if ($capacity != 'all') {
+            $results = $results->where('capacity', $capacity);
+        }
+        if ($dimension != 'all') {
+            $dimension = explode(',', $dimension);
+            $results = $results->where('dimension_length', $dimension[0])->where('dimension_width', $dimension[1])->where('dimension_height', $dimension[2]);
+        }
+        $results = $results->get();
+        return response()->json($results);
+    }
 }
