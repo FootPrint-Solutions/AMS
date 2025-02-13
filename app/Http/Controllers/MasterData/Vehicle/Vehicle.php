@@ -147,6 +147,7 @@ class Vehicle extends Controller
             $row[] = $key->brand->name ?? '-';
             $row[] = "<a href='$key->url'>" . $key->url . "</a>";
             $row[] = $battery;
+            $row[] = $key->note;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $row[] = $key->status;
@@ -210,6 +211,7 @@ class Vehicle extends Controller
             $vehicle->vehicle_fuels_id = $request->fuel;
             $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
+            $vehicle->note = $request->note;
             $status = $vehicle->save();
 
             // Store the list of all vehicles' suitable battery.
@@ -299,6 +301,7 @@ class Vehicle extends Controller
             $vehicle->vehicle_fuels_id = $request->fuel;
             $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
+            $vehicle->note = $request->note;
             $status = $vehicle->save();
 
             // Update the list of all vehicles' suitable batteries.
