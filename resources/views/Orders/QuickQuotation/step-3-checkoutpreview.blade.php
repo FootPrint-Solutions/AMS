@@ -307,7 +307,6 @@
             // if subtotal is NaN then set to 0 or subtotal < 0 then set to 0
             if (subtotal <= 0 || isNaN(subtotal)) {
                 swal.fire("Error!", "Subtotal is less than 0", "error");
-                row.find('.DiscountRow').val(0);
                 row.find('.NetPrice').val(formatNumber(grossPrice));
                 row.find('.SubtotalRow').val(formatNumber(grossPrice));
             }
