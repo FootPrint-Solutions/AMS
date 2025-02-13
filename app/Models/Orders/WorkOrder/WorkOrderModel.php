@@ -119,7 +119,7 @@ class WorkOrderModel extends Model implements Auditable
     {
         $search = $request->input("search.value");
         $order = $request->input("order.0.column") ?? 0;
-        $dir = $request->input("order.0.dir") ?? 'asc';
+        $dir = $request->input("order.0.dir") ?? 'desc';
         $start = $request->input("start");
         $length = $request->input("length");
         $start_date = $request->input("dateStart");
