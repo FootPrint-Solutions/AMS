@@ -32,7 +32,7 @@
                      name="vehicle_customer_input_mobile[]">
                      @foreach ($data['Vehicle'] as $vehicle)
                          <option value="{{ $vehicle['id'] }}">
-                             {{ trim($vehicle['name']) }}
+                             {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
                          </option>
                      @endforeach
                  </select>

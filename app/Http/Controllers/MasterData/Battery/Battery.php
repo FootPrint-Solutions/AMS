@@ -531,15 +531,19 @@ class Battery extends Controller
             }
 
             // Store battery code.
-            $code = BatteryCodeModel::where("battery_id", $battery->id)->first();
-            if ($code) {
-                $code->code = $request->code;
-                $status &= $code->save();
+            if ($battery->id) {
+                $code = BatteryCodeModel::where("battery_id", $battery->id)->first();
+                if ($code) {
+                    $code->code = $request->code;
+                    $code = BatteryCodeModel::where("battery_id", $battery->id)->update(['code' => $request->code]);
+                } else {
+                    $code = new BatteryCodeModel();
+                    $code->code = $request->code;
+                    $code->battery_id = $battery->id;
+                    $status &= $code->save();
+                }
             } else {
-                $code = new BatteryCodeModel();
-                $code->code = $request->code;
-                $code->battery_id = $battery->id;
-                $status &= $code->save();
+                throw new Exception('Battery ID is missing.');
             }
 
             if ($status)

@@ -36,7 +36,7 @@ class VehicleModel extends Model implements Auditable
      *
      * @var array
      */
-    protected $fillable = ['name', 'brand_id', 'url', 'status', 'vehicle_years_id', 'vehicle_fuels_id', 'vehicle_transmissions_id'];
+    protected $fillable = ['name', 'brand_id', 'url', 'note', 'status', 'vehicle_years_id', 'vehicle_fuels_id', 'vehicle_transmissions_id'];
 
     /**
      * Get vehicle brand.
@@ -97,7 +97,7 @@ class VehicleModel extends Model implements Auditable
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'brand_id', 'url', 'status'];
+        $selectColumns = ['id', 'name', 'brand_id', 'url', 'note', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.

@@ -45,6 +45,7 @@
                         <th scope="col">Brand</th>
                         <th scope="col">URL</th>
                         <th scope="col">Battery Size</th>
+                        <th scope="col">Note</th>
                         <th scope="col" class="table-col-status">Status</th>
                     </tr>
                 </thead>
@@ -85,14 +86,14 @@
                 language: getDatatablesLanguangeConfigurations("Vehicle"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[6] == 0) {
+                    if (data[5] == 0) {
                         $('td', row).addClass("text-muted");
                     }
                 }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(6, "/vehicle/edit/", null, "/vehicle/toggle");
+            appendDatatablesToolbar(7, "/vehicle/edit/", null, "/vehicle/toggle");
 
             // Add New Vehicle button
             $("#btn-add").on("click", function() {

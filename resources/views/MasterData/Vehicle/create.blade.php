@@ -106,6 +106,17 @@
                     </select>
                 </div>
 
+                {{-- Note --}}
+                <div class="form-group local-forms">
+                    <label for="note">Note</label>
+                    <textarea class="form-control" id="note" name="note" rows="3" placeholder="Enter vehicle note">
+@if (isset($data['profile']))
+{{ trim($data['profile']['note']) }}
+@endif
+</textarea>
+                </div>
+
+
                 {{-- Hidden Inputs --}}
                 <input type="hidden" id="id" name="id"
                     @if (isset($data['profile'])) value="{{ $data['profile']['id'] }}" @endif>
