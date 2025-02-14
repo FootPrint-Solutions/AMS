@@ -38,12 +38,250 @@
                  </select>
              </div>
          </div>
+         <div class="col-lg-6 mt-3">
+             <input type="checkbox" class="checbox-centang" id="select-custom-vehicle" /> <span class="text-grey">Select
+                 Custom Vehicle</span>
+         </div>
+     </div>
+
+     <div id="group-box-mobile" style="display: none;">
+         <div class="row mt-3">
+
+             {{-- Battery Category --}}
+             <div class="col">
+                 <div class="form-group local-forms">
+                     <label>Battery Category</label>
+                     <select name="BatteryCategoryMobile" id="BatteryCategoryMobile" class="form-select"
+                         aria-label="Default select example" style="width: 100%;">
+                         <option value="">Select Battery Category</option>
+                     </select>
+                     <script>
+                         $(document).ready(function() {
+                             $('#BatteryCategoryMobile').select2({
+                                 width: 'resolve',
+                                 ajax: {
+                                     url: '/quotation/battery/autoCompleteCategory',
+                                     dataType: 'json',
+                                     delay: 250,
+                                     data: function(params) {
+                                         return {
+                                             q: params.term // search term
+                                         };
+                                     },
+                                     processResults: function(data) {
+                                         return {
+                                             results: $.map(data, function(item) {
+                                                 return {
+                                                     text: item.name,
+                                                     id: item.id
+                                                 }
+                                             })
+                                         };
+                                     },
+                                     cache: true
+                                 },
+                                 minimumInputLength: 1,
+                                 placeholder: 'Select Battery Category',
+                                 allowClear: true
+                             });
+                         });
+                     </script>
+                 </div>
+             </div>
+
+             {{-- battery cca --}}
+             <div class="col">
+                 <div class="form-group local-forms">
+                     <label>Battery CCA</label>
+                     <select name="BatteryCCAMobile" id="BatteryCCAMobile" class="form-select"
+                         aria-label="Default select example">
+                         <option value="all">Select All</option>
+                     </select>
+                     <script>
+                         $(document).ready(function() {
+                             $('#BatteryCCAMobile').select2({
+                                 width: 'resolve',
+                                 ajax: {
+                                     url: '/quotation/battery/autoCompleteCCA',
+                                     dataType: 'json',
+                                     delay: 250,
+                                     data: function(params) {
+                                         return {
+                                             q: params.term // search term
+                                         };
+                                     },
+                                     processResults: function(data) {
+                                         return {
+                                             results: $.map(data, function(item) {
+                                                 return {
+                                                     text: item.standard_cca,
+                                                     id: item.standard_cca
+                                                 }
+                                             })
+                                         };
+                                     },
+                                     cache: true
+                                 },
+                                 minimumInputLength: 1,
+                                 placeholder: 'Select Battery CCA',
+                                 allowClear: true
+                             });
+                         });
+                     </script>
+                 </div>
+             </div>
+
+         </div>
+
+         <div class="row mt-2">
+             {{-- battery capacity --}}
+             <div class="col">
+                 <div class="form-group local-forms">
+                     <label>Battery Capacity</label>
+                     <select name="BatteryCapacityMobile" id="BatteryCapacityMobile" class="form-select"
+                         aria-label="Default select example">
+                         <option value="all">Select All</option>
+                     </select>
+                     <script>
+                         $(document).ready(function() {
+                             $('#BatteryCapacityMobile').select2({
+                                 width: 'resolve',
+                                 ajax: {
+                                     url: '/quotation/battery/autoCompleteCapacity',
+                                     dataType: 'json',
+                                     delay: 250,
+                                     data: function(params) {
+                                         return {
+                                             q: params.term // search term
+                                         };
+                                     },
+                                     processResults: function(data) {
+                                         return {
+                                             results: $.map(data, function(item) {
+                                                 return {
+                                                     text: item.capacity,
+                                                     id: item.capacity
+                                                 }
+                                             })
+                                         };
+                                     },
+                                     cache: true
+                                 },
+                                 minimumInputLength: 1,
+                                 placeholder: 'Select Battery Capacity',
+                                 allowClear: true
+                             });
+                         });
+                     </script>
+                 </div>
+             </div>
+
+             {{-- battery dimension --}}
+             <div class="col">
+                 <div class="form-group local-forms">
+                     <label>Battery Dimension</label>
+                     <select name="BatteryDimensionMobile" id="BatteryDimensionMobile" class="form-select"
+                         aria-label="Default select example">
+                         <option value="all">Select All</option>
+                     </select>
+                     <script>
+                         $(document).ready(function() {
+                             $('#BatteryDimensionMobile').select2({
+                                 width: 'resolve',
+                                 ajax: {
+                                     url: '/quotation/battery/autoCompleteDimension',
+                                     dataType: 'json',
+                                     delay: 250,
+                                     data: function(params) {
+                                         return {
+                                             q: params.term // search term
+                                         };
+                                     },
+                                     processResults: function(data) {
+                                         return {
+                                             results: $.map(data, function(item) {
+                                                 return {
+                                                     text: item.dimension_length + ' x ' +
+                                                         item.dimension_width + ' x ' +
+                                                         item.dimension_height + ' mm',
+                                                     id: item.dimension_length + ',' +
+                                                         item.dimension_width + ',' +
+                                                         item.dimension_height
+                                                 }
+                                             })
+                                         };
+                                     },
+                                     cache: true
+                                 },
+                                 minimumInputLength: 1,
+                                 placeholder: 'Select Battery Dimension',
+                                 allowClear: true
+                             });
+                         });
+                     </script>
+                 </div>
+             </div>
+         </div>
+
+         <div class="row mt-2">
+             {{-- battery name --}}
+             <div class="col">
+                 <div class="form-group local-forms">
+                     <label>Battery Name</label>
+                     <select name="BatteryNameMobile" id="BatteryNameMobile" class="form-select"
+                         aria-label="Default select example">
+                         <option value="all">Select All</option>
+                     </select>
+                     <script>
+                         $(document).ready(function() {
+                             $('#BatteryNameMobile').select2({
+                                 width: 'resolve',
+                                 ajax: {
+                                     url: '/quotation/battery/autoCompleteName',
+                                     dataType: 'json',
+                                     delay: 250,
+                                     data: function(params) {
+                                         return {
+                                             q: params.term,
+                                             category: $('#BatteryCategory').val(),
+                                             cca: $('#BatteryCCA').val(),
+                                             capacity: $('#BatteryCapacity').val(),
+                                             dimension: $('#BatteryDimension').val()
+                                         };
+                                     },
+                                     processResults: function(data) {
+                                         return {
+                                             results: $.map(data, function(item) {
+                                                 return {
+                                                     text: item.name,
+                                                     id: item.id
+                                                 }
+                                             })
+                                         };
+                                     },
+                                     cache: true
+                                 },
+                                 minimumInputLength: 1,
+                                 placeholder: 'Select Battery Name',
+                                 allowClear: true
+                             });
+                         });
+                     </script>
+                 </div>
+             </div>
+             {{-- button add battery --}}
+             <div class="col">
+                 <button type="button" class="btn btn-primary" id="btnAddBatteryMobile">Show Battery</button>
+             </div>
+
+             <input type="hidden" name="IdBatteryArrayMobile" id="IdBatteryArrayMobile">
+         </div>
      </div>
  </form>
 
  <h4 class=" mt-3">Product Recomendation Display</h4>
  <div class="checkbox-all mb-3">
-     <input type="checkbox" class="checbox-centang" /> <span class="text-grey">Select All</span>
+     <input type="checkbox" class="checbox-centang" id="select-all-product" /> <span class="text-grey">Select All</span>
  </div>
 
  {{-- sample owl carousel --}}
@@ -95,6 +333,65 @@
 
 
  <script>
+     $(document).ready(function() {
+         $('#select-custom-vehicle').on('change', function() {
+             if ($(this).is(':checked')) {
+                 $('#group-box-mobile').show();
+             } else {
+                 $('#group-box-mobile').hide();
+             }
+         });
+     });
+
+     $('#btnAddBatteryMobile').on('click', function() {
+         var BatteryName = $('#BatteryNameMobile').val();
+         var BatteryCategory = $('#BatteryCategoryMobile').val();
+         var IdBatteryArray = $('#IdBatteryArrayMobile').val();
+
+         if (BatteryName.length == 0) {
+             swal.fire("Error!", "Please select battery name", "error");
+             return;
+         }
+
+         if (IdBatteryArray.length == 0) {
+             if (BatteryName == 'all') {
+                 $('#IdBatteryArrayMobile').val('');
+                 $('#BatteryNameMobile option').each(function() {
+                     if ($(this).val() !== 'all') {
+                         if (IdBatteryArray.length == 0) {
+                             IdBatteryArray = $(this).val();
+                         } else {
+                             IdBatteryArray += ',' + $(this).val();
+                         }
+                     }
+                 });
+                 $('#IdBatteryArrayMobile').val(IdBatteryArray);
+             } else {
+                 $('#IdBatteryArrayMobile').val(BatteryName);
+             }
+         } else {
+             if (BatteryName == 'all') {
+                 $('#IdBatteryArrayMobile').val('');
+                 $('#BatteryNameMobile option').each(function() {
+                     if ($(this).val() !== 'all') {
+                         if (IdBatteryArray.length == 0) {
+                             IdBatteryArray = $(this).val();
+                         } else {
+                             IdBatteryArray += ',' + $(this).val();
+                         }
+                     }
+                 });
+                 $('#IdBatteryArrayMobile').val(IdBatteryArray);
+             } else {
+                 if (!IdBatteryArray.split(',').includes(BatteryName)) {
+                     $('#IdBatteryArrayMobile').val(IdBatteryArray + ',' + BatteryName);
+                 }
+             }
+         }
+
+         getBatteryByVehicleMobile();
+     });
+
      $("#btn-copy-text-step-1-mobile").on('click', function() {
          var FullName = $("#members_name_input_mobile").val();
          var Battery = [];
@@ -250,12 +547,15 @@
          $(".loop").owlCarousel('destroy');
          $(".loop").html('');
          var VehicleCustomer = $('#vehicle_customer_input_mobile').val();
+         var custom = $('#select-custom-vehicle').is(':checked');
 
-         if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
-             var html =
-                 '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Vehicle Selected</div>';
-             $('#ResultRecommendationBatteryVehicleMobile').html(html);
-             return;
+         if (!custom) {
+             if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
+                 var html =
+                     '<div class="alert alert-danger alert-dismissible fade show" role="alert">No Vehicle Selected</div>';
+                 $('#ResultRecommendationBatteryVehicleMobile').html(html);
+                 return;
+             }
          }
 
          var loadingHtml = '<div class="spinner-border text-primary text-center" role="status">';
@@ -267,7 +567,10 @@
              url: "/quotation/vehicle/find",
              type: "GET",
              data: {
-                 id: VehicleCustomer
+                 id: VehicleCustomer,
+                 custom: $('#select-custom-vehicle').is(':checked'),
+                 category: $('#BatteryCategoryMobile').val(),
+                 name: $('#IdBatteryArrayMobile').val(),
              },
              success: function(data) {
                  var html = '';
@@ -384,7 +687,7 @@
      });
 
      //checbox-centang on checkbox event
-     $('.checbox-centang').on('change', function() {
+     $('#select-all-product').on('change', function() {
          if ($(this).is(':checked')) {
              $('.btn-owl-carousel').each(function() {
                  $(this).data('check', 1);
