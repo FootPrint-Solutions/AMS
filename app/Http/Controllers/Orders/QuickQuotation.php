@@ -150,7 +150,7 @@ $arrayVehicle";
         $category = $request->input('category');
         $idcustom = explode(",", $request->input('name'));
 
-        if (isset($custom)) {
+        if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
                 $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
             } else {
