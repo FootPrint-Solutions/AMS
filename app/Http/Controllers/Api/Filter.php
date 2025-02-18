@@ -200,4 +200,27 @@ class Filter extends Controller
             return response()->json($response, 500);
         }
     }
+
+    function searchBattery($batteryName)
+    {
+        try {
+            $batteries = BatteryModel::where('name', 'like', '%' . $batteryName . '%')->with('batteryUrl')->get();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Data found',
+                'data' => $batteries
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Data not found',
+                'data' => []
+            ];
+
+            return response()->json($response, 500);
+        }
+    }
 }

@@ -27,3 +27,6 @@ Route::get('filter/brand/{brand}', [Filter::class, 'brandFind']);
 Route::get('filter/model/{model}', [Filter::class, 'modelFind']);
 Route::get('filter/battery', [Filter::class, 'battery']);
 Route::get('filter/battery/{battery}', [Filter::class, 'batteryFind']);
+
+// SEARCH API
+Route::get('search/battery/{batteryName}', [Filter::class, 'searchBattery']);
