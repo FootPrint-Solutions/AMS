@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // CONTROLLER
 use App\Http\Controllers\Api\Filter;
+use App\Http\Controllers\Api\Battery;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,8 @@ Route::get('filter/battery/{battery}', [Filter::class, 'batteryFind']);
 
 // SEARCH API
 Route::get('search/battery/{batteryName}', [Filter::class, 'searchBattery']);
+
+// BATTERY API
+Route::get('battery/random', [Battery::class, 'getRandomBattery']);
+Route::get('battery/category', [Battery::class, 'getBatteryCategory']);
+Route::get('battery/category/{category}', [Battery::class, 'findBatteriesByCategory']);
