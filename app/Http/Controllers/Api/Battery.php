@@ -88,7 +88,15 @@ class Battery extends Controller
     function findBatteriesByCategory($category)
     {
         try {
-            $battery = BatteryModel::where('subbrand_category_id', $category)->get()->toArray();
+            $query = BatteryModel::query();
+
+            if ($category != "all") {
+                $query->where('subbrand_category_id', $category);
+            } else {
+                $query->inRandomOrder()->limit(12);
+            }
+
+            $battery = $query->get()->toArray();
             $response = [
                 'status' => 'success',
                 'message' => 'Data found',
