@@ -204,7 +204,7 @@ class Filter extends Controller
     function searchBattery($batteryName)
     {
         try {
-            $batteries = BatteryModel::where('name', 'like', '%' . $batteryName . '%')->with('batteryUrl')->get();
+            $batteries = BatteryModel::where('name', 'like', '%' . $batteryName . '%')->where('status', 1)->with('batteryUrl')->get();
 
             $response = [
                 'status' => 'success',
