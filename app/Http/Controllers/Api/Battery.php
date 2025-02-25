@@ -24,7 +24,7 @@ class Battery extends Controller
     function getRandomBattery(Request $request)
     {
         try {
-            $battery = BatteryModel::inRandomOrder()->limit(12)->get()->toArray();
+            $battery = BatteryModel::inRandomOrder()->limit(12)->with('batteryUrl')->get()->toArray();
             $response = [
                 'status' => 'success',
                 'message' => 'Data found',
