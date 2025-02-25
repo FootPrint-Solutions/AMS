@@ -675,21 +675,53 @@ class Battery extends Controller
     {
         try {
             $batteries = BatteryModel::all();
+
             foreach ($batteries as $battery) {
-                $path = storage_path('app/public/image/battery/' . $battery->image);
+                $originalPath = storage_path('app/public/image/battery/' . $battery->image);
 
-                // check if file exists
-                if (file_exists($path)) {
-                    $size = filesize($path);
+                // Check if file exists
+                if (!file_exists($originalPath)) {
+                    Log::error("File not found: " . $originalPath);
+                    continue;
+                }
 
-                    if ($size > 1000000) {
+                $size = filesize($originalPath);
+                if ($size > 1000000) { // Jika ukuran lebih dari 1MB
+                    try {
+                        // Pastikan folder tujuan ada
+                        $compressedDir = storage_path('app/public/image/battery/compressed');
+                        $webpDir = storage_path('app/public/image/battery/webp');
 
-                        $img = Image::make($path);
+                        if (!file_exists($compressedDir)) {
+                            mkdir($compressedDir, 0777, true);
+                        }
+                        if (!file_exists($webpDir)) {
+                            mkdir($webpDir, 0777, true);
+                        }
+
+                        // Proses PNG
+                        $img = Image::make($originalPath)->encode('png', 80);
                         $img->resize(100, 100, function ($constraint) {
                             $constraint->aspectRatio();
                         });
-                        $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
-                        $img->save($path);
+
+                        $compressedPath = $compressedDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.png';
+                        $img->save($compressedPath);
+
+                        Log::info("Compressed PNG: " . $compressedPath);
+
+                        // Proses WebP
+                        $img_webp = Image::make($originalPath)->encode('webp', 80);
+                        $img_webp->resize(100, 100, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+
+                        $webPPath = $webpDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp';
+                        $img_webp->save($webPPath);
+
+                        Log::info("WebP: " . $webPPath);
+                    } catch (\Exception $e) {
+                        Log::error("Image processing error: " . $e->getMessage());
                     }
                 }
             }
@@ -702,7 +734,7 @@ class Battery extends Controller
             Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to compress images' . $th->getMessage()
+                'message' => 'Failed to compress images: ' . $th->getMessage()
             ]);
         }
     }
