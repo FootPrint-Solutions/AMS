@@ -711,11 +711,7 @@ class Battery extends Controller
                         Log::info("Compressed PNG: " . $compressedPath);
 
                         // Proses WebP
-                        $img_webp = Image::make($originalPath)->encode('webp', 80);
-                        $img_webp->resize(100, 100, function ($constraint) {
-                            $constraint->aspectRatio();
-                        });
-
+                        $img_webp = Image::make($originalPath)->encode('webp', 100);
                         $webPPath = $webpDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp';
                         $img_webp->save($webPPath);
 
