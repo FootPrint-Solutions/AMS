@@ -46,6 +46,7 @@
                     <thead>
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
+                            <th scope="col" class="table-col-status">Status</th>
                             <th scope="col">Code</th>
                             <th scope="col">Name</th>
                             <th scope="col">Brand</th>
@@ -58,7 +59,6 @@
                             <th scope="col">Capacity (AH)</th>
                             <th scope="col">Warranty (month)</th>
                             <th scope="col">Retail Price (IDR)</th>
-                            <th scope="col" class="table-col-status">Status</th>
                         </tr>
                     </thead>
                 </table>
