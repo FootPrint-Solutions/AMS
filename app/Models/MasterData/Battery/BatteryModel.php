@@ -181,6 +181,10 @@ class BatteryModel extends Model implements Auditable
             });
         }
 
+        if (isset($request->status) && $request->status !== 'all' && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'batteries.updated_at', 'direction' => 'desc']);
     }
 

@@ -1,24 +1,44 @@
 @extends('template.master')
 
 @section('content')
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Battery
+                    </h3>
+                </div>
+                <div class="col-auto text-end float-end ms-auto download-grp">
+                    <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
+                        New Battery</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {{-- filter status --}}
+            <div class="row mt-2">
+                <div class="col-md-1 d-flex align-items-center">
+                    Status
+                </div>
+
+                <div class="col-md-4">
+                    <select class="form-select form-select-sm" id="filter-status">
+                        <option value="all">All</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="col-md-1"></div>
+
+            </div>
+        </div>
+    </div>
+
     {{-- Form --}}
     <div class="card">
 
         <div class="card-body">
-            {{-- Title --}}
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Battery</h3>
-                    </div>
-                    <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Battery</button>
-                    </div>
-                </div>
-            </div>
-            <br>
-
             {{-- Import Form --}}
             <form id="form-import" method="POST" enctype="multipart/form-data" class="mb-3">
                 @csrf
@@ -84,8 +104,9 @@
                 ajax: {
                     url: "/battery/show",
                     type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.status = $("#filter-status").val();
                     }
                 },
                 columnDefs: [{
@@ -98,7 +119,7 @@
                     targets: [12],
                     className: 'table-col-price'
                 }, {
-                    targets: [0, -1],
+                    targets: [0, 1, -1],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
@@ -268,6 +289,10 @@
                     }
                 });
             })
+
+            $("#filter-status").on("change", function() {
+                table.ajax.reload();
+            });
         });
     </script>
 @endsection
