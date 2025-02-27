@@ -215,7 +215,7 @@
                     targets: [6],
                     className: 'dt-body-right table-col-price'
                 }, {
-                    targets: [0, 7],
+                    targets: [0],
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",

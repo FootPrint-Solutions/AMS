@@ -192,6 +192,7 @@ class Battery extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->code;
             $row[] = $key->name;
             $row[] = $key->brand->name ?? "-";
@@ -204,7 +205,6 @@ class Battery extends Controller
             $row[] = $key->capacity;
             $row[] = $key->warranty;
             $row[] = formatPrice($key->price_retail);
-            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $row[] = $key->status;
             $rows[] = $row;
