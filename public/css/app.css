@@ -43,3 +43,8 @@ input[readonly]:focus {
 table.dataTable thead tr th {
     text-align: center;
 }
+
+.text-truncate-custom {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
