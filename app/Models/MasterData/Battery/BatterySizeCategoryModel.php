@@ -60,6 +60,7 @@ class BatterySizeCategoryModel extends Model implements Auditable
     public function batteries()
     {
         return $this->hasMany(BatteryModel::class, 'size_category_id')
+            ->where('status', 1)
             ->with('batteryUrl');
     }
 }
