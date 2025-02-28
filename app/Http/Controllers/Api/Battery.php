@@ -93,7 +93,7 @@ class Battery extends Controller
             if ($category != "all") {
                 $query->where('subbrand_category_id', $category);
             } else {
-                $query->inRandomOrder()->limit(12);
+                $query->inRandomOrder()->limit(8);
             }
 
             $battery = $query->get()->toArray();
