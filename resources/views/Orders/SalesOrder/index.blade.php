@@ -222,23 +222,30 @@
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
+                            {{-- button print po --}}
+                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
+                                onclick="downloadPurchaseOrder()">
+                                <i class="fas fa-file-text me-2"></i> Purchase Order
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
                             <!-- Button Create Work Order -->
-                            <button class="btn btn-outline-warning w-100 btn-sm text-truncate" id="btn-work-order"
+                            <button class="btn btn-outline-warning w-100 btn-sm text-truncate-custom" id="btn-work-order"
                                 onclick="createWorkOrder()">
                                 <i class="fas fa-screwdriver-wrench me-2"></i> Create Work Order
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Re-Create Payment Link -->
-                            <button class="btn btn-outline-info w-100 btn-sm text-truncate" id="btn-recreate-payment-link"
-                                onclick="recreatePaymentLink()">
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
+                                id="btn-recreate-payment-link" onclick="recreatePaymentLink()">
                                 <i class="fas fa-link me-2"></i> Re-Create Payment Link
                             </button>
                         </div>
 
                         {{-- button copy link payment  --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-outline-info w-100 btn-sm text-truncate"
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
                                 id="btn-copy-link-payment-midtrans">
                                 <i class="fas fa-link me-2"></i> Copy Payment Link
                             </button>
@@ -281,6 +288,14 @@
         function downloadInvoice() {
             // Download invoice as pdf.
             downloadPDF("/sales-order/invoice/" + $('#modal-more-action-id').val());
+
+            // Hide the modal.
+            $('#modal-more-action').modal('hide');
+        }
+
+        function downloadPurchaseOrder() {
+            // Download purchase order as pdf.
+            downloadPDF("/sales-order/purchase-order/" + $('#modal-more-action-id').val());
 
             // Hide the modal.
             $('#modal-more-action').modal('hide');
@@ -366,27 +381,6 @@
                                 });
                             }
                         });
-
-                        // try {
-                        //     var copyText = responseData.message;
-                        //     var textArea = document.createElement("textarea");
-                        //     textArea.value = copyText;
-                        //     document.body.appendChild(textArea);
-                        //     textArea.select();
-                        //     document.execCommand('copy');
-                        //     document.body.removeChild(textArea);
-                        //     Swal.fire({
-                        //         title: "Success",
-                        //         text: responseData.message,
-                        //         icon: "success",
-                        //     });
-                        // } catch (error) {
-                        //     Swal.fire({
-                        //         title: "Error",
-                        //         text: "Failed to copy the link",
-                        //         icon: "error",
-                        //     });
-                        // }
                     } else {
                         Swal.fire({
                             title: "Error",

@@ -27,7 +27,7 @@ use App\Services\Midtrans\Transaction;
 
 class SalesOrder extends Controller
 {
-    private $title = "Quotation";
+    private $title = "Sales Order";
 
     /**
      * Display a listing of the resource.
@@ -125,6 +125,25 @@ class SalesOrder extends Controller
     {
         return view(
             'Orders.SalesOrder.invoice',
+            getIndexData(
+                $this->title,
+                array(
+                    "profile" => SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
+                    "company" => CompanyModel::first(),
+                )
+            )
+        );
+    }
+
+    /**
+     * Show the purchase order for specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function purchaseOrder($id)
+    {
+        return view(
+            'Orders.SalesOrder.purchase-order',
             getIndexData(
                 $this->title,
                 array(
