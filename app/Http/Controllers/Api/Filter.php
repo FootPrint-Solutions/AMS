@@ -87,7 +87,7 @@ class Filter extends Controller
 
                 $batteries = $battery ? $battery->batteries : collect();
 
-                $maxPriceBattery = $batteries->sortByDesc('price_retail')->first();
+                $maxPriceBattery = $batteries->sortByDesc('cca')->first();
                 $minPriceBattery = $batteries->sortBy('price_retail')->first();
 
                 foreach ($batteries as $battery) {
