@@ -142,16 +142,32 @@ class SalesOrder extends Controller
      */
     public function purchaseOrder($id)
     {
-        return view(
-            'Orders.SalesOrder.purchase-order',
-            getIndexData(
-                $this->title,
-                array(
-                    "profile" => SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
-                    "company" => CompanyModel::first(),
+        $salesOrder = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
+        $shopName = $salesOrder->shop->name;
+
+        if ($shopName !== 'Distributor Main Shop') {
+            return view(
+                'Orders.SalesOrder.print.purchase-order-replacement',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => $salesOrder->toArray(),
+                        "company" => CompanyModel::first(),
+                    )
                 )
-            )
-        );
+            );
+        } else {
+            return view(
+                'Orders.SalesOrder.print.purchase-order',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => $salesOrder->toArray(),
+                        "company" => CompanyModel::first(),
+                    )
+                )
+            );
+        }
     }
 
     /**
