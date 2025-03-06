@@ -159,7 +159,7 @@ class SalesOrder extends Controller
             );
         } else if ($shopId == 16) {
             return view(
-                'Orders.SalesOrder.print.purchase-order-replacement',
+                'Orders.SalesOrder.print.purchase-order',
                 getIndexData(
                     $this->title,
                     array(
