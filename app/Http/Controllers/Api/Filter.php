@@ -79,50 +79,48 @@ class Filter extends Controller
         try {
             $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)->get();
             $vehicleModel = VehicleModel::where('id', $vehicle_id)->first();
-            $data = $vehicleBatterySizeCategory->toArray();
 
             $details = [];
-            foreach ($data as $row) {
-                $battery = BatterySizeCategoryModel::where('id', $row['battery_size_category_id'])->with('batteries')->first();
 
-                $batteries = $battery ? $battery->batteries : collect();
+            foreach ($vehicleBatterySizeCategory as $row) {
+                $battery = BatterySizeCategoryModel::where('id', $row->battery_size_category_id)->with('batteries')->first();
 
-                $maxPriceBattery = $batteries->sortByDesc('cca')->first();
-                $minPriceBattery = $batteries->sortBy('price_retail')->first();
-
-                foreach ($batteries as $battery) {
-                    $battery['is_max_price'] = false;
-                    $battery['is_min_price'] = false;
-                    $details[] = $battery;
-                }
-
-                if ($maxPriceBattery) {
-                    $maxPriceBattery['is_max_price'] = true;
-                }
-
-                if ($minPriceBattery) {
-                    $minPriceBattery['is_min_price'] = true;
+                if ($battery) {
+                    foreach ($battery->batteries as $batt) {
+                        $details[] = $batt;
+                    }
                 }
             }
 
-            $details = collect($details)->unique('id')->values()->all();
-            foreach ($details as $key => $value) {
-                $details[$key]['is_max_price'] = false;
-                $details[$key]['is_min_price'] = false;
-            }
+            $details = collect($details)->unique('id')->values();
 
-            $maxPriceBattery = collect($details)->sortByDesc('price_retail')->first();
-            $minPriceBattery = collect($details)->sortBy('price_retail')->first();
-
-            if ($maxPriceBattery) {
-                $maxPriceBattery['is_max_price'] = true;
-            }
+            $minPriceBattery = $details->sortBy('price_retail')->first();
+            $highestCCABattery = $details->sortByDesc('cca')->first();
 
             if ($minPriceBattery) {
-                $minPriceBattery['is_min_price'] = true;
+                $details = $details->map(function ($item) use ($minPriceBattery) {
+                    if ($item['id'] === $minPriceBattery['id']) {
+                        $item['is_min_price'] = true;
+                    }
+                    return $item;
+                });
             }
 
-            if (empty($details)) {
+            if ($highestCCABattery) {
+                $details = $details->map(function ($item) use ($highestCCABattery) {
+                    if ($item['id'] === $highestCCABattery['id']) {
+                        $item['is_max_price'] = true;
+                    }
+                    return $item;
+                });
+            }
+
+            $sortedDetails = $details
+                ->sortByDesc('is_max_price')
+                ->sortByDesc('is_min_price')
+                ->values();
+
+            if ($sortedDetails->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data not found',
@@ -133,7 +131,7 @@ class Filter extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data found',
-                'data' => ['batteries' => $details, 'vehicle' => $vehicleModel]
+                'data' => ['batteries' => $sortedDetails, 'vehicle' => $vehicleModel]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -143,6 +141,7 @@ class Filter extends Controller
             ], 500);
         }
     }
+
 
     function battery()
     {

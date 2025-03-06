@@ -58,31 +58,35 @@
 
     .judul {
         font-size: 12pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         font-weight: bold;
     }
 
     .judul2 {
         font-size: 12pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         font-weight: bold;
     }
 
     .text {
         font-size: 11pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         padding: 4px;
     }
 
     .judulAlamat {
         font-size: 9pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         padding: 0px;
     }
 
     .pagebreaking {
         page-break-inside: avoid;
         page-break-after: auto
+    }
+
+    * {
+        font-family: Arial, sans-serif;
     }
 </style>
 
@@ -128,17 +132,17 @@
                     <tbody>
                         <tr>
                             <td class="judul" width="50%">Vendor</td>
-                            <td class="judul">Ship To</td>
+                            <td class="judul"></td>
                         </tr>
                         <tr>
                             <td class="judul">PT. Polarg Indonesia</td>
-                            <td class="judul">{{ $data['profile']['shop']['name'] }}</td>
+                            <td class="judul"></td>
                         </tr>
                         <tr>
                             <td class="text" style="padding: 0px;">Green Sedayu Bizpark blok DM9 no 72
                             </td>
                             <td class="text" rowspan="3" style="padding:0px;">
-                                {{ $data['profile']['shop']['address'] }}</td>
+                            </td>
 
                         </tr>
                         <tr>

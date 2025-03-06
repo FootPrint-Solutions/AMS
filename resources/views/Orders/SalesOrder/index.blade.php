@@ -3,7 +3,7 @@
 @section('content')
     {{-- Form --}}
     <div class="d-none d-lg-block">
-        <div class="card">
+        <div class="card bg-white">
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
@@ -46,7 +46,7 @@
         </div>
 
 
-        <div class="card">
+        <div class="card bg-white">
             <div class="card-body">
 
                 {{-- Table --}}

@@ -522,3 +522,5 @@ Route::post('/auth', [Authentication::class, 'authenticate'])->name('auth.authen
 // route for all user to tracking order
 Route::get('/tracking/{order_id}', [WorkOrder::class, 'trackingOrder']);
 Route::get('/tracking/live/{order_id}', [WorkOrder::class, 'trackingOrderLive']);
+
+Route::get('sandbox/battery_template', [Battery::class, 'battery_template']);

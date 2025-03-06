@@ -58,31 +58,35 @@
 
     .judul {
         font-size: 12pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         font-weight: bold;
     }
 
     .judul2 {
         font-size: 12pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         font-weight: bold;
     }
 
     .text {
         font-size: 11pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         padding: 4px;
     }
 
     .judulAlamat {
         font-size: 9pt;
-        font-family: "Times New Roman";
+        font-family: Arial, sans-serif;
         padding: 0px;
     }
 
     .pagebreaking {
         page-break-inside: avoid;
         page-break-after: auto
+    }
+
+    * {
+        font-family: Arial, sans-serif;
     }
 </style>
 
