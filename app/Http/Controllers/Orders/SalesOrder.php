@@ -144,8 +144,20 @@ class SalesOrder extends Controller
     {
         $salesOrder = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
         $shopName = $salesOrder->shop->name;
+        $shopId = $salesOrder->shop->id;
 
         if ($shopName !== 'Distributor Main Shop') {
+            return view(
+                'Orders.SalesOrder.print.purchase-order-replacement',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => $salesOrder->toArray(),
+                        "company" => CompanyModel::first(),
+                    )
+                )
+            );
+        } else if ($shopId == 16) {
             return view(
                 'Orders.SalesOrder.print.purchase-order-replacement',
                 getIndexData(
