@@ -734,4 +734,10 @@ class Battery extends Controller
             ]);
         }
     }
+
+    public function battery_template()
+    {
+        $all_battery = BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory', 'urls'])->get();
+        return view('MasterData.Battery.battery_template', compact('all_battery'));
+    }
 }

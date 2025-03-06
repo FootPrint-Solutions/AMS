@@ -21,6 +21,12 @@
             cursor: pointer;
             background-color: rgba(192, 192, 192, 0.5)
         }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 
     @if (session('error'))
@@ -56,6 +62,11 @@
                 <div class="col">
                     <div class="card flex-fill w-100 comman-shadow">
                         <div class="card-body">
+                            <div class="loading-spinner" id="chart-loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                             <div id="chart-revenue" style="height: 300px;"></div>
                         </div>
                     </div>
@@ -279,6 +290,8 @@
                     };
 
                     var chart = new ApexCharts(document.querySelector("#chart-revenue"), options);
+                    $("#chart-loading").hide();
+                    $("#chart-revenue").fadeIn();
                     var chart_mobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"),
                         options);
 
