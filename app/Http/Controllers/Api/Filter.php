@@ -95,7 +95,7 @@ class Filter extends Controller
             $details = collect($details)->unique('id')->values();
 
             $minPriceBattery = $details->sortBy('price_retail')->first();
-            $highestCCABattery = $details->sortByDesc('cca')->first();
+            $highestCCABattery = $details->sortByDesc('standard_cca')->first();
 
             if ($minPriceBattery) {
                 $details = $details->map(function ($item) use ($minPriceBattery) {
