@@ -145,7 +145,7 @@
     </div>
 
     {{-- Address Modal --}}
-    @include('maps.addressmodal')
+    @include('maps.AddressModal')
 
     <script>
         let indexUrl = "/distributor";
