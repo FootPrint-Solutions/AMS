@@ -152,7 +152,11 @@ $arrayVehicle";
 
         if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
-                $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                if (isset($category) && $category != '') {
+                    $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                } else {
+                    $results = VehicleModel::getBatteryRecomendationWithCategoryFix($idcustom);
+                }
             } else {
                 $results = VehicleModel::getBatteryRecomendationWithOutDistributor($ids, $request->input('shop_id'));
             }
@@ -1681,6 +1685,8 @@ $arrayVehicle
             $dimension = explode(',', $dimension);
             $results = $results->where('dimension_length', $dimension[0])->where('dimension_width', $dimension[1])->where('dimension_height', $dimension[2]);
         }
+
+        $results = $results->where('status', 1)->limit(10);
         $results = $results->get();
         return response()->json($results);
     }
