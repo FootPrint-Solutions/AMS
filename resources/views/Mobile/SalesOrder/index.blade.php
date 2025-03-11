@@ -100,6 +100,12 @@
         height: 55px;
     }
 
+    #btn-purchase-order {
+        background-color: rgb(38, 64, 105);
+        color: rgb(256, 256, 256);
+        height: 55px;
+    }
+
     #btn-work-order {
         background-color: rgb(10, 117, 157);
         color: rgb(256, 256, 256);
@@ -256,6 +262,11 @@
                 <button class="btn btn-block mb-2 fw-bold text-start" id="btn-copy-link">
                     <div class="icon"><span class="material-icons">link</span></div>
                     Copy Payment Link
+                </button>
+
+                <button class="btn btn-block mb-2 fw-bold text-start" id="btn-purchase-order">
+                    <div class="icon"><span class="material-icons">description</span></div>
+                    Purchase Order
                 </button>
             </div>
         </div>
@@ -460,7 +471,22 @@
             }
         })
 
-        // Invoice
+        // Purchase Order
+        $("#btn-purchase-order").on("click", function() {
+            let selected = getSelected();
+            if (selected.length > 1) {
+                Swal.fire({
+                    text: "Unable to download purchase orders for more than one sales order",
+                    icon: "error"
+                });
+            } else {
+                goToPage("/sales-order/purchase-order/" + selected[0]);
+                $("#modal-action").modal("hide");
+                refreshList();
+            }
+        })
+
+        // work order
         $("#btn-work-order").on("click", function() {
             let selected = getSelected();
             if (selected.length > 1) {
