@@ -585,14 +585,14 @@
                         html += '<div class="blog-imagex">';
                         html += '<a href="#!">';
                         if (vehicle.image == null) {
-                            vehicle.image = 'https://via.placeholder.com/210x210';
+                            vehicle.image = 'https://placehold.co/100x100';
                             html += '<img class="img-fluid" src="' + vehicle.image +
                                 '" alt="Post Image">';
                         } else {
                             var baseUrl = "{{ asset('storage/image/battery/compressed/') }}";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' + baseUrl + '/' + vehicle.image +
-                                '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
+                                '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://placehold.co/100x100\';">';
                         }
                         html += '</a>';
                         html += '</div>';
@@ -832,7 +832,7 @@
                         if (vehicle.image == null) {
 
                             vehicle.image =
-                                'https://via.placeholder.com/210x210';
+                                'https://placehold.co/100x100';
                             html += '<img class="img-fluid" src="' + vehicle
                                 .image + '" alt="Post Image">';
                         } else {
@@ -842,7 +842,7 @@
                             html += '<img class="img-fluid" src="' +
                                 baseUrl +
                                 '/' + vehicle.image +
-                                '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/210x210\';">';
+                                '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://placehold.co/100x100\';">';
                         }
                         html += '</a>';
                         html += '</div>';
