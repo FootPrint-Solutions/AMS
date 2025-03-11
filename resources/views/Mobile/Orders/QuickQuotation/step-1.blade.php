@@ -243,7 +243,7 @@
                                      data: function(params) {
                                          return {
                                              q: params.term,
-                                             category: $('#BatteryCategory').val(),
+                                             category: $('#BatteryCategoryMobile').val(),
                                              cca: $('#BatteryCCA').val(),
                                              capacity: $('#BatteryCapacity').val(),
                                              dimension: $('#BatteryDimension').val()
