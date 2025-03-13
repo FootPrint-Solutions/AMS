@@ -621,7 +621,8 @@ class Battery extends Controller
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
             ],
-            $exceptions
+            '',
+            5
         );
     }
 
