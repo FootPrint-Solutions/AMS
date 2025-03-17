@@ -904,4 +904,8 @@
              }
          });
      });
+
+     $('#select-ignore-stock').on('change', function() {
+         getBatteryByVehicleMobile();
+     });
  </script>

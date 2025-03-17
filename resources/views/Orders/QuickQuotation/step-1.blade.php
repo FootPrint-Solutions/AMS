@@ -1177,4 +1177,8 @@
         $('#btnSelectAllBattery').html('<i class="fas fa-check"></i> Select All');
         $('#btnSelectAllBattery').attr('onclick', 'selectAll()');
     }
+
+    $('#ignore-stock').on('change', function() {
+        getBatteryByVehicle();
+    });
 </script>
