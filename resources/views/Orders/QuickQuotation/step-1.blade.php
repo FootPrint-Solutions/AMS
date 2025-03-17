@@ -17,39 +17,52 @@
         <h5>Enter Your Vehicle Details</h5>
     </div>
     <form id='FormPersonalDetails'>
-        <div class="row">
-
-            <div class="col-lg-6">
+        <div class="row g-3">
+            <!-- Member's Name -->
+            <div class="col-lg-6 col-md-6 col-sm-12">
                 <div class="form-group local-forms">
-                    <label>Members Name </label>
+                    <label for="FullNameStep1">Members Name</label>
                     <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
                         placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
-                    <span class="badge bg-success" id="UserExistStep1" style='display:none;'>User
-                        Exist</span>
-                    <span class="badge bg-warning" id="UserNotExistStep1" style='display:none;'>New
-                        User</span>
+                    <span class="badge bg-success mt-2" id="UserExistStep1" style="display: none;">User Exist</span>
+                    <span class="badge bg-warning mt-2" id="UserNotExistStep1" style="display: none;">New User</span>
                 </div>
             </div>
 
-            <div class="col-lg-8">
-                <div class="form-group local-forms">
-                    <label>Vehicle Customer <span class="login-danger">*</span></label>
-                    <select name="VehicleCustomer[]" multiple='multiple' id='VehicleCustomer' class="form-select"
-                        aria-label="Default select example">
-                        @foreach ($data['Vehicle'] as $vehicle)
-                            <option value="{{ $vehicle['id'] }}">
-                                {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="checkbox">
-                    <label for="custom-vehicle">
-                        <input type="checkbox" name="checkbox" id="custom-vehicle" name="custom-vehicle"> Custom Vehicle
-                    </label>
+            <!-- Vehicle + Checkboxes in one row -->
+            <div class="col-lg-12">
+                <div class="row g-3 align-items-center">
+                    <!-- Vehicle Customer Select -->
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group local-forms">
+                            <label for="VehicleCustomer">Vehicle Customer <span class="login-danger">*</span></label>
+                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
+                                class="form-select" aria-label="Select vehicles">
+                                @foreach ($data['Vehicle'] as $vehicle)
+                                    <option value="{{ $vehicle['id'] }}">
+                                        {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Custom Vehicle Checkbox -->
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <div class="form-check" style="margin-bottom: 2.125rem;">
+                            <input type="checkbox" class="form-check-input" id="custom-vehicle" name="custom-vehicle">
+                            <label class="form-check-label" for="custom-vehicle">Custom Vehicle</label>
+                        </div>
+                    </div>
+
+                    <!-- Ignore Stock Checkbox -->
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <div class="form-check" style="margin-bottom: 2.125rem;">
+                            <input type="checkbox" class="form-check-input" id="ignore-stock" name="ignore-stock">
+                            <label class="form-check-label" for="ignore-stock">Ignore Stock</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,7 +311,8 @@
     <div class="row" id="ResultRecommendationStockBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
-            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
+            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i
+                    class="fas fa-check"></i>
                 Select All</button>
             <button id="screenshot" class="btn btn-primary"><i class="fas fa-camera"></i> Screenshot</button>
             <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
@@ -534,6 +548,7 @@
     function getBatteryByVehicle() {
         var VehicleCustomer = $('#VehicleCustomer').val();
         var custom = $('#custom-vehicle').is(':checked');
+        var ignoreStock = $('#ignore-stock').is(':checked');
 
         if (!custom) {
             if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
@@ -673,7 +688,7 @@
                         } else {
                             html += '<input type="checkbox" name="CheckBattery1[]" value=' + vehicle
                                 .id + ' id="checkBoxBattery' + vehicle
-                                .id + '"> Select Battery ';
+                                .id + '" disabled> Select Battery ';
                         }
                         if (custom) {
                             html +=
@@ -707,8 +722,15 @@
                             success: function(data) {
                                 // jika data 0 atau - atau null maka disable checkbox 
                                 if (data == 0 || data == '-' || data == null) {
-                                    $("#checkBoxBattery" + vehicle.id).prop('disabled',
-                                        true);
+                                    if (ignoreStock) {
+                                        $("#checkBoxBattery" + vehicle.id).prop(
+                                            'disabled',
+                                            false);
+                                    } else {
+                                        $("#checkBoxBattery" + vehicle.id).prop(
+                                            'disabled',
+                                            true);
+                                    }
                                 } else {
                                     $("#checkBoxBattery" + vehicle.id).prop('disabled',
                                         false);

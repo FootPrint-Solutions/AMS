@@ -41,6 +41,8 @@
          <div class="col-lg-6 mt-3">
              <input type="checkbox" class="checbox-centang" id="select-custom-vehicle" /> <span class="text-grey">Select
                  Custom Vehicle</span>
+             <input type="checkbox" class="checbox-centang" id="select-ignore-stock" /> <span class="text-grey">Ignore
+                 Stock</span>
          </div>
      </div>
 
@@ -548,6 +550,7 @@
          $(".loop").html('');
          var VehicleCustomer = $('#vehicle_customer_input_mobile').val();
          var custom = $('#select-custom-vehicle').is(':checked');
+         var ignoreStock = $('#select-ignore-stock').is(':checked');
 
          if (!custom) {
              if (VehicleCustomer.length == 0 || VehicleCustomer == null) {
@@ -583,12 +586,12 @@
                          html += '<div class="item product-card">';
                          if (vehicle.image == null) {
                              html +=
-                                 '<img src="https://via.placeholder.com/150" alt="" class="image-carousel">';
+                                 '<img src="https://placehold.co/150" alt="" class="image-carousel">';
                          } else {
                              var baseUrl = "{{ asset('storage/image/battery/') }}";
                              vehicle.image = vehicle.image;
                              html += '<img src="' + baseUrl + '/' + vehicle.image +
-                                 '" alt="" class="image-carousel" width="150px">';
+                                 '" alt="" class="image-carousel" width="150px" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150\';">';
                          }
                          html += '<div class="row mt-3">';
                          html += '<div class="col">';
@@ -596,8 +599,10 @@
                          html += '</div>';
                          html += '<div class="col-4">';
                          html +=
-                             '<button class="btn btn-dark btn-sm btn-circle btn-owl-carousel" id="btn-owl-carousel" data-id="' +
-                             vehicle.id + '" data-check="0">+</button>';
+                             '<button class="btn btn-dark btn-sm btn-circle btn-owl-carousel' +
+                             vehicle.id +
+                             '" id="btn-owl-carousel" data-id="' +
+                             vehicle.id + '" data-check="0" disabled>+</button>';
                          html += '</div>';
                          html += '</div>';
                          html += '<div class="text-carousell" id="stock' + vehicle.id +
@@ -615,9 +620,16 @@
                          success: function(data) {
                              // jika data 0 atau - atau null maka disable checkbox 
                              if (data == 0 || data == '-' || data == null) {
-                                 $("#btn-owl-carousel").prop('disabled', true);
+                                 if (ignoreStock) {
+                                     $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                         false);
+                                 } else {
+                                     $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                         true);
+                                 }
                              } else {
-                                 $("#btn-owl-carousel").prop('disabled', false);
+                                 $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                     false);
                              }
 
                              // set stock
