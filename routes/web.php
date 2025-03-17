@@ -318,6 +318,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales-order/work-order/{id}', [SalesOrder::class, 'workOrderCreate'])->name('sales-order.workOrderCreate')->middleware('permission:view_sales_order_(so)');
     Route::get('/sales-order/recreate-payment-link/{id}', [SalesOrder::class, 'recreatePaymentLink'])->name('sales-order.recreatePaymentLink')->middleware('permission:view_sales_order_(so)');
     Route::get('/sales-order/copy-link-payment/{id}', [SalesOrder::class, 'copyPaymentLink'])->name('sales-order.copyPaymentLink')->middleware('permission:view_sales_order_(so)');
+    Route::get('/sales-order/get-purchase-order-number/{id}', [SalesOrder::class, 'getPurchaseOrderNumber'])->name('sales-order.getPurchaseOrderNumber')->middleware('permission:view_sales_order_(so)');
     // Mobile
     Route::get('/sales-order/show/mobile/{status?}/{filter?}', [SalesOrder::class, 'getSalesOrders'])->name('sales-order.getSalesOrders')->middleware('permission:view_sales_order_(so)');
     Route::get('/sales-order/show/detail/mobile/{id}', [SalesOrder::class, 'getSalesOrderDetail'])->name('sales-order.getSalesOrderDetail')->middleware('permission:view_sales_order_(so)');

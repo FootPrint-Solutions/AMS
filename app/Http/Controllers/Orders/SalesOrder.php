@@ -839,4 +839,15 @@ class SalesOrder extends Controller
         }
         return response()->json(['allDrafts' => $allDrafts]);
     }
+
+    public function getPurchaseOrderNumber($id)
+    {
+        $salesOrder = SalesOrderModel::find($id);
+        $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
+        return response()->json([
+            'status' => "success",
+            'message' => "Success get purchase order number",
+            'data' => $poNumber
+        ]);
+    }
 }

@@ -584,6 +584,37 @@
     }
 
     /**
+     * Download a PDF document based on the URL.
+     *
+     * @param {string} url - The URL of the PDF file.
+     * @param {string} name - The name of the PDF file to be downloaded.
+     */
+    function downloadPDFName(url, name = 'document.pdf') {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob(); // Convert response to Blob
+            })
+            .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl); // Clean up memory
+            })
+            .catch(error => {
+                console.error('Download failed:', error);
+            });
+    }
+
+
+
+    /**
      * Format price input field and displays an error warning message.
      *
      * @param {jQuery} inputField - The jQuery input price field object.
