@@ -294,8 +294,35 @@
         }
 
         function downloadPurchaseOrder() {
-            // Download purchase order as pdf.
-            downloadPDF("/sales-order/purchase-order/" + $('#modal-more-action-id').val());
+
+            var salesOrderId = $('#modal-more-action-id').val();
+            $.ajax({
+                url: "/sales-order/get-purchase-order-number/" + salesOrderId,
+                method: "GET",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.status == 'success') {
+                        //   change the title of the pdf
+                        var title = response.data;
+                        var pdfTitle = "Purchase Order " + title;
+
+                        // change the  <title>Dashboard | AMS</title>
+                        document.title = pdfTitle;
+
+                        // Download purchase order as pdf.
+                        downloadPDF("/sales-order/purchase-order/" + $('#modal-more-action-id').val());
+
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error",
+                        });
+                    }
+                }
+            });
 
             // Hide the modal.
             $('#modal-more-action').modal('hide');
