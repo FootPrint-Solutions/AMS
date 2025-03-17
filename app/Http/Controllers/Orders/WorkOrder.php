@@ -184,36 +184,35 @@ class WorkOrder extends Controller
         DB::beginTransaction();
 
         try {
-            // jika ada inputan image 
-            if (!$request->hasFile('image')) {
-            } else {
-                $request->validate([
-                    'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                    'work_order_id' => 'required|integer|exists:work_orders,id'
-                ]);
+            $workOrderId = $request->input('work_order_id');
 
+            $request->validate([
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'work_order_id' => 'required|integer|exists:work_orders,id',
+                'battery_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
+
+            if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $workOrderId = $request->input('work_order_id');
                 $imageExtension = $image->getClientOriginalExtension();
                 $imageFileName = $workOrderId . '.' . $imageExtension;
                 $imagePath = 'image/work-order/attachment-file/' . $imageFileName;
                 $storedImagePath = $image->storeAs('public/' . dirname($imagePath), $imageFileName);
                 WorkOrderModel::updateFileCompleteWorkOrderPath($workOrderId, $imagePath);
-                WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
             }
 
             if ($request->battery_id) {
-                // looping battery id and update production code
                 foreach ($request->battery_id as $key => $value) {
                     $battery = SalesOrderBatteryModel::find($value);
                     $battery->battery_production_code = $request->production_code[$key];
-                    if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key]))
+                    if ($request->hasFile('battery_image') && isset($request->file('battery_image')[$key])) {
                         $battery->image = basename($request->file("battery_image")[$key]->store("public/image/work-order/complete-image-file"));
-
+                    }
                     $battery->save();
                 }
             }
 
+            WorkOrderModel::updateStatusCompletedWorkOrderSalesOrder($workOrderId);
             DB::commit();
 
             return response()->json([

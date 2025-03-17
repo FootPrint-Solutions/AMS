@@ -115,7 +115,7 @@
                     <div class="modal-body text-center">
                         <div class="production_code_data"></div>
                         <input type="hidden" name="work_order_id" id="work_order_id_image">
-                        <label for="image" class="mt-3">Upload Technician Report File</label>
+                        <label for="image" class="mt-3">Upload Technician Report File ( Optional )</label>
                         <input type="file" name="image" id="image" class="form-control" allow="image/*">
                     </div>
 
@@ -355,7 +355,7 @@
                                             batteriesHtml += `
                     <tr>
                         <input type="hidden" name="battery_id[]" value="${battery.id}">
-                        <td><input type="text" name="production_code[]" value="${battery.battery_production_code}" class="form-control"></td>
+                        <td><input type="text" name="production_code[]" value="${battery.battery_production_code}" class="form-control" required></td>
                         <td><input type="text" name="battery_name[]" value="${battery.battery_name}" class="form-control" readonly></td>
                         <td><input type="number" name="battery_quantity[]" value="${battery.quantity}" class="form-control" readonly></td>
                     </tr>
