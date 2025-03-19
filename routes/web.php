@@ -217,6 +217,9 @@ Route::middleware(['auth'])->group(function () {
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 
+    // Review
+    require __DIR__ . '/web/publish/review.php';
+
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
