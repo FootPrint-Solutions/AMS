@@ -599,7 +599,7 @@
                          html += '</div>';
                          html += '<div class="col-4">';
                          html +=
-                             '<button class="btn btn-dark btn-sm btn-circle btn-owl-carousel' +
+                             '<button class="btn btn-dark btn-sm btn-circle btn-owl-carousel btn-owl-carousel-check-' +
                              vehicle.id +
                              '" id="btn-owl-carousel" data-id="' +
                              vehicle.id + '" data-check="0" disabled>+</button>';
@@ -621,14 +621,17 @@
                              // jika data 0 atau - atau null maka disable checkbox 
                              if (data == 0 || data == '-' || data == null) {
                                  if (ignoreStock) {
-                                     $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                     $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                                         'disabled',
                                          false);
                                  } else {
-                                     $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                     $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                                         'disabled',
                                          true);
                                  }
                              } else {
-                                 $(".btn-owl-carousel" + vehicle.id).prop('disabled',
+                                 $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                                     'disabled',
                                      false);
                              }
 
