@@ -74,16 +74,54 @@ class Filter extends Controller
         }
     }
 
-    public function modelFind($vehicle_id)
+    public function modelFind(Request $request, $vehicle_id)
     {
         try {
-            $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)->get();
-            $vehicleModel = VehicleModel::where('id', $vehicle_id)->first();
+            if ($vehicle_id == 'ALL') {
+                $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::get();
+                $vehicleModel = VehicleModel::limit(1)->get();
+            } else {
+                $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)->get();
+                $vehicleModel = VehicleModel::where('id', $vehicle_id)->first();
+            }
 
             $details = [];
 
             foreach ($vehicleBatterySizeCategory as $row) {
-                $battery = BatterySizeCategoryModel::where('id', $row->battery_size_category_id)->with('batteries')->first();
+                $battery = BatterySizeCategoryModel::where('id', $row->battery_size_category_id)
+                    ->with(['batteries' => function ($query) use ($request) {
+                        if ($request->has('min_price')) {
+                            $query->where('price_retail', '>=', $request->min_price);
+                        }
+                        if ($request->has('max_price')) {
+                            $query->where('price_retail', '<=', $request->max_price);
+                        }
+                        if ($request->has('min_capacity')) {
+                            $query->where('standard_cca', '>=', $request->min_capacity);
+                        }
+                        if ($request->has('max_capacity')) {
+                            $query->where('standard_cca', '<=', $request->max_capacity);
+                        }
+
+                        if ($request->has('selected_value')) {
+                            if ($request->selected_value == 'max-price-order') {
+                                $query->orderBy('price_retail', 'desc');
+                            } elseif ($request->selected_value == 'min-price-order') {
+                                $query->orderBy('price_retail', 'asc');
+                            } elseif ($request->selected_value == 'max-capacity-order') {
+                                $query->orderBy('standard_cca', 'desc');
+                            } elseif ($request->selected_value == 'min-capacity-order') {
+                                $query->orderBy('standard_cca', 'asc');
+                            }
+                        }
+
+                        if ($request->has('search') && $request->search != 'ALL') {
+                            $query->where(function ($q) use ($request) {
+                                $q->where('name', 'like', '%' . $request->search . '%');
+                            });
+                        }
+                    }])
+                    ->first();
 
                 if ($battery) {
                     foreach ($battery->batteries as $batt) {
@@ -115,11 +153,24 @@ class Filter extends Controller
                 });
             }
 
-            $sortedDetails = $details
-                ->sortByDesc('is_max_price')
-                ->sortByDesc('is_min_price')
-                ->values();
-
+            if ($request->has('selected_value')) {
+                if ($request->selected_value == 'max-price-order') {
+                    $sortedDetails = $details->sortByDesc('price_retail')->values();
+                } elseif ($request->selected_value == 'min-price-order') {
+                    $sortedDetails = $details->sortBy('price_retail')->values();
+                } elseif ($request->selected_value == 'max-capacity-order') {
+                    $sortedDetails = $details->sortByDesc('standard_cca')->values();
+                } elseif ($request->selected_value == 'min-capacity-order') {
+                    $sortedDetails = $details->sortBy('standard_cca')->values();
+                } else {
+                    $sortedDetails = $details;
+                }
+            } else {
+                $sortedDetails = $details
+                    ->sortByDesc('is_max_price')
+                    ->sortByDesc('is_min_price')
+                    ->values();
+            }
             if ($sortedDetails->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
