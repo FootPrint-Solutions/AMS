@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 // CONTROLLER
 use App\Http\Controllers\Api\Filter;
 use App\Http\Controllers\Api\Battery;
+use App\Http\Controllers\Api\Gallery;
+use App\Http\Controllers\Api\Faq;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,3 +38,9 @@ Route::get('search/battery/{batteryName}', [Filter::class, 'searchBattery']);
 Route::get('battery/random', [Battery::class, 'getRandomBattery']);
 Route::get('battery/category', [Battery::class, 'getBatteryCategory']);
 Route::get('battery/category/{category}', [Battery::class, 'findBatteriesByCategory']);
+
+// Gallery API
+Route::get('gallery', [Gallery::class, 'getAllGallery']);
+
+// FAQ API
+Route::get('faq', [Faq::class, 'getAllFaq']);
