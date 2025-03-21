@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Filter;
 use App\Http\Controllers\Api\Battery;
 use App\Http\Controllers\Api\Gallery;
 use App\Http\Controllers\Api\Faq;
+use App\Http\Controllers\Api\Review;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,3 +45,6 @@ Route::get('gallery', [Gallery::class, 'getAllGallery']);
 
 // FAQ API
 Route::get('faq', [Faq::class, 'getAllFaq']);
+
+// REVIEW API
+Route::get('review', [Review::class, 'getAllReview']);
