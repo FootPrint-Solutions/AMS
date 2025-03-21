@@ -220,6 +220,9 @@ Route::middleware(['auth'])->group(function () {
     // Review
     require __DIR__ . '/web/publish/review.php';
 
+    // Faq
+    require __DIR__ . '/web/publish/faq.php';
+
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
