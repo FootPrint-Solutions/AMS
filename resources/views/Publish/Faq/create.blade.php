@@ -29,7 +29,7 @@
                 {{-- Answer --}}
                 <div class="form-group local-forms">
                     <label for="answer">Answer <span class="login-danger">*</span></label>
-                    <textarea class="form-control" id="answer" name="answer" rows="4" placeholder="Enter answer" required>
+                    <textarea class="form-control" id="answer" name="answer" rows="4" placeholder="Enter answer">
 @isset($data['profile'])
 {{ $data['profile']['answer'] }}
 @endisset
@@ -69,10 +69,17 @@
         </div>
     </div>
 
+    <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     <script>
         $(document).ready(function() {
             $("#faq-form").on("submit", function(event) {
                 event.preventDefault();
+
+                // Validate TinyMCE content
+                if (tinymce.get("answer").getContent().trim() === "") {
+                    alert("Answer field is required.");
+                    return;
+                }
 
                 // Disable button
                 $("#btn-save").attr("disabled", true);
@@ -89,6 +96,10 @@
 
                 // Get FAQ form data.
                 let formData = new FormData($(this)[0]);
+                formData.append("answer", tinymce.get("answer").getContent());
+                formData.append("question", $("#question").val());
+                formData.append("status", $("#status").val());
+                formData.append("id", $("#id").val());
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
@@ -100,6 +111,53 @@
             $("#faq-form").on("reset", function() {
                 goToPage("/faq");
             });
+
+            initTinyMCE("#answer");
         });
+
+        function initTinyMCE(selector) {
+            tinymce.init({
+                selector: selector,
+                height: 500,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                    'bold italic backcolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | help | undo redo',
+                file_picker_types: 'image',
+                automatic_uploads: true,
+                file_picker_callback: (cb, value, meta) => {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.addEventListener('load', () => {
+                            const id = 'blobid' + (new Date()).getTime();
+                            const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            const base64 = reader.result.split(',')[1];
+                            const blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+                            cb(blobInfo.blobUri(), {
+                                title: file.name
+                            });
+                        });
+                        reader.readAsDataURL(file);
+                    });
+                    input.click();
+                },
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+                init_instance_callback: function(editor) {
+                    editor.on('init', function() {
+                        // Add your loading effect code 
+                    });
+                }
+            });
+        }
     </script>
 @endsection
