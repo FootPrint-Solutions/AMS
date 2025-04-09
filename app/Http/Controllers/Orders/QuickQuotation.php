@@ -786,8 +786,8 @@ $arrayBattery
                         'name' => $request->input('FullName'),
                         'address' => $request->input('AddressCustomer'),
                         'contact' => $request->input('ContactNumber'),
-                        'latitude' => $request->input('Latitude'),
-                        'longitude' => $request->input('Longitude')
+                        'latitude' => $request->input('Latitude') ?? 0,
+                        'longitude' => $request->input('Longitude') ?? 0,
                     ]
                 );
                 $tes = "TIDAK";
@@ -818,8 +818,8 @@ $arrayBattery
                 'status' => "draft",
                 'address' => $request->input('AddressCustomer'),
                 'alternative_address' => $request->input('alternative_address'),
-                'latitude' => $request->input('Latitude'),
-                'longitude' => $request->input('Longitude'),
+                'latitude' => $request->input('Latitude') ?? 0,
+                'longitude' => $request->input('Longitude') ?? 0,
                 'date' => date('Y-m-d')
             ];
 
