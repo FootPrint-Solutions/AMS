@@ -703,35 +703,33 @@ class Battery extends Controller
                         // check file compressed is exists
                         $compressedPath = $compressedDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.png';
 
-                        if (file_exists($compressedPath)) {
-                            Log::info("Compressed file already exists: " . $compressedPath);
-                            continue;
+                        if (!file_exists($compressedPath)) {
+                            // Proses PNG
+                            $img = Image::make($originalPath)->encode('png', 80);
+                            $img->resize(100, 100, function ($constraint) {
+                                $constraint->aspectRatio();
+                            });
+
+                            $compressedPath = $compressedDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.png';
+                            $img->save($compressedPath);
+
+                            Log::info("Compressed PNG: " . $compressedPath);
+                        } else {
+                            Log::info("Compressed PNG already exists: " . $compressedPath);
                         }
-
-                        // Proses PNG
-                        $img = Image::make($originalPath)->encode('png', 80);
-                        $img->resize(100, 100, function ($constraint) {
-                            $constraint->aspectRatio();
-                        });
-
-                        $compressedPath = $compressedDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.png';
-                        $img->save($compressedPath);
-
-                        Log::info("Compressed PNG: " . $compressedPath);
 
                         // check file webp is exists
                         $webPPath = $webpDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp';
-                        if (file_exists($webPPath)) {
-                            Log::info("WebP file already exists: " . $webPPath);
-                            continue;
+                        if (!file_exists($webPPath)) {
+                            // Proses WebP
+                            $img_webp = Image::make($originalPath)->encode('webp', 100);
+                            $webPPath = $webpDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp';
+                            $img_webp->save($webPPath);
+
+                            Log::info("Compressed WebP: " . $webPPath);
+                        } else {
+                            Log::info("Compressed WebP file already exists: " . $webPPath);
                         }
-
-                        // Proses WebP
-                        $img_webp = Image::make($originalPath)->encode('webp', 100);
-                        $webPPath = $webpDir . '/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp';
-                        $img_webp->save($webPPath);
-
-                        Log::info("Compressed WebP: " . $webPPath);
                     } catch (\Exception $e) {
                         Log::error("Image processing error: " . $e->getMessage());
                     }
