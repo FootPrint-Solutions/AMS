@@ -97,10 +97,10 @@ class Filter extends Controller
                             $query->where('price_retail', '<=', $request->max_price);
                         }
                         if ($request->has('min_capacity')) {
-                            $query->where('standard_cca', '>=', $request->min_capacity);
+                            $query->where('capacity', '>=', $request->min_capacity);
                         }
                         if ($request->has('max_capacity')) {
-                            $query->where('standard_cca', '<=', $request->max_capacity);
+                            $query->where('capacity', '<=', $request->max_capacity);
                         }
 
                         if ($request->has('selected_value')) {
@@ -109,9 +109,9 @@ class Filter extends Controller
                             } elseif ($request->selected_value == 'min-price-order') {
                                 $query->orderBy('price_retail', 'asc');
                             } elseif ($request->selected_value == 'max-capacity-order') {
-                                $query->orderBy('standard_cca', 'desc');
+                                $query->orderBy('capacity', 'desc');
                             } elseif ($request->selected_value == 'min-capacity-order') {
-                                $query->orderBy('standard_cca', 'asc');
+                                $query->orderBy('capacity', 'asc');
                             }
                         }
 
@@ -133,7 +133,7 @@ class Filter extends Controller
             $details = collect($details)->unique('id')->values();
 
             $minPriceBattery = $details->sortBy('price_retail')->first();
-            $highestCCABattery = $details->sortByDesc('standard_cca')->first();
+            $highestCCABattery = $details->sortByDesc('capacity')->first();
 
             if ($minPriceBattery) {
                 $details = $details->map(function ($item) use ($minPriceBattery) {
@@ -159,9 +159,9 @@ class Filter extends Controller
                 } elseif ($request->selected_value == 'min-price-order') {
                     $sortedDetails = $details->sortBy('price_retail')->values();
                 } elseif ($request->selected_value == 'max-capacity-order') {
-                    $sortedDetails = $details->sortByDesc('standard_cca')->values();
+                    $sortedDetails = $details->sortByDesc('capacity')->values();
                 } elseif ($request->selected_value == 'min-capacity-order') {
-                    $sortedDetails = $details->sortBy('standard_cca')->values();
+                    $sortedDetails = $details->sortBy('capacity')->values();
                 } else {
                     $sortedDetails = $details;
                 }
