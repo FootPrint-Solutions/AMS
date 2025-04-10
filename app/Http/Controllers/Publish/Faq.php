@@ -88,7 +88,7 @@ class Faq extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $faq->question;
-            $row[] = $faq->answer;
+            $row[] = preg_replace('/<img[^>]*>/', '[Image]', $faq->answer);
             // $row[] = $faq->status ? 'Active' : 'Inactive';
             $row[] = $faq->id;
             $rows[] = $row;

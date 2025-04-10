@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Profile\Profile;
+use App\Http\Controllers\Profile;
 
 Route::get('/profile', [Profile::class, 'index'])->name('profile.index');
 Route::post('/profile/update', [Profile::class, 'update'])->name('profile.update');
