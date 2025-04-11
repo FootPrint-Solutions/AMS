@@ -39,6 +39,15 @@
             </div>
             <div class="col-lg-6">
                 <div class="mb-3 form-group local-forms">
+                    <label class="form-label">Coordinates latitude and longitude
+                    </label>
+                    <input type="text" class="form-control" id="cordinates_mobile" name="cordinates_mobile"
+                        pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$" onkeyup="sanitizeCoordinatesMobile(this)"
+                        onfocus="sanitizeCoordinatesMobile(this)" required autocomplete="off">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="mb-3 form-group local-forms">
                     <label class="form-label">Alternative Address ( Pin Location )
                     </label>
                     <input type="text" class="form-control" id="address_input_mobile_alternative"
@@ -138,6 +147,27 @@
 
 
 <script>
+    function sanitizeCoordinatesMobile(input) {
+        let value = input.value.replace(/[^0-9.,-]/g, '');
+        let parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts[1];
+        }
+
+        let coordinates = value.split(',');
+        if (coordinates.length == 2) {
+            let latitude = coordinates[0].trim();
+            let longitude = coordinates[1].trim();
+            $("#latitude_input_mobile").val(latitude);
+            $("#longitude_input_mobile").val(longitude);
+        } else {
+            $("#latitude_input_mobile").val('');
+            $("#longitude_input_mobile").val('');
+        }
+
+        input.value = value;
+    }
+
     function showMapsDistributorMobile() {
         var address = $('#address_input_mobile').val();
         var latitude = $('#latitude_input_mobile').val();
