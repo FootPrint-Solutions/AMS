@@ -56,8 +56,18 @@
                     <option value="">Select Distributor Shop</option>
                 </select>
 
-                <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
-                    Maps Distributor Shop</button>
+                {{-- <button type="button" class="btn btn-primary" id="btnShowMaps" onclick="showMapsDistributor()">Show
+                    Maps Distributor Shop</button> --}}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="form-group local-forms">
+                <label>Coordinates latitude and longitude</label>
+                <input type="text" class="form-control" id="cordinates" name="cordinates"
+                    placeholder="Enter Coordinates" value="" pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$"
+                    title="Please enter valid coordinates in the format: latitude, longitude (e.g., -6.8806598931788505, 107.53427163803686)"
+                    onkeyup="sanitizeCoordinates(this)" onfocus="sanitizeCoordinates(this)" required autocomplete="off">
             </div>
         </div>
 
@@ -122,6 +132,28 @@
 
 
 <script>
+    function sanitizeCoordinates(input) {
+        let value = input.value.replace(/[^0-9.,-]/g, '');
+        let parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts[1];
+        }
+
+        let coordinates = value.split(',');
+        if (coordinates.length == 2) {
+            let latitude = coordinates[0].trim();
+            let longitude = coordinates[1].trim();
+            $("#Latitude").val(latitude);
+            $("#Longitude").val(longitude);
+        } else {
+            $("#Latitude").val('');
+            $("#Longitude").val('');
+        }
+
+        input.value = value;
+    }
+
+
     $("#btnCopyDetailProduct").click(function() {
         var FullName = $("#FullName").val();
         var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
