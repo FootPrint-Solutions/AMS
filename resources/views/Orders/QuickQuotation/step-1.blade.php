@@ -579,6 +579,8 @@
             }
         }
 
+        $('#btnSelectAllBattery').prop('disabled', true);
+
         $.ajax({
             url: "/quotation/vehicle/find",
             type: "GET",
@@ -750,6 +752,7 @@
                     });
                     html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);
+                    $('#btnSelectAllBattery').prop('disabled', false);
                 }
             }
         });
