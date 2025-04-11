@@ -120,124 +120,112 @@
 
     <script>
         $(document).ready(function() {
-            $.ajax({
-                url: "/dashboard/chart/revenue",
-                type: "GET",
-                success: function(data) {
-                    var rupiahFormatter = new Intl.NumberFormat('id-ID', {
-                        style: 'currency',
-                        currency: 'IDR',
-                        minimumFractionDigits: 0
-                    });
+            var rupiahFormatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            });
 
-                    // Extract dates and formatted totals from data
-                    var dates = data.map(function(d) {
-                        // Format date if necessary
-                        var date = new Date(d.date);
-                        var dateFormatter = new Intl.DateTimeFormat('id-ID', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        });
-                        return dateFormatter.format(date);
-                    });
+            var chartRevenueMobile; // Store chart instance
 
-                    var totals = data.map(function(d) {
-                        return rupiahFormatter.format(d.total);
-                    });
+            function renderRevenueChartMobile(data) {
+                const dates = data.map(d => new Intl.DateTimeFormat('id-ID', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(new Date(d.date)));
 
-                    // Chart configuration
-                    var options = {
-                        series: [{
-                            name: "Revenue",
-                            data: data.map(function(d) {
-                                return d.total;
-                            }) // use raw totals for chart data
-                        }],
-                        chart: {
-                            height: 350,
-                            type: 'line',
-                            zoom: {
-                                enabled: false
-                            },
-                            // color 
-                            foreColor: 'white',
-                            toolbar: {
-                                show: false
-                            }
-                        },
-                        fill: {
-                            colors: ['#F44336', '#E91E63', '#9C27B0']
-                        },
-                        dataLabels: {
+                const totals = data.map(d => d.total);
+
+                const options = {
+                    series: [{
+                        name: "Revenue",
+                        data: totals
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        zoom: {
                             enabled: false
                         },
-                        stroke: {
-                            curve: 'straight'
-                        },
-                        // title: {
-                        //     text: 'Revenue Chart',
-                        //     align: 'left',
-                        //     style: {
-                        //         fontSize: '16px',
-                        //         color: 'white'
-                        //     }
-                        // },
-                        grid: {
-                            row: {
-                                colors: ['#2c3e50', 'transparent'],
-                                opacity: 0.5
-                            },
-                        },
-                        xaxis: {
-                            categories: dates
-                        },
-                        tooltip: {
-                            y: {
-                                formatter: function(value) {
-                                    return rupiahFormatter.format(value);
-                                }
-                            },
-                            style: {
-                                color: '#2c3e50'
-                            },
-                            theme: 'dark'
-                        },
-                        yaxis: {
-                            show: false,
+                        foreColor: 'white',
+                        toolbar: {
+                            show: false
                         }
-                    };
+                    },
+                    fill: {
+                        colors: ['#F44336', '#E91E63', '#9C27B0']
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'smooth'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#2c3e50', 'transparent'],
+                            opacity: 0.5
+                        }
+                    },
+                    xaxis: {
+                        categories: dates
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: value => rupiahFormatter.format(value)
+                        },
+                        theme: 'dark'
+                    },
+                    yaxis: {
+                        show: false
+                    }
+                };
 
-                    // var chart = new ApexCharts(document.querySelector("#chart-revenue"), options);
-                    var chart_mobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"),
-                        options);
-
-                    chart_mobile.render();
-
-                    // sum of total revenue
-                    var total = data.reduce(function(acc, d) {
-                        return acc + d.total;
-                    }, 0);
-
-                    // display total revenue & add count animation effect
-                    $('#value-revenue').text(rupiahFormatter.format(total));
-                    $('#value-revenue').each(function() {
-                        var $this = $(this);
-                        jQuery({
-                            Counter: 0
-                        }).animate({
-                            Counter: $this.text().replace(/\D/g, '')
-                        }, {
-                            duration: 1000,
-                            easing: 'swing',
-                            step: function() {
-                                $this.text(rupiahFormatter.format(Math.ceil(this
-                                    .Counter)));
-                            }
-                        });
-                    });
+                if (chartRevenueMobile) {
+                    chartRevenueMobile.updateOptions(options);
+                } else {
+                    chartRevenueMobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"), options);
+                    chartRevenueMobile.render();
                 }
-            });
+
+                // Sum of total revenue
+                const total = data.reduce((acc, d) => acc + d.total, 0);
+
+                // Display total revenue with animation
+                $('#value-revenue').text(rupiahFormatter.format(total));
+                $('#value-revenue').each(function() {
+                    const $this = $(this);
+                    jQuery({
+                        Counter: 0
+                    }).animate({
+                        Counter: $this.text().replace(/\D/g, '')
+                    }, {
+                        duration: 1000,
+                        easing: 'swing',
+                        step: function() {
+                            $this.text(rupiahFormatter.format(Math.ceil(this.Counter)));
+                        }
+                    });
+                });
+            }
+
+            function fetchRevenueDataMobile() {
+                $.ajax({
+                    url: "/dashboard/chart/revenue",
+                    type: "POST",
+                    data: {
+                        start_date: $("#start-date").val() || "{{ date('Y-m-d', strtotime('-1 month')) }}",
+                        end_date: $("#end-date").val() || "{{ date('Y-m-d') }}",
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(data) {
+                        renderRevenueChartMobile(data);
+                    }
+                });
+            }
+
+            fetchRevenueDataMobile(); // Initial load
 
             // sales order card click redirect to sales order page
             $('.sales-order-card').click(function() {

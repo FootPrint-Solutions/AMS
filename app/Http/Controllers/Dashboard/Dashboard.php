@@ -43,9 +43,16 @@ class Dashboard extends Controller
      *
      * @return array
      */
-    public function getRevenueChart()
+    public function getRevenueChart(Request $request)
     {
-        $revenue = SalesOrderModel::selectRaw('DATE(date) as date, SUM(total) as total')->groupBy('date')->get();
+        $startDate = $request->input('start_date', Carbon::now()->subDays(30)->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
+
+        $revenue = SalesOrderModel::selectRaw('DATE(date) as date, SUM(total) as total')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
 
         $data = [];
         foreach ($revenue as $r) {
