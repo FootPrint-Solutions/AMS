@@ -319,10 +319,11 @@
                     return false;
                 }
 
-                // if (Latitude == '' || Longitude == '') {
-                //     swal.fire("Error!", "Please select address from suggestion", "error");
-                //     return false;
-                // }
+                if (Latitude == '' || Longitude == '') {
+                    swal.fire("Error!",
+                        "Please select address from suggestion or fill the coordinate field", "error");
+                    return false;
+                }
 
                 $('#btnNextStep3').trigger('click');
 

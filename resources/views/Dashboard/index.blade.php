@@ -62,6 +62,18 @@
                 <div class="col">
                     <div class="card flex-fill w-100 comman-shadow">
                         <div class="card-body">
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="start-date" class="form-label">Start Date</label>
+                                    <input type="date" id="start-date" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end-date" class="form-label">End Date</label>
+                                    <input type="date" id="end-date" class="form-control">
+                                </div>
+                            </div>
+
                             <div class="loading-spinner" id="chart-loading">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -211,93 +223,99 @@
             });
 
             // ajax chart & configuration for revenue
+        });
 
-            // create loading spinner for chart
+        var rupiahFormatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        var chartRevenue; // Store chart instance
+
+        function renderRevenueChart(data) {
+            const dates = data.map(d => new Intl.DateTimeFormat('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }).format(new Date(d.date)));
+
+            const totals = data.map(d => d.total);
+
+            const options = {
+                series: [{
+                    name: "Revenue",
+                    data: totals
+                }],
+                chart: {
+                    height: 350,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth'
+                },
+                title: {
+                    text: 'Revenue Chart',
+                    align: 'left'
+                },
+                grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'],
+                        opacity: 0.5
+                    }
+                },
+                xaxis: {
+                    categories: dates
+                },
+                tooltip: {
+                    y: {
+                        formatter: value => rupiahFormatter.format(value)
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: value => rupiahFormatter.format(value)
+                    }
+                }
+            };
+
+            if (chartRevenue) {
+                chartRevenue.updateOptions(options);
+            } else {
+                chartRevenue = new ApexCharts(document.querySelector("#chart-revenue"), options);
+                chartRevenue.render();
+            }
+
+            $("#chart-loading").hide();
+            $("#chart-revenue").fadeIn();
+        }
+
+        function fetchRevenueData() {
+            $("#chart-loading").show();
+            $("#chart-revenue").hide();
             $.ajax({
                 url: "/dashboard/chart/revenue",
-                type: "GET",
+                type: "POST",
+                data: {
+                    start_date: $("#start-date").val() || "{{ date('Y-m-d', strtotime('-1 month')) }}",
+                    end_date: $("#end-date").val() || "{{ date('Y-m-d') }}",
+                    _token: "{{ csrf_token() }}"
+                },
                 success: function(data) {
-                    var rupiahFormatter = new Intl.NumberFormat('id-ID', {
-                        style: 'currency',
-                        currency: 'IDR',
-                        minimumFractionDigits: 0
-                    });
-
-                    // Extract dates and formatted totals from data
-                    var dates = data.map(function(d) {
-                        // Format date if necessary
-                        var date = new Date(d.date);
-                        var dateFormatter = new Intl.DateTimeFormat('id-ID', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        });
-                        return dateFormatter.format(date);
-                    });
-
-                    var totals = data.map(function(d) {
-                        return rupiahFormatter.format(d.total);
-                    });
-
-                    // Chart configuration
-                    var options = {
-                        series: [{
-                            name: "Revenue",
-                            data: data.map(function(d) {
-                                return d.total;
-                            }) // use raw totals for chart data
-                        }],
-                        chart: {
-                            height: 350,
-                            type: 'line',
-                            zoom: {
-                                enabled: false
-                            }
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            curve: 'straight'
-                        },
-                        title: {
-                            text: 'Revenue Chart',
-                            align: 'left'
-                        },
-                        grid: {
-                            row: {
-                                colors: ['#f3f3f3', 'transparent'],
-                                opacity: 0.5
-                            },
-                        },
-                        xaxis: {
-                            categories: dates
-                        },
-                        tooltip: {
-                            y: {
-                                formatter: function(value) {
-                                    return rupiahFormatter.format(value);
-                                }
-                            }
-                        },
-                        yaxis: {
-                            labels: {
-                                formatter: function(value) {
-                                    return rupiahFormatter.format(value);
-                                }
-                            }
-                        }
-                    };
-
-                    var chart = new ApexCharts(document.querySelector("#chart-revenue"), options);
-                    $("#chart-loading").hide();
-                    $("#chart-revenue").fadeIn();
-                    var chart_mobile = new ApexCharts(document.querySelector("#chart-revenue-mobile"),
-                        options);
-
-                    chart.render();
+                    renderRevenueChart(data);
                 }
             });
+        }
+
+        $(document).ready(function() {
+            fetchRevenueData(); // initial load
+            $("#start-date, #end-date").on("change", fetchRevenueData); // update on change
         });
     </script>
 @endsection

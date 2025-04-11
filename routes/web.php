@@ -97,7 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [Dashboard::class, 'index'])->name('dashboard');
     Route::get('/auth', [Authentication::class, 'index'])->name('auth.index');
     Route::get('/dashboard', [Dashboard::class, 'index']);
-    Route::get('/dashboard/chart/revenue', [Dashboard::class, 'getRevenueChart']);
+    Route::post('/dashboard/chart/revenue', [Dashboard::class, 'getRevenueChart']);
 
     // MASTER DATA
     // Company
