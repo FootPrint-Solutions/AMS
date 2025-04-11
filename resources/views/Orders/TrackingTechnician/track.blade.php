@@ -85,7 +85,7 @@
 
 {{-- Google Maps API --}}
 <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAlBnX9jmy3JurAGnyIAFNSyS7i5cgfzA&libraries=places&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBR3Yg_71CuguqVxUXnUmxGI1pEPr4Cqmg&libraries=places&callback=initMap">
 </script>
 
 {{-- JavaScript --}}
