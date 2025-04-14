@@ -100,6 +100,12 @@
         height: 55px;
     }
 
+    #btn-multiple-print-purchase-order {
+        background-color: rgb(38, 64, 105);
+        color: rgb(256, 256, 256);
+        height: 55px;
+    }
+
     #btn-purchase-order {
         background-color: rgb(38, 64, 105);
         color: rgb(256, 256, 256);
