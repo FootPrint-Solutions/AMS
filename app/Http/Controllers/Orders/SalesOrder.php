@@ -850,4 +850,46 @@ class SalesOrder extends Controller
             'data' => $poNumber
         ]);
     }
+
+    public function multiplePurchaseOrder()
+    {
+        $ids = request()->input('salesOrderIds', []);
+        $salesOrders = SalesOrderModel::whereIn('id', $ids)->get();
+        $poNumbers = [];
+
+        foreach ($salesOrders as $salesOrder) {
+            $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
+            $poNumbers[] = [
+                'id' => $salesOrder->id,
+                'po_number' => $poNumber
+            ];
+        }
+
+        return response()->json([
+            'status' => "success",
+            'message' => "Success get purchase order numbers",
+            'data' => $poNumbers
+        ]);
+    }
+
+    public function multiplePrintPurchaseOrder($ids)
+    {
+        $ids = explode(",", $ids);
+        $salesOrders = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->whereIn('id', $ids)->get();
+        foreach ($salesOrders as $salesOrder) {
+            $shopName = $salesOrder->shop->name ?? null;
+            $shopId = $salesOrder->shop->id ?? null;
+        }
+
+        return view(
+            'Orders.SalesOrder.print.multiple-purchase-order',
+            getIndexData(
+                $this->title,
+                array(
+                    "profile" => $salesOrders->toArray(),
+                    "company" => CompanyModel::first(),
+                )
+            )
+        );
+    }
 }
