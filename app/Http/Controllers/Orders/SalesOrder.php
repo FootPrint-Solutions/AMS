@@ -356,9 +356,9 @@ class SalesOrder extends Controller
             // Update sales order data.
             $salesOrder = SalesOrderModel::find($request->id);
 
-            if ($salesOrder->status !== 'draft') {
-                return getResponseData(false, "Unable to edit posted Sales Order.");
-            }
+            // if ($salesOrder->status !== 'draft') {
+            //     return getResponseData(false, "Unable to edit posted Sales Order.");
+            // }
 
             $salesOrder->date = $request->date;
 
