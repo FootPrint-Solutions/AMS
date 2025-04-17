@@ -124,7 +124,6 @@ class Faq extends Controller
                 'question' => 'required|string|max:255',
                 'answer' => 'required|string',
                 'status' => 'required|boolean',
-                'id' => 'required|exists:faqs,id',
             ]);
 
             if ($validator->fails()) {
@@ -136,22 +135,18 @@ class Faq extends Controller
             $faq->question = $request->input('question');
             $faq->answer = $request->input('answer');
             $faq->status = $request->input('status');
-            $status = $faq->save();
+            $faq->save();
 
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
+            DB::commit();
             return getResponseData(
-                $status,
-                $status ? "The FAQ was successfully updated!" : "Failed to update the FAQ!"
+                true,
+                "The FAQ was successfully updated!"
             );
         } catch (\Throwable $th) {
             DB::rollBack();
             return getResponseData(
                 false,
-                "Failed to update the FAQ!",
+                "Failed to update the FAQ!" . $th->getMessage(),
                 $th->getMessage()
             );
         }
