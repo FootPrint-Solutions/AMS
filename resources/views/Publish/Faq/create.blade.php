@@ -51,7 +51,7 @@
 
                 {{-- Hidden Inputs --}}
                 @isset($data['profile'])
-                    <input type="hidden" name="id" value="{{ $data['profile']['id'] }}">
+                    <input type="hidden" name="id" id="id" value="{{ $data['profile']['id'] }}">
                 @endisset
 
                 {{-- Buttons --}}
