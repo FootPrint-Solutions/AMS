@@ -158,12 +158,14 @@ class BatteryModel extends Model implements Auditable
             'price_retail',
             'name_alternate',
             'status',
+            'type',
             'battery_codes.code'
         ];
         $searchColumns = [
             'name',
             'name_alternate',
             'status',
+            'type',
             'battery_codes.code'
         ];
 
@@ -183,6 +185,10 @@ class BatteryModel extends Model implements Auditable
 
         if (isset($request->status) && $request->status !== 'all' && $request->status !== '') {
             $query->where('status', $request->status);
+        }
+
+        if (isset($request->type) && $request->type !== 'all' && $request->type !== '') {
+            $query->where('type', $request->type);
         }
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'batteries.updated_at', 'direction' => 'desc']);
