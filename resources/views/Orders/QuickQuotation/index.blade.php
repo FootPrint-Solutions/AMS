@@ -363,115 +363,121 @@
 
 
             $("#btnNextStep4").on('click', function() {
-                // $('#btnNextStep4').trigger('click');
-                var BatteryIdCheckout = [];
-                $(".BatteryIdCheckout").each(function() {
-                    var value = $(this).val();
-                    BatteryIdCheckout.push(value);
-                });
-
-                // jika BatteryIdCheckout kosong 
-                if (BatteryIdCheckout.length == 0) {
-                    swal.fire("Error!", "Please select battery", "error");
-                    return false;
-                }
-
-
-                if ($('#PaymentDisplay').hasClass('active')) {
-                    var FullName = $("#FullName").val();
-                    var EmailCustomer = $("#EmailCustomer").val();
-                    var ContactNumber = $("#ContactNumber").val();
-                    var AddressCustomer = $("#AddressCustomer").val();
-                    var VehicleCustomer = $("#VehicleCustomer").val();
-                    var TemplateMessage = $("#TemplateMessage").val();
-                    var Latitude = $("#Latitude").val();
-                    var Longitude = $("#Longitude").val();
-                    var IdCustomer = $("#IdCustomer").val();
-                    var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                        return $(this).val();
-                    }).get();
-                    var TotalAmount = $("#TotalAmountHidden").val();
-                    var tax = $("#tax").val();
-                    var Discount = $("#discount").val();
-                    var ExtraDiscount = $("#Extradiscount").val();
-                    var QtyTabel = [];
-                    var PriceTabel = [];
-                    var BatteryNameTabel = [];
-                    var Platform = [];
-                    var LinkTokopedia = [];
+                    // $('#btnNextStep4').trigger('click');
                     var BatteryIdCheckout = [];
-                    var GrossPrice = [];
-                    var DiscountRow = [];
-                    var NetPrice = [];
-                    var SubtotalRow = [];
-                    var TaxRow = [];
-                    var TaxPriceRow = [];
-                    $(".QtyCheckout").each(function() {
-                        var value = $(this).val();
-                        QtyTabel.push(value);
-                    });
-
-                    $(".PriceCheckout").each(function() {
-                        var value = $(this).val();
-                        PriceTabel.push(value);
-                    });
-
-                    $(".BatteryNameCheckout").each(function() {
-                        var value = $(this).val();
-                        BatteryNameTabel.push(value);
-                    });
-
-                    $(".LinkTokopedia").each(function() {
-                        var value = $(this).val();
-                        LinkTokopedia.push(value);
-                    });
-                    var DistributorShopId = $("#DistributorShopId").val();
-
-                    $(".Platform").each(function() {
-                        var value = $(this).val();
-                        Platform.push(value);
-                    });
-
                     $(".BatteryIdCheckout").each(function() {
                         var value = $(this).val();
                         BatteryIdCheckout.push(value);
                     });
 
-                    $(".GrossPrice").each(function() {
-                        var value = $(this).val();
-                        GrossPrice.push(value);
-                    });
+                    // jika BatteryIdCheckout kosong 
+                    if (BatteryIdCheckout.length == 0) {
+                        swal.fire("Error!", "Please select battery", "error");
+                        return false;
+                    }
 
-                    $(".DiscountRow").each(function() {
-                        var value = $(this).val();
-                        DiscountRow.push(value);
-                    });
 
-                    $(".NetPrice").each(function() {
-                        var value = $(this).val();
-                        NetPrice.push(value);
-                    });
+                    if ($('#PaymentDisplay').hasClass('active')) {
+                        var FullName = $("#FullName").val();
+                        var EmailCustomer = $("#EmailCustomer").val();
+                        var ContactNumber = $("#ContactNumber").val();
+                        var AddressCustomer = $("#AddressCustomer").val();
+                        var VehicleCustomer = $("#VehicleCustomer").val();
+                        var TemplateMessage = $("#TemplateMessage").val();
+                        var Latitude = $("#Latitude").val();
+                        var Longitude = $("#Longitude").val();
+                        var IdCustomer = $("#IdCustomer").val();
+                        var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                            return $(this).val();
+                        }).get();
+                        var TotalAmount = $("#TotalAmountHidden").val();
+                        var tax = $("#tax").val();
+                        var Discount = $("#discount").val();
+                        var ExtraDiscount = $("#Extradiscount").val();
+                        var QtyTabel = [];
+                        var PriceTabel = [];
+                        var BatteryNameTabel = [];
+                        var Platform = [];
+                        var LinkTokopedia = [];
+                        var BatteryIdCheckout = [];
+                        var GrossPrice = [];
+                        var DiscountRow = [];
+                        var NetPrice = [];
+                        var SubtotalRow = [];
+                        var TaxRow = [];
+                        var TaxPriceRow = [];
+                        $(".QtyCheckout").each(function() {
+                            var value = $(this).val();
+                            QtyTabel.push(value);
+                        });
 
-                    $(".SubtotalRow").each(function() {
-                        var value = $(this).val();
-                        SubtotalRow.push(value);
-                    });
+                        $(".PriceCheckout").each(function() {
+                            var value = $(this).val();
+                            PriceTabel.push(value);
+                        });
 
-                    $(".TaxRow").each(function() {
-                        var value = $(this).val();
-                        TaxRow.push(value);
-                    });
+                        $(".BatteryNameCheckout").each(function() {
+                            var value = $(this).val();
+                            BatteryNameTabel.push(value);
+                        });
 
-                    $(".PriceTaxRow").each(function() {
-                        var value = $(this).val();
-                        TaxPriceRow.push(value);
-                    });
+                        $(".LinkTokopedia").each(function() {
+                            var value = $(this).val();
+                            LinkTokopedia.push(value);
+                        });
+                        var DistributorShopId = $("#DistributorShopId").val();
 
-                    var subtotal = $("#subtotal").val();
-                    var DiscountRupiah = $("#discount-rupiah").val();
-                    var DiscountPercentage = $("#discount-percent").val();
-                    var typeDiscount = $("#type-discount").val();
-                    var alternative_address = $("#alternative_address").val();
+                        $(".Platform").each(function() {
+                            var value = $(this).val();
+                            Platform.push(value);
+                        });
+
+                        $(".BatteryIdCheckout").each(function() {
+                            var value = $(this).val();
+                            BatteryIdCheckout.push(value);
+                        });
+
+                        $(".GrossPrice").each(function() {
+                            var value = $(this).val();
+                            GrossPrice.push(value);
+                        });
+
+                        $(".DiscountRow").each(function() {
+                            var value = $(this).val();
+                            DiscountRow.push(value);
+                        });
+
+                        $(".NetPrice").each(function() {
+                            var value = $(this).val();
+                            NetPrice.push(value);
+                        });
+
+                        $(".SubtotalRow").each(function() {
+                            var value = $(this).val();
+                            SubtotalRow.push(value);
+                        });
+
+                        $(".TaxRow").each(function() {
+                            var value = $(this).val();
+                            TaxRow.push(value);
+                        });
+
+                        $(".PriceTaxRow").each(function() {
+                            var value = $(this).val();
+                            TaxPriceRow.push(value);
+                        });
+
+                        var subtotal = $("#subtotal").val();
+                        var DiscountRupiah = $("#discount-rupiah").val();
+                        var DiscountPercentage = $("#discount-percent").val();
+                        var typeDiscount = $("#type-discount").val();
+                        var alternative_address = $("#alternative_address").val();
+
+                        if (TotalAmount <= 0) {
+                            swal.fire("Error!", "Total Amount must be greater than 0", "error");
+                            return false;
+                        }
+                    }
 
                     var data = {
                         FullName: FullName,
@@ -520,405 +526,405 @@
             });
 
 
-            $("#BtnShareInvoice").on('click', function() {
-                var button = $(this);
-                button.prop('disabled', true);
-                button.html(
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
-                );
+        $("#BtnShareInvoice").on('click', function() {
+            var button = $(this);
+            button.prop('disabled', true);
+            button.html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+            );
 
-                var FullName = $("#FullName").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var VehicleCustomer = $('#VehicleCustomer').val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var Battery = [];
-                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
-                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+            var FullName = $("#FullName").val();
+            var ContactNumber = $("#ContactNumber").val();
+            var VehicleCustomer = $('#VehicleCustomer').val();
+            var Latitude = $("#Latitude").val();
+            var Longitude = $("#Longitude").val();
+            var AddressCustomer = $("#AddressCustomer").val();
+            var Battery = [];
+            var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+            var PriceTabel = []; // Menambahkan array untuk menyimpan harga
 
-                $(".add-table-items tbody tr").each(function() {
-                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='NetPrice[]']").val();
-                    Battery.push({
-                        batteryName: batteryName,
-                        quantity: quantity,
-                        price: price
-                    });
-                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
-                    PriceTabel.push(price); // Menambahkan harga ke dalam array
+            $(".add-table-items tbody tr").each(function() {
+                var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                var price = $(this).find("input[name='NetPrice[]']").val();
+                Battery.push({
+                    batteryName: batteryName,
+                    quantity: quantity,
+                    price: price
                 });
-
-                var subtotal = $("#subtotal").val();
-                var tax = $("#tax").val();
-                var discount = $("#discount").val();
-                var TotalAmountHidden = $("#TotalAmountHidden").val();
-                var typeDiscount = $("#type-discount").val();
-
-                var data = {
-                    FullName: FullName,
-                    Battery: Battery,
-                    Subtotal: subtotal,
-                    Tax: tax,
-                    Discount: discount,
-                    TotalAmount: TotalAmountHidden,
-                    ContactNumber: ContactNumber,
-                    VehicleCustomer: VehicleCustomer,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    AddressCustomer: AddressCustomer,
-                    typeDiscount: typeDiscount,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                };
-
-                if (Battery.length === 0) { // Mengubah pengecekan Battery menjadi Battery.length
-                    swal.fire("Error!", "Please select battery", "error");
-                    button.prop('disabled', false);
-                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
-                    return;
-                }
-
-                // Mengubah pengecekan QtyTabel dan PriceTabel
-                if (QtyTabel.some(qty => qty === '' || qty <= 0)) {
-                    swal.fire("Error!", "Please insert quantity", "error");
-                    button.prop('disabled', false);
-                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
-                    return;
-                }
-
-                if (PriceTabel.some(price => price === '' || price <= 0)) {
-                    swal.fire("Error!", "Please insert price", "error");
-                    button.prop('disabled', false);
-                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
-                    return;
-                }
-
-                $.ajax({
-                    url: "/quotation/share-invoice",
-                    type: "POST",
-                    data: data,
-                    success: function(data) {
-                        let ResponseData = JSON.parse(data);
-                        if (ResponseData.status) {
-                            Swal.fire({
-                                title: "Success",
-                                text: ResponseData.message,
-                                icon: "success",
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Error",
-                                text: ResponseData.message ||
-                                    "Something went wrong, please try again later",
-                                icon: "error",
-                            });
-                        }
-                    },
-                    complete: function() {
-                        button.prop('disabled', false);
-                        button.html("<i class='fa-brands fa-whatsapp'></i> Share");
-                    }
-                });
+                QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                PriceTabel.push(price); // Menambahkan harga ke dalam array
             });
 
-            $("#BtnSharePaymentDetails").on('click', function() {
-                var button = $(this);
-                button.prop('disabled', true);
-                button.html(
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
-                );
+            var subtotal = $("#subtotal").val();
+            var tax = $("#tax").val();
+            var discount = $("#discount").val();
+            var TotalAmountHidden = $("#TotalAmountHidden").val();
+            var typeDiscount = $("#type-discount").val();
 
-                var FullName = $("#FullName").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var VehicleCustomer = $('#VehicleCustomer').val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var Battery = [];
-                var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
-                var PriceTabel = []; // Menambahkan array untuk menyimpan harga
-                var links = [];
-                var Battery = [];
-                var InvoiceNumber = $("#invoiceNumber").val();
-                // $(".add-table-items tbody tr").each(function() {
-                //     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-                //     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                //     var price = $(this).find("input[name='PriceCheckout[]']").val();
-                //     Battery.push({
-                //         batteryName: batteryName,
-                //         quantity: quantity,
-                //         price: price
-                //     });
-                // });
-                var IsMidtrans = $("#CheckMidtrans").prop("checked");
-                if (IsMidtrans) {
-                    var linkMidtrans = $("#LinkPaymentMidtrans").val();
-                    links.push(linkMidtrans);
-                    var IsMidtrans = "midtrans";
-                } else {
-                    $(".LinkPayment").each(function() {
-                        var value = $(this).val();
-                        links.push(value);
-                    });
-                    var IsMidtrans = "not midtrans";
-                }
-                $(".add-table-items tbody tr").each(function() {
-                    var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
-                    var quantity = $(this).find("input[name='QtyCheckout[]']").val();
-                    var price = $(this).find("input[name='NetPrice[]']").val();
-                    Battery.push({
-                        batteryName: batteryName,
-                        quantity: quantity,
-                        price: price
-                    });
-                    QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
-                    PriceTabel.push(price); // Menambahkan harga ke dalam array
-                });
+            var data = {
+                FullName: FullName,
+                Battery: Battery,
+                Subtotal: subtotal,
+                Tax: tax,
+                Discount: discount,
+                TotalAmount: TotalAmountHidden,
+                ContactNumber: ContactNumber,
+                VehicleCustomer: VehicleCustomer,
+                Latitude: Latitude,
+                Longitude: Longitude,
+                AddressCustomer: AddressCustomer,
+                typeDiscount: typeDiscount,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
 
-                var subtotal = $("#subtotal").val();
-                var tax = $("#tax").val();
-                var discount = $("#discount").val();
-                var TotalAmountHidden = $("#TotalAmountHidden").val();
-                var PaymentMethod = $("#PaymentMethod").val();
-                var typeDiscount = $("#type-discount").val();
+            if (Battery.length === 0) { // Mengubah pengecekan Battery menjadi Battery.length
+                swal.fire("Error!", "Please select battery", "error");
+                button.prop('disabled', false);
+                button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                return;
+            }
 
-                var data = {
-                    FullName: FullName,
-                    ContactNumber: ContactNumber,
-                    Battery: Battery,
-                    InvoiceNumber: InvoiceNumber,
-                    IsMidtrans: IsMidtrans,
-                    links: links,
-                    Subtotal: subtotal,
-                    Tax: tax,
-                    Discount: discount,
-                    TotalAmount: TotalAmountHidden,
-                    VehicleCustomer: VehicleCustomer,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    AddressCustomer: AddressCustomer,
-                    PaymentMethod: PaymentMethod,
-                    typeDiscount: typeDiscount,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                };
+            // Mengubah pengecekan QtyTabel dan PriceTabel
+            if (QtyTabel.some(qty => qty === '' || qty <= 0)) {
+                swal.fire("Error!", "Please insert quantity", "error");
+                button.prop('disabled', false);
+                button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                return;
+            }
 
-                $.ajax({
-                    url: "/quotation/share-payment-details",
-                    type: "POST",
-                    data: data,
-                    success: function(data) {
-                        let ResponseData = JSON.parse(data);
-                        if (ResponseData.status) {
-                            Swal.fire({
-                                title: "Success",
-                                text: ResponseData.message,
-                                icon: "success",
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Error",
-                                text: ResponseData.message ||
-                                    "Something went wrong, please try again later",
-                                icon: "error",
-                            });
-                        }
-                    },
-                    complete: function() {
-                        button.prop('disabled', false);
-                        button.html(
-                            "<i class='fa-brands fa-whatsapp'></i> Share"
-                        );
+            if (PriceTabel.some(price => price === '' || price <= 0)) {
+                swal.fire("Error!", "Please insert price", "error");
+                button.prop('disabled', false);
+                button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                return;
+            }
+
+            $.ajax({
+                url: "/quotation/share-invoice",
+                type: "POST",
+                data: data,
+                success: function(data) {
+                    let ResponseData = JSON.parse(data);
+                    if (ResponseData.status) {
+                        Swal.fire({
+                            title: "Success",
+                            text: ResponseData.message,
+                            icon: "success",
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: ResponseData.message ||
+                                "Something went wrong, please try again later",
+                            icon: "error",
+                        });
                     }
+                },
+                complete: function() {
+                    button.prop('disabled', false);
+                    button.html("<i class='fa-brands fa-whatsapp'></i> Share");
+                }
+            });
+        });
+
+        $("#BtnSharePaymentDetails").on('click', function() {
+            var button = $(this);
+            button.prop('disabled', true);
+            button.html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+            );
+
+            var FullName = $("#FullName").val();
+            var ContactNumber = $("#ContactNumber").val();
+            var VehicleCustomer = $('#VehicleCustomer').val();
+            var Latitude = $("#Latitude").val();
+            var Longitude = $("#Longitude").val();
+            var AddressCustomer = $("#AddressCustomer").val();
+            var Battery = [];
+            var QtyTabel = []; // Menambahkan array untuk menyimpan kuantitas
+            var PriceTabel = []; // Menambahkan array untuk menyimpan harga
+            var links = [];
+            var Battery = [];
+            var InvoiceNumber = $("#invoiceNumber").val();
+            // $(".add-table-items tbody tr").each(function() {
+            //     var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+            //     var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+            //     var price = $(this).find("input[name='PriceCheckout[]']").val();
+            //     Battery.push({
+            //         batteryName: batteryName,
+            //         quantity: quantity,
+            //         price: price
+            //     });
+            // });
+            var IsMidtrans = $("#CheckMidtrans").prop("checked");
+            if (IsMidtrans) {
+                var linkMidtrans = $("#LinkPaymentMidtrans").val();
+                links.push(linkMidtrans);
+                var IsMidtrans = "midtrans";
+            } else {
+                $(".LinkPayment").each(function() {
+                    var value = $(this).val();
+                    links.push(value);
                 });
+                var IsMidtrans = "not midtrans";
+            }
+            $(".add-table-items tbody tr").each(function() {
+                var batteryName = $(this).find("input[name='BatteryNameCheckout[]']").val();
+                var quantity = $(this).find("input[name='QtyCheckout[]']").val();
+                var price = $(this).find("input[name='NetPrice[]']").val();
+                Battery.push({
+                    batteryName: batteryName,
+                    quantity: quantity,
+                    price: price
+                });
+                QtyTabel.push(quantity); // Menambahkan kuantitas ke dalam array
+                PriceTabel.push(price); // Menambahkan harga ke dalam array
             });
 
-            $("#ButtonSaveData").on('click', function() {
-                var button = $(this);
-                button.prop('disabled', true);
-                button.html(
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
-                );
+            var subtotal = $("#subtotal").val();
+            var tax = $("#tax").val();
+            var discount = $("#discount").val();
+            var TotalAmountHidden = $("#TotalAmountHidden").val();
+            var PaymentMethod = $("#PaymentMethod").val();
+            var typeDiscount = $("#type-discount").val();
 
-                var FullName = $("#FullName").val();
-                var EmailCustomer = $("#EmailCustomer").val();
-                var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
-                var VehicleCustomer = $("#VehicleCustomer").val();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
-                var IdCustomer = $("#IdCustomer").val();
-                var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
-                    return $(this).val();
-                }).get();
-                var TotalAmount = $("#TotalAmountHidden").val();
-                var tax = $("#tax").val();
-                var Discount = $("#discount").val();
-                var ExtraDiscount = $("#Extradiscount").val();
-                var invoiceNumber = $("#invoiceNumber").val();
-                var techniciansName = $("#techniciansName").val();
-                var subtotal = $("#subtotal").val();
-                if ($('.CheckMidtrans').is(':checked')) {
-                    var CheckMidtrans = 1;
-                    var linkPayment = $("#LinkPaymentMidtrans").val();
-                } else {
-                    var CheckMidtrans = 0;
-                }
+            var data = {
+                FullName: FullName,
+                ContactNumber: ContactNumber,
+                Battery: Battery,
+                InvoiceNumber: InvoiceNumber,
+                IsMidtrans: IsMidtrans,
+                links: links,
+                Subtotal: subtotal,
+                Tax: tax,
+                Discount: discount,
+                TotalAmount: TotalAmountHidden,
+                VehicleCustomer: VehicleCustomer,
+                Latitude: Latitude,
+                Longitude: Longitude,
+                AddressCustomer: AddressCustomer,
+                PaymentMethod: PaymentMethod,
+                typeDiscount: typeDiscount,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
 
-                var QtyTabel = [];
-                var PriceTabel = [];
-                var BatteryNameTabel = [];
-                var LinkTokopedia = [];
-                var QtyPayment = [];
-                var GrossPricePayment = [];
-                var DiscountPayment = [];
-                var NetPricePayment = [];
-                var SubtotalPayment = [];
-                var TaxPayment = [];
-                var TaxPricePayment = [];
-                var BatteryIdCheckout = [];
-
-                $(".QtyCheckout").each(function() {
-                    var value = $(this).val();
-                    QtyTabel.push(value);
-                });
-
-                $(".PriceCheckout").each(function() {
-                    var value = $(this).val();
-                    PriceTabel.push(value);
-                });
-
-                $(".BatteryNameCheckout").each(function() {
-                    var value = $(this).val();
-                    BatteryNameTabel.push(value);
-                });
-
-                $(".LinkTokopedia").each(function() {
-                    var value = $(this).val();
-                    LinkTokopedia.push(value);
-                });
-
-                $(".QtyPaymentDetails").each(function() {
-                    var value = $(this).val();
-                    QtyPayment.push(value);
-                });
-
-                $(".PricePaymentDetails").each(function() {
-                    var value = $(this).val();
-                    GrossPricePayment.push(value);
-                });
-
-                $(".DiscountPaymentDetails").each(function() {
-                    var value = $(this).val();
-                    DiscountPayment.push(value);
-                });
-
-                $(".NetPricePaymentDetails").each(function() {
-                    var value = $(this).val();
-                    NetPricePayment.push(value);
-                });
-
-                $(".SubtotalPaymentDetails").each(function() {
-                    var value = $(this).val();
-                    SubtotalPayment.push(value);
-                });
-
-                $(".TaxPaymentDetails").each(function() {
-                    var value = $(this).val();
-                    TaxPayment.push(value);
-                });
-
-                $(".PriceTaxPaymentDetails").each(function() {
-                    var value = $(this).val();
-                    TaxPricePayment.push(value);
-                });
-
-                $(".BatteryIdCheckout").each(function() {
-                    var value = $(this).val();
-                    BatteryIdCheckout.push(value);
-                });
-
-                var PaymentMethod = $("#PaymentMethod").val();
-                var DistributorShopId = $("#DistributorShopId").val();
-                var DiscountRupiah = $("#discount-rupiah").val();
-                var DiscountPercentage = $("#discount-percent").val();
-                var typeDiscount = $("#type-discount").val();
-                var alternative_address = $("#alternative_address").val();
-
-                var data = {
-                    FullName: FullName,
-                    EmailCustomer: EmailCustomer,
-                    ContactNumber: ContactNumber,
-                    AddressCustomer: AddressCustomer,
-                    VehicleCustomer: VehicleCustomer,
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    IdCustomer: IdCustomer,
-                    Battery: Battery,
-                    TotalAmount: TotalAmount,
-                    tax: tax,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
-                    BatteryNameTabel: BatteryNameTabel,
-                    QtyTabel: QtyTabel,
-                    PriceTabel: PriceTabel,
-                    Discount: Discount,
-                    ExtraDiscount: ExtraDiscount,
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    DistributorShopId: DistributorShopId,
-                    invoiceNumber: invoiceNumber,
-                    techniciansName: techniciansName,
-                    CheckMidtrans: CheckMidtrans,
-                    linkPayment: LinkTokopedia,
-                    linkMidtrans: linkPayment,
-                    subtotal: subtotal,
-                    DiscountRupiah: DiscountRupiah,
-                    DiscountPercentage: DiscountPercentage,
-                    QtyPayment: QtyPayment,
-                    GrossPricePayment: GrossPricePayment,
-                    DiscountPayment: DiscountPayment,
-                    NetPricePayment: NetPricePayment,
-                    SubtotalPayment: SubtotalPayment,
-                    PaymentMethod: PaymentMethod,
-                    TaxPayment: TaxPayment,
-                    TaxPricePayment: TaxPricePayment,
-                    BatteryIdCheckout: BatteryIdCheckout,
-                    typeDiscount: typeDiscount,
-                    alternative_address: alternative_address
-                };
-
-                $.ajax({
-                    url: "/quotation/save-data",
-                    type: "POST",
-                    data: data,
-                    success: function(data) {
-                        let ResponseData = JSON.parse(data);
-                        if (ResponseData.status) {
-                            Swal.fire({
-                                title: "Success",
-                                text: ResponseData.message,
-                                icon: "success",
-                            });
-                            setTimeout(function() {
-                                window.location.href = "/sales-order";
-                            }, 2000);
-                        } else {
-                            Swal.fire({
-                                title: "Error",
-                                text: ResponseData.message ||
-                                    "Something went wrong, please try again later",
-                                icon: "error",
-                            });
-                        }
-                    },
-                    complete: function() {
-                        button.prop('disabled', false);
-                        button.html(
-                            "Save Changes"
-                        );
+            $.ajax({
+                url: "/quotation/share-payment-details",
+                type: "POST",
+                data: data,
+                success: function(data) {
+                    let ResponseData = JSON.parse(data);
+                    if (ResponseData.status) {
+                        Swal.fire({
+                            title: "Success",
+                            text: ResponseData.message,
+                            icon: "success",
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: ResponseData.message ||
+                                "Something went wrong, please try again later",
+                            icon: "error",
+                        });
                     }
-                });
+                },
+                complete: function() {
+                    button.prop('disabled', false);
+                    button.html(
+                        "<i class='fa-brands fa-whatsapp'></i> Share"
+                    );
+                }
             });
+        });
+
+        $("#ButtonSaveData").on('click', function() {
+            var button = $(this);
+            button.prop('disabled', true);
+            button.html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+            );
+
+            var FullName = $("#FullName").val();
+            var EmailCustomer = $("#EmailCustomer").val();
+            var ContactNumber = $("#ContactNumber").val();
+            var AddressCustomer = $("#AddressCustomer").val();
+            var VehicleCustomer = $("#VehicleCustomer").val();
+            var Latitude = $("#Latitude").val();
+            var Longitude = $("#Longitude").val();
+            var IdCustomer = $("#IdCustomer").val();
+            var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
+                return $(this).val();
+            }).get();
+            var TotalAmount = $("#TotalAmountHidden").val();
+            var tax = $("#tax").val();
+            var Discount = $("#discount").val();
+            var ExtraDiscount = $("#Extradiscount").val();
+            var invoiceNumber = $("#invoiceNumber").val();
+            var techniciansName = $("#techniciansName").val();
+            var subtotal = $("#subtotal").val();
+            if ($('.CheckMidtrans').is(':checked')) {
+                var CheckMidtrans = 1;
+                var linkPayment = $("#LinkPaymentMidtrans").val();
+            } else {
+                var CheckMidtrans = 0;
+            }
+
+            var QtyTabel = [];
+            var PriceTabel = [];
+            var BatteryNameTabel = [];
+            var LinkTokopedia = [];
+            var QtyPayment = [];
+            var GrossPricePayment = [];
+            var DiscountPayment = [];
+            var NetPricePayment = [];
+            var SubtotalPayment = [];
+            var TaxPayment = [];
+            var TaxPricePayment = [];
+            var BatteryIdCheckout = [];
+
+            $(".QtyCheckout").each(function() {
+                var value = $(this).val();
+                QtyTabel.push(value);
+            });
+
+            $(".PriceCheckout").each(function() {
+                var value = $(this).val();
+                PriceTabel.push(value);
+            });
+
+            $(".BatteryNameCheckout").each(function() {
+                var value = $(this).val();
+                BatteryNameTabel.push(value);
+            });
+
+            $(".LinkTokopedia").each(function() {
+                var value = $(this).val();
+                LinkTokopedia.push(value);
+            });
+
+            $(".QtyPaymentDetails").each(function() {
+                var value = $(this).val();
+                QtyPayment.push(value);
+            });
+
+            $(".PricePaymentDetails").each(function() {
+                var value = $(this).val();
+                GrossPricePayment.push(value);
+            });
+
+            $(".DiscountPaymentDetails").each(function() {
+                var value = $(this).val();
+                DiscountPayment.push(value);
+            });
+
+            $(".NetPricePaymentDetails").each(function() {
+                var value = $(this).val();
+                NetPricePayment.push(value);
+            });
+
+            $(".SubtotalPaymentDetails").each(function() {
+                var value = $(this).val();
+                SubtotalPayment.push(value);
+            });
+
+            $(".TaxPaymentDetails").each(function() {
+                var value = $(this).val();
+                TaxPayment.push(value);
+            });
+
+            $(".PriceTaxPaymentDetails").each(function() {
+                var value = $(this).val();
+                TaxPricePayment.push(value);
+            });
+
+            $(".BatteryIdCheckout").each(function() {
+                var value = $(this).val();
+                BatteryIdCheckout.push(value);
+            });
+
+            var PaymentMethod = $("#PaymentMethod").val();
+            var DistributorShopId = $("#DistributorShopId").val();
+            var DiscountRupiah = $("#discount-rupiah").val();
+            var DiscountPercentage = $("#discount-percent").val();
+            var typeDiscount = $("#type-discount").val();
+            var alternative_address = $("#alternative_address").val();
+
+            var data = {
+                FullName: FullName,
+                EmailCustomer: EmailCustomer,
+                ContactNumber: ContactNumber,
+                AddressCustomer: AddressCustomer,
+                VehicleCustomer: VehicleCustomer,
+                Latitude: Latitude,
+                Longitude: Longitude,
+                IdCustomer: IdCustomer,
+                Battery: Battery,
+                TotalAmount: TotalAmount,
+                tax: tax,
+                Discount: Discount,
+                ExtraDiscount: ExtraDiscount,
+                BatteryNameTabel: BatteryNameTabel,
+                QtyTabel: QtyTabel,
+                PriceTabel: PriceTabel,
+                Discount: Discount,
+                ExtraDiscount: ExtraDiscount,
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                DistributorShopId: DistributorShopId,
+                invoiceNumber: invoiceNumber,
+                techniciansName: techniciansName,
+                CheckMidtrans: CheckMidtrans,
+                linkPayment: LinkTokopedia,
+                linkMidtrans: linkPayment,
+                subtotal: subtotal,
+                DiscountRupiah: DiscountRupiah,
+                DiscountPercentage: DiscountPercentage,
+                QtyPayment: QtyPayment,
+                GrossPricePayment: GrossPricePayment,
+                DiscountPayment: DiscountPayment,
+                NetPricePayment: NetPricePayment,
+                SubtotalPayment: SubtotalPayment,
+                PaymentMethod: PaymentMethod,
+                TaxPayment: TaxPayment,
+                TaxPricePayment: TaxPricePayment,
+                BatteryIdCheckout: BatteryIdCheckout,
+                typeDiscount: typeDiscount,
+                alternative_address: alternative_address
+            };
+
+            $.ajax({
+                url: "/quotation/save-data",
+                type: "POST",
+                data: data,
+                success: function(data) {
+                    let ResponseData = JSON.parse(data);
+                    if (ResponseData.status) {
+                        Swal.fire({
+                            title: "Success",
+                            text: ResponseData.message,
+                            icon: "success",
+                        });
+                        setTimeout(function() {
+                            window.location.href = "/sales-order";
+                        }, 2000);
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: ResponseData.message ||
+                                "Something went wrong, please try again later",
+                            icon: "error",
+                        });
+                    }
+                },
+                complete: function() {
+                    button.prop('disabled', false);
+                    button.html(
+                        "Save Changes"
+                    );
+                }
+            });
+        });
         });
 
         function CopyLinkBattery(x) {

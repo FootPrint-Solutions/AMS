@@ -85,6 +85,8 @@
                         <td>
                             <input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout"
                                 class="BatteryIdCheckout" value="{{ $battery->id }}">
+                            <input type="hidden" name="BatteryType[]" id="BatteryType" class="BatteryType"
+                                value="{{ $battery->type }}">
                             <input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout"
                                 class="form-control BatteryNameCheckout" value="{{ $battery->name }}" readonly>
                         </td>
@@ -96,23 +98,21 @@
                         <td>
                             <div class="input-group">
                                 <input type="text" name="GrossPrice[]" id="GrossPrice"
-                                    class="form-control GrossPrice text-end"
-                                    value="{{ number_format($price_retail, 0, ',', '.') }}" disabled>
+                                    class="form-control GrossPrice text-end" value="{{ $price_retail }}">
                             </div>
                         </td>
                         {{-- tax --}}
                         <td>
                             <div class="input-group">
                                 <input type="text" name="TaxRow[]" id="TaxRow"
-                                    class="form-control TaxRow text-end" value="{{ $tax }}" disabled>
+                                    class="form-control TaxRow text-end" value="{{ $tax }}">
                             </div>
                         </td>
                         {{-- price + tax --}}
                         <td>
                             <div class="input-group">
                                 <input type="text" name="PriceTaxRow[]" id="PriceTaxRow"
-                                    class="form-control PriceTaxRow text-end"
-                                    value="{{ number_format($price_tax, 0, ',', '.') }}" disabled>
+                                    class="form-control PriceTaxRow text-end" value="{{ $price_tax }}" disabled>
                             </div>
                         </td>
                         {{-- discount --}}
@@ -276,8 +276,6 @@
 <script>
     $(document).ready(function() {
         function formatNumber(num) {
-            // return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            // format number 1234567 to 1.234.567 wihtout decimal
             return num.toLocaleString('id-ID', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
@@ -297,26 +295,37 @@
 
         function calculateRow(row) {
             var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+            var grossPriceReal = parseFormattedNumber(row.find('.GrossPrice').val().replace(/,/g, '')) || 0;
             var grossPrice = parseFormattedNumber(row.find('.PriceTaxRow').val().replace(/,/g, '')) || 0;
             var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
+            var tax = parseFloat(row.find('.TaxRow').val()) || 0;
+
+            var pricetax = grossPriceReal + ((grossPriceReal * tax) / 100);
+            row.find('.PriceTaxRow').val(pricetax);
+            console.log('pricetax', pricetax);
 
             var discountAmount = discount;
             var netPrice = grossPrice - discountAmount;
             var subtotal = netPrice * qty;
 
-            // if subtotal is NaN then set to 0 or subtotal < 0 then set to 0
             if (subtotal <= 0 || isNaN(subtotal)) {
                 swal.fire("Error!", "Subtotal is less than 0", "error");
+                row.find('.QtyCheckout').val(1);
                 row.find('.NetPrice').val(formatNumber(grossPrice));
-                row.find('.SubtotalRow').val(formatNumber(grossPrice));
+                row.find('.SubtotalRow').val((grossPrice));
+            } else {
+                row.find('.NetPrice').val(formatNumber(netPrice));
+                row.find('.SubtotalRow').val(formatNumber(subtotal));
             }
-
-            // Set value to subtotal row
-            row.find('.NetPrice').val(formatNumber(netPrice));
-            row.find('.SubtotalRow').val(formatNumber(subtotal));
         }
 
-        $(document).on('keyup', '.QtyCheckout, .DiscountRow', function() {
+        $(document).on('keyup', '.QtyCheckout, .DiscountRow, .GrossPrice, .TaxRow', function() {
+            var row = $(this).closest('tr');
+            calculateRow(row);
+            calculateTotalAmount();
+        });
+
+        $(document).on('click', '.QtyCheckout, .DiscountRow, .GrossPrice, .TaxRow', function() {
             var row = $(this).closest('tr');
             calculateRow(row);
             calculateTotalAmount();
@@ -330,13 +339,21 @@
 
         function calculateTotalAmount() {
             var subtotal = 0;
+            var subtotal_recycle = 0;
             $('.add-table-items tbody tr').each(function() {
                 var row = $(this);
                 var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+                var type = row.find('.BatteryType').val();
                 var subtotalRow = parseFormattedNumber(row.find('.SubtotalRow').val().replace(/,/g,
                         '')) ||
                     0;
-                subtotal += subtotalRow;
+
+                if (type != 'regular') {
+                    subtotal -= subtotalRow;
+                    subtotal_recycle += subtotalRow;
+                } else {
+                    subtotal += subtotalRow;
+                }
             });
             var discount = parseFloat($('#discount').val()) || 0;
             var tax = parseFloat($('#tax').val()) || 0;
