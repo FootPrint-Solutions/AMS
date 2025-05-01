@@ -232,6 +232,8 @@ class Battery extends Controller
             $battery = new BatteryModel();
             $battery->name = $request->name;
             $battery->name_alternate = $request->altname;
+            $battery->type = $request->type;
+            $battery->editable_price = $request->editable_price ?? 0;
 
             // Check if the brand is newly added or not.
             if ($request->brand === "new") {
@@ -390,6 +392,8 @@ class Battery extends Controller
             $battery = BatteryModel::find($request->id);
             $battery->name = $request->name;
             $battery->name_alternate = $request->altname;
+            $battery->type = $request->type;
+            $battery->editable_price = $request->editable_price ?? 0;
 
             // Check if the brand is newly added or not.
             if ($request->brand === "new") {

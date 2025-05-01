@@ -7,8 +7,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
-                    class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -165,7 +164,8 @@
                             '" data-battery-tax="' +
                             formatNumber(battery.tax) + '" data-price-tax="' +
                             formatNumber(battery.price_tax) + '" data-type="' +
-                            formatNumber(battery.type) + '" data-net_price-tax="' +
+                            formatNumber(battery.type) + '"  data-editable-price="' +
+                            formatNumber(battery.editable_price) + '" data-net_price-tax="' +
                             formatNumber(battery.net_price) + '">' +
                             battery.name +
                             '</div>';
@@ -189,6 +189,7 @@
         var batteryTax = $(this).data('battery-tax');
         var priceTax = $(this).data('price-tax');
         var type = $(this).data('type');
+        var editablePrice = $(this).data('editable-price');
 
         row.find('.BatteryNameCheckout').val(batteryName);
         row.find('.GrossPrice').val(priceRetail);
@@ -204,6 +205,12 @@
             row.addClass('bg-danger');
         } else {
             row.removeClass('bg-danger');
+        }
+
+        if (editablePrice == 1) {
+            row.find('.GrossPrice').removeAttr('readonly');
+        } else {
+            row.find('.GrossPrice').attr('readonly', 'readonly');
         }
 
         row.find('#showAutoCompleteBattery').hide();

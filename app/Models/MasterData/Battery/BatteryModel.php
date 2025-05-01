@@ -56,7 +56,9 @@ class BatteryModel extends Model implements Auditable
         'capacity',
         'warranty',
         'price_retail',
-        'name_alternate'
+        'name_alternate',
+        'type',
+        'editable_price'
     ];
 
     /**

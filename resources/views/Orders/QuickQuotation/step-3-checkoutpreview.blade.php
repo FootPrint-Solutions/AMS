@@ -98,7 +98,8 @@
                         <td>
                             <div class="input-group">
                                 <input type="text" name="GrossPrice[]" id="GrossPrice"
-                                    class="form-control GrossPrice text-end" value="{{ $price_retail }}">
+                                    class="form-control GrossPrice text-end" value="{{ $price_retail }}"
+                                    @if (!$battery->editable_price) disabled @endif>
                             </div>
                         </td>
                         {{-- tax --}}
