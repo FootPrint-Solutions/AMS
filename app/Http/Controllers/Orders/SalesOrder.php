@@ -21,6 +21,8 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
+use App\models\Inventory\InventoryModel;
+use App\models\Inventory\InventoryDetailModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -440,18 +442,42 @@ class SalesOrder extends Controller
                 }
 
                 if ($salesOrder->status === 'posted') {
-                    $salesOrder->status = 'draft';
-                    $status = $salesOrder->save();
 
-                    // Delete work order.
-                    WorkOrderModel::where('sales_order_id', $request->id)->delete();
+                    return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
-                    $successMessage = "The selected sales order was successfully unposted!";
-                    $failedMessage = "Failed to unpost the selected sales order!";
+                    // $salesOrder->status = 'draft';
+                    // $status = $salesOrder->save();
+
+                    // // Delete work order.
+                    // WorkOrderModel::where('sales_order_id', $request->id)->delete();
+
+                    // $successMessage = "The selected sales order was successfully unposted!";
+                    // $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
+
+                    // Store to inventory data.
+                    $inventory = InventoryModel::where('battery_id', $salesOrder->batteries[0]->battery_id)->first();
+                    if ($inventory) {
+                        $inventory->stock += 1;
+                        $status &= $inventory->save();
+                    } else {
+                        $inventory = new InventoryModel();
+                        $inventory->battery_id = $salesOrder->batteries[0]->battery_id;
+                        $inventory->stock = 1;
+                        $status &= $inventory->save();
+                    }
+
+                    $inventoryDetail = new InventoryDetailModel([
+                        'inventory_id' => $inventory->id,
+                        'type' => "in",
+                        'reference' => "Sales Order",
+                        'quantity' => 1,
+                        'note' => "Sales Order - " . $salesOrder->sales_order_number,
+                    ]);
+                    $status &= $inventoryDetail->save();
 
                     $successMessage = "The selected sales order was successfully posted!";
                     $failedMessage = "Failed to upost the selected sales order!";
