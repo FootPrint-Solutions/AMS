@@ -833,6 +833,7 @@ $arrayBattery
                         $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                         $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                        $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
                         $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
                         $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
@@ -840,6 +841,7 @@ $arrayBattery
                         $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
                         $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                         $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                        $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
                         $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
                         $TaxPrice = $GrossPrice * $TaxPayment / 100;
                         $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
@@ -853,7 +855,7 @@ $arrayBattery
                         'discount_price' => $DiscountPrice,
                         'tax' => $request->input('TaxPayment')[$key],
                         'tax_price' =>  $TaxPrice,
-                        'price_net' =>  str_replace(".", "", $Subtotal),
+                        'price_net' =>  str_replace(".", "", $PriceNet),
                         'quantity' => 1,
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),

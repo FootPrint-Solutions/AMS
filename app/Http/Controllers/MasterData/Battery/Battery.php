@@ -620,6 +620,8 @@ class Battery extends Controller
             [
                 "battery_prices.price_retail", // retail price
                 "battery_prices.discount", // discount
+                "battery_prices.price_retail", // retail price
+                "batteries.type", // type
             ],
             '',
             5

@@ -232,7 +232,17 @@
                             @endphp
 
                             @foreach ($batteries as $battery)
-                                <tr class="table-battery-detail-row">
+                                @php
+                                    if (
+                                        isset($battery['battery']['type']) &&
+                                        $battery['battery']['type'] != 'regular'
+                                    ) {
+                                        $class_tr = 'bg-danger';
+                                    } else {
+                                        $class_tr = '';
+                                    }
+                                @endphp
+                                <tr class="table-battery-detail-row {{ $class_tr }}">
                                     {{-- Production Code --}}
                                     <td>
                                         <input type="text" class="form-control battery-code"
@@ -244,7 +254,11 @@
                                     {{-- Name --}}
                                     <td>
                                         @php
-                                            $targets = ["battery-priceretail-$counter", "battery-discount-$counter"];
+                                            $targets = [
+                                                "battery-priceretail-$counter",
+                                                "battery-discount-$counter",
+                                                "battery-type-$counter",
+                                            ];
                                             $encodedTargets = json_encode($targets);
                                         @endphp
 
@@ -282,6 +296,12 @@
 
                                     {{-- Tax --}}
                                     <td>
+                                        {{-- input type hidden battery type --}}
+                                        <input type="hidden"
+                                            class="form-control battery-type-{{ $counter }} battery-type"
+                                            id="battery-type-{{ $counter }}" name="batteriestype[]"
+                                            @isset($battery['battery']['type'])value="{{ $battery['battery']['type'] }}" @endisset>
+
                                         <div class="input-group">
                                             <input type="text" class="form-control text-end battery-tax"
                                                 id="battery-tax-{{ $counter }}" name="batteriestax[]" required
@@ -613,7 +633,8 @@
                 });
 
                 var targets = JSON.stringify(["battery-priceretail-" + number,
-                    "battery-discount-" + number, "battery-price-" + number
+                    "battery-discount-" + number, "battery-type-" +
+                    number,
                 ]);
                 newRow.find(".autocomplete").attr("data-targets", targets);
 
@@ -733,9 +754,16 @@
             // Calculate subtotal based on each items' price.
             let subtotal = 0;
             $(".battery-price").each(function() {
-                let row = $(this).closest('td').siblings();
+                let row = $(this).closest('tr');
                 let priceRetail = parseInt(row.find(".battery-priceretail").val().replace(/\D/g, ''));
                 let tax = parseInt(row.find(".battery-tax").val());
+                let type = row.find(".battery-type").val();
+
+                if (type == 'recycle') {
+                    $(this).closest('tr').addClass('bg-danger');
+                } else {
+                    $(this).closest('tr').removeClass('bg-danger');
+                }
 
                 // Count price + tax.
                 let priceTax = priceRetail * tax / 100;
@@ -750,7 +778,13 @@
                 $(this).val(priceAfterTax - discountPrice);
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
-                    subtotal += value;
+                    if (type != 'regular') {
+                        subtotal -= value;
+                        console.log("Subtotal: " + subtotal);
+                        console.log("type: " + type);
+                    } else {
+                        subtotal += value;
+                    }
                 }
 
                 // Format displayed price.

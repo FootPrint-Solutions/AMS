@@ -93,7 +93,8 @@ class SalesOrderModel extends Model implements Auditable
      */
     public function batteries(): HasMany
     {
-        return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id");
+        return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id")
+        ->with('battery');
     }
 
     /**
