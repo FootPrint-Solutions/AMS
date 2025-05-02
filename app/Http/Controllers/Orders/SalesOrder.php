@@ -21,8 +21,8 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
-use App\models\Inventory\InventoryModel;
-use App\models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryModel;
+use App\Models\Inventory\InventoryDetailModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
