@@ -80,6 +80,9 @@ use App\Http\Controllers\Developer\Audit;
 // Work Order Instruction Template
 use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
 
+// Inventory Recycle
+use App\Http\Controllers\Inventory\InventoryRecycle;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -151,6 +154,9 @@ Route::middleware(['auth'])->group(function () {
     // Inventory
     // Inventory
     require __DIR__ . '/web/inventory/inventory.php';
+
+    // Inventory Recycle
+    require __DIR__ . '/web/inventory/inventory-recycle.php';
 
     // Orders
     // Quick Quotation

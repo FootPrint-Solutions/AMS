@@ -29,8 +29,17 @@
                     </select>
                 </div>
 
-                <div class="col-md-1"></div>
+                <div class="col-md-1 d-flex align-items-center">
+                    Type
+                </div>
 
+                <div class="col-md-4">
+                    <select class="form-select form-select-sm" id="filter-type">
+                        <option value="all">All</option>
+                        <option value="regular">Regular</option>
+                        <option value="recycle">Recycle</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -107,6 +116,7 @@
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
                         d.status = $("#filter-status").val();
+                        d.type = $("#filter-type").val();
                     }
                 },
                 columnDefs: [{
@@ -291,6 +301,10 @@
             })
 
             $("#filter-status").on("change", function() {
+                table.ajax.reload();
+            });
+
+            $("#filter-type").on("change", function() {
                 table.ajax.reload();
             });
         });

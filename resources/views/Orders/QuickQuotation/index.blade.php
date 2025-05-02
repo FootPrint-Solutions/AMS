@@ -473,50 +473,56 @@
                     var typeDiscount = $("#type-discount").val();
                     var alternative_address = $("#alternative_address").val();
 
-                    var data = {
-                        FullName: FullName,
-                        EmailCustomer: EmailCustomer,
-                        ContactNumber: ContactNumber,
-                        AddressCustomer: AddressCustomer,
-                        VehicleCustomer: VehicleCustomer,
-                        TemplateMessage: TemplateMessage,
-                        Latitude: Latitude,
-                        Longitude: Longitude,
-                        IdCustomer: IdCustomer,
-                        Battery: BatteryIdCheckout,
-                        TotalAmount: TotalAmount,
-                        tax: tax,
-                        Discount: Discount,
-                        ExtraDiscount: ExtraDiscount,
-                        BatteryNameTabel: BatteryNameTabel,
-                        QtyTabel: QtyTabel,
-                        PriceTabel: PriceTabel,
-                        DistributorShopId: DistributorShopId,
-                        LinkTokopedia: LinkTokopedia,
-                        Platform: Platform,
-                        subtotal: subtotal,
-                        DiscountRupiah: DiscountRupiah,
-                        DiscountPercentage: DiscountPercentage,
-                        GrossPrice: GrossPrice,
-                        DiscountRow: DiscountRow,
-                        NetPrice: NetPrice,
-                        SubtotalRow: SubtotalRow,
-                        TaxRow: TaxRow,
-                        TaxPriceRow: TaxPriceRow,
-                        typeDiscount: typeDiscount,
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        alternative_address: alternative_address
-                    };
-
-                    $.ajax({
-                        url: "/quotation/payment",
-                        type: "GET",
-                        data: data,
-                        success: function(data) {
-                            $("#PaymentPreview").html(data);
-                        }
-                    });
+                    if (TotalAmount <= 0) {
+                        swal.fire("Error!", "Total Amount must be greater than 0", "error");
+                        return false;
+                    }
                 }
+
+                var data = {
+                    FullName: FullName,
+                    EmailCustomer: EmailCustomer,
+                    ContactNumber: ContactNumber,
+                    AddressCustomer: AddressCustomer,
+                    VehicleCustomer: VehicleCustomer,
+                    TemplateMessage: TemplateMessage,
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    IdCustomer: IdCustomer,
+                    Battery: BatteryIdCheckout,
+                    TotalAmount: TotalAmount,
+                    tax: tax,
+                    Discount: Discount,
+                    ExtraDiscount: ExtraDiscount,
+                    BatteryNameTabel: BatteryNameTabel,
+                    QtyTabel: QtyTabel,
+                    PriceTabel: PriceTabel,
+                    DistributorShopId: DistributorShopId,
+                    LinkTokopedia: LinkTokopedia,
+                    Platform: Platform,
+                    subtotal: subtotal,
+                    DiscountRupiah: DiscountRupiah,
+                    DiscountPercentage: DiscountPercentage,
+                    GrossPrice: GrossPrice,
+                    DiscountRow: DiscountRow,
+                    NetPrice: NetPrice,
+                    SubtotalRow: SubtotalRow,
+                    TaxRow: TaxRow,
+                    TaxPriceRow: TaxPriceRow,
+                    typeDiscount: typeDiscount,
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    alternative_address: alternative_address
+                };
+
+                $.ajax({
+                    url: "/quotation/payment",
+                    type: "GET",
+                    data: data,
+                    success: function(data) {
+                        $("#PaymentPreview").html(data);
+                    }
+                });
+
             });
 
 

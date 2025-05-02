@@ -283,6 +283,34 @@
                                 enter a valid numeric value for the price.</small>
                         </div>
                     </div>
+
+                    {{-- Editable Price Checkbox --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="editable-price">Editable Price</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editable-price"
+                                    name="editable_price" @if (isset($data['profile']) && $data['profile']['editable_price']) checked @endif
+                                    value="1">
+                                <label class="form-check-label" for="editable-price">
+                                    Allow editing of price
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Battery Type --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="battery-type">Battery Type</label>
+                            <select class="form-control" id="type" name="type">
+                                <option value="regular" @if (isset($data['profile']) && $data['profile']['type'] == 'regular') selected @endif>Regular
+                                </option>
+                                <option value="recycle" @if (isset($data['profile']) && $data['profile']['type'] == 'premium') selected @endif>Premium
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- URLs --}}
@@ -471,6 +499,10 @@
                 } else {
                     $("#size-new-group").hide();
                 }
+            });
+
+            $('#battery-type').select2({
+                placeholder: "Select battery type"
             });
         });
     </script>

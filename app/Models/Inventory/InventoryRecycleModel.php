@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 
+
 // TRAITS
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class InventoryModel extends Model implements Auditable
+// MODELS
+use App\Models\MasterData\Battery\BatteryModel;
+
+class InventoryRecycleModel extends Model implements Auditable
 {
     use HasFactory, DataTablesTrait, AuditableTrait;
 
@@ -57,7 +61,7 @@ class InventoryModel extends Model implements Auditable
      */
     public function battery()
     {
-        return $this->belongsTo(\App\Models\Battery::class, 'battery_id', 'id');
+        return $this->belongsTo(BatteryModel::class, 'battery_id', 'id');
     }
 
     /**

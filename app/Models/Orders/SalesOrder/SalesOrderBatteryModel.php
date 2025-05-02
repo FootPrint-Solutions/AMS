@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
+use App\Models\MasterData\Battery\BatteryModel;
 
 class SalesOrderBatteryModel extends Model
 {
@@ -56,5 +57,13 @@ class SalesOrderBatteryModel extends Model
         $query->select(self::$selectColumns);
 
         return self::getAllRows($request, $query, $selectColumns, $selectColumns);
+    }
+
+    /**
+     * Get the battery associated with the sales order.
+     */
+    public function battery()
+    {
+        return $this->belongsTo(BatteryModel::class, 'battery_id', 'id');
     }
 }

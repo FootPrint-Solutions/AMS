@@ -97,13 +97,13 @@
         var html = '';
         html += '<tr>';
         html +=
-            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
+            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="hidden" name="BatteryType[]" id="BatteryType" class="BatteryType"><input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
         html +=
             '<td><input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout" value="1"></td>';
         html +=
-            '<td><div class="input-group"><input type="text" name="GrossPrice[]" id="GrossPrice" class="form-control GrossPrice text-end" value="" disabled></div></td>';
+            '<td><div class="input-group"><input type="text" name="GrossPrice[]" id="GrossPrice" class="form-control GrossPrice text-end" value="" ></div></td>';
         html +=
-            '<td><div class="input-group"><input type="text" name="TaxRow[]" id="TaxRow" class="form-control TaxRow text-end" value="" disabled></div></td>';
+            '<td><div class="input-group"><input type="text" name="TaxRow[]" id="TaxRow" class="form-control TaxRow text-end" value="" ></div></td>';
         html +=
             '<td><div class="input-group"><input type="text" name="PriceTaxRow[]" id="PriceTaxRow" class="form-control PriceTaxRow text-end" value="" disabled></div></td>';
         html +=
@@ -163,7 +163,9 @@
                             '" data-id="' + formatNumber(battery.id) +
                             '" data-battery-tax="' +
                             formatNumber(battery.tax) + '" data-price-tax="' +
-                            formatNumber(battery.price_tax) + '" data-net_price-tax="' +
+                            formatNumber(battery.price_tax) + '" data-type="' +
+                            formatNumber(battery.type) + '"  data-editable-price="' +
+                            formatNumber(battery.editable_price) + '" data-net_price-tax="' +
                             formatNumber(battery.net_price) + '">' +
                             battery.name +
                             '</div>';
@@ -186,6 +188,8 @@
         var batteryId = $(this).data('id');
         var batteryTax = $(this).data('battery-tax');
         var priceTax = $(this).data('price-tax');
+        var type = $(this).data('type');
+        var editablePrice = $(this).data('editable-price');
 
         row.find('.BatteryNameCheckout').val(batteryName);
         row.find('.GrossPrice').val(priceRetail);
@@ -195,6 +199,19 @@
         row.find('.BatteryIdCheckout').val(batteryId);
         row.find('.TaxRow').val(batteryTax);
         row.find('.PriceTaxRow').val(priceTax);
+        row.find('.BatteryType').val(type);
+
+        if (type == "recycle") {
+            row.addClass('bg-danger');
+        } else {
+            row.removeClass('bg-danger');
+        }
+
+        if (editablePrice == 1) {
+            row.find('.GrossPrice').removeAttr('readonly');
+        } else {
+            row.find('.GrossPrice').attr('readonly', 'readonly');
+        }
 
         row.find('#showAutoCompleteBattery').hide();
 
@@ -211,10 +228,16 @@
         $('.add-table-items tbody tr').each(function() {
             var row = $(this);
             var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
+            var type = row.find('.BatteryType').val();
             var subtotalRow = parseFormattedNumber(row.find('.SubtotalRow').val().replace(/,/g,
                     '')) ||
                 0;
-            subtotal += subtotalRow;
+
+            if (type != 'regular') {
+                subtotal -= subtotalRow;
+            } else {
+                subtotal += subtotalRow;
+            }
         });
         var discount = parseFloat($('#discount').val()) || 0;
         var tax = parseFloat($('#tax').val()) || 0;
