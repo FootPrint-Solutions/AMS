@@ -306,7 +306,7 @@
                             <select class="form-control" id="type" name="type">
                                 <option value="regular" @if (isset($data['profile']) && $data['profile']['type'] == 'regular') selected @endif>Regular
                                 </option>
-                                <option value="recycle" @if (isset($data['profile']) && $data['profile']['type'] == 'Recycle') selected @endif>Recycle
+                                <option value="recycle" @if (isset($data['profile']) && $data['profile']['type'] == 'recycle') selected @endif>Recycle
                                 </option>
                             </select>
                         </div>
