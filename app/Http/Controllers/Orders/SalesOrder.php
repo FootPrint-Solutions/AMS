@@ -459,25 +459,32 @@ class SalesOrder extends Controller
                     $status = $salesOrder->save();
 
                     // Store to inventory data.
-                    $inventory = InventoryModel::where('battery_id', $salesOrder->batteries[0]->battery_id)->first();
-                    if ($inventory) {
-                        $inventory->stock += 1;
-                        $status &= $inventory->save();
-                    } else {
-                        $inventory = new InventoryModel();
-                        $inventory->battery_id = $salesOrder->batteries[0]->battery_id;
-                        $inventory->stock = 1;
-                        $status &= $inventory->save();
+                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)->with('battery')->get()->toArray();
+                    foreach ($salesOrderBattery as $battery) {
+                        if ($battery['battery']['type'] == 'recycle') {
+                            $inventory = InventoryModel::where('battery_id', $battery['battery_id'])->first();
+                            if ($inventory) {
+                                $inventory->stock += 1;
+                                $status &= $inventory->save();
+                            } else {
+                                $inventory = new InventoryModel();
+                                $inventory->battery_id = $battery['battery_id'];
+                                $inventory->stock = 1;
+                                $status &= $inventory->save();
+                            }
+
+                            $inventoryDetail = new InventoryDetailModel([
+                                'inventory_id' => $inventory->id,
+                                'type' => "in",
+                                'reference' => "Sales Order",
+                                'quantity' => 1,
+                                'note' => "Sales Order - " . $salesOrder->sales_order_number,
+                            ]);
+                            $status &= $inventoryDetail->save();
+                        }
                     }
 
-                    $inventoryDetail = new InventoryDetailModel([
-                        'inventory_id' => $inventory->id,
-                        'type' => "in",
-                        'reference' => "Sales Order",
-                        'quantity' => 1,
-                        'note' => "Sales Order - " . $salesOrder->sales_order_number,
-                    ]);
-                    $status &= $inventoryDetail->save();
+
 
                     $successMessage = "The selected sales order was successfully posted!";
                     $failedMessage = "Failed to upost the selected sales order!";

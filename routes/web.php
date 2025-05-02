@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Admin\Role;
 use Illuminate\Support\Facades\Route;
+use App\Exports\GlobalExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 // DASHBOARD
 use App\Http\Controllers\Dashboard\Dashboard;
@@ -82,6 +85,8 @@ use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
 
 // Inventory Recycle
 use App\Http\Controllers\Inventory\InventoryRecycle;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -242,6 +247,11 @@ Route::middleware(['auth'])->group(function () {
         $toggleUrl = request()->input('toggleUrl');
         $idIdx = request()->input('idIdx');
         return view('components.dt-toolbar', ['idIdx' => $idIdx, 'editUrl' => $editUrl, 'deleteUrl' => $deleteUrl, 'toggleUrl' => $toggleUrl])->render();
+    });
+
+    // Global Export
+    Route::get('/export-excel', function () {
+        return Excel::download(new GlobalExport(request()), 'export-data.xlsx');
     });
 });
 
