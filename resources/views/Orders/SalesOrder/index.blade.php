@@ -166,7 +166,7 @@
                             // Show modal more action
                             showModalMoreAction(selectedRows[0][10], selectedRows[0][11]);
                         }
-                    }
+                    },
                 ]),
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
