@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddColumnToTableInventoryDetails extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('inventory_details', function (Blueprint $table) {
+            $table->unsignedBigInteger('battery_id')->nullable()->after('inventory_id');
+            $table->foreign('battery_id')->references('id')->on('batteries')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('inventory_details', function (Blueprint $table) {
+            $table->dropForeign(['battery_id']);
+            $table->dropColumn('battery_id');
+        });
+    }
+}

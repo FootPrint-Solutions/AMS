@@ -443,43 +443,74 @@ class SalesOrder extends Controller
 
                 if ($salesOrder->status === 'posted') {
 
-                    return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
+                    // return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
-                    // $salesOrder->status = 'draft';
-                    // $status = $salesOrder->save();
+                    $salesOrder->status = 'draft';
+                    $status = $salesOrder->save();
 
-                    // // Delete work order.
-                    // WorkOrderModel::where('sales_order_id', $request->id)->delete();
+                    // Delete work order.
+                    WorkOrderModel::where('sales_order_id', $request->id)->delete();
 
-                    // $successMessage = "The selected sales order was successfully unposted!";
-                    // $failedMessage = "Failed to unpost the selected sales order!";
+                    // Delete inventory details data where the reference is sales order.
+                    InventoryDetailModel::where('reference_id', $request->id)
+                        ->where('reference_type', 'App\Models\Orders\SalesOrder\SalesOrderModel')
+                        ->delete();
+
+                    // Update inventory data.
+                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                        ->with('battery')
+                        ->get();
+
+                    // sum inventory detail where battery id = battery_id and type = in
+                    $total_quantity = 0;
+                    foreach ($salesOrderBattery as $battery) {
+                        $inventoryDetailSum = InventoryDetailModel::where('battery_id', $battery->battery_id)
+                            ->where('type', 'in')
+                            ->sum('quantity');
+
+                        $total_quantity += $inventoryDetailSum;
+
+
+                        // update total to inventory where battery id = battery_id
+                        $inventory = InventoryModel::where('battery_id', $battery->battery_id)->first();
+                        if ($inventory) {
+                            $inventory->stock = $inventoryDetailSum;
+                            $status &= $inventory->save();
+                        }
+                    }
+
+
+                    $successMessage = "The selected sales order was successfully unposted!";
+                    $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
 
                     // Store to inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)->with('battery')->get()->toArray();
+                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                        ->with('battery')
+                        ->get();
+
                     foreach ($salesOrderBattery as $battery) {
-                        if ($battery['battery']['type'] == 'recycle') {
-                            $inventory = InventoryModel::where('battery_id', $battery['battery_id'])->first();
-                            if ($inventory) {
-                                $inventory->stock += 1;
-                                $status &= $inventory->save();
-                            } else {
-                                $inventory = new InventoryModel();
-                                $inventory->battery_id = $battery['battery_id'];
-                                $inventory->stock = 1;
-                                $status &= $inventory->save();
-                            }
+                        if ($battery->battery->type === 'recycle') {
+                            $inventory = InventoryModel::firstOrNew([
+                                'battery_id' => $battery->battery_id
+                            ]);
+
+                            $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
+                            $status &= $inventory->save();
 
                             $inventoryDetail = new InventoryDetailModel([
                                 'inventory_id' => $inventory->id,
-                                'type' => "in",
-                                'reference' => "Sales Order",
+                                'battery_id' => $battery->battery_id,
+                                'type' => 'in',
+                                'reference' => 'Sales Order',
                                 'quantity' => 1,
-                                'note' => "Sales Order - " . $salesOrder->sales_order_number,
+                                'note' => 'Sales Order - ' . $salesOrder->sales_order_number,
                             ]);
+
+                            $inventoryDetail->reference()->associate($salesOrder);
                             $status &= $inventoryDetail->save();
                         }
                     }

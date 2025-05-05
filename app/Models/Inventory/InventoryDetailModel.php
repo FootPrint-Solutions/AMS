@@ -13,6 +13,7 @@ class InventoryDetailModel extends Model
 
     protected $fillable = [
         'inventory_id',
+        'battery_id',
         'type',
         'reference',
         'quantity',
@@ -23,5 +24,10 @@ class InventoryDetailModel extends Model
     public function inventory()
     {
         return $this->belongsTo(InventoryModel::class, 'inventory_id');
+    }
+
+    public function reference()
+    {
+        return $this->morphTo();
     }
 }
