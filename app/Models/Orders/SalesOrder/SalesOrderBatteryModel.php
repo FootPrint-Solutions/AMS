@@ -66,4 +66,12 @@ class SalesOrderBatteryModel extends Model
     {
         return $this->belongsTo(BatteryModel::class, 'battery_id', 'id');
     }
+
+    /**
+     * Get the sales order associated with the battery.
+     */
+    public function salesOrder()
+    {
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id', 'id')->with('customer');
+    }
 }

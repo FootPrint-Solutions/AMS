@@ -451,11 +451,6 @@ class SalesOrder extends Controller
                     // Delete work order.
                     WorkOrderModel::where('sales_order_id', $request->id)->delete();
 
-                    // Delete inventory details data where the reference is sales order.
-                    InventoryDetailModel::where('reference_id', $request->id)
-                        ->where('reference_type', 'App\Models\Orders\SalesOrder\SalesOrderModel')
-                        ->delete();
-
                     // Update inventory data.
                     $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
                         ->with('battery')
@@ -464,6 +459,14 @@ class SalesOrder extends Controller
                     // sum inventory detail where battery id = battery_id and type = in
                     $total_quantity = 0;
                     foreach ($salesOrderBattery as $battery) {
+
+                        // Delete inventory detail
+                        $inventoryDetail = InventoryDetailModel::where('reference_id', $battery->id)
+                            ->first();
+                        if ($inventoryDetail) {
+                            $status &= $inventoryDetail->delete();
+                        }
+
                         $inventoryDetailSum = InventoryDetailModel::where('battery_id', $battery->battery_id)
                             ->where('type', 'in')
                             ->sum('quantity');
@@ -492,26 +495,30 @@ class SalesOrder extends Controller
                         ->with('battery')
                         ->get();
 
-                    foreach ($salesOrderBattery as $battery) {
-                        if ($battery->battery->type === 'recycle') {
-                            $inventory = InventoryModel::firstOrNew([
-                                'battery_id' => $battery->battery_id
-                            ]);
+                    if ($salesOrderBattery->isEmpty()) {
+                        Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
+                    } else {
+                        foreach ($salesOrderBattery as $battery) {
+                            if ($battery->battery && $battery->battery->type === 'recycle') {
+                                $inventory = InventoryModel::firstOrNew([
+                                    'battery_id' => $battery->battery_id
+                                ]);
 
-                            $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
-                            $status &= $inventory->save();
+                                $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
+                                $status &= $inventory->save();
 
-                            $inventoryDetail = new InventoryDetailModel([
-                                'inventory_id' => $inventory->id,
-                                'battery_id' => $battery->battery_id,
-                                'type' => 'in',
-                                'reference' => 'Sales Order',
-                                'quantity' => 1,
-                                'note' => 'Sales Order - ' . $salesOrder->sales_order_number,
-                            ]);
+                                $inventoryDetail = new InventoryDetailModel([
+                                    'inventory_id' => $inventory->id,
+                                    'battery_id' => $battery->battery_id,
+                                    'type' => 'in',
+                                    'reference' => 'Sales Order Battery',
+                                    'quantity' => 1,
+                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                                ]);
 
-                            $inventoryDetail->reference()->associate($salesOrder);
-                            $status &= $inventoryDetail->save();
+                                $inventoryDetail->reference()->associate($battery);
+                                $status &= $inventoryDetail->save();
+                            }
                         }
                     }
 

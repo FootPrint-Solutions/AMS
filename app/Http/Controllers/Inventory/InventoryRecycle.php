@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 
 // MODELS
-use App\Models\Inventory\InventoryRecycleModel as InventoryRecycleModel;
+use App\Models\Inventory\InventoryDetailModel;
 
 
 class InventoryRecycle extends Controller
@@ -59,7 +59,7 @@ class InventoryRecycle extends Controller
         if ($id == null) {
             return redirect()->route("battery.brand.index");
         }
-        $brand = InventoryRecycle::find($id);
+        $brand = InventoryDetailModel::find($id);
         if ($brand == null) {
             return redirect()->route("battery.brand.index");
         }
@@ -88,24 +88,26 @@ class InventoryRecycle extends Controller
         $start = $request->input('start');
 
         // Get battery brand data (rows and count).
-        $data = InventoryRecycleModel::allForDataTables($request);
+        $data = InventoryDetailModel::allForDataTables($request);
 
         // Set rows to be displayed in battery brand table.
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
-            // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->code;
-            $row[] = $key->battery ? $key->battery->name : 'N/A'; // Access battery name via relationship
-            $row[] = $key->stock;
+            $row[] = $key->salesOrderBattery->salesOrder->date;
+            $row[] = $key->salesOrderBattery->salesOrder->sales_order_number;
+            $row[] = $key->salesOrderBattery->salesOrder->customer->name;
+            $row[] = $key->battery->name;
+            $row[] = $key->quantity;
+            $row[] = $key->salesOrderBattery->price_net;
             $rows[] = $row;
         }
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => InventoryRecycleModel::count(),
+            "recordsTotal" => InventoryDetailModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
@@ -131,7 +133,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = new InventoryRecycleModel();
+            $brand = new InventoryDetailModel();
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -183,7 +185,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = InventoryRecycleModel::find($request->id);
+            $brand = InventoryDetailModel::find($request->id);
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -230,7 +232,7 @@ class InventoryRecycle extends Controller
             $ids = $request->id;
 
             foreach ($ids as $id) {
-                $brand = InventoryRecycleModel::find($id);
+                $brand = InventoryDetailModel::find($id);
                 $status = $brand->delete();
             }
 

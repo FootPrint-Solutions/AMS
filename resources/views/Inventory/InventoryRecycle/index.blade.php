@@ -23,9 +23,12 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Code</th>
+                        <th scope="col">SO Date</th>
+                        <th scope="col">SO Number</th>
+                        <th scope="col">Customer Name</th>
                         <th scope="col">Battery Name</th>
-                        <th scope="col">Stock</th>
+                        <th scope="col">Battery Qty</th>
+                        <th scope="col">Battery Price</th>
                     </tr>
                 </thead>
             </table>
