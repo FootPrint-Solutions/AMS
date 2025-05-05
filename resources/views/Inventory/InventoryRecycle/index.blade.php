@@ -1,22 +1,46 @@
 @extends('template.master')
 
 @section('content')
+    <div class="card bg-white">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Inventory Recycle</h3>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {{-- filter tanggal --}}
+            <div class="row mt-2">
+                <div class="col-md-1 d-flex align-items-center">
+                    Date
+                </div>
+
+                <div class="col-md-4">
+                    <div class="row align-items-center">
+                        <div class="col-5">
+                            <input type="date" class="form-control" id="input-inventory-recycle-date-start"
+                                onchange="reloadTable()">
+                        </div>
+                        <div class="col-2 text-center">
+                            to
+                        </div>
+                        <div class="col-5">
+                            <input type="date" class="form-control" id="input-inventory-recycle-date-end"
+                                onchange="reloadTable()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-1"></div>
+
+            </div>
+        </div>
+    </div>
+
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
-            {{-- Title --}}
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Inventory Recycle</h3>
-                    </div>
-                    {{-- <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Inventory Recycle</button>
-                    </div> --}}
-                </div>
-            </div>
-            <br>
 
             {{-- Table --}}
             <table class="table table-striped" id="table-inventory-recycle">
@@ -52,14 +76,26 @@
                 ajax: {
                     url: "/inventory/recycle/show",
                     type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.dateStart = document.getElementById('input-inventory-recycle-date-start')
+                            .value;
+                        d.dateEnd = document.getElementById('input-inventory-recycle-date-end').value;
                     }
                 },
                 columnDefs: [{
-                    targets: [0],
-                    orderable: false
-                }],
+                        targets: [0],
+                        orderable: false
+                    },
+                    {
+                        targets: [5],
+                        className: "text-end",
+                    },
+                    {
+                        targets: [6],
+                        className: "text-end table-col-price",
+                    },
+                ],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Inventory Recycle"),
@@ -72,5 +108,13 @@
                 goToPage("/inventory/recycle/create");
             });
         });
+
+        function reloadTable() {
+            var dateStart = document.getElementById('input-inventory-recycle-date-start').value;
+            var dateEnd = document.getElementById('input-inventory-recycle-date-end').value;
+
+            // Reload the table.
+            table.ajax.reload(null, false);
+        }
     </script>
 @endsection

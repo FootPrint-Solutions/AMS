@@ -96,12 +96,12 @@ class InventoryRecycle extends Controller
         foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
-            $row[] = $key->salesOrderBattery->salesOrder->date;
+            $row[] = formatDate($key->salesOrderBattery->salesOrder->date);
             $row[] = $key->salesOrderBattery->salesOrder->sales_order_number;
             $row[] = $key->salesOrderBattery->salesOrder->customer->name;
             $row[] = $key->battery->name;
             $row[] = $key->quantity;
-            $row[] = $key->salesOrderBattery->price_net;
+            $row[] = formatPrice($key->salesOrderBattery->price_net);
             $rows[] = $row;
         }
 

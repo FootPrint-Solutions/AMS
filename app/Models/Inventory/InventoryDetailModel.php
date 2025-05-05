@@ -104,12 +104,14 @@ class InventoryDetailModel extends Model implements Auditable
 
         $query = self::query();
         $query->select($selectColumns);
+
         $query->with([
             'inventory',
             'battery',
             'inventoryRecycle',
             'salesOrderBattery'
         ]);
+
         $query->withCount([
             'inventory',
             'battery',
@@ -117,12 +119,35 @@ class InventoryDetailModel extends Model implements Auditable
             'salesOrderBattery'
         ]);
 
+
         // Searching process.
         if ($searchColumns != null && $searchValue != null) {
             $query->where(function ($query) use ($searchValue, $searchColumns) {
                 foreach ($searchColumns as $column) {
                     $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
                 }
+
+                $query->orWhereHas('battery', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery', function ($query) use ($searchValue) {
+                    $query->whereHas('salesOrder', function ($query) use ($searchValue) {
+                        $query->where('sales_order_number', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('price_net', 'LIKE', "%" . $searchValue . "%");
+                    });
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+            });
+        }
+
+        if ($request->dateStart && $request->dateEnd) {
+            $query->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                $query->where('date', '>=', $request->dateStart)
+                    ->where('date', '<=', $request->dateEnd);
             });
         }
 
