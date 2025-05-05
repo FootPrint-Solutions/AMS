@@ -200,6 +200,9 @@
                                     @endphp
                                     @if (!empty($data['profile']['batteries']))
                                         @foreach ($data['profile']['batteries'] as $index => $battery)
+                                            @if ($battery['battery']['type'] != 'regular')
+                                                @continue
+                                            @endif
                                             <tr>
                                                 <td class="text">
                                                     {{ $index + 1 }}

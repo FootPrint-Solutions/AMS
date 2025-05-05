@@ -195,20 +195,24 @@
                                 <tbody>
                                     @php
                                         $total = 0;
+                                        $no = 1;
                                     @endphp
                                     @if (!empty($data['profile']))
                                         @foreach ($data['profile'] as $profileIndex => $profile)
                                             @if (!empty($profile['batteries']))
                                                 @foreach ($profile['batteries'] as $batteryIndex => $battery)
+                                                    @if ($battery['battery']['type'] != 'regular')
+                                                        @continue
+                                                    @endif
                                                     @php
                                                         $po_number = isset($profile['sales_order_number'])
-                                                            ? str_replace('AK', 'TO', $profile['sales_order_number'])
+                                                            ? str_replace('AK', 'KP', $profile['sales_order_number'])
                                                             : 'N/A';
 
                                                     @endphp
                                                     <tr>
                                                         <td class="text">
-                                                            {{ $profileIndex + 1 }}
+                                                            {{ $no++ }}
                                                         </td>
                                                         <td class="text">
                                                             {{ $po_number }}
