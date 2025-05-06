@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Orders;
 
+// LIBRARY EXCEL
+use App\Exports\WorkOrderExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -599,6 +603,19 @@ class WorkOrder extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to copy work order instruction.'
+            ]);
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            return Excel::download(new WorkOrderExport, 'work-orders.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data ' . $e->getMessage()
             ]);
         }
     }

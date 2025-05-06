@@ -33,20 +33,20 @@ class SalesOrderExport implements FromCollection, WithHeadings, WithMapping, Wit
         ];
     }
 
-    public function map($battery): array
+    public function map($data): array
     {
         return [
-            $battery->sales_order_number ?? '-',
-            $battery->invoice_number ?? '-',
-            $battery->date ?? '-',
-            $battery->customer->name ?? '-',
-            $battery->vehicle->name ?? '-',
-            $battery->distributorShop->name ?? '-',
-            $battery->technicians->name ?? '-',
-            $battery->total,
-            $battery->paymentMethod->name,
-            $battery->payment_status,
-            $battery->status
+            $data->sales_order_number ?? '-',
+            $data->invoice_number ?? '-',
+            $data->date ?? '-',
+            $data->customer->name ?? '-',
+            $data->vehicle->name ?? '-',
+            $data->distributorShop->name ?? '-',
+            $data->technicians->name ?? '-',
+            $data->total,
+            $data->paymentMethod->name,
+            $data->payment_status,
+            $data->status
         ];
     }
 
