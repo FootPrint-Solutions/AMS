@@ -765,6 +765,7 @@ $arrayBattery
             $PaymentMethod = $request->input('PaymentMethod');
             $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
             $VehicleCustomer = $request->input('VehicleCustomer');
+            $MarketplaceInvoice = $request->input('MarketplaceInvoice') ?? null;
 
             if ($PaymentMethodData['id'] == 1) {
                 $payment_methode = "midtrans";
@@ -803,6 +804,7 @@ $arrayBattery
 
             $data = [
                 'sales_order_number' => $request->session()->get('invoice', SalesOrderModel::newCode()),
+                'invoice_number' => $MarketplaceInvoice,
                 'customer_id' => $Customer->id,
                 'vehicle_id' => $VehicleCustomer[0],
                 'distributor_shop_id' => $DistributorShop->id ?? null,

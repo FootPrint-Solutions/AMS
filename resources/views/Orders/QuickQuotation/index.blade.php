@@ -850,6 +850,7 @@
                 var DiscountPercentage = $("#discount-percent").val();
                 var typeDiscount = $("#type-discount").val();
                 var alternative_address = $("#alternative_address").val();
+                var MarketplaceInvoice = $("#MarketplaceInvoice").val();
 
                 var data = {
                     FullName: FullName,
@@ -890,7 +891,8 @@
                     TaxPricePayment: TaxPricePayment,
                     BatteryIdCheckout: BatteryIdCheckout,
                     typeDiscount: typeDiscount,
-                    alternative_address: alternative_address
+                    alternative_address: alternative_address,
+                    MarketplaceInvoice: MarketplaceInvoice
                 };
 
                 $.ajax({

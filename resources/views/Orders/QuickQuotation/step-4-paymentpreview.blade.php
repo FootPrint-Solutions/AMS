@@ -103,9 +103,20 @@
                             <h5>Payment Method</h5>
                             <select class="form-select" name="PaymentMethod" id="PaymentMethod">
                                 @foreach ($PaymentMethod as $pm)
-                                    <option value="{{ $pm['id'] }}">{{ $pm['name'] }}</option>
+                                    <option value="{{ $pm['id'] }}" data-payment-type="{{ $pm['type'] }}">
+                                        {{ $pm['name'] }}</option>
                                 @endforeach
                             </select>
+
+
+                            <div id="InvoicePaymentMarketplace" class="d-none mt-3">
+                                <div class="mt-3">
+                                    <label for="MarketplaceInvoice" class="form-label">Marketplace Invoice</label>
+                                    <input type="text" class="form-control" id="MarketplaceInvoice"
+                                        name="MarketplaceInvoice" placeholder="Enter Marketplace Invoice"
+                                        autocomplete="off">
+                                </div>
+                            </div>
 
                             <div id="MidtransPaymentLink" class="d-none mt-3">
                                 @if (isset($DistributorShop) && !empty($DistributorShop))
@@ -265,6 +276,15 @@
 
     function checkpaymentmethod() {
         var PaymentMethod = $("#PaymentMethod").val();
+        var paymentType = $("#PaymentMethod option:selected").data("payment-type");
+
+        if (paymentType == "marketplace") {
+            $("#InvoicePaymentMarketplace").removeClass("d-none");
+        } else {
+            $("#InvoicePaymentMarketplace").addClass("d-none");
+        }
+
+
         if (PaymentMethod == 1) {
             $("#MidtransPaymentLink").removeClass("d-none");
         } else {

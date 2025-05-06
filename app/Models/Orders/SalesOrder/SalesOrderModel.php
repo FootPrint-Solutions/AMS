@@ -40,6 +40,7 @@ class SalesOrderModel extends Model implements Auditable
      */
     protected $fillable = [
         'sales_order_number',
+        'invoice_number',
         'date',
         'customer_id',
         'vehicle_id',
