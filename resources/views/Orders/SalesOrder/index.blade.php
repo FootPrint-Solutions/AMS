@@ -55,6 +55,7 @@
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
                             <th scope="col">Sales Order Number</th>
+                            <th scope="col">Marketplace Invoice Number</th>
                             <th scope="col">Date</th>
                             <th scope="col">Customer</th>
                             <th scope="col">Vehicle</th>
@@ -100,7 +101,7 @@
                     targets: [0],
                     orderable: false,
                 }, {
-                    targets: [7],
+                    targets: [8],
                     className: 'dt-body-right table-col-price'
                 }, {
                     targets: [0, -1, -2],
@@ -108,6 +109,40 @@
                 }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([
+                    // Export to Excel
+                    {
+                        text: "<i class='fas fa-file-excel'></i> Export All to Excel",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var formData = new FormData();
+                            formData.append('_token', "{{ csrf_token() }}");
+
+                            $.ajax({
+                                url: '/sales-order/export',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(data) {
+                                    var url = window.URL.createObjectURL(data);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'sales-orders ' + new Date()
+                                        .toISOString().slice(0, 10) + '.xlsx';
+                                    document.body.append(a);
+                                    a.click();
+                                    a.remove();
+                                    window.URL.revokeObjectURL(url);
+                                },
+                                error: function() {
+                                    alert('Error exporting data');
+                                }
+                            });
+                        }
+                    },
                     // Edit    
                     {
                         text: "<i class='fas fa-pencil'></i> Edit",
@@ -125,7 +160,7 @@
                                 });
                                 return;
                             }
-                            let id = selectedRows[0][10];
+                            let id = selectedRows[0][11];
                             goToPage("/sales-order/edit/" + id);
                         }
                     },
@@ -146,7 +181,7 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[10]);
+                            let ids = selectedRows.map(row => row[11]);
                             sendDestroyRequest(ids, "/sales-order/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
@@ -164,7 +199,7 @@
                             }).data().toArray();
 
                             // Show modal more action
-                            showModalMoreAction(selectedRows[0][10], selectedRows[0][11]);
+                            showModalMoreAction(selectedRows[0][11], selectedRows[0][11]);
                         }
                     },
                 ]),

@@ -111,9 +111,10 @@
 
                             <div id="InvoicePaymentMarketplace" class="d-none mt-3">
                                 <div class="mt-3">
-                                    <label for="MarketplaceInvoice" class="form-label">Marketplace Invoice</label>
+                                    <label for="MarketplaceInvoice" class="form-label">Marketplace Invoice
+                                        Number</label>
                                     <input type="text" class="form-control" id="MarketplaceInvoice"
-                                        name="MarketplaceInvoice" placeholder="Enter Marketplace Invoice"
+                                        name="MarketplaceInvoice" placeholder="Enter Marketplace Invoice Number"
                                         autocomplete="off">
                                 </div>
                             </div>

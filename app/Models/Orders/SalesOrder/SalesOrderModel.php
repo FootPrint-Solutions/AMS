@@ -176,7 +176,7 @@ class SalesOrderModel extends Model implements Auditable
             'technicians.name AS technician_name',
             'payment_methods.name AS payment_method_name'
         ];
-        $searchColumns = ['sales_order_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
+        $searchColumns = ['sales_order_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
         $orderColumns = [
             'id',

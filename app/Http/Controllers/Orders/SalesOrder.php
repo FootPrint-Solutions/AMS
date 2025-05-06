@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Orders;
 
+
+// LIBRARY EXCEL
+use App\Exports\SalesOrderExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Settings\PaymentMethod;
 use Illuminate\Http\Request;
@@ -235,6 +240,7 @@ class SalesOrder extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->sales_order_number;
+            $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name;
             $row[] = $key->vehicle_name;
@@ -964,5 +970,18 @@ class SalesOrder extends Controller
                 )
             )
         );
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            return Excel::download(new SalesOrderExport, 'sales-orders.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data ' . $e->getMessage()
+            ]);
+        }
     }
 }
