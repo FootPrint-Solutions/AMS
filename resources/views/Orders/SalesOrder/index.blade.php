@@ -55,7 +55,7 @@
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
                             <th scope="col">Sales Order Number</th>
-                            <th scope="col">Marketplace Invoice Number</th>
+                            <th scope="col">Marketplace Inv No.</th>
                             <th scope="col">Date</th>
                             <th scope="col">Customer</th>
                             <th scope="col">Vehicle</th>
