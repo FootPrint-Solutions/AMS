@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Orders;
 
+
+// LIBRARY EXCEL
+use App\Exports\SalesOrderExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Settings\PaymentMethod;
 use Illuminate\Http\Request;
@@ -235,6 +240,7 @@ class SalesOrder extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->sales_order_number;
+            $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name;
             $row[] = $key->vehicle_name;
@@ -270,6 +276,7 @@ class SalesOrder extends Controller
             // Store sales order data.
             $salesOrder = new SalesOrderModel();
             $salesOrder->sales_order_number = $request->salesordernumber;
+            $salesOrder->invoice_number = $request->invoicenumber;
             $salesOrder->date = $request->date;
 
             if ($request->customer === "new") {
@@ -362,6 +369,7 @@ class SalesOrder extends Controller
             //     return getResponseData(false, "Unable to edit posted Sales Order.");
             // }
 
+            $salesOrder->invoice_number = $request->invoicenumber;
             $salesOrder->date = $request->date;
 
             if ($request->customer === "new") {
@@ -443,44 +451,82 @@ class SalesOrder extends Controller
 
                 if ($salesOrder->status === 'posted') {
 
-                    return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
+                    // return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
-                    // $salesOrder->status = 'draft';
-                    // $status = $salesOrder->save();
+                    $salesOrder->status = 'draft';
+                    $status = $salesOrder->save();
 
-                    // // Delete work order.
-                    // WorkOrderModel::where('sales_order_id', $request->id)->delete();
+                    // Delete work order.
+                    WorkOrderModel::where('sales_order_id', $request->id)->delete();
 
-                    // $successMessage = "The selected sales order was successfully unposted!";
-                    // $failedMessage = "Failed to unpost the selected sales order!";
+                    // Update inventory data.
+                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                        ->with('battery')
+                        ->get();
+
+                    // sum inventory detail where battery id = battery_id and type = in
+                    $total_quantity = 0;
+                    foreach ($salesOrderBattery as $battery) {
+
+                        // Delete inventory detail
+                        $inventoryDetail = InventoryDetailModel::where('reference_id', $battery->id)
+                            ->first();
+                        if ($inventoryDetail) {
+                            $status &= $inventoryDetail->delete();
+                        }
+
+                        $inventoryDetailSum = InventoryDetailModel::where('battery_id', $battery->battery_id)
+                            ->where('type', 'in')
+                            ->sum('quantity');
+
+                        $total_quantity += $inventoryDetailSum;
+
+
+                        // update total to inventory where battery id = battery_id
+                        $inventory = InventoryModel::where('battery_id', $battery->battery_id)->first();
+                        if ($inventory) {
+                            $inventory->stock = $inventoryDetailSum;
+                            $status &= $inventory->save();
+                        }
+                    }
+
+
+                    $successMessage = "The selected sales order was successfully unposted!";
+                    $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
 
                     // Store to inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)->with('battery')->get()->toArray();
-                    foreach ($salesOrderBattery as $battery) {
-                        if ($battery['battery']['type'] == 'recycle') {
-                            $inventory = InventoryModel::where('battery_id', $battery['battery_id'])->first();
-                            if ($inventory) {
-                                $inventory->stock += 1;
-                                $status &= $inventory->save();
-                            } else {
-                                $inventory = new InventoryModel();
-                                $inventory->battery_id = $battery['battery_id'];
-                                $inventory->stock = 1;
-                                $status &= $inventory->save();
-                            }
+                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                        ->with('battery')
+                        ->get();
 
-                            $inventoryDetail = new InventoryDetailModel([
-                                'inventory_id' => $inventory->id,
-                                'type' => "in",
-                                'reference' => "Sales Order",
-                                'quantity' => 1,
-                                'note' => "Sales Order - " . $salesOrder->sales_order_number,
-                            ]);
-                            $status &= $inventoryDetail->save();
+                    if ($salesOrderBattery->isEmpty()) {
+                        Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
+                    } else {
+                        foreach ($salesOrderBattery as $battery) {
+                            if ($battery->battery && $battery->battery->type === 'recycle') {
+                                $inventory = InventoryModel::firstOrNew([
+                                    'battery_id' => $battery->battery_id
+                                ]);
+
+                                $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
+                                $status &= $inventory->save();
+
+                                $inventoryDetail = new InventoryDetailModel([
+                                    'inventory_id' => $inventory->id,
+                                    'battery_id' => $battery->battery_id,
+                                    'type' => 'in',
+                                    'reference' => 'Sales Order Battery',
+                                    'quantity' => 1,
+                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                                ]);
+
+                                $inventoryDetail->reference()->associate($battery);
+                                $status &= $inventoryDetail->save();
+                            }
                         }
                     }
 
@@ -924,5 +970,18 @@ class SalesOrder extends Controller
                 )
             )
         );
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            return Excel::download(new SalesOrderExport, 'sales-orders.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data ' . $e->getMessage()
+            ]);
+        }
     }
 }

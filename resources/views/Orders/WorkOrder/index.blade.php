@@ -301,6 +301,40 @@
                         },
                         className: "btn btn-outline-secondary btn-sm",
                     },
+                    // Export to Excel
+                    {
+                        text: "<i class='fas fa-file-excel'></i> Export All to Excel",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var formData = new FormData();
+                            formData.append('_token', "{{ csrf_token() }}");
+
+                            $.ajax({
+                                url: '/work-order/export',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(data) {
+                                    var url = window.URL.createObjectURL(data);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'work-orders ' + new Date()
+                                        .toISOString().slice(0, 10) + '.xlsx';
+                                    document.body.append(a);
+                                    a.click();
+                                    a.remove();
+                                    window.URL.revokeObjectURL(url);
+                                },
+                                error: function() {
+                                    alert('Error exporting data');
+                                }
+                            });
+                        }
+                    },
                     // add upload image button 
                     {
                         text: "<i class='fas fa-upload'></i> Complete WO",

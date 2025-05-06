@@ -195,6 +195,18 @@
                                 @endisset
                             </div>
                         </div>
+
+
+                        {{-- Invoice Number --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="invoice-number">Marketplace Invoice Number</label>
+                                <input type="text" class="form-control" id="invoice-number" name="invoicenumber"
+                                    placeholder="Enter Markeplace Invoice Number"
+                                    @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset>
+                            </div>
+                        </div>
+
                     </div>
 
                     {{-- Details --}}
