@@ -29,6 +29,22 @@
                     </div>
                 </div>
 
+                {{-- Type --}}
+                <div class="row">
+                    <div class="form-group local-forms">
+                        <label for="type">Type <span class="login-danger">*</span></label>
+                        <select class="form-control" id="type" name="type" required>
+                            <option value="">Select payment method type</option>
+                            <option value="regularpayment" @if (isset($data['profile']) && $data['profile']['type'] == 'regularpayment') selected @endif>Regular Payment
+                            </option>
+                            <option value="marketplace" @if (isset($data['profile']) && $data['profile']['type'] == 'marketplace') selected @endif>Market Place
+                            </option>
+                            <option value="paymentgateway" @if (isset($data['profile']) && $data['profile']['type'] == 'paymentgateway') selected @endif>Payment Gateway
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Note --}}
                 <div class="row">
                     <div class="form-group local-forms">

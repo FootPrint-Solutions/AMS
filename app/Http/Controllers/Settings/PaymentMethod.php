@@ -120,6 +120,7 @@ class PaymentMethod extends Controller
         try {
             $payment = new PaymentMethodModel();
             $payment->name = $request->name;
+            $payment->type = $request->type;
             $payment->note = $request->note;
             $status = $payment->save();
 
@@ -145,6 +146,7 @@ class PaymentMethod extends Controller
         try {
             $payment = PaymentMethodModel::find($request->id);
             $payment->name = $request->name;
+            $payment->type = $request->type;
             $payment->note = $request->note;
             $status = $payment->save();
 
