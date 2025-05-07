@@ -73,7 +73,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(3, "/payment/edit/", null, "/payment/toggle");
+            appendDatatablesToolbar(4, "/payment/edit/", null, "/payment/toggle");
         });
     </script>
 

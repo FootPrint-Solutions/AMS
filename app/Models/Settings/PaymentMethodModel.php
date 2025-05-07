@@ -29,7 +29,7 @@ class PaymentMethodModel extends Model
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'status'];
+        $selectColumns = ['id', 'type', 'name', 'status'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.

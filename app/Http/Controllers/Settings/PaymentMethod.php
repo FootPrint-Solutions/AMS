@@ -91,10 +91,21 @@ class PaymentMethod extends Controller
                 $statusIndicatorColor = "text-success";
             }
 
+            if ($key->type == "regularpayment") {
+                $key->type = "Regular Payment";
+            } else if ($key->type == "marketplace") {
+                $key->type = "Market Place";
+            } else if ($key->type == "paymentgateway") {
+                $key->type = "Payment Gateway";
+            } else {
+                $key->type = "Unknown Type";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
+            $row[] = $key->type;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $row[] = $key->status;
@@ -158,7 +169,7 @@ class PaymentMethod extends Controller
             );
         } catch (Exception $e) {
             // Set an error response data to be sent.
-            return getResponseData(false);
+            return getResponseData($e->getMessage());
             Log::error($e->getMessage());
         }
     }

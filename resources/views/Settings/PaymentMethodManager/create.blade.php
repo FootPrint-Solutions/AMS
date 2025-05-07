@@ -50,7 +50,7 @@
                     <div class="form-group local-forms">
                         <label for="note">Note</label>
                         <textarea type="text" class="form-control" id="note" name="note" placeholder="Enter payment method note">
-@isset($data['profile'][0])
+@isset($data['profile']['note'])
 {{ $data['profile']['note'] }}
 @endisset
 </textarea>
