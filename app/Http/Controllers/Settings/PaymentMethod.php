@@ -156,21 +156,31 @@ class PaymentMethod extends Controller
     public function update(Request $request)
     {
         try {
+            $request->validate([
+                'id' => 'required|integer|exists:payment_methods,id',
+                'name' => 'required|string|max:255',
+                'type' => 'required|string|max:100',
+                'note' => 'nullable|string',
+            ]);
+
             $payment = PaymentMethodModel::find($request->id);
+
+            if (!$payment) {
+                return getResponseData(false, 'Payment method not found.');
+            }
+
             $payment->name = $request->name;
             $payment->type = $request->type;
             $payment->note = $request->note;
             $status = $payment->save();
 
-            // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected payment method was successfully updated!" : "Failed to update the selected payment method!"
             );
         } catch (Exception $e) {
-            // Set an error response data to be sent.
-            return getResponseData($e->getMessage());
             Log::error($e->getMessage());
+            return getResponseData(false, $e->getMessage());
         }
     }
 
