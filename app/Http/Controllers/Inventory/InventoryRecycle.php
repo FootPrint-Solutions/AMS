@@ -97,10 +97,10 @@ class InventoryRecycle extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-            $row[] = $key->salesOrderBattery->salesOrder->sales_order_number;
-            $row[] = $key->salesOrderBattery->salesOrder->customer->name;
-            $row[] = $key->battery->name;
-            $row[] = $key->quantity;
+            $row[] = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
+            $row[] = $key->battery->name ?? '-';
+            $row[] = $key->quantity ?? '-';
             $row[] = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
             $rows[] = $row;
         }
