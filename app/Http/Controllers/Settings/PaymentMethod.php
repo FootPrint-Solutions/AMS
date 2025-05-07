@@ -156,7 +156,6 @@ class PaymentMethod extends Controller
     public function update(Request $request)
     {
         try {
-            dd($request->all());
             $payment = PaymentMethodModel::find($request->id);
             $payment->name = $request->name;
             $payment->type = $request->type;
