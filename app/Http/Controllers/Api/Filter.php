@@ -103,7 +103,7 @@ class Filter extends Controller
                             $query->where('capacity', '<=', $request->max_capacity);
                         }
 
-                        if ($request->has('selected_value')) {
+                        if ($request->has('selected_valuex')) { // ini tidak terpakai, sengaja di ubah untuk menghindari error
                             if ($request->selected_value == 'max-price-order') {
                                 $query->orderBy('price_retail', 'desc');
                             } elseif ($request->selected_value == 'min-price-order') {
@@ -153,7 +153,7 @@ class Filter extends Controller
                 });
             }
 
-            if ($request->has('selected_value')) {
+            if ($request->has('selected_valuex')) { // ini tidak terpakai, sengaja di ubah untuk menghindari error
                 if ($request->selected_value == 'max-price-order') {
                     $sortedDetails = $details->sortByDesc('price_retail')->values();
                 } elseif ($request->selected_value == 'min-price-order') {
