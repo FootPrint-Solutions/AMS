@@ -132,6 +132,7 @@ class PaymentMethod extends Controller
         } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
+            Log::error($e->getMessage());
         }
     }
 
@@ -158,6 +159,7 @@ class PaymentMethod extends Controller
         } catch (Exception $e) {
             // Set an error response data to be sent.
             return getResponseData(false);
+            Log::error($e->getMessage());
         }
     }
 
