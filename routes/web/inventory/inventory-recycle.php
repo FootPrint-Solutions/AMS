@@ -10,3 +10,4 @@ Route::get('/inventory/recycle/edit/{id}', [InventoryRecycle::class, 'edit'])->n
 Route::post('/inventory/recycle/store', [InventoryRecycle::class, 'store'])->name('inventory.recycle.store')->middleware('permission:add_inventory');
 Route::post('/inventory/recycle/update', [InventoryRecycle::class, 'update'])->name('inventory.recycle.update')->middleware('permission:edit_inventory');
 Route::post('/inventory/recycle/destroy', [InventoryRecycle::class, 'destroy'])->name('inventory.recycle.destroy')->middleware('permission:delete_inventory');
+Route::post('/inventory/recycle/sold-out', [InventoryRecycle::class, 'soldOut'])->name('inventory.recycle.sold-out')->middleware('permission:delete_inventory');

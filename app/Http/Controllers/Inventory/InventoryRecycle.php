@@ -100,8 +100,11 @@ class InventoryRecycle extends Controller
             $row[] = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
             $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
             $row[] = $key->battery->name ?? '-';
+            $row[] = $key->salesOrderBattery->battery_production_code ?? '-';
             $row[] = $key->quantity ?? '-';
             $row[] = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+            $row[] = $key->id ?? '-';
+            $row[] = $key->sold ?? '-';
             $rows[] = $row;
         }
 
@@ -245,6 +248,54 @@ class InventoryRecycle extends Controller
             return getResponseData(
                 $status,
                 $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
+            );
+        } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Mark the selected battery brand as sold out.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function soldOut(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $status = true;
+            $ids = $request->input('ids', []);
+            foreach ($ids as $id) {
+                $brand = InventoryDetailModel::find($id);
+                if ($brand) {
+                    $brand->sold = 1;
+                    $brand->sold_at = now(); // Use Laravel's helper for current timestamp
+                    $status = $brand->save();
+                    if (!$status) {
+                        DB::rollBack();
+                        return getResponseData(false, "Failed to mark brand with ID {$id} as sold out!");
+                    }
+                } else {
+                    DB::rollBack();
+                    return getResponseData(false, "Brand with ID {$id} not found!");
+                }
+            }
+
+            DB::commit();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                true,
+                "The selected brands were successfully marked as sold out!"
             );
         } catch (Exception $e) {
             // Rollback if any of the database processes failed.
