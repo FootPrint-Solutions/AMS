@@ -206,9 +206,9 @@
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[11] == "posted")
+                    if (data[12] == "posted")
                         $('td', row).addClass("text-success");
-                    else if (data[11] == "completed")
+                    else if (data[12] == "completed")
                         $('td', row).addClass("text-info");
                 }
             });

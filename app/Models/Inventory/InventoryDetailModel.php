@@ -28,6 +28,8 @@ class InventoryDetailModel extends Model implements Auditable
         'type',
         'reference',
         'quantity',
+        'sold',
+        'sold_at',
         'note',
         'reference_id',
         'reference_type',
@@ -82,6 +84,7 @@ class InventoryDetailModel extends Model implements Auditable
             'note',
             'reference_id',
             'reference_type',
+            'sold',
         ];
 
         $searchColumns = [
@@ -134,7 +137,8 @@ class InventoryDetailModel extends Model implements Auditable
                 $query->orWhereHas('salesOrderBattery', function ($query) use ($searchValue) {
                     $query->whereHas('salesOrder', function ($query) use ($searchValue) {
                         $query->where('sales_order_number', 'LIKE', "%" . $searchValue . "%")
-                            ->orWhere('price_net', 'LIKE', "%" . $searchValue . "%");
+                            ->orWhere('price_net', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('battery_production_code', 'LIKE', "%" . $searchValue . "%");
                     });
                 });
 
