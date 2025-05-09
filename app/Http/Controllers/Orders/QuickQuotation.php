@@ -72,7 +72,7 @@ class QuickQuotation extends Controller
 
     function shareFormPersonalDetails(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $Fullname = $request->input('FullName');
         $AddressCustomer = $request->input('AddressCustomer');
         $EmailCustomer = $request->input('EmailCustomer');
@@ -209,7 +209,7 @@ $arrayVehicle";
 
     public function shareBattery(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-image";
+        $url = "https://whatsapp.akikita.web.id/send-image";
         $ids = $request->input('Battery');
         $Fullname = $request->input('FullName');
         // $results = BatteryModel::where('id', $ids)->get()->toArray();
@@ -524,7 +524,7 @@ $arrayBattery
 
     public function shareInvoice(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $FullName = $request->input('FullName');
         $ContactNumber = $request->input('ContactNumber');
         $Battery = $request->input('Battery');
@@ -624,7 +624,7 @@ $arrayBattery
 
     public static function sharePaymentDetails(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $FullName = $request->input('FullName');
         $Battery = $request->input('Battery');
         $IsMidtrans = $request->input('IsMidtrans');
