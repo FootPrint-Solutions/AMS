@@ -55,12 +55,12 @@ class SalesOnline extends Controller
             foreach ($cartDetails as $cart) {
                 SalesOnlineBatteriesModel::create([
                     'sales_online_id' => $salesOnline->id,
-                    'battery_id' => $cart['batteryId'],
+                    'battery_id' => $cart['id'],
                     'name' => $cart['name'],
                     'price' => $cart['price'],
                     'image' => $cart['image'],
                     'quantity' => $cart['quantity'],
-                    'total_price' => $cart['totalPrice'],
+                    'total_price' => $cart['price'] * $cart['quantity'],
                 ]);
             }
 
