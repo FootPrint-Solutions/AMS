@@ -110,7 +110,7 @@ $arrayVehicle";
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => $message,
         ];
 
@@ -280,7 +280,7 @@ $arrayBattery
 
                 $data = [
                     'to' => "62" . $request->input('ContactNumber'),
-                    'session' => auth()->user()->username,
+                    'session' => "admin_ams",
                     'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
                     'caption' => $message,
                 ];
@@ -599,7 +599,7 @@ $arrayBattery
 
         $data = [
             'to' => "62" . $ContactNumber,
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => "$message",
         ];
 
@@ -725,7 +725,7 @@ $arrayBattery
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => $message,
         ];
 
