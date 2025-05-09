@@ -208,7 +208,7 @@ class UserManager extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
-                "status" => "error",
+                "status" => false,
                 "message" => "Failed to update user. " . $e->getMessage()
             ]);
         }
@@ -259,7 +259,7 @@ class UserManager extends Controller
             DB::rollBack();
 
             return response()->json([
-                "status" => "error",
+                "status" => false,
                 "message" => "Failed to update user. " . $e->getMessage()
             ]);
         }
