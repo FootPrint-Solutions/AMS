@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Battery;
 use App\Http\Controllers\Api\Gallery;
 use App\Http\Controllers\Api\Faq;
 use App\Http\Controllers\Api\Review;
+use App\Http\Controllers\Api\SalesOnline;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +49,6 @@ Route::get('faq', [Faq::class, 'getAllFaq']);
 
 // REVIEW API
 Route::get('review', [Review::class, 'getAllReview']);
+
+// SALES ONLINE API
+Route::post('sales-online/receive-data', [SalesOnline::class, 'receiveData']);
