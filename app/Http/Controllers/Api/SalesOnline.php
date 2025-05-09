@@ -65,6 +65,71 @@ class SalesOnline extends Controller
             }
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan.', 'data' => $salesOnline]);
+
+            try {
+                $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+                    'session' => "admin_ams",
+                    'scan' => 'true',
+                ]);
+
+                if ($response->successful()) {
+                    $responseData = $response->json();
+                    if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
+
+                        $url_send_message = "https://whatsapp.akikita.web.id/send-message";
+
+                        $message = "Ada pesanan baru dari " . $data['customerName'] . "\n";
+                        $message .= "Detail Pesanan:\n";
+                        foreach ([
+                            'Nama' => $data['customerName'],
+                            'Provinsi' => $data['province'],
+                            'Kota' => $data['city'],
+                            'Kecamatan' => $data['district'],
+                            'Desa' => $data['subDistrict'],
+                            'Kode Pos' => $data['postalCode'],
+                            'Nomor Telepon' => $data['phoneNumber'],
+                            'Email' => $data['email'],
+                            'Plat Nomor' => $data['vehiclePlate'],
+                            'Tanggal Pengiriman' => $data['deliveryDate'],
+                            'Info Tambahan' => $data['additionalInfo']
+                        ] as $key => $value) {
+                            $message .= "$key: $value\n";
+                        }
+
+                        $message .= "Detail Pesanan:\n";
+                        $totalPayment = 0;
+                        foreach ($cartDetails as $cart) {
+                            $totalPrice = $cart['price'] * $cart['quantity'];
+                            $totalPayment += $totalPrice;
+                            foreach ([
+                                'Nama' => $cart['name'],
+                                'Harga' => $cart['price'],
+                                'Gambar' => $cart['image'],
+                                'Jumlah' => $cart['quantity'],
+                                'Total Harga' => $totalPrice
+                            ] as $key => $value) {
+                                $message .= "$key: $value\n";
+                            }
+                        }
+                        $message .= "Total Pembayaran: $totalPayment\n";
+                        $message .= "Silakan konfirmasi pesanan ini.\nTerima kasih telah berbelanja di kami.\nSalam, Aki Kita";
+
+                        foreach ([
+                            ['to' => $data['phoneNumber'], 'session' => auth()->user()->username, 'text' => $message],
+                            ['to' => '6281563532934', 'session' => auth()->user()->username, 'text' => $message]
+                        ] as $payload) {
+                            $response = Http::post($url_send_message, $payload);
+                            if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
+                                return response()->json(['status' => 'error', 'message' => 'Gagal mengirim pesan.']);
+                            }
+                        }
+
+                        return response()->json(['status' => 'success', 'message' => 'Pesan berhasil dikirim.']);
+                    }
+                }
+            } catch (\Throwable $th) {
+                Log::error('Error fetching QR code: ' . $th->getMessage());
+            }
         } catch (\Throwable $th) {
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan saat menyimpan data: ' . $th->getMessage()], 500);
         }

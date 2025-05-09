@@ -72,7 +72,7 @@ class QuickQuotation extends Controller
 
     function shareFormPersonalDetails(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $Fullname = $request->input('FullName');
         $AddressCustomer = $request->input('AddressCustomer');
         $EmailCustomer = $request->input('EmailCustomer');
@@ -110,7 +110,7 @@ $arrayVehicle";
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => $message,
         ];
 
@@ -209,7 +209,7 @@ $arrayVehicle";
 
     public function shareBattery(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-image";
+        $url = "https://whatsapp.akikita.web.id/send-image";
         $ids = $request->input('Battery');
         $Fullname = $request->input('FullName');
         // $results = BatteryModel::where('id', $ids)->get()->toArray();
@@ -280,7 +280,7 @@ $arrayBattery
 
                 $data = [
                     'to' => "62" . $request->input('ContactNumber'),
-                    'session' => auth()->user()->username,
+                    'session' => "admin_ams",
                     'url' => $value['image'] ?? "https://via.placeholder.com/210x210",
                     'caption' => $message,
                 ];
@@ -524,7 +524,7 @@ $arrayBattery
 
     public function shareInvoice(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $FullName = $request->input('FullName');
         $ContactNumber = $request->input('ContactNumber');
         $Battery = $request->input('Battery');
@@ -599,7 +599,7 @@ $arrayBattery
 
         $data = [
             'to' => "62" . $ContactNumber,
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => "$message",
         ];
 
@@ -624,7 +624,7 @@ $arrayBattery
 
     public static function sharePaymentDetails(Request $request)
     {
-        $url = "http://185.199.52.172:5001/send-message";
+        $url = "https://whatsapp.akikita.web.id/send-message";
         $FullName = $request->input('FullName');
         $Battery = $request->input('Battery');
         $IsMidtrans = $request->input('IsMidtrans');
@@ -725,7 +725,7 @@ $arrayBattery
 
         $data = [
             'to' => "62" . $request->input('ContactNumber'),
-            'session' => auth()->user()->username,
+            'session' => "admin_ams",
             'text' => $message,
         ];
 

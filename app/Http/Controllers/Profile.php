@@ -18,8 +18,8 @@ class Profile extends Controller
     public function index()
     {
         try {
-            $response = Http::get('http://185.199.52.172:5001/start-session-json', [
-                'session' => auth()->user()->username,
+            $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+                'session' => "admin_ams",
                 'scan' => 'true',
             ]);
             if (isset($response['data']['qr']) && $response['data']['qr'] != null) {
@@ -128,7 +128,7 @@ class Profile extends Controller
     public function deleteSessionWhatsapp()
     {
         try {
-            $response = Http::get('http://185.199.52.172:5001/delete-session', [
+            $response = Http::get('https://whatsapp.akikita.web.id/delete-session', [
                 'session' => auth()->user()->username,
             ]);
 
