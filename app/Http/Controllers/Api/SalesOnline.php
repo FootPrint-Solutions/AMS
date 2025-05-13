@@ -124,7 +124,7 @@ class SalesOnline extends Controller
                             }
                         }
 
-                        return response()->json(['status' => 'success', 'message' => 'Pesan berhasil dikirim.']);
+                        return response()->json(['status' => 'success', 'message' => 'Pesan berhasil dikirim.', 'data' => $response->json()]);
                     }
                 }
             } catch (\Throwable $th) {
