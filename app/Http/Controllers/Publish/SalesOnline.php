@@ -17,6 +17,7 @@ use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\Orders\SalesOnline\SalesOnlineModel;
 
 class SalesOnline extends Controller
 {
@@ -48,34 +49,51 @@ class SalesOnline extends Controller
      */
     public function index()
     {
-        try {
-            // check if session has sales data already
-            if (session()->has('salesData')) {
-                $salesData = session('salesData');
-            } else {
-                $salesData = $this->getSalesAll();
-                session(['salesData' => $salesData]);
-            }
-
-            $data = array(
-                'Sales' => $salesData,
-                'Vehicles' => VehicleModel::orderBy('name', 'asc')->get(),
-                'Distributors' => DistributorShopModel::orderBy('name', 'asc')->get(),
-                'Customers' => CustomerModel::orderBy('name', 'asc')->get(),
-            );
-
-            return view(
-                'Publish.SalesOnline.index',
-                getIndexData(
-                    $this->title,
-                    $data
-                )
-            );
-        } catch (\Throwable $th) {
-            Log::error($th);
-            return redirect()->route('dashboard')->with('error', 'Failed to get data sales online');
-        }
+        $data = array(
+            'Vehicles' => VehicleModel::orderBy('name', 'asc')->get(),
+            'Distributors' => DistributorShopModel::orderBy('name', 'asc')->get(),
+            'Customers' => CustomerModel::orderBy('name', 'asc')->get(),
+        );
+        return view(
+            'Publish.SalesOnline.index',
+            getIndexData(
+                $this->title,
+                $data,
+            )
+        );
     }
+
+    /**
+     * Display all resources.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        // Get all DataTables requests.
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+
+        // Get customer data (rows and count).
+        $data = SalesOnlineModel::allForDataTables($request);
+
+        // Set rows to be displayed in customer table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+
+            $rows[] = $row;
+        }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => SalesOrderModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
+
 
     /**
      * Retrieves the sales data by the given sales online number.

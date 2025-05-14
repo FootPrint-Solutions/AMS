@@ -145,7 +145,7 @@ class SalesOnline extends Controller
                     ] as $payload) {
                         $response = Http::post($url_send_message, $payload);
                         if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
-                            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim pesan.']);
+                            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim pesan. ' . json_encode($response->json())]);
                             Log::error('Error sending message: ' . $response->json());
                         } else {
                             Log::info('Pesan berhasil dikirim ke ' . $payload['to']);
