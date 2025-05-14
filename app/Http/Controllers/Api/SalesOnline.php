@@ -64,7 +64,7 @@ class SalesOnline extends Controller
                 ]);
             }
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan.', 'data' => $salesOnline]);
+            // return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan.', 'data' => $salesOnline]);
 
             try {
                 $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
