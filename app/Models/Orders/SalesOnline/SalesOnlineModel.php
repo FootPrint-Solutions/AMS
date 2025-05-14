@@ -24,6 +24,7 @@ class SalesOnlineModel extends Model
         'vehicle_plate',
         'delivery_date',
         'additional_info',
+        'address',
     ];
 
     protected $dates = [
