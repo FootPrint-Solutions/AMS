@@ -5,6 +5,7 @@ namespace App\Models\Orders\SalesOnline;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
