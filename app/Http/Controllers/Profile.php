@@ -18,7 +18,7 @@ class Profile extends Controller
     public function index()
     {
         try {
-            $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+            $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
                 'session' => "admin_ams",
                 'scan' => 'true',
             ]);
