@@ -18,6 +18,7 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Orders\SalesOnline\SalesOnlineModel;
+use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
 
 class SalesOnline extends Controller
 {
@@ -75,14 +76,24 @@ class SalesOnline extends Controller
         $draw = $request->input("draw");
         $start = $request->input("start");
 
-        // Get customer data (rows and count).
+        // Get customer data (rows and coun t).
         $data = SalesOnlineModel::allForDataTables($request);
 
         // Set rows to be displayed in customer table.
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
-
+            $row = [];
+            $row[] = '';
+            $row[] = $no++;
+            $row[] = $key->id;
+            $row[] = formatDate($key->delivery_date);
+            $row[] = $key->customer_name;
+            $row[] = $key->phone_number;
+            $row[] = $key->address;
+            $row[] = $key->sum_quantity;
+            $row[] = formatPrice($key->sum_total);
+            $row[] = $key->sales_order_id;
             $rows[] = $row;
         }
 
@@ -164,23 +175,43 @@ class SalesOnline extends Controller
 
             $SalesOnlineID = $request->input('sales_online_number');
 
-            // get from woocommerce
-            $SalesOnline = $this->getSalesById($SalesOnlineID);
+            // check to sales order
+            $SalesOrder = SalesOrderModel::where('source_id', $SalesOnlineID)
+                ->where('source_platform', 'akikita.web.id')
+                ->first();
+
+            if ($SalesOrder) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Online data already exists in Sales Orders',
+                ]);
+            }
+
+            $SalesOnline = SalesOnlineModel::where('id', $SalesOnlineID)->first();
+
+            if (!$SalesOnline) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Online data not found',
+                ]);
+            }
 
             // save to sales orders
             $SalesOrder = new SalesOrderModel();
             $SalesOrder->sales_order_number = SalesOrderModel::newCode();
-            $SalesOrder->date = $SalesOnline['date_created'];
+            $SalesOrder->date = $SalesOnline['delivery_date'];
 
 
             // find customer by email or create new customer
-            $customer = CustomerModel::where('email', $SalesOnline['billing']['email'])->first();
+            $customer = CustomerModel::where('contact', $SalesOnline['phone_number'])->first();
             if (!$customer) {
                 $customer = new CustomerModel();
-                $customer->name = $SalesOnline['billing']['first_name'] . ' ' . $SalesOnline['billing']['last_name'];
-                $customer->email = $SalesOnline['billing']['email'];
-                $customer->address = $SalesOnline['billing']['address_1'];
-                $customer->contact = $SalesOnline['billing']['phone'];
+                $customer->name = $SalesOnline['customer_name'];
+                $customer->email = $SalesOnline['email'];
+                $customer->address = $SalesOnline['address'] ? $SalesOnline['address'] : '';
+                $customer->contact = $SalesOnline['phone_number'];
                 $customer->latitude = 0;
                 $customer->longitude = 0;
                 $customer->save();
@@ -191,29 +222,40 @@ class SalesOnline extends Controller
             $SalesOrder->distributor_shop_technician_id = $request->technician_id;
 
             // find payment method by name or create new payment method
-            $paymentMethod = PaymentMethodModel::where('name', $SalesOnline['payment_method'])->first();
+            $paymentMethod = PaymentMethodModel::where('name', "Sales Online")->first();
             if (!$paymentMethod) {
                 $paymentMethod = new PaymentMethodModel();
-                $paymentMethod->name = $SalesOnline['payment_method_title'];
+                $paymentMethod->name = "Sales Online";
+                $paymentMethod->type = "payment";
                 $paymentMethod->save();
             }
 
             $SalesOrder->payment_method_id = $paymentMethod->id;
-            $SalesOrder->payment_status = $SalesOnline['status'];
+            $SalesOrder->payment_status = "";
             $SalesOrder->discount = 0;
             $SalesOrder->discount_price = 0;
             $SalesOrder->subtotal = 0;
-            $SalesOrder->total = $SalesOnline['total'];
-            $SalesOrder->address = $SalesOnline['billing']['address_1'];
+
+            $SalesOrder->address = $SalesOnline['address'] ? $SalesOnline['address'] : '';
             $SalesOrder->source_id = $SalesOnlineID;
-            $SalesOrder->source_platform = 'woocommerce';
-            $SalesOrder->save();
+            $SalesOrder->source_platform = 'akikita.web.id';
 
             // save sales order items
+            $salesOnlineBatteries = SalesOnlineBatteriesModel::where('sales_online_id', $SalesOnlineID)->get()->toArray();
+
+            if (count($salesOnlineBatteries) == 0) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Online Batteries data not found',
+                ]);
+            }
+
             $salesOrderItems = [];
-            foreach ($SalesOnline['line_items'] as $item) {
+            $total = 0;
+            foreach ($salesOnlineBatteries as $item) {
                 // find product by name or cancel the order
-                $product = BatteryModel::where('name', $item['product']['name'])->first();
+                $product = BatteryModel::where('id', $item['battery_id'])->first();
                 if (!$product) {
                     DB::rollBack();
                     return response()->json([
@@ -226,15 +268,21 @@ class SalesOnline extends Controller
                     'sales_order_id' => $SalesOrder->id,
                     'battery_id' => $product->id,
                     'battery_name' => $product->name,
-                    'battery_price_retail' => $item['product']['price'],
+                    'battery_price_retail' => $item['price'],
                     'tax' => 0,
                     'tax_price' => 0,
                     'discout' => 0,
                     'discount_price' => 0,
-                    'price_net' => $item['product']['price'],
+                    'price_net' => $item['price'],
                     'quantity' => $item['quantity']
                 ];
+
+                $total += $item['price'] * $item['quantity'];
             }
+
+            $SalesOrder->total = $total;
+            $SalesOrder->save();
+
 
             $SalesOrder->batteries()->createMany($salesOrderItems);
 
