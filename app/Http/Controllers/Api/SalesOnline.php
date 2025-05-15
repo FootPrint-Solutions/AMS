@@ -85,6 +85,7 @@ class SalesOnline extends Controller
                     $url_send_message = "https://whatsapp.ekakosmetikcirebon.id/send-message";
 
                     $message = "🎉 *Terima kasih atas pesanan Anda, {$data['customerName']}!*\n\n";
+                    $message .= "Kode pesanan Anda adalah: *{$salesOnline->id}*.\n";
                     $message .= "Kami telah menerima pesanan Anda dengan detail berikut:\n\n";
                     $message .= "📌 *Informasi Pelanggan:*\n";
                     $message .= "👤 Nama: {$data['customerName']}\n";
