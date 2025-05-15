@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Orders\SalesOnline\SalesOnlineModel;
 use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\Servers\ServerWhatsappModel;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,9 @@ class SalesOnline extends Controller
     public function receiveData(Request $request)
     {
         try {
+
+            $whatsappAdmin =  ServerWhatsappModel::where('name', 'AMS WA')->first();
+
             if (!$request->isMethod('post')) {
                 return response()->json(['status' => 'error', 'message' => 'Invalid request method'], 405);
             }
@@ -69,7 +73,7 @@ class SalesOnline extends Controller
                 ]);
             }
 
-            $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+            $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
                 'session' => "admin_ams",
                 'scan' => 'false',
             ]);
@@ -78,7 +82,7 @@ class SalesOnline extends Controller
                 $responseData = $response->json();
                 if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
 
-                    $url_send_message = "https://whatsapp.akikita.web.id/send-message";
+                    $url_send_message = "https://whatsapp.ekakosmetikcirebon.id/send-message";
 
                     $message = "🎉 *Terima kasih atas pesanan Anda, {$data['customerName']}!*\n\n";
                     $message .= "Kami telah menerima pesanan Anda dengan detail berikut:\n\n";
@@ -141,7 +145,7 @@ class SalesOnline extends Controller
 
                     foreach ([
                         ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message],
-                        ['to' => '6281563532934', 'session' => "admin_ams", 'text' => $message_admin]
+                        ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
                     ] as $payload) {
                         $response = Http::post($url_send_message, $payload);
                         if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {

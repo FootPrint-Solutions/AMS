@@ -59,6 +59,11 @@
                                 Gateway</a>
                         </li>
                     @endif
+
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#setting-whatsapp-number">Setting WhatsApp Number
+                            Admin</a>
+                    </li>
                 </ul>
             </div>
 
@@ -80,6 +85,11 @@
                         @include('Profile.setting-api')
                     </div>
                 @endif
+
+                {{-- Setting WhatsApp Number Admin --}}
+                <div id="setting-whatsapp-number" class="tab-pane fade">
+                    @include('Profile.setting-whatsapp')
+                </div>
 
             </div>
         </div>

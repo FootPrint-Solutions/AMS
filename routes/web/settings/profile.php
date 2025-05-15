@@ -9,3 +9,4 @@ Route::post('/profile/picture/update', [Profile::class, 'updateProfilePicture'])
 Route::post('/profile/password/update', [Profile::class, 'updatePassword'])->name('profile.updatePassword');
 Route::get('/delete-session-whatsapp', [Profile::class, 'deleteSessionWhatsapp'])->name('profile.deleteSessionWhatsapp');
 Route::post('/profile/api-key/update', [Profile::class, 'updateApiKey'])->name('profile.updateApiKey');
+Route::post('/profile/whatsapp-server/update', [Profile::class, 'updateWhatsappServer'])->name('profile.updateWhatsappServer');
