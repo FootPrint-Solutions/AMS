@@ -73,7 +73,7 @@ class SalesOnline extends Controller
                 ]);
             }
 
-            $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+            $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
                 'session' => "admin_ams",
                 'scan' => 'false',
             ]);
@@ -82,7 +82,7 @@ class SalesOnline extends Controller
                 $responseData = $response->json();
                 if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
 
-                    $url_send_message = "https://whatsapp.akikita.web.id/send-message";
+                    $url_send_message = "https://whatsapp.ekakosmetikcirebon.id/send-message";
 
                     $message = "🎉 *Terima kasih atas pesanan Anda, {$data['customerName']}!*\n\n";
                     $message .= "Kami telah menerima pesanan Anda dengan detail berikut:\n\n";
