@@ -144,8 +144,8 @@ class SalesOnline extends Controller
 
 
                     foreach ([
-                        ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message],
-                        ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
+                        ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message]
+                        // ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
                     ] as $payload) {
                         $response = Http::post($url_send_message, $payload);
                         if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
@@ -163,7 +163,7 @@ class SalesOnline extends Controller
                     Log::error('Error fetching QR code: ' . $response->json());
                 }
             } else {
-                return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 2.']);
+                return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 2. ' . $response->json() . ' ']);
                 Log::error('Error fetching QR code: ' . $response->json());
             }
 
