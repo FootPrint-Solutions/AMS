@@ -19,37 +19,18 @@
                 <table class="table table-striped table-sm" id="table-sales-online">
                     <thead>
                         <tr>
+                            <th scope="col" class="table-col-no"></th>
                             <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">Sales Online Number</th>
-                            <th scope="col">Date</th>
+                            <th scope="col">Sales Online ID</th>
+                            <th scope="col">Delivery Date</th>
                             <th scope="col">Customer Name</th>
+                            <th scope="col">Customer Phone Number</th>
+                            <th scope="col">Customer Address</th>
+                            <th scope="col">Qty</th>
                             <th scope="col">Total</th>
-                            <th scope="col">Payment Status</th>
-                            <th scope="col">Payment Method</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!empty($data['Sales']))
-                            @foreach ($data['Sales'] as $sales)
-                                @php
-                                    if ($sales->date_paid != null) {
-                                        $status = '<span class="badge badge-success">Paid</span>';
-                                    } else {
-                                        $status = '<span class="badge badge-danger">Unpaid</span>';
-                                    }
-
-                                @endphp
-                                <tr>
-                                    <th scope="row">{{ $loop->iteration }}</th>
-                                    <td>{{ $sales->number }}</td>
-                                    <td>{{ formatDateWoo($sales->date_created) }}</td>
-                                    <td>{{ $sales->billing->first_name }} {{ $sales->billing->last_name }}</td>
-                                    <td>{!! formatPrice($sales->total) !!}</td>
-                                    <td>{!! $status !!}</td>
-                                    <td>{{ $sales->payment_method }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
                     </tbody>
                 </table>
             </div>
@@ -137,272 +118,88 @@
                 // custom button 
                 dom: 'Bfrtip',
                 select: true,
+                rowCallback: function(row, data) {
+                    if (data[9] && data[9] !== "completed") {
+                        $('td', row).addClass("text-success");
+                    } else if (data[9] === "completed") {
+                        $('td', row).addClass("text-info");
+                    }
+                },
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                order: [],
+                ajax: {
+                    url: "/sales-online/show",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }
+                },
                 buttons: [{
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                        className: 'btn btn-outline-success btn-sm'
-                    },
-                    // button sync Sales Online to wooCommerce
-                    {
-                        text: 'Sync Sales Online',
-                        className: 'btn btn-outline-primary btn-sm',
-                        // swal confirmation
-                        action: function(e, dt, node, config) {
-                            Swal.fire({
-                                title: 'Are you sure?',
-                                text: "You want to sync Sales Online ?",
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#3085d6',
-                                cancelButtonColor: '#d33',
-                                confirmButtonText: 'Yes, sync it!'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    // loading 
-                                    Swal.fire({
-                                        title: 'Please Wait..',
-                                        html: 'Syncing Sales Online..',
-                                        didOpen: () => {
-                                            Swal.showLoading()
-                                        },
-                                    });
-                                    // ajax request
-                                    $.ajax({
-                                        url: '/sales-online/sync-sales-online',
-                                        method: 'POST',
-                                        data: {
-                                            _token: "{{ csrf_token() }}"
-                                        },
-                                        success: function(response) {
-                                            if (response.status == 'success') {
-                                                Swal.fire(
-                                                    'Success!',
-                                                    response.message,
-                                                    'success'
-                                                )
-
-                                                // refresh page 
-                                                setTimeout(function() {
-                                                    location.reload();
-                                                }, 2000);
-                                            } else {
-                                                Swal.fire(
-                                                    'Error!',
-                                                    response.message,
-                                                    'error'
-                                                )
-                                            }
-                                        },
-                                        error: function(xhr, status, error) {
-                                            Swal.fire(
-                                                'Error!',
-                                                'Failed to sync sales online.',
-                                                'error'
-                                            )
-                                        }
-                                    });
-                                }
-                            })
-                        }
-                    },
-                    // button view details 
-                    {
-                        text: 'View Details',
-                        className: 'btn btn-outline-info btn-sm',
-                        action: function(e, dt, node, config) {
-                            var data = dt.rows({
-                                selected: true
-                            }).data();
-                            if (data.length == 0) {
-                                Swal.fire(
-                                    'Error!',
-                                    'Please select at least one row.',
-                                    'error'
-                                )
-                            } else {
-                                var sales_online_number = data[0][1];
-                                $('#modalViewDetails').modal('show');
-                                // loading
-                                $('#modal-view-details').html(
-                                    '<br><br><br><div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div><br><br><br>'
-                                );
-                                // ajax request
-                                $.ajax({
-                                    url: '/sales-online/view-details',
-                                    method: 'POST',
-                                    data: {
-                                        _token: "{{ csrf_token() }}",
-                                        sales_online_number: sales_online_number
-                                    },
-                                    success: function(response) {
-
-                                        // set up data to display
-                                        var data = response.data;
-                                        var html = '<div class="modal-header">';
-                                        html +=
-                                            '<h5 class="modal-title" id="modalViewDetailsLabel">Sales Online Details</h5>';
-                                        html +=
-                                            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-                                        html += '</div>';
-                                        html += '<div class="modal-body">';
-                                        html += '<div class="row">';
-                                        html += '<div class="col-md-6">';
-                                        html += '<h5>Order Information</h5>';
-                                        html +=
-                                            '<table class="table table-borderless">';
-                                        html += '<tr>';
-                                        html += '<td>Order Number</td>';
-                                        html += '<td>' + data.number + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Date Created</td>';
-                                        html += '<td>' + data.date_created + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Date Paid</td>';
-                                        html += '<td>' + data.date_paid + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Total</td>';
-                                        formatPrice = new Intl.NumberFormat('id-ID', {
-                                            style: 'currency',
-                                            currency: 'IDR'
-                                        }).format(data.total);
-                                        html += '<td>' + formatPrice + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Payment Method</td>';
-                                        html += '<td>' + data.payment_method + '</td>';
-                                        html += '</tr>';
-                                        html += '</table>';
-                                        html += '</div>';
-                                        html += '<div class="col-md-6">';
-                                        html += '<h5>Billing Information</h5>';
-                                        html +=
-                                            '<table class="table table-borderless">';
-                                        html += '<tr>';
-                                        html += '<td>Name</td>';
-                                        html += '<td colspan="2">' + data.billing
-                                            .first_name + ' ' +
-                                            data.billing.last_name + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Address</td>';
-                                        html += '<td colspan="2">' + data.billing
-                                            .address_1 +
-                                            '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>City</td>';
-                                        html += '<td>' + data.billing.city + '</td>';
-                                        html += '<td>State</td>';
-                                        html += '<td>' + data.billing.state + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Postcode</td>';
-                                        html += '<td>' + data.billing.postcode +
-                                            '</td>';
-                                        html += '<td>Country</td>';
-                                        html += '<td>' + data.billing.country + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Email</td>';
-                                        html += '<td>' + data.billing.email + '</td>';
-                                        html += '</tr>';
-                                        html += '<tr>';
-                                        html += '<td>Phone</td>';
-                                        html += '<td>' + data.billing.phone + '</td>';
-                                        html += '</tr>';
-                                        html += '</table>';
-                                        html += '</div>';
-                                        html += '</div>';
-                                        html += '</div>';
-
-                                        // show detail items
-                                        html += '<div class="container">';
-                                        html += '<h5>Items</h5>';
-                                        html +=
-                                            '<table class="table table-bordered table-sm">';
-                                        html += '<thead>';
-                                        html += '<tr>';
-                                        html += '<th scope="col">#</th>';
-                                        html += '<th scope="col">Product</th>';
-                                        html += '<th scope="col">Quantity</th>';
-                                        html += '<th scope="col">Price</th>';
-                                        html += '<th scope="col">Total</th>';
-                                        html += '</tr>';
-                                        html += '</thead>';
-                                        html += '<tbody>';
-                                        var total = 0;
-                                        for (var i = 0; i < data.line_items
-                                            .length; i++) {
-                                            var item = data.line_items[i];
-                                            html += '<tr>';
-                                            html += '<td>' + (i + 1) + '</td>';
-                                            html += '<td>' + item.name + '</td>';
-                                            html += '<td>' + item.quantity + '</td>';
-                                            formatPrice = new Intl.NumberFormat(
-                                                'id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR'
-                                                }).format(item.price);
-                                            html += '<td>' + formatPrice + '</td>';
-                                            formatPrice = new Intl.NumberFormat(
-                                                'id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR'
-                                                }).format(item.total);
-                                            html += '<td>' + formatPrice + '</td>';
-                                            html += '</tr>';
-                                            total += item.total;
-                                        }
-
-                                        html += '</tbody>';
-                                        html += '</table>';
-
-                                        html += '<div class="modal-footer">';
-                                        html +=
-                                            '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
-                                        html += '</div>';
-
-                                        $('#modal-view-details').html(html);
-                                    },
-                                    error: function(xhr, status, error) {
-                                        Swal.fire(
-                                            'Error!',
-                                            'Failed to view details.',
-                                            'error'
-                                        )
-                                    }
-                                });
-                            }
-                        }
-                    },
-                    // button save to sales orders
-                    {
-                        text: 'Save to Sales Orders',
-                        className: 'btn btn-outline-warning btn-sm',
-                        action: function(e, dt, node, config) {
-                            var data = dt.rows({
-                                selected: true
-                            }).data();
-                            if (data.length == 0) {
-                                Swal.fire(
-                                    'Error!',
-                                    'Please select at least one row.',
-                                    'error'
-                                )
-                            } else {
-                                var sales_online_number = data[0][1];
-                                // show modal with form to choose vehicle, distributor, and technician
-                                $('#modalSaveSalesOrder').modal('show');
-                                $('#sales_online_number').val(sales_online_number);
-                            }
+                    text: 'Save to Sales Orders',
+                    className: 'btn btn-outline-warning btn-sm',
+                    action: function(e, dt, node, config) {
+                        var data = dt.rows({
+                            selected: true
+                        }).data();
+                        if (data.length == 0) {
+                            Swal.fire(
+                                'Error!',
+                                'Please select at least one row.',
+                                'error'
+                            )
+                        } else {
+                            var sales_online_number = data[0][2];
+                            // show modal with form to choose vehicle, distributor, and technician
+                            $('#modalSaveSalesOrder').modal('show');
+                            $('#sales_online_number').val(sales_online_number);
                         }
                     }
-                ],
+                }],
+            });
+
+            $('#table-sales-online tbody').on('click', 'tr', function() {
+                var tr = $(this);
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open
+                    var rowData = row.data();
+                    var salesOnlineId = rowData[0];
+
+                    $.ajax({
+                        url: "/sales-online/batteries/" + salesOnlineId,
+                        type: "GET",
+                        success: function(res) {
+                            row.child(formatSubgrid(res)).show();
+                            tr.addClass('shown');
+                        }
+                    });
+                }
             });
         });
+
+
+        function formatSubgrid(data) {
+            let html = '<table class="table table-sm table-bordered mb-0">';
+            html += '<thead><tr><th>Name</th><th>Quantity</th><th>Price</th><th>Total</th></tr></thead><tbody>';
+
+            data.forEach(function(battery) {
+                html += '<tr>' +
+                    '<td>' + battery.name + '</td>' +
+                    '<td>' + battery.quantity + '</td>' +
+                    '<td>' + battery.price + '</td>' +
+                    '<td>' + battery.total_price + '</td>' +
+                    '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
 
         // get technician based on distributor
         $('#distributor_id').change(function() {
@@ -474,10 +271,8 @@
                                 'success'
                             )
 
-                            // refresh page 
-                            setTimeout(function() {
-                                location.reload();
-                            }, 2000);
+                            $('#table-sales-online').DataTable().ajax.reload();
+                            $('#modalSaveSalesOrder').modal('hide');
                         } else {
                             Swal.fire(
                                 'Error!',

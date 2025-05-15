@@ -10,6 +10,8 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
+use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
+
 class SalesOnlineModel extends Model implements Auditable
 {
     use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
@@ -38,6 +40,11 @@ class SalesOnlineModel extends Model implements Auditable
         'deleted_at',
     ];
 
+    public function batteries()
+    {
+        return $this->hasMany(SalesOnlineBatteriesModel::class, 'sales_online_id', 'id');
+    }
+
     /**
      * Get all data for DataTables.
      * 
@@ -46,23 +53,83 @@ class SalesOnlineModel extends Model implements Auditable
      */
     public static function allForDataTables($request)
     {
-        $query = self::query();
+        $start = $request->input("start");
+        $length = $request->input("length");
+        $searchValue = $request->input("search.value");
+        $orderColumn = $request->input("order.0.column");
+        $orderDirection = $request->input("order.0.dir");
 
-        // Apply filters based on request parameters
-        if ($request->has('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('customer_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('province', 'like', '%' . $request->search . '%')
-                    ->orWhere('city', 'like', '%' . $request->search . '%')
-                    ->orWhere('district', 'like', '%' . $request->search . '%')
-                    ->orWhere('sub_district', 'like', '%' . $request->search . '%')
-                    ->orWhere('postal_code', 'like', '%' . $request->search . '%')
-                    ->orWhere('phone_number', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%')
-                    ->orWhere('vehicle_plate', 'like', '%' . $request->search . '%');
+        $selectColumns = [
+            'id',
+            'customer_name',
+            'province',
+            'city',
+            'district',
+            'sub_district',
+            'postal_code',
+            'phone_number',
+            'email',
+            'vehicle_plate',
+            'delivery_date',
+            'additional_info',
+            'address',
+            'sum_total' => SalesOnlineBatteriesModel::selectRaw('SUM(price * quantity)')->whereColumn('sales_online_batteries.sales_online_id', 'sales_online.id'),
+            'sum_quantity' => SalesOnlineBatteriesModel::selectRaw('SUM(quantity)')->whereColumn('sales_online_batteries.sales_online_id', 'sales_online.id'),
+            'sales_order_id' => \DB::table('sales_orders')
+                ->select('id')
+                ->whereColumn('source_id', 'sales_online.id')
+                ->limit(1)
+        ];
+
+        $searchColumns = [
+            'customer_name',
+            'province',
+            'city',
+            'district',
+            'sub_district',
+            'postal_code',
+            'phone_number',
+            'email',
+            'vehicle_plate',
+            'delivery_date',
+            'additional_info',
+            'address'
+        ];
+
+        $orderDefault = [
+            "column" => "updated_at",
+            "direction" => "desc"
+        ];
+
+        $query = self::query();
+        $query->select($selectColumns);
+
+        if ($searchColumns != null && $searchValue != null) {
+            $query->where(function ($query) use ($searchValue, $searchColumns) {
+                foreach ($searchColumns as $column) {
+                    $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
+                }
             });
         }
 
-        return self::dataTables($query, $request);
+        if ($orderColumn !== null) {
+            $columnName = $selectColumns[$orderColumn] ?? null;
+            if ($columnName !== null) {
+                $query->orderBy($columnName, $orderDirection);
+            }
+        } else {
+            if ($orderDefault !== null) {
+                $query->orderBy($orderDefault["column"], $orderDefault["direction"]);
+            } else {
+                $query->orderBy("updated_at", "desc");
+            }
+        }
+
+        return array(
+            "count" => $query->count(),
+            "row" => $query->skip($start)
+                ->take($length)
+                ->get(),
+        );
     }
 }
