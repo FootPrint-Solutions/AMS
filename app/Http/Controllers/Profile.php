@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 // MODELS
 use App\Models\User;
 use App\Models\Servers\ServerPaymentGatewayModel;
+use App\Models\Servers\ServerWhatsappModel;
 
 class Profile extends Controller
 {
@@ -40,6 +41,7 @@ class Profile extends Controller
                 array(
                     'QrCode' => $QrCode,
                     'ServerPaymentGateway' => ServerPaymentGatewayModel::where('name', 'MIDTRANS')->first(),
+                    'ServerWhatsapp' => ServerWhatsappModel::where('name', 'AMS WA')->first(),
                 )
             )
         );
@@ -177,6 +179,33 @@ class Profile extends Controller
             );
         } catch (\Throwable $th) {
             return getResponseData(false, "Failed to update API Key => " . $th->getMessage());
+        }
+    }
+
+    public function updateWhatsappServer(Request $request)
+    {
+        try {
+
+            $status = true;
+            $ServerWhatsapp = ServerWhatsappModel::where('name', 'AMS WA')->first();
+            if ($ServerWhatsapp == null) {
+                $ServerWhatsapp = new ServerWhatsappModel();
+                $ServerWhatsapp->name = 'AMS WA';
+                $ServerWhatsapp->number = $request->number;
+                $ServerWhatsapp->url = $request->url;
+                $status = $ServerWhatsapp->save();
+            } else {
+                $ServerWhatsapp->number = $request->number;
+                $ServerWhatsapp->url = $request->url;
+                $status = $ServerWhatsapp->save();
+            }
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "Your Whatsapp Server was successfully updated!" : "Failed to update your Whatsapp Server!"
+            );
+        } catch (\Throwable $th) {
+            return getResponseData(false, "Failed to update Whatsapp Server => " . $th->getMessage());
         }
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Orders\SalesOnline\SalesOnlineModel;
 use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\Servers\ServerWhatsappModel;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,9 @@ class SalesOnline extends Controller
     public function receiveData(Request $request)
     {
         try {
+
+            $whatsappAdmin =  ServerWhatsappModel::where('name', 'AMS WA')->first();
+
             if (!$request->isMethod('post')) {
                 return response()->json(['status' => 'error', 'message' => 'Invalid request method'], 405);
             }
@@ -141,7 +145,7 @@ class SalesOnline extends Controller
 
                     foreach ([
                         ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message],
-                        ['to' => '6281563532934', 'session' => "admin_ams", 'text' => $message_admin]
+                        ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
                     ] as $payload) {
                         $response = Http::post($url_send_message, $payload);
                         if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
