@@ -16,7 +16,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('promos:deactivate-expired')->daily();
+        // $schedule->command('promos:deactivate-expired')->daily();
+        $schedule->command('send:wa-sales-online')->everyMinute();
     }
 
     /**

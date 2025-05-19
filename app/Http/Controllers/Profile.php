@@ -19,9 +19,9 @@ class Profile extends Controller
     public function index()
     {
         try {
-            $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
+            $response = Http::get('https://whatsapp.raden.social/start-session-json', [
                 'session' => "admin_ams",
-                'scan' => 'true',
+                'scan' => 'false',
             ]);
             if (isset($response['data']['qr']) && $response['data']['qr'] != null) {
                 $QrCode = $response['data']['qr'];

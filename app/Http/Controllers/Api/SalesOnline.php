@@ -59,6 +59,7 @@ class SalesOnline extends Controller
                 'delivery_date' => $data['deliveryDate'],
                 'additional_info' => $data['additionalInfo'],
                 'address' => $data['alamatLengkap'],
+                'whatsapp_status' => 'pending',
             ]);
 
             foreach ($cartDetails as $cart) {
@@ -73,100 +74,100 @@ class SalesOnline extends Controller
                 ]);
             }
 
-            $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
-                'session' => "admin_ams",
-                'scan' => 'false',
-            ]);
+            // $response = Http::get('https://whatsapp.ekakosmetikcirebon.id/start-session-json', [
+            //     'session' => "admin_ams",
+            //     'scan' => 'false',
+            // ]);
 
-            if (isset($response['message']) && str_contains($response['message'], 'Session ID :admin_ams is already exist')) {
-                $responseData = $response->json();
-                if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
+            // if (isset($response['message']) && str_contains($response['message'], 'Session ID :admin_ams is already exist')) {
+            //     $responseData = $response->json();
+            //     if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
 
-                    $url_send_message = "https://whatsapp.ekakosmetikcirebon.id/send-message";
+            //         $url_send_message = "https://whatsapp.ekakosmetikcirebon.id/send-message";
 
-                    $message = "🎉 *Terima kasih atas pesanan Anda, {$data['customerName']}!*\n\n";
-                    $message .= "Kode pesanan Anda adalah: *{$salesOnline->id}*.\n";
-                    $message .= "Kami telah menerima pesanan Anda dengan detail berikut:\n\n";
-                    $message .= "📌 *Informasi Pelanggan:*\n";
-                    $message .= "👤 Nama: {$data['customerName']}\n";
-                    $message .= "📍 Alamat: {$data['alamatLengkap']}, {$data['subDistrict']}, {$data['district']}, {$data['city']}, {$data['province']}, {$data['postalCode']}\n";
-                    $message .= "📞 No. HP: {$data['phoneNumber']}\n";
-                    $message .= "✉️ Email: {$data['email']}\n";
-                    $message .= "🚗 Plat Nomor: {$data['vehiclePlate']}\n";
-                    $message .= "📆 Tanggal Pengiriman: {$data['deliveryDate']}\n";
-                    if (!empty($data['additionalInfo'])) {
-                        $message .= "📝 Info Tambahan: {$data['additionalInfo']}\n";
-                    }
+            //         $message = "🎉 *Terima kasih atas pesanan Anda, {$data['customerName']}!*\n\n";
+            //         $message .= "Kode pesanan Anda adalah: *{$salesOnline->id}*.\n";
+            //         $message .= "Kami telah menerima pesanan Anda dengan detail berikut:\n\n";
+            //         $message .= "📌 *Informasi Pelanggan:*\n";
+            //         $message .= "👤 Nama: {$data['customerName']}\n";
+            //         $message .= "📍 Alamat: {$data['alamatLengkap']}, {$data['subDistrict']}, {$data['district']}, {$data['city']}, {$data['province']}, {$data['postalCode']}\n";
+            //         $message .= "📞 No. HP: {$data['phoneNumber']}\n";
+            //         $message .= "✉️ Email: {$data['email']}\n";
+            //         $message .= "🚗 Plat Nomor: {$data['vehiclePlate']}\n";
+            //         $message .= "📆 Tanggal Pengiriman: {$data['deliveryDate']}\n";
+            //         if (!empty($data['additionalInfo'])) {
+            //             $message .= "📝 Info Tambahan: {$data['additionalInfo']}\n";
+            //         }
 
-                    $message .= "\n🛒 *Rincian Pesanan:*\n";
-                    $totalPayment = 0;
-                    foreach ($cartDetails as $i => $cart) {
-                        $total = $cart['price'] * $cart['quantity'];
-                        $totalPayment += $total;
-                        $message .= "📦 Produk #" . ($i + 1) . "\n";
-                        $message .= "🔸 Nama: {$cart['name']}\n";
-                        $message .= "🔸 Harga: Rp" . number_format($cart['price'], 0, ',', '.') . "\n";
-                        $message .= "🔸 Jumlah: {$cart['quantity']}\n";
-                        $message .= "🔸 Total: Rp" . number_format($total, 0, ',', '.') . "\n\n";
-                    }
+            //         $message .= "\n🛒 *Rincian Pesanan:*\n";
+            //         $totalPayment = 0;
+            //         foreach ($cartDetails as $i => $cart) {
+            //             $total = $cart['price'] * $cart['quantity'];
+            //             $totalPayment += $total;
+            //             $message .= "📦 Produk #" . ($i + 1) . "\n";
+            //             $message .= "🔸 Nama: {$cart['name']}\n";
+            //             $message .= "🔸 Harga: Rp" . number_format($cart['price'], 0, ',', '.') . "\n";
+            //             $message .= "🔸 Jumlah: {$cart['quantity']}\n";
+            //             $message .= "🔸 Total: Rp" . number_format($total, 0, ',', '.') . "\n\n";
+            //         }
 
-                    $message .= "💰 *Total Pembayaran: Rp" . number_format($totalPayment, 0, ',', '.') . "*\n\n";
-                    $message .= "✅ Kami akan segera menghubungi Anda untuk proses selanjutnya.\n";
-                    $message .= "🙏 Terima kasih telah berbelanja di *Aki Kita*!\nSalam hangat,\nTim Aki Kita";
-                    $message .= "\n\n*Pesan ini dikirim secara otomatis. Mohon tidak membalas pesan ini.*";
-
-
-                    $message_admin = "📥 *Pesanan Baru Masuk!*\n\n";
-                    $message_admin .= "📌 *Data Pelanggan:*\n";
-                    $message_admin .= "👤 Nama: {$data['customerName']}\n";
-                    $message_admin .= "📍 Alamat: {$data['alamatLengkap']}, {$data['subDistrict']}, {$data['district']}, {$data['city']}, {$data['province']}, {$data['postalCode']}\n";
-                    $message_admin .= "📞 No. HP: {$data['phoneNumber']}\n";
-                    $message_admin .= "✉️ Email: {$data['email']}\n";
-                    $message_admin .= "🚗 Plat Nomor: {$data['vehiclePlate']}\n";
-                    $message_admin .= "📆 Tanggal Pengiriman: {$data['deliveryDate']}\n";
-                    if (!empty($data['additionalInfo'])) {
-                        $message_admin .= "📝 Info Tambahan: {$data['additionalInfo']}\n";
-                    }
-
-                    $message_admin .= "\n🛒 *Detail Pesanan:*\n";
-                    $totalPayment = 0;
-                    foreach ($cartDetails as $i => $cart) {
-                        $total = $cart['price'] * $cart['quantity'];
-                        $totalPayment += $total;
-                        $message_admin .= "📦 Produk #" . ($i + 1) . "\n";
-                        $message_admin .= "🔸 Nama: {$cart['name']}\n";
-                        $message_admin .= "🔸 Harga: Rp" . number_format($cart['price'], 0, ',', '.') . "\n";
-                        $message_admin .= "🔸 Jumlah: {$cart['quantity']}\n";
-                        $message_admin .= "🔸 Total: Rp" . number_format($total, 0, ',', '.') . "\n\n";
-                    }
-                    $message_admin .= "💰 *Total Pembayaran: Rp" . number_format($totalPayment, 0, ',', '.') . "*\n";
-                    $message_admin .= "🚨 Segera proses pesanan ini melalui sistem!\n";
-                    $message_admin .= "📱 Dikirim dari sistem *Aki Kita*";
+            //         $message .= "💰 *Total Pembayaran: Rp" . number_format($totalPayment, 0, ',', '.') . "*\n\n";
+            //         $message .= "✅ Kami akan segera menghubungi Anda untuk proses selanjutnya.\n";
+            //         $message .= "🙏 Terima kasih telah berbelanja di *Aki Kita*!\nSalam hangat,\nTim Aki Kita";
+            //         $message .= "\n\n*Pesan ini dikirim secara otomatis. Mohon tidak membalas pesan ini.*";
 
 
-                    foreach ([
-                        ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message]
-                        // ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
-                    ] as $payload) {
-                        $response = Http::post($url_send_message, $payload);
-                        if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
-                            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim pesan. ' . json_encode($response->json())]);
-                            Log::error('Error sending message: ' . $response->json());
-                        } else {
-                            Log::info('Pesan berhasil dikirim ke ' . $payload['to']);
-                        }
-                    }
+            //         $message_admin = "📥 *Pesanan Baru Masuk!*\n\n";
+            //         $message_admin .= "📌 *Data Pelanggan:*\n";
+            //         $message_admin .= "👤 Nama: {$data['customerName']}\n";
+            //         $message_admin .= "📍 Alamat: {$data['alamatLengkap']}, {$data['subDistrict']}, {$data['district']}, {$data['city']}, {$data['province']}, {$data['postalCode']}\n";
+            //         $message_admin .= "📞 No. HP: {$data['phoneNumber']}\n";
+            //         $message_admin .= "✉️ Email: {$data['email']}\n";
+            //         $message_admin .= "🚗 Plat Nomor: {$data['vehiclePlate']}\n";
+            //         $message_admin .= "📆 Tanggal Pengiriman: {$data['deliveryDate']}\n";
+            //         if (!empty($data['additionalInfo'])) {
+            //             $message_admin .= "📝 Info Tambahan: {$data['additionalInfo']}\n";
+            //         }
 
-                    return response()->json(['status' => 'success', 'message' => 'Pesan berhasil dikirim.', 'data' => $response->json()]);
-                    Log::info('Pesan berhasil dikirim ke ' . $data['phoneNumber']);
-                } else {
-                    return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 1.']);
-                    Log::error('Error fetching QR code: ' . $response->json());
-                }
-            } else {
-                return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 2. ' . $response->json() . ' ']);
-                Log::error('Error fetching QR code: ' . $response->json());
-            }
+            //         $message_admin .= "\n🛒 *Detail Pesanan:*\n";
+            //         $totalPayment = 0;
+            //         foreach ($cartDetails as $i => $cart) {
+            //             $total = $cart['price'] * $cart['quantity'];
+            //             $totalPayment += $total;
+            //             $message_admin .= "📦 Produk #" . ($i + 1) . "\n";
+            //             $message_admin .= "🔸 Nama: {$cart['name']}\n";
+            //             $message_admin .= "🔸 Harga: Rp" . number_format($cart['price'], 0, ',', '.') . "\n";
+            //             $message_admin .= "🔸 Jumlah: {$cart['quantity']}\n";
+            //             $message_admin .= "🔸 Total: Rp" . number_format($total, 0, ',', '.') . "\n\n";
+            //         }
+            //         $message_admin .= "💰 *Total Pembayaran: Rp" . number_format($totalPayment, 0, ',', '.') . "*\n";
+            //         $message_admin .= "🚨 Segera proses pesanan ini melalui sistem!\n";
+            //         $message_admin .= "📱 Dikirim dari sistem *Aki Kita*";
+
+
+            //         foreach ([
+            //             ['to' => $data['phoneNumber'], 'session' => "admin_ams", 'text' => $message]
+            //             // ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
+            //         ] as $payload) {
+            //             $response = Http::post($url_send_message, $payload);
+            //             if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
+            //                 return response()->json(['status' => 'error', 'message' => 'Gagal mengirim pesan. ' . json_encode($response->json())]);
+            //                 Log::error('Error sending message: ' . $response->json());
+            //             } else {
+            //                 Log::info('Pesan berhasil dikirim ke ' . $payload['to']);
+            //             }
+            //         }
+
+            //         return response()->json(['status' => 'success', 'message' => 'Pesan berhasil dikirim.', 'data' => $response->json()]);
+            //         Log::info('Pesan berhasil dikirim ke ' . $data['phoneNumber']);
+            //     } else {
+            //         return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 1.']);
+            //         Log::error('Error fetching QR code: ' . $response->json());
+            //     }
+            // } else {
+            //     return response()->json(['status' => 'error', 'message' => 'Gagal mendapatkan QR code 2. ' . $response->json() . ' ']);
+            //     Log::error('Error fetching QR code: ' . $response->json());
+            // }
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan.', 'data' => $salesOnline]);
             Log::info('Data berhasil disimpan.', ['data' => $salesOnline]);

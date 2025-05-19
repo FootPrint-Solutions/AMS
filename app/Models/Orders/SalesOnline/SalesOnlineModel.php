@@ -31,6 +31,7 @@ class SalesOnlineModel extends Model implements Auditable
         'delivery_date',
         'additional_info',
         'address',
+        'whatsapp_status',
     ];
 
     protected $dates = [
