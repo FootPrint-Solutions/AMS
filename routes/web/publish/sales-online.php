@@ -10,3 +10,4 @@ Route::post('/sales-online/save-to-sales-orders', [SalesOnline::class, 'saveToSa
 Route::post('/sales-online/get-form-sales-order', [SalesOnline::class, 'getFormSalesOrder'])->name('sales-online.getFormSalesOrder')->middleware('permission:view_sales_(_online_)');
 Route::post('/sales-online/get-technician', [SalesOnline::class, 'getTechnicianByShop'])->name('sales-online.getTechnicianByShop')->middleware('permission:view_sales_(_online_)');
 Route::post('/sales-online/show', [SalesOnline::class, 'show'])->name('sales-online.show')->middleware('permission:view_sales_(_online_)');
+Route::post('/sales-online/send-queue-whatsapp', [SalesOnline::class, 'sendQueueWhatsapp'])->name('sales-online.sendQueueWhatsapp')->middleware('permission:view_sales_(_online_)');
