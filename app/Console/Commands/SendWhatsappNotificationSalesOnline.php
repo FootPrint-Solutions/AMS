@@ -43,8 +43,7 @@ class SendWhatsappNotificationSalesOnline extends Command
 
     public function handle()
     {
-
-        $data = SalesOnlineModel::where('whatsapp_status', 'failed')->first();
+        $data = SalesOnlineModel::whereIn('whatsapp_status', ['pending', 'failed'])->first();
 
         if (!$data) {
             $this->info('Tidak ada data penjualan online yang perlu diproses.');
