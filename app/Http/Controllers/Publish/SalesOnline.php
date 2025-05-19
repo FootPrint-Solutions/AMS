@@ -93,6 +93,13 @@ class SalesOnline extends Controller
             $row[] = $key->address;
             $row[] = $key->sum_quantity;
             $row[] = formatPrice($key->sum_total);
+            if ($key->whatsapp_status == "sent") {
+                $row[] = '<span class="badge bg-success">Sent</span>';
+            } else if ($key->whatsapp_status == "failed") {
+                $row[] = '<span class="badge bg-danger">Failed</span>';
+            } else {
+                $row[] = '<span class="badge bg-warning">Pending</span>';
+            }
             $row[] = $key->sales_order_id;
             $rows[] = $row;
         }
@@ -351,5 +358,35 @@ class SalesOnline extends Controller
             $sales['line_items'][$key]['product'] = json_decode(json_encode($product), true); // Convert stdClass to array
         }
         return $sales;
+    }
+
+    public function sendQueueWhatsapp(Request $request)
+    {
+        try {
+            $SalesOnlineID = $request->input('sales_online_id');
+            $SalesOnline = SalesOnlineModel::where('id', $SalesOnlineID)->first();
+
+            if (!$SalesOnline) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Online data not found',
+                ]);
+            }
+
+            // Update the WhatsApp status
+            $SalesOnline->whatsapp_status = 'pending';
+            $SalesOnline->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'WhatsApp message added to queue successfully',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to add WhatsApp message to queue: ' . $th->getMessage(),
+            ]);
+        }
     }
 }

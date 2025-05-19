@@ -28,6 +28,7 @@
                             <th scope="col">Customer Address</th>
                             <th scope="col">Qty</th>
                             <th scope="col">Total</th>
+                            <th scope="col">WhatsApp Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -119,7 +120,7 @@
                 dom: 'Bfrtip',
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[9] && data[9] !== "completed") {
+                    if (data[10] && data[10] !== "completed") {
                         $('td', row).addClass("text-success");
                     } else if (data[9] === "completed") {
                         $('td', row).addClass("text-info");
@@ -137,26 +138,90 @@
                     }
                 },
                 buttons: [{
-                    text: 'Save to Sales Orders',
-                    className: 'btn btn-outline-warning btn-sm',
-                    action: function(e, dt, node, config) {
-                        var data = dt.rows({
-                            selected: true
-                        }).data();
-                        if (data.length == 0) {
-                            Swal.fire(
-                                'Error!',
-                                'Please select at least one row.',
-                                'error'
-                            )
-                        } else {
-                            var sales_online_number = data[0][2];
-                            // show modal with form to choose vehicle, distributor, and technician
-                            $('#modalSaveSalesOrder').modal('show');
-                            $('#sales_online_number').val(sales_online_number);
+                        text: 'Save to Sales Orders',
+                        className: 'btn btn-outline-warning btn-sm',
+                        action: function(e, dt, node, config) {
+                            var data = dt.rows({
+                                selected: true
+                            }).data();
+                            if (data.length == 0) {
+                                Swal.fire(
+                                    'Error!',
+                                    'Please select at least one row.',
+                                    'error'
+                                )
+                            } else {
+                                var sales_online_number = data[0][2];
+                                // show modal with form to choose vehicle, distributor, and technician
+                                $('#modalSaveSalesOrder').modal('show');
+                                $('#sales_online_number').val(sales_online_number);
+                            }
+                        }
+                    },
+                    // send whatsapp 
+                    {
+                        text: 'Send WhatsApp',
+                        className: 'btn btn-outline-success btn-sm',
+                        action: function(e, dt, node, config) {
+                            var data = dt.rows({
+                                selected: true
+                            }).data();
+                            if (data.length == 0) {
+                                Swal.fire(
+                                    'Error!',
+                                    'Please select at least one row.',
+                                    'error'
+                                )
+                            } else {
+                                var sales_online_id = data[0][2];
+
+                                Swal.fire({
+                                    title: 'Please Wait..',
+                                    html: 'Add this Sales Online to Qeueue WhatsApp..',
+                                    didOpen: () => {
+                                        Swal.showLoading()
+                                    },
+                                    allowOutsideClick: false
+                                });
+
+                                $.ajax({
+                                    url: '/sales-online/send-queue-whatsapp',
+                                    method: 'POST',
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        sales_online_id: sales_online_id
+                                    },
+                                    success: function(response) {
+                                        Swal.close();
+                                        if (response.status == 'success') {
+                                            Swal.fire(
+                                                'Success!',
+                                                response.message,
+                                                'success'
+                                            )
+                                            $('#table-sales-online').DataTable().ajax
+                                                .reload();
+                                        } else {
+                                            Swal.fire(
+                                                'Error!',
+                                                response.message,
+                                                'error'
+                                            )
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        Swal.close();
+                                        Swal.fire(
+                                            'Error!',
+                                            'Failed to add to WhatsApp queue.',
+                                            'error'
+                                        )
+                                    }
+                                });
+                            }
                         }
                     }
-                }],
+                ],
             });
 
             $('#table-sales-online tbody').on('click', 'tr', function() {
