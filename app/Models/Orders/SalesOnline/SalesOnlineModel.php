@@ -79,7 +79,8 @@ class SalesOnlineModel extends Model implements Auditable
             'sales_order_id' => \DB::table('sales_orders')
                 ->select('id')
                 ->whereColumn('source_id', 'sales_online.id')
-                ->limit(1)
+                ->limit(1),
+            'whatsapp_status',
         ];
 
         $searchColumns = [
