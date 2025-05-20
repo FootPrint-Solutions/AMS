@@ -542,7 +542,7 @@
                 return;
             }
 
-            var salesOrderIds = selectedRows.map(row => row[10]);
+            var salesOrderIds = selectedRows.map(row => row[11]);
             var salesOrderNumbers = selectedRows.map(row => row[1]);
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
