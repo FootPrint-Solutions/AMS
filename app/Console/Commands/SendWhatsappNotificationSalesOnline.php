@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Orders\SalesOnline\SalesOnlineModel;
 use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
+use App\Models\Servers\ServerWhatsappModel;
 
 
 class SendWhatsappNotificationSalesOnline extends Command
@@ -44,6 +45,7 @@ class SendWhatsappNotificationSalesOnline extends Command
     public function handle()
     {
         $data = SalesOnlineModel::whereIn('whatsapp_status', ['pending', 'failed'])->first();
+        $whatsappAdmin =  ServerWhatsappModel::where('name', 'AMS WA')->first();
 
         if (!$data) {
             $this->info('Tidak ada data penjualan online yang perlu diproses.');
@@ -72,7 +74,7 @@ class SendWhatsappNotificationSalesOnline extends Command
             return 1;
         }
 
-        $response = Http::get('https://whatsapp.raden.social/start-session-json', [
+        $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
             'session' => "admin_ams",
             'scan' => 'false',
         ]);
@@ -81,7 +83,7 @@ class SendWhatsappNotificationSalesOnline extends Command
             $responseData = $response->json();
             if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
 
-                $url_send_message = "https://whatsapp.raden.social/send-message";
+                $url_send_message = "https://whatsapp.akikita.web.id/send-message";
 
                 $message = "🎉 *Terima kasih atas pesanan Anda, {$data->customer_name}!*\n\n";
                 $message .= "Kode pesanan Anda adalah: *{$salesOnline->id}*.\n";
@@ -114,8 +116,35 @@ class SendWhatsappNotificationSalesOnline extends Command
                 $message .= "🙏 Terima kasih telah berbelanja di *Aki Kita*!\nSalam hangat,\nTim Aki Kita";
                 $message .= "\n\n*Pesan ini dikirim secara otomatis. Mohon tidak membalas pesan ini.*";
 
+                $message_admin = "📥 *Pesanan Baru Masuk!*\n\n";
+                $message_admin .= "📌 *Data Pelanggan:*\n";
+                $message_admin .= "👤 Nama: {$data->customer_name}\n";
+                $message_admin .= "📍 Alamat: {$data->address}, {$data->sub_district}, {$data->district}, {$data->city}, {$data->province}, {$data->postal_code}\n";
+                $message_admin .= "📞 No. HP: {$data->phone_number}\n";
+                $message_admin .= "✉️ Email: {$data->email}\n";
+                $message_admin .= "🚗 Plat Nomor: {$data->vehicle_plate}\n";
+                $message_admin .= "📆 Tanggal Pengiriman: {$data->delivery_date}\n";
+                if (!empty($data->additional_info)) {
+                    $message_admin .= "📝 Info Tambahan: {$data->additional_info}\n";
+                }
+
+                $message_admin .= "\n🛒 *Detail Pesanan:*\n";
+                $totalPayment = 0;
+                foreach ($cartDetails as $i => $cart) {
+                    $total = $cart['price'] * $cart['quantity'];
+                    $totalPayment += $total;
+                    $message_admin .= "📦 Produk #" . ($i + 1) . "\n";
+                    $message_admin .= "🔸 Nama: {$cart['name']}\n";
+                    $message_admin .= "🔸 Harga: Rp" . number_format($cart['price'], 0, ',', '.') . "\n";
+                    $message_admin .= "🔸 Jumlah: {$cart['quantity']}\n";
+                    $message_admin .= "🔸 Total: Rp" . number_format($total, 0, ',', '.') . "\n\n";
+                }
+                $message_admin .= "💰 *Total Pembayaran: Rp" . number_format($totalPayment, 0, ',', '.') . "*\n";
+                $message_admin .= "🚨 Segera proses pesanan ini melalui sistem!\n";
+                $message_admin .= "📱 Dikirim dari sistem *Aki Kita*";
+
                 foreach ([
-                    ['to' => $data['phone_number'], 'session' => "admin_ams", 'text' => $message]
+                    ['to' => $data['phone_number'], 'session' => "admin_ams", 'text' => $message], ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
                 ] as $payload) {
                     $response = Http::post($url_send_message, $payload);
                     if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
