@@ -21,7 +21,7 @@ class Profile extends Controller
         try {
             $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
                 'session' => "admin_ams",
-                'scan' => 'false',
+                'scan' => 'true',
             ]);
             if (isset($response['data']['qr']) && $response['data']['qr'] != null) {
                 $QrCode = $response['data']['qr'];
