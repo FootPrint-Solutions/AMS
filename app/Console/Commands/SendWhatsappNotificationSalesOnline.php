@@ -76,7 +76,7 @@ class SendWhatsappNotificationSalesOnline extends Command
 
         $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
             'session' => "admin_ams",
-            'scan' => 'false',
+            'scan' => 'true',
         ]);
 
         if (isset($response['message']) && str_contains($response['message'], 'Session ID :admin_ams is already exist')) {
