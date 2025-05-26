@@ -32,7 +32,6 @@
             <div class="col-lg-6">
                 <div class="mb-3 form-group local-forms">
                     <label class="form-label">Address Customer
-                        <span class="login-danger">*</span>
                     </label>
                     <input type="text" class="form-control" id="address_input_mobile" name="address_input_mobile">
                 </div>

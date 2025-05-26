@@ -39,7 +39,7 @@
 
         <div class="col-lg-6">
             <div class="form-group local-forms">
-                <label>Address Customer <span class="login-danger">*</span></label>
+                <label>Address Customer</label>
 
                 <input type="text" class="form-control" id="AddressCustomer" name="AddressCustomer">
             </div>
@@ -51,7 +51,9 @@
 
         <div class="col-lg-6">
             <div class="form-group local-forms">
-                <label>Distributor Shop </label>
+                <label>Distributor Shop
+                    <span class="login-danger">*</span>
+                </label>
                 <select class="form-select" id="DistributorShopId" name="DistributorShopId" required>
                     <option value="">Select Distributor Shop</option>
                 </select>
