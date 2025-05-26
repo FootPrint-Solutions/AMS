@@ -148,13 +148,30 @@ $arrayVehicle";
         $ids = $request->input('id');
         $custom = $request->input('custom');
         $category = $request->input('category');
+        $cca = $request->input('cca');
+        $capacity = $request->input('capacity');
+        $dimension = $request->input('dimension');
         $idcustom = explode(",", $request->input('name'));
 
         if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
                 if (isset($category) && $category != '') {
                     if ($idcustom[0] == 'ALL') {
-                        $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                        if ($category != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                        }
+
+                        if ($cca  != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndCca($cca);
+                        }
+
+                        if ($capacity != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndCapacity($capacity);
+                        }
+
+                        if ($dimension != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndDimension($dimension);
+                        }
                     } else {
                         $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
                     }

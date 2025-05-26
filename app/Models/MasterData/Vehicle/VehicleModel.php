@@ -225,4 +225,103 @@ class VehicleModel extends Model implements Auditable
             ->distinct()
             ->get();
     }
+
+    public static function getBatteryRecomendationWithCategoryAndCca($cca)
+    {
+        return DB::table('batteries')
+            ->whereNull('batteries.deleted_at')
+            ->where('batteries.status', 1)
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select(
+                'batteries.id',
+                'batteries.id AS battery_id',
+                'batteries.name',
+                'batteries.image',
+                'batteries.warranty',
+                'batteries.price_retail',
+                'battery_size_categories.name as size_category',
+                'batteries.dimension_length',
+                'batteries.dimension_width',
+                'batteries.dimension_height',
+                'batteries.standard_cca',
+                'batteries.capacity',
+                'battery_prices.price_net',
+                'battery_prices.price_retail as price_retail_original',
+                'battery_prices.discount',
+                'battery_codes.code',
+                'battery_prices.discount_price'
+            )
+            ->where('batteries.standard_cca', $cca)
+            ->distinct()
+            ->get();
+    }
+
+    public static function getBatteryRecomendationWithCategoryAndCapacity($capacity)
+    {
+        return DB::table('batteries')
+            ->whereNull('batteries.deleted_at')
+            ->where('batteries.status', 1)
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select(
+                'batteries.id',
+                'batteries.id AS battery_id',
+                'batteries.name',
+                'batteries.image',
+                'batteries.warranty',
+                'batteries.price_retail',
+                'battery_size_categories.name as size_category',
+                'batteries.dimension_length',
+                'batteries.dimension_width',
+                'batteries.dimension_height',
+                'batteries.standard_cca',
+                'batteries.capacity',
+                'battery_prices.price_net',
+                'battery_prices.price_retail as price_retail_original',
+                'battery_prices.discount',
+                'battery_codes.code',
+                'battery_prices.discount_price'
+            )
+            ->where('batteries.capacity', $capacity)
+            ->distinct()
+            ->get();
+    }
+
+    public static function getBatteryRecomendationWithCategoryAndDimension($dimension)
+    {
+        $dimension = explode(',', $dimension);
+        return DB::table('batteries')
+            ->whereNull('batteries.deleted_at')
+            ->where('batteries.status', 1)
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select(
+                'batteries.id',
+                'batteries.id AS battery_id',
+                'batteries.name',
+                'batteries.image',
+                'batteries.warranty',
+                'batteries.price_retail',
+                'battery_size_categories.name as size_category',
+                'batteries.dimension_length',
+                'batteries.dimension_width',
+                'batteries.dimension_height',
+                'batteries.standard_cca',
+                'batteries.capacity',
+                'battery_prices.price_net',
+                'battery_prices.price_retail as price_retail_original',
+                'battery_prices.discount',
+                'battery_codes.code',
+                'battery_prices.discount_price'
+            )
+            ->where('batteries.dimension_length', $dimension[0])
+            ->where('batteries.dimension_width', $dimension[1])
+            ->where('batteries.dimension_height', $dimension[2])
+            ->distinct()
+            ->get();
+    }
 }

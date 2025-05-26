@@ -22,8 +22,7 @@
             <div class="col-lg-6 col-md-6 col-sm-12">
                 <div class="form-group local-forms">
                     <label for="FullNameStep1">Members Name</label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
-                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
                     <div id="AutoCompleteFullNameCustomerStep1"></div>
                     <span class="badge bg-success mt-2" id="UserExistStep1" style="display: none;">User Exist</span>
                     <span class="badge bg-warning mt-2" id="UserNotExistStep1" style="display: none;">New User</span>
@@ -37,12 +36,11 @@
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="form-group local-forms">
                             <label for="VehicleCustomer">Vehicle Customer <span class="login-danger">*</span></label>
-                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
-                                class="form-select" aria-label="Select vehicles">
+                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer" class="form-select" aria-label="Select vehicles">
                                 @foreach ($data['Vehicle'] as $vehicle)
-                                    <option value="{{ $vehicle['id'] }}">
-                                        {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
-                                    </option>
+                                <option value="{{ $vehicle['id'] }}">
+                                    {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -74,8 +72,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label>Battery Category</label>
-                                <select name="BatteryCategory" id="BatteryCategory" class="form-select"
-                                    aria-label="Default select example" style="width: 100%;">
+                                <select name="BatteryCategory" id="BatteryCategory" class="form-select" aria-label="Default select example" style="width: 100%;">
                                     <option value="">Select Battery Category</option>
                                 </select>
                                 <script>
@@ -116,8 +113,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label>Battery CCA</label>
-                                <select name="BatteryCCA" id="BatteryCCA" class="form-select"
-                                    aria-label="Default select example">
+                                <select name="BatteryCCA" id="BatteryCCA" class="form-select" aria-label="Default select example">
                                     <option value="all">Select All</option>
                                 </select>
                                 <script>
@@ -158,8 +154,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label>Battery Capacity</label>
-                                <select name="BatteryCapacity" id="BatteryCapacity" class="form-select"
-                                    aria-label="Default select example">
+                                <select name="BatteryCapacity" id="BatteryCapacity" class="form-select" aria-label="Default select example">
                                     <option value="all">Select All</option>
                                 </select>
                                 <script>
@@ -200,8 +195,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label>Battery Dimension</label>
-                                <select name="BatteryDimension" id="BatteryDimension" class="form-select"
-                                    aria-label="Default select example">
+                                <select name="BatteryDimension" id="BatteryDimension" class="form-select" aria-label="Default select example">
                                     <option value="all">Select All</option>
                                 </select>
                                 <script>
@@ -252,8 +246,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label>Battery Name</label>
-                                <select name="BatteryName" id="BatteryName" class="form-select"
-                                    aria-label="Default select example">
+                                <select name="BatteryName" id="BatteryName" class="form-select" aria-label="Default select example">
                                     <option value="all">Select All</option>
                                 </select>
                                 <script>
@@ -311,8 +304,7 @@
     <div class="row" id="ResultRecommendationStockBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
-            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i
-                    class="fas fa-check"></i>
+            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
                 Select All</button>
             <button id="screenshot" class="btn btn-primary"><i class="fas fa-camera"></i> Screenshot</button>
             <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
@@ -328,8 +320,7 @@
 </div>
 
 <!-- Modal screenshoot -->
-<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel"
-    aria-hidden="true">
+<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -365,8 +356,43 @@
             }
         });
 
+        let suppressChange = false;
+
+        function resetOtherFields(except) {
+            if (suppressChange) return;
+
+            suppressChange = true;
+
+            const fields = ['#BatteryCategory', '#BatteryCCA', '#BatteryCapacity', '#BatteryDimension'];
+
+            fields.forEach(function(field) {
+                if (field !== except) {
+                    $(field).val('ALL').trigger('change.select2');
+                }
+            });
+
+            $('#IdBatteryArray').val('');
+
+            suppressChange = false;
+        }
+
         $('#BatteryCategory').on('change', function() {
-            console.log('BatteryCategory changed');
+            resetOtherFields('#BatteryCategory');
+            getBatteryByVehicle();
+        });
+
+        $('#BatteryCCA').on('change', function() {
+            resetOtherFields('#BatteryCCA');
+            getBatteryByVehicle();
+        });
+
+        $('#BatteryCapacity').on('change', function() {
+            resetOtherFields('#BatteryCapacity');
+            getBatteryByVehicle();
+        });
+
+        $('#BatteryDimension').on('change', function() {
+            resetOtherFields('#BatteryDimension');
             getBatteryByVehicle();
         });
 
@@ -575,8 +601,11 @@
             data = {
                 id: VehicleCustomer,
                 custom: $('#custom-vehicle').is(':checked'),
-                category: $('#BatteryCategory').val(),
+                category: $('#BatteryCategory').val() ? $('#BatteryCategory').val() : 'ALL',
                 name: $('#IdBatteryArray').val() ? $('#IdBatteryArray').val() : 'ALL',
+                cca: $('#BatteryCCA').val() ? $('#BatteryCCA').val() : 'ALL',
+                capacity: $('#BatteryCapacity').val() ? $('#BatteryCapacity').val() : 'ALL',
+                dimension: $('#BatteryDimension').val() ? $('#BatteryDimension').val() : 'ALL',
             }
         } else {
             data = {
