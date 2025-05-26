@@ -121,7 +121,7 @@
                 );
                 let FullName = $('#FullName').val();
                 let ContactNumber = $('#ContactNumber').val();
-                let AddressCustomer = $('#AddressCustomer').val();
+                let AddressCustomer = $('#AddressCustomer').val() || 'unknown address';
                 let VehicleCustomer = $('#VehicleCustomer').val();
                 let EmailCustomer = $('#EmailCustomer').val();
 
@@ -143,14 +143,14 @@
                     return;
                 }
 
-                if (AddressCustomer == '') {
-                    swal.fire("Error!", "Address Customer is required", "error");
-                    button.prop('disabled', false);
-                    button.html(
-                        "<i class='fa-brands fa-whatsapp'></i> Share "
-                    );
-                    return;
-                }
+                // if (AddressCustomer == '') {
+                //     swal.fire("Error!", "Address Customer is required", "error");
+                //     button.prop('disabled', false);
+                //     button.html(
+                //         "<i class='fa-brands fa-whatsapp'></i> Share "
+                //     );
+                //     return;
+                // }
 
                 if (VehicleCustomer == '') {
                     swal.fire("Error!", "Vehicle Customer is required", "error");
@@ -267,14 +267,14 @@
                 var FullName = $("#FullName").val();
                 var EmailCustomer = $("#EmailCustomer").val();
                 var ContactNumber = $("#ContactNumber").val();
-                var AddressCustomer = $("#AddressCustomer").val();
+                var AddressCustomer = $("#AddressCustomer").val() || 'unknown address';
                 var VehicleCustomer = $("#VehicleCustomer").val();
                 var TemplateMessage = $("#TemplateMessage").val();
                 var Battery = $("input[name='CheckBattery[]']:checked").map(function() {
                     return $(this).val();
                 }).get();
-                var Latitude = $("#Latitude").val();
-                var Longitude = $("#Longitude").val();
+                var Latitude = $("#Latitude").val() || '0';
+                var Longitude = $("#Longitude").val() || '0';
                 var alternative_address = $("#alternative_address").val();
 
                 if (Battery.length == 0) {
@@ -301,10 +301,10 @@
                     return;
                 }
 
-                if (AddressCustomer == '') {
-                    swal.fire("Error!", "Address Customer is required", "error");
-                    return;
-                }
+                // if (AddressCustomer == '') {
+                //     swal.fire("Error!", "Address Customer is required", "error");
+                //     return;
+                // }
 
                 var DistributorShopId = $("#DistributorShopId").val();
 
@@ -319,11 +319,11 @@
                     return false;
                 }
 
-                if (Latitude == '' || Longitude == '') {
-                    swal.fire("Error!",
-                        "Please select address from suggestion or fill the coordinate field", "error");
-                    return false;
-                }
+                // if (Latitude == '' || Longitude == '') {
+                //     swal.fire("Error!",
+                //         "Please select address from suggestion or fill the coordinate field", "error");
+                //     return false;
+                // }
 
                 $('#btnNextStep3').trigger('click');
 

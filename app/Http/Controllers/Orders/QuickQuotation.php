@@ -153,7 +153,11 @@ $arrayVehicle";
         if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
                 if (isset($category) && $category != '') {
-                    $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                    if ($idcustom[0] == 'ALL') {
+                        $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                    } else {
+                        $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                    }
                 } else {
                     $results = VehicleModel::getBatteryRecomendationWithCategoryFix($idcustom);
                 }
@@ -785,7 +789,7 @@ $arrayBattery
                     ['contact' => $request->input('contact')],
                     [
                         'name' => $request->input('FullName'),
-                        'address' => $request->input('AddressCustomer'),
+                        'address' => $request->input('AddressCustomer') ?? 'unknown address',
                         'contact' => $request->input('ContactNumber'),
                         'latitude' => $request->input('Latitude') ?? 0,
                         'longitude' => $request->input('Longitude') ?? 0,
@@ -818,7 +822,7 @@ $arrayBattery
                 'midtrans_payment_link' => $midtransPaymentLink ?? null,
                 'payment_status' => "pending",
                 'status' => "draft",
-                'address' => $request->input('AddressCustomer'),
+                'address' => $request->input('AddressCustomer') ?? 'unknown address',
                 'alternative_address' => $request->input('alternative_address'),
                 'latitude' => $request->input('Latitude') ?? 0,
                 'longitude' => $request->input('Longitude') ?? 0,

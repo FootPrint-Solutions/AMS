@@ -365,6 +365,11 @@
             }
         });
 
+        $('#BatteryCategory').on('change', function() {
+            console.log('BatteryCategory changed');
+            getBatteryByVehicle();
+        });
+
         // $('#BatteryCategory').on('change', function() {
         //     var BatteryCategory = $(this).val();
         //     if (BatteryCategory.length == 0) {
@@ -571,7 +576,7 @@
                 id: VehicleCustomer,
                 custom: $('#custom-vehicle').is(':checked'),
                 category: $('#BatteryCategory').val(),
-                name: $('#IdBatteryArray').val()
+                name: $('#IdBatteryArray').val() ? $('#IdBatteryArray').val() : 'ALL',
             }
         } else {
             data = {

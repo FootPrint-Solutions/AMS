@@ -32,7 +32,6 @@
             <div class="col-lg-6">
                 <div class="mb-3 form-group local-forms">
                     <label class="form-label">Address Customer
-                        <span class="login-danger">*</span>
                     </label>
                     <input type="text" class="form-control" id="address_input_mobile" name="address_input_mobile">
                 </div>
@@ -339,7 +338,7 @@
         var FullName = $("#full_name_input_mobile").val();
         var EmailCustomer = $("#email_input_mobile").val();
         var ContactNumber = $("#contact_input_mobile").val();
-        var AddressCustomer = $("#address_input_mobile").val();
+        var AddressCustomer = $("#address_input_mobile").val() || 'unknown address';
         var AddressCustomerAlternative = $("#address_input_mobile_alternative").val();
         var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
         var Battery = [];
@@ -371,10 +370,10 @@
             return;
         }
 
-        if (AddressCustomer == '') {
-            swal.fire("Error!", "Address Customer is required", "error");
-            return;
-        }
+        // if (AddressCustomer == '') {
+        //     swal.fire("Error!", "Address Customer is required", "error");
+        //     return;
+        // }
 
         var DistributorShopId = $('#distributor_input_mobile').val();
 

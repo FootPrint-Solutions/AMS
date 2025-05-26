@@ -193,4 +193,36 @@ class VehicleModel extends Model implements Auditable
             ->select('battery_size_categories.id', 'battery_size_categories.name as size_category')
             ->get();
     }
+
+    public static function getBatteryRecomendationWithCategoryAll($category)
+    {
+        return DB::table('batteries')
+            ->whereNull('batteries.deleted_at')
+            ->where('batteries.status', 1)
+            ->leftJoin('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id')
+            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
+            ->select(
+                'batteries.id',
+                'batteries.id AS battery_id',
+                'batteries.name',
+                'batteries.image',
+                'batteries.warranty',
+                'batteries.price_retail',
+                'battery_size_categories.name as size_category',
+                'batteries.dimension_length',
+                'batteries.dimension_width',
+                'batteries.dimension_height',
+                'batteries.standard_cca',
+                'batteries.capacity',
+                'battery_prices.price_net',
+                'battery_prices.price_retail as price_retail_original',
+                'battery_prices.discount',
+                'battery_codes.code',
+                'battery_prices.discount_price'
+            )
+            ->where('battery_size_categories.id', $category)
+            ->distinct()
+            ->get();
+    }
 }

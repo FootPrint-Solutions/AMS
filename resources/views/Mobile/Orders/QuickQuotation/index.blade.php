@@ -82,7 +82,7 @@
         var FullName = $("#full_name_input_mobile").val();
         var EmailCustomer = $("#email_input_mobile").val();
         var ContactNumber = $("#contact_input_mobile").val();
-        var AddressCustomer = $("#address_input_mobile").val();
+        var AddressCustomer = $("#address_input_mobile").val() || 'unknown address';
         var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
         var Battery = [];
         $('.btn-owl-carousel-step-2').each(function() {
@@ -113,10 +113,10 @@
             return false;
         }
 
-        if (AddressCustomer == '') {
-            swal.fire("Error!", "Address Customer is required", "error");
-            return false;
-        }
+        // if (AddressCustomer == '') {
+        //     swal.fire("Error!", "Address Customer is required", "error");
+        //     return false;
+        // }
 
         var DistributorShopId = $('#distributor_input_mobile').val();
 
