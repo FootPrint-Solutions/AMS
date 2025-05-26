@@ -366,11 +366,11 @@
         var FullName = $("#full_name_input_mobile").val();
         var EmailCustomer = $("#email_customer_input_mobile").val();
         var ContactNumber = $("#contact_input_mobile").val();
-        var AddressCustomer = $('#address_input_mobile').val();
+        var AddressCustomer = $('#address_input_mobile').val() || 'unknown address';
         var AddressCustomerAlternative = $('#address_input_mobile_alternative').val();
         var VehicleCustomer = $("#vehicle_customer_input_mobile").val();
-        var Latitude = $("#latitude_input_mobile").val();
-        var Longitude = $("#longitude_input_mobile").val();
+        var Latitude = $("#latitude_input_mobile").val() || '0';
+        var Longitude = $("#longitude_input_mobile").val() || '0';
         var IdCustomer = $("#IdCustomer").val();
         var Battery = [];
         $("input[name='battery_id_checkout_mobile[]']").each(function() {

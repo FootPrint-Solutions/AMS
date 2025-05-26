@@ -1422,10 +1422,10 @@ $arrayVehicle
                     ['contact' => $ContactNumber],
                     [
                         'name' => $FullName,
-                        'address' => $AddressCustomer,
+                        'address' => $AddressCustomer ?? 'unknown address',
                         'contact' => $ContactNumber,
-                        'latitude' => $Latitude,
-                        'longitude' => $Longitude
+                        'latitude' => $Latitude ?? 0,
+                        'longitude' => $Longitude ?? 0,
                     ]
                 );
                 $Customer->vehicles()->sync($request->input('VehicleCustomer'));
@@ -1447,10 +1447,10 @@ $arrayVehicle
                 'midtrans_payment_link' => null,
                 'payment_status' => "pending",
                 'status' => "draft",
-                'address' => $AddressCustomer,
+                'address' => $AddressCustomer ?? 'unknown address',
                 'alternative_address' => $AddressCustomerAlternative,
-                'latitude' => $Latitude,
-                'longitude' => $Longitude,
+                'latitude' => $Latitude ?? 0,
+                'longitude' => $Longitude ?? 0,
                 'date' => date('Y-m-d')
             ];
 
