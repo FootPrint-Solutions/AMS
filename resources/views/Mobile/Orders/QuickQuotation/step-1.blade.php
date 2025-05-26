@@ -55,7 +55,7 @@
                      <label>Battery Category</label>
                      <select name="BatteryCategoryMobile" id="BatteryCategoryMobile" class="form-select"
                          aria-label="Default select example" style="width: 100%;">
-                         <option value="">Select Battery Category</option>
+                         <option value="ALL">Select Battery Category</option>
                      </select>
                      <script>
                          $(document).ready(function() {
@@ -97,7 +97,7 @@
                      <label>Battery CCA</label>
                      <select name="BatteryCCAMobile" id="BatteryCCAMobile" class="form-select"
                          aria-label="Default select example">
-                         <option value="all">Select All</option>
+                         <option value="ALL">Select All</option>
                      </select>
                      <script>
                          $(document).ready(function() {
@@ -142,7 +142,7 @@
                      <label>Battery Capacity</label>
                      <select name="BatteryCapacityMobile" id="BatteryCapacityMobile" class="form-select"
                          aria-label="Default select example">
-                         <option value="all">Select All</option>
+                         <option value="ALL">Select All</option>
                      </select>
                      <script>
                          $(document).ready(function() {
@@ -184,7 +184,7 @@
                      <label>Battery Dimension</label>
                      <select name="BatteryDimensionMobile" id="BatteryDimensionMobile" class="form-select"
                          aria-label="Default select example">
-                         <option value="all">Select All</option>
+                         <option value="ALL">Select All</option>
                      </select>
                      <script>
                          $(document).ready(function() {
@@ -232,7 +232,7 @@
                      <label>Battery Name</label>
                      <select name="BatteryNameMobile" id="BatteryNameMobile" class="form-select"
                          aria-label="Default select example">
-                         <option value="all">Select All</option>
+                         <option value="ALL">Select All</option>
                      </select>
                      <script>
                          $(document).ready(function() {
@@ -343,6 +343,50 @@
                  $('#group-box-mobile').hide();
              }
          });
+     });
+
+     let suppressChangeMobile = false;
+
+     function resetOtherFieldsMobile(except) {
+         if (suppressChangeMobile) return;
+
+         suppressChangeMobile = true;
+         const fieldsMobile = [
+             '#BatteryCategoryMobile',
+             '#BatteryCCAMobile',
+             '#BatteryCapacityMobile',
+             '#BatteryDimensionMobile',
+         ];
+
+         fieldsMobile.forEach(function(field) {
+             if (field !== except) {
+                 $(field).val('ALL').trigger('change.select2');
+             }
+         });
+
+         $('#IdBatteryArrayMobile').val('');
+
+         suppressChangeMobile = false;
+     }
+
+     $('#BatteryCategoryMobile').on('change', function() {
+         resetOtherFieldsMobile('#BatteryCategoryMobile');
+         getBatteryByVehicleMobile();
+     });
+
+     $('#BatteryCCAMobile').on('change', function() {
+         resetOtherFieldsMobile('#BatteryCCAMobile');
+         getBatteryByVehicleMobile();
+     });
+
+     $('#BatteryCapacityMobile').on('change', function() {
+         resetOtherFieldsMobile('#BatteryCapacityMobile');
+         getBatteryByVehicleMobile();
+     });
+
+     $('#BatteryDimensionMobile').on('change', function() {
+         resetOtherFieldsMobile('#BatteryDimensionMobile');
+         getBatteryByVehicleMobile();
      });
 
      $('#btnAddBatteryMobile').on('click', function() {
@@ -572,8 +616,11 @@
              data: {
                  id: VehicleCustomer,
                  custom: $('#select-custom-vehicle').is(':checked'),
-                 category: $('#BatteryCategoryMobile').val(),
-                 name: $('#IdBatteryArrayMobile').val(),
+                 category: $('#BatteryCategoryMobile').val() || 'ALL',
+                 name: $('#IdBatteryArrayMobile').val() || 'ALL',
+                 cca: $('#BatteryCCAMobile').val() || 'ALL',
+                 capacity: $('#BatteryCapacityMobile').val() || 'ALL',
+                 dimension: $('#BatteryDimensionMobile').val() || 'ALL',
              },
              success: function(data) {
                  var html = '';
@@ -823,7 +870,7 @@
          //      return;
          //  }
 
-         if (vehicle_customer_input_mobile == null) {
+         if (vehicle_customer_input_mobile == null || vehicle_customer_input_mobile.length == 0) {
              swal.fire("Error!", "Vehicle Customer is required", "error");
              return;
          }

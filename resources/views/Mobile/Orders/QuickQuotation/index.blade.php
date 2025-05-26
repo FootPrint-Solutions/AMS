@@ -118,6 +118,11 @@
         //     return false;
         // }
 
+        if (VehicleCustomer == '') {
+            swal.fire("Error!", "Vehicle Customer is required", "error");
+            return false;
+        }
+
         var DistributorShopId = $('#distributor_input_mobile').val();
 
         if (DistributorShopId == '') {

@@ -148,13 +148,30 @@ $arrayVehicle";
         $ids = $request->input('id');
         $custom = $request->input('custom');
         $category = $request->input('category');
+        $cca = $request->input('cca');
+        $capacity = $request->input('capacity');
+        $dimension = $request->input('dimension');
         $idcustom = explode(",", $request->input('name'));
 
         if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
                 if (isset($category) && $category != '') {
                     if ($idcustom[0] == 'ALL') {
-                        $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                        if ($category != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                        }
+
+                        if ($cca  != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndCca($cca);
+                        }
+
+                        if ($capacity != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndCapacity($capacity);
+                        }
+
+                        if ($dimension != 'ALL') {
+                            $results = VehicleModel::getBatteryRecomendationWithCategoryAndDimension($dimension);
+                        }
                     } else {
                         $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
                     }
@@ -1405,10 +1422,10 @@ $arrayVehicle
                     ['contact' => $ContactNumber],
                     [
                         'name' => $FullName,
-                        'address' => $AddressCustomer,
+                        'address' => $AddressCustomer ?? 'unknown address',
                         'contact' => $ContactNumber,
-                        'latitude' => $Latitude,
-                        'longitude' => $Longitude
+                        'latitude' => $Latitude ?? 0,
+                        'longitude' => $Longitude ?? 0,
                     ]
                 );
                 $Customer->vehicles()->sync($request->input('VehicleCustomer'));
@@ -1430,10 +1447,10 @@ $arrayVehicle
                 'midtrans_payment_link' => null,
                 'payment_status' => "pending",
                 'status' => "draft",
-                'address' => $AddressCustomer,
+                'address' => $AddressCustomer ?? 'unknown address',
                 'alternative_address' => $AddressCustomerAlternative,
-                'latitude' => $Latitude,
-                'longitude' => $Longitude,
+                'latitude' => $Latitude ?? 0,
+                'longitude' => $Longitude ?? 0,
                 'date' => date('Y-m-d')
             ];
 
