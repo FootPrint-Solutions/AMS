@@ -92,9 +92,10 @@
                         </div>
 
                         <div class="col">
-                            <input type="text" class="form-control" name="Address" id="AddressSearchColumn"
+                            <input type="text" class="form-control" name="Address"
+                                id="AddressSearchColumnSalesOrderEditable"
                                 value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                readonly required>
+                                required>
                         </div>
                     </div>
 
@@ -594,7 +595,7 @@
             let mode = $("#btn-save").attr("value"); // update || create
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
 
-            let address = $("#AddressSearchColumn").val();
+            let address = $("#AddressSearchColumnSalesOrderEditable").val();
             let lat = $("#Latitude").val();
             let lon = $("#Longitude").val();
             if (address == "" || lat == "" || lon == "") {
