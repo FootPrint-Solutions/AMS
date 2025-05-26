@@ -153,7 +153,11 @@ $arrayVehicle";
         if (isset($custom) && $custom == 'true') {
             if ($idcustom) {
                 if (isset($category) && $category != '') {
-                    $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                    if ($idcustom[0] == 'ALL') {
+                        $results = VehicleModel::getBatteryRecomendationWithCategoryAll($category);
+                    } else {
+                        $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                    }
                 } else {
                     $results = VehicleModel::getBatteryRecomendationWithCategoryFix($idcustom);
                 }
