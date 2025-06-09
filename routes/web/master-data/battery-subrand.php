@@ -11,3 +11,4 @@ Route::get('/battery/subbrand/edit/{id}', [BatterySubbrand::class, 'edit'])->nam
 Route::post('/battery/subbrand/store', [BatterySubbrand::class, 'store'])->name('battery.subbrand.store')->middleware('permission:add_battery');
 Route::post('/battery/subbrand/update', [BatterySubbrand::class, 'update'])->name('battery.subbrand.update')->middleware('permission:edit_battery');
 Route::post('/battery/subbrand/destroy', [BatterySubbrand::class, 'destroy'])->name('battery.subbrand.destroy')->middleware('permission:delete_battery');
+Route::post('/battery/subbrand/toggle-visibility', [BatterySubbrand::class, 'toggleVisibility'])->name('battery.subbrand.toggle-visibility')->middleware('permission:edit_battery');

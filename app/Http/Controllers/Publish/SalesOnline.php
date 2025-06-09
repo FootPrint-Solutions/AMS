@@ -100,6 +100,9 @@ class SalesOnline extends Controller
             } else {
                 $row[] = '<span class="badge bg-warning">Pending</span>';
             }
+            $row[] = $key->latitude . ', ' . $key->longitude;
+            $row[] = $key->ip_address;
+            $row[] = $key->user_agent;
             $row[] = $key->sales_order_id;
             $rows[] = $row;
         }

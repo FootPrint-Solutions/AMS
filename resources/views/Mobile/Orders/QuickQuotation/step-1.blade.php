@@ -55,7 +55,7 @@
                      <label>Battery Category</label>
                      <select name="BatteryCategoryMobile" id="BatteryCategoryMobile" class="form-select"
                          aria-label="Default select example" style="width: 100%;">
-                         <option value="ALL">Select Battery Category</option>
+                         <option value="">Select Battery Category</option>
                      </select>
                      <script>
                          $(document).ready(function() {

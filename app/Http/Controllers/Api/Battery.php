@@ -57,7 +57,7 @@ class Battery extends Controller
     function getBatteryCategory(Request $request)
     {
         try {
-            $battery = BatterySubbrandCategoryModel::get()->toArray();
+            $battery = BatterySubbrandCategoryModel::where("show_visible_online", 1)->get()->toArray();
             $response = [
                 'status' => 'success',
                 'message' => 'Data found',

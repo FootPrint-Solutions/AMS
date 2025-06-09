@@ -29,6 +29,9 @@
                             <th scope="col">Qty</th>
                             <th scope="col">Total</th>
                             <th scope="col">WhatsApp Status</th>
+                            <th scope="col">Lat & Lng</th>
+                            <th scope="col">IP Address</th>
+                            <th scope="col">User Agent</th>
                         </tr>
                     </thead>
                     <tbody>

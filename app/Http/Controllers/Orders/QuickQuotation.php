@@ -173,7 +173,7 @@ $arrayVehicle";
                             $results = VehicleModel::getBatteryRecomendationWithCategoryAndDimension($dimension);
                         }
                     } else {
-                        $results = VehicleModel::getBatteryRecomendationWithCategory($idcustom);
+                        $results = VehicleModel::getBatteryRecomendationWithCategoryFix($idcustom);
                     }
                 } else {
                     $results = VehicleModel::getBatteryRecomendationWithCategoryFix($idcustom);

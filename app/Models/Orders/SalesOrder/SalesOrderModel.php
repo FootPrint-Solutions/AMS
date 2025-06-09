@@ -181,6 +181,7 @@ class SalesOrderModel extends Model implements Auditable
         $orderColumns = [
             'id',
             'sales_order_number',
+            'invoice_number',
             'date',
             'customer_name',
             'vehicle_name',
