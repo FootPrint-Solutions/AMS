@@ -88,9 +88,17 @@ class BatterySubbrand extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+
+            if ($key->show_visible_online == 0) {
+                $statusIndicatorColor = "text-danger";
+            } else {
+                $statusIndicatorColor = "text-success";
+            }
+
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
+            $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
             $rows[] = $row;
         }
@@ -244,6 +252,52 @@ class BatterySubbrand extends Controller
             Log::error($e->getMessage());
 
             // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Toggle the visibility of the specified Battery Subbrand Category resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function toggleVisibility(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Validate CSRF token
+            if ($request->_token !== csrf_token()) {
+                return getResponseData(false, 'Invalid CSRF token.');
+            }
+
+            $ids = $request->input('ids', []);
+            if (!is_array($ids) || empty($ids)) {
+                return getResponseData(false, 'No subbrand IDs provided.');
+            }
+
+            $status = true;
+            foreach ($ids as $id) {
+                $subbrand = BatterySubbrandCategoryModel::find($id);
+                if ($subbrand) {
+                    $subbrand->show_visible_online = $subbrand->show_visible_online == 1 ? 0 : 1;
+                    $status = $subbrand->save() && $status;
+                }
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? "The battery subbrand category visibility was successfully updated!" : "Failed to update the battery subbrand category visibility!"
+            );
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
             return getResponseData(false);
         }
     }
