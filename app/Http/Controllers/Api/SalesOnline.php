@@ -61,7 +61,7 @@ class SalesOnline extends Controller
                 'address' => $data['alamatLengkap'],
                 'whatsapp_status' => 'pending',
                 'ip_address' => $data['ipAddress'] ?? $request->ip(),
-                'user_agent' => $request->header('User-Agent'),
+                'user_agent' => $data['userAgent'],
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
             ]);
