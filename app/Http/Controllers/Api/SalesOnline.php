@@ -28,7 +28,7 @@ class SalesOnline extends Controller
 
             $data = $request->only([
                 'customerName', 'province', 'city', 'district', 'subDistrict',
-                'postalCode', 'phoneNumber', 'email', 'vehiclePlate', 'deliveryDate', 'additionalInfo', 'alamatLengkap'
+                'postalCode', 'phoneNumber', 'email', 'vehiclePlate', 'deliveryDate', 'additionalInfo', 'alamatLengkap', 'ipAddress', 'userAgent', 'latitude', 'longitude'
             ]);
 
             $cartDetails = $request->input('cartDetails', []);
