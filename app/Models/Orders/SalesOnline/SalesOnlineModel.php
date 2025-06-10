@@ -85,6 +85,10 @@ class SalesOnlineModel extends Model implements Auditable
                 ->whereColumn('source_id', 'sales_online.id')
                 ->limit(1),
             'whatsapp_status',
+            'ip_address',
+            'user_agent',
+            'latitude',
+            'longitude',
         ];
 
         $searchColumns = [
