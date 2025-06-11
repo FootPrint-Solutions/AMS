@@ -237,6 +237,9 @@ Route::middleware(['auth'])->group(function () {
     // Gallery
     require __DIR__ . '/web/publish/gallery.php';
 
+    // Post
+    require __DIR__ . '/web/publish/post.php';
+
     // Logout
     Route::get('/logout', [Authentication::class, 'logout']);
 
