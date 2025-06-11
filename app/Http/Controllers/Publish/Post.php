@@ -68,8 +68,13 @@ class Post extends Controller
 
             if ($request->hasFile('featured_image')) {
                 $image = $request->file('featured_image');
-                $path = $image->store('posts', 'public');
-                $data['featured_image'] = basename($path);
+                $filename = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $destinationPath = public_path('storage/image/post/');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+                $image->move($destinationPath, $filename);
+                $data['featured_image'] = $filename;
             }
 
             $post = PostModel::create($data);
@@ -91,20 +96,18 @@ class Post extends Controller
         $draw = $request->input('draw');
         $start = $request->input('start', 0);
 
-        $query = PostModel::with(['category', 'tags', 'creator']);
-        $count = $query->count();
-        $posts = $query->skip($start)->take($request->input('length', 10))->get();
+        $data = PostModel::allForDataTables($request);
 
         $rows = [];
         $no = $start + 1;
-        foreach ($posts as $post) {
+        foreach ($data['row'] as $post) {
             $row = [];
             $row[] = $no++;
             $row[] = $post->title;
-            $row[] = $post->category ? $post->category->name : '-';
+            $row[] = $post->category_name;
             $row[] = $post->tags->pluck('name')->implode(', ');
             $row[] = $post->featured_image
-                ? '<img src="' . asset('storage/posts/' . $post->featured_image) . '" alt="Featured" width="50" height="50" onerror="this.onerror=null;this.src=\'https://placehold.co/50x50\'">'
+                ? '<img src="' . asset('storage/image/post/' . $post->featured_image) . '" alt="Featured" width="50" height="50" onerror="this.onerror=null;this.src=\'https://placehold.co/50x50\'">'
                 : 'No Image';
             $row[] = $post->status ? 'Published' : 'Draft';
             $row[] = $post->id;
@@ -113,8 +116,8 @@ class Post extends Controller
 
         return response()->json([
             "draw" => $draw,
-            "recordsTotal" => $count,
-            "recordsFiltered" => $count,
+            "recordsTotal" => $data['count'],
+            "recordsFiltered" => $data['count'],
             "data" => $rows
         ]);
     }
@@ -206,5 +209,49 @@ class Post extends Controller
             DB::rollBack();
             return getResponseData(false, "Failed to delete the selected posts!", $th->getMessage());
         }
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:post_categories,name',
+            'status' => 'required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $category = PostCategoryModel::create([
+            'name' => $request->input('name'),
+            'slug' => Str::slug($request->input('name')),
+            'status' => $request->input('status'),
+            'created_by' => Auth::id(),
+        ]);
+
+        $category = PostCategoryModel::where('status', 1)->get()->toArray();
+
+        return getResponseData(true, "The new category was successfully created!", $category);
+    }
+
+    public function storeTag(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:post_tags,name',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $tag = PostTagModel::create([
+            'name' => $request->input('name'),
+            'slug' => Str::slug($request->input('name')),
+            'created_by' => Auth::id(),
+        ]);
+
+        $tag = PostTagModel::all()->toArray();
+
+        return getResponseData(true, "The new tag was successfully created!", $tag);
     }
 }

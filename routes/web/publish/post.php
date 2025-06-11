@@ -12,4 +12,7 @@ Route::group(['prefix' => 'post'], function () {
     Route::get('/edit/{id}', [Post::class, 'edit'])->name('publish.post.edit');
     Route::post('/update', [Post::class, 'update'])->name('publish.post.update');
     Route::post('/destroy', [Post::class, 'destroy'])->name('publish.post.destroy');
+
+    Route::post('/category/store', [Post::class, 'storeCategory'])->name('publish.post.category.store');
+    Route::post('/tag/store', [Post::class, 'storeTag'])->name('publish.post.tag.store');
 });

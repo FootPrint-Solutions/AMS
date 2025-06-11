@@ -26,7 +26,7 @@ if (!function_exists('getIndexData')) {
  *
  * @return string JSON-encoded string representing the response result.
  */
-function getResponseData($status, $message = '')
+function getResponseData($status, $message = '', $data = null)
 {
     // Set a default error message if status is false and message is empty.
     if (!$status && $message === '') {
@@ -35,7 +35,8 @@ function getResponseData($status, $message = '')
 
     return json_encode(array(
         "status" => $status,
-        "message" => $message
+        "message" => $message,
+        "data" => $data
     ));
 }
 
