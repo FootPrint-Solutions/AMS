@@ -82,9 +82,59 @@
             width: 100%;
             text-align: center;
         }
+
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 9999;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .img-loader {
+            width: 64px;
+            height: 64px;
+        }
+
+        /* jump animation img-loader */
+        @keyframes jump {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .img-loader {
+            animation: jump 1s infinite;
+        }
+
+        /* End of jump animation img-loader */
     </style>
 
 </head>
+
+
+<div class="preloader">
+    <div class="loader">
+        <img class="img-loader" src="/img/logos/128x128.png" alt="Loading..." style="width: 64px; height: 64px;">
+    </div>
+</div>
 
 <body onbeforeunload="return byeByeBye()">
     <div id="main-wrapper" class="main-wrapper">
@@ -722,6 +772,13 @@
     function removeSeparators(numberString) {
         return numberString.replace(/\./g, '');
     }
+
+    // preloader 
+    $(window).on('load', function() {
+        $('.preloader').fadeOut('slow', function() {
+            $(this).remove();
+        });
+    });
 </script>
 
 </html>
