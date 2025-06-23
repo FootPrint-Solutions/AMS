@@ -47,7 +47,7 @@ class Post extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Post tidak ditemukan',
-                    'data' => null
+                    'data' => $slug
                 ], 404);
             }
 
@@ -60,7 +60,7 @@ class Post extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan',
-                'data' => null
+                'data' => $slug
             ], 500);
         }
     }
