@@ -52,3 +52,4 @@ Route::get('review', [Review::class, 'getAllReview']);
 
 // SALES ONLINE API
 Route::post('sales-online/receive-data', [SalesOnline::class, 'receiveData']);
+Route::get('sales-online/top-battery', [SalesOnline::class, 'getTopBattery']);

@@ -9,6 +9,7 @@ use App\Models\Orders\SalesOnline\SalesOnlineModel;
 use App\Models\Orders\SalesOnline\SalesOnlineBatteriesModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Servers\ServerWhatsappModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -177,6 +178,47 @@ class SalesOnline extends Controller
             Log::info('Data berhasil disimpan.', ['data' => $salesOnline]);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan saat menyimpan data: ' . $th->getMessage()], 500);
+        }
+    }
+
+    public function getTopBattery()
+    {
+        try {
+            $topBatteries = SalesOrderBatteryModel::select('battery_id', \DB::raw('COUNT(*) as total_orders'))
+                ->whereHas('battery', function ($query) {
+                    $query->where('status', '!=', 0);
+                })
+                ->groupBy('battery_id')
+                ->orderByDesc('total_orders')
+                ->with(['battery' => function ($query) {
+                    $query->select('id', 'name', 'image', 'status')
+                        ->with('batteryPrices');
+                }])
+                ->limit(10)
+                ->get();
+
+            $result = $topBatteries->map(function ($item) {
+                return [
+                    'battery_id' => $item->battery_id,
+                    'name' => optional($item->battery)->name,
+                    'image' => optional($item->battery)->image,
+                    'status' => optional($item->battery)->status,
+                    'price' => optional($item->battery->batteryPrices->first())->price_net ?? 0,
+                    'total_orders' => (int) $item->total_orders
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data ditemukan',
+                'data' => $result
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
         }
     }
 }
