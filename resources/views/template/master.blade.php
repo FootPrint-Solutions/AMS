@@ -773,11 +773,16 @@
         return numberString.replace(/\./g, '');
     }
 
-    // preloader 
+    // Preloader: Show on page load, hide after content is ready
     $(window).on('load', function() {
         $('.preloader').fadeOut('slow', function() {
             $(this).remove();
         });
+    });
+
+    // Show preloader when navigating away
+    $(window).on('beforeunload', function() {
+        $('.preloader').show();
     });
 </script>
 

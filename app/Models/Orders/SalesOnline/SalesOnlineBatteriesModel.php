@@ -4,6 +4,7 @@ namespace App\Models\Orders\SalesOnline;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MasterData\Battery\BatteryModel;
 
 class SalesOnlineBatteriesModel extends Model
 {
