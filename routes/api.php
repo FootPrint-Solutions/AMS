@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Gallery;
 use App\Http\Controllers\Api\Faq;
 use App\Http\Controllers\Api\Review;
 use App\Http\Controllers\Api\SalesOnline;
+use App\Http\Controllers\Api\Post;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,3 +54,7 @@ Route::get('review', [Review::class, 'getAllReview']);
 // SALES ONLINE API
 Route::post('sales-online/receive-data', [SalesOnline::class, 'receiveData']);
 Route::get('sales-online/top-battery', [SalesOnline::class, 'getTopBattery']);
+
+// Post
+Route::get('post', [Post::class, 'getAllPost']);
+Route::get('post/{slug}', [Post::class, 'getPostBySlug']);
