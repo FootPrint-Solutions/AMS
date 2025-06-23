@@ -40,6 +40,7 @@ class Post extends Controller
     public function getPostBySlug($slug)
     {
         try {
+            $slug  = base64_decode($slug);
             $post = PostModel::where('slug', $slug)->first();
 
             if (!$post) {
