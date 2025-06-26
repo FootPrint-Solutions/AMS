@@ -117,11 +117,24 @@
                             var formData = new FormData();
                             formData.append('_token', "{{ csrf_token() }}");
 
+                            Swal.fire({
+                                title: "Exporting Data",
+                                text: "Please wait...",
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
                             $.ajax({
-                                url: '/sales-order/export',
+                                url: '/sales-order/export/details',
                                 method: 'POST',
                                 data: {
-                                    _token: "{{ csrf_token() }}"
+                                    _token: "{{ csrf_token() }}",
+                                    dateStart: document.getElementById(
+                                        'input-sales-order-date-start').value,
+                                    dateEnd: document.getElementById(
+                                        'input-sales-order-date-end').value
                                 },
                                 xhrFields: {
                                     responseType: 'blob'
@@ -130,12 +143,31 @@
                                     var url = window.URL.createObjectURL(data);
                                     var a = document.createElement('a');
                                     a.href = url;
-                                    a.download = 'sales-orders ' + new Date()
-                                        .toISOString().slice(0, 10) + '.xlsx';
+
+                                    var dateStart = document.getElementById(
+                                        'input-sales-order-date-start').value;
+                                    var dateEnd = document.getElementById(
+                                        'input-sales-order-date-end').value;
+                                    var filename = 'sales-orders-details';
+                                    if (dateStart && dateEnd) {
+                                        filename += ' ' + dateStart + ' to ' +
+                                            dateEnd;
+                                    } else if (dateStart) {
+                                        filename += ' from ' + dateStart;
+                                    } else if (dateEnd) {
+                                        filename += ' until ' + dateEnd;
+                                    } else {
+                                        filename += ' ' + new Date().toISOString()
+                                            .slice(0, 10);
+                                    }
+                                    filename += '.xlsx';
+                                    a.download = filename;
                                     document.body.append(a);
                                     a.click();
                                     a.remove();
                                     window.URL.revokeObjectURL(url);
+
+                                    Swal.close();
                                 },
                                 error: function() {
                                     alert('Error exporting data');
