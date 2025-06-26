@@ -23,3 +23,4 @@ Route::get('/sales-order/get-purchase-order-number/{id}', [SalesOrder::class, 'g
 Route::post('/sales-order/get-multiple-print-purchase-order', [SalesOrder::class, 'multiplePurchaseOrder'])->name('sales-order.multiplePurchaseOrder')->middleware('permission:view_sales_order_(so)');
 Route::get('/sales-order/multiple-print-purchase-order/{ids}', [SalesOrder::class, 'multiplePrintPurchaseOrder'])->name('sales-order.multiplePrintPurchaseOrder')->middleware('permission:view_sales_order_(so)');
 Route::post('/sales-order/export', [SalesOrder::class, 'export'])->name('sales-order.export')->middleware('permission:view_sales_order_(so)');
+Route::post('/sales-order/export/details', [SalesOrder::class, 'exportDetails'])->name('sales-order.export.details')->middleware('permission:view_sales_order_(so)');

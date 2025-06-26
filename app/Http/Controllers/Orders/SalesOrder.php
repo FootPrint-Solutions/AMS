@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Orders;
 
 // LIBRARY EXCEL
 use App\Exports\SalesOrderExport;
+use App\Exports\SalesOrderDetailsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Http\Controllers\Controller;
@@ -976,6 +977,22 @@ class SalesOrder extends Controller
     {
         try {
             return Excel::download(new SalesOrderExport, 'sales-orders.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting data ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function exportDetails(Request $request)
+    {
+        try {
+            $dateStart = $request->input('dateStart');
+            $dateEnd = $request->input('dateEnd');
+
+            return Excel::download(new SalesOrderDetailsExport($dateStart, $dateEnd), 'sales-orders-details ' . date('Y-m-d') . '.xlsx');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
