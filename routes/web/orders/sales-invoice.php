@@ -7,7 +7,7 @@ Route::get('/sales-invoice', [SalesInvoice::class, 'index'])->name('sales-invoic
 Route::post('/sales-invoice/show', [SalesInvoice::class, 'show'])->name('sales-invoice.show')->middleware('permission:view_sales_invoice');
 Route::get('/sales-invoice/invoice/{id}', [SalesInvoice::class, 'invoice'])->name('sales-invoice.invoice')->middleware('permission:view_sales_invoice');
 Route::get('/sales-invoice/purchase-order/{id}', [SalesInvoice::class, 'purchaseOrder'])->name('sales-invoice.purchaseOrder')->middleware('permission:view_sales_invoice');
-Route::get('/sales-invoice/create', [SalesInvoice::class, 'create'])->middleware('permission:add_sales_invoice');
+Route::get('/sales-invoice/create/{id}', [SalesInvoice::class, 'create'])->middleware('permission:add_sales_invoice');
 Route::get('/sales-invoice/edit/{id}', [SalesInvoice::class, 'edit'])->name('sales-invoice.edit')->middleware('permission:edit_sales_invoice');
 Route::post('/sales-invoice/store', [SalesInvoice::class, 'store'])->name('sales-invoice.store')->middleware('permission:add_sales_invoice');
 Route::post('/sales-invoice/update', [SalesInvoice::class, 'update'])->name('sales-invoice.update')->middleware('permission:edit_sales_invoice');

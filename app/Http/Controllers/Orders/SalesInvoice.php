@@ -25,6 +25,7 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryModel;
@@ -84,19 +85,35 @@ class SalesInvoice extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id = null)
     {
+        if ($id == null) {
+            return redirect()->route('sales-invoice.index')->with('error', 'Invalid Sales Invoice ID.');
+        }
+
+        $salesOrder = SalesOrderModel::find($id);
+        if ($salesOrder->status !== 'posted' && $salesOrder->status !== 'completed') {
+            return redirect()->route('sales-invoice.index')->with('error', 'Unable to create Sales Invoice for a posted or completed Sales Order.');
+        }
+
+        $existingInvoice = SalesInvoiceModel::where('sales_order_id', $id)->first();
+        if ($existingInvoice) {
+            return redirect()->route('sales-invoice.index')->with('error', 'Sales Invoice already exists for this Sales Order.');
+        }
+
         return view(
             'Orders.SalesInvoice.create',
             getIndexData(
                 $this->title,
                 array(
+                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
                     "number" => SalesInvoiceModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "type" => "create"
                 )
             )
         );
@@ -274,14 +291,17 @@ class SalesInvoice extends Controller
         DB::beginTransaction();
 
         try {
-            // Store sales order data.
+            $salesOrder = SalesOrderModel::find($request->salesorderid);
+
+            // Store sales invoice data.
             $salesInvoice = new SalesInvoiceModel();
-            $salesInvoice->sales_invoice_number = $request->salesordernumber;
+            $salesInvoice->sales_invoice_number = $request->salesinvoicenumber;
+            $salesInvoice->sales_order_id = $request->salesorderid;
             $salesInvoice->invoice_number = $request->invoicenumber;
             $salesInvoice->date = $request->date;
 
-            if ($request->customer === "new") {
-                // Store the newly added vehicle brand.
+            if ($request->customername || $request->customercontact || $request->customeremail) {
+                // Store the newly added customer if provided.
                 $customer = new CustomerModel();
                 $customer->name = $request->customername;
                 $customer->contact = $request->customercontact;
@@ -291,21 +311,22 @@ class SalesInvoice extends Controller
                 $customer->longitude = $request->Longitude;
                 $status = $customer->save();
 
-                // Store the list of customers" owned vehicles.
-                $customer->vehicles()->attach($request->customervehicle);
+                // Attach vehicle if provided
+                if ($request->customervehicle) {
+                    $customer->vehicles()->attach($request->customervehicle);
+                }
 
-                // Set customer to the newly added customer.
                 $salesInvoice->customer_id = $customer->id;
             } else {
-                $salesInvoice->customer_id = $request->customer;
+                $salesInvoice->customer_id = $salesOrder->customer_id;
             }
 
-            $salesInvoice->vehicle_id = $request->vehicle;
+            $salesInvoice->vehicle_id = $salesOrder->vehicle_id;
             $salesInvoice->address = $request->Address;
             $salesInvoice->latitude = $request->Latitude;
             $salesInvoice->longitude = $request->Longitude;
-            $salesInvoice->distributor_shop_id = $request->shop;
-            $salesInvoice->distributor_shop_technician_id = $request->technician;
+            $salesInvoice->distributor_shop_id = $salesOrder->distributor_shop_id ?? null;
+            $salesInvoice->distributor_shop_technician_id = $salesOrder->distributor_shop_technician_id ?? null;
             $salesInvoice->discount = $request->discount;
             $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
@@ -314,12 +335,12 @@ class SalesInvoice extends Controller
             $salesInvoice->payment_status = $request->status;
             $status = $salesInvoice->save();
 
-            // Store sales order detail data.
-            for ($i = 0; $i < count($request->batteriesid); $i++) {
+            // Store sales invoice battery details.
+            for ($i = 0; $i < count($request->detailid); $i++) {
                 $battery = new SalesInvoiceBatteryModel();
-                $battery->sales_order_id = $salesInvoice->id;
+                $battery->sales_invoice_id = $salesInvoice->id;
                 $battery->battery_id = $request->batteriesid[$i];
-                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_name = $request->batteriesname[$i] ?? null;
                 $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
                 $battery->tax = (float) $request->batteriestax[$i];
                 $battery->tax_price = (float) $request->batteriestaxprice[$i];
@@ -335,19 +356,13 @@ class SalesInvoice extends Controller
             else
                 DB::rollBack();
 
-            // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new sales order was successfully created!" : "Failed to create the new sales order!"
+                $status ? "The new sales invoice was successfully created!" : "Failed to create the new sales invoice!"
             );
         } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Logging error message.
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }

@@ -1001,4 +1001,20 @@ class SalesOrder extends Controller
             ]);
         }
     }
+
+    public function checkPost(Request $request)
+    {
+        $salesOrder = SalesOrderModel::find($request->id);
+        if ($salesOrder->status === 'draft') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sales Order is in draft status, please post it first.'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sales Order is already posted or completed.'
+            ]);
+        }
+    }
 }

@@ -16,7 +16,7 @@
             <div class="card-body">
                 {{-- Title --}}
                 <div class="card-title h5">
-                    @if (isset($data['profile']))
+                    @if (isset($data['type']) && $data['type'] == 'edit')
                         Edit
                     @else
                         Add New
@@ -39,7 +39,7 @@
                                 <input type="text" class="form-control" id="sales-invoice-number"
                                     name="salesinvoicenumber" placeholder="Enter distributor name" required readonly
                                     @isset($data['profile'])
-                                value="{{ $data['profile']['sales_invoice_number'] }}"
+                                value="{{ $data['profile']['sales_invoice_number'] ?? $data['number'] }}"
                                 @else
                                 value="{{ $data['number'] }}"
                                 @endisset>
@@ -49,7 +49,7 @@
                         {{-- Date --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
+                                <label for="quotation-date">Sales Inovoice Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
                                 value="{{ $data['profile']['date'] }}"
@@ -78,16 +78,12 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-2">
-                                    <button type="button" class="btn btn-primary" id="btnAddress"><i
-                                            class="fas fa-map-marker"></i></button>
-                                    <input type="hidden" name="Latitude" id="Latitude"
-                                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
-                                        required>
-                                    <input type="hidden" name="Longitude" id="Longitude"
-                                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
-                                        required>
-                                </div>
+                                <input type="hidden" name="Latitude" id="Latitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                                    required>
+                                <input type="hidden" name="Longitude" id="Longitude"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                                    required>
                             </div>
                         </div>
 
@@ -95,7 +91,7 @@
                             <input type="text" class="form-control" name="Address"
                                 id="AddressSearchColumnSalesInvoiceEditable"
                                 value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                required>
+                                required readonly>
                         </div>
                     </div>
 
@@ -204,10 +200,35 @@
                                 <label for="invoice-number">Marketplace Invoice Number</label>
                                 <input type="text" class="form-control" id="invoice-number" name="invoicenumber"
                                     placeholder="Enter Markeplace Invoice Number"
-                                    @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset>
+                                    @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset
+                                    readonly>
                             </div>
                         </div>
 
+                    </div>
+
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="form-group local-forms">
+                                <label for="coordinates">Coordinates latitude and longitude</label>
+                                <input type="text" class="form-control" id="coordinates"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }}, {{ ltrim($data['profile']['longitude']) }} @endif"
+                                    pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$" onkeyup="sanitizeCoordinates(this)"
+                                    onfocus="sanitizeCoordinates(this)" placeholder="Enter coordinates (lat, lon)"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group local-forms">
+                                <label for="sales-order-number">Sales Order Number</label>
+                                <input type="text" class="form-control" id="sales-order-number"
+                                    name="salesordernumber" placeholder="Enter Markeplace Invoice Number"
+                                    @isset($data['profile']) value="{{ $data['profile']['sales_order_number'] }}" @endisset
+                                    readonly>
+                                <input type="hidden" id="sales-order-id" name="salesorderid"
+                                    value="@isset($data['profile']){{ $data['profile']['id'] }}@endisset">
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Details --}}
@@ -255,7 +276,7 @@
                                         $class_tr = '';
                                     }
                                 @endphp
-                                <tr class="table-battery-detail-row {{ $class_tr }}">
+                                <tr class="table-battery-detail-row">
                                     {{-- Production Code --}}
                                     <td>
                                         <input type="text" class="form-control battery-code"
@@ -278,7 +299,10 @@
                                         @isset($data['profile'])
                                             <input type="text" class="form-control" required
                                                 @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
+                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" id="battery-name-{{ $counter }}" name="batteriesname[]" @endisset>
+
+                                            <input type="hidden" id="batteriesid-{{ $counter }}" name="batteriesid[]"
+                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_id'] }}" @endisset>
                                         @else
                                             @component('components.autocomplete', [
                                                 'id' => "battery-name-$counter",
@@ -341,10 +365,10 @@
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end battery-discountprice"
+                                            <input type="number" class="form-control text-end battery-discountprice"
                                                 id="battery-discountprice-{{ $counter }}"
                                                 name="batteriesdiscountprice[]" placeholder="Enter item discount price"
-                                                required @isset($data['profile']['batteries']) readonly @endisset
+                                                required @isset($data['profile']['batteries']) @endisset
                                                 @isset($data['profile']['batteries']) value="{{ $battery['discount_price'] }}" @endisset>
                                         </div>
 
@@ -355,7 +379,7 @@
                                     {{-- Net Price --}}
                                     <td>
                                         <div class="row">
-                                            @if (!isset($data['profile']))
+                                            @if (isset($data['profile']))
                                                 <div class="col">
                                             @endif
 
@@ -367,11 +391,11 @@
                                                     @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
 
-                                            @if (!isset($data['profile']))
+                                            @if (isset($data['profile']))
                                         </div>
 
                                         <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
+                                            <button type="button" class="btn btn-danger btn-sm btn-delete-row"
                                                 title="Delete Item"><i class="fas fa-xmark"></i></button>
                                         </div>
                             @endif
@@ -418,7 +442,7 @@
                                                 <input type="text" pattern="[0-9.]+" class="form-control text-end"
                                                     id="discount" name="discount"
                                                     @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                                    @isset($data['profile']['discount']) readonly @endisset required>
+                                                    @isset($data['profile']['discount']) @endisset required>
                                                 <span class="input-group-text border-end">%</span>
                                             </div>
 
@@ -427,7 +451,7 @@
                                                 <span class="input-group-text border-end">IDR</span>
                                                 <input type="text" class="form-control text-end"
                                                     id="discount-price-value" name="discountprice"
-                                                    @isset($data['profile']['discount']) readonly @endisset
+                                                    @isset($data['profile']['discount']) @endisset
                                                     @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
                                                     required>
                                             </div>
@@ -504,12 +528,12 @@
                     <div class="d-flex flex-row-reverse">
                         {{-- Create Button --}}
                         <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                            @if (isset($data['profile'])) value="update">
+                            @if (isset($data['type']) && $data['type'] == 'edit') value="update"
                         Update
                         @else
                         value="create">
                         Create @endif
-                            Quotation </button>
+                            Sales Invoice </button>
 
                             {{-- Cancel Button --}}
                             <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -518,9 +542,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Address Modal --}}
-    @include('maps.AddressModal')
 
     <script>
         $(document).ready(function() {
@@ -540,7 +561,7 @@
         $(document).ready(function() {
             $('#customer').select2({
                 placeholder: "Enter customer"
-            });
+            }).prop("disabled", true);
 
             $("#customer").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
@@ -560,11 +581,11 @@
 
             $('#vehicle').select2({
                 placeholder: "Enter vehicle"
-            });
+            }).prop("disabled", true);
 
             $('#shop').select2({
                 placeholder: "Enter distributor shop"
-            });
+            }).prop("disabled", true);
 
             $('#payment-method').select2({
                 placeholder: "Enter payment method"
@@ -578,11 +599,11 @@
 
                 // Get the list of menus inside the selected parent.
                 loadTechnicianData();
-            });
+            }).prop("disabled", true);
 
             $('#technician').select2({
                 placeholder: "Enter technician"
-            });
+            }).prop("disabled", true);
 
             loadTechnicianData();
         })
@@ -670,6 +691,8 @@
                 if (count === 2) {
                     $(".btn-delete-row").addClass("disabled");
                 }
+
+                calculateTotal();
             }
         });
     </script>
@@ -771,14 +794,14 @@
             let subtotal = 0;
             $(".battery-price").each(function() {
                 let row = $(this).closest('tr');
-                let priceRetail = parseInt(row.find(".battery-priceretail").val().replace(/\D/g, ''));
-                let tax = parseInt(row.find(".battery-tax").val());
-                let type = row.find(".battery-type").val();
+                let priceRetail = parseInt(row.find(".battery-priceretail").val()?.replace(/\D/g, '') || "0", 10);
+                let tax = parseInt(row.find(".battery-tax").val() || "0", 10);
+                let type = row.find(".battery-type").val() || 'regular';
 
-                if (type == 'recycle') {
-                    $(this).closest('tr').addClass('bg-danger');
+                if (type === 'recycle') {
+                    // row.addClass('bg-danger');
                 } else {
-                    $(this).closest('tr').removeClass('bg-danger');
+                    row.removeClass('bg-danger');
                 }
 
                 // Count price + tax.
@@ -788,16 +811,16 @@
                 row.find(".battery-priceaftertax").val(priceAfterTax);
 
                 // Count price + tax - discount.
-                let discountPrice = parseInt(row.find(".battery-discountprice").val().replace(/\D/g, ''));
-                let discount = discountPrice / priceAfterTax * 100;
+                let discountPrice = parseInt(row.find(".battery-discountprice").val()?.replace(/\D/g, '') || "0",
+                    10);
+                let discount = priceAfterTax > 0 ? (discountPrice / priceAfterTax * 100) : 0;
                 row.find(".battery-discount").val(discount);
                 $(this).val(priceAfterTax - discountPrice);
-                let value = parseInt($(this).val().replace(/\D/g, ''));
+
+                let value = parseInt($(this).val()?.replace(/\D/g, '') || "0", 10);
                 if (!isNaN(value)) {
-                    if (type != 'regular') {
+                    if (type !== 'regular') {
                         subtotal -= value;
-                        console.log("Subtotal: " + subtotal);
-                        console.log("type: " + type);
                     } else {
                         subtotal += value;
                     }
@@ -807,14 +830,16 @@
                 formatPrice(row.find(".battery-priceaftertax"));
                 formatPrice($(this));
             });
+
             $("#subtotal").val(subtotal);
 
             // Obtain and calculate discount and tax value.
-            let discount = parseInt($("#discount-price-value").val().replace(/\D/g, '')) || 0;
-            $("#discount").val(Math.round(discount / subtotal * 100));
+            let discount = parseInt($("#discount-price-value").val()?.replace(/\D/g, '') || "0", 10);
+            let subtotalForDiscount = subtotal !== 0 ? subtotal : 1; // avoid division by zero
+            $("#discount").val(Math.round(discount / subtotalForDiscount * 100));
 
             // Calculate total value.
-            let total = (subtotal - discount);
+            let total = subtotal - discount;
             $("#total").val(total);
 
             // Format all price fields value.

@@ -269,42 +269,40 @@
                     <div class="row">
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Post -->
-                            <button class="btn btn-outline-success btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
+                            <button class="btn btn-primary btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
                                 <i class="fas fa-file-text me-2"></i> <span id="btn-post-text">Post</span>
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Invoice -->
-                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
-                                onclick="downloadInvoice()">
+                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice" onclick="downloadInvoice()">
                                 <i class="fas fa-file-text me-2"></i> Invoice
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             {{-- button print po --}}
-                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
-                                onclick="downloadPurchaseOrder()">
+                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice" onclick="downloadPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Purchase Order
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Create Work Order -->
-                            <button class="btn btn-outline-warning w-100 btn-sm text-truncate-custom" id="btn-work-order"
+                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom" id="btn-work-order"
                                 onclick="createWorkOrder()">
                                 <i class="fas fa-screwdriver-wrench me-2"></i> Create Work Order
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Re-Create Payment Link -->
-                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
-                                id="btn-recreate-payment-link" onclick="recreatePaymentLink()">
+                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom" id="btn-recreate-payment-link"
+                                onclick="recreatePaymentLink()">
                                 <i class="fas fa-link me-2"></i> Re-Create Payment Link
                             </button>
                         </div>
 
                         {{-- button copy link payment  --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
+                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom"
                                 id="btn-copy-link-payment-midtrans">
                                 <i class="fas fa-link me-2"></i> Copy Payment Link
                             </button>
@@ -312,9 +310,17 @@
 
                         {{-- Button Multiple Print Purchase Order --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-multiple-print-purchase-order"
+                            <button class="btn btn-primary w-100 btn-sm" id="btn-multiple-print-purchase-order"
                                 onclick="multiplePrintPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Multiple Purchase Order
+                            </button>
+                        </div>
+
+                        {{-- Button Create Invoice --}}
+                        <div class="col-6 col-md-3 mb-3">
+                            <button class="btn btn-primary w-100 btn-sm h-100" id="btn-create-invoice"
+                                onclick="createSalesInvoice('/sales-invoice/create', )">
+                                <i class="fas fa-file-invoice-dollar me-2"></i> Create Sales Invoice
                             </button>
                         </div>
                     </div>
@@ -338,6 +344,46 @@
 
             // Set the id.
             $('#modal-more-action-id').val(id);
+        }
+
+        function createSalesInvoice(url) {
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+
+            if (selectedRows.length > 1) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select a single row for creating invoice.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            // ajax check posting status
+            $.ajax({
+                url: "/sales-order/post/check",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: selectedRows[0][11]
+                },
+                success: function(response) {
+                    if (response.status == 'success') {
+                        // Redirect to create sales invoice page.
+                        goToPage(url + "/" + selectedRows[0][11]);
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error",
+                        });
+                    }
+                }
+            });
+
+            // Hide the modal.
+            $('#modal-more-action').modal('hide');
         }
 
         function postSalesOrder() {
