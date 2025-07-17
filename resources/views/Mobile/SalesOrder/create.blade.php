@@ -133,25 +133,28 @@
 
         {{-- Address --}}
         <div class="row">
-            <div class="col-10">
+            <div class="col">
                 <div class="form-group local-forms">
                     <label for="address">Address <span class="login-danger">*</span></label>
                     <input type="text" class="form-control" name="Address" id="AddressSearchColumnx"
-                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                        readonly required>
+                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif">
                 </div>
             </div>
 
+            <input type="hidden" name="Latitude" id="Latitudex"
+                value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif" required>
+            <input type="hidden" name="Longitude" id="Longitudex"
+                value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif" required>
+        </div>
+
+        <div class="row">
             <div class="col">
-                <div class="col-sm-2">
-                    <button type="button" class="btn btn-primary" id="btnAddressx"><i
-                            class="fas fa-map-marker"></i></button>
-                    <input type="hidden" name="Latitude" id="Latitudex"
-                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
-                        required>
-                    <input type="hidden" name="Longitude" id="Longitudex"
-                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
-                        required>
+                <div class="form-group local-forms">
+                    <label for="coordinates">Coordinates</label>
+                    <input type="text" class="form-control" id="coordinates_mobile"
+                        value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }}, {{ ltrim($data['profile']['longitude']) }} @endif"
+                        pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$" onkeyup="sanitizeCoordinatesMobile(this)"
+                        onfocus="sanitizeCoordinatesMobile(this)" placeholder="Enter coordinates (lat, lon)">
                 </div>
             </div>
         </div>
@@ -439,6 +442,27 @@
 </div>
 
 <script>
+    function sanitizeCoordinatesMobile(input) {
+        let value = input.value.replace(/[^0-9.,-]/g, '');
+        let parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts[1];
+        }
+
+        let coordinates = value.split(',');
+        if (coordinates.length == 2) {
+            let latitude = coordinates[0].trim();
+            let longitude = coordinates[1].trim();
+            $("#Latitudex").val(latitude);
+            $("#Longitudex").val(longitude);
+        } else {
+            $("#Latitudex").val('');
+            $("#Longitudex").val('');
+        }
+
+        input.value = value;
+    }
+
     $(function() {
         $('#customerx').select2({
             placeholder: "Select customer"
@@ -871,11 +895,11 @@
     }
 
     $("#AddressSearchColumnx").on("click", function() {
-        openAddressModalx();
+        // openAddressModalx();
     });
 
     $("#btnAddressx").on("click", function() {
-        openAddressModalx();
+        // openAddressModalx();
     });
 
     $(function() {

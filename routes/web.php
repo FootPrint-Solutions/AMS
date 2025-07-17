@@ -225,6 +225,9 @@ Route::middleware(['auth'])->group(function () {
     // WO Instruction Template
     require __DIR__ . '/web/settings/work-order-instruction-template.php';
 
+    // Sales Invoice
+    require __DIR__ . '/web/orders/sales-invoice.php';
+
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 
