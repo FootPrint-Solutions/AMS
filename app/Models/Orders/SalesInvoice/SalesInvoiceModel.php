@@ -19,6 +19,8 @@ use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Settings\PaymentMethodModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 class SalesInvoiceModel extends Model implements Auditable
 {
@@ -181,5 +183,19 @@ class SalesInvoiceModel extends Model implements Auditable
         $query->select($selectColumns);
 
         return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
+    }
+    
+    public function batteries(): HasMany
+    {
+        return $this->hasMany(SalesInvoiceBatteryModel::class, 'sales_invoice_id')
+           ->with('battery');
+    }
+
+    /**
+     * Get the sales order associated with the sales invoice.
+     */
+    public function salesOrder(): BelongsTo
+    {
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
     }
 }

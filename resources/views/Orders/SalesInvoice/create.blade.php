@@ -221,10 +221,16 @@
                         <div class="col-3">
                             <div class="form-group local-forms">
                                 <label for="sales-order-number">Sales Order Number</label>
-                                <input type="text" class="form-control" id="sales-order-number"
-                                    name="salesordernumber" placeholder="Enter Markeplace Invoice Number"
-                                    @isset($data['profile']) value="{{ $data['profile']['sales_order_number'] }}" @endisset
-                                    readonly>
+                                @if (isset($data['type']) && $data['type'] == 'edit')
+                                    <input type="text" class="form-control" id="sales-order-number"
+                                        name="salesordernumber" placeholder="Enter Sales Order Number"
+                                        value="{{ $data['profile']['sales_order']['sales_order_number'] ?? '' }}"
+                                        readonly>
+                                @else
+                                    <input type="text" class="form-control" id="sales-order-number"
+                                        name="salesordernumber" placeholder="Enter Sales Order Number"
+                                        value="{{ $data['sales_order_number'] ?? '' }}" readonly>
+                                @endif
                                 <input type="hidden" id="sales-order-id" name="salesorderid"
                                     value="@isset($data['profile']){{ $data['profile']['id'] }}@endisset">
                             </div>
@@ -528,15 +534,16 @@
                     <div class="d-flex flex-row-reverse">
                         {{-- Create Button --}}
                         <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                            @if (isset($data['type']) && $data['type'] == 'edit') value="update"
-                        Update
-                        @else
-                        value="create">
-                        Create @endif
-                            Sales Invoice </button>
+                            value="@if (isset($data['type']) && $data['type'] == 'edit') update @else create @endif">
+                            @if (isset($data['type']) && $data['type'] == 'edit')
+                                Update Sales Invoice
+                            @else
+                                Create Sales Invoice
+                            @endif
+                        </button>
 
-                            {{-- Cancel Button --}}
-                            <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                        {{-- Cancel Button --}}
+                        <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -617,7 +624,7 @@
             event.preventDefault();
 
             let mode = $("#btn-save").attr("value"); // update || create
-            let url = (mode == "update") ? "/sales-invoice/update" : "/sales-invoice/store";
+            let url = (mode == " update ") ? "/sales-invoice/update" : "/sales-invoice/store";
 
             let address = $("#AddressSearchColumnSalesInvoiceEditable").val();
             let lat = $("#Latitude").val();

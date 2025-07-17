@@ -131,11 +131,12 @@ class SalesInvoice extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => SalesInvoiceModel::with(["batteries"])->find($id)->toArray(),
+                    "profile" => SalesInvoiceModel::with(["batteries", "salesOrder"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "type" => "edit",
                 )
             )
         );
@@ -376,14 +377,14 @@ class SalesInvoice extends Controller
     public function update(Request $request)
     {
         DB::beginTransaction();
-
+        // dd($request->all());
         try {
             // Update sales order data.
             $salesInvoice = SalesInvoiceModel::find($request->id);
 
-            // if ($salesInvoice->status !== 'draft') {
-            //     return getResponseData(false, "Unable to edit posted Sales Invoice.");
-            // }
+            if ($salesInvoice->status !== 'draft') {
+                return getResponseData(false, "Unable to edit posted Sales Invoice.");
+            }
 
             $salesInvoice->invoice_number = $request->invoicenumber;
             $salesInvoice->date = $request->date;
@@ -405,22 +406,49 @@ class SalesInvoice extends Controller
                 // Set customer to the newly added customer.
                 $salesInvoice->customer_id = $customer->id;
             } else {
-                $salesInvoice->customer_id = $request->customer;
+                $salesInvoice->customer_id = $salesInvoice->customer_id;
             }
 
-            $salesInvoice->vehicle_id = $request->vehicle;
+            $salesInvoice->vehicle_id = $salesInvoice->vehicle_id;
             $salesInvoice->address = $request->Address;
             $salesInvoice->latitude = $request->Latitude;
             $salesInvoice->longitude = $request->Longitude;
-            $salesInvoice->distributor_shop_id = $request->shop;
-            $salesInvoice->distributor_shop_technician_id = $request->technician;
+            $salesInvoice->distributor_shop_id = $salesInvoice->distributor_shop_id ?? null;
+            $salesInvoice->distributor_shop_technician_id = $salesInvoice->distributor_shop_technician_id ?? null;
+            $salesInvoice->discount = $request->discount;
+            $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesInvoice->total = (float) str_replace(".", "", $request->total);
             $salesInvoice->payment_method_id = $request->paymentmethod;
             $salesInvoice->payment_status = $request->status;
             $status = $salesInvoice->save();
 
-            // Store sales order detail data.
+            $existingDetails = SalesInvoiceBatteryModel::where('sales_invoice_id', $salesInvoice->id)->pluck('id')->toArray();
+            $submittedDetails = $request->detailid ?? [];
+            $detailsToDelete = array_diff($existingDetails, $submittedDetails);
+
+            foreach ($detailsToDelete as $detailId) {
+                $batteryDetail = SalesInvoiceBatteryModel::find($detailId);
+                if ($batteryDetail) {
+                    $status &= $batteryDetail->delete();
+                }
+            }
+
             for ($i = 0; $i < count($request->batteriesprice); $i++) {
-                $battery = SalesInvoiceBatteryModel::find($request->detailid[$i]);
+                if (isset($request->detailid[$i])) {
+                    $battery = SalesInvoiceBatteryModel::find($request->detailid[$i]);
+                } else {
+                    $battery = new SalesInvoiceBatteryModel();
+                    $battery->sales_invoice_id = $salesInvoice->id;
+                }
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i] ?? null;
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }
