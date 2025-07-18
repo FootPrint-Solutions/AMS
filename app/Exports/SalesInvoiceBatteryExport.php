@@ -69,7 +69,6 @@ class SalesInvoiceBatteryExport implements FromCollection, WithHeadings, WithMap
 
     public function map($data): array
     {
-        dd($data); // Debugging line to inspect the data structure
         return [
             $data->salesInvoice->sales_invoice_number ?? '-',
             $data->salesInvoice->salesOrder->sales_order_number ?? '-',
