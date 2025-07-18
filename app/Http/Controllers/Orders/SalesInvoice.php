@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Orders;
 
 
 // LIBRARY EXCEL
-use App\Exports\SalesOrderExport;
-use App\Exports\SalesOrderDetailsExport;
+use App\Exports\SalesInvoiceExport;
+use App\Exports\SalesInvoiceBatteryExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Http\Controllers\Controller;
@@ -17,14 +17,15 @@ use Exception;
 use GuzzleHttp\Client;
 
 // MODELS
-use App\Models\Orders\SalesOrder\SalesOrderModel;
-use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceBatteryModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryModel;
@@ -33,9 +34,9 @@ use App\Models\Inventory\InventoryDetailModel;
 // Midtrans 
 use App\Services\Midtrans\Transaction;
 
-class SalesOrder extends Controller
+class SalesInvoice extends Controller
 {
-    private $title = "Sales Order";
+    private $title = "Sales Invoice";
 
     /**
      * Display a listing of the resource.
@@ -45,38 +46,38 @@ class SalesOrder extends Controller
     public function index()
     {
         return view(
-            'Orders.SalesOrder.index',
+            'Orders.SalesInvoice.index',
             getIndexData(
                 $this->title
             )
         );
     }
 
-    public function getSalesOrders($status = 'all', $filter = '')
+    public function getSalesInvoices($status = 'all', $filter = '')
     {
-        $query = SalesOrderModel::with('customer')->join("customers", "sales_orders.customer_id", "customers.id")
-            ->select("sales_orders.*")->orderBy("sales_orders.date", "DESC");
+        $query = SalesInvoiceModel::with('customer')->join("customers", "sales_invoices.customer_id", "customers.id")
+            ->select("sales_invoices.*")->orderBy("sales_invoices.date", "DESC");
 
         // Filter status
         if ($status != 'all')
             $query->where(function ($q) use ($status) {
                 $q->where('payment_status', $status)
-                    ->orWhere('sales_orders.status', $status);
+                    ->orWhere('sales_invoices.status', $status);
             });
 
         // Filter
         if ($filter != '')
             $query->where(function ($q) use ($filter) {
-                $q->where('sales_order_number', 'like', '%' . $filter . '%')
+                $q->where('sales_invoice_number', 'like', '%' . $filter . '%')
                     ->orWhere('customers.name', 'like', '%' . $filter . '%');
             });
 
         return $query->get()->toArray();
     }
 
-    public function getSalesOrderDetail($id)
+    public function getSalesInvoiceDetail($id)
     {
-        return SalesOrderModel::with(['vehicle', 'technician', 'shop.distributor', 'batteries'])->find($id)->toArray();
+        return SalesInvoiceModel::with(['vehicle', 'technician', 'shop.distributor', 'batteries'])->find($id)->toArray();
     }
 
     /**
@@ -84,19 +85,35 @@ class SalesOrder extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id = null)
     {
+        if ($id == null) {
+            return redirect()->route('sales-invoice.index')->with('error', 'Invalid Sales Invoice ID.');
+        }
+
+        $salesOrder = SalesOrderModel::find($id);
+        if ($salesOrder->status !== 'posted' && $salesOrder->status !== 'completed') {
+            return redirect()->route('sales-invoice.index')->with('error', 'Unable to create Sales Invoice for a posted or completed Sales Order.');
+        }
+
+        $existingInvoice = SalesInvoiceModel::where('sales_order_id', $id)->first();
+        if ($existingInvoice) {
+            return redirect()->route('sales-invoice.index')->with('error', 'Sales Invoice already exists for this Sales Order.');
+        }
+
         return view(
-            'Orders.SalesOrder.create',
+            'Orders.SalesInvoice.create',
             getIndexData(
                 $this->title,
                 array(
-                    "number" => SalesOrderModel::newCode(),
+                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                    "number" => SalesInvoiceModel::newCode(),
                     "customers" => CustomerModel::all()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "type" => "create"
                 )
             )
         );
@@ -110,15 +127,16 @@ class SalesOrder extends Controller
     public function edit($id)
     {
         return view(
-            'Orders.SalesOrder.create',
+            'Orders.SalesInvoice.create',
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                    "profile" => SalesInvoiceModel::with(["batteries", "salesOrder"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "type" => "edit",
                 )
             )
         );
@@ -132,11 +150,11 @@ class SalesOrder extends Controller
     public function invoice($id)
     {
         return view(
-            'Orders.SalesOrder.invoice',
+            'Orders.SalesInvoice.invoice',
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
+                    "profile" => SalesInvoiceModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id)->toArray(),
                     "company" => CompanyModel::first(),
                 )
             )
@@ -150,39 +168,39 @@ class SalesOrder extends Controller
      */
     public function purchaseOrder($id)
     {
-        $salesOrder = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
-        $shopName = $salesOrder->shop->name;
-        $shopId = $salesOrder->shop->id;
+        $salesInvoice = SalesInvoiceModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
+        $shopName = $salesInvoice->shop->name;
+        $shopId = $salesInvoice->shop->id;
 
         if ($shopName !== 'Distributor Main Shop') {
             return view(
-                'Orders.SalesOrder.print.purchase-order-replacement',
+                'Orders.SalesInvoice.print.purchase-order-replacement',
                 getIndexData(
                     $this->title,
                     array(
-                        "profile" => $salesOrder->toArray(),
+                        "profile" => $salesInvoice->toArray(),
                         "company" => CompanyModel::first(),
                     )
                 )
             );
         } else if ($shopId == 16) {
             return view(
-                'Orders.SalesOrder.print.purchase-order',
+                'Orders.SalesInvoice.print.purchase-order',
                 getIndexData(
                     $this->title,
                     array(
-                        "profile" => $salesOrder->toArray(),
+                        "profile" => $salesInvoice->toArray(),
                         "company" => CompanyModel::first(),
                     )
                 )
             );
         } else {
             return view(
-                'Orders.SalesOrder.print.purchase-order',
+                'Orders.SalesInvoice.print.purchase-order',
                 getIndexData(
                     $this->title,
                     array(
-                        "profile" => $salesOrder->toArray(),
+                        "profile" => $salesInvoice->toArray(),
                         "company" => CompanyModel::first(),
                     )
                 )
@@ -203,7 +221,7 @@ class SalesOrder extends Controller
         $start = $request->input("start");
 
         // Get customer data (rows and count).
-        $data = SalesOrderModel::allForDataTables($request);
+        $data = SalesInvoiceModel::allForDataTables($request);
 
         // Set rows to be displayed in customer table.
         $rows = [];
@@ -240,7 +258,8 @@ class SalesOrder extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->sales_order_number;
+            $row[] = $key->sales_invoice_number;
+            $row[] = $key->sales_order_number ?? "<p class='text-center'>-</p>";
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name;
@@ -257,7 +276,7 @@ class SalesOrder extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => SalesOrderModel::count(),
+            "recordsTotal" => SalesInvoiceModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
@@ -274,14 +293,17 @@ class SalesOrder extends Controller
         DB::beginTransaction();
 
         try {
-            // Store sales order data.
-            $salesOrder = new SalesOrderModel();
-            $salesOrder->sales_order_number = $request->salesordernumber;
-            $salesOrder->invoice_number = $request->invoicenumber;
-            $salesOrder->date = $request->date;
+            $salesOrder = SalesOrderModel::find($request->salesorderid);
 
-            if ($request->customer === "new") {
-                // Store the newly added vehicle brand.
+            // Store sales invoice data.
+            $salesInvoice = new SalesInvoiceModel();
+            $salesInvoice->sales_invoice_number = $request->salesinvoicenumber;
+            $salesInvoice->sales_order_id = $request->salesorderid;
+            $salesInvoice->invoice_number = $request->invoicenumber;
+            $salesInvoice->date = $request->date;
+
+            if ($request->customername || $request->customercontact || $request->customeremail) {
+                // Store the newly added customer if provided.
                 $customer = new CustomerModel();
                 $customer->name = $request->customername;
                 $customer->contact = $request->customercontact;
@@ -291,35 +313,36 @@ class SalesOrder extends Controller
                 $customer->longitude = $request->Longitude;
                 $status = $customer->save();
 
-                // Store the list of customers" owned vehicles.
-                $customer->vehicles()->attach($request->customervehicle);
+                // Attach vehicle if provided
+                if ($request->customervehicle) {
+                    $customer->vehicles()->attach($request->customervehicle);
+                }
 
-                // Set customer to the newly added customer.
-                $salesOrder->customer_id = $customer->id;
+                $salesInvoice->customer_id = $customer->id;
             } else {
-                $salesOrder->customer_id = $request->customer;
+                $salesInvoice->customer_id = $salesOrder->customer_id;
             }
 
-            $salesOrder->vehicle_id = $request->vehicle;
-            $salesOrder->address = $request->Address;
-            $salesOrder->latitude = $request->Latitude;
-            $salesOrder->longitude = $request->Longitude;
-            $salesOrder->distributor_shop_id = $request->shop;
-            $salesOrder->distributor_shop_technician_id = $request->technician;
-            $salesOrder->discount = $request->discount;
-            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
-            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
-            $salesOrder->total = (float) str_replace(".", "", $request->total);
-            $salesOrder->payment_method_id = $request->paymentmethod;
-            $salesOrder->payment_status = $request->status;
-            $status = $salesOrder->save();
+            $salesInvoice->vehicle_id = $salesOrder->vehicle_id;
+            $salesInvoice->address = $request->Address;
+            $salesInvoice->latitude = $request->Latitude;
+            $salesInvoice->longitude = $request->Longitude;
+            $salesInvoice->distributor_shop_id = $salesOrder->distributor_shop_id ?? null;
+            $salesInvoice->distributor_shop_technician_id = $salesOrder->distributor_shop_technician_id ?? null;
+            $salesInvoice->discount = $request->discount;
+            $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesInvoice->total = (float) str_replace(".", "", $request->total);
+            $salesInvoice->payment_method_id = $request->paymentmethod;
+            $salesInvoice->payment_status = $request->status;
+            $status = $salesInvoice->save();
 
-            // Store sales order detail data.
-            for ($i = 0; $i < count($request->batteriesid); $i++) {
-                $battery = new SalesOrderBatteryModel();
-                $battery->sales_order_id = $salesOrder->id;
+            // Store sales invoice battery details.
+            for ($i = 0; $i < count($request->detailid); $i++) {
+                $battery = new SalesInvoiceBatteryModel();
+                $battery->sales_invoice_id = $salesInvoice->id;
                 $battery->battery_id = $request->batteriesid[$i];
-                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_name = $request->batteriesname[$i] ?? null;
                 $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
                 $battery->tax = (float) $request->batteriestax[$i];
                 $battery->tax_price = (float) $request->batteriestaxprice[$i];
@@ -335,19 +358,13 @@ class SalesOrder extends Controller
             else
                 DB::rollBack();
 
-            // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new sales order was successfully created!" : "Failed to create the new sales order!"
+                $status ? "The new sales invoice was successfully created!" : "Failed to create the new sales invoice!"
             );
         } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Logging error message.
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
@@ -361,17 +378,17 @@ class SalesOrder extends Controller
     public function update(Request $request)
     {
         DB::beginTransaction();
-
+        // dd($request->all());
         try {
             // Update sales order data.
-            $salesOrder = SalesOrderModel::find($request->id);
+            $salesInvoice = SalesInvoiceModel::find($request->id);
 
-            // if ($salesOrder->status !== 'draft') {
-            //     return getResponseData(false, "Unable to edit posted Sales Order.");
-            // }
+            if ($salesInvoice->status !== 'draft') {
+                return getResponseData(false, "Unable to edit posted Sales Invoice.");
+            }
 
-            $salesOrder->invoice_number = $request->invoicenumber;
-            $salesOrder->date = $request->date;
+            $salesInvoice->invoice_number = $request->invoicenumber;
+            $salesInvoice->date = $request->date;
 
             if ($request->customer === "new") {
                 // Store the newly added vehicle brand.
@@ -388,24 +405,51 @@ class SalesOrder extends Controller
                 $customer->vehicles()->attach($request->customervehicle);
 
                 // Set customer to the newly added customer.
-                $salesOrder->customer_id = $customer->id;
+                $salesInvoice->customer_id = $customer->id;
             } else {
-                $salesOrder->customer_id = $request->customer;
+                $salesInvoice->customer_id = $salesInvoice->customer_id;
             }
 
-            $salesOrder->vehicle_id = $request->vehicle;
-            $salesOrder->address = $request->Address;
-            $salesOrder->latitude = $request->Latitude;
-            $salesOrder->longitude = $request->Longitude;
-            $salesOrder->distributor_shop_id = $request->shop;
-            $salesOrder->distributor_shop_technician_id = $request->technician;
-            $salesOrder->payment_method_id = $request->paymentmethod;
-            $salesOrder->payment_status = $request->status;
-            $status = $salesOrder->save();
+            $salesInvoice->vehicle_id = $salesInvoice->vehicle_id;
+            $salesInvoice->address = $request->Address;
+            $salesInvoice->latitude = $request->Latitude;
+            $salesInvoice->longitude = $request->Longitude;
+            $salesInvoice->distributor_shop_id = $salesInvoice->distributor_shop_id ?? null;
+            $salesInvoice->distributor_shop_technician_id = $salesInvoice->distributor_shop_technician_id ?? null;
+            $salesInvoice->discount = $request->discount;
+            $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesInvoice->total = (float) str_replace(".", "", $request->total);
+            $salesInvoice->payment_method_id = $request->paymentmethod;
+            $salesInvoice->payment_status = $request->status;
+            $status = $salesInvoice->save();
 
-            // Store sales order detail data.
+            $existingDetails = SalesInvoiceBatteryModel::where('sales_invoice_id', $salesInvoice->id)->pluck('id')->toArray();
+            $submittedDetails = $request->detailid ?? [];
+            $detailsToDelete = array_diff($existingDetails, $submittedDetails);
+
+            foreach ($detailsToDelete as $detailId) {
+                $batteryDetail = SalesInvoiceBatteryModel::find($detailId);
+                if ($batteryDetail) {
+                    $status &= $batteryDetail->delete();
+                }
+            }
+
             for ($i = 0; $i < count($request->batteriesprice); $i++) {
-                $battery = SalesOrderBatteryModel::find($request->detailid[$i]);
+                if (isset($request->detailid[$i])) {
+                    $battery = SalesInvoiceBatteryModel::find($request->detailid[$i]);
+                } else {
+                    $battery = new SalesInvoiceBatteryModel();
+                    $battery->sales_invoice_id = $salesInvoice->id;
+                }
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i] ?? null;
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
             }
@@ -444,24 +488,24 @@ class SalesOrder extends Controller
 
         try {
             if (isset($request->id)) {
-                $salesOrder = SalesOrderModel::find($request->id);
+                $salesInvoice = SalesInvoiceModel::find($request->id);
 
-                if ($salesOrder->status === 'complete') {
+                if ($salesInvoice->status === 'complete') {
                     return getResponseData(false, "Unable to post completed sales order.");
                 }
 
-                if ($salesOrder->status === 'posted') {
+                if ($salesInvoice->status === 'posted') {
 
                     // return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
-                    $salesOrder->status = 'draft';
-                    $status = $salesOrder->save();
+                    $salesInvoice->status = 'draft';
+                    $status = $salesInvoice->save();
 
                     // Delete work order.
                     WorkOrderModel::where('sales_order_id', $request->id)->delete();
 
                     // Update inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                    $salesOrderBattery = SalesInvoiceBatteryModel::where('sales_order_id', $request->id)
                         ->with('battery')
                         ->get();
 
@@ -495,17 +539,17 @@ class SalesOrder extends Controller
                     $successMessage = "The selected sales order was successfully unposted!";
                     $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
-                    $salesOrder->payment_status = "paid";
-                    $salesOrder->status = "posted";
-                    $status = $salesOrder->save();
+                    $salesInvoice->payment_status = "paid";
+                    $salesInvoice->status = "posted";
+                    $status = $salesInvoice->save();
 
                     // Store to inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
+                    $salesOrderBattery = SalesInvoiceBatteryModel::where('sales_order_id', $request->id)
                         ->with('battery')
                         ->get();
 
                     if ($salesOrderBattery->isEmpty()) {
-                        Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
+                        Log::warning('No batteries found for Sales Invoice ID: ' . $salesInvoice->id);
                     } else {
                         foreach ($salesOrderBattery as $battery) {
                             if ($battery->battery && $battery->battery->type === 'recycle') {
@@ -520,9 +564,9 @@ class SalesOrder extends Controller
                                     'inventory_id' => $inventory->id,
                                     'battery_id' => $battery->battery_id,
                                     'type' => 'in',
-                                    'reference' => 'Sales Order Battery',
+                                    'reference' => 'Sales Invoice Battery',
                                     'quantity' => 1,
-                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                                    'note' => 'Sales Invoice Battery - ' . $salesInvoice->sales_invoice_number,
                                 ]);
 
                                 $inventoryDetail->reference()->associate($battery);
@@ -550,14 +594,14 @@ class SalesOrder extends Controller
             } else {
                 $ids = explode(",", $request->ids);
                 foreach ($ids as $id) {
-                    $salesOrder = SalesOrderModel::find($id);
+                    $salesInvoice = SalesInvoiceModel::find($id);
 
-                    if ($salesOrder->status !== 'draft')
+                    if ($salesInvoice->status !== 'draft')
                         break;
 
-                    $salesOrder->payment_status = "paid";
-                    $salesOrder->status = "posted";
-                    $status = $salesOrder->save();
+                    $salesInvoice->payment_status = "paid";
+                    $salesInvoice->status = "posted";
+                    $status = $salesInvoice->save();
                 }
 
                 if ($status)
@@ -599,13 +643,13 @@ class SalesOrder extends Controller
     public function destroy(Request $request)
     {
         if (isset($request->id)) {
-            $salesOrder = SalesOrderModel::find($request->id)->first();
+            $salesInvoice = SalesInvoiceModel::find($request->id)->first();
 
-            if ($salesOrder->status !== 'draft') {
+            if ($salesInvoice->status !== 'draft') {
                 return getResponseData(false, "Unable to delete posted and completed sales order.");
             }
 
-            $status = $salesOrder->delete();
+            $status = $salesInvoice->delete();
 
             // Set a new response data to be sent.
             return getResponseData(
@@ -615,12 +659,12 @@ class SalesOrder extends Controller
         } else {
             $ids = explode(",", $request->ids);
             foreach ($ids as $id) {
-                $salesOrder = SalesOrderModel::find($id);
+                $salesInvoice = SalesInvoiceModel::find($id);
 
-                if ($salesOrder->status !== 'draft')
+                if ($salesInvoice->status !== 'draft')
                     break;
 
-                $status = $salesOrder->delete();
+                $status = $salesInvoice->delete();
             }
 
             if ($status)
@@ -662,9 +706,9 @@ class SalesOrder extends Controller
     {
         try {
             // Check if sales order is posted or not.
-            $salesOrder = SalesOrderModel::find($id);
-            if ($salesOrder->status == "draft") {
-                return getResponseData(false, "Unable to create Work Order of an unposted Sales Order.");
+            $salesInvoice = SalesInvoiceModel::find($id);
+            if ($salesInvoice->status == "draft") {
+                return getResponseData(false, "Unable to create Work Order of an unposted Sales Invoice.");
             }
 
             // check if the work order is already created.
@@ -677,7 +721,7 @@ class SalesOrder extends Controller
                 );
             } else {
                 // Create work order.
-                $status = SalesOrderModel::CreateWorkOrder($id);
+                $status = SalesInvoiceModel::CreateWorkOrder($id);
 
                 if ($status) {
                     // Set a new response data to be sent.
@@ -704,21 +748,21 @@ class SalesOrder extends Controller
     {
         try {
             // Check if sales order is posted or not.
-            $salesOrder = SalesOrderModel::find($id);
-            if ($salesOrder->status == "posted") {
-                return getResponseData(false, "Unable to create Payment Link of an posted Sales Order.");
+            $salesInvoice = SalesInvoiceModel::find($id);
+            if ($salesInvoice->status == "posted") {
+                return getResponseData(false, "Unable to create Payment Link of an posted Sales Invoice.");
             }
 
             // get detail sales order
-            $salesOrder = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
+            $salesInvoice = SalesInvoiceModel::with(['customer', 'shop', 'technician', 'batteries'])->find($id);
 
             // cancle the previous payment link midtrans
-            $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
+            $paymentMethod = PaymentMethodModel::find($salesInvoice->payment_method_id);
 
-            if (!$salesOrder->midtrans_invoice_number) {
-                $MidtransOrderId = $salesOrder->sales_order_number . '-' . time();
+            if (!$salesInvoice->midtrans_invoice_number) {
+                $MidtransOrderId = $salesInvoice->sales_invoice_number . '-' . time();
             } else {
-                $MidtransOrderId = $salesOrder->midtrans_invoice_number;
+                $MidtransOrderId = $salesInvoice->midtrans_invoice_number;
             }
             if ($paymentMethod->name == 'Midtrans') {
 
@@ -746,12 +790,12 @@ class SalesOrder extends Controller
                             // Create new payment link.
 
                             $transaction_details = array(
-                                'order_id' => $salesOrder->sales_order_number,
-                                'gross_amount' => $salesOrder->total,
+                                'order_id' => $salesInvoice->sales_invoice_number,
+                                'gross_amount' => $salesInvoice->total,
                             );
 
                             $item_details = array();
-                            foreach ($salesOrder->batteries as $key) {
+                            foreach ($salesInvoice->batteries as $key) {
                                 $item_details[] = array(
                                     'id' => $key->battery_id,
                                     'price' => $key->price_net,
@@ -761,26 +805,26 @@ class SalesOrder extends Controller
                             }
 
                             $customer_details = array(
-                                'first_name' => $salesOrder->customer->name,
+                                'first_name' => $salesInvoice->customer->name,
                                 'last_name' => "",
-                                'email' => $salesOrder->customer->email,
-                                'phone' => $salesOrder->customer->contact,
+                                'email' => $salesInvoice->customer->email,
+                                'phone' => $salesInvoice->customer->contact,
                                 'billing_address' => array(
-                                    'first_name' => $salesOrder->customer->name,
+                                    'first_name' => $salesInvoice->customer->name,
                                     'last_name' => "",
-                                    'address' => $salesOrder->address,
+                                    'address' => $salesInvoice->address,
                                     'city' => "",
                                     'postal_code' => "",
-                                    'phone' => $salesOrder->customer->contact,
+                                    'phone' => $salesInvoice->customer->contact,
                                     'country_code' => 'IDN'
                                 ),
                                 'shipping_address' => array(
-                                    'first_name' => $salesOrder->customer->name,
+                                    'first_name' => $salesInvoice->customer->name,
                                     'last_name' => "",
-                                    'address' => $salesOrder->address,
+                                    'address' => $salesInvoice->address,
                                     'city' => "",
                                     'postal_code' => "",
-                                    'phone' => $salesOrder->customer->contact,
+                                    'phone' => $salesInvoice->customer->contact,
                                     'country_code' => 'IDN'
                                 )
                             );
@@ -828,12 +872,12 @@ class SalesOrder extends Controller
 
             $transaction = new Transaction($MidtransOrderId);
             $transaction_details = array(
-                'order_id' => $salesOrder->sales_order_number,
-                'gross_amount' => $salesOrder->total,
+                'order_id' => $salesInvoice->sales_invoice_number,
+                'gross_amount' => $salesInvoice->total,
             );
 
             $item_details = array();
-            foreach ($salesOrder->batteries as $key) {
+            foreach ($salesInvoice->batteries as $key) {
                 $item_details[] = array(
                     'id' => $key->battery_id,
                     'price' => $key->price_net,
@@ -843,26 +887,26 @@ class SalesOrder extends Controller
             }
 
             $customer_details = array(
-                'first_name' => $salesOrder->customer->name,
+                'first_name' => $salesInvoice->customer->name,
                 'last_name' => "",
-                'email' => $salesOrder->customer->email,
-                'phone' => $salesOrder->customer->contact,
+                'email' => $salesInvoice->customer->email,
+                'phone' => $salesInvoice->customer->contact,
                 'billing_address' => array(
-                    'first_name' => $salesOrder->customer->name,
+                    'first_name' => $salesInvoice->customer->name,
                     'last_name' => "",
-                    'address' => $salesOrder->address,
+                    'address' => $salesInvoice->address,
                     'city' => "",
                     'postal_code' => "",
-                    'phone' => $salesOrder->customer->contact,
+                    'phone' => $salesInvoice->customer->contact,
                     'country_code' => 'IDN'
                 ),
                 'shipping_address' => array(
-                    'first_name' => $salesOrder->customer->name,
+                    'first_name' => $salesInvoice->customer->name,
                     'last_name' => "",
-                    'address' => $salesOrder->address,
+                    'address' => $salesInvoice->address,
                     'city' => "",
                     'postal_code' => "",
-                    'phone' => $salesOrder->customer->contact,
+                    'phone' => $salesInvoice->customer->contact,
                     'country_code' => 'IDN'
                 )
             );
@@ -876,9 +920,9 @@ class SalesOrder extends Controller
             $response = $transaction->createTransaction($params);
 
             // update data sales order 
-            $salesOrder->midtrans_invoice_number = $MidtransOrderId;
-            $salesOrder->midtrans_payment_link = $response;
-            $salesOrder->save();
+            $salesInvoice->midtrans_invoice_number = $MidtransOrderId;
+            $salesInvoice->midtrans_payment_link = $response;
+            $salesInvoice->save();
 
             return getResponseData(
                 true,
@@ -891,11 +935,11 @@ class SalesOrder extends Controller
     {
         try {
             // check payment method is midtrans
-            $salesOrder = SalesOrderModel::find($id);
-            $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
+            $salesInvoice = SalesInvoiceModel::find($id);
+            $paymentMethod = PaymentMethodModel::find($salesInvoice->payment_method_id);
 
             if ($paymentMethod->name == 'Midtrans') {
-                $paymenMethodLink = $salesOrder->midtrans_payment_link;
+                $paymenMethodLink = $salesInvoice->midtrans_payment_link;
                 return getResponseData(true, $paymenMethodLink);
             } else {
                 return getResponseData(false, "Payment Method not supported.");
@@ -910,7 +954,7 @@ class SalesOrder extends Controller
         $allDrafts = true;
         $ids = $request->ids;
         foreach ($ids as $id) {
-            $order = SalesOrderModel::find($id);
+            $order = SalesInvoiceModel::find($id);
 
             if ($order->status != 'draft') {
                 $allDrafts = false;
@@ -922,8 +966,8 @@ class SalesOrder extends Controller
 
     public function getPurchaseOrderNumber($id)
     {
-        $salesOrder = SalesOrderModel::find($id);
-        $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
+        $salesInvoice = SalesInvoiceModel::find($id);
+        $poNumber = str_replace('AK', 'KP', $salesInvoice->sales_invoice_number);
         return response()->json([
             'status' => "success",
             'message' => "Success get purchase order number",
@@ -934,13 +978,13 @@ class SalesOrder extends Controller
     public function multiplePurchaseOrder()
     {
         $ids = request()->input('salesOrderIds', []);
-        $salesOrders = SalesOrderModel::whereIn('id', $ids)->get();
+        $salesInvoices = SalesInvoiceModel::whereIn('id', $ids)->get();
         $poNumbers = [];
 
-        foreach ($salesOrders as $salesOrder) {
-            $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
+        foreach ($salesInvoices as $salesInvoice) {
+            $poNumber = str_replace('AK', 'KP', $salesInvoice->sales_invoice_number);
             $poNumbers[] = [
-                'id' => $salesOrder->id,
+                'id' => $salesInvoice->id,
                 'po_number' => $poNumber
             ];
         }
@@ -955,18 +999,18 @@ class SalesOrder extends Controller
     public function multiplePrintPurchaseOrder($ids)
     {
         $ids = explode(",", $ids);
-        $salesOrders = SalesOrderModel::with(['customer', 'shop', 'technician', 'batteries'])->whereIn('id', $ids)->get();
-        foreach ($salesOrders as $salesOrder) {
-            $shopName = $salesOrder->shop->name ?? null;
-            $shopId = $salesOrder->shop->id ?? null;
+        $salesInvoices = SalesInvoiceModel::with(['customer', 'shop', 'technician', 'batteries'])->whereIn('id', $ids)->get();
+        foreach ($salesInvoices as $salesInvoice) {
+            $shopName = $salesInvoice->shop->name ?? null;
+            $shopId = $salesInvoice->shop->id ?? null;
         }
 
         return view(
-            'Orders.SalesOrder.print.multiple-purchase-order',
+            'Orders.SalesInvoice.print.multiple-purchase-order',
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => $salesOrders->toArray(),
+                    "profile" => $salesInvoices->toArray(),
                     "company" => CompanyModel::first(),
                 )
             )
@@ -976,7 +1020,7 @@ class SalesOrder extends Controller
     public function export(Request $request)
     {
         try {
-            return Excel::download(new SalesOrderExport, 'sales-orders.xlsx');
+            return Excel::download(new SalesInvoiceExport, 'sales-invoices.xlsx');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
@@ -992,28 +1036,12 @@ class SalesOrder extends Controller
             $dateStart = $request->input('dateStart');
             $dateEnd = $request->input('dateEnd');
 
-            return Excel::download(new SalesOrderDetailsExport($dateStart, $dateEnd), 'sales-orders-details ' . date('Y-m-d') . '.xlsx');
+            return Excel::download(new SalesInvoiceBatteryExport($dateStart, $dateEnd), 'sales-invoices-details ' . date('Y-m-d') . '.xlsx');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error exporting data ' . $e->getMessage()
-            ]);
-        }
-    }
-
-    public function checkPost(Request $request)
-    {
-        $salesOrder = SalesOrderModel::find($request->id);
-        if ($salesOrder->status === 'draft') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Sales Order is in draft status, please post it first.'
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Sales Order is already posted or completed.'
             ]);
         }
     }

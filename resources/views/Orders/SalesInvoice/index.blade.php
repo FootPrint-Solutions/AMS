@@ -7,12 +7,12 @@
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Sales Order</h3>
+                        <h3 class="page-title">Sales Invoice</h3>
                     </div>
 
                     <div class="col-auto text-end float-end ms-auto download-grp">
                         <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
+                            New Sales Invoice</button>
                     </div>
                 </div>
             </div>
@@ -26,14 +26,14 @@
                     <div class="col-md-4">
                         <div class="row align-items-center">
                             <div class="col-5">
-                                <input type="date" class="form-control" id="input-sales-order-date-start"
+                                <input type="date" class="form-control" id="input-sales-invoice-date-start"
                                     onchange="reloadTable()">
                             </div>
                             <div class="col-2 text-center">
                                 to
                             </div>
                             <div class="col-5">
-                                <input type="date" class="form-control" id="input-sales-order-date-end"
+                                <input type="date" class="form-control" id="input-sales-invoice-date-end"
                                     onchange="reloadTable()">
                             </div>
                         </div>
@@ -50,10 +50,11 @@
             <div class="card-body">
 
                 {{-- Table --}}
-                <table class="table table-striped" id="table-sales-order">
+                <table class="table table-striped" id="table-sales-invoice">
                     <thead>
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">Sales Invoice Number</th>
                             <th scope="col">Sales Order Number</th>
                             <th scope="col">Marketplace Inv No.</th>
                             <th scope="col">Date</th>
@@ -63,7 +64,6 @@
                             <th scope="col">Technician</th>
                             <th scope="col">Total (IDR)</th>
                             <th scope="col">Payment Status</th>
-                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                 </table>
@@ -79,7 +79,7 @@
 
         $(document).ready(function() {
             // DataTables configuration
-            table = $("#table-sales-order").DataTable({
+            table = $("#table-sales-invoice").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
                     [5, 10, 25]
@@ -89,12 +89,12 @@
                 serverSide: true,
                 order: [],
                 ajax: {
-                    url: "/sales-order/show",
+                    url: "/sales-invoice/show",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
-                        d.dateStart = document.getElementById('input-sales-order-date-start').value;
-                        d.dateEnd = document.getElementById('input-sales-order-date-end').value;
+                        d.dateStart = document.getElementById('input-sales-invoice-date-start').value;
+                        d.dateEnd = document.getElementById('input-sales-invoice-date-end').value;
                     }
                 },
                 columnDefs: [{
@@ -127,14 +127,14 @@
                             });
 
                             $.ajax({
-                                url: '/sales-order/export/details',
+                                url: '/sales-invoice/export/details',
                                 method: 'POST',
                                 data: {
                                     _token: "{{ csrf_token() }}",
                                     dateStart: document.getElementById(
-                                        'input-sales-order-date-start').value,
+                                        'input-sales-invoice-date-start').value,
                                     dateEnd: document.getElementById(
-                                        'input-sales-order-date-end').value
+                                        'input-sales-invoice-date-end').value
                                 },
                                 xhrFields: {
                                     responseType: 'blob'
@@ -145,10 +145,10 @@
                                     a.href = url;
 
                                     var dateStart = document.getElementById(
-                                        'input-sales-order-date-start').value;
+                                        'input-sales-invoice-date-start').value;
                                     var dateEnd = document.getElementById(
-                                        'input-sales-order-date-end').value;
-                                    var filename = 'sales-orders-details';
+                                        'input-sales-invoice-date-end').value;
+                                    var filename = 'sales-invoice-details';
                                     if (dateStart && dateEnd) {
                                         filename += ' ' + dateStart + ' to ' +
                                             dateEnd;
@@ -192,8 +192,8 @@
                                 });
                                 return;
                             }
-                            let id = selectedRows[0][11];
-                            goToPage("/sales-order/edit/" + id);
+                            let id = selectedRows[0][12];
+                            goToPage("/sales-invoice/edit/" + id);
                         }
                     },
                     // Delete   
@@ -213,42 +213,28 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[11]);
-                            sendDestroyRequest(ids, "/sales-order/delete", function() {
+                            let ids = selectedRows.map(row => row[12]);
+                            sendDestroyRequest(ids, "/sales-invoice/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
                             });
                         }
-                    },
-                    // button show modal More Action
-                    {
-                        text: "<i class='fas fa-ellipsis-v'></i> More Action",
-                        className: "btn btn-outline-secondary btn-sm",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-
-                            // Show modal more action
-                            showModalMoreAction(selectedRows[0][11], selectedRows[0][11]);
-                        }
-                    },
+                    }
                 ]),
-                language: getDatatablesLanguangeConfigurations("Sales Order"),
+                language: getDatatablesLanguangeConfigurations("Sales Invoice"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[12] == "posted")
+                    if (data[10] == "posted")
                         $('td', row).addClass("text-success");
-                    else if (data[12] == "completed")
+                    else if (data[10] == "completed")
                         $('td', row).addClass("text-info");
                 }
             });
         });
 
         function reloadTable() {
-            var dateStart = document.getElementById('input-sales-order-date-start').value;
-            var dateEnd = document.getElementById('input-sales-order-date-end').value;
+            var dateStart = document.getElementById('input-sales-invoice-date-start').value;
+            var dateEnd = document.getElementById('input-sales-invoice-date-end').value;
 
             // Reload the table.
             table.ajax.reload(null, false);
@@ -269,40 +255,42 @@
                     <div class="row">
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Post -->
-                            <button class="btn btn-primary btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
+                            <button class="btn btn-outline-success btn-sm w-100" id="btn-post" onclick="postSalesOrder()">
                                 <i class="fas fa-file-text me-2"></i> <span id="btn-post-text">Post</span>
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Invoice -->
-                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice" onclick="downloadInvoice()">
+                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
+                                onclick="downloadInvoice()">
                                 <i class="fas fa-file-text me-2"></i> Invoice
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             {{-- button print po --}}
-                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice" onclick="downloadPurchaseOrder()">
+                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-invoice"
+                                onclick="downloadPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Purchase Order
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Create Work Order -->
-                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom" id="btn-work-order"
+                            <button class="btn btn-outline-warning w-100 btn-sm text-truncate-custom" id="btn-work-order"
                                 onclick="createWorkOrder()">
                                 <i class="fas fa-screwdriver-wrench me-2"></i> Create Work Order
                             </button>
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Re-Create Payment Link -->
-                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom" id="btn-recreate-payment-link"
-                                onclick="recreatePaymentLink()">
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
+                                id="btn-recreate-payment-link" onclick="recreatePaymentLink()">
                                 <i class="fas fa-link me-2"></i> Re-Create Payment Link
                             </button>
                         </div>
 
                         {{-- button copy link payment  --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom"
+                            <button class="btn btn-outline-info w-100 btn-sm text-truncate-custom"
                                 id="btn-copy-link-payment-midtrans">
                                 <i class="fas fa-link me-2"></i> Copy Payment Link
                             </button>
@@ -310,17 +298,9 @@
 
                         {{-- Button Multiple Print Purchase Order --}}
                         <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-primary w-100 btn-sm" id="btn-multiple-print-purchase-order"
+                            <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-multiple-print-purchase-order"
                                 onclick="multiplePrintPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Multiple Purchase Order
-                            </button>
-                        </div>
-
-                        {{-- Button Create Invoice --}}
-                        <div class="col-6 col-md-3 mb-3">
-                            <button class="btn btn-primary w-100 btn-sm h-100" id="btn-create-invoice"
-                                onclick="createSalesInvoice('/sales-invoice/create', )">
-                                <i class="fas fa-file-invoice-dollar me-2"></i> Create Sales Invoice
                             </button>
                         </div>
                     </div>
@@ -331,7 +311,7 @@
     {{-- Click Event Handler --}}
     <script>
         $('#btn-add').on('click', function() {
-            goToPage("/sales-order/create");
+            goToPage("/sales-invoice/create");
         });
 
         function showModalMoreAction(id, posted) {
@@ -344,46 +324,6 @@
 
             // Set the id.
             $('#modal-more-action-id').val(id);
-        }
-
-        function createSalesInvoice(url) {
-            var selectedRows = table.rows({
-                selected: true
-            }).data().toArray();
-
-            if (selectedRows.length > 1) {
-                Swal.fire({
-                    title: "Error",
-                    text: "Please select a single row for creating invoice.",
-                    icon: "error",
-                });
-                return;
-            }
-
-            // ajax check posting status
-            $.ajax({
-                url: "/sales-order/post/check",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: selectedRows[0][11]
-                },
-                success: function(response) {
-                    if (response.status == 'success') {
-                        // Redirect to create sales invoice page.
-                        goToPage(url + "/" + selectedRows[0][11]);
-                    } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: response.message,
-                            icon: "error",
-                        });
-                    }
-                }
-            });
-
-            // Hide the modal.
-            $('#modal-more-action').modal('hide');
         }
 
         function postSalesOrder() {
@@ -401,7 +341,7 @@
             }
 
             // Post the selected sales order.
-            sendPostRequest($('#modal-more-action-id').val(), "/sales-order/post",
+            sendPostRequest($('#modal-more-action-id').val(), "/sales-invoice/post",
                 function() {
                     // Reload the index table.
                     table.ajax.reload();
@@ -425,7 +365,7 @@
             }
 
             // Download invoice as pdf.
-            downloadPDF("/sales-order/invoice/" + $('#modal-more-action-id').val());
+            downloadPDF("/sales-invoice/invoice/" + $('#modal-more-action-id').val());
 
             // Hide the modal.
             $('#modal-more-action').modal('hide');
@@ -447,7 +387,7 @@
 
             var salesOrderId = $('#modal-more-action-id').val();
             $.ajax({
-                url: "/sales-order/get-purchase-order-number/" + salesOrderId,
+                url: "/sales-invoice/get-purchase-order-number/" + salesOrderId,
                 method: "GET",
                 data: {
                     _token: "{{ csrf_token() }}"
@@ -462,7 +402,7 @@
                         document.title = pdfTitle;
 
                         // Download purchase order as pdf.
-                        downloadPDF("/sales-order/purchase-order/" + $('#modal-more-action-id').val());
+                        downloadPDF("/sales-invoice/purchase-order/" + $('#modal-more-action-id').val());
 
                     } else {
                         Swal.fire({
@@ -493,7 +433,7 @@
             }
 
             // Redirect to create work order page.
-            createworkorder("/sales-order/work-order/" + $('#modal-more-action-id').val());
+            createworkorder("/sales-invoice/work-order/" + $('#modal-more-action-id').val());
 
             // Hide the modal.
             $('#modal-more-action').modal('hide');
@@ -524,7 +464,7 @@
                 if (result.isConfirmed) {
                     // Re-create the payment link.
                     $.ajax({
-                        url: "/sales-order/recreate-payment-link/" + $('#modal-more-action-id').val(),
+                        url: "/sales-invoice/recreate-payment-link/" + $('#modal-more-action-id').val(),
                         method: "GET",
                         data: {
                             _token: "{{ csrf_token() }}"
@@ -566,7 +506,7 @@
             $("#modal-more-action").modal("hide");
             // send ajax 
             $.ajax({
-                url: "/sales-order/copy-link-payment/" + $('#modal-more-action-id').val(),
+                url: "/sales-invoice/copy-link-payment/" + $('#modal-more-action-id').val(),
                 method: "GET",
                 data: {
                     _token: "{{ csrf_token() }}"
@@ -620,13 +560,13 @@
                 return;
             }
 
-            var salesOrderIds = selectedRows.map(row => row[11]);
+            var salesOrderIds = selectedRows.map(row => row[10]);
             var salesOrderNumbers = selectedRows.map(row => row[1]);
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
             Swal.fire({
                 title: "Print Purchase Order",
-                text: "Are you sure you want to print the purchase order for the following sales orders? \n" +
+                text: "Are you sure you want to print the purchase order for the following sales invoice? \n" +
                     salesOrderNumbersString,
                 icon: "warning",
                 showCancelButton: true,
@@ -635,7 +575,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "/sales-order/get-multiple-print-purchase-order",
+                        url: "/sales-invoice/get-multiple-print-purchase-order",
                         method: "POST",
                         data: {
                             _token: "{{ csrf_token() }}",
@@ -645,7 +585,7 @@
                             if (response.status == 'success') {
 
                                 var ids = response.data.map(item => item.id);
-                                downloadPDF("/sales-order/multiple-print-purchase-order/" + ids.join(
+                                downloadPDF("/sales-invoice/multiple-print-purchase-order/" + ids.join(
                                     ","));
 
                             } else {

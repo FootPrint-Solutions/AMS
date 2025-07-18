@@ -67,7 +67,7 @@
             <div class="form-group local-forms">
                 <label>Coordinates latitude and longitude</label>
                 <input type="text" class="form-control" id="cordinates" name="cordinates"
-                    placeholder="Enter Coordinates" value="" pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$"
+                    placeholder="Enter coordinates (lat, lon)" value="" pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$"
                     title="Please enter valid coordinates in the format: latitude, longitude (e.g., -6.8806598931788505, 107.53427163803686)"
                     onkeyup="sanitizeCoordinates(this)" onfocus="sanitizeCoordinates(this)" required autocomplete="off">
             </div>

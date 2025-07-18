@@ -16,12 +16,12 @@
             <div class="card-body">
                 {{-- Title --}}
                 <div class="card-title h5">
-                    @if (isset($data['profile']))
+                    @if (isset($data['type']) && $data['type'] == 'edit')
                         Edit
                     @else
                         Add New
                     @endif
-                    Sales Order
+                    Sales Invoice
                 </div>
                 <br>
 
@@ -34,12 +34,12 @@
                         {{-- Quotation Number --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="sales-order-number">Sales Order Number <span
+                                <label for="sales-invoice-number">Sales Invoice Number <span
                                         class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="sales-order-number" name="salesordernumber"
-                                    placeholder="Enter distributor name" required readonly
+                                <input type="text" class="form-control" id="sales-invoice-number"
+                                    name="salesinvoicenumber" placeholder="Enter distributor name" required readonly
                                     @isset($data['profile'])
-                                value="{{ $data['profile']['sales_order_number'] }}"
+                                value="{{ $data['profile']['sales_invoice_number'] ?? $data['number'] }}"
                                 @else
                                 value="{{ $data['number'] }}"
                                 @endisset>
@@ -49,7 +49,7 @@
                         {{-- Date --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
+                                <label for="quotation-date">Sales Inovoice Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
                                 value="{{ $data['profile']['date'] }}"
@@ -89,9 +89,9 @@
 
                         <div class="col">
                             <input type="text" class="form-control" name="Address"
-                                id="AddressSearchColumnSalesOrderEditable"
+                                id="AddressSearchColumnSalesInvoiceEditable"
                                 value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                required>
+                                required readonly>
                         </div>
                     </div>
 
@@ -200,7 +200,8 @@
                                 <label for="invoice-number">Marketplace Invoice Number</label>
                                 <input type="text" class="form-control" id="invoice-number" name="invoicenumber"
                                     placeholder="Enter Markeplace Invoice Number"
-                                    @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset>
+                                    @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset
+                                    readonly>
                             </div>
                         </div>
 
@@ -213,7 +214,25 @@
                                 <input type="text" class="form-control" id="coordinates"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }}, {{ ltrim($data['profile']['longitude']) }} @endif"
                                     pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$" onkeyup="sanitizeCoordinates(this)"
-                                    onfocus="sanitizeCoordinates(this)" placeholder="Enter coordinates (lat, lon)">
+                                    onfocus="sanitizeCoordinates(this)" placeholder="Enter coordinates (lat, lon)"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group local-forms">
+                                <label for="sales-order-number">Sales Order Number</label>
+                                @if (isset($data['type']) && $data['type'] == 'edit')
+                                    <input type="text" class="form-control" id="sales-order-number"
+                                        name="salesordernumber" placeholder="Enter Sales Order Number"
+                                        value="{{ $data['profile']['sales_order']['sales_order_number'] ?? '' }}"
+                                        readonly>
+                                @else
+                                    <input type="text" class="form-control" id="sales-order-number"
+                                        name="salesordernumber" placeholder="Enter Sales Order Number"
+                                        value="{{ $data['sales_order_number'] ?? '' }}" readonly>
+                                @endif
+                                <input type="hidden" id="sales-order-id" name="salesorderid"
+                                    value="@isset($data['profile']){{ $data['profile']['id'] }}@endisset">
                             </div>
                         </div>
                     </div>
@@ -263,7 +282,7 @@
                                         $class_tr = '';
                                     }
                                 @endphp
-                                <tr class="table-battery-detail-row {{ $class_tr }}">
+                                <tr class="table-battery-detail-row">
                                     {{-- Production Code --}}
                                     <td>
                                         <input type="text" class="form-control battery-code"
@@ -286,7 +305,10 @@
                                         @isset($data['profile'])
                                             <input type="text" class="form-control" required
                                                 @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
+                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" id="battery-name-{{ $counter }}" name="batteriesname[]" @endisset>
+
+                                            <input type="hidden" id="batteriesid-{{ $counter }}" name="batteriesid[]"
+                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_id'] }}" @endisset>
                                         @else
                                             @component('components.autocomplete', [
                                                 'id' => "battery-name-$counter",
@@ -349,10 +371,10 @@
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="text" class="form-control text-end battery-discountprice"
+                                            <input type="number" class="form-control text-end battery-discountprice"
                                                 id="battery-discountprice-{{ $counter }}"
                                                 name="batteriesdiscountprice[]" placeholder="Enter item discount price"
-                                                required @isset($data['profile']['batteries']) readonly @endisset
+                                                required @isset($data['profile']['batteries']) @endisset
                                                 @isset($data['profile']['batteries']) value="{{ $battery['discount_price'] }}" @endisset>
                                         </div>
 
@@ -363,7 +385,7 @@
                                     {{-- Net Price --}}
                                     <td>
                                         <div class="row">
-                                            @if (!isset($data['profile']))
+                                            @if (isset($data['profile']))
                                                 <div class="col">
                                             @endif
 
@@ -375,157 +397,158 @@
                                                     @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                             </div>
 
-                                            @if (!isset($data['profile']))
+                                            @if (isset($data['profile']))
                                         </div>
 
                                         <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
+                                            <button type="button" class="btn btn-danger btn-sm btn-delete-row"
                                                 title="Delete Item"><i class="fas fa-xmark"></i></button>
                                         </div>
                             @endif
+
+                            </td>
+                            {{-- Hidden Inputs --}}
+                            @isset($data['profile']['batteries'])
+                                <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+                            @endisset
+                            </tr>
+
+                            @php
+                                $counter++;
+                            @endphp
+                            @endforeach
+                        </tbody>
+
+                        {{-- Footer (Tax, Discount, Total) --}}
+                        <tfoot>
+                            {{-- Subtotal --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Subtotal</td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end" id="subtotal"
+                                            name="subtotal"
+                                            @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
+                                            readonly required>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {{-- Discount --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Discount</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            {{-- Discount Percentage --}}
+                                            <div class="input-group d-none" id="discount-percentage">
+                                                <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                                    id="discount" name="discount"
+                                                    @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                                    @isset($data['profile']['discount']) @endisset required>
+                                                <span class="input-group-text border-end">%</span>
+                                            </div>
+
+                                            {{-- Discount Price --}}
+                                            <div class="input-group" id="discount-price">
+                                                <span class="input-group-text border-end">IDR</span>
+                                                <input type="text" class="form-control text-end"
+                                                    id="discount-price-value" name="discountprice"
+                                                    @isset($data['profile']['discount']) @endisset
+                                                    @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
+                                                    required>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <input type="checkbox" id="toggle-discount" data-toggle="toggle"
+                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" checked readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {{-- Total --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Total</td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end" id="total"
+                                            name="total"
+                                            @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
+                                            required readonly>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {{-- Payment Method & Status --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Payment method</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <select class="form-control" id="payment-method" name="paymentmethod"
+                                                required>
+                                                <option></option>
+                                                @foreach ($data['payment_methods'] as $method)
+                                                    <option value="{{ $method['id'] }}"
+                                                        @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
+                                                        {{ $method['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-5">
+                                            <select name="status" id="status" class="form-control" required>
+                                                <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>
+                                                    Paid
+                                                </option>
+                                                <option value="pending"
+                                                    @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
+                                                    Pending</option>
+                                                <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
+                                                    Failed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <br>
+
+                    {{-- Hidden Inputs --}}
+                    @isset($data['profile'])
+                        <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+                    @endisset
+
+                    {{-- Buttons --}}
+                    <div class="d-flex flex-row-reverse">
+                        {{-- Create Button --}}
+                        <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                            value="@if (isset($data['type']) && $data['type'] == 'edit') update @else create @endif">
+                            @if (isset($data['type']) && $data['type'] == 'edit')
+                                Update Sales Invoice
+                            @else
+                                Create Sales Invoice
+                            @endif
+                        </button>
+
+                        {{-- Cancel Button --}}
+                        <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                    </div>
+                </form>
             </div>
-            </td>
-
-            {{-- Hidden Inputs --}}
-            @isset($data['profile']['batteries'])
-                <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
-            @endisset
-            </tr>
-
-            @php
-                $counter++;
-            @endphp
-            @endforeach
-            </tbody>
-
-            {{-- Footer (Tax, Discount, Total) --}}
-            <tfoot>
-                {{-- Subtotal --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Subtotal</td>
-                    <td>
-                        <div class="input-group">
-                            <span class="input-group-text border-end">IDR</span>
-                            <input type="text" class="form-control text-end" id="subtotal" name="subtotal"
-                                @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
-                                readonly required>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Discount --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Discount</td>
-                    <td>
-                        <div class="row">
-                            <div class="col">
-                                {{-- Discount Percentage --}}
-                                <div class="input-group d-none" id="discount-percentage">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
-                                        name="discount"
-                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                        @isset($data['profile']['discount']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
-                                </div>
-
-                                {{-- Discount Price --}}
-                                <div class="input-group" id="discount-price">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" class="form-control text-end" id="discount-price-value"
-                                        name="discountprice" @isset($data['profile']['discount']) readonly @endisset
-                                        @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
-                                        required>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-2">
-                                <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                    data-offlabel="%" data-onlabel="IDR" checked readonly>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Total --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Total</td>
-                    <td>
-                        <div class="input-group">
-                            <span class="input-group-text border-end">IDR</span>
-                            <input type="text" class="form-control text-end" id="total" name="total"
-                                @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
-                                required readonly>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Payment Method & Status --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Payment method</td>
-                    <td>
-                        <div class="row">
-                            <div class="col">
-                                <select class="form-control" id="payment-method" name="paymentmethod" required>
-                                    <option></option>
-                                    @foreach ($data['payment_methods'] as $method)
-                                        <option value="{{ $method['id'] }}"
-                                            @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
-                                            {{ $method['name'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-5">
-                                <select name="status" id="status" class="form-control" required>
-                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
-                                    </option>
-                                    <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
-                                        Pending</option>
-                                    <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
-                                        Failed</option>
-                                </select>
-                            </div>
-                        </div>
-
-                    </td>
-                </tr>
-            </tfoot>
-            </table>
-            <br>
-
-            {{-- Hidden Inputs --}}
-            @isset($data['profile'])
-                <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
-            @endisset
-
-            {{-- Buttons --}}
-            <div class="d-flex flex-row-reverse">
-                {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                    @if (isset($data['profile'])) value="update">
-                        Update
-                        @else
-                        value="create">
-                        Create @endif
-                    Quotation </button>
-
-                    {{-- Cancel Button --}}
-                    <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
-            </div>
-            </form>
         </div>
     </div>
-    </div>
-
-    @include('Mobile.SalesOrder.create')
-
-    {{-- Address Modal --}}
-    @include('maps.AddressModal')
 
     <script>
         $(document).ready(function() {
@@ -542,32 +565,10 @@
 
     {{-- Select2 Configurations --}}
     <script>
-        function sanitizeCoordinates(input) {
-            let value = input.value.replace(/[^0-9.,-]/g, '');
-            let parts = value.split(',');
-            if (parts.length > 2) {
-                value = parts[0] + ',' + parts[1];
-            }
-
-            let coordinates = value.split(',');
-            if (coordinates.length == 2) {
-                let latitude = coordinates[0].trim();
-                let longitude = coordinates[1].trim();
-                $("#Latitude").val(latitude);
-                $("#Longitude").val(longitude);
-            } else {
-                $("#Latitude").val('');
-                $("#Longitude").val('');
-            }
-
-            input.value = value;
-        }
-
-
         $(document).ready(function() {
             $('#customer').select2({
                 placeholder: "Enter customer"
-            });
+            }).prop("disabled", true);
 
             $("#customer").on("select2:select", function(e) {
                 if (e.params.data.id === "new") {
@@ -587,11 +588,11 @@
 
             $('#vehicle').select2({
                 placeholder: "Enter vehicle"
-            });
+            }).prop("disabled", true);
 
             $('#shop').select2({
                 placeholder: "Enter distributor shop"
-            });
+            }).prop("disabled", true);
 
             $('#payment-method').select2({
                 placeholder: "Enter payment method"
@@ -605,11 +606,11 @@
 
                 // Get the list of menus inside the selected parent.
                 loadTechnicianData();
-            });
+            }).prop("disabled", true);
 
             $('#technician').select2({
                 placeholder: "Enter technician"
-            });
+            }).prop("disabled", true);
 
             loadTechnicianData();
         })
@@ -617,15 +618,15 @@
 
     {{-- Form Handler --}}
     <script>
-        let indexUrl = "/sales-order";
+        let indexUrl = "/sales-invoice";
 
         $("#quotation-form").on("submit", function(event) {
             event.preventDefault();
 
             let mode = $("#btn-save").attr("value"); // update || create
-            let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
+            let url = (mode == " update ") ? "/sales-invoice/update" : "/sales-invoice/store";
 
-            let address = $("#AddressSearchColumnSalesOrderEditable").val();
+            let address = $("#AddressSearchColumnSalesInvoiceEditable").val();
             let lat = $("#Latitude").val();
             let lon = $("#Longitude").val();
             if (address == "" || lat == "" || lon == "") {
@@ -697,6 +698,8 @@
                 if (count === 2) {
                     $(".btn-delete-row").addClass("disabled");
                 }
+
+                calculateTotal();
             }
         });
     </script>
@@ -758,7 +761,7 @@
 
             if (parentId)
                 $.ajax({
-                    url: "/sales-order/technician/get/" + parentId,
+                    url: "/sales-invoice/technician/get/" + parentId,
                     method: "GET",
                     success: function(response) {
                         // Clear current options and value.
@@ -798,14 +801,14 @@
             let subtotal = 0;
             $(".battery-price").each(function() {
                 let row = $(this).closest('tr');
-                let priceRetail = parseInt(row.find(".battery-priceretail").val().replace(/\D/g, ''));
-                let tax = parseInt(row.find(".battery-tax").val());
-                let type = row.find(".battery-type").val();
+                let priceRetail = parseInt(row.find(".battery-priceretail").val()?.replace(/\D/g, '') || "0", 10);
+                let tax = parseInt(row.find(".battery-tax").val() || "0", 10);
+                let type = row.find(".battery-type").val() || 'regular';
 
-                if (type == 'recycle') {
-                    $(this).closest('tr').addClass('bg-danger');
+                if (type === 'recycle') {
+                    // row.addClass('bg-danger');
                 } else {
-                    $(this).closest('tr').removeClass('bg-danger');
+                    row.removeClass('bg-danger');
                 }
 
                 // Count price + tax.
@@ -815,16 +818,16 @@
                 row.find(".battery-priceaftertax").val(priceAfterTax);
 
                 // Count price + tax - discount.
-                let discountPrice = parseInt(row.find(".battery-discountprice").val().replace(/\D/g, ''));
-                let discount = discountPrice / priceAfterTax * 100;
+                let discountPrice = parseInt(row.find(".battery-discountprice").val()?.replace(/\D/g, '') || "0",
+                    10);
+                let discount = priceAfterTax > 0 ? (discountPrice / priceAfterTax * 100) : 0;
                 row.find(".battery-discount").val(discount);
                 $(this).val(priceAfterTax - discountPrice);
-                let value = parseInt($(this).val().replace(/\D/g, ''));
+
+                let value = parseInt($(this).val()?.replace(/\D/g, '') || "0", 10);
                 if (!isNaN(value)) {
-                    if (type != 'regular') {
+                    if (type !== 'regular') {
                         subtotal -= value;
-                        console.log("Subtotal: " + subtotal);
-                        console.log("type: " + type);
                     } else {
                         subtotal += value;
                     }
@@ -834,14 +837,16 @@
                 formatPrice(row.find(".battery-priceaftertax"));
                 formatPrice($(this));
             });
+
             $("#subtotal").val(subtotal);
 
             // Obtain and calculate discount and tax value.
-            let discount = parseInt($("#discount-price-value").val().replace(/\D/g, '')) || 0;
-            $("#discount").val(Math.round(discount / subtotal * 100));
+            let discount = parseInt($("#discount-price-value").val()?.replace(/\D/g, '') || "0", 10);
+            let subtotalForDiscount = subtotal !== 0 ? subtotal : 1; // avoid division by zero
+            $("#discount").val(Math.round(discount / subtotalForDiscount * 100));
 
             // Calculate total value.
-            let total = (subtotal - discount);
+            let total = subtotal - discount;
             $("#total").val(total);
 
             // Format all price fields value.
