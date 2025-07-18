@@ -259,6 +259,7 @@ class SalesInvoice extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->sales_invoice_number;
+            $row[] = $key->sales_order_number ?? "<p class='text-center'>-</p>";
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name;

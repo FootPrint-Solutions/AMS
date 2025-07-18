@@ -55,6 +55,7 @@
                         <tr>
                             <th scope="col" class="table-col-no">#</th>
                             <th scope="col">Sales Invoice Number</th>
+                            <th scope="col">Sales Order Number</th>
                             <th scope="col">Marketplace Inv No.</th>
                             <th scope="col">Date</th>
                             <th scope="col">Customer</th>
@@ -63,7 +64,6 @@
                             <th scope="col">Technician</th>
                             <th scope="col">Total (IDR)</th>
                             <th scope="col">Payment Status</th>
-                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                 </table>
@@ -148,7 +148,7 @@
                                         'input-sales-invoice-date-start').value;
                                     var dateEnd = document.getElementById(
                                         'input-sales-invoice-date-end').value;
-                                    var filename = 'sales-orders-details';
+                                    var filename = 'sales-invoice-details';
                                     if (dateStart && dateEnd) {
                                         filename += ' ' + dateStart + ' to ' +
                                             dateEnd;
@@ -192,7 +192,7 @@
                                 });
                                 return;
                             }
-                            let id = selectedRows[0][11];
+                            let id = selectedRows[0][12];
                             goToPage("/sales-invoice/edit/" + id);
                         }
                     },
@@ -213,34 +213,20 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[11]);
+                            let ids = selectedRows.map(row => row[12]);
                             sendDestroyRequest(ids, "/sales-invoice/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
                             });
                         }
-                    },
-                    // button show modal More Action
-                    {
-                        text: "<i class='fas fa-ellipsis-v'></i> More Action",
-                        className: "btn btn-outline-secondary btn-sm",
-                        action: function(e, dt, node, config) {
-                            // Get the selected row's id.
-                            let selectedRows = table.rows({
-                                selected: true
-                            }).data().toArray();
-
-                            // Show modal more action
-                            showModalMoreAction(selectedRows[0][11], selectedRows[0][11]);
-                        }
-                    },
+                    }
                 ]),
                 language: getDatatablesLanguangeConfigurations("Sales Invoice"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[12] == "posted")
+                    if (data[10] == "posted")
                         $('td', row).addClass("text-success");
-                    else if (data[12] == "completed")
+                    else if (data[10] == "completed")
                         $('td', row).addClass("text-info");
                 }
             });
@@ -574,13 +560,13 @@
                 return;
             }
 
-            var salesOrderIds = selectedRows.map(row => row[11]);
+            var salesOrderIds = selectedRows.map(row => row[10]);
             var salesOrderNumbers = selectedRows.map(row => row[1]);
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
             Swal.fire({
                 title: "Print Purchase Order",
-                text: "Are you sure you want to print the purchase order for the following sales orders? \n" +
+                text: "Are you sure you want to print the purchase order for the following sales invoice? \n" +
                     salesOrderNumbersString,
                 icon: "warning",
                 showCancelButton: true,

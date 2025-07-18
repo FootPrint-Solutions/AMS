@@ -29,6 +29,7 @@ class SalesInvoiceBatteryModel extends Model
         'sales_invoice_id',
         'battery_id',
         'battery_name',
+        'battery_price', // Tambahkan ini
         'battery_price_retail',
         'tax',
         'tax_price',
@@ -48,6 +49,7 @@ class SalesInvoiceBatteryModel extends Model
         'sales_invoice_id',
         'battery_id',
         'battery_name',
+        'battery_price', // Tambahkan ini
         'battery_price_retail',
         'tax',
         'tax_price',
@@ -89,6 +91,6 @@ class SalesInvoiceBatteryModel extends Model
      */
     public function salesInvoice()
     {
-        return $this->belongsTo(SalesInvoiceModel::class, 'sales_invoice_id', 'id');
+        return $this->belongsTo(SalesInvoiceModel::class, 'sales_invoice_id', 'id')->with('customer');
     }
 }

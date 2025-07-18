@@ -104,6 +104,14 @@ class SalesInvoiceModel extends Model implements Auditable
         return $this->belongsTo(PaymentMethodModel::class, "payment_method_id");
     }
 
+     /**
+     * Get the distributor shop has many sales order.
+     */
+    public function distributorShop(): BelongsTo
+    {
+        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id");
+    }
+
     /**
      * Generate new sales invoice code.
      */
@@ -149,13 +157,15 @@ class SalesInvoiceModel extends Model implements Auditable
             'distributors.id AS distributor_id',
             'distributors.name AS distributor_name',
             'technicians.name AS technician_name',
-            'payment_methods.name AS payment_method_name'
+            'payment_methods.name AS payment_method_name',
+            'sales_orders.sales_order_number AS sales_order_number',
         ];
-        $searchColumns = ['sales_invoice_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
+        $searchColumns = ['sales_invoice_number','sales_order_number','invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
         $orderColumns = [
             'id',
             'sales_invoice_number',
+            'sales_order_number',
             'invoice_number',
             'date',
             'customer_name',
@@ -175,6 +185,7 @@ class SalesInvoiceModel extends Model implements Auditable
         $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_invoices.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_invoices.payment_method_id", "=", "payment_methods.id");
+        $query->leftJoin("sales_orders", "sales_invoices.sales_order_id", "=", "sales_orders.id");
 
         if ($request->dateStart && $request->dateEnd) {
             $query->whereBetween('sales_invoices.date', [$request->dateStart, $request->dateEnd]);
