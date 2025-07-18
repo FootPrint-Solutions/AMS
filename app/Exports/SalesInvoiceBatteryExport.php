@@ -24,15 +24,16 @@ class SalesInvoiceBatteryExport implements FromCollection, WithHeadings, WithMap
     public function collection()
     {
         $query = SalesInvoiceBatteryModel::with([
-            'SalesInvoice.customer',
-            'SalesInvoice.vehicle',
-            'SalesInvoice.distributorShop',
-            'SalesInvoice.technician',
-            'SalesInvoice.paymentMethod',
+            'salesInvoice.customer',
+            'salesInvoice.vehicle',
+            'salesInvoice.distributorShop',
+            'salesInvoice.technician',
+            'salesInvoice.paymentMethod',
+            'salesInvoice.salesOrder',
             'battery'
         ]);
 
-        $query->whereHas('SalesInvoice', function ($q) {
+        $query->whereHas('salesInvoice', function ($q) {
             $q->whereNull('deleted_at');
             if (isset($this->dateStart) && isset($this->dateEnd)) {
                 $q->whereBetween('date', [$this->dateStart, $this->dateEnd]);
@@ -68,25 +69,26 @@ class SalesInvoiceBatteryExport implements FromCollection, WithHeadings, WithMap
 
     public function map($data): array
     {
+        dd($data); // Debugging line to inspect the data structure
         return [
-            $data->SalesInvoice->number ?? '-',
-            $data->SalesInvoice->sales_order_number ?? '-',
-            $data->SalesInvoice->date ?? '-',
-            $data->SalesInvoice->customer->name ?? '-',
+            $data->salesInvoice->sales_invoice_number ?? '-',
+            $data->salesInvoice->salesOrder->sales_order_number ?? '-',
+            $data->salesInvoice->date ?? '-',
+            $data->salesInvoice->customer->name ?? '-',
             $data->battery_production_code ?? '-',
             $data->battery->name ?? '-',
             $data->quantity ?? '-',
             $data->price_net ?? '-',
             $data->subtotal ?? '-',
-            $data->SalesInvoice->vehicle->name ?? '-',
-            $data->SalesInvoice->distributorShop->name ?? '-',
-            $data->SalesInvoice->technician->name ?? '-',
-            $data->SalesInvoice->paymentMethod->name ?? '-',
-            $data->SalesInvoice->payment_status ?? '-',
-            $data->SalesInvoice->status ?? '-',
-            $data->SalesInvoice->customer->address ?? '-',
-            $data->SalesInvoice->customer->latitude ?? '-',
-            $data->SalesInvoice->customer->longitude ?? '-'
+            $data->salesInvoice->vehicle->name ?? '-',
+            $data->salesInvoice->distributorShop->name ?? '-',
+            $data->salesInvoice->technician->name ?? '-',
+            $data->salesInvoice->paymentMethod->name ?? '-',
+            $data->salesInvoice->payment_status ?? '-',
+            $data->salesInvoice->status ?? '-',
+            $data->salesInvoice->customer->address ?? '-',
+            $data->salesInvoice->customer->latitude ?? '-',
+            $data->salesInvoice->customer->longitude ?? '-'
         ];
     }
 
