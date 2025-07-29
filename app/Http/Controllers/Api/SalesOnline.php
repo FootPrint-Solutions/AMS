@@ -28,8 +28,22 @@ class SalesOnline extends Controller
             }
 
             $data = $request->only([
-                'customerName', 'province', 'city', 'district', 'subDistrict',
-                'postalCode', 'phoneNumber', 'email', 'vehiclePlate', 'deliveryDate', 'additionalInfo', 'alamatLengkap', 'ipAddress', 'userAgent', 'latitude', 'longitude'
+                'customerName',
+                'province',
+                'city',
+                'district',
+                'subDistrict',
+                'postalCode',
+                'phoneNumber',
+                'email',
+                'vehiclePlate',
+                'deliveryDate',
+                'additionalInfo',
+                'alamatLengkap',
+                'ipAddress',
+                'userAgent',
+                'latitude',
+                'longitude'
             ]);
 
             $cartDetails = $request->input('cartDetails', []);
@@ -37,8 +51,8 @@ class SalesOnline extends Controller
             // Validasi data
             if (
                 empty($data['customerName']) || empty($data['province']) || empty($data['city']) ||
-                empty($data['district']) || empty($data['subDistrict']) || empty($data['phoneNumber']) ||
-                empty($data['deliveryDate']) || empty($data['alamatLengkap'])
+                empty($data['district']) || empty($data['phoneNumber']) ||
+                empty($data['alamatLengkap'])
             ) {
                 return response()->json(['status' => 'error', 'message' => 'Semua kolom yang wajib diisi harus diisi.']);
             }
@@ -52,12 +66,12 @@ class SalesOnline extends Controller
                 'province' => $data['province'],
                 'city' => $data['city'],
                 'district' => $data['district'],
-                'sub_district' => $data['subDistrict'],
+                'sub_district' => $data['subDistrict'] ? $data['subDistrict'] : 'unknown',
                 'postal_code' => $data['postalCode'],
                 'phone_number' => $data['phoneNumber'],
                 'email' => $data['email'],
                 'vehicle_plate' => $data['vehiclePlate'],
-                'delivery_date' => $data['deliveryDate'],
+                'delivery_date' => $data['deliveryDate'] ? date('Y-m-d', strtotime($data['deliveryDate'])) : null,
                 'additional_info' => $data['additionalInfo'],
                 'address' => $data['alamatLengkap'],
                 'whatsapp_status' => 'pending',
