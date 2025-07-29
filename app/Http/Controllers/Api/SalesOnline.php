@@ -48,13 +48,27 @@ class SalesOnline extends Controller
 
             $cartDetails = $request->input('cartDetails', []);
 
-            // Validasi data
-            if (
-                empty($data['customerName']) || empty($data['province']) || empty($data['city']) ||
-                empty($data['district']) || empty($data['phoneNumber']) ||
-                empty($data['alamatLengkap'])
-            ) {
-                return response()->json(['status' => 'error', 'message' => 'Semua kolom yang wajib diisi harus diisi.']);
+            $requiredFields = [
+                'customerName' => 'Nama pelanggan',
+                'province' => 'Provinsi',
+                'city' => 'Kota/Kabupaten',
+                'district' => 'Kecamatan',
+                'phoneNumber' => 'Nomor telepon',
+                'alamatLengkap' => 'Alamat lengkap'
+            ];
+
+            $emptyFields = [];
+            foreach ($requiredFields as $field => $label) {
+                if (empty($data[$field])) {
+                    $emptyFields[] = $label;
+                }
+            }
+
+            if (!empty($emptyFields)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kolom berikut wajib diisi: ' . implode(', ', $emptyFields)
+                ]);
             }
 
             if (!preg_match('/^[0-9]{10,15}$/', $data['phoneNumber'])) {
