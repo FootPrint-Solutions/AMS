@@ -105,6 +105,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                pageLength: 10,
                 scrollX: true,
                 responsive: true,
                 processing: true,

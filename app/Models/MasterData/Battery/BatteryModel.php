@@ -25,6 +25,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use App\Models\MasterData\Vehicle\VehicleBatteryModel;
+use App\Models\MasterData\Battery\BatteryImageModel;
 
 class BatteryModel extends Model implements Auditable
 {
@@ -264,5 +265,10 @@ class BatteryModel extends Model implements Auditable
     {
         return $this->belongsTo(VehicleBatteryModel::class, 'id', 'battery_id')
             ->with('vehicle');
+    }
+
+    public function batteryImages(): HasMany
+    {
+        return $this->hasMany(BatteryImageModel::class, 'battery_id', 'id');
     }
 }
