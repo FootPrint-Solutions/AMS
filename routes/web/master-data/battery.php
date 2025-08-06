@@ -16,3 +16,4 @@ Route::post('/battery/export', [Battery::class, 'export'])->name('battery.export
 Route::post('/battery/get/size', [Battery::class, 'getBatteriesBySizeCategory'])->name('battery.size')->middleware('permission:view_battery');
 Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword'])->name('battery.get')->middleware('permission:view_battery');
 Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.compress')->middleware('permission:view_battery');
+Route::post('/battery/image/delete', [Battery::class, 'deleteImage'])->name('battery.image.delete')->middleware('permission:edit_battery');

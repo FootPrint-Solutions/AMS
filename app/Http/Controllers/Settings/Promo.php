@@ -129,37 +129,34 @@ class Promo extends Controller
      */
     public function showDashboard(Request $request)
     {
-        // Get all DataTables requests.
+        // Get DataTables parameters.
         $draw = $request->input("draw");
         $start = $request->input("start");
-        $type = $request->input("type");
+        $type = $request->input("type", "limited");
 
-        // Get tax data (rows and count).
+        // Get promo data for dashboard.
         $data = PromoModel::allForDataTablesDashboard($request, $type);
 
-        // Set rows to be displayed in tax table.
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
             $isEndingToday = $key->period_end == date('Y-m-d');
 
-            // Set an array for each row.
             $row = [];
             $row[] = $no++;
             $row[] = $key->name . ($isEndingToday ? "<span class='badge badge-danger mx-2'>Ending today</span>" : "");
             $row[] = $key->battery_list;
             $row[] = $key->period_end ? formatDate($key->period_end) : "-";
             $row[] = $key->id;
-            $row[] = $isEndingToday;
             $rows[] = $row;
         }
 
-        return response()->json(array(
+        return response()->json([
             "draw" => $draw,
             "recordsTotal" => PromoModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
-        ));
+        ]);
     }
 
     /**

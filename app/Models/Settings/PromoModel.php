@@ -12,6 +12,8 @@ use Illuminate\Support\Carbon;
 use App\Traits\DataTablesTrait;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\Settings\PromoBatteryModel;
+
 class PromoModel extends Model
 {
     use HasFactory, SoftDeletes, DataTablesTrait;
@@ -69,21 +71,14 @@ class PromoModel extends Model
         $query->select($selectColumns);
         $query->where('status', 1);
 
-        if ($type == 'unlimited') {
-            // Get only unlimited promos.
-            $query->where('period_end', '=', null);
-        } else if ($type == 'limited') {
-            // Get only limited promos.
-            $query->where('period_end', '>=', Carbon::today());
-        }
-
         // Get the list of discounted batteries.
         $query->addSelect(DB::raw(
             '(
                 SELECT IF(COUNT(*) > 2, CONCAT(GROUP_CONCAT(SUBSTRING_INDEX(batteries.name, ",", 3) SEPARATOR ", "), ", and more..."), GROUP_CONCAT(batteries.name SEPARATOR ", ")) 
                 FROM batteries 
                 INNER JOIN promo_battery ON batteries.id = promo_battery.battery_id 
-                WHERE promo_battery.promo_id = promos.id) AS battery_list'
+                WHERE promo_battery.promo_id = promos.id
+            ) AS battery_list'
         ));
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns, ['column' => 'period_end', 'direction' => 'asc']);

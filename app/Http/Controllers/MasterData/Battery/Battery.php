@@ -18,6 +18,7 @@ use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatteryBrandModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
+use App\Models\MasterData\Battery\BatteryImageModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 class Battery extends Controller
 {
@@ -83,7 +85,7 @@ class Battery extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    'profile' => BatteryModel::with(['urls', 'code'])->find($id)->toArray(),
+                    'profile' => BatteryModel::with(['urls', 'code', 'batteryImages'])->find($id)->toArray(),
                     'brands' => BatteryBrandModel::all()->toArray(),
                     'subbrand_categories' => BatterySubbrandCategoryModel::all()->toArray(),
                     'usage_types' => BatteryUsageTypeModel::all()->toArray(),
@@ -355,6 +357,33 @@ class Battery extends Controller
             $code->battery_id = $battery->id;
             $status &= $code->save();
 
+            if ($request->hasFile('detail_images')) {
+                foreach ($request->file('detail_images') as $detailImage) {
+                    $imagePath = $detailImage->store('public/image/battery/details');
+                    $battery->batteryImages()->create([
+                        'image_path' => str_replace('public/', '', $imagePath),
+                        'image_type' => $detailImage->getClientOriginalExtension(),
+                    ]);
+
+                    $path = storage_path('app/' . $imagePath);
+                    $size = filesize($path);
+                    if ($size > 1000000) {
+                        $img = Image::make($path);
+                        $img->resize(100, 100, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $compressedPath = storage_path('app/public/image/battery/compressed/' . basename($imagePath));
+                        $img->save($compressedPath);
+                    }
+
+                    $webpPath = storage_path('app/public/image/battery/webp/' . basename($imagePath, '.' . $detailImage->getClientOriginalExtension()) . '.webp');
+                    if (!file_exists($webpPath)) {
+                        $img_webp = Image::make($path)->encode('webp', 100);
+                        $img_webp->save($webpPath);
+                    }
+                }
+            }
+
             if ($status)
                 DB::commit();
             else
@@ -548,6 +577,34 @@ class Battery extends Controller
                 }
             } else {
                 throw new Exception('Battery ID is missing.');
+            }
+
+            if ($request->hasFile('detail_images')) {
+
+                foreach ($request->file('detail_images') as $detailImage) {
+                    $imagePath = $detailImage->store('public/image/battery/details');
+                    $battery->batteryImages()->create([
+                        'image_path' => str_replace('public/', '', $imagePath),
+                        'image_type' => $detailImage->getClientOriginalExtension(),
+                    ]);
+
+                    $path = storage_path('app/' . $imagePath);
+                    $size = filesize($path);
+                    if ($size > 1000000) {
+                        $img = Image::make($path);
+                        $img->resize(100, 100, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        $compressedPath = storage_path('app/public/image/battery/compressed/' . basename($imagePath));
+                        $img->save($compressedPath);
+                    }
+
+                    $webpPath = storage_path('app/public/image/battery/webp/' . basename($imagePath, '.' . $detailImage->getClientOriginalExtension()) . '.webp');
+                    if (!file_exists($webpPath)) {
+                        $img_webp = Image::make($path)->encode('webp', 100);
+                        $img_webp->save($webpPath);
+                    }
+                }
             }
 
             if ($status)
@@ -759,5 +816,20 @@ class Battery extends Controller
     {
         $all_battery = BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory', 'urls'])->get();
         return view('MasterData.Battery.battery_template', compact('all_battery'));
+    }
+
+    public function deleteImage(Request $request)
+    {
+        $imageId = $request->input('id');
+        $image = BatteryImageModel::find($imageId);
+
+        if ($image) {
+            Storage::delete('public/' . $image->image_path);
+            $image->delete();
+
+            return response()->json(['success' => true, 'message' => 'Image deleted successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Image not found'], 404);
     }
 }

@@ -370,24 +370,48 @@
                 </ul>
 
                 {{-- Image --}}
-                <label for="image" class="mb-1">Image</label>
-                <div class="form-group students-up-files">
-                    <div class="d-inline-flex align-items-center">
-                        <div class="mx-1">
-                            <input type="file" id="image" name="image">
-                        </div>
-
-                        <div class="mx-1">
-                            @isset($data['profile'])
-                                @empty($data['profile']['image'])
-                                    No image has been uploaded for this battery.
-                                @else
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                        data-bs-target="#image-modal">Preview Image</button>
-                                @endempty
-                            @endisset
-                        </div>
+                <div class="form-group mb-3">
+                    <label for="image" class="form-label">Main Image</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="file" id="image" name="image" class="form-control"
+                            style="max-width:250px;">
+                        @isset($data['profile'])
+                            @empty($data['profile']['image'])
+                                <span class="text-muted ms-2">No image uploaded.</span>
+                            @else
+                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" data-bs-toggle="modal"
+                                    data-bs-target="#image-modal">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                            @endempty
+                        @endisset
                     </div>
+                </div>
+
+                {{-- Multiple Detail Images --}}
+                <div class="form-group mb-3">
+                    <label for="detail-images" class="form-label">Detail Images</label>
+                    <input type="file" id="detail-images" name="detail_images[]" multiple accept="image/*"
+                        class="form-control" style="max-width:350px;">
+                    <small class="form-text text-muted">Upload multiple images for battery details.</small>
+                    @isset($data['profile']['batteryImages'])
+                        <div class="mt-2">
+                            <label class="form-label">Existing Detail Images:</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach ($data['profile']['batteryImages'] as $img)
+                                    <div class="border rounded p-1 bg-light"
+                                        style="width:100px; height:90px; display:flex; align-items:center; justify-content:center;">
+                                        <img src="{{ asset('storage/' . $img['image_path']) }}" alt="Detail Image"
+                                            class="img-fluid" style="max-width:90px;max-height:80px;object-fit:contain;"
+                                            onerror="this.onerror=null;this.src='https://placehold.co/100';">
+                                        @if (!empty($img['image_type']))
+                                            <span class="badge bg-secondary mt-1">{{ $img['image_type'] }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endisset
                 </div>
 
                 {{-- Hidden Inputs --}}
@@ -416,19 +440,140 @@
 
     {{-- Image Preview Modal --}}
     @isset($data['profile'])
-        <div id="image-modal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    {{-- Header --}}
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="standard-modalLabel">Image Preview</h4>
+        <style>
+            .image-thumb {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .image-thumb:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            .carousel-item img {
+                max-height: 200px;
+                object-fit: contain;
+            }
+
+            .carousel-control-prev-icon,
+            .carousel-control-next-icon {
+                background-color: rgba(0, 0, 0, 0.4);
+                border-radius: 50%;
+                padding: 10px;
+            }
+        </style>
+
+        <div id="image-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content rounded-3 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold border-bottom pb-2 w-100" id="imageModalLabel">Image Preview</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    {{-- Body --}}
-                    <div class="modal-body">
-                        <img src="{{ asset('storage/image/battery/' . $data['profile']['image']) }}" alt="Battery Image"
-                            class="img-fluid">
+                    <div class="modal-body d-flex flex-column align-items-center" style="min-height:250px;">
+                        {{-- Main Image --}}
+                        @if (!empty($data['profile']['image']))
+                            <img src="{{ asset('storage/image/battery/' . $data['profile']['image']) }}" alt="Battery Image"
+                                class="img-fluid rounded border mb-4 image-thumb"
+                                style="max-height:350px; max-width:100%; object-fit:contain;" loading="lazy"
+                                onerror="this.onerror=null;this.src='https://placehold.co/400';">
+                        @else
+                            <img src="https://placehold.co/400" alt="No Image" class="img-fluid rounded border mb-4"
+                                style="max-height:350px; max-width:100%; object-fit:contain;">
+                        @endif
+
+                        {{-- Detail Images Carousel --}}
+                        @if (!empty($data['profile']['battery_images']))
+                            <div class="w-100 mt-3">
+                                <label class="form-label fw-semibold mb-2">Detail Images:</label>
+
+                                <div id="detailImagesCarousel" class="carousel slide position-relative"
+                                    data-bs-ride="carousel">
+                                    <div class="carousel-inner text-center">
+                                        @foreach ($data['profile']['battery_images'] as $index => $img)
+                                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                                <div class="position-relative d-inline-block">
+                                                    <img src="{{ asset('storage/' . $img['image_path']) }}"
+                                                        alt="Detail Image" class="img-fluid image-thumb"
+                                                        style="max-height:200px;" loading="lazy"
+                                                        onerror="this.onerror=null;this.src='https://placehold.co/300';">
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-danger btn-delete-image position-absolute top-0 end-0 m-2"
+                                                        style="z-index:2;" title="Delete Image"
+                                                        data-image-id="{{ $img['id'] }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <script>
+                                                        $(document).on('click', '.btn-delete-image', function(e) {
+                                                            e.preventDefault();
+                                                            let btn = $(this);
+                                                            let imageId = btn.data('image-id');
+                                                            Swal.fire({
+                                                                title: 'Are you sure?',
+                                                                text: 'Do you want to delete this image?',
+                                                                icon: 'warning',
+                                                                showCancelButton: true,
+                                                                confirmButtonColor: '#d33',
+                                                                cancelButtonColor: '#3085d6',
+                                                                confirmButtonText: 'Yes, delete it!',
+                                                                cancelButtonText: 'Cancel'
+                                                            }).then((result) => {
+                                                                if (result.isConfirmed) {
+                                                                    $.ajax({
+                                                                        url: "{{ url('battery/image/delete') }}",
+                                                                        type: "POST",
+                                                                        data: {
+                                                                            _token: "{{ csrf_token() }}",
+                                                                            id: imageId
+                                                                        },
+                                                                        success: function(response) {
+                                                                            btn.closest('.carousel-item').remove();
+                                                                            Swal.fire('Deleted!', 'Image has been deleted.', 'success');
+                                                                        },
+                                                                        error: function(xhr) {
+                                                                            Swal.fire('Error!', 'Failed to delete image.', 'error');
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        });
+                                                    </script>
+                                                </div>
+                                                @if (!empty($img['image_type']))
+                                                    <div class="mt-2">
+                                                        <span class="badge bg-secondary">{{ $img['image_type'] }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                    <button class="carousel-control-prev" type="button"
+                                        data-bs-target="#detailImagesCarousel" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button"
+                                        data-bs-target="#detailImagesCarousel" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+
+                                    <div class="carousel-indicators mt-2">
+                                        @foreach ($data['profile']['battery_images'] as $index => $img)
+                                            <button type="button" data-bs-target="#detailImagesCarousel"
+                                                data-bs-slide-to="{{ $index }}"
+                                                class="{{ $index === 0 ? 'active' : '' }}"
+                                                aria-current="{{ $index === 0 ? 'true' : 'false' }}"
+                                                aria-label="Slide {{ $index + 1 }}">
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -520,6 +665,15 @@
 
                 // Obtain submitted form data.
                 let formData = new FormData($(this)[0]);
+
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we save your data.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
                 // Send submit POST request via AJAX.
                 sendSubmitRequest(url, formData, function() {
