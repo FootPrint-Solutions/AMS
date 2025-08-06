@@ -531,6 +531,8 @@
                                                                         success: function(response) {
                                                                             btn.closest('.carousel-item').remove();
                                                                             Swal.fire('Deleted!', 'Image has been deleted.', 'success');
+
+                                                                            location.reload();
                                                                         },
                                                                         error: function(xhr) {
                                                                             Swal.fire('Error!', 'Failed to delete image.', 'error');
