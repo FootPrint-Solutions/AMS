@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Orders\SalesInvoice;
+use App\Http\Controllers\Orders\SalesOrderBattery;
 
 Route::get('/sales-invoice', [SalesInvoice::class, 'index'])->name('sales-invoice.index')->middleware('permission:view_sales_invoice');
 Route::post('/sales-invoice/show', [SalesInvoice::class, 'show'])->name('sales-invoice.show')->middleware('permission:view_sales_invoice');

@@ -20,6 +20,7 @@ use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceBatteryModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 class SalesInvoiceModel extends Model implements Auditable
@@ -50,6 +51,7 @@ class SalesInvoiceModel extends Model implements Auditable
         'discount',
         'discount_price',
         'subtotal',
+        'total_expenses',
         'total',
         'payment_status',
         'status',
@@ -104,7 +106,7 @@ class SalesInvoiceModel extends Model implements Auditable
         return $this->belongsTo(PaymentMethodModel::class, "payment_method_id");
     }
 
-     /**
+    /**
      * Get the distributor shop has many sales order.
      */
     public function distributorShop(): BelongsTo
@@ -160,7 +162,7 @@ class SalesInvoiceModel extends Model implements Auditable
             'payment_methods.name AS payment_method_name',
             'sales_orders.sales_order_number AS sales_order_number',
         ];
-        $searchColumns = ['sales_invoice_number','sales_order_number','invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
+        $searchColumns = ['sales_invoice_number', 'sales_order_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
         $orderColumns = [
             'id',
@@ -195,11 +197,20 @@ class SalesInvoiceModel extends Model implements Auditable
 
         return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
     }
-    
+
     public function batteries(): HasMany
     {
         return $this->hasMany(SalesInvoiceBatteryModel::class, 'sales_invoice_id')
-           ->with('battery');
+            ->with('battery');
+    }
+
+    /**
+     * Get the expenses associated with the sales invoice.
+     */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(SalesInvoiceExpenseModel::class, 'sales_invoice_id')
+            ->with('expense');
     }
 
     /**

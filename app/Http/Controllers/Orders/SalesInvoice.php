@@ -30,6 +30,8 @@ use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Accounting\ExpenseModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -113,6 +115,7 @@ class SalesInvoice extends Controller
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "expenses" => ExpenseModel::where('is_active', true)->get()->toArray(),
                     "type" => "create"
                 )
             )
@@ -131,11 +134,12 @@ class SalesInvoice extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => SalesInvoiceModel::with(["batteries", "salesOrder"])->find($id)->toArray(),
+                    "profile" => SalesInvoiceModel::with(["batteries", "salesOrder", "expenses"])->find($id)->toArray(),
                     "customers" => CustomerModel::all()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "expenses" => ExpenseModel::where('is_active', true)->get()->toArray(),
                     "type" => "edit",
                 )
             )
@@ -301,28 +305,7 @@ class SalesInvoice extends Controller
             $salesInvoice->sales_order_id = $request->salesorderid;
             $salesInvoice->invoice_number = $request->invoicenumber;
             $salesInvoice->date = $request->date;
-
-            if ($request->customername || $request->customercontact || $request->customeremail) {
-                // Store the newly added customer if provided.
-                $customer = new CustomerModel();
-                $customer->name = $request->customername;
-                $customer->contact = $request->customercontact;
-                $customer->email = $request->customeremail;
-                $customer->address = $request->Address;
-                $customer->latitude = $request->Latitude;
-                $customer->longitude = $request->Longitude;
-                $status = $customer->save();
-
-                // Attach vehicle if provided
-                if ($request->customervehicle) {
-                    $customer->vehicles()->attach($request->customervehicle);
-                }
-
-                $salesInvoice->customer_id = $customer->id;
-            } else {
-                $salesInvoice->customer_id = $salesOrder->customer_id;
-            }
-
+            $salesInvoice->customer_id = $salesOrder->customer_id;
             $salesInvoice->vehicle_id = $salesOrder->vehicle_id;
             $salesInvoice->address = $request->Address;
             $salesInvoice->latitude = $request->Latitude;
@@ -332,12 +315,22 @@ class SalesInvoice extends Controller
             $salesInvoice->discount = $request->discount;
             $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesInvoice->total_expenses = (float) str_replace(".", "", $request->totalexpenses ?? "0");
             $salesInvoice->total = (float) str_replace(".", "", $request->total);
             $salesInvoice->payment_method_id = $request->paymentmethod;
             $salesInvoice->payment_status = $request->status;
             $status = $salesInvoice->save();
 
-            // Store sales invoice battery details.
+            // Store sales invoice expense details.
+            if ($request->expense_ids && count($request->expense_ids) > 0) {
+                for ($i = 0; $i < count($request->expense_ids); $i++) {
+                    $expense = new SalesInvoiceExpenseModel();
+                    $expense->sales_invoice_id = $salesInvoice->id;
+                    $expense->expense_id = $request->expense_ids[$i];
+                    $expense->amount = (float) $request->expense_amounts[$i];
+                    $status &= $expense->save();
+                }
+            }            // Store sales invoice battery details.
             for ($i = 0; $i < count($request->detailid); $i++) {
                 $battery = new SalesInvoiceBatteryModel();
                 $battery->sales_invoice_id = $salesInvoice->id;
@@ -389,27 +382,7 @@ class SalesInvoice extends Controller
 
             $salesInvoice->invoice_number = $request->invoicenumber;
             $salesInvoice->date = $request->date;
-
-            if ($request->customer === "new") {
-                // Store the newly added vehicle brand.
-                $customer = new CustomerModel();
-                $customer->name = $request->customername;
-                $customer->contact = $request->customercontact;
-                $customer->email = $request->customeremail;
-                $customer->address = $request->Address;
-                $customer->latitude = $request->Latitude;
-                $customer->longitude = $request->Longitude;
-                $status = $customer->save();
-
-                // Store the list of customers" owned vehicles.
-                $customer->vehicles()->attach($request->customervehicle);
-
-                // Set customer to the newly added customer.
-                $salesInvoice->customer_id = $customer->id;
-            } else {
-                $salesInvoice->customer_id = $salesInvoice->customer_id;
-            }
-
+            $salesInvoice->customer_id = $salesInvoice->customer_id;
             $salesInvoice->vehicle_id = $salesInvoice->vehicle_id;
             $salesInvoice->address = $request->Address;
             $salesInvoice->latitude = $request->Latitude;
@@ -419,10 +392,26 @@ class SalesInvoice extends Controller
             $salesInvoice->discount = $request->discount;
             $salesInvoice->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesInvoice->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesInvoice->total_expenses = (float) str_replace(".", "", $request->totalexpenses ?? "0");
             $salesInvoice->total = (float) str_replace(".", "", $request->total);
             $salesInvoice->payment_method_id = $request->paymentmethod;
             $salesInvoice->payment_status = $request->status;
             $status = $salesInvoice->save();
+
+            $existingExpenses = SalesInvoiceExpenseModel::where('sales_invoice_id', $salesInvoice->id)->get();
+            foreach ($existingExpenses as $existingExpense) {
+                $status &= $existingExpense->delete();
+            }
+
+            if ($request->expense_ids && count($request->expense_ids) > 0) {
+                for ($i = 0; $i < count($request->expense_ids); $i++) {
+                    $expense = new SalesInvoiceExpenseModel();
+                    $expense->sales_invoice_id = $salesInvoice->id;
+                    $expense->expense_id = $request->expense_ids[$i];
+                    $expense->amount = (float) $request->expense_amounts[$i];
+                    $status &= $expense->save();
+                }
+            }
 
             $existingDetails = SalesInvoiceBatteryModel::where('sales_invoice_id', $salesInvoice->id)->pluck('id')->toArray();
             $submittedDetails = $request->detailid ?? [];

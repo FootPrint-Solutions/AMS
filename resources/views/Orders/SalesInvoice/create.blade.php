@@ -65,7 +65,7 @@
                                 <div class="col">
                                     <div class="form-group local-forms">
                                         <label for="customer">Customer <span class="login-danger">*</span></label>
-                                        <select class="form-control" id="customer" name="customer" required>
+                                        <select class="form-control" id="customer_id" name="customer_id" required>
                                             <option></option>
                                             @foreach ($data['customers'] as $customer)
                                                 <option value="{{ $customer['id'] }}"
@@ -471,6 +471,32 @@
                                 </td>
                             </tr>
 
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Expenses</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end">IDR</span>
+                                                <input type="text" class="form-control text-end" id="total-expenses"
+                                                    name="totalexpenses"
+                                                    @isset($data['profile'])value="{{ $data['profile']['total_expenses'] ?? '0' }}" @else value="0" @endisset
+                                                    readonly required>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <button type="button" class="btn btn-primary btn-sm" id="btn-add-expense"
+                                                data-bs-toggle="modal" data-bs-target="#expenseModal"
+                                                title="Add Expense">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
                             {{-- Total --}}
                             <tr>
                                 <td colspan="5"></td>
@@ -529,6 +555,16 @@
                     @isset($data['profile'])
                         <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
                     @endisset
+
+                    <div id="expense-hidden-inputs">
+                        @if (isset($data['profile']['expenses']))
+                            @foreach ($data['profile']['expenses'] as $expense)
+                                <input type="hidden" name="expense_ids[]" value="{{ $expense['expense_id'] }}">
+                                <input type="hidden" name="expense_amounts[]" value="{{ $expense['amount'] }}">
+                            @endforeach
+                        @endif
+                    </div>
+
 
                     {{-- Buttons --}}
                     <div class="d-flex flex-row-reverse">
@@ -623,8 +659,8 @@
         $("#quotation-form").on("submit", function(event) {
             event.preventDefault();
 
-            let mode = $("#btn-save").attr("value"); // update || create
-            let url = (mode == " update ") ? "/sales-invoice/update" : "/sales-invoice/store";
+            let mode = $("#btn-save").attr("value");
+            let url = (mode = "update") ? "/sales-invoice/update" : "/sales-invoice/store";
 
             let address = $("#AddressSearchColumnSalesInvoiceEditable").val();
             let lat = $("#Latitude").val();
@@ -639,10 +675,16 @@
             }
             calculateTotal();
 
-            // Obtain submitted form data.
-            let formData = new FormData($(this)[0]);
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your data is being saved.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
-            // Send submit POST request via AJAX.
+            let formData = new FormData($(this)[0]);
             sendSubmitRequest(url, formData, function() {
                 // Redirect to index page.
                 goToPage(indexUrl);
@@ -845,8 +887,11 @@
             let subtotalForDiscount = subtotal !== 0 ? subtotal : 1; // avoid division by zero
             $("#discount").val(Math.round(discount / subtotalForDiscount * 100));
 
-            // Calculate total value.
-            let total = subtotal - discount;
+            // Get total expenses
+            let totalExpenses = parseInt($("#total-expenses").val()?.replace(/\D/g, '') || "0", 10);
+
+            // Calculate total value (subtotal - discount + expenses).
+            let total = subtotal - discount + totalExpenses;
             $("#total").val(total);
 
             // Format all price fields value.
@@ -854,8 +899,203 @@
             formatPrice($("#subtotal"));
             formatPrice($("#total"));
             formatPrice($("#discount-price-value"));
+            formatPrice($("#total-expenses"));
 
             return total;
         }
+    </script>
+
+    {{-- Modal for Expense Management --}}
+    <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="expenseModalLabel">Manage Expenses</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- Expense Selection --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="expense-select" class="form-label">Select Expense</label>
+                            <select class="form-control" id="expense-select">
+                                <option value="">-- Select Expense --</option>
+                                @if (isset($data['expenses']))
+                                    @foreach ($data['expenses'] as $expense)
+                                        <option value="{{ $expense['id'] }}" data-name="{{ $expense['name'] }}">
+                                            {{ $expense['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="expense-amount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">IDR</span>
+                                <input type="number" class="form-control" id="expense-amount" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-primary d-block" id="btn-add-expense-item">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Expense List Table --}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="expense-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Expense Name</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expense-table-body">
+                                @if (isset($data['profile']['expenses']))
+                                    @foreach ($data['profile']['expenses'] as $expense)
+                                        <tr data-expense-id="{{ $expense['expense_id'] }}">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $expense['expense']['name'] }}</td>
+                                            <td class="text-end">IDR {{ number_format($expense['amount'], 0, ',', '.') }}
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm btn-remove-expense">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Total Expenses Display --}}
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between">
+                                <strong>Total Expenses:</strong>
+                                <strong id="modal-total-expenses">IDR 0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-expenses">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function() {
+            // Initialize expense functionality
+            updateExpenseTotal();
+
+            // Add expense item
+            $('#btn-add-expense-item').on('click', function() {
+                const expenseSelect = $('#expense-select');
+                const expenseAmount = $('#expense-amount');
+                const expenseId = expenseSelect.val();
+                const expenseName = expenseSelect.find('option:selected').data('name');
+                const amount = parseFloat(expenseAmount.val()) || 0;
+
+                if (!expenseId || amount <= 0) {
+                    alert('Please select an expense and enter a valid amount.');
+                    return;
+                }
+
+                // Check if expense already exists
+                if ($(`#expense-table-body tr[data-expense-id="${expenseId}"]`).length > 0) {
+                    alert('This expense has already been added.');
+                    return;
+                }
+
+                // Add row to table
+                const row = `
+                    <tr data-expense-id="${expenseId}">
+                        <td>${$('#expense-table-body tr').length + 1}</td>
+                        <td>${expenseName}</td>
+                        <td class="text-end">IDR ${amount.toLocaleString('id-ID')}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm btn-remove-expense">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $('#expense-table-body').append(row);
+
+                expenseSelect.val('');
+                expenseAmount.val('');
+
+                updateExpenseTotal();
+            });
+
+            $(document).on('click', '.btn-remove-expense', function() {
+                $(this).closest('tr').remove();
+                updateExpenseTotal();
+            });
+
+            $('#btn-save-expenses').on('click', function() {
+                $('#expense-hidden-inputs').empty();
+
+                $('#expense-table-body tr').each(function() {
+                    const expenseId = $(this).data('expense-id');
+                    const amountText = $(this).find('td:eq(2)').text(); // kolom ke-3 (Amount)
+                    const amount = parseFloat(amountText.replace(/[^\d]/g, ''));
+
+                    console.log('Adding expense:', {
+                        expenseId,
+                        amountText,
+                        amount
+                    });
+
+                    $('#expense-hidden-inputs').append(`
+                        <input type="hidden" name="expense_ids[]" value="${expenseId}">
+                        <input type="hidden" name="expense_amounts[]" value="${amount}">
+                    `);
+                });
+
+                // Debug: Check what hidden inputs were created
+                console.log('Hidden inputs created:');
+                console.log('expense_ids[]:', $('input[name="expense_ids[]"]').map(function() {
+                    return this.value;
+                }).get());
+                console.log('expense_amounts[]:', $('input[name="expense_amounts[]"]').map(function() {
+                    return this.value;
+                }).get());
+
+                const totalExpenses = calculateTotalExpenses();
+                $('#total-expenses').val(totalExpenses);
+
+                // Close modal
+                $('#expenseModal').modal('hide');
+
+                // Recalculate total
+                calculateTotal();
+            });
+
+            function updateExpenseTotal() {
+                const total = calculateTotalExpenses();
+                $('#modal-total-expenses').text(`IDR ${total.toLocaleString('id-ID')}`);
+            }
+
+            function calculateTotalExpenses() {
+                let total = 0;
+                $('#expense-table-body tr').each(function() {
+                    const amountText = $(this).find('td:eq(2)').text();
+                    const amount = parseFloat(amountText.replace(/[^\d]/g, ''));
+                    total += amount;
+                });
+                return total;
+            }
+        });
     </script>
 @endsection
