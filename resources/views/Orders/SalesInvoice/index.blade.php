@@ -10,10 +10,10 @@
                         <h3 class="page-title">Sales Invoice</h3>
                     </div>
 
-                    <div class="col-auto text-end float-end ms-auto download-grp">
+                    {{-- <div class="col-auto text-end float-end ms-auto download-grp">
                         <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
                             New Sales Invoice</button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <div class="card-body">
