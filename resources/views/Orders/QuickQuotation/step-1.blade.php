@@ -720,11 +720,11 @@
                             html += '<input type="checkbox" name="CheckBattery1x[]" value=' +
                                 vehicle
                                 .id + ' id="checkBoxBattery' + vehicle
-                                .id + '" disabled> Select Battery';
+                                .id + '"> Select Battery';
                         } else {
                             html += '<input type="checkbox" name="CheckBattery1[]" value=' + vehicle
                                 .id + ' id="checkBoxBattery' + vehicle
-                                .id + '" disabled> Select Battery ';
+                                .id + '"> Select Battery ';
                         }
                         if (custom) {
                             html +=
@@ -745,44 +745,43 @@
                             html += '</div><div class="row">';
                         }
 
-                        // Set stock
-                        // create div col for stock inside row ResultRecommendationStockBatteryVehicle
                         var col =
                             '<div class="col alert alert-primary text-center mx-2" id="stock' +
                             vehicle.id +
                             '"></div>';
                         $("#ResultRecommendationStockBatteryVehicle").append(col);
-                        $.ajax({
-                            url: "/inventory/get/" + vehicle.code,
-                            type: "GET",
-                            success: function(data) {
-                                // jika data 0 atau - atau null maka disable checkbox 
-                                if (data == 0 || data == '-' || data == null) {
-                                    if (ignoreStock) {
-                                        $("#checkBoxBattery" + vehicle.id).prop(
-                                            'disabled',
-                                            false);
-                                    } else {
-                                        $("#checkBoxBattery" + vehicle.id).prop(
-                                            'disabled',
-                                            true);
-                                    }
-                                } else {
-                                    $("#checkBoxBattery" + vehicle.id).prop('disabled',
-                                        false);
-                                }
 
-                                // set stock
-                                $("#stock" + vehicle.id).html("Stock : " + data);
-                                // show code battery
-                                if (vehicle.code != null) {
-                                    $("#stock" + vehicle.id).append("<br>ID : " +
-                                        vehicle.code);
-                                } else {
-                                    $("#stock" + vehicle.id).append("<br>ID : -");
-                                }
+                        if (ignoreStock) {
+                            $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
+
+                            $("#stock" + vehicle.id).html("Stock : 0");
+                            if (vehicle.code != null) {
+                                $("#stock" + vehicle.id).append("<br>ID : " + vehicle.code);
+                            } else {
+                                $("#stock" + vehicle.id).append("<br>ID : -");
                             }
-                        });
+                        } else {
+                            (function(vehicleId, vehicleCode) {
+                                $.ajax({
+                                    url: "/inventory/get/" + vehicleCode,
+                                    type: "GET",
+                                    success: function(data) {
+                                        if (data == 0 || data == '-' || data == null) {
+                                            $("#checkBoxBattery" + vehicleId).prop('disabled', true);
+                                        } else {
+                                            $("#checkBoxBattery" + vehicleId).prop('disabled', false);
+                                        }
+
+                                        $("#stock" + vehicleId).html("Stock : " + data);
+                                        if (vehicleCode != null) {
+                                            $("#stock" + vehicleId).append("<br>ID : " + vehicleCode);
+                                        } else {
+                                            $("#stock" + vehicleId).append("<br>ID : -");
+                                        }
+                                    }
+                                });
+                            })(vehicle.id, vehicle.code);
+                        }
                     });
                     html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);
@@ -1105,6 +1104,7 @@
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
             $('#AddressCustomer').val(suggestions[index].address);
+            $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
@@ -1182,16 +1182,14 @@
 
 
     function selectAll() {
-        var Battery = $("input[name='CheckBattery1[]']").map(function() {
-            return $(this).val();
-        }).get();
+        var enabledCheckboxes = $("input[name='CheckBattery1[]']:not(:disabled)");
 
-        if (Battery.length == 0) {
-            swal.fire("Error!", "No battery found", "error");
+        if (enabledCheckboxes.length == 0) {
+            swal.fire("Error!", "No available battery to select", "error");
             return;
         }
 
-        $("input[name='CheckBattery1[]']").prop('checked', true);
+        enabledCheckboxes.prop('checked', true);
 
         // change button text
         $('#btnSelectAllBattery').html('<i class="fas fa-times"></i> Unselect All');
@@ -1199,16 +1197,14 @@
     }
 
     function unselectAll() {
-        var Battery = $("input[name='CheckBattery1[]']").map(function() {
-            return $(this).val();
-        }).get();
+        var enabledCheckboxes = $("input[name='CheckBattery1[]']:not(:disabled)");
 
-        if (Battery.length == 0) {
-            swal.fire("Error!", "No battery found", "error");
+        if (enabledCheckboxes.length == 0) {
+            swal.fire("Error!", "No available battery to unselect", "error");
             return;
         }
 
-        $("input[name='CheckBattery1[]']").prop('checked', false);
+        enabledCheckboxes.prop('checked', false);
 
         // change button text
         $('#btnSelectAllBattery').html('<i class="fas fa-check"></i> Select All');
@@ -1217,5 +1213,10 @@
 
     $('#ignore-stock').on('change', function() {
         getBatteryByVehicle();
+    });
+
+    $(document).on('input keyup change', '#AddressCustomer', function() {
+        var addressValue = $(this).val();
+        $('#alternative_address').val(addressValue);
     });
 </script>
