@@ -219,6 +219,14 @@
             </select>
         </div>
 
+        {{-- Marketplace Invoice Number --}}
+        <div class="form-group local-forms mb-4">
+            <label for="invoice-numberx">Marketplace Invoice Number</label>
+            <input type="text" class="form-control" id="invoice-numberx" name="invoicenumber"
+                placeholder="Enter Marketplace Invoice Number"
+                @isset($data['profile']) value="{{ $data['profile']['invoice_number'] }}" @endisset>
+        </div>
+
         {{-- Add Item --}}
         @if (!isset($data['profile']))
             <div class="mb-1" id="title">Add Item <button type="button" class="btn rounded-circle"
