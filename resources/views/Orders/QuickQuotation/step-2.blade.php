@@ -285,6 +285,11 @@
         }
     });
 
+    $('#AddressCustomer').on('input keyup change', function() {
+        var addressValue = $(this).val();
+        $('#alternative_address').val(addressValue);
+    });
+
     function displaySuggestions(suggestions) {
         $('#AutoCompleteFullNameCustomer').empty();
 
@@ -300,6 +305,7 @@
             var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
+            $('#AddressCustomer').val(suggestions[index].address);
             $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
@@ -348,6 +354,7 @@
             var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
+            $('#AddressCustomer').val(suggestions[index].address);
             $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);

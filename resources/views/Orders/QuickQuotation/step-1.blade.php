@@ -1104,6 +1104,7 @@
             $('#ContactNumber').val(cleanNumber);
             $('#EmailCustomer').val(suggestions[index].email);
             $('#AddressCustomer').val(suggestions[index].address);
+            $('#alternative_address').val(suggestions[index].address);
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
@@ -1212,5 +1213,10 @@
 
     $('#ignore-stock').on('change', function() {
         getBatteryByVehicle();
+    });
+
+    $(document).on('input keyup change', '#AddressCustomer', function() {
+        var addressValue = $(this).val();
+        $('#alternative_address').val(addressValue);
     });
 </script>
