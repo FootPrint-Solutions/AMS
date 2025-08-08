@@ -77,6 +77,9 @@ class Filter extends Controller
     public function modelFind(Request $request, $vehicle_id)
     {
         try {
+            $limit = $request->input('limit', 10);
+            $offset = $request->input('offset', 0);
+
             if ($vehicle_id == 'ALL') {
                 $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::get();
                 $vehicleModel = VehicleModel::limit(1)->get();
@@ -123,7 +126,7 @@ class Filter extends Controller
                     }])
                     ->first();
 
-                if ($battery) {
+                if ($battery && isset($battery->batteries)) {
                     foreach ($battery->batteries as $batt) {
                         $details[] = $batt;
                     }
@@ -171,7 +174,11 @@ class Filter extends Controller
                     ->sortByDesc('is_min_price')
                     ->values();
             }
-            if ($sortedDetails->isEmpty()) {
+
+            // Apply pagination to final results
+            $paginatedDetails = $sortedDetails->skip($offset)->take($limit);
+
+            if ($paginatedDetails->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data not found',
@@ -182,7 +189,16 @@ class Filter extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data found',
-                'data' => ['batteries' => $sortedDetails, 'vehicle' => $vehicleModel]
+                'data' => [
+                    'batteries' => $paginatedDetails->values(),
+                    'vehicle' => $vehicleModel,
+                    'pagination' => [
+                        'total' => $sortedDetails->count(),
+                        'limit' => $limit,
+                        'offset' => $offset,
+                        'has_more' => ($offset + $limit) < $sortedDetails->count()
+                    ]
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
