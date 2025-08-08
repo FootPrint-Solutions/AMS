@@ -236,7 +236,7 @@ class Filter extends Controller
     function batteryFind($battery)
     {
         try {
-            $battery = BatteryModel::where('id', $battery)->with('brand', 'subbrandCategory', 'sizeCategory', 'technology', 'code', 'batteryPrices', 'vehicleBattery', 'batteryUrl')->get();
+            $battery = BatteryModel::where('id', $battery)->with('brand', 'subbrandCategory', 'sizeCategory', 'technology', 'code', 'batteryPrices', 'vehicleBattery', 'batteryUrl', 'batteryImages')->get();
             // jika data tidak ditemukan
             if (empty($battery) || $battery->isEmpty()) {
                 $response = [
