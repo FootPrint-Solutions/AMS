@@ -570,7 +570,7 @@
                     <div class="d-flex flex-row-reverse">
                         {{-- Create Button --}}
                         <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                            value="@if (isset($data['type']) && $data['type'] == 'edit') update @else create @endif">
+                            value="{{ isset($data['type']) && $data['type'] == 'edit' ? 'update' : 'create' }}">
                             @if (isset($data['type']) && $data['type'] == 'edit')
                                 Update Sales Invoice
                             @else
@@ -660,7 +660,14 @@
             event.preventDefault();
 
             let mode = $("#btn-save").attr("value");
-            let url = (mode = "update") ? "/sales-invoice/update" : "/sales-invoice/store";
+            let url;
+
+            // Perbaikan logika penentuan URL
+            if (mode === "update") {
+                url = "/sales-invoice/update";
+            } else {
+                url = "/sales-invoice/store";
+            }
 
             let address = $("#AddressSearchColumnSalesInvoiceEditable").val();
             let lat = $("#Latitude").val();
@@ -816,7 +823,7 @@
                         response.forEach(function(menu) {
                             // Append new options.
                             let selected = false;
-                            if (mode == 'update') {
+                            if (mode = 'update') {
                                 // Get saved technician id.
                                 let id = $("#technician_id").val();
                                 if (menu.id == id) {

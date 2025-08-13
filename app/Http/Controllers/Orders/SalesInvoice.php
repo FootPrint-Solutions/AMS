@@ -376,6 +376,10 @@ class SalesInvoice extends Controller
             // Update sales order data.
             $salesInvoice = SalesInvoiceModel::find($request->id);
 
+            if (!$salesInvoice) {
+                return getResponseData(false, "Sales Invoice not found.");
+            }
+
             if ($salesInvoice->status !== 'draft') {
                 return getResponseData(false, "Unable to edit posted Sales Invoice.");
             }
