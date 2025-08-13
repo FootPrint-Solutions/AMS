@@ -232,7 +232,8 @@ class SalesOnline extends Controller
                     'image' => optional($item->battery)->image,
                     'status' => optional($item->battery)->status,
                     'price' => optional($item->battery->batteryPrices->first())->price_net ?? 0,
-                    'total_orders' => (int) $item->total_orders
+                    'total_orders' => (int) $item->total_orders,
+                    'battery_prices' => optional($item->battery)->batteryPrices ?? []
                 ];
             });
 
