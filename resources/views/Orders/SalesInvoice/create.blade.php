@@ -898,7 +898,7 @@
             let totalExpenses = parseInt($("#total-expenses").val()?.replace(/\D/g, '') || "0", 10);
 
             // Calculate total value (subtotal - discount + expenses).
-            let total = subtotal - discount + totalExpenses;
+            let total = subtotal - discount - totalExpenses;
             $("#total").val(total);
 
             // Format all price fields value.
