@@ -1,77 +1,81 @@
-<div class="row">
-    {{-- Personal Details --}}
-    <div class="col-lg-9">
-        <div class="card">
-            <div class="card-body">
-                {{-- Title --}}
-                <h5 class="card-title d-flex justify-content-between align-middle">
-                    <span>Personal Details</span>
-
-                    <button class="btn btn-primary" id="btn-edit">
-                        <i class="far fa-edit me-1"></i> Edit Profile
-                    </button>
-                </h5>
-
-                <form id="personal-form">
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 rounded-3 shadow-sm mb-3">
+            <div class="card-body text-center p-4">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D8ABC&color=fff&size=80"
+                    class="rounded-circle mb-2" alt="Avatar" style="width:80px;height:80px;">
+                <h5 class="mb-1">{{ auth()->user()->name }}</h5>
+                <div class="text-muted mb-2">@ {{ auth()->user()->username }}</div>
+                <form id="personal-form" class="mt-3">
                     @csrf
-
-                    {{-- Name --}}
-                    <div class="row">
-                        <label for="name" class="col-sm-3 text-muted text-sm-end">Name</label>
-                        <input type="text" class="col-sm-9 mb-3 border border-secondary rounded inputs" id="name" name="name" value="{{ auth()->user()->name }}" style="display: none;" required>
-
-                        {{-- Current Name --}}
-                        @auth
-                            <p class="col-sm-9 currents">{{ auth()->user()->name }}</p>
-                        @endauth
+                    <div class="mb-2 text-start">
+                        <label for="name" class="form-label text-muted">Name</label>
+                        <input type="text" class="form-control inputs" id="name" name="name"
+                            value="{{ auth()->user()->name }}" style="display:none;">
+                        <p class="currents mb-0">{{ auth()->user()->name }}</p>
                     </div>
-
-                    {{-- Email --}}
-                    <div class="row">
-                        <label for="email" class="col-sm-3 text-muted text-sm-end">Email</label>
-                        <input type="email" class="col-sm-9 mb-3 border border-secondary rounded inputs" id="email" name="email" value="{{ auth()->user()->email }}" style="display: none;" required>
-
-                        {{-- Current Email --}}
-                        @auth
-                            <p class="col-sm-9 currents">{{ auth()->user()->email }}</p>
-                        @endauth
+                    <div class="mb-2 text-start">
+                        <label for="email" class="form-label text-muted">Email</label>
+                        <input type="email" class="form-control inputs" id="email" name="email"
+                            value="{{ auth()->user()->email }}" style="display:none;">
+                        <p class="currents mb-0">{{ auth()->user()->email }}</p>
                     </div>
-
-                    {{-- Username --}}
-                    <div class="row">
-                        <label class="col-sm-3 text-muted text-sm-end">Username</label>
-                        @auth
-                            <p class="col-sm-9" id="currusername">{{ auth()->user()->username }}</p>
-                        @endauth
+                    <div class="mb-2 text-start">
+                        <label class="form-label text-muted">Username</label>
+                        <p class="mb-0" id="currusername">{{ auth()->user()->username }}</p>
                     </div>
-
-                    {{-- Buttons --}}
-                    <div class="d-flex flex-row-reverse">
-                        <button class="btn btn-success inputs" id="btn-save" type="submit" style="display: none;">Update Profile</button>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-success inputs" id="btn-save" type="submit"
+                            style="display:none;">Update</button>
+                        <button class="btn btn-outline-primary ms-2" id="btn-edit" type="button"><i
+                                class="far fa-edit me-1"></i> Edit</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-
-    {{-- WhatsApp Status --}}
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title d-flex justify-content-between">
-                    <span>Whatsapp Status</span>
-                    <a class="edit-link" href=""><i class="fa-solid fa-arrows-rotate"></i></a>
-                </h5>
-
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body text-center p-4">
+                <h6 class="mb-3">
+                    <i class="fab fa-whatsapp text-success me-2"></i>Whatsapp Status
+                </h6>
                 @if ($data['QrCode'] != '')
-                    <badge class="badge bg-danger">Not Active, Please Scan here</badge>
-                    <img src="{{ $data['QrCode'] }}" alt="QrCode" class="img-fluid">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="badge bg-danger mb-2">Not Active, Please Scan here</span>
+                        <img src="{{ $data['QrCode'] }}" alt="QrCode"
+                            class="img-fluid rounded-3 border mb-2 qr-clickable"
+                            style="max-width:180px; cursor: pointer;" title="Click to enlarge">
+                        <small class="text-muted">Click QR code to enlarge</small>
+                    </div>
+
+                    <!-- Modal for enlarged QR code -->
+                    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-fullscreen">
+                            <div class="modal-content border-0 bg-transparent">
+                                <div class="modal-body d-flex justify-content-center align-items-center p-0"
+                                    style="background:rgba(0,0,0,0.85);">
+                                    <img src="{{ $data['QrCode'] }}" alt="QrCode"
+                                        class="img-fluid rounded-3 border shadow"
+                                        style="max-width:90vw; max-height:90vh; object-fit:contain;">
+                                    <button type="button"
+                                        class="btn-close position-absolute top-0 end-0 m-4 bg-light rounded-circle p-3"
+                                        data-bs-dismiss="modal" aria-label="Close" style="z-index:2;"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <script>
+                        $(document).on('click', '.qr-clickable', function() {
+                            $('#qrModal').modal('show');
+                        });
+                    </script>
                 @else
-                    <badge class="badge bg-success">Active</badge>
-                    <br>
-                    <button class="btn btn-success btn-lg mt-1" id='btn-delete-wa-session'
-                        type="button"><i class="fe fe-check-verified"></i>
-                        <i class="fa-solid fa-qrcode"></i></button>
+                    <span class="badge bg-success mb-2">Active</span>
+                    <button class="btn btn-danger w-100 mt-2" id='btn-delete-wa-session' type="button">
+                        <i class="fe fe-check-verified"></i> <i class="fa-solid fa-qrcode"></i> Delete Session
+                    </button>
                 @endif
             </div>
         </div>
@@ -169,7 +173,7 @@
 
         // Get form data.
         let formData = new FormData($(this)[0]);
-        
+
         // Send form data to Vehicle controller using AJAX.
         $.ajax({
             url: "/profile/update",
@@ -185,7 +189,7 @@
                 if (responseData.status) {
                     // Updating proccess was succeeded.
                     showSuccessToast(responseData.message);
-                    
+
                     goToPage("/profile");
                 } else {
                     // Updating proccess was failed.

@@ -1,48 +1,30 @@
-<div class="card">
-    <div class="card-body">
-        {{-- Title --}}
-        <div class="card-title h5">
-            Setting WhatsApp Server
-        </div>
-
-        {{-- Warning Alert --}}
-        <div class="alert alert-info mt-2">
-            Please be careful when updating your WhatsApp server settings.
-        </div>
-
-        {{-- WhatsApp Server Form --}}
-        <div class="row mt-4">
-            <form id="whatsapp-server-form">
-                @csrf
-
-                {{-- Name --}}
-                <div class="form-group local-forms">
-                    <label for="name">Name <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name"
-                        placeholder="Enter server name" required value="{{ $data['ServerWhatsapp']->name ?? '' }}"
-                        autocomplete="off" readonly>
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body text-center p-4">
+                <h5 class="mb-3"><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp Server Setting</h5>
+                <div class="alert alert-info mb-4">
+                    Please be careful when updating your WhatsApp server settings.
                 </div>
-
-                {{-- Number --}}
-                <div class="form-group local-forms">
-                    <label for="number">Number <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="number" name="number"
-                        placeholder="Enter WhatsApp number" required value="{{ $data['ServerWhatsapp']->number ?? '' }}"
-                        autocomplete="off">
-                </div>
-
-                {{-- URL --}}
-                <div class="form-group local-forms">
-                    <label for="url">URL</label>
-                    <input type="text" class="form-control" id="url" name="url"
-                        placeholder="Enter server URL (optional)" value="{{ $data['ServerWhatsapp']->url ?? '' }}"
-                        autocomplete="off" readonly>
-                </div>
-
-                <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-success" type="submit">Update WhatsApp Server</button>
-                </div>
-            </form>
+                <form id="whatsapp-server-form" class="text-start">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-muted">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ $data['ServerWhatsapp']->name ?? '' }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="number" class="form-label text-muted">Number</label>
+                        <input type="text" class="form-control" id="number" name="number" value="{{ $data['ServerWhatsapp']->number ?? '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label text-muted">URL</label>
+                        <input type="text" class="form-control" id="url" name="url" value="{{ $data['ServerWhatsapp']->url ?? '' }}" readonly>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-success px-4" type="submit">Update</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
