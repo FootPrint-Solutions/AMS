@@ -74,7 +74,7 @@ class SendWhatsappNotificationSalesOnline extends Command
             return 1;
         }
 
-        $response = Http::get('https://whatsapp.akikita.web.id/start-session-json', [
+        $response = Http::get('https://whatsapp.akikita.web.id/start-session-api', [
             'session' => "admin_ams",
             'scan' => 'true',
         ]);
@@ -143,9 +143,12 @@ class SendWhatsappNotificationSalesOnline extends Command
                 $message_admin .= "🚨 Segera proses pesanan ini melalui sistem!\n";
                 $message_admin .= "📱 Dikirim dari sistem *Aki Kita*";
 
-                foreach ([
-                    ['to' => $data['phone_number'], 'session' => "admin_ams", 'text' => $message], ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
-                ] as $payload) {
+                foreach (
+                    [
+                        ['to' => $data['phone_number'], 'session' => "admin_ams", 'text' => $message],
+                        ['to' =>  $whatsappAdmin['number'], 'session' => "admin_ams", 'text' => $message_admin]
+                    ] as $payload
+                ) {
                     $response = Http::post($url_send_message, $payload);
                     if (!$response->successful() || !isset($response->json()['data']['status']) || $response->json()['data']['status'] != 1) {
                         Log::error('Error sending message: ' . json_encode($payload) . ' - ' . json_encode($response->json()));

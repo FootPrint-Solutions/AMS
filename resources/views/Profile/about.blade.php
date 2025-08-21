@@ -35,13 +35,45 @@
         </div>
         <div class="card border-0 rounded-3 shadow-sm">
             <div class="card-body text-center p-4">
-                <h6 class="mb-3"><i class="fab fa-whatsapp text-success me-2"></i>Whatsapp Status</h6>
+                <h6 class="mb-3">
+                    <i class="fab fa-whatsapp text-success me-2"></i>Whatsapp Status
+                </h6>
                 @if ($data['QrCode'] != '')
-                    <span class="badge bg-danger mb-2">Not Active, Please Scan here</span>
-                    <img src="{{ $data['QrCode'] }}" alt="QrCode" class="img-fluid rounded-3 border-2 mb-2">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="badge bg-danger mb-2">Not Active, Please Scan here</span>
+                        <img src="{{ $data['QrCode'] }}" alt="QrCode"
+                            class="img-fluid rounded-3 border mb-2 qr-clickable"
+                            style="max-width:180px; cursor: pointer;" title="Click to enlarge">
+                        <small class="text-muted">Click QR code to enlarge</small>
+                    </div>
+
+                    <!-- Modal for enlarged QR code -->
+                    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-fullscreen">
+                            <div class="modal-content border-0 bg-transparent">
+                                <div class="modal-body d-flex justify-content-center align-items-center p-0"
+                                    style="background:rgba(0,0,0,0.85);">
+                                    <img src="{{ $data['QrCode'] }}" alt="QrCode"
+                                        class="img-fluid rounded-3 border shadow"
+                                        style="max-width:90vw; max-height:90vh; object-fit:contain;">
+                                    <button type="button"
+                                        class="btn-close position-absolute top-0 end-0 m-4 bg-light rounded-circle p-3"
+                                        data-bs-dismiss="modal" aria-label="Close" style="z-index:2;"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <script>
+                        $(document).on('click', '.qr-clickable', function() {
+                            $('#qrModal').modal('show');
+                        });
+                    </script>
                 @else
                     <span class="badge bg-success mb-2">Active</span>
-                    <button class="btn btn-success w-100 mt-2" id='btn-delete-wa-session' type="button">
+                    <button class="btn btn-danger w-100 mt-2" id='btn-delete-wa-session' type="button">
                         <i class="fe fe-check-verified"></i> <i class="fa-solid fa-qrcode"></i> Delete Session
                     </button>
                 @endif
