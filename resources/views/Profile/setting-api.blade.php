@@ -1,63 +1,37 @@
-<div class="card">
-    <div class="card-body">
-        {{-- Title --}}
-        <div class="card-title h5">
-            Setting Api Key Payment Gateway
-        </div>
-
-        {{-- Warning Alert --}}
-        <div class="alert alert-info mt-2">
-            Please be careful when updating your API key. Make sure to update your API key in your payment gateway
-        </div>
-
-        {{-- Api Key Form --}}
-        <div class="row mt-4">
-            <form id="api-key-form">
-                @csrf
-
-                {{-- Id Merchant --}}
-                <div class="form-group local-forms">
-                    <label for="id_merchant">ID Merchant <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="id_merchant" name="id_merchant"
-                        placeholder="Enter your ID Merchant" required
-                        value="{{ $data['ServerPaymentGateway']->id_merchant ?? '' }}" autocomplete="off">
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body text-center p-4">
+                <h5 class="mb-3"><i class="fas fa-credit-card text-primary me-2"></i>API Key Payment Gateway</h5>
+                <div class="alert alert-info mb-4">
+                    Please be careful when updating your API key. Make sure to update your API key in your payment gateway
                 </div>
-
-                {{-- Client Key --}}
-                <div class="form-group local-forms">
-                    <label for="client_key">Client Key <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="client_key" name="client_key"
-                        placeholder="Enter your Client Key" required
-                        value="{{ $data['ServerPaymentGateway']->client_key ?? '' }}" autocomplete="off">
-                </div>
-
-                {{-- Server Key --}}
-                <div class="form-group local-forms">
-                    <label for="server_key">Server Key <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="server_key" name="server_key"
-                        placeholder="Enter your Server Key" required
-                        value="{{ $data['ServerPaymentGateway']->server_key ?? '' }}" autocomplete="off">
-                </div>
-
-                {{-- Environment --}}
-                <div class="form-group local-forms">
-                    <label for="environment">Environment <span class="login-danger">*</span></label>
-                    <select class="form-control" id="environment" name="environment" required>
-                        <option value="0"
-                            {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '0' ? 'selected' : '' }}>
-                            Sandbox</option>
-                        <option value="1"
-                            {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '1' ? 'selected' : '' }}>
-                            Production</option>
-                    </select>
-                </div>
-
-
-
-                <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-success" type="submit">Update API Key</button>
-                </div>
-            </form>
+                <form id="api-key-form" class="text-start">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="id_merchant" class="form-label text-muted">ID Merchant</label>
+                        <input type="text" class="form-control" id="id_merchant" name="id_merchant" placeholder="Enter your ID Merchant" required value="{{ $data['ServerPaymentGateway']->id_merchant ?? '' }}" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="client_key" class="form-label text-muted">Client Key</label>
+                        <input type="text" class="form-control" id="client_key" name="client_key" placeholder="Enter your Client Key" required value="{{ $data['ServerPaymentGateway']->client_key ?? '' }}" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="server_key" class="form-label text-muted">Server Key</label>
+                        <input type="text" class="form-control" id="server_key" name="server_key" placeholder="Enter your Server Key" required value="{{ $data['ServerPaymentGateway']->server_key ?? '' }}" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="environment" class="form-label text-muted">Environment</label>
+                        <select class="form-control" id="environment" name="environment" required>
+                            <option value="0" {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '0' ? 'selected' : '' }}>Sandbox</option>
+                            <option value="1" {{ isset($data['ServerPaymentGateway']) && $data['ServerPaymentGateway']->is_active == '1' ? 'selected' : '' }}>Production</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-success px-4" type="submit">Update</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
