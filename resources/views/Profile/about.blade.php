@@ -73,7 +73,7 @@
                     </script>
                 @else
                     <span class="badge bg-success mb-2">Active</span>
-                    <button class="btn btn-danger w-100 mt-2" id='btn-delete-wa-session' type="button">
+                    <button class="btn btn-success w-100 mt-2" id='btn-delete-wa-session' type="button">
                         <i class="fe fe-check-verified"></i> <i class="fa-solid fa-qrcode"></i> Delete Session
                     </button>
                 @endif
