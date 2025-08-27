@@ -340,20 +340,15 @@ class Promo extends Controller
             $promo->status = $promo->status ? 0 : 1;
             $status = $promo->save();
 
-            // Update price set for each batteries.
-            $currentStatus = $promo->status;
             $batteries = PromoBatteryModel::where('promo_id', $promo->id)->get();
-            if ($currentStatus) {
-                // Activate the current promo price.
-                foreach ($batteries as $battery) {
-                    // Retrieve the corresponding battery_prices record
-                    $batteryExists = BatteryPriceModel::where('battery_id', $battery->battery_id)->exists();
 
-                    if ($batteryExists) {
-                        $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->first();
+            foreach ($batteries as $battery) {
+                $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->first();
+                if ($promo->status) {
+                    if ($price) {
                         $price->promo_id = $promo->id;
                         $price->discount = $battery->discount;
-                        $price->discount_price = ($price->price_retail * $battery->discount / 100);
+                        $price->discount_price = $battery->discount_price;
                         $status &= $price->save();
                     } else {
                         $price = new BatteryPriceModel();
@@ -361,17 +356,11 @@ class Promo extends Controller
                         $price->promo_id = $promo->id;
                         $price->price_retail = BatteryModel::find($battery->battery_id)->price_retail;
                         $price->discount = $battery->discount;
-                        $price->discount_price = ($price->price_retail * $battery->discount / 100);
+                        $price->discount_price = $battery->discount_price;
                         $status &= $price->save();
                     }
-                }
-            } else {
-                // Deactivate the current promo price.
-                foreach ($batteries as $battery) {
-                    // Retrieve the corresponding battery_prices record
-                    $price = BatteryPriceModel::where('battery_id', $battery->battery_id)->where('promo_id', $promo->id)->first();
-
-                    if ($price) {
+                } else {
+                    if ($price && $price->promo_id == $promo->id) {
                         $price->promo_id = null;
                         $price->discount = 0.0;
                         $price->discount_price = 0;
@@ -385,19 +374,13 @@ class Promo extends Controller
             else
                 DB::rollBack();
 
-            // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The selected promo was successfully updated!" : "Failed to update the selected promo!"
             );
         } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Logging error message.
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
