@@ -10,6 +10,57 @@
         padding: 10px;
         margin-bottom: 10px;
         margin-top: 10px;
+        min-height: 125px;
+        /* Tambahkan ini, sesuaikan sesuai kebutuhan */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    @media (min-width: 992px) {
+        .group-box-panel {
+            height: 100%;
+        }
+
+        .row>.col-md-8,
+        .row>.col-md-4 {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    #AutoCompleteFullNameCustomerStep1.autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: #fff;
+        border: none;
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        max-height: 220px;
+        overflow-y: auto;
+        margin-top: 2px;
+        display: none;
+    }
+
+    #AutoCompleteFullNameCustomerStep1.autocomplete-dropdown.active {
+        border: 1px solid #e0e0e0;
+        display: block;
+    }
+
+    #AutoCompleteFullNameCustomerStep1 .suggestion {
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 15px;
+    }
+
+    #AutoCompleteFullNameCustomerStep1 .suggestion:hover,
+    #AutoCompleteFullNameCustomerStep1 .suggestion.active {
+        background: #f1f3f4;
+        color: #007bff;
     }
 </style>
 <div>
@@ -19,11 +70,12 @@
     <form id='FormPersonalDetails'>
         <div class="row g-3">
             <!-- Member's Name -->
-            <div class="col-lg-6 col-md-6 col-sm-12">
-                <div class="form-group local-forms">
+            <div class="col-lg-4">
+                <div class="form-group local-forms position-relative">
                     <label for="FullNameStep1">Members Name</label>
-                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1" placeholder="Enter Full Name" value="" required autocomplete="off">
-                    <div id="AutoCompleteFullNameCustomerStep1"></div>
+                    <input type="text" class="form-control" id="FullNameStep1" name="FullNameStep1"
+                        placeholder="Enter Full Name" value="" required autocomplete="off">
+                    <div id="AutoCompleteFullNameCustomerStep1" class="autocomplete-dropdown"></div>
                     <span class="badge bg-success mt-2" id="UserExistStep1" style="display: none;">User Exist</span>
                     <span class="badge bg-warning mt-2" id="UserNotExistStep1" style="display: none;">New User</span>
                 </div>
@@ -33,10 +85,11 @@
             <div class="col-lg-12">
                 <div class="row g-3 align-items-center">
                     <!-- Vehicle Customer Select -->
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="form-group local-forms">
+                    <div class="col-lg-4">
+                        <div class="form-group local-forms position-relative">
                             <label for="VehicleCustomer">Vehicle Customer <span class="login-danger">*</span></label>
-                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer" class="form-select" aria-label="Select vehicles">
+                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
+                                class="form-select" aria-label="Select vehicles" style="width: 100%;">
                                 @foreach ($data['Vehicle'] as $vehicle)
                                 <option value="{{ $vehicle['id'] }}">
                                     {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
@@ -45,20 +98,34 @@
                             </select>
                         </div>
                     </div>
+                    <script>
+                        $(document).ready(function() {
+                            $('#VehicleCustomer').select2({
+                                width: 'resolve',
+                                placeholder: 'Select Vehicle',
+                                allowClear: true,
+                                maximumSelectionLength: 1
+                            });
+                        });
+                    </script>
 
                     <!-- Custom Vehicle Checkbox -->
-                    <div class="col-lg-3 col-md-3 col-sm-6">
-                        <div class="form-check" style="margin-bottom: 2.125rem;">
-                            <input type="checkbox" class="form-check-input" id="custom-vehicle" name="custom-vehicle">
-                            <label class="form-check-label" for="custom-vehicle">Custom Vehicle</label>
+                    <div class="col-lg-2 d-flex align-items-center">
+                        <div class="form-check w-100" style="margin-bottom: 2.125rem;">
+                            <input type="checkbox" class="form-check-input align-self-center" id="custom-vehicle"
+                                name="custom-vehicle" style="width: 1.5em; height: 1.5em;">
+                            <label class="form-check-label ms-2 align-self-center" for="custom-vehicle"
+                                style="font-size: 1.1em; line-height: 1.5em;">Custom Vehicle</label>
                         </div>
                     </div>
 
                     <!-- Ignore Stock Checkbox -->
-                    <div class="col-lg-3 col-md-3 col-sm-6">
-                        <div class="form-check" style="margin-bottom: 2.125rem;">
-                            <input type="checkbox" class="form-check-input" id="ignore-stock" name="ignore-stock">
-                            <label class="form-check-label" for="ignore-stock">Ignore Stock</label>
+                    <div class="col-lg-2 d-flex align-items-center">
+                        <div class="form-check w-100" style="margin-bottom: 2.125rem;">
+                            <input type="checkbox" class="form-check-input align-self-center" id="ignore-stock"
+                                name="ignore-stock" style="width: 1.5em; height: 1.5em;">
+                            <label class="form-check-label ms-2 align-self-center" for="ignore-stock"
+                                style="font-size: 1.1em; line-height: 1.5em;">Ignore Stock</label>
                         </div>
                     </div>
                 </div>
@@ -69,242 +136,229 @@
             <div class="col-md-8">
                 <div class="group-box-panel d-none" id="group-box">
                     <div class="row d-none mt-3" id="custom-vehicle-form">
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label>Battery Category</label>
-                                <select name="BatteryCategory" id="BatteryCategory" class="form-select" aria-label="Default select example" style="width: 100%;">
+                        <div class="col-lg-3">
+                            <div class="form-group local-forms position-relative">
+                                <label for="BatteryCategory">Battery Category <span
+                                        class="login-danger">*</span></label>
+                                <select name="BatteryCategory" id="BatteryCategory" class="form-select"
+                                    aria-label="Select Battery Category" style="width: 100%;">
                                     <option value="">Select Battery Category</option>
                                 </select>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#BatteryCategory').select2({
-                                            width: 'resolve',
-                                            ajax: {
-                                                url: '/quotation/battery/autoCompleteCategory',
-                                                dataType: 'json',
-                                                delay: 250,
-                                                data: function(params) {
-                                                    return {
-                                                        q: params.term // search term
-                                                    };
-                                                },
-                                                processResults: function(data) {
-                                                    return {
-                                                        results: $.map(data, function(item) {
-                                                            return {
-                                                                text: item.name,
-                                                                id: item.id
-                                                            }
-                                                        })
-                                                    };
-                                                },
-                                                cache: true
-                                            },
-                                            minimumInputLength: 1,
-                                            placeholder: 'Select Battery Category',
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
-
-                        {{-- battery cca --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label>Battery CCA</label>
-                                <select name="BatteryCCA" id="BatteryCCA" class="form-select" aria-label="Default select example">
-                                    <option value="all">Select All</option>
+                        <div class="col-lg-3">
+                            <div class="form-group local-forms position-relative">
+                                <label for="BatteryCCA">Battery CCA</label>
+                                <select name="BatteryCCA" id="BatteryCCA" class="form-select"
+                                    aria-label="Select Battery CCA" style="width: 100%;">
+                                    <option value="">Select Battery CCA</option>
                                 </select>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#BatteryCCA').select2({
-                                            width: 'resolve',
-                                            ajax: {
-                                                url: '/quotation/battery/autoCompleteCCA',
-                                                dataType: 'json',
-                                                delay: 250,
-                                                data: function(params) {
-                                                    return {
-                                                        q: params.term // search term
-                                                    };
-                                                },
-                                                processResults: function(data) {
-                                                    return {
-                                                        results: $.map(data, function(item) {
-                                                            return {
-                                                                text: item.standard_cca,
-                                                                id: item.standard_cca
-                                                            }
-                                                        })
-                                                    };
-                                                },
-                                                cache: true
-                                            },
-                                            minimumInputLength: 1,
-                                            placeholder: 'Select Battery CCA',
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
-
-                        {{-- battery capacity --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label>Battery Capacity</label>
-                                <select name="BatteryCapacity" id="BatteryCapacity" class="form-select" aria-label="Default select example">
-                                    <option value="all">Select All</option>
+                        <div class="col-lg-3">
+                            <div class="form-group local-forms position-relative">
+                                <label for="BatteryCapacity">Battery Capacity</label>
+                                <select name="BatteryCapacity" id="BatteryCapacity" class="form-select"
+                                    aria-label="Select Battery Capacity" style="width: 100%;">
+                                    <option value="">Select Battery Capacity</option>
                                 </select>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#BatteryCapacity').select2({
-                                            width: 'resolve',
-                                            ajax: {
-                                                url: '/quotation/battery/autoCompleteCapacity',
-                                                dataType: 'json',
-                                                delay: 250,
-                                                data: function(params) {
-                                                    return {
-                                                        q: params.term // search term
-                                                    };
-                                                },
-                                                processResults: function(data) {
-                                                    return {
-                                                        results: $.map(data, function(item) {
-                                                            return {
-                                                                text: item.capacity,
-                                                                id: item.capacity
-                                                            }
-                                                        })
-                                                    };
-                                                },
-                                                cache: true
-                                            },
-                                            minimumInputLength: 1,
-                                            placeholder: 'Select Battery Capacity',
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
-
-                        {{-- battery dimension --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label>Battery Dimension</label>
-                                <select name="BatteryDimension" id="BatteryDimension" class="form-select" aria-label="Default select example">
-                                    <option value="all">Select All</option>
+                        <div class="col-lg-3">
+                            <div class="form-group local-forms position-relative">
+                                <label for="BatteryDimension">Battery Dimension</label>
+                                <select name="BatteryDimension" id="BatteryDimension" class="form-select"
+                                    aria-label="Select Battery Dimension" style="width: 100%;">
+                                    <option value="">Select Battery Dimension</option>
                                 </select>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#BatteryDimension').select2({
-                                            width: 'resolve',
-                                            ajax: {
-                                                url: '/quotation/battery/autoCompleteDimension',
-                                                dataType: 'json',
-                                                delay: 250,
-                                                data: function(params) {
-                                                    return {
-                                                        q: params.term // search term
-                                                    };
-                                                },
-                                                processResults: function(data) {
-                                                    return {
-                                                        results: $.map(data, function(item) {
-                                                            return {
-                                                                text: item.dimension_length + ' x ' +
-                                                                    item.dimension_width + ' x ' +
-                                                                    item.dimension_height + ' mm',
-                                                                id: item.dimension_length + ',' +
-                                                                    item.dimension_width + ',' +
-                                                                    item.dimension_height
-                                                            }
-                                                        })
-                                                    };
-                                                },
-                                                cache: true
-                                            },
-                                            minimumInputLength: 1,
-                                            placeholder: 'Select Battery Dimension',
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
                     </div>
                 </div>
+                <script>
+                    $(document).ready(function() {
+                        $('#BatteryCategory').select2({
+                            width: 'resolve',
+                            placeholder: 'Select Battery Category',
+                            allowClear: true,
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/quotation/battery/autoCompleteCategory',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(item) {
+                                            return {
+                                                text: item.name,
+                                                id: item.id
+                                            }
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+                        $('#BatteryCCA').select2({
+                            width: 'resolve',
+                            placeholder: 'Select Battery CCA',
+                            allowClear: true,
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/quotation/battery/autoCompleteCCA',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(item) {
+                                            return {
+                                                text: item.standard_cca,
+                                                id: item.standard_cca
+                                            }
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+                        $('#BatteryCapacity').select2({
+                            width: 'resolve',
+                            placeholder: 'Select Battery Capacity',
+                            allowClear: true,
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/quotation/battery/autoCompleteCapacity',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(item) {
+                                            return {
+                                                text: item.capacity,
+                                                id: item.capacity
+                                            }
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+                        $('#BatteryDimension').select2({
+                            width: 'resolve',
+                            placeholder: 'Select Battery Dimension',
+                            allowClear: true,
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/quotation/battery/autoCompleteDimension',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(item) {
+                                            return {
+                                                text: item.dimension_length + ' x ' +
+                                                    item.dimension_width + ' x ' +
+                                                    item.dimension_height + ' mm',
+                                                id: item.dimension_length + ',' +
+                                                    item.dimension_width + ',' +
+                                                    item.dimension_height
+                                            }
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+                    });
+                </script>
             </div>
-
             <div class="col-md-4">
                 <div class="group-box-panel d-none" id="group-box-2">
                     <div class="row d-none mt-3" id="custom-vehicle-form-2">
-                        {{-- battery name --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label>Battery Name</label>
-                                <select name="BatteryName" id="BatteryName" class="form-select" aria-label="Default select example">
+                        <div class="col-lg-8">
+                            <div class="form-group local-forms position-relative mb-3">
+                                <label for="BatteryName">Battery Name</label>
+                                <select name="BatteryName" id="BatteryName" class="form-select"
+                                    aria-label="Select Battery Name" style="width: 100%;">
                                     <option value="all">Select All</option>
                                 </select>
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#BatteryName').select2({
-                                            width: 'resolve',
-                                            ajax: {
-                                                url: '/quotation/battery/autoCompleteName',
-                                                dataType: 'json',
-                                                delay: 250,
-                                                data: function(params) {
-                                                    return {
-                                                        q: params.term,
-                                                        category: $('#BatteryCategory').val(),
-                                                        cca: $('#BatteryCCA').val(),
-                                                        capacity: $('#BatteryCapacity').val(),
-                                                        dimension: $('#BatteryDimension').val()
-                                                    };
-                                                },
-                                                processResults: function(data) {
-                                                    return {
-                                                        results: $.map(data, function(item) {
-                                                            return {
-                                                                text: item.name,
-                                                                id: item.id
-                                                            }
-                                                        })
-                                                    };
-                                                },
-                                                cache: true
-                                            },
-                                            minimumInputLength: 1,
-                                            placeholder: 'Select Battery Name',
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
                             </div>
                         </div>
-                        {{-- button add battery --}}
-                        <div class="col">
-                            <button type="button" class="btn btn-primary" id="btnAddBattery">Show Battery</button>
+                        <div class="col-lg-4">
+                            <button type="button" class="btn btn-primary" id="btnAddBattery">Show
+                                Battery</button>
+                            <input type="hidden" name="IdBatteryArray" id="IdBatteryArray">
                         </div>
-
-                        <input type="hidden" name="IdBatteryArray" id="IdBatteryArray">
                     </div>
                 </div>
+                <script>
+                    $(document).ready(function() {
+                        $('#BatteryName').select2({
+                            width: 'resolve',
+                            placeholder: 'Select Battery Name',
+                            allowClear: true,
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/quotation/battery/autoCompleteName',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term,
+                                        category: $('#BatteryCategory').val(),
+                                        cca: $('#BatteryCCA').val(),
+                                        capacity: $('#BatteryCapacity').val(),
+                                        dimension: $('#BatteryDimension').val()
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(item) {
+                                            return {
+                                                text: item.name,
+                                                id: item.id
+                                            }
+                                        })
+                                    };
+                                },
+                                cache: true
+                            }
+                        });
+                    });
+                </script>
             </div>
         </div>
     </form>
 
     <br>
+    <hr class="my-4 border-primary border-2 rounded">
     <h5> Product Recomendation Display</h5>
     <div class="row" id="ResultRecommendationBatteryVehicle"></div>
     <div class="row" id="ResultRecommendationStockBatteryVehicle"></div>
     <div class="row">
         <div class="col text-end">
-            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i class="fas fa-check"></i>
+            <button id="btnSelectAllBattery" class="btn btn-primary" onclick="selectAll()"><i
+                    class="fas fa-check"></i>
                 Select All</button>
             <button id="screenshot" class="btn btn-primary"><i class="fas fa-camera"></i> Screenshot</button>
             <button id="btnCopyAddress" class="btn clip-btn btn-primary"><i class="far fa-copy"></i>
@@ -320,7 +374,8 @@
 </div>
 
 <!-- Modal screenshoot -->
-<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel" aria-hidden="true">
+<div class="modal fade" id="ModalScreenshot" tabindex="-1" aria-labelledby="ModalScreenshotLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -395,136 +450,6 @@
             resetOtherFields('#BatteryDimension');
             getBatteryByVehicle();
         });
-
-        // $('#BatteryCategory').on('change', function() {
-        //     var BatteryCategory = $(this).val();
-        //     if (BatteryCategory.length == 0) {
-        //         return;
-        //     }
-
-        //     $.ajax({
-        //         url: "/quotation/battery/filter/category",
-        //         type: "GET",
-        //         data: {
-        //             category: BatteryCategory
-        //         },
-        //         success: function(data) {
-        //             if (data.status == 'success') {
-        //                 var html = '<option value="all">Select All</option>';
-        //                 data.data.forEach(function(item) {
-        //                     html += '<option value="' + item.standard_cca + '">' +
-        //                         item.standard_cca + '</option>';
-        //                 });
-        //                 $('#BatteryCCA').html(html);
-
-        //                 $('#BatteryCCA').trigger('change');
-        //             } else {
-        //                 swal.fire("Error!", data.message, "error");
-        //             }
-        //         }
-        //     });
-        // });
-
-        // $('#BatteryCCA').on('change', function() {
-        //     var BatteryCategory = $('#BatteryCategory').val();
-        //     var BatteryCCA = $(this).val();
-        //     if (BatteryCCA.length == 0) {
-        //         return;
-        //     }
-
-        //     $.ajax({
-        //         url: "/quotation/battery/filter/cca",
-        //         type: "GET",
-        //         data: {
-        //             category: BatteryCategory,
-        //             cca: BatteryCCA
-        //         },
-        //         success: function(data) {
-        //             if (data.status == 'success') {
-        //                 var html = '<option value="all">Select All</option>';
-        //                 data.data.forEach(function(item) {
-        //                     html += '<option value="' + item.capacity + '">' +
-        //                         item.capacity + '</option>';
-        //                 });
-        //                 $('#BatteryCapacity').html(html);
-
-        //                 $('#BatteryCapacity').trigger('change');
-        //             } else {
-        //                 swal.fire("Error!", data.message, "error");
-        //             }
-        //         }
-        //     });
-        // });
-
-        // $('#BatteryCapacity').on('change', function() {
-        //     var BatteryCategory = $('#BatteryCategory').val();
-        //     var BatteryCCA = $('#BatteryCCA').val();
-        //     var BatteryCapacity = $(this).val();
-        //     if (BatteryCapacity.length == 0) {
-        //         return;
-        //     }
-
-        //     $.ajax({
-        //         url: "/quotation/battery/filter/capacity",
-        //         type: "GET",
-        //         data: {
-        //             category: BatteryCategory,
-        //             cca: BatteryCCA,
-        //             capacity: BatteryCapacity
-        //         },
-        //         success: function(data) {
-        //             if (data.status == 'success') {
-        //                 var html = '<option value="all">Select All</option>';
-        //                 data.data.forEach(function(item) {
-        //                     html += '<option value="' + item.dimension_length +
-        //                         ',' + item.dimension_width +
-        //                         ',' + item.dimension_height + '">' + item
-        //                         .dimension_length + ' x ' +
-        //                         item.dimension_width + ' x ' + item
-        //                         .dimension_height + ' mm</option>';
-        //                 });
-        //                 $('#BatteryDimension').html(html);
-
-        //                 $('#BatteryDimension').trigger('change');
-        //             } else {
-        //                 swal.fire("Error!", data.message, "error");
-        //             }
-        //         }
-        //     });
-        // });
-
-        // $('#BatteryDimension').on('change', function() {
-        //     var BatteryCategory = $('#BatteryCategory').val();
-        //     var BatteryCCA = $('#BatteryCCA').val();
-        //     var BatteryCapacity = $('#BatteryCapacity').val();
-        //     var BatteryDimension = $(this).val();
-        //     if (BatteryDimension.length == 0) {
-        //         return;
-        //     }
-
-        //     $.ajax({
-        //         url: "/quotation/battery/filter/dimension",
-        //         type: "GET",
-        //         data: {
-        //             category: BatteryCategory,
-        //             cca: BatteryCCA,
-        //             capacity: BatteryCapacity,
-        //             dimension: BatteryDimension
-        //         },
-        //         success: function(data) {
-        //             if (data.status == 'success') {
-        //                 var html = '<option value="all">Select All</option>';
-        //                 data.data.forEach(function(item) {
-        //                     html += '<option value="' + item.id + '">' + item
-        //                         .name + '</option>';
-        //                 });
-        //                 $('#BatteryName').html(html);
-        //             } else {
-        //                 swal.fire("Error!", data.message, "error");
-        //             }
-        //         }
-        //     });
-        // });
 
         $('#btnAddBattery').on('click', function() {
             var BatteryName = $('#BatteryName').val();
@@ -640,7 +565,8 @@
                             html += '<img class="img-fluid" src="' + vehicle.image +
                                 '" alt="Post Image">';
                         } else {
-                            var baseUrl = "{{ asset('storage/image/battery/compressed/') }}";
+                            var baseUrl =
+                                "https://ams.akikita.web.id/storage/image/battery/compressed";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' + baseUrl + '/' + vehicle.image +
                                 '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://placehold.co/100x100\';">';
@@ -766,17 +692,23 @@
                                     url: "/inventory/get/" + vehicleCode,
                                     type: "GET",
                                     success: function(data) {
-                                        if (data == 0 || data == '-' || data == null) {
-                                            $("#checkBoxBattery" + vehicleId).prop('disabled', true);
+                                        if (data == 0 || data == '-' || data ==
+                                            null) {
+                                            $("#checkBoxBattery" + vehicleId).prop(
+                                                'disabled', true);
                                         } else {
-                                            $("#checkBoxBattery" + vehicleId).prop('disabled', false);
+                                            $("#checkBoxBattery" + vehicleId).prop(
+                                                'disabled', false);
                                         }
 
-                                        $("#stock" + vehicleId).html("Stock : " + data);
+                                        $("#stock" + vehicleId).html("Stock : " +
+                                            data);
                                         if (vehicleCode != null) {
-                                            $("#stock" + vehicleId).append("<br>ID : " + vehicleCode);
+                                            $("#stock" + vehicleId).append(
+                                                "<br>ID : " + vehicleCode);
                                         } else {
-                                            $("#stock" + vehicleId).append("<br>ID : -");
+                                            $("#stock" + vehicleId).append(
+                                                "<br>ID : -");
                                         }
                                     }
                                 });
@@ -863,8 +795,6 @@
 
         $('#btnNextStep2').trigger('click');
 
-        // check jika button next step 2 berhasil di click
-        // if ($('#ProductDisplay').hasClass('active')) {
         $.ajax({
             url: "/quotation/battery/find",
             type: "GET",
@@ -1013,36 +943,12 @@
             }
         });
 
-
-        // init maps
         initMapDekstop();
-
-
-
-        // function getMapsNearAddressCustomer() {
-        //     var address = $('#AddressCustomer').val();
-        //     var latitude = $('#Latitude').val();
-        //     var longitude = $('#Longitude').val();
-        //     var idCustomer = $('#IdCustomer').val();
-        //     var data = {
-        //         address: address,
-        //         latitude: latitude,
-        //         longitude: longitude,
-        //     };
-
-        //     $.ajax({
-        //         url: "/quotation/customer/maps/near",
-        //         type: "GET",
-        //         data: data,
-        //         success: function(data) {
-        //             $("#MapsDistributorRecomendation").html(data);
-        //         }
-        //     });
-        // }
     });
 
     $('#FullNameStep1').on('keyup', function() {
         var input = $(this).val();
+        var $autocomplete = $('#AutoCompleteFullNameCustomerStep1');
         if (input.length > 0) {
             $.ajax({
                 url: "/quotation/customer/find",
@@ -1051,13 +957,12 @@
                     input: input
                 },
                 success: function(data) {
-                    // let suggestions = data.map(item => item.name);
                     if (data.length > 0) {
                         displaySuggestionsStep1(data);
+                        $autocomplete.addClass('active');
                     } else {
-                        $('#AutoCompleteFullNameCustomerStep1').html('');
+                        $autocomplete.removeClass('active').html('');
                         $("#EmailCustomer").val('');
-                        // $("#ContactNumber").val('');
                         $("#AddressCustomer").val('');
                         $("#IdCustomer").val('');
                         $("#Latitude").val('');
@@ -1068,9 +973,8 @@
                 }
             });
         } else {
-            $('#AutoCompleteFullNameCustomerStep1').html('');
+            $autocomplete.removeClass('active').html('');
             $("#EmailCustomer").val('');
-            // $("#ContactNumber").val('');
             $("#AddressCustomer").val('');
             $("#Latitude").val('');
             $("#Longitude").val('');
@@ -1086,18 +990,33 @@
         }
     });
 
+    $(document).on('mousedown', function(e) {
+        var $autocomplete = $('#AutoCompleteFullNameCustomerStep1');
+        var $input = $('#FullNameStep1');
+        if (
+            !$autocomplete.is(e.target) &&
+            $autocomplete.has(e.target).length === 0 &&
+            !$input.is(e.target)
+        ) {
+            $autocomplete.removeClass('active').empty();
+        }
+    });
+
+    $('#FullNameStep1').on('blur', function() {
+        setTimeout(function() {
+            $('#AutoCompleteFullNameCustomerStep1').removeClass('active').empty();
+        }, 150);
+    });
 
     function displaySuggestionsStep1(suggestions) {
-        $('#AutoCompleteFullNameCustomerStep1').empty();
-
+        var $autocomplete = $('#AutoCompleteFullNameCustomerStep1');
+        $autocomplete.empty();
         suggestions.forEach(function(item) {
-            $('#AutoCompleteFullNameCustomerStep1').append('<div class="suggestion">' + item.name +
-                '</div>');
+            $autocomplete.append('<div class="suggestion">' + item.name + '</div>');
         });
-
+        $autocomplete.addClass('active');
         $('.suggestion').click(function() {
             var index = $(this).index();
-
             $('#FullName').val(suggestions[index].name);
             $('#FullNameStep1').val(suggestions[index].name);
             var cleanNumber = suggestions[index].contact.replace(/\D/g, '');
@@ -1108,16 +1027,11 @@
             $('#IdCustomer').val(suggestions[index].id);
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
-            $('#AutoCompleteFullNameCustomerStep1').empty();
-            // call google maps
-            // initMap();
-
+            $autocomplete.removeClass('active').empty();
             var IdCustomer = $("#IdCustomer").val();
             if (IdCustomer != '') {
                 $('#UserExist').show();
                 $('#UserNotExist').hide();
-
-                // get vehcile by id
                 $.ajax({
                     url: "/quotation/customer/vehicle/find",
                     type: "GET",

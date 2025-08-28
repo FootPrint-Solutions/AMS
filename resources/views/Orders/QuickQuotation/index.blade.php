@@ -109,9 +109,6 @@
 
     <script>
         $(document).ready(function() {
-            $('#VehicleCustomer').select2({
-                maximumSelectionLength: 1
-            });
 
             $('#BtnShareFormPersonalDetails').on('click', function() {
                 var button = $(this);
@@ -276,6 +273,7 @@
                 var Latitude = $("#Latitude").val() || '0';
                 var Longitude = $("#Longitude").val() || '0';
                 var alternative_address = $("#alternative_address").val();
+                console.log(Latitude, Longitude);
 
                 if (Battery.length == 0) {
                     swal.fire("Error!", "Please select battery", "error");
@@ -319,11 +317,11 @@
                     return false;
                 }
 
-                // if (Latitude == '' || Longitude == '') {
-                //     swal.fire("Error!",
-                //         "Please select address from suggestion or fill the coordinate field", "error");
-                //     return false;
-                // }
+                if (Latitude == '' || Longitude == '') {
+                    swal.fire("Error!",
+                        "Please select address from suggestion or fill the coordinate field", "error");
+                    return false;
+                }
 
                 $('#btnNextStep3').trigger('click');
 

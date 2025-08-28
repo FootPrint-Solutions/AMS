@@ -88,10 +88,13 @@
                         </div>
 
                         <div class="col">
-                            <input type="text" class="form-control" name="Address"
-                                id="AddressSearchColumnSalesOrderEditable"
-                                value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                required>
+                            <div class="form-group local-forms">
+                                <label for="address">Address <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" name="Address"
+                                    id="AddressSearchColumnSalesOrderEditable"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
+                                    required>
+                            </div>
                         </div>
                     </div>
 

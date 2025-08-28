@@ -1,3 +1,72 @@
+<style>
+    #AutoCompleteFullNameCustomerContact.autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: #fff;
+        border: none;
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        max-height: 220px;
+        overflow-y: auto;
+        margin-top: 2px;
+        display: none;
+    }
+
+    #AutoCompleteFullNameCustomerContact.autocomplete-dropdown.active {
+        border: 1px solid #e0e0e0;
+        display: block;
+    }
+
+    #AutoCompleteFullNameCustomerContact .suggestion {
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 15px;
+    }
+
+    #AutoCompleteFullNameCustomerContact .suggestion:hover,
+    #AutoCompleteFullNameCustomerContact .suggestion.active {
+        background: #f1f3f4;
+        color: #007bff;
+    }
+
+    #AutoCompleteFullNameCustomer.autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: #fff;
+        border: none;
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        max-height: 220px;
+        overflow-y: auto;
+        margin-top: 2px;
+        display: none;
+    }
+
+    #AutoCompleteFullNameCustomer.autocomplete-dropdown.active {
+        border: 1px solid #e0e0e0;
+        display: block;
+    }
+
+    #AutoCompleteFullNameCustomer .suggestion {
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 15px;
+    }
+
+    #AutoCompleteFullNameCustomer .suggestion:hover,
+    #AutoCompleteFullNameCustomer .suggestion.active {
+        background: #f1f3f4;
+        color: #007bff;
+    }
+</style>
 <div>
     <div class="mb-4">
         <h5>Enter Personal Detail</h5>
@@ -12,7 +81,7 @@
                     <input type="number" class="form-control" id="ContactNumber" name="ContactNumber"
                         placeholder="Enter Contract Number" value="" required autocomplete="off">
                 </div>
-                <div id="AutoCompleteFullNameCustomerContact"></div>
+                <div id="AutoCompleteFullNameCustomerContact" class="autocomplete-dropdown"></div>
             </div>
         </div>
         <div class="col-lg-6">
@@ -29,7 +98,7 @@
                 <label>Full Name <span class="login-danger">*</span></label>
                 <input type="text" class="form-control" id="FullName" name="FullName" placeholder="Enter Full Name"
                     value="" required autocomplete="off">
-                <div id="AutoCompleteFullNameCustomer"></div>
+                <div id="AutoCompleteFullNameCustomer" class="autocomplete-dropdown"></div>
                 <span class="badge bg-success" id="UserExist" style='display:none;'>User
                     Exist</span>
                 <span class="badge bg-warning" id="UserNotExist" style='display:none;'>New
@@ -197,6 +266,7 @@
 
     $("#ContactNumber").on('keyup', function() {
         var input = $(this).val();
+        var $autocomplete = $('#AutoCompleteFullNameCustomerContact');
         if (input.length > 0) {
             $.ajax({
                 url: "/quotation/customer/findbycontact",
@@ -208,8 +278,9 @@
                     // let suggestions = data.map(item => item.name);
                     if (data.length > 0) {
                         displaySuggestionsContact(data);
+                        $autocomplete.addClass('active');
                     } else {
-                        $('#AutoCompleteFullNameCustomerContact').html('');
+                        $autocomplete.removeClass('active').html('');
                         $("#EmailCustomer").val('');
                         // $("#FullName").val('');
                         $("#alternative_address").val('');
@@ -222,7 +293,7 @@
                 }
             });
         } else {
-            $('#AutoCompleteFullNameCustomer').html('');
+            $autocomplete.removeClass('active').html('');
             $("#EmailCustomer").val('');
             // $("#FullName").val('');
             $("#alternative_address").val('');
@@ -240,8 +311,23 @@
         }
     });
 
+    $(document).on('mousedown', function(e) {
+        ['#AutoCompleteFullNameCustomerContact', '#AutoCompleteFullNameCustomer'].forEach(function(selector) {
+            var $autocomplete = $(selector);
+            var $input = selector === '#AutoCompleteFullNameCustomerContact' ? $('#ContactNumber') : $('#FullName');
+            if (
+                !$autocomplete.is(e.target) &&
+                $autocomplete.has(e.target).length === 0 &&
+                !$input.is(e.target)
+            ) {
+                $autocomplete.removeClass('active').empty();
+            }
+        });
+    });
+
     $('#FullName').on('keyup', function() {
         var input = $(this).val();
+        var $autocomplete = $('#AutoCompleteFullNameCustomer');
         if (input.length > 0) {
             $.ajax({
                 url: "/quotation/customer/find",
@@ -253,8 +339,9 @@
                     // let suggestions = data.map(item => item.name);
                     if (data.length > 0) {
                         displaySuggestions(data);
+                        $autocomplete.addClass('active');
                     } else {
-                        $('#AutoCompleteFullNameCustomer').html('');
+                        $autocomplete.removeClass('active').html('');
                         $("#EmailCustomer").val('');
                         // $("#ContactNumber").val('');
                         $("#alternative_address").val('');
@@ -267,7 +354,7 @@
                 }
             });
         } else {
-            $('#AutoCompleteFullNameCustomer').html('');
+            $autocomplete.removeClass('active').html('');
             $("#EmailCustomer").val('');
             // $("#ContactNumber").val('');
             $("#alternative_address").val('');
@@ -291,13 +378,12 @@
     });
 
     function displaySuggestions(suggestions) {
-        $('#AutoCompleteFullNameCustomer').empty();
-
+        var $autocomplete = $('#AutoCompleteFullNameCustomer');
+        $autocomplete.empty();
         suggestions.forEach(function(item) {
-            $('#AutoCompleteFullNameCustomer').append('<div class="suggestion">' + item.name +
-                '</div>');
+            $autocomplete.append('<div class="suggestion">' + item.name + '</div>');
         });
-
+        $autocomplete.addClass('active');
         $('.suggestion').click(function() {
             var index = $(this).index();
 
@@ -311,9 +397,7 @@
             $("#Latitude").val(suggestions[index].latitude);
             $("#Longitude").val(suggestions[index].longitude);
             $('#AutoCompleteFullNameCustomer').empty();
-            // call google maps
-            // initMap();
-
+            $autocomplete.removeClass('active').empty();
             var IdCustomer = $("#IdCustomer").val();
             if (IdCustomer != '') {
                 $('#UserExist').show();
