@@ -297,30 +297,40 @@
         function calculateRow(row) {
             var qty = parseFloat(row.find('.QtyCheckout').val()) || 0;
             var grossPriceReal = parseFormattedNumber(row.find('.GrossPrice').val().replace(/,/g, '')) || 0;
-            var grossPrice = parseFormattedNumber(row.find('.PriceTaxRow').val().replace(/,/g, '')) || 0;
-            var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
             var tax = parseFloat(row.find('.TaxRow').val()) || 0;
+            var discount = parseFloat(row.find('.DiscountRow').val()) || 0;
 
             var pricetax = grossPriceReal + ((grossPriceReal * tax) / 100);
-            row.find('.PriceTaxRow').val(pricetax);
-            console.log('pricetax', pricetax);
+            row.find('.PriceTaxRow').val(formatNumber(pricetax));
 
-            var discountAmount = discount;
-            var netPrice = grossPrice - discountAmount;
+            var netPrice = pricetax - discount;
+            row.find('.NetPrice').val(formatNumber(netPrice));
+
             var subtotal = netPrice * qty;
+            row.find('.SubtotalRow').val(formatNumber(subtotal));
 
             if (subtotal <= 0 || isNaN(subtotal)) {
-                swal.fire("Error!", "Subtotal is less than 0", "error");
+                swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Subtotal is less than 0',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
                 row.find('.QtyCheckout').val(1);
-                row.find('.NetPrice').val(formatNumber(grossPrice));
-                row.find('.SubtotalRow').val((grossPrice));
-            } else {
-                row.find('.NetPrice').val(formatNumber(netPrice));
-                row.find('.SubtotalRow').val(formatNumber(subtotal));
+                row.find('.NetPrice').val(formatNumber(pricetax));
+                row.find('.SubtotalRow').val(formatNumber(pricetax));
             }
+
+            console.log('pricetax', pricetax);
+            console.log('grossPriceReal', grossPriceReal);
+            console.log('tax', tax);
+            console.log('discount', discount);
+            console.log('netPrice', netPrice);
         }
 
-        $(document).on('keyup', '.QtyCheckout, .DiscountRow, .GrossPrice, .TaxRow', function() {
+        $(document).on('keyup keydown', '.QtyCheckout, .DiscountRow, .GrossPrice, .TaxRow', function() {
             var row = $(this).closest('tr');
             calculateRow(row);
             calculateTotalAmount();
