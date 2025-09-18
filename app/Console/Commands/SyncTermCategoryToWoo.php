@@ -34,7 +34,7 @@ class SyncTermCategoryToWoo extends Command
         parent::__construct();
 
         $this->woocommerce = new Client(
-            'https://akikita.web.id/',
+            'https://akikita.id/',
             'ck_7034e6f1e7a7d3b705df60c37bb003c6a1ca6f9b',
             'cs_b7973fc68cdd299d2ad6647989872e517d88cab0',
             [

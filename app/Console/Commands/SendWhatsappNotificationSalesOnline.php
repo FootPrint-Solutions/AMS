@@ -74,7 +74,7 @@ class SendWhatsappNotificationSalesOnline extends Command
             return 1;
         }
 
-        $response = Http::get('https://whatsapp.akikita.web.id/start-session-api', [
+        $response = Http::get('https://whatsapp.akikita.id/start-session-api', [
             'session' => "admin_ams",
             'scan' => 'true',
         ]);
@@ -83,7 +83,7 @@ class SendWhatsappNotificationSalesOnline extends Command
             $responseData = $response->json();
             if (isset($responseData['message']) && str_contains($responseData['message'], 'is already exist')) {
 
-                $url_send_message = "https://whatsapp.akikita.web.id/send-message";
+                $url_send_message = "https://whatsapp.akikita.id/send-message";
 
                 $message = "🎉 *Terima kasih atas pesanan Anda, {$data->customer_name}!*\n\n";
                 $message .= "Kode pesanan Anda adalah: *{$salesOnline->id}*.\n";
