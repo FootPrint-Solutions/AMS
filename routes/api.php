@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // FILTER API
 Route::get('filter/brand', [Filter::class, 'brand']);
 Route::get('filter/brand/{brand}', [Filter::class, 'brandFind']);
-Route::get('filter/model/{model}', [Filter::class, 'modelFind']);
+Route::get('filter/model/{model}', [Filter::class, 'modelFindNew']);
 Route::get('filter/battery', [Filter::class, 'battery']);
 Route::get('filter/battery/{battery}', [Filter::class, 'batteryFind']);
 
