@@ -210,6 +210,147 @@ class Filter extends Controller
     }
 
 
+    public function modelFindNew(Request $request, $vehicle_id)
+    {
+        try {
+            $limit = (int) $request->input('limit', 10);
+            $offset = (int) $request->input('offset', 0);
+
+            // Ambil vehicleModel dan vehicleBatterySizeCategory sekaligus
+            if ($vehicle_id == 'ALL') {
+                $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::select('battery_size_category_id')->distinct()->get();
+                $vehicleModel = VehicleModel::limit(1)->get();
+            } else {
+                $vehicleBatterySizeCategory = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)
+                    ->select('battery_size_category_id')->distinct()->get();
+                $vehicleModel = VehicleModel::where('id', $vehicle_id)->first();
+            }
+
+            $batterySizeCategoryIds = $vehicleBatterySizeCategory->pluck('battery_size_category_id')->unique()->toArray();
+
+            // Query batteries langsung dengan filter dan eager loading
+            $batteryQuery = BatteryModel::whereIn('size_category_id', $batterySizeCategoryIds)
+                ->where('status', 1)
+                ->with(['batteryPrices', 'batteryImages']); // eager load prices & images
+
+            if ($request->has('min_price')) {
+                $batteryQuery->where('price_retail', '>=', $request->min_price);
+            }
+            if ($request->has('max_price')) {
+                $batteryQuery->where('price_retail', '<=', $request->max_price);
+            }
+            if ($request->has('min_capacity')) {
+                $batteryQuery->where('capacity', '>=', $request->min_capacity);
+            }
+            if ($request->has('max_capacity')) {
+                $batteryQuery->where('capacity', '<=', $request->max_capacity);
+            }
+            if ($request->has('search') && $request->search != 'ALL') {
+                $batteryQuery->where('name', 'like', '%' . $request->search . '%');
+            }
+
+            // Sorting
+            if ($request->has('selected_valuex')) {
+                if ($request->selected_value == 'max-price-order') {
+                    $batteryQuery->orderBy('price_retail', 'desc');
+                } elseif ($request->selected_value == 'min-price-order') {
+                    $batteryQuery->orderBy('price_retail', 'asc');
+                } elseif ($request->selected_value == 'max-capacity-order') {
+                    $batteryQuery->orderBy('capacity', 'desc');
+                } elseif ($request->selected_value == 'min-capacity-order') {
+                    $batteryQuery->orderBy('capacity', 'asc');
+                }
+            }
+
+            // Ambil semua batteries
+            $allBatteries = $batteryQuery->get();
+
+            // Cari min price dan max capacity
+            $minPriceBattery = $allBatteries->sortBy('price_retail')->first();
+            $highestCCABattery = $allBatteries->sortByDesc('capacity')->first();
+
+            // Format result sesuai kebutuhan frontend
+            $details = $allBatteries->map(function ($item) use ($minPriceBattery, $highestCCABattery) {
+                // Ambil gambar pertama jika ada
+                $image = null;
+                if ($item->batteryImages && $item->batteryImages->count() > 0) {
+                    $image = $item->batteryImages[0]->image ?? null;
+                }
+
+                // Ambil harga retail/net dari relasi batteryPrices
+                $battery_prices = [];
+                if ($item->batteryPrices && $item->batteryPrices->count() > 0) {
+                    foreach ($item->batteryPrices as $price) {
+                        $battery_prices[] = [
+                            'price_retail' => $price->price_retail,
+                            'price_net' => $price->price_net,
+                        ];
+                    }
+                } else {
+                    $battery_prices[] = [
+                        'price_retail' => $item->price_retail,
+                        'price_net' => $item->price_net,
+                    ];
+                }
+
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'image' => $image,
+                    'price_retail' => $item->price_retail,
+                    'price_net' => $item->price_net,
+                    'battery_prices' => $battery_prices,
+                    'warranty' => $item->warranty,
+                    'dimension_length' => $item->dimension_length,
+                    'dimension_width' => $item->dimension_width,
+                    'dimension_height' => $item->dimension_height,
+                    'capacity' => $item->capacity,
+                    'standard_cca' => $item->standard_cca,
+                    'is_min_price' => ($minPriceBattery && $item->id === $minPriceBattery->id),
+                    'is_max_price' => ($highestCCABattery && $item->id === $highestCCABattery->id),
+                ];
+            });
+
+            // Sorting jika tidak ada selected_valuex
+            if (!$request->has('selected_valuex')) {
+                $details = $details->sortByDesc('is_max_price')->sortByDesc('is_min_price')->values();
+            }
+
+            // Pagination
+            $paginatedDetails = $details->slice($offset, $limit)->values();
+
+            if ($paginatedDetails->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data found',
+                'data' => [
+                    'batteries' => $paginatedDetails,
+                    'vehicle' => $vehicleModel,
+                    'pagination' => [
+                        'total' => $details->count(),
+                        'limit' => $limit,
+                        'offset' => $offset,
+                        'has_more' => ($offset + $limit) < $details->count()
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data not found',
+                'data' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     function battery()
     {
         try {
