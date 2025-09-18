@@ -566,7 +566,7 @@
                                 '" alt="Post Image">';
                         } else {
                             var baseUrl =
-                                "https://ams.akikita.web.id/storage/image/battery/compressed";
+                                "https://ams.akikita.id/storage/image/battery/compressed";
                             vehicle.image = vehicle.image;
                             html += '<img class="img-fluid" src="' + baseUrl + '/' + vehicle.image +
                                 '" alt="Post Image" onerror="this.onerror=null; this.src=\'https://placehold.co/100x100\';">';

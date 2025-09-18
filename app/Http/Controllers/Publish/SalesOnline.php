@@ -34,7 +34,7 @@ class SalesOnline extends Controller
     {
         // Initialize WooCommerce Client in the constructor
         $this->woocommerce = new Client(
-            'https://store.akikita.web.id/',
+            'https://store.akikita.id/',
             'ck_ea9f16edf6ec05f9b4529c59a9a632341b97ed93',
             'cs_ab7ee40a172691063fd70af899c70aec192c70df',
             [
@@ -187,7 +187,7 @@ class SalesOnline extends Controller
 
             // check to sales order
             $SalesOrder = SalesOrderModel::where('source_id', $SalesOnlineID)
-                ->where('source_platform', 'akikita.web.id')
+                ->where('source_platform', 'akikita.id')
                 ->first();
 
             if ($SalesOrder) {
@@ -248,7 +248,7 @@ class SalesOnline extends Controller
 
             $SalesOrder->address = $SalesOnline['address'] ? $SalesOnline['address'] : '';
             $SalesOrder->source_id = $SalesOnlineID;
-            $SalesOrder->source_platform = 'akikita.web.id';
+            $SalesOrder->source_platform = 'akikita.id';
 
             // save sales order items
             $salesOnlineBatteries = SalesOnlineBatteriesModel::where('sales_online_id', $SalesOnlineID)->get()->toArray();

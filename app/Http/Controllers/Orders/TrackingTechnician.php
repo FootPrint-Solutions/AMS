@@ -74,7 +74,7 @@ class TrackingTechnician extends Controller
         $tracking = TrackingModel::with('workOrder')->whereIn('id', $request->ids)->first();
         // dd($tracking);
 
-        $url = "https://whatsapp.akikita.web.id/send-message";
+        $url = "https://whatsapp.akikita.id/send-message";
         $tracking_url = url("/tracking/" . $tracking->work_order_id);
 
         $content_message = "";
