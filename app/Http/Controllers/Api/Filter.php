@@ -228,11 +228,12 @@ class Filter extends Controller
 
             $batterySizeCategoryIds = $vehicleBatterySizeCategory->pluck('battery_size_category_id')->unique()->toArray();
 
-            // Query batteries langsung dengan filter dan eager loading
+            // Query batteries langsung dengan filter dan eager loading lengkap
             $batteryQuery = BatteryModel::whereIn('size_category_id', $batterySizeCategoryIds)
                 ->where('status', 1)
-                ->with(['batteryPrices', 'batteryImages']); // eager load prices & images
+                ->with(['batteryImages', 'batteryPrices', 'batteryUrl']); // Add all required relations
 
+            // Apply filters
             if ($request->has('min_price')) {
                 $batteryQuery->where('price_retail', '>=', $request->min_price);
             }
@@ -249,8 +250,8 @@ class Filter extends Controller
                 $batteryQuery->where('name', 'like', '%' . $request->search . '%');
             }
 
-            // Sorting
-            if ($request->has('selected_valuex')) {
+            // Apply sorting at database level if selected_value is provided
+            if ($request->has('selected_value')) {
                 if ($request->selected_value == 'max-price-order') {
                     $batteryQuery->orderBy('price_retail', 'desc');
                 } elseif ($request->selected_value == 'min-price-order') {
@@ -262,62 +263,110 @@ class Filter extends Controller
                 }
             }
 
-            // Ambil semua batteries
+            // Get all batteries
             $allBatteries = $batteryQuery->get();
 
-            // Cari min price dan max capacity
-            $minPriceBattery = $allBatteries->sortBy('price_retail')->first();
-            $highestCCABattery = $allBatteries->sortByDesc('capacity')->first();
-
-            // Format result sesuai kebutuhan frontend
-            $details = $allBatteries->map(function ($item) use ($minPriceBattery, $highestCCABattery) {
-                // Ambil gambar pertama jika ada
+            // Convert to collection and create details array with complete database structure
+            $details = collect();
+            foreach ($allBatteries as $batt) {
+                // Get main image from batteryImages relation
                 $image = null;
-                if ($item->batteryImages && $item->batteryImages->count() > 0) {
-                    $image = $item->batteryImages[0]->image ?? null;
+                if ($batt->batteryImages && $batt->batteryImages->count() > 0) {
+                    $image = $batt->batteryImages->first()->image ?? $batt->batteryImages->first()->url ?? null;
                 }
 
-                // Ambil harga retail/net dari relasi batteryPrices
+                // Get battery_url data
+                $battery_url = [];
+                if ($batt->batteryUrl && $batt->batteryUrl->count() > 0) {
+                    $battery_url = $batt->batteryUrl->toArray();
+                }
+
+                // Get battery_prices data
                 $battery_prices = [];
-                if ($item->batteryPrices && $item->batteryPrices->count() > 0) {
-                    foreach ($item->batteryPrices as $price) {
-                        $battery_prices[] = [
-                            'price_retail' => $price->price_retail,
-                            'price_net' => $price->price_net,
-                        ];
-                    }
-                } else {
-                    $battery_prices[] = [
-                        'price_retail' => $item->price_retail,
-                        'price_net' => $item->price_net,
-                    ];
+                if ($batt->batteryPrices && $batt->batteryPrices->count() > 0) {
+                    $battery_prices = $batt->batteryPrices->toArray();
                 }
 
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
+                // Create complete battery data structure matching the required format
+                $batteryData = [
+                    'id' => $batt->id,
+                    'name' => $batt->name,
+                    'name_alternate' => $batt->name_alternate ?? null,
+                    'brand_id' => $batt->brand_id ?? null,
+                    'subbrand_category_id' => $batt->subbrand_category_id ?? null,
+                    'usage_type_id' => $batt->usage_type_id ?? null,
+                    'size_category_id' => $batt->size_category_id ?? null,
+                    'technology_id' => $batt->technology_id ?? null,
+                    'dimension_length' => $batt->dimension_length ?? null,
+                    'dimension_width' => $batt->dimension_width ?? null,
+                    'dimension_height' => $batt->dimension_height ?? null,
+                    'standard_cca' => $batt->standard_cca ?? null,
+                    'capacity' => $batt->capacity,
+                    'warranty' => $batt->warranty ?? null,
+                    'price_retail' => $batt->price_retail,
                     'image' => $image,
-                    'price_retail' => $item->price_retail,
-                    'price_net' => $item->price_net,
+                    'status' => $batt->status ?? 1,
+                    'type' => $batt->type ?? 'regular',
+                    'editable_price' => $batt->editable_price ?? 0,
+                    'created_at' => $batt->created_at,
+                    'updated_at' => $batt->updated_at,
+                    'deleted_at' => $batt->deleted_at,
+                    'battery_url' => $battery_url,
                     'battery_prices' => $battery_prices,
-                    'warranty' => $item->warranty,
-                    'dimension_length' => $item->dimension_length,
-                    'dimension_width' => $item->dimension_width,
-                    'dimension_height' => $item->dimension_height,
-                    'capacity' => $item->capacity,
-                    'standard_cca' => $item->standard_cca,
-                    'is_min_price' => ($minPriceBattery && $item->id === $minPriceBattery->id),
-                    'is_max_price' => ($highestCCABattery && $item->id === $highestCCABattery->id),
                 ];
-            });
 
-            // Sorting jika tidak ada selected_valuex
-            if (!$request->has('selected_valuex')) {
-                $details = $details->sortByDesc('is_max_price')->sortByDesc('is_min_price')->values();
+                $details->push($batteryData);
             }
 
-            // Pagination
-            $paginatedDetails = $details->slice($offset, $limit)->values();
+            // Remove duplicates by id and reindex (matching original logic)
+            $details = $details->unique('id')->values();
+
+            // Find min price and max capacity batteries
+            $minPriceBattery = $details->sortBy('price_retail')->first();
+            $highestCCABattery = $details->sortByDesc('capacity')->first();
+
+            // Add flags for min price and max capacity (matching original logic)
+            if ($minPriceBattery) {
+                $details = $details->map(function ($item) use ($minPriceBattery) {
+                    if ($item['id'] === $minPriceBattery['id']) {
+                        $item['is_min_price'] = true;
+                    }
+                    return $item;
+                });
+            }
+
+            if ($highestCCABattery) {
+                $details = $details->map(function ($item) use ($highestCCABattery) {
+                    if ($item['id'] === $highestCCABattery['id']) {
+                        $item['is_max_price'] = true;
+                    }
+                    return $item;
+                });
+            }
+
+            // Apply sorting based on selected_value (matching original logic)
+            if ($request->has('selected_value')) {
+                if ($request->selected_value == 'max-price-order') {
+                    $sortedDetails = $details->sortByDesc('price_retail')->values();
+                } elseif ($request->selected_value == 'min-price-order') {
+                    $sortedDetails = $details->sortBy('price_retail')->values();
+                } elseif ($request->selected_value == 'max-capacity-order') {
+                    $sortedDetails = $details->sortByDesc('capacity')->values();
+                } elseif ($request->selected_value == 'min-capacity-order') {
+                    $sortedDetails = $details->sortBy('capacity')->values();
+                } else {
+                    $sortedDetails = $details;
+                }
+            } else {
+                // Default sorting: max_price first, then min_price (matching original)
+                $sortedDetails = $details
+                    ->sortByDesc('is_max_price')
+                    ->sortByDesc('is_min_price')
+                    ->values();
+            }
+
+            // Apply pagination to final results
+            $paginatedDetails = $sortedDetails->skip($offset)->take($limit);
 
             if ($paginatedDetails->isEmpty()) {
                 return response()->json([
@@ -331,13 +380,186 @@ class Filter extends Controller
                 'status' => 'success',
                 'message' => 'Data found',
                 'data' => [
-                    'batteries' => $paginatedDetails,
+                    'batteries' => $paginatedDetails->values(),
                     'vehicle' => $vehicleModel,
                     'pagination' => [
-                        'total' => $details->count(),
+                        'total' => $sortedDetails->count(),
                         'limit' => $limit,
                         'offset' => $offset,
-                        'has_more' => ($offset + $limit) < $details->count()
+                        'has_more' => ($offset + $limit) < $sortedDetails->count()
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data not found',
+                'data' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function modelFindOptimized(Request $request, $vehicle_id)
+    {
+        try {
+            $limit = (int) $request->input('limit', 10);
+            $offset = (int) $request->input('offset', 0);
+
+            // Single query untuk mendapatkan battery IDs yang sesuai dengan vehicle
+            if ($vehicle_id == 'ALL') {
+                $batterySizeCategoryIds = VehicleBatterySizeCategoryModel::distinct()
+                    ->pluck('battery_size_category_id')
+                    ->toArray();
+                $vehicleModel = VehicleModel::limit(1)->get();
+            } else {
+                $batterySizeCategoryIds = VehicleBatterySizeCategoryModel::where('vehicle_id', $vehicle_id)
+                    ->distinct()
+                    ->pluck('battery_size_category_id')
+                    ->toArray();
+                $vehicleModel = VehicleModel::find($vehicle_id);
+            }
+
+            if (empty($batterySizeCategoryIds)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found',
+                    'data' => []
+                ], 404);
+            }
+
+            // Build query dengan subquery untuk menghitung min/max
+            $batteryQuery = BatteryModel::whereIn('size_category_id', $batterySizeCategoryIds)
+                ->where('status', 1);
+
+            // Apply filters
+            if ($request->filled('min_price')) {
+                $batteryQuery->where('price_retail', '>=', $request->min_price);
+            }
+            if ($request->filled('max_price')) {
+                $batteryQuery->where('price_retail', '<=', $request->max_price);
+            }
+            if ($request->filled('min_capacity')) {
+                $batteryQuery->where('capacity', '>=', $request->min_capacity);
+            }
+            if ($request->filled('max_capacity')) {
+                $batteryQuery->where('capacity', '<=', $request->max_capacity);
+            }
+            if ($request->filled('search') && $request->search != 'ALL') {
+                $batteryQuery->where('name', 'like', '%' . $request->search . '%');
+            }
+
+            // Get total count for pagination
+            $totalCount = $batteryQuery->count();
+
+            if ($totalCount === 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found',
+                    'data' => []
+                ], 404);
+            }
+
+            // Get min price and max capacity in single queries
+            $minPriceId = (clone $batteryQuery)->orderBy('price_retail', 'asc')->value('id');
+            $maxCapacityId = (clone $batteryQuery)->orderBy('capacity', 'desc')->value('id');
+
+            // Apply sorting and pagination
+            if ($request->filled('selected_value')) {
+                switch ($request->selected_value) {
+                    case 'max-price-order':
+                        $batteryQuery->orderBy('price_retail', 'desc');
+                        break;
+                    case 'min-price-order':
+                        $batteryQuery->orderBy('price_retail', 'asc');
+                        break;
+                    case 'max-capacity-order':
+                        $batteryQuery->orderBy('capacity', 'desc');
+                        break;
+                    case 'min-capacity-order':
+                        $batteryQuery->orderBy('capacity', 'asc');
+                        break;
+                }
+            } else {
+                // Custom ordering: min price and max capacity first
+                $batteryQuery->orderByRaw("CASE WHEN id = ? THEN 0 WHEN id = ? THEN 1 ELSE 2 END", [$maxCapacityId, $minPriceId]);
+            }
+
+            // Get paginated results with complete eager loading
+            $batteries = $batteryQuery->with(['batteryImages', 'batteryPrices', 'batteryUrl'])
+                ->skip($offset)->take($limit)->get();
+
+            // Add flags and format data with complete database structure
+            $details = $batteries->map(function ($battery) use ($minPriceId, $maxCapacityId) {
+                // Get main image from batteryImages relation
+                // dd($battery);
+                $image = null;
+                if ($battery->batteryImages && $battery->batteryImages->count() > 0) {
+                    $image = $battery->batteryImages->first()->image ?? $battery->batteryImages->first()->url ?? null;
+                }
+
+                // Get battery_url data
+                $battery_url = [];
+                if ($battery->batteryUrl && $battery->batteryUrl->count() > 0) {
+                    $battery_url = $battery->batteryUrl->toArray();
+                }
+
+                // Get battery_prices data
+                $battery_prices = [];
+                if ($battery->batteryPrices && $battery->batteryPrices->count() > 0) {
+                    $battery_prices = $battery->batteryPrices->toArray();
+                }
+
+                // Create complete battery data structure
+                $batteryData = [
+                    'id' => $battery->id,
+                    'name' => $battery->name,
+                    'name_alternate' => $battery->name_alternate ?? null,
+                    'brand_id' => $battery->brand_id ?? null,
+                    'subbrand_category_id' => $battery->subbrand_category_id ?? null,
+                    'usage_type_id' => $battery->usage_type_id ?? null,
+                    'size_category_id' => $battery->size_category_id ?? null,
+                    'technology_id' => $battery->technology_id ?? null,
+                    'dimension_length' => $battery->dimension_length ?? null,
+                    'dimension_width' => $battery->dimension_width ?? null,
+                    'dimension_height' => $battery->dimension_height ?? null,
+                    'standard_cca' => $battery->standard_cca ?? null,
+                    'capacity' => $battery->capacity,
+                    'warranty' => $battery->warranty ?? null,
+                    'price_retail' => $battery->price_retail,
+                    'image' => $battery->image,
+                    'status' => $battery->status ?? 1,
+                    'type' => $battery->type ?? 'regular',
+                    'editable_price' => $battery->editable_price ?? 0,
+                    'created_at' => $battery->created_at,
+                    'updated_at' => $battery->updated_at,
+                    'deleted_at' => $battery->deleted_at,
+                    'battery_url' => $battery_url,
+                    'battery_prices' => $battery_prices,
+                ];
+
+                // Add flags for frontend identification
+                if ($battery->id === $minPriceId) {
+                    $batteryData['is_min_price'] = true;
+                }
+
+                if ($battery->id === $maxCapacityId) {
+                    $batteryData['is_max_price'] = true;
+                }
+
+                return $batteryData;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data found',
+                'data' => [
+                    'batteries' => $details->values(),
+                    'vehicle' => $vehicleModel,
+                    'pagination' => [
+                        'total' => $totalCount,
+                        'limit' => $limit,
+                        'offset' => $offset,
+                        'has_more' => ($offset + $limit) < $totalCount
                     ]
                 ]
             ]);
