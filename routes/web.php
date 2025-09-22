@@ -83,6 +83,9 @@ use App\Http\Controllers\Developer\Audit;
 // Work Order Instruction Template
 use App\Http\Controllers\Settings\WorkOrderInstructionTemplate;
 
+// File Manager
+use App\Http\Controllers\Settings\FileManager;
+
 // Inventory Recycle
 use App\Http\Controllers\Inventory\InventoryRecycle;
 
@@ -233,6 +236,18 @@ Route::middleware(['auth'])->group(function () {
 
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
+
+    // File Manager
+    Route::prefix('file-manager')->group(function () {
+        Route::get('/', [FileManager::class, 'index'])->name('file-manager.index');
+        Route::post('/upload', [FileManager::class, 'upload'])->name('file-manager.upload');
+        Route::post('/delete', [FileManager::class, 'delete'])->name('file-manager.delete');
+        Route::post('/create-folder', [FileManager::class, 'createFolder'])->name('file-manager.create-folder');
+        Route::get('/download', [FileManager::class, 'download'])->name('file-manager.download');
+        Route::post('/backup', [FileManager::class, 'backup'])->name('file-manager.backup');
+        Route::post('/restore', [FileManager::class, 'restore'])->name('file-manager.restore');
+        Route::post('/archive', [FileManager::class, 'archive'])->name('file-manager.archive');
+    });
 
     // Review
     require __DIR__ . '/web/publish/review.php';
