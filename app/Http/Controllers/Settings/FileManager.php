@@ -262,7 +262,9 @@ class FileManager extends Controller
         $archiveName = $request->input('archive_name', 'archive_' . Carbon::now()->format('Y-m-d_H-i-s')) . '.zip';
         $archivePath = storage_path('app/archives/' . $archiveName);
 
-        File::makeDirectory(dirname($archivePath), 0755, true);
+        if (!File::exists(dirname($archivePath))) {
+            File::makeDirectory(dirname($archivePath), 0755, true);
+        }
 
         $zip = new ZipArchive();
         if ($zip->open($archivePath, ZipArchive::CREATE) === TRUE) {

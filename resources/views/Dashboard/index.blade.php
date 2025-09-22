@@ -6,7 +6,7 @@
             float: left;
             padding-right: var(--bs-breadcrumb-item-padding-x);
             color: var(--bs-breadcrumb-divider-color);
-            content: var(--bs-breadcrumb-divider, "/");
+            content: "{{ request()->path() }}";
         }
 
         .card {

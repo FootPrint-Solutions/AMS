@@ -204,6 +204,13 @@
                 justify-content: center;
             }
         }
+
+        .breadcrumb-item+.breadcrumb-item::before {
+            float: left;
+            padding-right: var(--bs-breadcrumb-item-padding-x);
+            color: var(--bs-breadcrumb-divider-color);
+            content: "/";
+        }
     </style>
 
     <div class="file-manager-container">
