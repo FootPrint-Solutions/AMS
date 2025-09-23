@@ -331,6 +331,12 @@ class Battery extends Controller
                     $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
                     $img->save($path);
                 }
+
+                $webpPath = storage_path('app/public/image/battery/webp/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp');
+                if (!file_exists($webpPath)) {
+                    $img_webp = Image::make($path)->encode('webp', 100);
+                    $img_webp->save($webpPath);
+                }
             }
 
             $status = $battery->save();
@@ -515,6 +521,12 @@ class Battery extends Controller
                     });
                     $path = storage_path('app/public/image/battery/compressed/' . $battery->image);
                     $img->save($path);
+                }
+
+                $webpPath = storage_path('app/public/image/battery/webp/' . pathinfo($battery->image, PATHINFO_FILENAME) . '.webp');
+                if (!file_exists($webpPath)) {
+                    $img_webp = Image::make($path)->encode('webp', 100);
+                    $img_webp->save($webpPath);
                 }
             }
             $status = $battery->save();
