@@ -60,7 +60,13 @@ class Post extends Controller
             }
 
             $data = $request->only([
-                'title', 'slug', 'excerpt', 'content', 'category_id', 'status', 'published_at'
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'category_id',
+                'status',
+                'published_at'
             ]);
             $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
             $data['created_by'] = Auth::id();
@@ -165,15 +171,26 @@ class Post extends Controller
 
             $post = PostModel::findOrFail($request->input('id'));
             $data = $request->only([
-                'title', 'slug', 'excerpt', 'content', 'category_id', 'status', 'published_at'
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'category_id',
+                'status',
+                'published_at'
             ]);
             $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
             $data['updated_by'] = Auth::id();
 
             if ($request->hasFile('featured_image')) {
                 $image = $request->file('featured_image');
-                $path = $image->store('posts', 'public');
-                $data['featured_image'] = basename($path);
+                $filename = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $destinationPath = public_path('storage/image/post/');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+                $image->move($destinationPath, $filename);
+                $data['featured_image'] = $filename;
             }
 
             $post->update($data);
