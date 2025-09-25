@@ -139,6 +139,7 @@ class Vehicle extends Controller
             foreach ($getBattery as $b) {
                 $battery .= "<span class='badge badge-primary'>" . $b['size_category'] . "</span> ";
             }
+            $getYear = VehicleYearModel::find($key->vehicle_years_id);
 
             // Set an array for each row.
             $row = [];
@@ -147,6 +148,7 @@ class Vehicle extends Controller
             $row[] = $key->brand->name ?? '-';
             $row[] = "<a href='$key->url'>" . $key->url . "</a>";
             $row[] = $battery;
+            $row[] = $getYear ? ($getYear->start_year . ' - ' . $getYear->end_year) : '-';
             $row[] = $key->note;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
             $row[] = $key->id;
