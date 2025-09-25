@@ -62,8 +62,6 @@ class QuickQuotation extends Controller
                     'BatteryCategory' => BatterySizeCategoryModel::orderBy('name', 'asc')->get()->toArray(),
                     'VehicleBrands' => VehicleBrandModel::where('status', 1)->orderBy('name', 'asc')->get()->toArray(),
                     'VehicleYears' => VehicleYearModel::orderBy('start_year', 'asc')->get()->toArray(),
-                    'VehicleFuels' => VehicleFuelModel::orderBy('name', 'asc')->get()->toArray(),
-                    'VehicleTransmissions' => VehicleTransmissionModel::orderBy('name', 'asc')->get()->toArray(),
                     'datalatlong ' => $datalatlong,
                     'distibutor' => $Distibutor
                 )

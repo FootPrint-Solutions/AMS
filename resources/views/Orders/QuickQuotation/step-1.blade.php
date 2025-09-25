@@ -93,7 +93,7 @@
                                     class="form-select" aria-label="Select vehicles" style="width: 100%;">
                                     @foreach ($data['Vehicle'] as $vehicle)
                                         <option value="{{ $vehicle['id'] }}"
-                                            data-year="{{ $vehicle['year']['id'] ?? '' }}">
+                                            data-year="{{ $vehicle['year']['start_year'] ?? '' }}">
                                             {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
                                         </option>
                                     @endforeach
@@ -109,16 +109,44 @@
                         </button>
                     </div>
 
-                    <!-- Year Filter -->
-                    <div class="col-lg-2">
+                    <!-- Start Year Filter -->
+                    <div class="col-lg-1">
                         <div class="form-group local-forms">
-                            <label for="VehicleYearFilter">Filter by Year</label>
-                            <select id="VehicleYearFilter" class="form-select">
-                                <option value="">All Years</option>
+                            <label for="VehicleStartYearFilter">Start Year</label>
+                            <select id="VehicleStartYearFilter" class="form-select">
+                                <option value="">All</option>
                                 @if (isset($data['VehicleYears']))
-                                    @foreach ($data['VehicleYears'] as $year)
-                                        <option value="{{ $year['id'] }}">{{ $year['start_year'] }} -
-                                            {{ $year['end_year'] }}</option>
+                                    @php
+                                        $startYears = collect($data['VehicleYears'])
+                                            ->pluck('start_year')
+                                            ->unique()
+                                            ->sort()
+                                            ->values();
+                                    @endphp
+                                    @foreach ($startYears as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Year Filter -->
+                    <div class="col-lg-1">
+                        <div class="form-group local-forms">
+                            <label for="VehicleEndYearFilter">End Year</label>
+                            <select id="VehicleEndYearFilter" class="form-select">
+                                <option value="">All</option>
+                                @if (isset($data['VehicleYears']))
+                                    @php
+                                        $endYears = collect($data['VehicleYears'])
+                                            ->pluck('end_year')
+                                            ->unique()
+                                            ->sort()
+                                            ->values();
+                                    @endphp
+                                    @foreach ($endYears as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -138,8 +166,9 @@
                             });
 
                             // Year filter functionality
-                            $('#VehicleYearFilter').on('change', function() {
-                                var selectedYear = $(this).val();
+                            function filterVehicles() {
+                                var selectedStartYear = $('#VehicleStartYearFilter').val();
+                                var selectedEndYear = $('#VehicleEndYearFilter').val();
                                 var $vehicleSelect = $('#VehicleCustomer');
 
                                 // Clear current selections
@@ -149,7 +178,7 @@
                                 $vehicleSelect.empty();
 
                                 // Add filtered options
-                                if (selectedYear === '') {
+                                if (selectedStartYear === '' && selectedEndYear === '') {
                                     // Show all options
                                     originalOptions.each(function() {
                                         $vehicleSelect.append($(this).clone());
@@ -157,7 +186,29 @@
                                 } else {
                                     // Show only matching year options
                                     originalOptions.each(function() {
-                                        if ($(this).data('year') == selectedYear || $(this).val() == '') {
+                                        var vehicleYear = parseInt($(this).data('year'));
+                                        var showOption = false;
+                                        var selectedStartYearInt = selectedStartYear === '' ? null : parseInt(
+                                            selectedStartYear);
+                                        var selectedEndYearInt = selectedEndYear === '' ? null : parseInt(selectedEndYear);
+
+                                        if ($(this).val() === '') {
+                                            showOption = true; // Always show empty option
+                                        } else if (!isNaN(vehicleYear) && vehicleYear > 0) {
+                                            if (selectedStartYearInt !== null && selectedEndYearInt !== null) {
+                                                // Both start and end year selected
+                                                showOption = (vehicleYear >= selectedStartYearInt && vehicleYear <=
+                                                    selectedEndYearInt);
+                                            } else if (selectedStartYearInt !== null) {
+                                                // Only start year selected
+                                                showOption = (vehicleYear >= selectedStartYearInt);
+                                            } else if (selectedEndYearInt !== null) {
+                                                // Only end year selected
+                                                showOption = (vehicleYear <= selectedEndYearInt);
+                                            }
+                                        }
+
+                                        if (showOption) {
                                             $vehicleSelect.append($(this).clone());
                                         }
                                     });
@@ -165,7 +216,9 @@
 
                                 // Refresh select2
                                 $vehicleSelect.trigger('change');
-                            });
+                            }
+
+                            $('#VehicleStartYearFilter, #VehicleEndYearFilter').on('change', filterVehicles);
 
                             // Initialize tooltips
                             $('[data-bs-toggle="tooltip"]').tooltip();
