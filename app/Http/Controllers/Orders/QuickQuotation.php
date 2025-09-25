@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Storage;
 // MODELS
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\MasterData\Vehicle\VehicleBrandModel;
+use App\Models\MasterData\Vehicle\VehicleYearModel;
+use App\Models\MasterData\Vehicle\VehicleFuelModel;
+use App\Models\MasterData\Vehicle\VehicleTransmissionModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Battery\BatteryImport;
@@ -54,8 +58,12 @@ class QuickQuotation extends Controller
             getIndexData(
                 'Quick Quotation',
                 array(
-                    'Vehicle' => VehicleModel::all()->where('status', 1)->toArray(),
+                    'Vehicle' => VehicleModel::with(['brand', 'year'])->where('status', 1)->get()->toArray(),
                     'BatteryCategory' => BatterySizeCategoryModel::orderBy('name', 'asc')->get()->toArray(),
+                    'VehicleBrands' => VehicleBrandModel::where('status', 1)->orderBy('name', 'asc')->get()->toArray(),
+                    'VehicleYears' => VehicleYearModel::orderBy('start_year', 'asc')->get()->toArray(),
+                    'VehicleFuels' => VehicleFuelModel::orderBy('name', 'asc')->get()->toArray(),
+                    'VehicleTransmissions' => VehicleTransmissionModel::orderBy('name', 'asc')->get()->toArray(),
                     'datalatlong ' => $datalatlong,
                     'distibutor' => $Distibutor
                 )
@@ -1714,5 +1722,93 @@ $arrayVehicle
         $results = $results->where('status', 1)->limit(10);
         $results = $results->get();
         return response()->json($results);
+    }
+
+    /**
+     * Store a new vehicle from quotation page
+     */
+    public function storeVehicle(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validatedData = $request->validate([
+                'vehicleName' => 'required|string|max:255',
+                'vehicleBrand' => 'required',
+                'newBrandName' => 'required_if:vehicleBrand,new|max:255',
+                'vehicleYear' => 'required|exists:vehicle_years,id',
+                'vehicleFuel' => 'required|exists:vehicle_fuels,id',
+                'vehicleTransmission' => 'required|exists:vehicle_transmissions,id',
+                'vehicleBattery' => 'required|array|min:1',
+                'vehicleBattery.*' => 'exists:battery_size_categories,id',
+                'vehicleUrl' => 'nullable|url',
+                'vehicleNote' => 'nullable|string|max:500'
+            ], [
+                'vehicleName.required' => 'Vehicle name is required!',
+                'vehicleBrand.required' => 'Vehicle brand is required!',
+                'newBrandName.required_if' => 'Brand name is required when adding new brand!',
+                'vehicleYear.required' => 'Vehicle year is required!',
+                'vehicleFuel.required' => 'Vehicle fuel type is required!',
+                'vehicleTransmission.required' => 'Vehicle transmission is required!',
+                'vehicleBattery.required' => 'At least one battery size category is required!',
+                'vehicleUrl.url' => 'Please enter a valid URL',
+            ]);
+
+            // Handle brand creation
+            if ($request->vehicleBrand === "new") {
+                $brand = new VehicleBrandModel();
+                $brand->name = $validatedData['newBrandName'];
+                $brand->status = 1;
+                $brand->save();
+                $brandId = $brand->id;
+            } else {
+                $brandId = $validatedData['vehicleBrand'];
+            }
+
+            // Create new vehicle
+            $vehicle = new VehicleModel();
+            $vehicle->name = $validatedData['vehicleName'];
+            $vehicle->brand_id = $brandId;
+            $vehicle->vehicle_years_id = $validatedData['vehicleYear'];
+            $vehicle->vehicle_fuels_id = $validatedData['vehicleFuel'];
+            $vehicle->vehicle_transmissions_id = $validatedData['vehicleTransmission'];
+            $vehicle->url = $request->vehicleUrl;
+            $vehicle->note = $request->vehicleNote;
+            $vehicle->status = 1;
+            $status = $vehicle->save();
+
+            // Attach battery size categories
+            if (!empty($validatedData['vehicleBattery'])) {
+                $batteries = [];
+                foreach ($validatedData['vehicleBattery'] as $battery) {
+                    $batteries[$battery] = [];
+                }
+                $vehicle->batterySizeCategories()->attach($batteries);
+            }
+
+            if ($status) {
+                DB::commit();
+                return getResponseData(true, 'Vehicle successfully created!');
+            } else {
+                DB::rollBack();
+                return getResponseData(false, 'Failed to create vehicle!');
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return getResponseData(false, $e->validator->errors()->first());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Vehicle creation error: ' . $e->getMessage());
+            return getResponseData(false, 'An error occurred while creating the vehicle.');
+        }
+    }
+
+    /**
+     * Get vehicle list for dropdown refresh
+     */
+    public function getVehicleList(Request $request)
+    {
+        $vehicles = VehicleModel::with(['brand', 'year'])->where('status', 1)->orderBy('name', 'asc')->get();
+        return response()->json($vehicles);
     }
 }

@@ -88,24 +88,84 @@
                     <div class="col-lg-4">
                         <div class="form-group local-forms position-relative">
                             <label for="VehicleCustomer">Vehicle Customer <span class="login-danger">*</span></label>
-                            <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
-                                class="form-select" aria-label="Select vehicles" style="width: 100%;">
-                                @foreach ($data['Vehicle'] as $vehicle)
-                                <option value="{{ $vehicle['id'] }}">
-                                    {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
-                                </option>
-                                @endforeach
+                            <div class="input-group">
+                                <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
+                                    class="form-select" aria-label="Select vehicles" style="width: 100%;">
+                                    @foreach ($data['Vehicle'] as $vehicle)
+                                        <option value="{{ $vehicle['id'] }}"
+                                            data-year="{{ $vehicle['year']['id'] ?? '' }}">
+                                            {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-outline-primary" type="button" id="btnAddVehicle"
+                                    title="Add New Vehicle" data-bs-toggle="tooltip" data-bs-placement="top">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Year Filter -->
+                    <div class="col-lg-2">
+                        <div class="form-group local-forms">
+                            <label for="VehicleYearFilter">Filter by Year</label>
+                            <select id="VehicleYearFilter" class="form-select">
+                                <option value="">All Years</option>
+                                @if (isset($data['VehicleYears']))
+                                    @foreach ($data['VehicleYears'] as $year)
+                                        <option value="{{ $year['id'] }}">{{ $year['start_year'] }} -
+                                            {{ $year['end_year'] }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     </div>
+
                     <script>
                         $(document).ready(function() {
+                            // Store original options
+                            var originalOptions = $('#VehicleCustomer option').clone();
+
                             $('#VehicleCustomer').select2({
                                 width: 'resolve',
                                 placeholder: 'Select Vehicle',
                                 allowClear: true,
                                 maximumSelectionLength: 1
                             });
+
+                            // Year filter functionality
+                            $('#VehicleYearFilter').on('change', function() {
+                                var selectedYear = $(this).val();
+                                var $vehicleSelect = $('#VehicleCustomer');
+
+                                // Clear current selections
+                                $vehicleSelect.val(null).trigger('change');
+
+                                // Clear options
+                                $vehicleSelect.empty();
+
+                                // Add filtered options
+                                if (selectedYear === '') {
+                                    // Show all options
+                                    originalOptions.each(function() {
+                                        $vehicleSelect.append($(this).clone());
+                                    });
+                                } else {
+                                    // Show only matching year options
+                                    originalOptions.each(function() {
+                                        if ($(this).data('year') == selectedYear || $(this).val() == '') {
+                                            $vehicleSelect.append($(this).clone());
+                                        }
+                                    });
+                                }
+
+                                // Refresh select2
+                                $vehicleSelect.trigger('change');
+                            });
+
+                            // Initialize tooltips
+                            $('[data-bs-toggle="tooltip"]').tooltip();
                         });
                     </script>
 
@@ -387,6 +447,145 @@
             </div>
             <div class="modal-body text-center" id="ModalScreenshotBody">
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Vehicle -->
+<div class="modal fade" id="ModalAddVehicle" tabindex="-1" aria-labelledby="ModalAddVehicleLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalAddVehicleLabel">Add New Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addVehicleForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Vehicle Name -->
+                        <div class="col-md-12">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleName">Vehicle Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="vehicleName" name="vehicleName"
+                                    placeholder="Enter vehicle name" required>
+                            </div>
+                        </div>
+
+                        <!-- Brand -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleBrand">Brand <span class="text-danger">*</span></label>
+                                <select class="form-control" id="vehicleBrand" name="vehicleBrand" required>
+                                    <option value="">Select Brand</option>
+                                    @if (isset($data['VehicleBrands']))
+                                        @foreach ($data['VehicleBrands'] as $brand)
+                                            <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                                        @endforeach
+                                    @endif
+                                    <option value="new">Add New Brand...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- New Brand (hidden initially) -->
+                        <div class="col-md-6" id="newBrandGroup" style="display: none;">
+                            <div class="form-group local-forms mb-3">
+                                <label for="newBrandName">New Brand Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="newBrandName" name="newBrandName"
+                                    placeholder="Enter new brand name">
+                            </div>
+                        </div>
+
+                        <!-- Year -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleYear">Year <span class="text-danger">*</span></label>
+                                <select class="form-control" id="vehicleYear" name="vehicleYear" required>
+                                    <option value="">Select Year</option>
+                                    @if (isset($data['VehicleYears']))
+                                        @foreach ($data['VehicleYears'] as $year)
+                                            <option value="{{ $year['id'] }}">{{ $year['start_year'] }} -
+                                                {{ $year['end_year'] }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fuel -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleFuel">Fuel <span class="text-danger">*</span></label>
+                                <select class="form-control" id="vehicleFuel" name="vehicleFuel" required>
+                                    <option value="">Select Fuel</option>
+                                    @if (isset($data['VehicleFuels']))
+                                        @foreach ($data['VehicleFuels'] as $fuel)
+                                            <option value="{{ $fuel['id'] }}">{{ $fuel['name'] }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Transmission -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleTransmission">Transmission <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-control" id="vehicleTransmission" name="vehicleTransmission"
+                                    required>
+                                    <option value="">Select Transmission</option>
+                                    @if (isset($data['VehicleTransmissions']))
+                                        @foreach ($data['VehicleTransmissions'] as $transmission)
+                                            <option value="{{ $transmission['id'] }}">{{ $transmission['name'] }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Battery Size Category -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleBattery">Battery Size Category <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-control" id="vehicleBattery" name="vehicleBattery[]" required>
+                                    @if (isset($data['BatteryCategory']))
+                                        @foreach ($data['BatteryCategory'] as $battery)
+                                            <option value="{{ $battery['id'] }}">{{ $battery['name'] }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- URL (Optional) -->
+                        <div class="col-md-12">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleUrl">Vehicle URL (Optional)</label>
+                                <input type="url" class="form-control" id="vehicleUrl" name="vehicleUrl"
+                                    placeholder="https://example.com/vehicle-info">
+                            </div>
+                        </div>
+
+                        <!-- Note (Optional) -->
+                        <div class="col-md-12">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleNote">Note (Optional)</label>
+                                <textarea class="form-control" id="vehicleNote" name="vehicleNote" rows="3" placeholder="Enter vehicle note"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveVehicle">
+                        <i class="fas fa-save"></i> Save Vehicle
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -1133,4 +1332,127 @@
         var addressValue = $(this).val();
         $('#alternative_address').val(addressValue);
     });
+
+
+    $('#btnAddVehicle').on('click', function() {
+
+        $('#ModalAddVehicle').modal('show');
+    });
+
+
+    $('#vehicleBrand').on('change', function() {
+        if ($(this).val() === 'new') {
+            $('#newBrandGroup').show();
+            $('#newBrandName').attr('required', true);
+        } else {
+            $('#newBrandGroup').hide();
+            $('#newBrandName').attr('required', false);
+        }
+    });
+
+
+    $('#addVehicleForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let $btn = $('#btnSaveVehicle');
+        $btn.prop('disabled', true);
+        $btn.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+        );
+
+        let formData = new FormData(this);
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+        $.ajax({
+            url: '/quotation/vehicle/store',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                let data = JSON.parse(response);
+                if (data.status) {
+                    swal.fire("Success!", data.message, "success").then(() => {
+                        $('#ModalAddVehicle').modal('hide');
+
+                        $('#addVehicleForm')[0].reset();
+                        $('#newBrandGroup').hide();
+                        $('#newBrandName').attr('required', false);
+                        $('#vehicleBrand').val(null).trigger('change');
+                        $('#vehicleBattery').val(null).trigger('change');
+
+                        refreshVehicleOptions();
+                    });
+                } else {
+                    swal.fire("Error!", data.message, "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'An error occurred while saving the vehicle.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                swal.fire("Error!", errorMessage, "error");
+            },
+            complete: function() {
+                $btn.prop('disabled', false);
+                $btn.html('<i class="fas fa-save"></i> Save Vehicle');
+            }
+        });
+    });
+
+    // Reset modal when closed
+    $('#ModalAddVehicle').on('hidden.bs.modal', function() {
+        $('#addVehicleForm')[0].reset();
+        $('#newBrandGroup').hide();
+        $('#newBrandName').attr('required', false);
+        $('#vehicleBrand').val(null).trigger('change');
+        $('#vehicleBattery').val(null).trigger('change');
+    });
+
+    function refreshVehicleOptions() {
+        swal.fire({
+            title: 'Loading...',
+            text: 'Refreshing vehicle list...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '/quotation/vehicles/list',
+            type: 'GET',
+            success: function(vehicles) {
+                var $vehicleSelect = $('#VehicleCustomer');
+                var currentValue = $vehicleSelect.val();
+
+                $vehicleSelect.empty();
+
+                vehicles.forEach(function(vehicle) {
+                    var option = $('<option></option>')
+                        .attr('value', vehicle.id)
+                        .attr('data-year', vehicle.year ? vehicle.year.id : '')
+                        .text(vehicle.name + (vehicle.note ? ' - ' + vehicle.note : ''));
+                    $vehicleSelect.append(option);
+                });
+
+                originalOptions = $('#VehicleCustomer option').clone();
+                $vehicleSelect.trigger('change');
+
+                swal.fire({
+                    title: 'Success!',
+                    text: 'Vehicle list updated successfully!',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            },
+            error: function() {
+                swal.fire("Error!", "Failed to refresh vehicle list. Please reload the page.",
+                    "error").then(() => {});
+                location.reload();
+            }
+        });
+    }
 </script>
