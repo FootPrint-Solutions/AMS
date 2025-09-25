@@ -98,12 +98,15 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <button class="btn btn-outline-primary" type="button" id="btnAddVehicle"
-                                    title="Add New Vehicle" data-bs-toggle="tooltip" data-bs-placement="top">
-                                    <i class="fas fa-plus"></i>
-                                </button>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col-lg-2" style="margin-bottom: 2.5rem !important;">
+                        <button class="btn btn-outline-primary" type="button" id="btnAddVehicle"
+                            title="Add New Vehicle" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
 
                     <!-- Year Filter -->
