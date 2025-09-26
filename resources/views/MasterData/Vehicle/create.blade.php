@@ -71,15 +71,23 @@
                 </div>
 
                 {{-- Year --}}
-                <div class="form-group local-forms">
-                    <label for="brand">Year <span class="login-danger">*</span></label>
-                    <select class="form-control" id="year" name="year" required>
-                        <option></option>
-                        @foreach ($data['years'] as $year)
-                            <option value="{{ $year['id'] }}" @if (isset($data['profile']) && $data['profile']['vehicle_years_id'] == $year['id']) selected @endif>
-                                {{ $year['start_year'] }} - {{ $year['end_year'] }}</option>
-                        @endforeach
-                    </select>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group local-forms">
+                            <label for="start_year">Start Year <span class="login-danger">*</span></label>
+                            <input type="number" class="form-control" id="start_year" name="start_year"
+                                placeholder="Enter start year" min="1900" max="2100" required
+                                @if (isset($data['profile']) && isset($data['years'])) value="{{ $data['years']['start_year'] }}" @endif>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group local-forms">
+                            <label for="end_year">End Year <span class="login-danger">*</span></label>
+                            <input type="number" class="form-control" id="end_year" name="end_year"
+                                placeholder="Enter end year" min="1900" max="2100" required
+                                @if (isset($data['profile']) && isset($data['years'])) value="{{ $data['years']['end_year'] }}" @endif>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Fuel --}}
@@ -149,10 +157,6 @@
 
             $('#battery-primary').select2({
                 placeholder: "Enter vehicle primary battery size category"
-            });
-
-            $('#year').select2({
-                placeholder: "Enter vehicle year"
             });
 
 

@@ -58,7 +58,6 @@ class Vehicle extends Controller
                 array(
                     'brands' => VehicleBrandModel::where('status', 1)->get()->toArray(),
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
-                    'years' => VehicleYearModel::all()->toArray(),
                     'fuels' => VehicleFuelModel::all()->toArray(),
                     'transmissions' => VehicleTransmissionModel::all()->toArray(),
                 )
@@ -100,7 +99,7 @@ class Vehicle extends Controller
                     'battery_size_categories' => BatterySizeCategoryModel::all()->toArray(),
                     'profile' => VehicleModel::find($id)->toArray(),
                     'primary_battery' => $primaryBattery,
-                    'years' => VehicleYearModel::all()->toArray(),
+                    'years' => VehicleYearModel::find($vehicle->vehicle_years_id)->toArray(),
                     'fuels' => VehicleFuelModel::all()->toArray(),
                     'transmissions' => VehicleTransmissionModel::all()->toArray(),
                 )
@@ -180,7 +179,8 @@ class Vehicle extends Controller
                     'name' => 'required|string',
                     'brand' => 'required',
                     'newbrand' => 'required_if:brand,new',
-                    'year' => 'required',
+                    'start_year' => 'required|integer|min:1900|max:2100',
+                    'end_year' => 'required|integer|min:1900|max:2100',
                     'fuel' => 'required',
                     'transmission' => 'required',
                 ],
@@ -188,7 +188,14 @@ class Vehicle extends Controller
                     'name.required' => 'Vehicle name is required!',
                     'brand.required' => 'Vehicle brand is required!',
                     'newbrand.required_if' => 'Vehicle brand is required!',
-                    'year.required' => 'Vehicle year is required!',
+                    'start_year.required' => 'Start year is required!',
+                    'start_year.integer' => 'Start year must be a number!',
+                    'start_year.min' => 'Start year must be at least 1900!',
+                    'start_year.max' => 'Start year must be at most 2100!',
+                    'end_year.required' => 'End year is required!',
+                    'end_year.integer' => 'End year must be a number!',
+                    'end_year.min' => 'End year must be at least 1900!',
+                    'end_year.max' => 'End year must be at most 2100!',
                     'fuel.required' => 'Vehicle fuel is required!',
                     'transmission.required' => 'Vehicle transmission is required!',
                 ]
@@ -209,7 +216,21 @@ class Vehicle extends Controller
                 $vehicle->brand_id = $validatedData['brand'];
             }
 
-            $vehicle->vehicle_years_id = $request->year;
+            // check if the year already exists in vehicle_years table
+            $year = VehicleYearModel::where('start_year', $validatedData['start_year'])
+                ->where('end_year', $validatedData['end_year'])
+                ->first();
+            if ($year) {
+                $vehicle->vehicle_years_id = $year->id;
+            } else {
+                // Store the newly added vehicle year.
+                $newYear = new VehicleYearModel();
+                $newYear->start_year = $validatedData['start_year'];
+                $newYear->end_year = $validatedData['end_year'];
+                $status = $newYear->save();
+                $vehicle->vehicle_years_id = $newYear->id;
+            }
+
             $vehicle->vehicle_fuels_id = $request->fuel;
             $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
@@ -270,7 +291,8 @@ class Vehicle extends Controller
                     'name' => 'required|string',
                     'brand' => 'required',
                     'newbrand' => 'required_if:brand,new',
-                    'year' => 'required',
+                    'start_year' => 'required|integer|min:1900|max:2100',
+                    'end_year' => 'required|integer|min:1900|max:2100',
                     'fuel' => 'required',
                     'transmission' => 'required',
                 ],
@@ -278,7 +300,14 @@ class Vehicle extends Controller
                     'name.required' => 'Vehicle name is required!',
                     'brand.required' => 'Vehicle brand is required!',
                     'newbrand.required_if' => 'Vehicle brand is required!',
-                    'year.required' => 'Vehicle year is required!',
+                    'start_year.required' => 'Start year is required!',
+                    'start_year.integer' => 'Start year must be a number!',
+                    'start_year.min' => 'Start year must be at least 1900!',
+                    'start_year.max' => 'Start year must be at most 2100!',
+                    'end_year.required' => 'End year is required!',
+                    'end_year.integer' => 'End year must be a number!',
+                    'end_year.min' => 'End year must be at least 1900!',
+                    'end_year.max' => 'End year must be at most 2100!',
                     'fuel.required' => 'Vehicle fuel is required!',
                     'transmission.required' => 'Vehicle transmission is required!',
                 ]
@@ -289,7 +318,6 @@ class Vehicle extends Controller
 
             // Check if the brand is newly added or not.
             if ($request->brand === "new") {
-                // Store the newly added vehicle brand.
                 $brand = new VehicleBrandModel();
                 $brand->name = $validatedData['newbrand'];
                 $status = $brand->save();
@@ -299,14 +327,27 @@ class Vehicle extends Controller
                 $vehicle->brand_id = $validatedData['brand'];
             }
 
-            $vehicle->vehicle_years_id = $request->year;
+            // check if the year already exists in vehicle_years table
+            $year = VehicleYearModel::where('start_year', $validatedData['start_year'])
+                ->where('end_year', $validatedData['end_year'])
+                ->first();
+            if ($year) {
+                $vehicle->vehicle_years_id = $year->id;
+            } else {
+                $newYear = new VehicleYearModel();
+                $newYear->start_year = $validatedData['start_year'];
+                $newYear->end_year = $validatedData['end_year'];
+                $status = $newYear->save();
+                $vehicle->vehicle_years_id = $newYear->id;
+            }
+
             $vehicle->vehicle_fuels_id = $request->fuel;
             $vehicle->vehicle_transmissions_id = $request->transmission;
             $vehicle->url = $request->url;
             $vehicle->note = $request->note;
             $status = $vehicle->save();
 
-            // Update the list of all vehicles' suitable batteries.
+            // Update the list of all vehicles' suitable battery.
             if (!is_null($request->batteryprimary)) {
                 $batteries = [];
                 foreach ($request->batteryprimary as $battery) {
@@ -320,25 +361,16 @@ class Vehicle extends Controller
             else
                 DB::rollBack();
 
-            // Set a new response data to be sent.
             return getResponseData(
                 $status,
                 $status ? "The vehicle was successfully updated!" : "Failed to update the vehicle!"
             );
         } catch (ValidationException $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Tangani pengecualian jika validasi gagal
             return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Logging error message.
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
