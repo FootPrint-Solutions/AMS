@@ -10,3 +10,4 @@ Route::get('/vehicle/brand/edit/{id}', [VehicleBrand::class, 'edit'])->name('veh
 Route::post('/vehicle/brand/store', [VehicleBrand::class, 'store'])->name('vehicle.brand.store')->middleware('permission:add_vehicle');
 Route::post('/vehicle/brand/update', [VehicleBrand::class, 'update'])->name('vehicle.brand.update')->middleware('permission:edit_vehicle');
 Route::post('/vehicle/brand/toggle', [VehicleBrand::class, 'updateStatus'])->name('vehicle.brand.toggle')->middleware('permission:edit_vehicle');
+Route::post('/vehicle/brand/toggle-visible', [VehicleBrand::class, 'toggleVisible'])->name('vehicle.brand.toggle-visible')->middleware('permission:edit_vehicle');

@@ -19,7 +19,7 @@ class Filter extends Controller
     public function brand(Request $request)
     {
         try {
-            $brands = VehicleBrandModel::where('status', 1)->get()->toArray();
+            $brands = VehicleBrandModel::where(['status' => 1, 'visible' => 1])->get()->toArray();
             $brands = array_values($brands); // Re-index the array
             $response = [
                 'status' => 'success',

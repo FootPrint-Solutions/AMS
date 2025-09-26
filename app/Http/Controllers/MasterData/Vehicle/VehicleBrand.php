@@ -100,11 +100,18 @@ class VehicleBrand extends Controller
                 $statusIndicatorColor = "text-success";
             }
 
+            if ($key->visible == 0) {
+                $statusIndicatorColorVisible = "fa-eye-slash text-muted";
+            } else {
+                $statusIndicatorColorVisible = "fa-eye text-success";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = number_format($no, 0);
             $row[] = $key->name;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
+            $row[] = "<i class='fa-solid $statusIndicatorColorVisible'></i>";
             $row[] = $key->id;
             $row[] = $key->status;
             $rows[] = $row;
@@ -257,6 +264,39 @@ class VehicleBrand extends Controller
 
             // Set an error response data to be sent.
             return getResponseData(false);
+        }
+    }
+
+    public function toggleVisible(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $ids = $request->input('ids', []);
+            if (empty($ids)) {
+                return getResponseData(false, 'No vehicle brands selected!');
+            }
+
+            // Toggle visibility for each selected brand
+            foreach ($ids as $id) {
+                $brand = VehicleBrandModel::find($id);
+                if ($brand) {
+                    $brand->visible = $brand->visible ? 0 : 1;
+                    $status = $brand->save();
+                    if (!$status) {
+                        DB::rollBack();
+                        return getResponseData(false, 'Failed to update visibility for some vehicle brands!');
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return getResponseData(true, 'Visibility status updated successfully!');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return getResponseData(false, 'An error occurred while updating visibility status!');
         }
     }
 }
