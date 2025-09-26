@@ -109,50 +109,6 @@
                         </button>
                     </div>
 
-                    <!-- Start Year Filter -->
-                    <div class="col-lg-1">
-                        <div class="form-group local-forms">
-                            <label for="VehicleStartYearFilter">Start Year</label>
-                            <select id="VehicleStartYearFilter" class="form-select">
-                                <option value="">All</option>
-                                @if (isset($data['VehicleYears']))
-                                    @php
-                                        $startYears = collect($data['VehicleYears'])
-                                            ->pluck('start_year')
-                                            ->unique()
-                                            ->sort()
-                                            ->values();
-                                    @endphp
-                                    @foreach ($startYears as $year)
-                                        <option value="{{ $year }}">{{ $year }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- End Year Filter -->
-                    <div class="col-lg-1">
-                        <div class="form-group local-forms">
-                            <label for="VehicleEndYearFilter">End Year</label>
-                            <select id="VehicleEndYearFilter" class="form-select">
-                                <option value="">All</option>
-                                @if (isset($data['VehicleYears']))
-                                    @php
-                                        $endYears = collect($data['VehicleYears'])
-                                            ->pluck('end_year')
-                                            ->unique()
-                                            ->sort()
-                                            ->values();
-                                    @endphp
-                                    @foreach ($endYears as $year)
-                                        <option value="{{ $year }}">{{ $year }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
-
                     <script>
                         $(document).ready(function() {
                             // Store original options
@@ -553,19 +509,22 @@
                             </div>
                         </div>
 
-                        <!-- Year -->
+                        <!-- Start Year (Optional) -->
                         <div class="col-md-6">
                             <div class="form-group local-forms mb-3">
-                                <label for="vehicleYear">Year <span class="text-danger">*</span></label>
-                                <select class="form-control" id="vehicleYear" name="vehicleYear" required>
-                                    <option value="">Select Year</option>
-                                    @if (isset($data['VehicleYears']))
-                                        @foreach ($data['VehicleYears'] as $year)
-                                            <option value="{{ $year['id'] }}">{{ $year['start_year'] }} -
-                                                {{ $year['end_year'] }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <label for="vehicleStartYear">Start Year (Optional)</label>
+                                <input type="number" class="form-control" id="vehicleStartYear"
+                                    name="vehicleStartYear" placeholder="Enter Start Year" min="1900"
+                                    max="2099">
+                            </div>
+                        </div>
+
+                        <!-- End Year (Optional) -->
+                        <div class="col-md-6">
+                            <div class="form-group local-forms mb-3">
+                                <label for="vehicleEndYear">End Year (Optional)</label>
+                                <input type="number" class="form-control" id="vehicleEndYear" name="vehicleEndYear"
+                                    placeholder="Enter End Year" min="1900" max="2099">
                             </div>
                         </div>
 
