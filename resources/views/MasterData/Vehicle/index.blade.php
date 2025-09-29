@@ -46,6 +46,8 @@
                         <th scope="col">URL</th>
                         <th scope="col">Battery Size</th>
                         <th scope="col">Year</th>
+                        <th scope="col">Transmission</th>
+                        <th scope="col">Fuel</th>
                         <th scope="col">Note</th>
                         <th scope="col" class="table-col-status">Status</th>
                     </tr>
