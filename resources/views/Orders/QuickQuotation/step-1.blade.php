@@ -92,10 +92,10 @@
                                 <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
                                     class="form-select" aria-label="Select vehicles" style="width: 100%;">
                                     @foreach ($data['Vehicle'] as $vehicle)
-                                        <option value="{{ $vehicle['id'] }}"
-                                            data-year="{{ $vehicle['year']['start_year'] ?? '' }}">
-                                            {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
-                                        </option>
+                                    <option value="{{ $vehicle['id'] }}"
+                                        data-year="{{ $vehicle['year']['start_year'] ?? '' }}">
+                                        {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -491,9 +491,9 @@
                                 <select class="form-control" id="vehicleBrand" name="vehicleBrand" required>
                                     <option value="">Select Brand</option>
                                     @if (isset($data['VehicleBrands']))
-                                        @foreach ($data['VehicleBrands'] as $brand)
-                                            <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
-                                        @endforeach
+                                    @foreach ($data['VehicleBrands'] as $brand)
+                                    <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                                    @endforeach
                                     @endif
                                     <option value="new">Add New Brand...</option>
                                 </select>
@@ -535,9 +535,9 @@
                                 <select class="form-control" id="vehicleFuel" name="vehicleFuel" required>
                                     <option value="">Select Fuel</option>
                                     @if (isset($data['VehicleFuels']))
-                                        @foreach ($data['VehicleFuels'] as $fuel)
-                                            <option value="{{ $fuel['id'] }}">{{ $fuel['name'] }}</option>
-                                        @endforeach
+                                    @foreach ($data['VehicleFuels'] as $fuel)
+                                    <option value="{{ $fuel['id'] }}">{{ $fuel['name'] }}</option>
+                                    @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -552,10 +552,10 @@
                                     required>
                                     <option value="">Select Transmission</option>
                                     @if (isset($data['VehicleTransmissions']))
-                                        @foreach ($data['VehicleTransmissions'] as $transmission)
-                                            <option value="{{ $transmission['id'] }}">{{ $transmission['name'] }}
-                                            </option>
-                                        @endforeach
+                                    @foreach ($data['VehicleTransmissions'] as $transmission)
+                                    <option value="{{ $transmission['id'] }}">{{ $transmission['name'] }}
+                                    </option>
+                                    @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -568,9 +568,9 @@
                                         class="text-danger">*</span></label>
                                 <select class="form-control" id="vehicleBattery" name="vehicleBattery[]" required>
                                     @if (isset($data['BatteryCategory']))
-                                        @foreach ($data['BatteryCategory'] as $battery)
-                                            <option value="{{ $battery['id'] }}">{{ $battery['name'] }}</option>
-                                        @endforeach
+                                    @foreach ($data['BatteryCategory'] as $battery)
+                                    <option value="{{ $battery['id'] }}">{{ $battery['name'] }}</option>
+                                    @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -595,7 +595,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="btnSaveVehicle">
                         <i class="fas fa-save"></i> Save Vehicle
                     </button>
