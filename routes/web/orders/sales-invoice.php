@@ -25,3 +25,6 @@ Route::post('/sales-invoice/get-multiple-print-purchase-order', [SalesInvoice::c
 Route::get('/sales-invoice/multiple-print-purchase-order/{ids}', [SalesInvoice::class, 'multiplePrintPurchaseOrder'])->name('sales-invoice.multiplePrintPurchaseOrder')->middleware('permission:view_sales_invoice');
 Route::post('/sales-invoice/export', [SalesInvoice::class, 'export'])->name('sales-invoice.export')->middleware('permission:view_sales_invoice');
 Route::post('/sales-invoice/export/details', [SalesInvoice::class, 'exportDetails'])->name('sales-invoice.export.details')->middleware('permission:view_sales_invoice');
+Route::post('/sales-invoice/get-multiple-print-consignment', [SalesInvoice::class, 'multipleConsignment'])->name('sales-invoice.multipleConsignment')->middleware('permission:view_sales_invoice');
+Route::get('/sales-invoice/multiple-print-consignment/{ids}', [SalesInvoice::class, 'multipleConsignmentPrint'])->name('sales-invoice.multipleConsignmentPrint')->middleware('permission:view_sales_invoice');
+Route::get('/sales-invoice/test-consignment', [SalesInvoice::class, 'testConsignment'])->name('sales-invoice.testConsignment'); // Test route

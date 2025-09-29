@@ -193,6 +193,10 @@ class SalesInvoiceModel extends Model implements Auditable
             $query->whereBetween('sales_invoices.date', [$request->dateStart, $request->dateEnd]);
         }
 
+        if ($request->distributorShopId) {
+            $query->where('sales_invoices.distributor_shop_id', $request->distributorShopId);
+        }
+
         $query->select($selectColumns);
 
         return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
