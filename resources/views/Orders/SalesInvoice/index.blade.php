@@ -291,6 +291,40 @@
                     //         });
                     //     }
                     // }
+                    // Create Consignment
+                    {
+                        text: "<i class='fas fa-shipping-fast'></i> Create Consignment",
+                        className: "btn btn-outline-primary btn-sm ml-1",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length === 0) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select at least one sales invoice to create consignment.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            var salesInvoiceIds = selectedRows.map(row => row[12]);
+
+                            Swal.fire({
+                                title: "Create Consignment",
+                                text: "Are you sure you want to create consignments for the selected sales invoices?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes",
+                                cancelButtonText: "No",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    var ids = btoa(salesInvoiceIds.join(","));
+                                    goToPage(
+                                        "/sales-invoice/consignment/create/" + ids);
+                                }
+                            });
+                        }
+                    }
                 ]),
                 language: getDatatablesLanguangeConfigurations("Sales Invoice"),
                 select: true,

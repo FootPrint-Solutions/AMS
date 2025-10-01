@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 // TRAITS
@@ -22,6 +23,7 @@ use App\Models\Settings\PaymentMethodModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceBatteryModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\SalesConsignment\SalesConsignmentModel;
 
 class SalesInvoiceModel extends Model implements Auditable
 {
@@ -223,5 +225,17 @@ class SalesInvoiceModel extends Model implements Auditable
     public function salesOrder(): BelongsTo
     {
         return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
+    }
+
+    /**
+     * Get the sales consignments associated with the sales invoice.
+     */
+    public function salesConsignments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            SalesConsignmentModel::class,
+            'sales_invoice_id',
+            'sales_consignment_id'
+        )->withTimestamps();
     }
 }

@@ -231,6 +231,9 @@ Route::middleware(['auth'])->group(function () {
     // Sales Invoice
     require __DIR__ . '/web/orders/sales-invoice.php';
 
+    // Sales Consignment
+    require __DIR__ . '/web/orders/sales-consignment.php';
+
     // Expense
     require __DIR__ . '/web/accounting/expense.php';
 

@@ -33,6 +33,7 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Accounting\ExpenseModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
+use App\Models\Orders\SalesConsignment\SalesConsignmentModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -1199,5 +1200,82 @@ class SalesInvoice extends Controller
                 )
             )
         );
+    }
+
+    public function createConsignment($ids)
+    {
+        // Redirect to SalesConsignment controller
+        return redirect()->route('sales-consignment.create', ['ids' => $ids]);
+    }
+
+    public function getByDistributor(Request $request)
+    {
+        $distributorId = $request->input('distributor_id');
+
+        if (!$distributorId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Distributor ID is required.',
+                'data' => []
+            ]);
+        }
+
+        $salesInvoices = SalesInvoiceModel::with('customer')->whereHas('shop', function ($query) use ($distributorId) {
+            $query->where('distributor_id', $distributorId);
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales invoices retrieved successfully.',
+            'data' => $salesInvoices
+        ]);
+    }
+
+    public function addConsignmentTemp(Request $request)
+    {
+        $invoiceIds = array_unique($request->input('invoice_ids', []));
+
+        if (empty($invoiceIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No invoice IDs provided.',
+                'data' => []
+            ]);
+        }
+
+        $salesInvoices = SalesInvoiceModel::with(['customer', 'shop.distributor', 'technician', 'batteries.battery'])
+            ->whereIn('id', $invoiceIds)
+            ->get();
+
+        // Check if all invoices have the same distributor and none are missing
+        $distributorIds = [];
+        foreach ($salesInvoices as $invoice) {
+            if (!isset($invoice->shop) || !isset($invoice->shop->distributor) || !isset($invoice->shop->distributor->id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'All invoices must have a distributor.',
+                    'data' => []
+                ]);
+            }
+            $distributorIds[] = $invoice->shop->distributor->id;
+        }
+        $distributorIds = array_unique($distributorIds);
+
+        if (count($distributorIds) !== 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'All invoices must belong to the same distributor.',
+                'data' => []
+            ]);
+        }
+
+        // Store to session
+        session(['consignment_invoices' => $salesInvoices->pluck('id')->toArray()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales invoices details retrieved and stored in session.',
+            'data' => $salesInvoices
+        ]);
     }
 }
