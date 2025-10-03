@@ -8,6 +8,8 @@ Route::get('/quotation/customer/find', [QuickQuotation::class, 'findCustomer'])-
 Route::post('/quotation/customer/share', [QuickQuotation::class, 'shareFormPersonalDetails'])->name('quotation.shareFormPersonalDetails')->middleware('permission:view_quick_quotation');
 Route::get('/quotation/customer/vehicle/find', [QuickQuotation::class, 'findVehicleByIdCustomer'])->name('quotation.findVehicleByIdCustomer')->middleware('permission:view_quick_quotation');
 Route::get('/quotation/vehicle/find', [QuickQuotation::class, 'findVehicleByIdVehicle'])->name('quotation.findVehicleByIdVehicle')->middleware('permission:view_quick_quotation');
+Route::post('/quotation/vehicle/store', [QuickQuotation::class, 'storeVehicle'])->name('quotation.storeVehicle')->middleware('permission:view_quick_quotation');
+Route::get('/quotation/vehicles/list', [QuickQuotation::class, 'getVehicleList'])->name('quotation.getVehicleList')->middleware('permission:view_quick_quotation');
 Route::get('/quotation/customer/maps/near', [QuickQuotation::class, 'getMapsNearAddressCustomer'])->name('quotation.getMapsNearAddressCustomer')->middleware('permission:view_quick_quotation');
 Route::post('/quotation/battery/share', [QuickQuotation::class, 'shareBattery'])->name('quotation.shareBattery')->middleware('permission:view_quick_quotation');
 Route::get('/quotation/checkout', [QuickQuotation::class, 'getCheckoutPreview'])->name('quotation.getCheckoutPreview')->middleware('permission:view_quick_quotation');

@@ -9,11 +9,6 @@
                     <div class="col">
                         <h3 class="page-title">Sales Invoice</h3>
                     </div>
-
-                    {{-- <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Invoice</button>
-                    </div> --}}
                 </div>
             </div>
             <div class="card-body">
@@ -39,8 +34,22 @@
                         </div>
                     </div>
 
-                    <div class="col-md-1"></div>
-
+                    <div class="col-md-1 d-flex align-items-center">
+                        Distributor/Shop
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="input-sales-invoice-distributor-shop" onchange="reloadTable()">
+                            <option value="">All</option>
+                            @foreach ($data['distributors'] as $shop)
+                                <option value="{{ $shop['id'] }}">
+                                    {{ $shop['name'] }}
+                                    @if (isset($shop['distributor']))
+                                        - {{ $shop['distributor']['name'] }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,6 +93,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                pageLength: 10,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -95,6 +105,8 @@
                         d._token = "{{ csrf_token() }}";
                         d.dateStart = document.getElementById('input-sales-invoice-date-start').value;
                         d.dateEnd = document.getElementById('input-sales-invoice-date-end').value;
+                        d.distributorShopId = document.getElementById(
+                            'input-sales-invoice-distributor-shop').value;
                     }
                 },
                 columnDefs: [{
@@ -219,6 +231,99 @@
                                 table.ajax.reload();
                             });
                         }
+                    },
+                    // {
+                    //     text: "<i class='fas fa-file-text'></i> Multiple Print Consignment",
+                    //     className: "btn btn-outline-secondary btn-sm ml-1",
+                    //     action: function(e, dt, node, config) {
+                    //         var selectedRows = table.rows({
+                    //             selected: true
+                    //         }).data().toArray();
+                    //         if (selectedRows.length === 0) {
+                    //             Swal.fire({
+                    //                 title: "Error",
+                    //                 text: "Please select at least one row for printing.",
+                    //                 icon: "error",
+                    //             });
+                    //             return;
+                    //         }
+
+                    //         var consignmentIds = selectedRows.map(row => row[10]);
+                    //         var invoiceNumbers = selectedRows.map(row => row[1]);
+                    //         var invoiceNumbersString = invoiceNumbers.join(", ");
+
+                    //         Swal.fire({
+                    //             title: "Print Consignment",
+                    //             text: "Are you sure you want to print the consignment for the following sales invoice? \n" +
+                    //                 invoiceNumbersString,
+                    //             icon: "warning",
+                    //             showCancelButton: true,
+                    //             confirmButtonText: "Yes",
+                    //             cancelButtonText: "No",
+                    //         }).then((result) => {
+                    //             if (result.isConfirmed) {
+                    //                 $.ajax({
+                    //                     url: "/sales-invoice/get-multiple-print-consignment",
+                    //                     method: "POST",
+                    //                     data: {
+                    //                         _token: "{{ csrf_token() }}",
+                    //                         consignmentIds: consignmentIds
+                    //                     },
+                    //                     success: function(response) {
+                    //                         if (response.status ==
+                    //                             'success') {
+                    //                             var ids = response.data.map(
+                    //                                 item => item.id);
+                    //                             downloadPDF(
+                    //                                 "/sales-invoice/multiple-print-consignment/" +
+                    //                                 ids.join(","));
+                    //                         } else {
+                    //                             Swal.fire({
+                    //                                 title: "Error",
+                    //                                 text: response
+                    //                                     .message,
+                    //                                 icon: "error",
+                    //                             });
+                    //                         }
+                    //                     }
+                    //                 });
+                    //             }
+                    //         });
+                    //     }
+                    // }
+                    // Create Consignment
+                    {
+                        text: "<i class='fas fa-shipping-fast'></i> Create Consignment",
+                        className: "btn btn-outline-primary btn-sm ml-1",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length === 0) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select at least one sales invoice to create consignment.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            var salesInvoiceIds = selectedRows.map(row => row[12]);
+
+                            Swal.fire({
+                                title: "Create Consignment",
+                                text: "Are you sure you want to create consignments for the selected sales invoices?",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes",
+                                cancelButtonText: "No",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    var ids = btoa(salesInvoiceIds.join(","));
+                                    goToPage(
+                                        "/sales-invoice/consignment/create/" + ids);
+                                }
+                            });
+                        }
                     }
                 ]),
                 language: getDatatablesLanguangeConfigurations("Sales Invoice"),
@@ -301,6 +406,14 @@
                             <button class="btn btn-outline-secondary w-100 btn-sm" id="btn-multiple-print-purchase-order"
                                 onclick="multiplePrintPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Multiple Purchase Order
+                            </button>
+                        </div>
+
+                        {{-- Button Multiple Print Consignment by Distributor --}}
+                        <div class="col-6 col-md-3 mb-3">
+                            <button class="btn btn-outline-primary w-100 btn-sm" id="btn-multiple-print-consignment"
+                                onclick="multiplePrintConsignment()">
+                                <i class="fas fa-building me-2"></i> Multiple Consignment by Distributor
                             </button>
                         </div>
                     </div>
@@ -595,6 +708,69 @@
                                     icon: "error",
                                 });
                             }
+                        }
+                    });
+                }
+            });
+        }
+
+        function multiplePrintConsignment() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+            if (selectedRows.length === 0) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select at least one row for printing.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            var salesInvoiceIds = selectedRows.map(row => row[12]); // Changed from row[10] to row[12]
+            var salesInvoiceNumbers = selectedRows.map(row => row[1]);
+            var salesInvoiceNumbersString = salesInvoiceNumbers.join(", ");
+
+            console.log('Selected Sales Invoice IDs:', salesInvoiceIds); // Debug log
+
+            Swal.fire({
+                title: "Print Multiple Consignment by Distributor",
+                text: "Are you sure you want to print the consignment grouped by distributor for the following sales invoices? \n" +
+                    salesInvoiceNumbersString,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/sales-invoice/get-multiple-print-consignment",
+                        method: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            salesInvoiceIds: salesInvoiceIds
+                        },
+                        success: function(response) {
+                            console.log('Response:', response); // Debug log
+                            if (response.success) {
+                                // Open PDF in new tab using the IDs
+                                downloadPDF("/sales-invoice/multiple-print-consignment/" +
+                                    salesInvoiceIds.join(","));
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: response.message || "Failed to generate consignment.",
+                                    icon: "error",
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('AJAX Error:', xhr.responseText); // Debug log
+                            Swal.fire({
+                                title: "Error",
+                                text: "Failed to process request: " + error,
+                                icon: "error",
+                            });
                         }
                     });
                 }

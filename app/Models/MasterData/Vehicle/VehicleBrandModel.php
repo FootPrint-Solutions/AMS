@@ -38,12 +38,20 @@ class VehicleBrandModel extends Model implements Auditable
     public static function allForDataTables($request)
     {
         // Set the list of select and search columns.
-        $selectColumns = ['id', 'name', 'status'];
+        $selectColumns = ['id', 'name', 'status', 'visible'];
         $searchColumns = ['name'];
 
         // Build the query to obtain all rows.
         $query = self::query();
         $query->select($selectColumns);
+
+        if (isset($request->status) && $request->status !== 'all' && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        if (isset($request->visible) && $request->visible !== 'all' && $request->visible !== '') {
+            $query->where('visible', $request->visible);
+        }
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }

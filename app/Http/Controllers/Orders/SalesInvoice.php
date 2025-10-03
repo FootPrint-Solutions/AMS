@@ -21,6 +21,7 @@ use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceBatteryModel;
 use App\Models\MasterData\Company\CompanyModel;
 use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
@@ -32,6 +33,7 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Accounting\ExpenseModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
+use App\Models\Orders\SalesConsignment\SalesConsignmentModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -50,7 +52,10 @@ class SalesInvoice extends Controller
         return view(
             'Orders.SalesInvoice.index',
             getIndexData(
-                $this->title
+                $this->title,
+                array(
+                    "distributors" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                )
             )
         );
     }
@@ -1037,5 +1042,240 @@ class SalesInvoice extends Controller
                 'message' => 'Error exporting data ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function multipleConsignment()
+    {
+        try {
+            $ids = request()->input('salesInvoiceIds', []);
+
+            // Debug: Log the received IDs
+            Log::info('Multiple Consignment - Received IDs:', ['ids' => $ids]);
+
+            if (empty($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No sales invoice IDs provided.',
+                    'data' => [],
+                    'debug' => [
+                        'received_data' => request()->all()
+                    ]
+                ]);
+            }
+
+            // First check if any sales invoices exist with these IDs
+            $salesInvoicesCount = SalesInvoiceModel::whereIn('id', $ids)->count();
+
+            if ($salesInvoicesCount == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No sales invoices found with the provided IDs.',
+                    'data' => [],
+                    'debug' => [
+                        'ids' => $ids,
+                        'count_found' => $salesInvoicesCount
+                    ]
+                ]);
+            }
+
+            $salesInvoices = SalesInvoiceModel::with(['shop.distributor'])->whereIn('id', $ids)->get();
+
+            // Debug: Log the query result
+            Log::info('Multiple Consignment - Query result count:', ['count' => $salesInvoices->count()]);
+
+            $distributorData = [];
+
+            foreach ($salesInvoices as $salesInvoice) {
+                $distributorName = 'N/A';
+
+                if ($salesInvoice->shop && $salesInvoice->shop->distributor) {
+                    $distributorName = $salesInvoice->shop->distributor->name;
+                }
+
+                $distributorData[] = [
+                    'sales_invoice_id' => $salesInvoice->id,
+                    'sales_invoice_number' => $salesInvoice->sales_invoice_number,
+                    'distributor_name' => $distributorName,
+                    'shop_name' => $salesInvoice->shop->name ?? 'N/A'
+                ];
+            }
+
+            // Debug: Log the final data
+            Log::info('Multiple Consignment - Final data:', ['data' => $distributorData]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Multiple consignment data retrieved successfully.',
+                'data' => $distributorData,
+                'debug' => [
+                    'total_invoices' => $salesInvoices->count(),
+                    'total_distributors' => count(array_unique(array_column($distributorData, 'distributor_name')))
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Multiple Consignment - Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing the request.',
+                'data' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function testConsignment()
+    {
+        // Get the first few sales invoices for testing
+        $salesInvoices = SalesInvoiceModel::with(['shop.distributor'])->take(3)->get();
+
+        $distributorData = [];
+        foreach ($salesInvoices as $salesInvoice) {
+            $distributorName = 'N/A';
+
+            if ($salesInvoice->shop && $salesInvoice->shop->distributor) {
+                $distributorName = $salesInvoice->shop->distributor->name;
+            }
+
+            $distributorData[] = [
+                'sales_invoice_id' => $salesInvoice->id,
+                'sales_invoice_number' => $salesInvoice->sales_invoice_number,
+                'distributor_name' => $distributorName,
+                'shop_name' => $salesInvoice->shop->name ?? 'N/A'
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Test data retrieved successfully.',
+            'data' => $distributorData,
+            'count' => $salesInvoices->count()
+        ]);
+    }
+
+    public function multipleConsignmentPrint($ids)
+    {
+        $ids = explode(",", $ids);
+        $salesInvoices = SalesInvoiceModel::with(['customer', 'shop.distributor', 'technician', 'batteries.battery'])->whereIn('id', $ids)->get();
+
+        // Group sales invoices by distributor
+        $groupedByDistributor = [];
+        foreach ($salesInvoices as $salesInvoice) {
+            $distributorName = $salesInvoice->shop->distributor->name ?? 'Unknown Distributor';
+            $distributorId = $salesInvoice->shop->distributor->id ?? 0;
+
+            if (!isset($groupedByDistributor[$distributorId])) {
+                $groupedByDistributor[$distributorId] = [
+                    'distributor_name' => $distributorName,
+                    'distributor_id' => $distributorId,
+                    'sales_invoices' => [],
+                    'total_quantity' => 0
+                ];
+            }
+
+            // Calculate total quantity for this sales invoice
+            $invoiceQuantity = 0;
+            foreach ($salesInvoice->batteries as $battery) {
+                if (isset($battery['battery']) && isset($battery['battery']['type']) && $battery['battery']['type'] != 'regular') {
+                    continue;
+                }
+                $invoiceQuantity += $battery['quantity'];
+            }
+
+            $groupedByDistributor[$distributorId]['sales_invoices'][] = $salesInvoice->toArray();
+            $groupedByDistributor[$distributorId]['total_quantity'] += $invoiceQuantity;
+        }
+
+        return view(
+            'Orders.SalesInvoice.print.multiple-consignment',
+            getIndexData(
+                $this->title,
+                array(
+                    "grouped_data" => $groupedByDistributor,
+                    "company" => CompanyModel::first(),
+                )
+            )
+        );
+    }
+
+    public function createConsignment($ids)
+    {
+        // Redirect to SalesConsignment controller
+        return redirect()->route('sales-consignment.create', ['ids' => $ids]);
+    }
+
+    public function getByDistributor(Request $request)
+    {
+        $distributorId = $request->input('distributor_id');
+
+        if (!$distributorId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Distributor ID is required.',
+                'data' => []
+            ]);
+        }
+
+        $salesInvoices = SalesInvoiceModel::with('customer')->whereHas('shop', function ($query) use ($distributorId) {
+            $query->where('distributor_id', $distributorId);
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales invoices retrieved successfully.',
+            'data' => $salesInvoices
+        ]);
+    }
+
+    public function addConsignmentTemp(Request $request)
+    {
+        $invoiceIds = array_unique($request->input('invoice_ids', []));
+
+        if (empty($invoiceIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No invoice IDs provided.',
+                'data' => []
+            ]);
+        }
+
+        $salesInvoices = SalesInvoiceModel::with(['customer', 'shop.distributor', 'technician', 'batteries.battery'])
+            ->whereIn('id', $invoiceIds)
+            ->get();
+
+        // Check if all invoices have the same distributor and none are missing
+        $distributorIds = [];
+        foreach ($salesInvoices as $invoice) {
+            if (!isset($invoice->shop) || !isset($invoice->shop->distributor) || !isset($invoice->shop->distributor->id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'All invoices must have a distributor.',
+                    'data' => []
+                ]);
+            }
+            $distributorIds[] = $invoice->shop->distributor->id;
+        }
+        $distributorIds = array_unique($distributorIds);
+
+        if (count($distributorIds) !== 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'All invoices must belong to the same distributor.',
+                'data' => []
+            ]);
+        }
+
+        // Store to session
+        session(['consignment_invoices' => $salesInvoices->pluck('id')->toArray()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales invoices details retrieved and stored in session.',
+            'data' => $salesInvoices
+        ]);
     }
 }

@@ -45,6 +45,9 @@
                         <th scope="col">Brand</th>
                         <th scope="col">URL</th>
                         <th scope="col">Battery Size</th>
+                        <th scope="col">Year</th>
+                        <th scope="col">Transmission</th>
+                        <th scope="col">Fuel</th>
                         <th scope="col">Note</th>
                         <th scope="col" class="table-col-status">Status</th>
                     </tr>
@@ -60,9 +63,10 @@
             // DataTables configuration
             table = $("#table-vehicle").DataTable({
                 lengthMenu: [
-                    [5, 10, 25],
-                    [5, 10, 25]
+                    [10, 25, 50],
+                    [10, 25, 50]
                 ],
+                pageLength: 10,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -93,7 +97,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(7, "/vehicle/edit/", null, "/vehicle/toggle");
+            appendDatatablesToolbar(8, "/vehicle/edit/", null, "/vehicle/toggle");
 
             // Add New Vehicle button
             $("#btn-add").on("click", function() {
