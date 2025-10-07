@@ -558,7 +558,11 @@
         btnFindSalesInvoice.on('click', function() {
             const distributorId = distributorSelect.val();
             if (!distributorId) {
-                alert('Please select a distributor first.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Distributor Required',
+                    text: 'Please select a distributor first.'
+                });
                 return;
             }
 
@@ -594,7 +598,11 @@
             });
 
             if (selectedInvoices.length === 0) {
-                alert('Please select at least one invoice.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Invoice Selected',
+                    text: 'Please select at least one invoice.'
+                });
                 return;
             }
 
@@ -653,7 +661,11 @@
                 },
                 error: function(xhr) {
                     console.error('Error:', xhr);
-                    alert('Failed to fetch invoice details. Please try again.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: 'Failed to fetch invoice details. Please try again.'
+                    });
                     // Reset button state
                     $('#btn-select-invoices').prop('disabled', false).html('Select Invoices');
                 }
@@ -677,11 +689,19 @@
             if (discount < 0) {
                 discount = 0;
                 $(this).val(discount);
-                alert('Discount cannot be negative.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Discount',
+                    text: 'Discount cannot be negative.'
+                });
             } else if (discount > originalTotal) {
                 discount = originalTotal;
                 $(this).val(discount);
-                alert('Discount cannot exceed the original invoice total.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Discount',
+                    text: 'Discount cannot exceed the original invoice total.'
+                });
             }
 
             const newSubtotal = Math.max(0, originalTotal - discount);
@@ -768,7 +788,11 @@
 
                 // Validate that discount doesn't exceed subtotal
                 if (numericValue > subtotalValue) {
-                    alert('Total discount cannot exceed subtotal amount.');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Discount',
+                        text: 'Total discount cannot exceed subtotal amount.'
+                    });
                     $(this).val(subtotalValue.toLocaleString('id-ID'));
                 } else {
                     $(this).val(numericValue.toLocaleString('id-ID'));
@@ -796,7 +820,11 @@
 
             // Validate that at least one invoice is selected
             if ($('#selected-sales-invoices-table tbody tr').length === 0) {
-                alert('Please select at least one sales invoice to create consignment.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Invoice Selected',
+                    text: 'Please select at least one sales invoice to create consignment.'
+                });
                 return;
             }
 
@@ -846,17 +874,30 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Sales Consignment created successfully!');
-                        window.location.href = '{{ route('sales-consignment.index') }}';
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Sales Consignment created successfully!',
+                        }).then(() => {
+                            window.location.href = '{{ route('sales-consignment.index') }}';
+                        });
                     } else {
-                        alert('Error: ' + response.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to create Sales Consignment.',
+                        });
                     }
                 },
                 error: function(xhr) {
                     console.error('Error:', xhr);
                     const errorMessage = xhr.responseJSON?.message ||
                         'Failed to create Sales Consignment. Please try again.';
-                    alert('Error: ' + errorMessage);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                    });
                 },
                 complete: function() {
                     $('#btn-save-consignment').prop('disabled', false).html(
