@@ -120,7 +120,10 @@ class SalesConsignment extends Controller
             'distributors' => DistributorModel::where('status', 1)->get()->toArray()
         ];
 
-        return view('Orders.SalesConsignment.create', compact('data'));
+        return view(
+            'Orders.SalesConsignment.create',
+            getIndexData('Create Sales Consignment', $data)
+        );
     }
 
     /**
@@ -135,11 +138,10 @@ class SalesConsignment extends Controller
 
         try {
             // Normalize sales_invoice_ids for validation
-            $salesInvoiceIds = $request->input('sales_invoice_ids', $request->input('sales_invoice_ids', []));
+            $salesInvoiceIds = $request->input('sales_invoice_ids', []);
             if (!is_array($salesInvoiceIds)) {
                 $salesInvoiceIds = [$salesInvoiceIds];
             }
-            $request->merge(['sales_invoice_ids' => $salesInvoiceIds]);
 
             // Validate request
             $request->validate([
@@ -158,12 +160,12 @@ class SalesConsignment extends Controller
             ]);
 
             // Calculate totals from selected invoices
-            $salesInvoices = SalesInvoiceModel::whereIn('id', $request->sales_invoice_ids)->get();
+            $salesInvoices = SalesInvoiceModel::whereIn('id', $salesInvoiceIds)->get();
 
-            $subtotal = $salesInvoices->sum('subtotal');
-            $discountPrice = floatval(str_replace('.', '', $request->discount_price)) ?? 0;
-            $totalExpenses = $salesInvoices->sum('total_expenses');
-            $total = $subtotal - $discountPrice + $totalExpenses;
+            $subtotal = floatval(str_replace(['.', ','], '', $request->subtotal)) ?? 0;
+            $discountPrice = floatval(str_replace(['.', ','], '', $request->discountprice)) ?? 0;
+            $totalExpenses = floatval(str_replace(['.', ','], '', $request->totalexpenses)) ?? 0;
+            $total = floatval(str_replace(['.', ','], '', $request->total)) ?? 0;
 
             // Generate consignment number
             $consignmentNumber = SalesConsignmentModel::newCode();
@@ -177,11 +179,11 @@ class SalesConsignment extends Controller
                 'subtotal' => $subtotal,
                 'total_expenses' => $totalExpenses,
                 'total' => $total,
-                'payment_status' => $request->payment_status ?? 'paid',
-                'status' => 'draft'
+                'payment_status' => 'paid', // Default to paid
+                'status' => $request->status ?? 'draft'
             ]);
 
-            foreach ($request->sales_invoice_ids as $invoiceId) {
+            foreach ($salesInvoiceIds as $invoiceId) {
                 $invoice = SalesInvoiceModel::find($invoiceId);
                 if ($invoice) {
                     SalesConsignmentBatteriesModel::create([
@@ -379,7 +381,7 @@ class SalesConsignment extends Controller
             }
 
             // Delete pivot records first
-            SalesConsignmentInvoiceModel::where('sales_consignment_id', $salesConsignment->id)->delete();
+            SalesConsignmentBatteriesModel::where('sales_consignment_id', $salesConsignment->id)->delete();
 
             // Delete the consignment
             $salesConsignment->delete();

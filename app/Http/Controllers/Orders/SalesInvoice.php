@@ -1211,6 +1211,8 @@ class SalesInvoice extends Controller
     public function getByDistributor(Request $request)
     {
         $distributorId = $request->input('distributor_id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         if (!$distributorId) {
             return response()->json([
@@ -1222,12 +1224,116 @@ class SalesInvoice extends Controller
 
         $salesInvoices = SalesInvoiceModel::with('customer')->whereHas('shop', function ($query) use ($distributorId) {
             $query->where('distributor_id', $distributorId);
+        })->where(function ($query) use ($startDate, $endDate) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->where('date', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->where('date', '<=', $endDate);
+            }
         })->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Sales invoices retrieved successfully.',
             'data' => $salesInvoices
+        ]);
+    }
+
+    public function getByDistributorDataTable(Request $request)
+    {
+        $distributorId = $request->input('distributor_id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if (!$distributorId) {
+            return response()->json([
+                'draw' => $request->input('draw'),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => 'Distributor ID is required.'
+            ]);
+        }
+
+        // Get DataTables parameters
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
+        $searchValue = $request->input('search.value');
+        $orderColumn = $request->input('order.0.column', 0);
+        $orderDir = $request->input('order.0.dir', 'asc');
+
+        // Base query
+        $query = SalesInvoiceModel::with('customer')
+            ->join('customers', 'sales_invoices.customer_id', '=', 'customers.id')
+            ->whereHas('shop', function ($q) use ($distributorId) {
+                $q->where('distributor_id', $distributorId);
+            })
+            ->where(function ($q) use ($startDate, $endDate) {
+                if ($startDate && $endDate) {
+                    $q->whereBetween('sales_invoices.date', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $q->where('sales_invoices.date', '>=', $startDate);
+                } elseif ($endDate) {
+                    $q->where('sales_invoices.date', '<=', $endDate);
+                }
+            })
+            ->select(
+                'sales_invoices.*',
+                'customers.name as customer_name'
+            );
+
+        // Apply search filter
+        if ($searchValue) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('sales_invoices.sales_invoice_number', 'like', "%{$searchValue}%")
+                    ->orWhere('sales_invoices.invoice_number', 'like', "%{$searchValue}%")
+                    ->orWhere('customers.name', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Get total count before pagination
+        $totalRecords = SalesInvoiceModel::whereHas('shop', function ($q) use ($distributorId) {
+            $q->where('distributor_id', $distributorId);
+        })->count();
+
+        $filteredRecords = $query->count();
+
+        // Apply ordering
+        $columns = ['id', 'sales_invoice_number', 'invoice_number', 'date', 'customer_name', 'total'];
+        if (isset($columns[$orderColumn])) {
+            $query->orderBy($columns[$orderColumn], $orderDir);
+        }
+
+        // Apply pagination
+        $invoices = $query->skip($start)->take($length)->get();
+
+        // Format data for DataTables
+        $data = [];
+        foreach ($invoices as $index => $invoice) {
+            $data[] = [
+                'DT_RowId' => 'row_' . $invoice->id,
+                'DT_RowClass' => 'invoice-row',
+                'DT_RowData' => [
+                    'invoice-id' => $invoice->id
+                ],
+                'checkbox' => '<input type="checkbox" class="form-check-input select-invoice" data-id="' . $invoice->id . '" data-total="' . $invoice->total . '">',
+                'number' => $start + $index + 1,
+                'sales_invoice_number' => $invoice->sales_invoice_number ?? '',
+                'invoice_number' => $invoice->invoice_number ?? '',
+                'date' => $invoice->date ? date('j M Y', strtotime($invoice->date)) : '',
+                'customer_name' => $invoice->customer_name ?? '',
+                'total' => 'Rp ' . number_format($invoice->total ?? 0, 0, ',', '.')
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data
         ]);
     }
 

@@ -30,4 +30,5 @@ Route::get('/sales-invoice/multiple-print-consignment/{ids}', [SalesInvoice::cla
 Route::get('/sales-invoice/test-consignment', [SalesInvoice::class, 'testConsignment'])->name('sales-invoice.testConsignment'); // Test route
 Route::get('/sales-invoice/consignment/create/{ids}', [SalesInvoice::class, 'createConsignment'])->name('sales-invoice.createConsignment')->middleware('permission:add_sales_invoice');
 Route::get('/sales-invoices/by-distributor', [SalesInvoice::class, 'getByDistributor'])->name('sales-invoice.byDistributor')->middleware('permission:view_sales_invoice');
+Route::post('/sales-invoices/by-distributor-datatable', [SalesInvoice::class, 'getByDistributorDataTable'])->name('sales-invoice.byDistributorDataTable')->middleware('permission:view_sales_invoice');
 Route::post('/sales-invoices/add-consignment-temp', [SalesInvoice::class, 'addConsignmentTemp'])->name('sales-invoice.addConsignmentTemp')->middleware('permission:add_sales_invoice');
