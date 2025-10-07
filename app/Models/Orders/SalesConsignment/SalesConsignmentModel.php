@@ -16,6 +16,7 @@ class SalesConsignmentModel extends Model
     protected $table = 'sales_consignments';
 
     protected $fillable = [
+        'to',
         'sales_consignment_number',
         'date',
         'discount',

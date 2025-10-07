@@ -146,6 +146,7 @@ class SalesConsignment extends Controller
             // Validate request
             $request->validate([
                 '_token' => 'required',
+                'to' => 'nullable|string|max:255',
                 'salesconsignmentnumber' => 'required|string',
                 'salesconsignmentdate' => 'required|date',
                 'paymentmethod' => 'required|exists:payment_methods,id',
@@ -172,6 +173,7 @@ class SalesConsignment extends Controller
 
             // Create sales consignment
             $salesConsignment = SalesConsignmentModel::create([
+                'to' => $request->to,
                 'sales_consignment_number' => $consignmentNumber,
                 'date' => $request->salesconsignmentdate,
                 'discount' => $request->discount ?? 0,

@@ -77,7 +77,7 @@
                         {{-- Distributor --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="distributor">Distributor <span class="login-danger">*</span></label>
+                                <label for="distributor">Shop <span class="login-danger">*</span></label>
                                 <select class="form-control select" id="distributor" name="distributor"
                                     data-placeholder="Select Distributor">
                                     <option value="">Select Distributor</option>
@@ -87,6 +87,15 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+
+                        {{-- To --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="to">To</label>
+                                <input type="text" class="form-control" id="to" name="to"
+                                    placeholder="Enter recipient name" value="{{ $data['to'] ?? 'Distributor Jakarta' }}">
                             </div>
                         </div>
 
@@ -374,7 +383,7 @@
                             setTimeout(() => {
                                 $('#btn-save-consignment').prop('disabled', false).html(
                                     '<i class="fas fa-save"></i> Save Sales Consignment');
-                                alert('Form submission prepared! Check console for data structure.');
+                                // alert('Form submission prepared! Check console for data structure.');
                             }, 1000);
                         });
                     </script>
