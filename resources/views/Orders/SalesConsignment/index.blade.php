@@ -47,15 +47,6 @@
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-                    <script>
-                        function onStatusFilterChange() {
-                            table.ajax.reload();
-                        }
-
-                        function getActiveFilter() {
-                            return $('#sales-consignment-status-filter').val();
-                        }
-                    </script>
                 </div>
             </div>
         </div>
@@ -93,8 +84,12 @@
                 serverSide: true,
                 ajax: {
                     url: "/sales-consignment/show",
+                    type: "POST",
                     data: function(d) {
+                        d._token = '{{ csrf_token() }}';
                         d.status = getActiveFilter();
+                        d.date_start = $('#input-sales-consignment-date-start').val();
+                        d.date_end = $('#input-sales-consignment-date-end').val();
                     }
                 },
                 columns: [{
@@ -235,5 +230,13 @@
         $('#btn-add').on('click', function() {
             window.location.href = '/sales-consignment/createnoids';
         });
+
+        function onStatusFilterChange() {
+            table.ajax.reload();
+        }
+
+        function getActiveFilter() {
+            return $('#sales-consignment-status-filter').val();
+        }
     </script>
 @endsection
