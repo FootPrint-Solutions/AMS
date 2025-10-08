@@ -66,8 +66,17 @@ class SalesConsignmentModel extends Model
 
         $query = self::query();
 
-        if ($request->dateStart && $request->dateEnd) {
-            $query->whereBetween('sales_consignments.date', [$request->dateStart, $request->dateEnd]);
+        // Filter by status if provided
+        if ($request->has('status') && $request->status !== null && $request->status !== '' && $request->status !== 'all') {
+            $query->where('sales_consignments.status', $request->status);
+        }
+
+        // Filter by date range if provided
+        if ($request->has('date_start') && $request->date_start) {
+            $query->where('sales_consignments.date', '>=', $request->date_start);
+        }
+        if ($request->has('date_end') && $request->date_end) {
+            $query->where('sales_consignments.date', '<=', $request->date_end);
         }
 
         $query->select($selectColumns);
