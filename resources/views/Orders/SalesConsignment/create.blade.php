@@ -34,6 +34,10 @@
             padding: 20px;
             margin-top: 20px;
         }
+
+        .dataTables_filter {
+            margin-top: 0px;
+        }
     </style>
 
     <div class="d-none d-lg-block">
@@ -50,7 +54,7 @@
                 </div>
                 <br>
 
-                <form id="quotation-form">
+                <form id="quotation-form" method="POST">
                     @csrf
 
                     {{-- Quotation Number & Date --}}
@@ -61,7 +65,7 @@
                                 <label for="sales-consignment-number">Sales Consignment Number</label>
                                 <input type="text" class="form-control" id="sales-consignment-number"
                                     name="salesconsignmentnumber" placeholder="Enter consignment number" readonly
-                                    value="{{ $data['consignment_number'] ?? '' }}">
+                                    value="{{ isset($data['sales_consignment']) ? $data['sales_consignment']->sales_consignment_number : $data['consignment_number'] ?? '' }}">
                             </div>
                         </div>
 
@@ -70,19 +74,21 @@
                             <div class="form-group local-forms">
                                 <label for="sales-consignment-date">Sales Consignment Date</label>
                                 <input type="date" class="form-control" id="sales-consignment-date"
-                                    name="salesconsignmentdate" value="{{ $data['consignment_date'] ?? date('Y-m-d') }}">
+                                    name="salesconsignmentdate"
+                                    value="{{ isset($data['sales_consignment']) ? \Illuminate\Support\Carbon::parse($data['sales_consignment']->date)->format('Y-m-d') : (isset($data['consignment_date']) ? \Illuminate\Support\Carbon::parse($data['consignment_date'])->format('Y-m-d') : date('Y-m-d')) }}">
                             </div>
                         </div>
 
-                        {{-- Distributor --}}
+                        {{-- Vendor --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="distributor">Shop <span class="login-danger">*</span></label>
-                                <select class="form-control select" id="distributor" name="distributor"
-                                    data-placeholder="Select Distributor">
-                                    <option value="">Select Distributor</option>
+                                <label for="distributor">Vendor <span class="login-danger">*</span></label>
+                                <select class="form-control select" id="vendor_id" name="vendor_id"
+                                    data-placeholder="Select Vendor">
+                                    <option value="">Select Vendor</option>
                                     @foreach ($data['distributors'] as $distributor)
-                                        <option value="{{ $distributor['id'] }}">
+                                        <option value="{{ $distributor['id'] }}"
+                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->vendor_id == $distributor['id'] ? 'selected' : '' }}>
                                             {{ $distributor['name'] }}
                                         </option>
                                     @endforeach
@@ -93,9 +99,17 @@
                         {{-- To --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="to">To</label>
-                                <input type="text" class="form-control" id="to" name="to"
-                                    placeholder="Enter recipient name" value="{{ $data['to'] ?? 'Distributor Jakarta' }}">
+                                <label for="to">Ship To <span class="login-danger">*</span></label>
+                                <select class="form-control select" id="ship_to_id" name="ship_to_id"
+                                    data-placeholder="Select Shop" required>
+                                    <option value="">Select Shop</option>
+                                    @foreach ($data['shops'] as $shop)
+                                        <option value="{{ $shop['id'] }}"
+                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->ship_to_id == $shop['id'] ? 'selected' : '' }}>
+                                            {{ $shop['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
@@ -111,26 +125,90 @@
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            <table class="table table-striped mt-5" id="selected-sales-invoices-table">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>No</th>
-                                        <th>Sales Invoice Number</th>
-                                        <th>Invoice Number</th>
-                                        <th>Date</th>
-                                        <th>Customer Name</th>
-                                        <th>Total</th>
-                                        <th>Address</th>
-                                        <th>Discount</th>
-                                        <th>Note</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{-- Rows will be dynamically added via JavaScript --}}
-                                </tbody>
-                            </table>
+                            @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['sales_consignment']))
+                                {{-- Edit Mode: Show existing invoices --}}
+                                <h6 class="mb-3">Selected Sales Invoices</h6>
+                                <table class="table table-striped mt-5" id="selected-sales-invoices-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>No</th>
+                                            <th>Sales Invoice Number</th>
+                                            <th>Invoice Number</th>
+                                            <th>Date</th>
+                                            <th>Customer Name</th>
+                                            <th>Total</th>
+                                            <th>Address</th>
+                                            <th>Discount</th>
+                                            <th>Note</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data['sales_consignment']->consignmentBatteries as $index => $battery)
+                                            @if ($battery->salesInvoice)
+                                                <tr>
+                                                    <td>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-danger delete-invoice-row">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $battery->salesInvoice->sales_invoice_number ?? 'N/A' }}</td>
+                                                    <td>{{ $battery->salesInvoice->invoice_number ?? 'N/A' }}</td>
+                                                    <td>{{ $battery->date ?? 'N/A' }}</td>
+                                                    <td>{{ $battery->salesInvoice->customer->name ?? 'N/A' }}</td>
+                                                    <td class="text-end">
+                                                        {{ number_format($battery->subtotal ?? 0, 0, ',', '.') }}</td>
+                                                    <td>{{ $battery->salesInvoice->customer->address ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <input type="number" class="form-control discount"
+                                                            data-id="{{ $battery->salesInvoice->id }}"
+                                                            value="{{ $battery->discount ?? 0 }}" min="0"
+                                                            step="0.01">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" name="notes[]"
+                                                            placeholder="Enter note" value="">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control subtotal"
+                                                            data-id="{{ $battery->salesInvoice->id }}"
+                                                            data-original-total="{{ $battery->subtotal ?? 0 }}"
+                                                            value="{{ number_format($battery->total ?? 0, 0, ',', '.') }}"
+                                                            readonly>
+                                                        <input type="hidden" name="invoice_ids[]"
+                                                            value="{{ $battery->salesInvoice->id }}">
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                {{-- Create Mode: Empty table for dynamic content --}}
+                                <table class="table table-striped mt-5" id="selected-sales-invoices-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>No</th>
+                                            <th>Sales Invoice Number</th>
+                                            <th>Invoice Number</th>
+                                            <th>Date</th>
+                                            <th>Customer Name</th>
+                                            <th>Total</th>
+                                            <th>Address</th>
+                                            <th>Discount</th>
+                                            <th>Note</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Rows will be dynamically added via JavaScript --}}
+                                    </tbody>
+                                </table>
+                            @endif
                         </div>
                     </div>
 
@@ -140,7 +218,7 @@
                         <h6 class="mb-3">
                             Consignment Summary
                             <span class="badge bg-secondary ms-2" id="discount-savings-badge" style="display: none;">
-                                Total Savings: Rp <span id="total-savings">0</span>
+                                Total Discount9: Rp <span id="total-savings">0</span>
                             </span>
                         </h6>
                         <div class="row">
@@ -163,10 +241,11 @@
                                         Discount (Overall)
                                     </label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="total-discount" name="total_discount"
-                                            placeholder="Enter additional discount amount" value="0">
-                                        <button class="btn btn-outline-secondary" type="button" id="reset-total-discount"
-                                            title="Reset to 0">
+                                        <input type="text" class="form-control" id="total-discount"
+                                            name="total_discount" placeholder="Enter additional discount amount"
+                                            value="0">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            id="reset-total-discount" title="Reset to 0">
                                             <i class="fas fa-undo"></i>
                                         </button>
                                     </div>
@@ -185,38 +264,39 @@
                                         style="font-weight: bold; font-size: 1.1em; background-color: #e8f5e8;">
                                 </div>
                             </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="status">Status <span class="login-danger">*</span></label>
+                                    <select class="form-control select" id="status" name="status" required>
+                                        <option value="draft"
+                                            {{ (isset($data['sales_consignment']) && $data['sales_consignment']->status == 'draft') || !isset($data['sales_consignment']) ? 'selected' : '' }}>
+                                            Draft</option>
+                                        <option value="posted"
+                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->status == 'posted' ? 'selected' : '' }}>
+                                            Posted</option>
+                                        <option value="completed"
+                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->status == 'completed' ? 'selected' : '' }}>
+                                            Completed</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     {{-- Additional Form Fields --}}
                     <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="form-group local-forms">
-                                <label for="payment-method">Payment Method <span class="login-danger">*</span></label>
-                                <select class="form-control select" id="payment-method" name="paymentmethod" required>
-                                    <option value="">Select Payment Method</option>
-                                    @foreach ($data['payment_methods'] as $method)
-                                        <option value="{{ $method['id'] }}">{{ $method['name'] }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group local-forms">
-                                <label for="status">Status <span class="login-danger">*</span></label>
-                                <select class="form-control select" id="status" name="status" required>
-                                    <option value="draft" selected>Draft</option>
-                                    <option value="posted">Posted</option>
-                                    <option value="completed">Completed</option>
-                                </select>
-                            </div>
-                        </div>
+
                     </div>
 
                     {{-- Hidden Fields --}}
                     <input type="hidden" name="discount" id="discount-percentage" value="0">
                     <input type="hidden" name="discountprice" id="discount-price-hidden" value="0">
                     <input type="hidden" name="totalexpenses" id="total-expenses-hidden" value="0">
+
+                    @if (isset($data['type']) && $data['type'] == 'edit')
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" name="id" value="{{ $data['sales_consignment']->id }}">
+                    @endif
 
                     {{-- Submit Button --}}
                     <div class="row mt-4">
@@ -225,168 +305,15 @@
                                 <i class="fas fa-arrow-left"></i> Back
                             </button>
                             <button type="submit" class="btn btn-success" id="btn-save-consignment">
-                                <i class="fas fa-save"></i> Save Sales Consignment
+                                <i class="fas fa-save"></i>
+                                @if (isset($data['type']) && $data['type'] == 'edit')
+                                    Update Sales Consignment
+                                @else
+                                    Save Sales Consignment
+                                @endif
                             </button>
                         </div>
                     </div>
-
-                    <script>
-                        function calculateTotals() {
-                            let subtotal = 0;
-                            let totalRowDiscounts = 0;
-                            let subtotalAfterRowDiscounts = 0;
-
-                            // Calculate subtotal and row-level discounts
-                            $('#selected-sales-invoices-table tbody tr').each(function() {
-                                const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
-                                const discount = parseFloat($(this).find('.discount').val().replace(/[,.]/g, '')) || 0;
-                                const rowSubtotal = Math.max(0, total - discount);
-
-                                subtotal += total;
-                                totalRowDiscounts += discount;
-                                subtotalAfterRowDiscounts += rowSubtotal;
-
-                                // Update subtotal field in the row
-                                $(this).find('.subtotal').val(rowSubtotal.toLocaleString('id-ID'));
-                            });
-
-                            // Get additional total discount (overall discount)
-                            const additionalDiscount = parseFloat($('#total-discount').val().replace(/[,.]/g, '')) || 0;
-
-                            // Calculate grand total: subtotal - row discounts - additional discount
-                            const grandTotal = Math.max(0, subtotalAfterRowDiscounts - additionalDiscount);
-
-                            // Calculate total savings
-                            const totalSavings = totalRowDiscounts + additionalDiscount;
-
-                            // Update display fields
-                            $('#subtotal').val(subtotal.toLocaleString('id-ID'));
-                            $('#item-discounts-total').val(totalRowDiscounts.toLocaleString('id-ID'));
-                            $('#grand-total').val(grandTotal.toLocaleString('id-ID'));
-
-                            // Update savings badge
-                            if (totalSavings > 0) {
-                                $('#total-savings').text(totalSavings.toLocaleString('id-ID'));
-                                $('#discount-savings-badge').show();
-                            } else {
-                                $('#discount-savings-badge').hide();
-                            }
-                        }
-
-                        // Event listeners
-                        $('#selected-sales-invoices-table').on('input', '.discount', calculateTotals);
-                        $('#selected-sales-invoices-table').on('click', '.delete-invoice-row', calculateTotals);
-                        $(document).on('ajaxComplete', function() {
-                            calculateTotals();
-                        });
-
-                        // When total discount input changes, recalculate grand total
-                        $('#total-discount').on('input', function() {
-                            // Format the input value as user types
-                            let value = $(this).val().replace(/[^0-9]/g, '');
-                            if (value) {
-                                $(this).val(parseInt(value).toLocaleString('id-ID'));
-                            }
-                            calculateTotals();
-                        });
-
-                        // Format total discount on blur and validate
-                        $('#total-discount').on('blur', function() {
-                            let value = $(this).val().replace(/[^0-9]/g, '');
-
-                            if (value) {
-                                // Get subtotal after item discounts for validation
-                                let subtotalAfterItemDiscounts = 0;
-                                $('#selected-sales-invoices-table tbody tr').each(function() {
-                                    const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
-                                    const discount = parseFloat($(this).find('.discount').val()) || 0;
-                                    const rowSubtotal = Math.max(0, total - discount);
-                                    subtotalAfterItemDiscounts += rowSubtotal;
-                                });
-
-                                let numericValue = parseInt(value);
-
-                                // Validate: cannot be negative or exceed subtotal after item discounts
-                                if (numericValue < 0) {
-                                    numericValue = 0;
-                                    alert('Additional discount cannot be negative.');
-                                } else if (numericValue > subtotalAfterItemDiscounts) {
-                                    numericValue = subtotalAfterItemDiscounts;
-                                    alert('Additional discount cannot exceed the subtotal after item discounts.');
-                                }
-
-                                $(this).val(numericValue.toLocaleString('id-ID'));
-                                calculateTotals();
-                            }
-                        });
-
-                        // Reset total discount button
-                        $('#reset-total-discount').on('click', function() {
-                            $('#total-discount').val('0');
-                            calculateTotals();
-                        });
-
-                        // Initialize tooltips
-                        $(document).ready(function() {
-                            $('[data-bs-toggle="tooltip"]').tooltip();
-                        });
-
-                        // Form submission
-                        $('#quotation-form').on('submit', function(e) {
-                            e.preventDefault();
-
-                            // Validate that at least one invoice is selected
-                            if ($('#selected-sales-invoices-table tbody tr').length === 0) {
-                                alert('Please select at least one sales invoice.');
-                                return;
-                            }
-
-                            // Prepare form data
-                            const formData = new FormData(this);
-
-                            // Convert formatted numbers back to numeric values for submission
-                            const totalDiscount = $('#total-discount').val().replace(/[,.]/g, '') || '0';
-                            formData.set('total_discount', totalDiscount);
-
-                            const subtotal = $('#subtotal').val().replace(/[,.]/g, '') || '0';
-                            formData.set('subtotal', subtotal);
-
-                            const grandTotal = $('#grand-total').val().replace(/[,.]/g, '') || '0';
-                            formData.set('grand_total', grandTotal);
-
-                            // Collect selected invoices data
-                            const selectedInvoices = [];
-                            $('#selected-sales-invoices-table tbody tr').each(function() {
-                                const row = $(this);
-                                selectedInvoices.push({
-                                    id: row.find('.discount').data('id'),
-                                    discount: row.find('.discount').val().replace(/[,.]/g, '') || '0',
-                                    subtotal: row.find('.subtotal').val().replace(/[,.]/g, '') || '0'
-                                });
-                            });
-
-                            formData.append('selected_invoices', JSON.stringify(selectedInvoices));
-
-                            // Show loading state
-                            $('#btn-save-consignment').prop('disabled', true).html(
-                                '<i class="fas fa-spinner fa-spin"></i> Saving...');
-
-                            // Submit form (you'll need to implement the actual submission logic)
-                            console.log('Form data ready for submission:', {
-                                total_discount: totalDiscount,
-                                subtotal: subtotal,
-                                grand_total: grandTotal,
-                                selected_invoices: selectedInvoices
-                            });
-
-                            // Restore button state (remove this when implementing actual submission)
-                            setTimeout(() => {
-                                $('#btn-save-consignment').prop('disabled', false).html(
-                                    '<i class="fas fa-save"></i> Save Sales Consignment');
-                                // alert('Form submission prepared! Check console for data structure.');
-                            }, 1000);
-                        });
-                    </script>
                 </form>
             </div>
         </div>
@@ -403,37 +330,41 @@
                 </div>
                 <div class="modal-body">
 
-                    <div class="row mb-5">
-                        <div class="col-md-6">
-                            <label for="filter-start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="filter-start-date" name="filter_start_date"
-                                value="{{ date('Y-m-d', strtotime('-30 days')) }}">
+                    <div class="container-fluid px-0">
+                        <div class="row mb-3 align-items-end">
+                            <div class="col-md-5">
+                                <label for="filter-start-date" class="form-label mb-1">Start Date</label>
+                                <input type="date" class="form-control" id="filter-start-date"
+                                    name="filter_start_date" value="{{ date('Y-m-d', strtotime('-30 days')) }}">
+                            </div>
+                            <div class="col-md-5">
+                                <label for="filter-end-date" class="form-label mb-1">End Date</label>
+                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date"
+                                    value="{{ date('Y-m-d') }}">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="filter-end-date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="filter-end-date" name="filter_end_date"
-                                value="{{ date('Y-m-d') }}">
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle" id="table-sales-invoice">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:40px;" class="text-center">
+                                            <input type="checkbox" id="select-all-invoices" class="form-check-input">
+                                        </th>
+                                        <th style="width:40px;" class="text-center">No</th>
+                                        <th>Sales Invoice Number</th>
+                                        <th>Invoice Number</th>
+                                        <th>Date</th>
+                                        <th>Customer Name</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{-- Data will be populated via AJAX DataTable --}}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-                    <table class="table table-striped" id="table-sales-invoice">
-                        <thead>
-                            <tr>
-                                <th width="5%">
-                                    <input type="checkbox" id="select-all-invoices" class="form-check-input">
-                                </th>
-                                <th width="5%">No</th>
-                                <th width="20%">Sales Invoice Number</th>
-                                <th width="20%">Invoice Number</th>
-                                <th width="15%">Date</th>
-                                <th width="25%">Customer Name</th>
-                                <th width="10%">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- Data will be populated via AJAX DataTable --}}
-                        </tbody>
-                    </table>
 
                 </div>
                 <div class="modal-footer">
@@ -444,18 +375,23 @@
         </div>
     </div>
 
-
     <script>
         let salesInvoiceDataTable = null;
-        const distributorSelect = $('#distributor');
+        const distributorSelect = $('#vendor_id');
         const btnFindSalesInvoice = $('#btn-find-sales-invoice');
         const modalShowInvoice = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
-        // Initialize DataTable
+        // Edit mode data
+        @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['sales_consignment']))
+            const isEditMode = true;
+            const editDiscountPrice = {{ $data['sales_consignment']->discount_price ?? 0 }};
+        @else
+            const isEditMode = false;
+            const editDiscountPrice = 0;
+        @endif
+
         function initializeSalesInvoiceDataTable() {
-            if (salesInvoiceDataTable) {
-                salesInvoiceDataTable.destroy();
-            }
+            if (salesInvoiceDataTable) salesInvoiceDataTable.destroy();
 
             salesInvoiceDataTable = $('#table-sales-invoice').DataTable({
                 processing: true,
@@ -464,6 +400,7 @@
                 paging: true,
                 lengthChange: true,
                 pageLength: 10,
+                autoWidth: false,
                 lengthMenu: [
                     [10, 25, 50, 100],
                     [10, 25, 50, 100]
@@ -477,9 +414,12 @@
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
                     },
-                    error: function(xhr, error, thrown) {
-                        console.error('DataTable AJAX error:', error);
-                        alert('Failed to load sales invoices. Please try again.');
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load sales invoices.'
+                        });
                     }
                 },
                 columns: [{
@@ -523,90 +463,77 @@
                 ],
                 order: [
                     [2, 'desc']
-                ], // Order by sales_invoice_number descending
+                ],
                 language: {
                     processing: "Loading sales invoices...",
                     emptyTable: "No sales invoices found for selected distributor and date range",
                     zeroRecords: "No matching sales invoices found"
                 },
-                drawCallback: function(settings) {
-                    // Re-initialize select all checkbox after each draw
+                drawCallback: function() {
                     updateSelectAllCheckbox();
                 }
             });
         }
 
-        // Handle select all checkbox
-        $('#select-all-invoices').on('change', function() {
-            const isChecked = $(this).is(':checked');
-            $('#table-sales-invoice tbody .select-invoice').prop('checked', isChecked);
-        });
-
-        // Handle individual checkbox changes
-        $('#table-sales-invoice').on('change', '.select-invoice', function() {
-            updateSelectAllCheckbox();
-        });
-
-        // Update select all checkbox state
         function updateSelectAllCheckbox() {
-            const totalCheckboxes = $('#table-sales-invoice tbody .select-invoice').length;
-            const checkedCheckboxes = $('#table-sales-invoice tbody .select-invoice:checked').length;
-
-            if (totalCheckboxes === 0) {
-                $('#select-all-invoices').prop('indeterminate', false).prop('checked', false);
-            } else if (checkedCheckboxes === totalCheckboxes) {
-                $('#select-all-invoices').prop('indeterminate', false).prop('checked', true);
-            } else if (checkedCheckboxes > 0) {
-                $('#select-all-invoices').prop('indeterminate', true);
-            } else {
-                $('#select-all-invoices').prop('indeterminate', false).prop('checked', false);
+            const total = $('#table-sales-invoice tbody .select-invoice').length;
+            const checked = $('#table-sales-invoice tbody .select-invoice:checked').length;
+            const $master = $('#select-all-invoices');
+            if (total === 0) {
+                $master.prop({
+                    indeterminate: false,
+                    checked: false
+                });
+                return;
             }
+            if (checked === total) $master.prop({
+                indeterminate: false,
+                checked: true
+            });
+            else if (checked > 0) $master.prop({
+                indeterminate: true
+            });
+            else $master.prop({
+                indeterminate: false,
+                checked: false
+            });
         }
 
-        // Show invoice modal and initialize DataTable
+        $('#select-all-invoices').on('change', function() {
+            const v = $(this).is(':checked');
+            $('#table-sales-invoice tbody .select-invoice').prop('checked', v);
+        });
+
+        $('#table-sales-invoice').on('change', '.select-invoice', updateSelectAllCheckbox);
+
         btnFindSalesInvoice.on('click', function() {
             const distributorId = distributorSelect.val();
             if (!distributorId) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Distributor Required',
-                    text: 'Please select a distributor first.'
+                    title: 'Vendor Required',
+                    text: 'Please select a vendor first.'
                 });
                 return;
             }
-
             modalShowInvoice.show();
-
-            // Initialize or reload DataTable
-            if (salesInvoiceDataTable) {
-                salesInvoiceDataTable.ajax.reload();
-            } else {
-                initializeSalesInvoiceDataTable();
-            }
+            salesInvoiceDataTable ? salesInvoiceDataTable.ajax.reload() : initializeSalesInvoiceDataTable();
         });
 
-        // Handle date filter changes
         $('#filter-start-date, #filter-end-date').on('change', function() {
-            if (salesInvoiceDataTable && distributorSelect.val()) {
-                salesInvoiceDataTable.ajax.reload();
-            }
+            if (salesInvoiceDataTable && distributorSelect.val()) salesInvoiceDataTable.ajax.reload();
         });
 
-        // Handle distributor change
         distributorSelect.on('change', function() {
-            if (salesInvoiceDataTable) {
-                salesInvoiceDataTable.ajax.reload();
-            }
+            if (salesInvoiceDataTable) salesInvoiceDataTable.ajax.reload();
         });
 
-        // Handle select invoices button
         $('#btn-select-invoices').on('click', function() {
-            const selectedInvoices = [];
+            const ids = [];
             $('.select-invoice:checked').each(function() {
-                selectedInvoices.push($(this).data('id'));
+                ids.push($(this).data('id'));
             });
-
-            if (selectedInvoices.length === 0) {
+            if (ids.length === 0) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'No Invoice Selected',
@@ -615,97 +542,81 @@
                 return;
             }
 
-            // Show loading state
-            $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
-
-            // Fetch selected invoices details via AJAX
+            const $btn = $(this).prop('disabled', true).html(
+                '<i class="fas fa-spinner fa-spin"></i> Processing...');
             $.ajax({
                 url: '/sales-invoices/add-consignment-temp',
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    invoice_ids: selectedInvoices
+                    invoice_ids: ids
                 },
                 success: function(response) {
-                    const tableBody = $('#selected-sales-invoices-table tbody');
-                    tableBody.empty();
-
-                    let number = 1;
-                    response.data.forEach(invoice => {
+                    const $tbody = $('#selected-sales-invoices-table tbody').empty();
+                    let no = 1;
+                    response.data.forEach(inv => {
+                        const total = inv.total ?? 0;
                         const row = `
-                            <tr>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm delete-invoice-row">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <input type="hidden" name="invoice_ids[]" value="${invoice.id}">
-                                </td>
-                                <td>${number}</td>
-                                <td>${invoice.sales_invoice_number ?? ''}</td>
-                                <td>${invoice.invoice_number ?? ''}</td>
-                                <td>${invoice.date ?? ''}</td>
-                                <td>${invoice.customer ? invoice.customer.name : ''}</td>
-                                <td>Rp ${(invoice.total ?? 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</td>
-                                <td>${invoice.address ?? ''}</td>
-                                <td><input type="number" class="form-control form-input discount" data-id="${invoice.id}" value="0" min="0" max="${invoice.total}"></td>
-                                <td><input type="text" class="form-control form-input note" data-id="${invoice.id}" value="" placeholder="Optional note"></td>
-                                <td><input type="text" class="form-control form-input subtotal" data-id="${invoice.id}" data-original-total="${invoice.total ?? 0}" value="${(invoice.total ?? 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}" readonly></td>
-                            </tr>
-                        `;
-                        tableBody.append(row);
-                        number++;
+                    <tr>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm delete-invoice-row">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <input type="hidden" name="invoice_ids[]" value="${inv.id}">
+                        </td>
+                        <td>${no++}</td>
+                        <td>${inv.sales_invoice_number ?? ''}</td>
+                        <td>${inv.invoice_number ?? ''}</td>
+                        <td>${inv.date ?? ''}</td>
+                        <td>${inv.customer ? inv.customer.name : ''}</td>
+                        <td>Rp ${Math.floor(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</td>
+                        <td>${inv.address ?? ''}</td>
+                        <td><input type="number" class="form-control form-input discount" data-id="${inv.id}" value="0" min="0" max="${total}"></td>
+                        <td><input type="text" class="form-control form-input note" data-id="${inv.id}" value="" placeholder="Optional note"></td>
+                        <td><input type="text" class="form-control form-input subtotal" data-id="${inv.id}" data-original-total="${total}" value="${Math.floor(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}" readonly></td>
+                    </tr>`;
+                        $tbody.append(row);
                     });
-
-                    // Calculate initial totals
                     calculateTotals();
-
                     modalShowInvoice.hide();
-
-                    // Reset button state
-                    $('#btn-select-invoices').prop('disabled', false).html('Select Invoices');
-
-                    // Clear selections
+                    $btn.prop('disabled', false).text('Select Invoices');
                     $('.select-invoice').prop('checked', false);
                     $('#select-all-invoices').prop('checked', false);
                 },
-                error: function(xhr) {
-                    console.error('Error:', xhr);
+                error: function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Failed',
-                        text: 'Failed to fetch invoice details. Please try again.'
+                        text: 'Failed to fetch invoice details.'
                     });
-                    // Reset button state
-                    $('#btn-select-invoices').prop('disabled', false).html('Select Invoices');
+                    $btn.prop('disabled', false).text('Select Invoices');
                 }
             });
         });
 
-        // Handle delete invoice row
         $('#selected-sales-invoices-table').on('click', '.delete-invoice-row', function() {
             $(this).closest('tr').remove();
             calculateTotals();
         });
 
-        // Handle discount input changes
         $('#selected-sales-invoices-table').on('input', '.discount', function() {
-            const invoiceId = $(this).data('id');
-            let discount = parseFloat($(this).val()) || 0;
-            const subtotalField = $(`.subtotal[data-id="${invoiceId}"]`);
-            const originalTotal = parseFloat(subtotalField.attr('data-original-total')) || 0;
+            const id = $(this).data('id');
+            let disc = parseFloat($(this).val()) || 0;
+            const $sub = $(`.subtotal[data-id="${id}"]`);
+            const original = parseFloat($sub.attr('data-original-total')) || 0;
 
-            // Validate discount: cannot be negative or exceed original total
-            if (discount < 0) {
-                discount = 0;
-                $(this).val(discount);
+            if (disc < 0) {
+                disc = 0;
+                $(this).val(0);
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
                     text: 'Discount cannot be negative.'
                 });
-            } else if (discount > originalTotal) {
-                discount = originalTotal;
-                $(this).val(discount);
+            }
+            if (disc > original) {
+                disc = original;
+                $(this).val(original);
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
@@ -713,121 +624,90 @@
                 });
             }
 
-            const newSubtotal = Math.max(0, originalTotal - discount);
-            // Format rupiah tanpa desimal, titik sebagai separator ribuan
-            subtotalField.val(`${Math.floor(newSubtotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`);
-
+            const newSub = Math.max(0, original - disc);
+            $sub.val(newSub.toLocaleString('id-ID'));
             calculateTotals();
+        }).on('blur', '.discount', function() {
+            let v = parseFloat($(this).val()) || 0;
+            $(this).val(v);
         });
 
-        // Format discount on blur for item discounts
-        $('#selected-sales-invoices-table').on('blur', '.discount', function() {
-            let value = parseFloat($(this).val()) || 0;
-            $(this).val(value);
-        });
-
-        // Clear DataTable when modal is hidden
-        $('#modal-show-invoice').on('hidden.bs.modal', function() {
-            if (salesInvoiceDataTable) {
-                $('.select-invoice').prop('checked', false);
-                $('#select-all-invoices').prop('checked', false);
-            }
-        });
-
-        // Calculate totals function
         function calculateTotals() {
-            let subtotal = 0;
-            let totalRowDiscounts = 0;
-            let subtotalAfterRowDiscounts = 0;
-
-            // Calculate subtotal and row-level discounts
+            let subtotal = 0,
+                rowDisc = 0,
+                afterRow = 0;
             $('#selected-sales-invoices-table tbody tr').each(function() {
                 const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
-                const discount = parseFloat($(this).find('.discount').val().replace(/[,.]/g, '')) || 0;
-                const rowSubtotal = Math.max(0, total - discount);
-
+                const disc = parseFloat(($(this).find('.discount').val() || '0').replace(/[,.]/g, '')) || 0;
+                const sub = Math.max(0, total - disc);
                 subtotal += total;
-                totalRowDiscounts += discount;
-                subtotalAfterRowDiscounts += rowSubtotal;
-
-                // Update subtotal field in the row
-                $(this).find('.subtotal').val(rowSubtotal.toLocaleString('id-ID'));
+                rowDisc += disc;
+                afterRow += sub;
+                $(this).find('.subtotal').val(sub.toLocaleString('id-ID'));
             });
 
-            // Get additional total discount (overall discount)
-            const additionalDiscount = parseFloat($('#total-discount').val().replace(/[,.]/g, '')) || 0;
+            const addDisc = parseFloat($('#total-discount').val().replace(/[^\d]/g, '')) || 0;
+            const grand = Math.max(0, afterRow - addDisc);
+            const savings = rowDisc + addDisc;
 
-            // Calculate grand total: subtotal - row discounts - additional discount
-            const grandTotal = Math.max(0, subtotalAfterRowDiscounts - additionalDiscount);
-
-            // Calculate total savings
-            const totalSavings = totalRowDiscounts + additionalDiscount;
-
-            // Update display fields
             $('#subtotal').val(subtotal.toLocaleString('id-ID'));
-            $('#item-discounts-total').val(totalRowDiscounts.toLocaleString('id-ID'));
-            $('#grand-total').val(grandTotal.toLocaleString('id-ID'));
+            $('#item-discounts-total').val(rowDisc.toLocaleString('id-ID'));
+            $('#grand-total').val(grand.toLocaleString('id-ID'));
 
-            // Update savings badge
-            if (totalSavings > 0) {
-                $('#total-savings').text(totalSavings.toLocaleString('id-ID'));
+            if (savings > 0) {
+                $('#total-savings').text(savings.toLocaleString('id-ID'));
                 $('#discount-savings-badge').show();
             } else {
                 $('#discount-savings-badge').hide();
             }
         }
 
-        // When total discount input changes, recalculate grand total
         $('#total-discount').on('input', function() {
-            // Format the input value as user types
-            let value = $(this).val().replace(/[^0-9]/g, '');
-            if (value) {
-                $(this).val(parseInt(value).toLocaleString('id-ID'));
-            }
+            let v = $(this).val().replace(/[^\d]/g, '');
+            $(this).val(v ? parseInt(v).toLocaleString('id-ID') : '0');
             calculateTotals();
         });
 
-        // Format total discount on blur and validate
         $('#total-discount').on('blur', function() {
-            let value = $(this).val().replace(/[^0-9]/g, '');
-
-            if (value) {
-                const numericValue = parseInt(value);
-                const subtotalValue = parseFloat($('#subtotal').val().replace(/[,.]/g, '')) || 0;
-
-                // Validate that discount doesn't exceed subtotal
-                if (numericValue > subtotalValue) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Discount',
-                        text: 'Total discount cannot exceed subtotal amount.'
-                    });
-                    $(this).val(subtotalValue.toLocaleString('id-ID'));
-                } else {
-                    $(this).val(numericValue.toLocaleString('id-ID'));
-                }
-            } else {
-                $(this).val('0');
+            // validasi terhadap subtotal setelah item discount
+            let afterRow = 0;
+            $('#selected-sales-invoices-table tbody tr').each(function() {
+                const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
+                const disc = parseFloat($(this).find('.discount').val()) || 0;
+                afterRow += Math.max(0, total - disc);
+            });
+            let v = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
+            if (v > afterRow) {
+                v = afterRow;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Discount',
+                    text: 'Total discount cannot exceed the subtotal after item discounts.'
+                });
             }
+            $(this).val(v.toLocaleString('id-ID'));
             calculateTotals();
         });
 
-        // Reset total discount button
         $('#reset-total-discount').on('click', function() {
             $('#total-discount').val('0');
             calculateTotals();
         });
 
-        // Initialize tooltips
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Initialize values for edit mode
+            if (isEditMode) {
+                $('#total-discount').val(editDiscountPrice.toLocaleString('id-ID'));
+                calculateTotals();
+            }
         });
 
-        // Form submission
+        // ======= S A T U - S A T U N Y A  H A N D L E R  S U B M I T =======
         $('#quotation-form').on('submit', function(e) {
             e.preventDefault();
 
-            // Validate that at least one invoice is selected
             if ($('#selected-sales-invoices-table tbody tr').length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -837,10 +717,10 @@
                 return;
             }
 
-            // Prepare form data
             const formData = new FormData(this);
+            const isEdit = formData.has('_method') && formData.get('_method') === 'PUT';
 
-            // Convert formatted numbers back to numeric values for submission
+            // angka diformat → balik ke numerik
             const totalDiscount = $('#total-discount').val().replace(/[,.]/g, '') || '0';
             formData.set('discountprice', totalDiscount);
             $('#discount-price-hidden').val(totalDiscount);
@@ -849,68 +729,84 @@
             formData.set('subtotal', subtotal);
 
             const grandTotal = $('#grand-total').val().replace(/[,.]/g, '') || '0';
+            // backend kamu sebelumnya membaca total grand di key 'total'
             formData.set('total', grandTotal);
 
-            // Set total expenses to 0 for now
+            // totalexpenses diset 0 (sesuai hidden)
             formData.set('totalexpenses', '0');
             $('#total-expenses-hidden').val('0');
 
-            // Collect selected invoices data
-            const invoiceIds = [];
+            // kirim array id invoice (pakai nama yg backend harapkan)
+            const ids = [];
             $('#selected-sales-invoices-table tbody tr').each(function() {
-                const invoiceId = $(this).find('input[name="invoice_ids[]"]').val();
-                if (invoiceId) {
-                    invoiceIds.push(invoiceId);
-                }
+                const id = $(this).find('input[name="invoice_ids[]"]').val();
+                if (id) ids.push(id);
             });
+            // pastikan hanya ada sales_invoice_ids[] (hapus varian lain bila ada)
+            formData.delete('sales_invoice_ids');
+            formData.delete('sales_invoice_ids[]');
+            ids.forEach(id => formData.append('sales_invoice_ids[]', id));
 
-            // Send invoice IDs as array
-            formData.delete('sales_invoice_ids'); // Remove the JSON string
-            invoiceIds.forEach(function(id, index) {
-                formData.append('sales_invoice_ids[]', id);
-            });
+            // Determine URL and method based on mode
+            let url = '/sales-consignment/store';
+            let method = 'POST';
+            let actionText = 'create';
+            let actioningText = 'Creating';
+            let actionedText = 'created';
 
-            // Submit the form
+            if (isEdit) {
+                const id = formData.get('id');
+                url = `/sales-consignment/update/${id}`;
+                method = 'POST';
+                actionText = 'update';
+                actioningText = 'Updating';
+                actionedText = 'updated';
+
+                formData.delete('_method');
+            }
+
             $.ajax({
-                url: '{{ route('sales-consignment.store') }}',
-                method: 'POST',
+                url: url,
+                method: method,
                 data: formData,
                 processData: false,
                 contentType: false,
                 beforeSend: function() {
                     $('#btn-save-consignment').prop('disabled', true).html(
-                        '<i class="fas fa-spinner fa-spin"></i> Saving...');
+                        `<i class="fas fa-spinner fa-spin"></i> ${actioningText}...`);
                 },
-                success: function(response) {
-                    if (response.success) {
+                success: function(res) {
+                    if (res.success) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Sales Consignment created successfully!',
-                        }).then(() => {
-                            window.location.href = '{{ route('sales-consignment.index') }}';
-                        });
+                                icon: 'success',
+                                title: 'Success',
+                                text: `Sales Consignment ${actionedText} successfully!`
+                            })
+                            .then(() => {
+                                window.location.href = '/sales-consignment';
+                            });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.message || 'Failed to create Sales Consignment.',
+                            text: res.message || `Failed to ${actionText} Sales Consignment.`
                         });
                     }
                 },
                 error: function(xhr) {
-                    console.error('Error:', xhr);
-                    const errorMessage = xhr.responseJSON?.message ||
-                        'Failed to create Sales Consignment. Please try again.';
+                    const msg = xhr.responseJSON?.message ||
+                        `Failed to ${actionText} Sales Consignment. Please try again.`;
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: errorMessage,
+                        text: msg
                     });
                 },
                 complete: function() {
-                    $('#btn-save-consignment').prop('disabled', false).html(
-                        '<i class="fas fa-save"></i> Save Consignment');
+                    const buttonText = isEdit ?
+                        '<i class="fas fa-save"></i> Update Sales Consignment' :
+                        '<i class="fas fa-save"></i> Save Sales Consignment';
+                    $('#btn-save-consignment').prop('disabled', false).html(buttonText);
                 }
             });
         });

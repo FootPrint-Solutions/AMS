@@ -117,13 +117,43 @@ class SalesConsignment extends Controller
             'company' => CompanyModel::first(),
             'payment_methods' => PaymentMethodModel::where('status', 1)->get()->toArray(),
             'type' => 'create',
-            'distributors' => DistributorModel::where('status', 1)->get()->toArray()
+            'distributors' => DistributorModel::where('status', 1)->get()->toArray(),
+            'shops' => DistributorShopModel::where('status', 1)->get()->toArray(),
         ];
 
         return view(
             'Orders.SalesConsignment.create',
             getIndexData('Create Sales Consignment', $data)
         );
+    }
+
+    public function edit($id)
+    {
+        try {
+            $data = [
+                'title' => 'Edit Sales Consignment',
+                'breadcrumb' => 'Orders/SalesConsignment/edit',
+                'sales_consignment' => SalesConsignmentModel::with('consignmentBatteries.salesInvoice')->findOrFail($id),
+                'consignment_number' => '', // Will be filled from existing data
+                'consignment_date' => '', // Will be filled from existing data
+                'company' => CompanyModel::first(),
+                'payment_methods' => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                'type' => 'edit',
+                'distributors' => DistributorModel::where('status', 1)->get()->toArray(),
+                'shops' => DistributorShopModel::where('status', 1)->get()->toArray(),
+            ];
+
+            return view('Orders.SalesConsignment.create', getIndexData('Edit Sales Consignment', $data));
+        } catch (Exception $e) {
+            Log::error('Sales Consignment Edit Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'id' => $id
+            ]);
+
+            return redirect()->route('sales-consignment.index')->with('error', 'Error loading sales consignment: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -146,10 +176,10 @@ class SalesConsignment extends Controller
             // Validate request
             $request->validate([
                 '_token' => 'required',
-                'to' => 'nullable|string|max:255',
+                'vendor_id' => 'required|exists:distributors,id',
+                'ship_to_id' => 'required|exists:distributor_shops,id',
                 'salesconsignmentnumber' => 'required|string',
                 'salesconsignmentdate' => 'required|date',
-                'paymentmethod' => 'required|exists:payment_methods,id',
                 'status' => 'required|in:draft,posted,completed',
                 'discount' => 'nullable|numeric|min:0|max:100',
                 'discountprice' => 'nullable|numeric|min:0',
@@ -161,20 +191,21 @@ class SalesConsignment extends Controller
             ]);
 
             // Calculate totals from selected invoices
-            $salesInvoices = SalesInvoiceModel::whereIn('id', $salesInvoiceIds)->get();
-
             $subtotal = floatval(str_replace(['.', ','], '', $request->subtotal)) ?? 0;
             $discountPrice = floatval(str_replace(['.', ','], '', $request->discountprice)) ?? 0;
             $totalExpenses = floatval(str_replace(['.', ','], '', $request->totalexpenses)) ?? 0;
             $total = floatval(str_replace(['.', ','], '', $request->total)) ?? 0;
 
             // Generate consignment number
-            $consignmentNumber = SalesConsignmentModel::newCode();
+            $consignmentNumber = $request->salesconsignmentnumber ?: SalesConsignmentModel::newCode();
 
             // Create sales consignment
             $salesConsignment = SalesConsignmentModel::create([
-                'to' => $request->to,
                 'sales_consignment_number' => $consignmentNumber,
+                'vendor_id' => $request->vendor_id,
+                'vendor_name' => DistributorModel::find($request->vendor_id)->name ?? '',
+                'ship_to_id' => $request->ship_to_id,
+                'ship_to_name' => DistributorShopModel::find($request->ship_to_id)->name ?? '',
                 'date' => $request->salesconsignmentdate,
                 'discount' => $request->discount ?? 0,
                 'discount_price' => $discountPrice,
@@ -190,28 +221,14 @@ class SalesConsignment extends Controller
                 if ($invoice) {
                     SalesConsignmentBatteriesModel::create([
                         'sales_consignment_id' => $salesConsignment->id,
+                        'sales_invoice_id' => $invoice->id,
                         'sales_invoice_number' => $invoice->sales_invoice_number,
                         'invoice_number' => $invoice->invoice_number,
                         'date' => $invoice->date,
-                        'customer_id' => $invoice->customer_id,
-                        'vehicle_id' => $invoice->vehicle_id,
-                        'distributor_shop_id' => $invoice->distributor_shop_id,
-                        'distributor_shop_technician_id' => $invoice->distributor_shop_technician_id,
                         'discount' => $invoice->discount,
                         'discount_price' => $invoice->discount_price,
                         'subtotal' => $invoice->subtotal,
                         'total' => $invoice->total,
-                        'payment_status' => $invoice->payment_status,
-                        'status' => $invoice->status,
-                        'address' => $invoice->address,
-                        'alternative_address' => $invoice->alternative_address,
-                        'latitude' => $invoice->latitude,
-                        'longitude' => $invoice->longitude,
-                        'payment_method_id' => $invoice->payment_method_id,
-                        'midtrans_invoice_number' => $invoice->midtrans_invoice_number,
-                        'midtrans_payment_link' => $invoice->midtrans_payment_link,
-                        'source_platform' => $invoice->source_platform,
-                        'source_id' => $invoice->source_id,
                     ]);
                 }
             }
@@ -251,49 +268,213 @@ class SalesConsignment extends Controller
     public function show(Request $request)
     {
         $draw = $request->input("draw");
-        $start = $request->input("start");
+        $start = intval($request->input("start", 0));
+        $length = intval($request->input("length", 10));
+        $searchValue = $request->input('search.value');
+        $order = $request->input('order', []);
+        $status = $request->input('status');
+        $dateStart = $request->input('date_start');
+        $dateEnd = $request->input('date_end');
 
-        $data = SalesConsignmentModel::allForDataTables($request);
+        $query = SalesConsignmentModel::query();
+
+        // Filter by status
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        // Filter by date range
+        if ($dateStart) {
+            $query->whereDate('date', '>=', $dateStart);
+        }
+        if ($dateEnd) {
+            $query->whereDate('date', '<=', $dateEnd);
+        }
+
+        // Search
+        if ($searchValue) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('sales_consignment_number', 'like', "%{$searchValue}%")
+                    ->orWhere('vendor_name', 'like', "%{$searchValue}%")
+                    ->orWhere('ship_to_name', 'like', "%{$searchValue}%");
+            });
+        }
+
+        $recordsTotal = SalesConsignmentModel::count();
+        $recordsFiltered = $query->count();
+
+        // Ordering
+        if (!empty($order)) {
+            $columns = [
+                0 => null, // No
+                1 => 'sales_consignment_number',
+                2 => 'date',
+                3 => 'vendor_name',
+                4 => 'ship_to_name',
+                5 => 'subtotal',
+                6 => 'discount_price',
+                7 => 'total',
+                8 => 'status',
+                9 => 'id' // Hidden ID for internal use
+            ];
+            $orderColIdx = $order[0]['column'] ?? 2;
+            $orderDir = $order[0]['dir'] ?? 'desc';
+            $orderCol = $columns[$orderColIdx] ?? 'date';
+            if ($orderCol) {
+                $query->orderBy($orderCol, $orderDir);
+            }
+        } else {
+            $query->orderBy('date', 'desc');
+        }
+
+        $data = $query->skip($start)->take($length)->get();
 
         $rows = [];
         $no = $start + 1;
-        foreach ($data["row"] as $key) {
-            // Payment status badge
-            if ($key->payment_status == "paid") {
-                $paymentStatusBadgeClass = "badge-success";
-            } else if ($key->payment_status == "pending") {
-                $paymentStatusBadgeClass = "badge-warning";
-            } else {
-                $paymentStatusBadgeClass = "badge-danger";
-            }
-
+        foreach ($data as $item) {
             // Status badge
-            if ($key->status == "draft") {
-                $statusBadgeClass = "badge-secondary text-dark";
-            } else if ($key->status == "posted") {
-                $statusBadgeClass = "badge-success";
+            if ($item->status == "draft") {
+                $statusBadge = "<span class='badge badge-secondary text-dark'>Draft</span>";
+            } else if ($item->status == "posted") {
+                $statusBadge = "<span class='badge badge-success'>Printed</span>";
+            } else if ($item->status == "completed") {
+                $statusBadge = "<span class='badge badge-info'>Completed</span>";
             } else {
-                $statusBadgeClass = "badge-info";
+                $statusBadge = "<span class='badge badge-light'>{$item->status}</span>";
             }
 
-            $row = [];
-            $row[] = $no++;
-            $row[] = $key->sales_consignment_number;
-            $row[] = formatDate($key->date);
-            $row[] = $key->total;
-            $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>";
-            $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
-            $row[] = $key->id;
-            $row[] = $key->status;
-            $rows[] = $row;
+            $rows[] = [
+                $no++,
+                $item->sales_consignment_number,
+                formatDate($item->date),
+                $item->vendor_name,
+                $item->ship_to_name,
+                $item->subtotal,
+                $item->discount_price,
+                $item->total,
+                $statusBadge,
+                $item->id // Hidden ID for internal use
+            ];
         }
 
         return response()->json([
             "draw" => $draw,
-            "recordsTotal" => SalesConsignmentModel::count(),
-            "recordsFiltered" => $data["count"],
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered,
             "data" => $rows
         ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Find the existing consignment
+            $salesConsignment = SalesConsignmentModel::findOrFail($id);
+
+            // Check if consignment can be updated (only draft can be updated)
+            if ($salesConsignment->status !== 'draft') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only draft consignments can be updated.'
+                ], 400);
+            }
+
+            // Normalize sales_invoice_ids for validation
+            $salesInvoiceIds = $request->input('sales_invoice_ids', []);
+            if (!is_array($salesInvoiceIds)) {
+                $salesInvoiceIds = [$salesInvoiceIds];
+            }
+
+            // Validate request
+            $request->validate([
+                '_token' => 'required',
+                'salesconsignmentnumber' => 'required|string|max:50',
+                'salesconsignmentdate' => 'required|date',
+                'vendor_id' => 'required|exists:distributors,id',
+                'ship_to_id' => 'required|exists:distributor_shops,id',
+                'sales_invoice_ids' => 'required|array|min:1',
+                'sales_invoice_ids.*' => 'exists:sales_invoices,id',
+                'subtotal' => 'required|numeric|min:0',
+                'discountprice' => 'nullable|numeric|min:0',
+                'totalexpenses' => 'nullable|numeric|min:0',
+                'total' => 'required|numeric|min:0'
+            ]);
+
+            // Calculate totals from selected invoices
+            $subtotal = floatval(str_replace(['.', ','], '', $request->subtotal)) ?? 0;
+            $discountPrice = floatval(str_replace(['.', ','], '', $request->discountprice)) ?? 0;
+            $totalExpenses = floatval(str_replace(['.', ','], '', $request->totalexpenses)) ?? 0;
+            $total = floatval(str_replace(['.', ','], '', $request->total)) ?? 0;
+
+            // Update sales consignment
+            $salesConsignment->update([
+                'sales_consignment_number' => $request->salesconsignmentnumber,
+                'vendor_id' => $request->vendor_id,
+                'vendor_name' => DistributorModel::find($request->vendor_id)->name,
+                'ship_to_id' => $request->ship_to_id,
+                'ship_to_name' => DistributorShopModel::find($request->ship_to_id)->name,
+                'date' => $request->salesconsignmentdate,
+                'discount' => 0, // percentage discount not used
+                'discount_price' => $discountPrice,
+                'subtotal' => $subtotal,
+                'total_expenses' => $totalExpenses,
+                'total' => $total,
+                'payment_status' => 'unpaid',
+                'status' => $request->status ?? 'draft'
+            ]);
+
+            // Delete existing consignment batteries
+            SalesConsignmentBatteriesModel::where('sales_consignment_id', $salesConsignment->id)->delete();
+
+            // Create new consignment batteries
+            foreach ($salesInvoiceIds as $invoiceId) {
+                $invoice = SalesInvoiceModel::find($invoiceId);
+                if ($invoice) {
+                    SalesConsignmentBatteriesModel::create([
+                        'sales_consignment_id' => $salesConsignment->id,
+                        'sales_invoice_id' => $invoiceId,
+                        'sales_invoice_number' => $invoice->sales_invoice_number,
+                        'invoice_number' => $invoice->invoice_number,
+                        'date' => $invoice->date,
+                        'discount' => 0,
+                        'discount_price' => 0,
+                        'subtotal' => $invoice->total,
+                        'total' => $invoice->total,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sales Consignment updated successfully!',
+                'data' => $salesConsignment
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Sales Consignment Update Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all(),
+                'id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update Sales Consignment: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -394,6 +575,12 @@ class SalesConsignment extends Controller
                 'success' => true,
                 'message' => 'Sales Consignment deleted successfully!'
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Sales Consignment not found.'
+            ], 404);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Sales Consignment Delete Error:', [
@@ -408,5 +595,95 @@ class SalesConsignment extends Controller
                 'message' => 'Failed to delete Sales Consignment: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getItems($id)
+    {
+        try {
+            $items = SalesConsignmentBatteriesModel::where('sales_consignment_id', $id)->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $items
+            ]);
+        } catch (Exception $e) {
+            Log::error('Get Sales Consignment Items Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'consignment_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve items: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getPrint(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+            if (!$ids) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Parameter ids is required.'
+                ], 400);
+            }
+
+            $salesConsignmentIds = explode(',', $ids);
+            $salesConsignments = SalesConsignmentModel::with('consignmentBatteries')->whereIn('id', $salesConsignmentIds)->get();
+
+            if ($salesConsignments->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Consignment(s) not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $salesConsignments
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sales Consignment not found.'
+            ], 404);
+        } catch (Exception $e) {
+            Log::error('Get Sales Consignment Print Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve consignment for printing: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function print($ids)
+    {
+        $ids = explode(",", $ids);
+        $salesConsignments = SalesConsignmentModel::with([
+            'consignmentBatteries',
+            'vendor',
+            'shipTo'
+        ])->whereIn('id', $ids)->get();
+
+        return view(
+            'Orders.SalesConsignment.print.multiple',
+            getIndexData(
+                $this->title,
+                array(
+                    "profile" => $salesConsignments->toArray(),
+                    "company" => CompanyModel::first(),
+                )
+            )
+        );
     }
 }

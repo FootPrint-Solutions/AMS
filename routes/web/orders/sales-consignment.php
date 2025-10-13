@@ -14,10 +14,16 @@ use App\Http\Controllers\Orders\SalesConsignment;
 
 Route::get('/sales-consignment', [SalesConsignment::class, 'index'])->name('sales-consignment.index')->middleware('permission:view_sales_consignment');
 Route::post('/sales-consignment/show', [SalesConsignment::class, 'show'])->name('sales-consignment.show-datatable')->middleware('permission:view_sales_consignment');
+Route::get('/sales-consignment/items/{id}', [SalesConsignment::class, 'getItems'])->name('sales-consignment.items')->middleware('permission:view_sales_consignment');
 Route::get('/sales-consignment/create/{ids}', [SalesConsignment::class, 'create'])->name('sales-consignment.create')->middleware('permission:add_sales_consignment');
 Route::post('/sales-consignment/store', [SalesConsignment::class, 'store'])->name('sales-consignment.store')->middleware('permission:add_sales_consignment');
 Route::get('/sales-consignment/createnoids', [SalesConsignment::class, 'createNoIds'])->name('sales-consignment.create-no-ids')->middleware('permission:add_sales_consignment');
+Route::get('/sales-consignment/edit/{id}', [SalesConsignment::class, 'edit'])->name('sales-consignment.edit')->middleware('permission:edit_sales_consignment');
+Route::post('/sales-consignment/update/{id}', [SalesConsignment::class, 'update'])->name('sales-consignment.update')->middleware('permission:edit_sales_consignment');
 
 Route::get('/sales-consignment/{id}', [SalesConsignment::class, 'detail'])->name('sales-consignment.detail')->middleware('permission:view_sales_consignment');
 Route::put('/sales-consignment/post', [SalesConsignment::class, 'post'])->name('sales-consignment.post')->middleware('permission:edit_sales_consignment');
 Route::delete('/sales-consignment/destroy', [SalesConsignment::class, 'destroy'])->name('sales-consignment.destroy')->middleware('permission:delete_sales_consignment');
+
+Route::post('/sales-consignment/get-print', [SalesConsignment::class, 'getPrint'])->name('sales-consignment.get-print')->middleware('permission:view_sales_consignment');
+Route::get('/sales-consignment/print/{ids}', [SalesConsignment::class, 'print'])->name('sales-consignment.print')->middleware('permission:view_sales_consignment');
