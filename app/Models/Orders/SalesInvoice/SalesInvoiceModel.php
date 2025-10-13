@@ -164,7 +164,7 @@ class SalesInvoiceModel extends Model implements Auditable
             'payment_methods.name AS payment_method_name',
             'sales_orders.sales_order_number AS sales_order_number',
         ];
-        $searchColumns = ['sales_invoice_number', 'sales_order_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
+        $searchColumns = ['sales_invoice_number', 'sales_order_number', 'sales_invoices.invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name', 'vehicles.name', 'sales_invoices.total', 'payment_methods.name', 'sales_invoices.status'];
 
         $orderColumns = [
             'id',

@@ -34,6 +34,7 @@ use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Accounting\ExpenseModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceExpenseModel;
 use App\Models\Orders\SalesConsignment\SalesConsignmentModel;
+use App\Models\Orders\SalesConsignment\SalesConsignmentBatteriesModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -1279,6 +1280,10 @@ class SalesInvoice extends Controller
                 } elseif ($endDate) {
                     $q->where('sales_invoices.date', '<=', $endDate);
                 }
+            })
+            ->whereNotIn('sales_invoices.id', function ($sub) {
+                $sub->select('sales_invoice_id')
+                    ->from('sales_consignment_batteries');
             })
             ->select(
                 'sales_invoices.*',
