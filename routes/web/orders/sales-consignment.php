@@ -14,6 +14,7 @@ use App\Http\Controllers\Orders\SalesConsignment;
 
 Route::get('/sales-consignment', [SalesConsignment::class, 'index'])->name('sales-consignment.index')->middleware('permission:view_sales_consignment');
 Route::post('/sales-consignment/show', [SalesConsignment::class, 'show'])->name('sales-consignment.show-datatable')->middleware('permission:view_sales_consignment');
+Route::get('/sales-consignment/items/{id}', [SalesConsignment::class, 'getItems'])->name('sales-consignment.items')->middleware('permission:view_sales_consignment');
 Route::get('/sales-consignment/create/{ids}', [SalesConsignment::class, 'create'])->name('sales-consignment.create')->middleware('permission:add_sales_consignment');
 Route::post('/sales-consignment/store', [SalesConsignment::class, 'store'])->name('sales-consignment.store')->middleware('permission:add_sales_consignment');
 Route::get('/sales-consignment/createnoids', [SalesConsignment::class, 'createNoIds'])->name('sales-consignment.create-no-ids')->middleware('permission:add_sales_consignment');

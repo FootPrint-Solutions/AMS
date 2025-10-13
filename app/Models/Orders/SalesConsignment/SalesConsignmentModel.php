@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
 use App\Models\Orders\SalesConsignment\SalesConsignmentBatteriesModel;
+use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 class SalesConsignmentModel extends Model
 {
@@ -16,8 +18,11 @@ class SalesConsignmentModel extends Model
     protected $table = 'sales_consignments';
 
     protected $fillable = [
-        'to',
         'sales_consignment_number',
+        'vendor_id',
+        'vendor_name',
+        'ship_to_id',
+        'ship_to_name',
         'date',
         'discount',
         'discount_price',
@@ -48,19 +53,24 @@ class SalesConsignmentModel extends Model
         ];
         $searchColumns = [
             'sales_consignment_number',
+            'vendor_name',
+            'ship_to_name',
+            'payment_status',
+            'status'
         ];
 
         $orderColumns = [
             'id',
             'sales_consignment_number',
+            'vendor_name',
+            'ship_to_name',
             'date',
-            'customer_name',
-            'vehicle_name',
-            'shop_name',
-            'distributor_name',
-            'technician_name',
+            'discount',
+            'discount_price',
+            'subtotal',
+            'total_expenses',
             'total',
-            'payment_method_name',
+            'payment_status',
             'status'
         ];
 
@@ -77,6 +87,16 @@ class SalesConsignmentModel extends Model
         }
         if ($request->has('date_end') && $request->date_end) {
             $query->where('sales_consignments.date', '<=', $request->date_end);
+        }
+
+        // Filter by vendor if provided
+        if ($request->has('vendor_id') && $request->vendor_id) {
+            $query->where('sales_consignments.vendor_id', $request->vendor_id);
+        }
+
+        // Filter by ship_to if provided
+        if ($request->has('ship_to_id') && $request->ship_to_id) {
+            $query->where('sales_consignments.ship_to_id', $request->ship_to_id);
         }
 
         $query->select($selectColumns);
@@ -121,9 +141,10 @@ class SalesConsignmentModel extends Model
      */
     public static function newCode()
     {
-        $latestCode = self::withTrashed()
+        $latestCodeModel = self::withTrashed()
             ->orderByDesc('created_at')
-            ->first()?->sales_consignment_number ?? null;
+            ->first();
+        $latestCode = $latestCodeModel ? $latestCodeModel->sales_consignment_number : null;
 
         $year = substr($latestCode, 2, 2);
         $month = substr($latestCode, 4, 2);
@@ -148,13 +169,28 @@ class SalesConsignmentModel extends Model
     /**
      * Get the batteries associated with the sales consignment.
      */
-    public function consignmentBatteries(): BelongsToMany
+    public function consignmentBatteries()
     {
-        return $this->belongsToMany(
+        return $this->hasMany(
             SalesConsignmentBatteriesModel::class,
-            'sales_consignment_batteries',
             'sales_consignment_id',
-            'battery_id'
-        )->withTimestamps();
+            'id'
+        );
+    }
+
+    /**
+     * Get the distributor (vendor) associated with the sales consignment.
+     */
+    public function vendor()
+    {
+        return $this->belongsTo(DistributorModel::class, 'vendor_id', 'id');
+    }
+
+    /**
+     * Get the distributor shop (ship_to) associated with the sales consignment.
+     */
+    public function shipTo()
+    {
+        return $this->belongsTo(DistributorShopModel::class, 'ship_to_id', 'id');
     }
 }

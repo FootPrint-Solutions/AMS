@@ -43,8 +43,7 @@
                         <select class="form-control" id="sales-consignment-status-filter" onchange="onStatusFilterChange()">
                             <option value="all">All</option>
                             <option value="draft">Draft</option>
-                            <option value="posted">Posted</option>
-                            <option value="completed">Completed</option>
+                            <option value="posted">Printed</option>
                         </select>
                     </div>
                 </div>
@@ -59,11 +58,15 @@
                 <table id="sales-consignment-table" class="table table-striped" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>No</th>
                             <th>Consignment Number</th>
                             <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Ship To</th>
+                            <th>Subtotal</th>
+                            <th>Discount Price</th>
                             <th>Total Amount</th>
-                            <th>Payment Status</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -78,6 +81,9 @@
 
         $(document).ready(function() {
             // Initialize DataTable
+            // Add subgrid toggle column to the table header
+            $('#sales-consignment-table thead tr').prepend('<th></th>');
+
             table = $("#sales-consignment-table").DataTable({
                 responsive: true,
                 processing: true,
@@ -93,6 +99,13 @@
                     }
                 },
                 columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                        searchable: false
+                    },
+                    {
                         title: 'No',
                         data: 0,
                         orderable: false,
@@ -107,34 +120,184 @@
                         data: 2
                     },
                     {
-                        title: 'Total Amount',
-                        data: 3,
-                        render: function(data, type, row) {
-                            if (type === 'display' || type === 'filter') {
-                                return parseInt(data).toLocaleString('id-ID');
-                            }
-                            return data;
+                        title: 'Vendor',
+                        data: 3
+                    },
+                    {
+                        title: 'Ship To',
+                        data: 4
+                    },
+                    {
+                        title: 'Subtotal',
+                        data: 5,
+                        render: function(data, type) {
+                            return type === 'display' || type === 'filter' ? parseFloat(data)
+                                .toLocaleString('id-ID') : data;
                         }
                     },
                     {
-                        title: 'Payment Status',
-                        data: 4,
-                        orderable: false,
-                        searchable: false
+                        title: 'Discount Price',
+                        data: 6,
+                        render: function(data, type) {
+                            return type === 'display' || type === 'filter' ? parseFloat(data)
+                                .toLocaleString('id-ID') : data;
+                        }
+                    },
+                    {
+                        title: 'Total Amount',
+                        data: 7,
+                        render: function(data, type) {
+                            return type === 'display' || type === 'filter' ? parseFloat(data)
+                                .toLocaleString('id-ID') : data;
+                        }
                     },
                     {
                         title: 'Status',
-                        data: 5,
+                        data: 8,
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        render: function(data, type, row) {
+                            // Render HTML badge for status
+                            if (type === 'display' || type === 'filter') {
+                                return data;
+                            }
+                            return $(data).text(); // fallback for other types
+                        }
+                    },
+                    {
+                        title: 'ID',
+                        data: 9,
+                        visible: false
                     }
                 ],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
+                buttons: getDatatablesButtonConfigurations([{
+                        text: "<i class='fas fa-pencil'></i> Edit",
+                        className: "btn btn-outline-primary btn-sm",
+                        action: function(e, dt, node, config) {
+                            let selectedData = dt.row({
+                                selected: true
+                            }).data();
+                            if (selectedData) {
+                                viewConsignment(selectedData[9]);
+                            } else {
+                                Swal.fire('No row selected', 'Please select a row to edit.',
+                                    'warning');
+                            }
+                        }
+                    },
+                    {
+                        text: "<i class='fas fa-print'></i> Print",
+                        className: "btn btn-outline-danger btn-sm",
+                        action: function(e, dt, node, config) {
+                            let selectedData = dt.row({
+                                selected: true
+                            }).data();
+                            if (selectedData) {
+                                printConsignment();
+                            } else {
+                                Swal.fire('No row selected', 'Please select a row to post.',
+                                    'warning');
+                            }
+                        }
+                    },
+                    {
+                        text: "<i class='fas fa-trash'></i> Delete",
+                        className: "btn btn-outline-danger btn-sm",
+                        action: function(e, dt, node, config) {
+                            let selectedData = dt.row({
+                                selected: true
+                            }).data();
+                            if (selectedData) {
+                                deleteConsignment(selectedData[9]);
+                            } else {
+                                Swal.fire('No row selected', 'Please select a row to delete.',
+                                    'warning');
+                            }
+                        }
+                    }
+                ]),
                 language: getDatatablesLanguangeConfigurations("Sales Consignment"),
                 order: [
-                    [2, 'desc']
-                ] // Order by date descending
+                    [3, 'desc']
+                ],
+                select: true,
+            });
+
+            // Subgrid: format function
+            function formatSubgrid(rowData) {
+                let consignmentId = rowData[9];
+                let html = '<div class="subgrid-loading">Loading...</div>';
+                $.ajax({
+                    url: '/sales-consignment/items/' + consignmentId,
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success && Array.isArray(response.data) && response.data.length >
+                            0) {
+                            let rows = response.data.map(function(item, idx) {
+                                return `
+                                    <tr>
+                                        <td>${idx + 1}</td>
+                                        <td>${item.sales_invoice_number || ''}</td>
+                                        <td>${item.invoice_number || ''}</td>
+                                        <td>${item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ') : ''}</td>
+                                        <td class="text-end">${parseFloat(item.subtotal).toLocaleString('id-ID')}</td>
+                                        <td class="text-end">${parseFloat(item.discount_price).toLocaleString('id-ID')}</td>
+                                        <td class="text-end">${parseFloat(item.total).toLocaleString('id-ID')}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+                            html = `
+                            <div class="mb-2 font-weight-bold">Sales Consignment Items</div>
+                            <div class="container mb-2 border-1">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Sales Invoice No</th>
+                                                <th>Invoice Number</th>
+                                                <th>Date</th>
+                                                <th class="text-end">Subtotal</th>
+                                                <th class="text-end">Discount Price</th>
+                                                <th class="text-end">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${rows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                </div>
+                            `;
+                        } else {
+                            html = '<div class="text-muted">No items found.</div>';
+                        }
+                        $('#subgrid-' + consignmentId).html(html);
+                    },
+                    error: function() {
+                        $('#subgrid-' + consignmentId).html(
+                            '<div class="text-danger">Failed to load details.</div>');
+                    }
+                });
+
+                return '<div id="subgrid-' + consignmentId + '">' + html + '</div>';
+            }
+
+            // Add event listener for opening and closing subgrid
+            $('#sales-consignment-table tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(formatSubgrid(row.data())).show();
+                    tr.addClass('shown');
+                }
             });
 
             // Filter buttons
@@ -158,29 +321,50 @@
             window.location.href = `/sales-consignment/${id}`;
         }
 
-        function postConsignment(id) {
-            Swal.fire({
-                title: 'Post Consignment',
-                text: 'Are you sure you want to post this consignment?',
-                icon: 'warning',
+        function printConsignment() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data();
+            if (selectedRows.length === 0) {
+                Swal.fire('No row selected', 'Please select a row to print.', 'warning');
+                return;
+            }
+
+            var salesConsignmentIds = selectedRows.map(row => row[9]);
+            var salesConsignmentNumbers = selectedRows.map(row => row[1]);
+            var salesConsignmentString = salesConsignmentIds.join(',');
+
+            swal.fire({
+                title: 'Print Sales Consignment',
+                html: `Are you sure you want to print the following Sales Consignment(s)?<br><strong>${salesConsignmentNumbers.join(', ')}</strong>`,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Post it!',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Yes, Print',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '/sales-consignment/post',
-                        type: 'PUT',
+                        url: '/sales-consignment/get-print',
+                        type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
-                            id: id
+                            ids: salesConsignmentString
                         },
                         success: function(response) {
-                            if (response.success) {
-                                Swal.fire('Success!', response.message, 'success');
-                                table.ajax.reload();
+                            if (response.status == 'success') {
+
+                                var ids = response.data.map(item => item.id);
+                                downloadPDF("/sales-consignment/print/" + ids
+                                    .join(
+                                        ","));
+
                             } else {
-                                Swal.fire('Error!', response.message, 'error');
+                                Swal.fire({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: "error",
+                                });
                             }
                         },
                         error: function(xhr) {
