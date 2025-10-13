@@ -479,4 +479,70 @@ class SalesConsignment extends Controller
             ], 500);
         }
     }
+
+    public function getPrint(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+            if (!$ids) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Parameter ids is required.'
+                ], 400);
+            }
+
+            $salesConsignmentIds = explode(',', $ids);
+            $salesConsignments = SalesConsignmentModel::with('consignmentBatteries')->whereIn('id', $salesConsignmentIds)->get();
+
+            if ($salesConsignments->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Consignment(s) not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $salesConsignments
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sales Consignment not found.'
+            ], 404);
+        } catch (Exception $e) {
+            Log::error('Get Sales Consignment Print Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve consignment for printing: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function print($ids)
+    {
+        $ids = explode(",", $ids);
+        $salesConsignments = SalesConsignmentModel::with([
+            'consignmentBatteries',
+            'vendor',
+            'shipTo'
+        ])->whereIn('id', $ids)->get();
+
+        return view(
+            'Orders.SalesConsignment.print.multiple',
+            getIndexData(
+                $this->title,
+                array(
+                    "profile" => $salesConsignments->toArray(),
+                    "company" => CompanyModel::first(),
+                )
+            )
+        );
+    }
 }

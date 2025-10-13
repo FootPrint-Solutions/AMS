@@ -22,3 +22,6 @@ Route::get('/sales-consignment/createnoids', [SalesConsignment::class, 'createNo
 Route::get('/sales-consignment/{id}', [SalesConsignment::class, 'detail'])->name('sales-consignment.detail')->middleware('permission:view_sales_consignment');
 Route::put('/sales-consignment/post', [SalesConsignment::class, 'post'])->name('sales-consignment.post')->middleware('permission:edit_sales_consignment');
 Route::delete('/sales-consignment/destroy', [SalesConsignment::class, 'destroy'])->name('sales-consignment.destroy')->middleware('permission:delete_sales_consignment');
+
+Route::post('/sales-consignment/get-print', [SalesConsignment::class, 'getPrint'])->name('sales-consignment.get-print')->middleware('permission:view_sales_consignment');
+Route::get('/sales-consignment/print/{ids}', [SalesConsignment::class, 'print'])->name('sales-consignment.print')->middleware('permission:view_sales_consignment');

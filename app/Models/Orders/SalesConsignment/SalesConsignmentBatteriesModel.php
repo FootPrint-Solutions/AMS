@@ -34,6 +34,6 @@ class SalesConsignmentBatteriesModel extends Model
 
     public function salesInvoice()
     {
-        return $this->belongsTo(SalesInvoiceModel::class, 'sales_invoice_id');
+        return $this->belongsTo(SalesInvoiceModel::class, 'sales_invoice_id')->with('customer', 'vehicle', 'shop', 'technician', 'batteries');
     }
 }

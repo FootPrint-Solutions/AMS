@@ -175,7 +175,7 @@ class SalesConsignmentModel extends Model
             SalesConsignmentBatteriesModel::class,
             'sales_consignment_id',
             'id'
-        );
+        )->with('salesInvoice');
     }
 
     /**
