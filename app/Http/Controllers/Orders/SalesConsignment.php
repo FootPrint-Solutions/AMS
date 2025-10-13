@@ -130,6 +130,11 @@ class SalesConsignment extends Controller
     public function edit($id)
     {
         try {
+            $salesConsignment = SalesConsignmentModel::findOrFail($id);
+            if ($salesConsignment->status !== 'draft') {
+                return redirect()->route('sales-consignment.index')->with('error', 'Only draft consignments can be edited.');
+            }
+
             $data = [
                 'title' => 'Edit Sales Consignment',
                 'breadcrumb' => 'Orders/SalesConsignment/edit',
@@ -674,6 +679,13 @@ class SalesConsignment extends Controller
             'vendor',
             'shipTo'
         ])->whereIn('id', $ids)->get();
+
+        foreach ($salesConsignments as $consignment) {
+            if ($consignment->status === 'draft') {
+                $consignment->status = 'posted';
+                $consignment->save();
+            }
+        }
 
         return view(
             'Orders.SalesConsignment.print.multiple',
