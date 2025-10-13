@@ -127,6 +127,35 @@ class SalesConsignment extends Controller
         );
     }
 
+    public function edit($id)
+    {
+        try {
+            $data = [
+                'title' => 'Edit Sales Consignment',
+                'breadcrumb' => 'Orders/SalesConsignment/edit',
+                'sales_consignment' => SalesConsignmentModel::with('consignmentBatteries.salesInvoice')->findOrFail($id),
+                'consignment_number' => '', // Will be filled from existing data
+                'consignment_date' => '', // Will be filled from existing data
+                'company' => CompanyModel::first(),
+                'payment_methods' => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                'type' => 'edit',
+                'distributors' => DistributorModel::where('status', 1)->get()->toArray(),
+                'shops' => DistributorShopModel::where('status', 1)->get()->toArray(),
+            ];
+
+            return view('Orders.SalesConsignment.create', getIndexData('Edit Sales Consignment', $data));
+        } catch (Exception $e) {
+            Log::error('Sales Consignment Edit Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'id' => $id
+            ]);
+
+            return redirect()->route('sales-consignment.index')->with('error', 'Error loading sales consignment: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -334,6 +363,118 @@ class SalesConsignment extends Controller
             "recordsFiltered" => $recordsFiltered,
             "data" => $rows
         ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Find the existing consignment
+            $salesConsignment = SalesConsignmentModel::findOrFail($id);
+
+            // Check if consignment can be updated (only draft can be updated)
+            if ($salesConsignment->status !== 'draft') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only draft consignments can be updated.'
+                ], 400);
+            }
+
+            // Normalize sales_invoice_ids for validation
+            $salesInvoiceIds = $request->input('sales_invoice_ids', []);
+            if (!is_array($salesInvoiceIds)) {
+                $salesInvoiceIds = [$salesInvoiceIds];
+            }
+
+            // Validate request
+            $request->validate([
+                '_token' => 'required',
+                'salesconsignmentnumber' => 'required|string|max:50',
+                'salesconsignmentdate' => 'required|date',
+                'vendor_id' => 'required|exists:distributors,id',
+                'ship_to_id' => 'required|exists:distributor_shops,id',
+                'sales_invoice_ids' => 'required|array|min:1',
+                'sales_invoice_ids.*' => 'exists:sales_invoices,id',
+                'subtotal' => 'required|numeric|min:0',
+                'discountprice' => 'nullable|numeric|min:0',
+                'totalexpenses' => 'nullable|numeric|min:0',
+                'total' => 'required|numeric|min:0'
+            ]);
+
+            // Calculate totals from selected invoices
+            $subtotal = floatval(str_replace(['.', ','], '', $request->subtotal)) ?? 0;
+            $discountPrice = floatval(str_replace(['.', ','], '', $request->discountprice)) ?? 0;
+            $totalExpenses = floatval(str_replace(['.', ','], '', $request->totalexpenses)) ?? 0;
+            $total = floatval(str_replace(['.', ','], '', $request->total)) ?? 0;
+
+            // Update sales consignment
+            $salesConsignment->update([
+                'sales_consignment_number' => $request->salesconsignmentnumber,
+                'vendor_id' => $request->vendor_id,
+                'vendor_name' => DistributorModel::find($request->vendor_id)->name,
+                'ship_to_id' => $request->ship_to_id,
+                'ship_to_name' => DistributorShopModel::find($request->ship_to_id)->name,
+                'date' => $request->salesconsignmentdate,
+                'discount' => 0, // percentage discount not used
+                'discount_price' => $discountPrice,
+                'subtotal' => $subtotal,
+                'total_expenses' => $totalExpenses,
+                'total' => $total,
+                'payment_status' => 'unpaid',
+                'status' => $request->status ?? 'draft'
+            ]);
+
+            // Delete existing consignment batteries
+            SalesConsignmentBatteriesModel::where('sales_consignment_id', $salesConsignment->id)->delete();
+
+            // Create new consignment batteries
+            foreach ($salesInvoiceIds as $invoiceId) {
+                $invoice = SalesInvoiceModel::find($invoiceId);
+                if ($invoice) {
+                    SalesConsignmentBatteriesModel::create([
+                        'sales_consignment_id' => $salesConsignment->id,
+                        'sales_invoice_id' => $invoiceId,
+                        'sales_invoice_number' => $invoice->sales_invoice_number,
+                        'invoice_number' => $invoice->invoice_number,
+                        'date' => $invoice->date,
+                        'discount' => 0,
+                        'discount_price' => 0,
+                        'subtotal' => $invoice->total,
+                        'total' => $invoice->total,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sales Consignment updated successfully!',
+                'data' => $salesConsignment
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Sales Consignment Update Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all(),
+                'id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update Sales Consignment: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

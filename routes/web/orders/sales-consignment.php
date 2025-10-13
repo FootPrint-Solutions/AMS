@@ -18,6 +18,8 @@ Route::get('/sales-consignment/items/{id}', [SalesConsignment::class, 'getItems'
 Route::get('/sales-consignment/create/{ids}', [SalesConsignment::class, 'create'])->name('sales-consignment.create')->middleware('permission:add_sales_consignment');
 Route::post('/sales-consignment/store', [SalesConsignment::class, 'store'])->name('sales-consignment.store')->middleware('permission:add_sales_consignment');
 Route::get('/sales-consignment/createnoids', [SalesConsignment::class, 'createNoIds'])->name('sales-consignment.create-no-ids')->middleware('permission:add_sales_consignment');
+Route::get('/sales-consignment/edit/{id}', [SalesConsignment::class, 'edit'])->name('sales-consignment.edit')->middleware('permission:edit_sales_consignment');
+Route::post('/sales-consignment/update/{id}', [SalesConsignment::class, 'update'])->name('sales-consignment.update')->middleware('permission:edit_sales_consignment');
 
 Route::get('/sales-consignment/{id}', [SalesConsignment::class, 'detail'])->name('sales-consignment.detail')->middleware('permission:view_sales_consignment');
 Route::put('/sales-consignment/post', [SalesConsignment::class, 'post'])->name('sales-consignment.post')->middleware('permission:edit_sales_consignment');

@@ -52,8 +52,6 @@
 
         <div class="card">
             <div class="card-body">
-
-
                 {{-- DataTable --}}
                 <table id="sales-consignment-table" class="table table-striped" style="width:100%">
                     <thead>
@@ -179,7 +177,7 @@
                                 selected: true
                             }).data();
                             if (selectedData) {
-                                viewConsignment(selectedData[9]);
+                                editConsignment(selectedData[9]);
                             } else {
                                 Swal.fire('No row selected', 'Please select a row to edit.',
                                     'warning');
@@ -409,6 +407,10 @@
                     });
                 }
             });
+        }
+
+        function editConsignment(id) {
+            window.location.href = `/sales-consignment/edit/${id}`;
         }
 
         $('#btn-add').on('click', function() {
