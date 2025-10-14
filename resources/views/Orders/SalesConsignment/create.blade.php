@@ -218,7 +218,7 @@
                         <h6 class="mb-3">
                             Consignment Summary
                             <span class="badge bg-secondary ms-2" id="discount-savings-badge" style="display: none;">
-                                Total Discount9: Rp <span id="total-savings">0</span>
+                                Total Discount: Rp <span id="total-savings">0</span>
                             </span>
                         </h6>
                         <div class="row">
