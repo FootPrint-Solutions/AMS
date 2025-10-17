@@ -687,15 +687,27 @@ class SalesConsignment extends Controller
             }
         }
 
-        return view(
+        // Get the first consignment for filename
+        $firstConsignment = $salesConsignments->first();
+        $shopName = $firstConsignment->shipTo ? $firstConsignment->shipTo->shop_name : 'Unknown Shop';
+        $poNumber = $firstConsignment->sales_consignment_number;
+        $fileName = 'PO ' . $shopName . ' ' . $poNumber;
+
+        $view = view(
             'Orders.SalesConsignment.print.multiple',
             getIndexData(
                 $this->title,
                 array(
                     "profile" => $salesConsignments->toArray(),
                     "company" => CompanyModel::first(),
+                    "fileName" => $fileName,
                 )
             )
         );
+
+        // Set the page title for PDF generation
+        $view->with('fileName', $fileName);
+
+        return $view;
     }
 }
