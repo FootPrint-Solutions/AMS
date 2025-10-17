@@ -1223,9 +1223,7 @@ class SalesInvoice extends Controller
             ]);
         }
 
-        $salesInvoices = SalesInvoiceModel::with('customer')->whereHas('shop', function ($query) use ($distributorId) {
-            $query->where('distributor_id', $distributorId);
-        })->where(function ($query) use ($startDate, $endDate) {
+        $salesInvoices = SalesInvoiceModel::with('customer')->where('distributor_shop_id', $distributorId)->where(function ($query) use ($startDate, $endDate) {
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
             } elseif ($startDate) {
@@ -1269,9 +1267,7 @@ class SalesInvoice extends Controller
         // Base query
         $query = SalesInvoiceModel::with('customer')
             ->join('customers', 'sales_invoices.customer_id', '=', 'customers.id')
-            ->whereHas('shop', function ($q) use ($distributorId) {
-                $q->where('distributor_id', $distributorId);
-            })
+            ->where('distributor_shop_id', $distributorId)
             ->where(function ($q) use ($startDate, $endDate) {
                 if ($startDate && $endDate) {
                     $q->whereBetween('sales_invoices.date', [$startDate, $endDate]);
@@ -1300,9 +1296,21 @@ class SalesInvoice extends Controller
         }
 
         // Get total count before pagination
-        $totalRecords = SalesInvoiceModel::whereHas('shop', function ($q) use ($distributorId) {
-            $q->where('distributor_id', $distributorId);
-        })->count();
+        $totalRecords = SalesInvoiceModel::where('distributor_shop_id', $distributorId)
+            ->where(function ($q) use ($startDate, $endDate) {
+                if ($startDate && $endDate) {
+                    $q->whereBetween('date', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $q->where('date', '>=', $startDate);
+                } elseif ($endDate) {
+                    $q->where('date', '<=', $endDate);
+                }
+            })
+            ->whereNotIn('id', function ($sub) {
+                $sub->select('sales_invoice_id')
+                    ->from('sales_consignment_batteries');
+            })
+            ->count();
 
         $filteredRecords = $query->count();
 

@@ -84,7 +84,7 @@
                             <div class="form-group local-forms">
                                 <label for="distributor">Vendor <span class="login-danger">*</span></label>
                                 <select class="form-control select" id="vendor_id" name="vendor_id"
-                                    data-placeholder="Select Vendor">
+                                    data-placeholder="Select Vendor" required>
                                     <option value="">Select Vendor</option>
                                     @foreach ($data['distributors'] as $distributor)
                                         <option value="{{ $distributor['id'] }}"
@@ -377,7 +377,7 @@
 
     <script>
         let salesInvoiceDataTable = null;
-        const distributorSelect = $('#vendor_id');
+        const distributorSelect = $("#ship_to_id");
         const btnFindSalesInvoice = $('#btn-find-sales-invoice');
         const modalShowInvoice = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
@@ -511,8 +511,8 @@
             if (!distributorId) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Vendor Required',
-                    text: 'Please select a vendor first.'
+                    title: 'Ship To Required',
+                    text: 'Please select a Ship To first.'
                 });
                 return;
             }

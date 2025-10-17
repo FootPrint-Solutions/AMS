@@ -7,13 +7,6 @@
     @media print {
         @page {
             size: A4 portrait;
-
-            @bottom-right {
-                content: counter(page) " / " counter(pages);
-                font-family: Arial, sans-serif;
-                font-size: 9pt;
-                margin-right: 20px;
-            }
         }
 
         .header {
@@ -129,7 +122,7 @@
                             <tr>
                                 <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI Jakarta
                                 </td>
-                                <td class="text" colspan="2" style="padding: 0px;">NO PO</td>
+                                <td class="text" colspan="2" style="padding: 0px;">S.C. NO</td>
                                 <td class="text" colspan="3" style="padding: 0px;">{{ $sc_number }}</td>
                             </tr>
                             <tr>
@@ -217,41 +210,33 @@
                                     <tbody>
                                         @php
                                             $total = 0;
-                                            $grouped = [];
-                                            if (!empty($consignment['consignment_batteries'])) {
-                                                foreach ($consignment['consignment_batteries'] as $consBat) {
-                                                    if (!empty($consBat['sales_invoice']['batteries'])) {
-                                                        foreach ($consBat['sales_invoice']['batteries'] as $battery) {
-                                                            if (
-                                                                isset($battery['battery']['type']) &&
-                                                                $battery['battery']['type'] != 'regular'
-                                                            ) {
-                                                                continue;
-                                                            }
-                                                            $name = $battery['battery_name'] ?? 'Unknown';
-                                                            $qty = isset($battery['quantity'])
-                                                                ? (int) $battery['quantity']
-                                                                : 0;
-                                                            if (!isset($grouped[$name])) {
-                                                                $grouped[$name] = 0;
-                                                            }
-                                                            $grouped[$name] += $qty;
-                                                            $total += $qty;
-                                                        }
-                                                    }
-                                                }
-                                            }
                                         @endphp
-
-                                        @if (!empty($grouped))
+                                        @if (!empty($consignment['consignment_batteries']))
                                             @php $rowIndex = 1; @endphp
-                                            @foreach ($grouped as $name => $qty)
-                                                <tr>
-                                                    <td class="text">{{ $rowIndex++ }}</td>
-                                                    <td class="text">{{ $name }}</td>
-                                                    <td class="text">{{ $qty }}</td>
-                                                </tr>
+                                            @foreach ($consignment['consignment_batteries'] as $consBat)
+                                                @if (!empty($consBat['sales_invoice']['batteries']))
+                                                    @foreach ($consBat['sales_invoice']['batteries'] as $battery)
+                                                        @if (isset($battery['battery']['type']) && $battery['battery']['type'] != 'regular')
+                                                            @continue
+                                                        @endif
+                                                        <tr>
+                                                            <td class="text">{{ $rowIndex++ }}</td>
+                                                            <td class="text">{{ $battery['battery_name'] ?? '' }}
+                                                            </td>
+                                                            <td class="text">{{ $battery['quantity'] ?? 0 }}</td>
+                                                        </tr>
+                                                        @php
+                                                            $total += $battery['quantity'] ?? 0;
+                                                        @endphp
+                                                    @endforeach
+                                                @endif
                                             @endforeach
+                                            @if ($rowIndex === 1)
+                                                <tr>
+                                                    <td colspan="3" class="text center">Tidak ada data baterai.
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @else
                                             <tr>
                                                 <td colspan="3" class="text center">Tidak ada data baterai.</td>
@@ -403,7 +388,7 @@
                                 <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI
                                     Jakarta
                                 </td>
-                                <td class="text" colspan="2" style="padding: 0px;">NO PO</td>
+                                <td class="text" colspan="2" style="padding: 0px;">S.C. NO</td>
                                 <td class="text" colspan="3" style="padding: 0px;">{{ $sc_number }}</td>
                             </tr>
                             <tr>
