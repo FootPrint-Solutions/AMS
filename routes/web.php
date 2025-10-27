@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
     // Customer
     require __DIR__ . '/web/master-data/customer.php';
 
+    // Supplier
+    require __DIR__ . '/web/master-data/supplier.php';
+
     // Vehicle
     require __DIR__ . '/web/master-data/vehicle.php';
 
