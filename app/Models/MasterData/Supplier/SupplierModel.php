@@ -10,6 +10,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 // Models
 use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 
 // Trait
 use App\Traits\DataTablesTrait;
@@ -42,6 +43,14 @@ class SupplierModel extends Model implements Auditable
     ];
 
     /**
+     * Get all of the purchase orders for the supplier.
+     */
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrderModel::class, 'supplier_id');
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request The POST request obtained (for DataTables configuration).
@@ -58,5 +67,21 @@ class SupplierModel extends Model implements Auditable
         $query->select($selectColumns);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+    }
+
+    public static function activeSuppliers()
+    {
+        return self::where('status', 'active')->orderBy('name')->get(['id', 'name']);
+    }
+
+    /**
+     * Scope a query to only include active suppliers.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 }

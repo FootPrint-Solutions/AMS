@@ -237,6 +237,9 @@ Route::middleware(['auth'])->group(function () {
     // Sales Consignment
     require __DIR__ . '/web/orders/sales-consignment.php';
 
+    // Purchase Order
+    require __DIR__ . '/web/orders/purchase-order.php';
+
     // Expense
     require __DIR__ . '/web/accounting/expense.php';
 
