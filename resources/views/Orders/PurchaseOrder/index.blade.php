@@ -74,12 +74,13 @@
 
     {{-- DataTables Configuration --}}
     <script>
+        let table;
         $(document).ready(function() {
             loadTable();
         });
 
         function loadTable() {
-            let table = $('#table-purchase-order').DataTable({
+            table = $('#table-purchase-order').DataTable({
                 lengthMenu: [
                     [5, 10, 25],
                     [5, 10, 25]
@@ -281,13 +282,18 @@
                         }
                     },
                     {
-                        text: "<i class='fas fa-ellipsis-v'></i> More Action",
-                        className: "btn btn-outline-secondary btn-sm",
+                        text: "<i class='fas fa-print'></i> Print",
+                        className: "btn btn-outline-danger btn-sm",
                         action: function(e, dt, node, config) {
-                            let selectedRows = table.rows({
+                            let selectedData = dt.row({
                                 selected: true
-                            }).data().toArray();
-                            showModalMoreAction(selectedRows[0][10], selectedRows[0][10]);
+                            }).data();
+                            if (selectedData) {
+                                printPurchaseOrder();
+                            } else {
+                                Swal.fire('No row selected', 'Please select a row to post.',
+                                    'warning');
+                            }
                         }
                     },
                 ],
@@ -342,5 +348,60 @@
         $('#btn-add').on('click', function() {
             goToPage("/purchase-order/create");
         });
+
+        function printPurchaseOrder() {
+            var selectedRows = table.rows({
+                selected: true
+            }).data();
+            if (selectedRows.length === 0) {
+                Swal.fire('No row selected', 'Please select a row to print.', 'warning');
+                return;
+            }
+
+            var salesConsignmentIds = selectedRows.map(row => row[0]);
+            var salesConsignmentNumbers = selectedRows.map(row => row[1]);
+            var salesConsignmentString = salesConsignmentIds.join(',');
+
+            swal.fire({
+                title: 'Print Purchase Order',
+                html: `Are you sure you want to print the following Purchase Order(s)?<br><strong>${salesConsignmentNumbers.join(', ')}</strong>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Print',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/purchase-order/get-print',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            ids: salesConsignmentString
+                        },
+                        success: function(response) {
+                            if (response.status == 'success') {
+
+                                var ids = response.data.map(item => item.id);
+                                downloadPDF("/purchase-order/print/" + ids
+                                    .join(
+                                        ","));
+
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: "error",
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = xhr.responseJSON?.message || 'An error occurred';
+                            Swal.fire('Error!', errorMessage, 'error');
+                        }
+                    });
+                }
+            });
+        }
     </script>
 @endsection

@@ -21,4 +21,6 @@ Route::prefix('purchase-order')->group(function () {
     Route::post('/update', [PurchaseOrder::class, 'update'])->name('purchase-order.update');
     Route::post('/destroy', [PurchaseOrder::class, 'destroy'])->name('purchase-order.destroy');
     Route::post('/get-data', [PurchaseOrder::class, 'getData'])->name('purchase-order.get-data');
+    Route::post('/get-print', [PurchaseOrder::class, 'getPrint'])->name('purchase-order.get-print');
+    Route::get('/print/{ids}', [PurchaseOrder::class, 'print'])->name('purchase-order.print');
 });

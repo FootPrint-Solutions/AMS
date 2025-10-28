@@ -15,6 +15,7 @@ use App\Models\MasterData\Supplier\SupplierModel;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
+use App\Models\MasterData\Company\CompanyModel;
 
 class PurchaseOrder extends Controller
 {
@@ -27,7 +28,7 @@ class PurchaseOrder extends Controller
     public function index()
     {
         $data = [
-            'suppliers' => SupplierModel::active()->orderBy('name')->get(['id', 'name']),
+            'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name']),
         ];
 
         return view('Orders.PurchaseOrder.index', getIndexData(
@@ -392,5 +393,91 @@ class PurchaseOrder extends Controller
                 'message' => 'An error occurred while deleting purchase order.'
             ], 500);
         }
+    }
+
+    public function getPrint(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+            if (!$ids) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Parameter ids is required.'
+                ], 400);
+            }
+
+            $purchaseOrderIds = explode(',', $ids);
+            $purchaseOrders = PurchaseOrderModel::with('batteries.battery', 'supplier')
+                ->whereIn('id', $purchaseOrderIds)
+                ->get();
+
+            if ($purchaseOrders->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Purchase Order(s) not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $purchaseOrders
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Purchase Order not found.'
+            ], 404);
+        } catch (Exception $e) {
+            Log::error('Get Purchase Order Print Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve purchase order for printing: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function print($ids)
+    {
+        $ids = explode(",", $ids);
+        $purchaseOrders = PurchaseOrderModel::with([
+            'batteries.battery',
+            'supplier'
+        ])->whereIn('id', $ids)->get();
+        // dd($purchaseOrders);
+
+        foreach ($purchaseOrders as $order) {
+            if ($order->status === 'draft') {
+                $order->status = 'posted';
+                $order->save();
+            }
+        }
+
+        // Get the first purchase order for filename
+        $firstOrder = $purchaseOrders->first();
+        $supplierName = $firstOrder->supplier ? $firstOrder->supplier->name : 'Unknown Supplier';
+        $poNumber = $firstOrder->purchase_order_number;
+        $fileName = 'PO ' . $supplierName . ' ' . $poNumber;
+
+        $view = view(
+            'Orders.PurchaseOrder.print.multiple',
+            getIndexData(
+                $this->title,
+                [
+                    "profile" => $purchaseOrders->toArray(),
+                    "company" => CompanyModel::first(),
+                    "fileName" => $fileName,
+                ]
+            )
+        );
+
+        $view->with('fileName', $fileName);
+
+        return $view;
     }
 }
