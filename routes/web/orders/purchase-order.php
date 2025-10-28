@@ -19,6 +19,6 @@ Route::prefix('purchase-order')->group(function () {
     Route::post('/show', [PurchaseOrder::class, 'show'])->name('purchase-order.show');
     Route::get('/edit/{id}', [PurchaseOrder::class, 'edit'])->name('purchase-order.edit');
     Route::post('/update', [PurchaseOrder::class, 'update'])->name('purchase-order.update');
-    Route::delete('/destroy/{id}', [PurchaseOrder::class, 'destroy'])->name('purchase-order.destroy');
+    Route::post('/destroy', [PurchaseOrder::class, 'destroy'])->name('purchase-order.destroy');
     Route::post('/get-data', [PurchaseOrder::class, 'getData'])->name('purchase-order.get-data');
 });

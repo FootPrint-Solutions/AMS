@@ -70,7 +70,7 @@ class PurchaseOrder extends Controller
     {
         // Validate the request
         $request->validate([
-            'salesordernumber' => 'required|string|unique:purchase_orders,purchase_order_number',
+            'purchaseordernumber' => 'required|string|unique:purchase_orders,purchase_order_number',
             'date' => 'required|date',
             'supplier' => 'required|exists:suppliers,id',
             'Address' => 'required|string',
@@ -84,7 +84,7 @@ class PurchaseOrder extends Controller
             'subtotal' => 'required|numeric|min:0',
             'discountprice' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
-            'status' => 'required|in:paid,pending,failed',
+            'status' => 'required|in:paid,pending,failed'
         ]);
 
         try {
@@ -92,7 +92,7 @@ class PurchaseOrder extends Controller
 
             // Create purchase order
             $purchaseOrder = PurchaseOrderModel::create([
-                'purchase_order_number' => $request->salesordernumber,
+                'purchase_order_number' => $request->purchaseordernumber,
                 'date' => $request->date,
                 'supplier_id' => $request->supplier,
                 'address' => $request->Address,
@@ -103,6 +103,7 @@ class PurchaseOrder extends Controller
                 'total' => (int)str_replace(['Rp', '.', ' '], '', $request->total ?? '0'),
                 'payment_status' => $request->status,
                 'status' => 'draft',
+                'invoice_number' => $request->InvoiceNumber
             ]);
 
             // Create purchase order batteries
@@ -194,7 +195,7 @@ class PurchaseOrder extends Controller
             ';
 
             $row = [];
-            $row[] = $no++;
+            $row[] = $key->id;
             $row[] = $key->purchase_order_number;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
@@ -228,7 +229,7 @@ class PurchaseOrder extends Controller
 
         $data = [
             'profile' => $purchaseOrder->toArray(),
-            'suppliers' => SupplierModel::active()->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
+            'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
             'batteries' => BatteryModel::orderBy('name')->get(['id', 'name', 'price_retail', 'type']),
             'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
         ];
@@ -251,7 +252,10 @@ class PurchaseOrder extends Controller
             ];
         })->toArray();
 
-        return view('Orders.PurchaseOrder.create', compact('data'));
+        return view('Orders.PurchaseOrder.create', getIndexData(
+            $this->title,
+            $data
+        ));
     }
 
     /**
@@ -265,11 +269,21 @@ class PurchaseOrder extends Controller
         // Validate the request
         $request->validate([
             'id' => 'required|exists:purchase_orders,id',
-            'purchase_order_number' => 'required|string',
+            'purchaseordernumber' => 'required|string',
             'date' => 'required|date',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'payment_status' => 'required|string',
-            'status' => 'required|in:draft,posted,completed',
+            'supplier' => 'required|exists:suppliers,id',
+            'Address' => 'required|string',
+            'batteriesid.*' => 'required|exists:batteries,id',
+            'batteriespriceretail.*' => 'required|numeric|min:0',
+            'batteriesdiscountprice.*' => 'required|numeric|min:0',
+            'batteriesprice.*' => 'required|numeric|min:0',
+            'batteriesname.*' => 'required|string',
+            'batteriestax.*' => 'required|numeric|min:0',
+            'batteriescode.*' => 'nullable|string',
+            'subtotal' => 'required|numeric|min:0',
+            'discountprice' => 'required|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+            'status' => 'required|in:paid,pending,failed'
         ]);
 
         try {
@@ -279,45 +293,47 @@ class PurchaseOrder extends Controller
 
             // Update purchase order
             $purchaseOrder->update([
-                'purchase_order_number' => $request->purchase_order_number,
-                'invoice_number' => $request->invoice_number,
+                'purchase_order_number' => $request->purchaseordernumber,
                 'date' => $request->date,
-                'supplier_id' => $request->supplier_id,
-                'discount_price' => (int)str_replace(['Rp', '.', ' '], '', $request->discount_price ?? '0'),
+                'supplier_id' => $request->supplier,
+                'address' => $request->Address,
+                'latitude' => $request->Latitude ?? 0,
+                'longitude' => $request->Longitude ?? 0,
+                'discount_price' => (int)str_replace(['Rp', '.', ' '], '', $request->discountprice ?? '0'),
                 'subtotal' => (int)str_replace(['Rp', '.', ' '], '', $request->subtotal ?? '0'),
                 'total' => (int)str_replace(['Rp', '.', ' '], '', $request->total ?? '0'),
-                'payment_status' => $request->payment_status,
-                'status' => $request->status,
-                'address' => $request->address,
+                'payment_status' => $request->status,
+                'status' => 'draft',
+                'invoice_number' => $request->InvoiceNumber
             ]);
 
             // Delete existing batteries and recreate them
             $purchaseOrder->batteries()->delete();
 
             // Create purchase order batteries
-            if ($request->battery_id && is_array($request->battery_id)) {
-                foreach ($request->battery_id as $index => $batteryId) {
+            if ($request->batteriesid && is_array($request->batteriesid)) {
+                foreach ($request->batteriesid as $index => $batteryId) {
                     $battery = BatteryModel::find($batteryId);
                     if ($battery) {
-                        $batteryPriceRetail = (int)str_replace(['Rp', '.', ' '], '', $request->battery_price_retail[$index] ?? '0');
-                        $tax = $request->battery_tax[$index] ?? 0;
+                        $batteryPriceRetail = (int)str_replace(['Rp', '.', ' '], '', $request->batteriespriceretail[$index] ?? '0');
+                        $tax = $request->batteriestax[$index] ?? 0;
                         $taxPrice = $batteryPriceRetail * $tax / 100;
-                        $discountPrice = (int)str_replace(['Rp', '.', ' '], '', $request->battery_discount_price[$index] ?? '0');
+                        $discountPrice = (int)str_replace(['Rp', '.', ' '], '', $request->batteriesdiscountprice[$index] ?? '0');
                         $discount = $batteryPriceRetail > 0 ? ($discountPrice / $batteryPriceRetail) * 100 : 0;
                         $priceNet = $batteryPriceRetail + $taxPrice - $discountPrice;
 
                         PurchaseOrderBatteryModel::create([
                             'purchase_order_id' => $purchaseOrder->id,
                             'battery_id' => $batteryId,
-                            'battery_name' => $battery->name,
+                            'battery_name' => $request->batteriesname[$index] ?? $battery->name,
                             'battery_price_retail' => $batteryPriceRetail,
                             'tax' => $tax,
                             'tax_price' => $taxPrice,
                             'discount' => $discount,
                             'discount_price' => $discountPrice,
                             'price_net' => $priceNet,
-                            'quantity' => $request->battery_quantity[$index] ?? 1,
-                            'battery_production_code' => $request->battery_production_code[$index] ?? null,
+                            'quantity' => 1,
+                            'battery_production_code' => $request->batteriescode[$index] ?? null,
                         ]);
                     }
                 }
@@ -325,18 +341,18 @@ class PurchaseOrder extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Purchase order updated successfully!'
-            ]);
+            return getResponseData(
+                true,
+                'Purchase order updated successfully!'
+            );
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Purchase Order Update Error: ' . $e->getMessage());
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while updating purchase order.'
-            ], 500);
+            return getResponseData(
+                false,
+                'An error occurred while updating purchase order.'
+            );
         }
     }
 
@@ -346,15 +362,27 @@ class PurchaseOrder extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
         try {
-            $purchaseOrder = PurchaseOrderModel::findOrFail($id);
-            $purchaseOrder->delete();
+            $ids = $request->input('ids');
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $purchaseOrder = PurchaseOrderModel::find($id);
+                if ($purchaseOrder) {
+                    $purchaseOrder->batteries()->forceDelete();
+                    $purchaseOrder->forceDelete();
+                }
+            }
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Purchase order deleted successfully!'
+                'message' => 'Purchase order(s) deleted successfully!'
             ]);
         } catch (Exception $e) {
             Log::error('Purchase Order Delete Error: ' . $e->getMessage());

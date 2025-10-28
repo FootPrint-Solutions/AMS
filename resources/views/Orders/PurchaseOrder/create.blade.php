@@ -38,7 +38,7 @@
                                 <label for="purchase-order-number">Purchase Order Number <span
                                         class="login-danger">*</span></label>
                                 <input type="text" class="form-control" id="purchase-order-number"
-                                    name="salesordernumber" placeholder="Enter distributor name" required readonly
+                                    name="purchaseordernumber" placeholder="Enter distributor name" required readonly
                                     @isset($data['profile'])
                                 value="{{ $data['profile']['purchase_order_number'] }}"
                                 @else
@@ -53,7 +53,7 @@
                                 <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
-                                value="{{ $data['profile']['date'] }}"
+                                value="{{ \Carbon\Carbon::parse($data['profile']['date'])->format('Y-m-d') }}"
                                 @else
                                 value="{{ date('Y-m-d') }}"
                                 @endisset>
@@ -78,13 +78,6 @@
                                         </select>
                                     </div>
                                 </div>
-
-                                <input type="hidden" name="Latitude" id="Latitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
-                                    required>
-                                <input type="hidden" name="Longitude" id="Longitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
-                                    required>
                             </div>
                         </div>
 
@@ -95,6 +88,15 @@
                                     id="AddressSearchColumnSalesOrderEditable"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
                                     required>
+                            </div>
+                        </div>
+
+                        {{-- Invoice Number --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="InvoiceNumber">Invoice Number <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif">
                             </div>
                         </div>
                     </div>
@@ -336,15 +338,6 @@
                     <td>
                         <div class="row">
                             <div class="col">
-                                {{-- Discount Percentage --}}
-                                <div class="input-group d-none" id="discount-percentage">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
-                                        name="discount"
-                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                        @isset($data['profile']['discount']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
-                                </div>
-
                                 {{-- Discount Price --}}
                                 <div class="input-group" id="discount-price">
                                     <span class="input-group-text border-end">IDR</span>

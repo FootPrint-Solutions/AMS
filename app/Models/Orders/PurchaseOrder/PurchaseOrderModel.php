@@ -100,7 +100,7 @@ class PurchaseOrderModel extends Model implements Auditable
             'invoice_number',
             'suppliers.name',
             'payment_status',
-            'status',
+            'purchase_orders.status',
         ];
 
         $orderColumns = [
@@ -113,7 +113,7 @@ class PurchaseOrderModel extends Model implements Auditable
             'discount_price',
             'total',
             'payment_status',
-            'status',
+            'purchase_orders.status',
         ];
 
         $query = self::query()

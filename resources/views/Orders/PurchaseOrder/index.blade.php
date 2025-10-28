@@ -79,10 +79,16 @@
         });
 
         function loadTable() {
-            $('#table-purchase-order').DataTable({
+            let table = $('#table-purchase-order').DataTable({
+                lengthMenu: [
+                    [5, 10, 25],
+                    [5, 10, 25]
+                ],
+                responsive: true,
                 processing: true,
                 serverSide: true,
                 destroy: true,
+                order: [],
                 ajax: {
                     url: "/purchase-order/show",
                     type: "POST",
@@ -94,11 +100,25 @@
                         d.dateEnd = $("#filter-date-end").val();
                     }
                 },
-                columns: [{
-                        data: 0,
+                columnDefs: [{
+                        targets: [0],
                         orderable: false,
-                        searchable: false,
-                        className: 'text-center'
+                        className: 'dt-body-center'
+                    },
+                    {
+                        targets: [5, 6, 7],
+                        className: 'dt-body-right'
+                    },
+                    {
+                        targets: [8, 9],
+                        className: 'dt-body-center'
+                    }
+                ],
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        }
                     },
                     {
                         data: 1
@@ -113,45 +133,171 @@
                         data: 4
                     },
                     {
-                        data: 5,
-                        className: 'text-end'
+                        data: 5
                     },
                     {
-                        data: 6,
-                        className: 'text-end'
+                        data: 6
                     },
                     {
-                        data: 7,
-                        className: 'text-end'
+                        data: 7
                     },
                     {
-                        data: 8,
-                        className: 'text-center'
+                        data: 8
                     },
                     {
-                        data: 9,
-                        className: 'text-center'
+                        data: 9
                     }
                 ],
-                order: [
-                    [0, 'desc']
+                dom: "lBfrtip",
+                buttons: [{
+                        text: "<i class='fas fa-file-excel'></i> Export All to Excel",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            Swal.fire({
+                                title: "Exporting Data",
+                                text: "Please wait...",
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            $.ajax({
+                                url: '/purchase-order/export/details',
+                                method: 'POST',
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    status: $("#filter-status").val(),
+                                    supplier_id: $("#filter-supplier").val(),
+                                    dateStart: $("#filter-date-start").val(),
+                                    dateEnd: $("#filter-date-end").val()
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(data) {
+                                    var url = window.URL.createObjectURL(data);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+
+                                    var dateStart = $("#filter-date-start").val();
+                                    var dateEnd = $("#filter-date-end").val();
+                                    var filename = 'purchase-orders-details';
+                                    if (dateStart && dateEnd) {
+                                        filename += ' ' + dateStart + ' to ' + dateEnd;
+                                    } else if (dateStart) {
+                                        filename += ' from ' + dateStart;
+                                    } else if (dateEnd) {
+                                        filename += ' until ' + dateEnd;
+                                    } else {
+                                        filename += ' ' + new Date().toISOString().slice(0,
+                                            10);
+                                    }
+                                    filename += '.xlsx';
+                                    a.download = filename;
+                                    document.body.append(a);
+                                    a.click();
+                                    a.remove();
+                                    window.URL.revokeObjectURL(url);
+
+                                    Swal.close();
+                                },
+                                error: function() {
+                                    alert('Error exporting data');
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: "<i class='fas fa-pencil'></i> Edit",
+                        className: "btn btn-outline-primary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length !== 1) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select a single row for editing.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            let id = selectedRows[0][0];
+                            goToPage("/purchase-order/edit/" + id);
+                        }
+                    },
+                    {
+                        text: "<i class='fas fa-trash'></i> Delete",
+                        className: "btn btn-outline-danger btn-sm ml-1",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length === 0) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Please select at least one row for deleting.",
+                                    icon: "error",
+                                });
+                                return;
+                            }
+                            let ids = selectedRows.map(row => row[0]);
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "You won't be able to revert this!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "/purchase-order/destroy",
+                                        type: "POST",
+                                        data: {
+                                            _token: "{{ csrf_token() }}",
+                                            ids: ids
+                                        },
+                                        success: function(response) {
+                                            if (response.status === "success") {
+                                                Swal.fire('Deleted!', response.message,
+                                                    'success');
+                                                table.ajax.reload();
+                                            } else {
+                                                Swal.fire('Error!', response.message,
+                                                    'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error!',
+                                                'An error occurred while deleting.',
+                                                'error');
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: "<i class='fas fa-ellipsis-v'></i> More Action",
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            let selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            showModalMoreAction(selectedRows[0][10], selectedRows[0][10]);
+                        }
+                    },
                 ],
-                language: {
-                    processing: "Loading...",
-                    search: "Search:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "Showing 0 to 0 of 0 entries",
-                    infoFiltered: "(filtered from _MAX_ total entries)",
-                    loadingRecords: "Loading...",
-                    zeroRecords: "No matching records found",
-                    emptyTable: "No data available in table",
-                    paginate: {
-                        first: "First",
-                        previous: "Previous",
-                        next: "Next",
-                        last: "Last"
-                    }
+                language: getDatatablesLanguangeConfigurations("Purchase Order"),
+                select: true,
+                rowCallback: function(row, data) {
+                    if (data[9] == "posted")
+                        $('td', row).addClass("text-success");
+                    else if (data[9] == "completed")
+                        $('td', row).addClass("text-info");
                 }
             });
         }
@@ -192,5 +338,9 @@
                 }
             });
         }
+
+        $('#btn-add').on('click', function() {
+            goToPage("/purchase-order/create");
+        });
     </script>
 @endsection
