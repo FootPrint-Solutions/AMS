@@ -13,18 +13,20 @@ class CreateTableSupplier extends Migration
      */
     public function up()
     {
-        Schema::create('suppliers', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name', 50);
-            $table->string('contact', 50);
-            $table->string('email', 50)->nullable();
-            $table->text('address');
-            $table->text('latitude')->nullable();
-            $table->text('longitude')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('0: inactive, 1: active');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        if (!Schema::hasTable('suppliers')) {
+            Schema::create('suppliers', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('name', 50);
+                $table->string('contact', 50);
+                $table->string('email', 50)->nullable();
+                $table->text('address');
+                $table->text('latitude')->nullable();
+                $table->text('longitude')->nullable();
+                $table->tinyInteger('status')->default(1)->comment('0: inactive, 1: active');
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**

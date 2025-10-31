@@ -13,23 +13,25 @@ class CreateTablePurchaseOrder extends Migration
      */
     public function up()
     {
-        Schema::create('purchase_orders', function (Blueprint $table) {
-            $table->id();
-            $table->string('purchase_order_number');
-            $table->string('invoice_number')->nullable();
-            $table->date('date');
-            $table->unsignedBigInteger('supplier_id');
-            $table->double('discount_price')->default(0);
-            $table->double('subtotal')->default(0);
-            $table->double('total')->default(0);
-            $table->string('payment_status');
-            $table->enum('status', ['draft', 'posted', 'completed'])->default('draft');
-            $table->text('address')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+        if (!Schema::hasTable('purchase_orders')) {
+            Schema::create('purchase_orders', function (Blueprint $table) {
+                $table->id();
+                $table->string('purchase_order_number');
+                $table->string('invoice_number')->nullable();
+                $table->date('date');
+                $table->unsignedBigInteger('supplier_id');
+                $table->double('discount_price')->default(0);
+                $table->double('subtotal')->default(0);
+                $table->double('total')->default(0);
+                $table->string('payment_status');
+                $table->enum('status', ['draft', 'posted', 'completed'])->default('draft');
+                $table->text('address')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
 
-            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('restrict')->onUpdate('restrict');
-        });
+                $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('restrict')->onUpdate('restrict');
+            });
+        }
     }
 
     /**
