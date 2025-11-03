@@ -138,6 +138,9 @@ Route::middleware(['auth'])->group(function () {
     // Battery
     require __DIR__ . '/web/master-data/battery.php';
 
+    // Battery Recycle
+    require __DIR__ . '/web/master-data/battery-recycle.php';
+
     // Battery Brand
     require __DIR__ . '/web/master-data/battery-brand.php';
 
