@@ -76,6 +76,7 @@
                 processing: true,
                 serverSide: true,
                 order: [],
+                pageLength: 10,
                 ajax: {
                     url: "/inventory/recycle/show",
                     type: "POST",
