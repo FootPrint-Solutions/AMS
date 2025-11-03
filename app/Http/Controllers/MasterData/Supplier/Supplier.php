@@ -261,8 +261,8 @@ class Supplier extends Controller
         return $request->validate(
             [
                 'name' => 'required|string',
-                'address' => 'required|string',
-                'contact' => 'required|string',
+                'address' => 'nullable|string',
+                'contact' => 'nullable|string',
                 'email' => 'nullable|email',
             ],
             [
