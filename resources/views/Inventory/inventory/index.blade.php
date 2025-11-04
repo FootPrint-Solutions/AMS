@@ -9,7 +9,7 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Inventory</h3>
+                        <h3 class="page-title">Inventory Spreadsheet</h3>
                     </div>
                 </div>
             </div>
@@ -42,6 +42,46 @@
         </div>
     </div>
 
+    <div class="card">
+        <div class="card-body">
+            {{-- Title --}}
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Inventory</h3>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            {{-- Table Inventory Details --}}
+            <div class="table-responsive">
+                <table class="table table-striped" id="table-inventory-details">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="table-col-no">#</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Inventory ID</th>
+                            <th scope="col">Battery ID</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Reference</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Sold</th>
+                            <th scope="col">Sold At</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Updated At</th>
+                            <th scope="col">Reference ID</th>
+                            <th scope="col">Reference Type</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
     <script>
         var table;
 
@@ -66,6 +106,38 @@
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Battery"),
+            });
+
+            // DataTables configuration
+            $("#table-inventory-details").DataTable({
+                lengthMenu: [
+                    [5, 10, 25],
+                    [5, 10, 25]
+                ],
+                pageLength: 10,
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                order: [],
+                ajax: {
+                    url: "/inventory/details/show",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                    }
+                },
+                columnDefs: [{
+                        targets: [0],
+                        orderable: false
+                    },
+                    {
+                        targets: [-4, -5, -6],
+                        className: 'dt-body-right'
+                    }
+                ],
+                dom: "lBfrtip",
+                buttons: getDatatablesButtonConfigurations(),
+                language: getDatatablesLanguangeConfigurations("Inventory"),
             });
         });
     </script>

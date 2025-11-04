@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 
 // MODELS
-use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryRecycleDetailModel;
 
 
 class InventoryRecycle extends Controller
@@ -59,7 +59,7 @@ class InventoryRecycle extends Controller
         if ($id == null) {
             return redirect()->route("battery.brand.index");
         }
-        $brand = InventoryDetailModel::find($id);
+        $brand = InventoryRecycleDetailModel::find($id);
         if ($brand == null) {
             return redirect()->route("battery.brand.index");
         }
@@ -88,7 +88,7 @@ class InventoryRecycle extends Controller
         $start = $request->input('start');
 
         // Get battery brand data (rows and count).
-        $data = InventoryDetailModel::allForDataTables($request);
+        $data = InventoryRecycleDetailModel::allForDataTables($request);
 
         // Set rows to be displayed in battery brand table.
         $rows = [];
@@ -110,7 +110,7 @@ class InventoryRecycle extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => InventoryDetailModel::count(),
+            "recordsTotal" => InventoryRecycleDetailModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
@@ -136,7 +136,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = new InventoryDetailModel();
+            $brand = new InventoryRecycleDetailModel();
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -188,7 +188,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = InventoryDetailModel::find($request->id);
+            $brand = InventoryRecycleDetailModel::find($request->id);
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -235,7 +235,7 @@ class InventoryRecycle extends Controller
             $ids = $request->id;
 
             foreach ($ids as $id) {
-                $brand = InventoryDetailModel::find($id);
+                $brand = InventoryRecycleDetailModel::find($id);
                 $status = $brand->delete();
             }
 
@@ -275,7 +275,7 @@ class InventoryRecycle extends Controller
             $status = true;
             $ids = $request->input('ids', []);
             foreach ($ids as $id) {
-                $brand = InventoryDetailModel::find($id);
+                $brand = InventoryRecycleDetailModel::find($id);
                 if ($brand) {
                     $brand->sold = 1;
                     $brand->sold_at = now(); // Use Laravel's helper for current timestamp

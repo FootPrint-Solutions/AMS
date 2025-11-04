@@ -7,6 +7,7 @@ use App\Models\MasterData\Battery\BatteryCodeModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Models\Inventory\InventoryDetailModel;
 
 class Inventory extends Controller
 {
@@ -127,5 +128,42 @@ class Inventory extends Controller
         if ($index !== false)
             return $this->stockList[$index][6];
         return "-";
+    }
+
+    public function showDetails(Request $request)
+    {
+        // Get all DataTables requests.
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+
+        $data = InventoryDetailModel::allForDataTables($request);
+
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            $row = [];
+            $row[] = $no++; // #
+            $row[] = $key->id; // ID
+            $row[] = $key->inventory_id; // Inventory ID
+            $row[] = $key->battery_id; // Battery ID
+            $row[] = $key->type; // Type
+            $row[] = $key->reference; // Reference
+            $row[] = $key->quantity; // Quantity
+            $row[] = $key->sold; // Sold
+            $row[] = $key->sold_at; // Sold At
+            $row[] = $key->note; // Note
+            $row[] = $key->created_at; // Created At
+            $row[] = $key->updated_at; // Updated At
+            $row[] = $key->reference_id; // Reference ID
+            $row[] = $key->reference_type; // Reference Type
+            $rows[] = $row;
+        }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => InventoryDetailModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 }

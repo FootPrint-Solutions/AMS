@@ -11,17 +11,21 @@ use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
 use App\Models\MasterData\Battery\BatteryModel;
-use App\Models\Inventory\InventoryModel;
+use App\Models\MasterData\Battery\BatteryRecycleModel;
+use App\Models\Inventory\InventoryRecycleModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
-class InventoryDetailModel extends Model implements Auditable
+class InventoryRecycleDetailModel extends Model implements Auditable
 {
     use HasFactory, DataTablesTrait, AuditableTrait;
 
-    protected $table = 'inventory_details';
+    protected $table = 'inventory_recycle_details';
 
     protected $fillable = [
         'inventory_id',
         'battery_id',
+        'battery_recycle_id',
         'type',
         'reference',
         'quantity',
@@ -32,10 +36,10 @@ class InventoryDetailModel extends Model implements Auditable
         'reference_type',
     ];
 
-    // Relationship dengan Inventory
-    public function inventory()
+    // Relationship dengan InventoryRecycle
+    public function inventoryRecycle()
     {
-        return $this->belongsTo(InventoryModel::class, 'inventory_id');
+        return $this->belongsTo(InventoryRecycleModel::class, 'inventory_id');
     }
 
     // Relationship dengan Battery
@@ -44,10 +48,22 @@ class InventoryDetailModel extends Model implements Auditable
         return $this->belongsTo(BatteryModel::class, 'battery_id');
     }
 
+    // Relationship dengan BatteryRecycle
+    public function batteryRecycle()
+    {
+        return $this->belongsTo(BatteryRecycleModel::class, 'battery_recycle_id');
+    }
+
     // Morph relationship reference
     public function reference()
     {
         return $this->morphTo();
+    }
+
+    // Relationship dengan SalesOrderBattery
+    public function salesOrderBattery()
+    {
+        return $this->hasOne(SalesOrderBatteryModel::class, 'id', 'reference_id')->with('salesOrder');
     }
 
     public static function allForDataTables($request)
@@ -62,30 +78,26 @@ class InventoryDetailModel extends Model implements Auditable
             'id',
             'inventory_id',
             'battery_id',
+            'battery_recycle_id',
             'type',
             'reference',
             'quantity',
-            'sold',
-            'sold_at',
             'note',
-            'created_at',
-            'updated_at',
             'reference_id',
             'reference_type',
+            'sold',
+            'sold_at',
         ];
 
         $searchColumns = [
             'id',
             'inventory_id',
             'battery_id',
+            'battery_recycle_id',
             'type',
             'reference',
             'quantity',
-            'sold',
-            'sold_at',
             'note',
-            'created_at',
-            'updated_at',
             'reference_id',
             'reference_type',
         ];
@@ -99,8 +111,17 @@ class InventoryDetailModel extends Model implements Auditable
         $query->select($selectColumns);
 
         $query->with([
-            'inventory',
+            'inventoryRecycle',
             'battery',
+            'batteryRecycle',
+            'salesOrderBattery'
+        ]);
+
+        $query->withCount([
+            'inventoryRecycle',
+            'battery',
+            'batteryRecycle',
+            'salesOrderBattery'
         ]);
 
         // Searching process.
@@ -109,9 +130,33 @@ class InventoryDetailModel extends Model implements Auditable
                 foreach ($searchColumns as $column) {
                     $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
                 }
+
                 $query->orWhereHas('battery', function ($query) use ($searchValue) {
                     $query->where('name', 'LIKE', "%" . $searchValue . "%");
                 });
+
+                $query->orWhereHas('batteryRecycle', function ($query) use ($searchValue) {
+                    $query->where('recycle_code', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery', function ($query) use ($searchValue) {
+                    $query->whereHas('salesOrder', function ($query) use ($searchValue) {
+                        $query->where('sales_order_number', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('price_net', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('battery_production_code', 'LIKE', "%" . $searchValue . "%");
+                    });
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+            });
+        }
+
+        if ($request->dateStart && $request->dateEnd) {
+            $query->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                $query->where('date', '>=', $request->dateStart)
+                    ->where('date', '<=', $request->dateEnd);
             });
         }
 
