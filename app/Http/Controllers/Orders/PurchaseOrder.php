@@ -35,6 +35,7 @@ class PurchaseOrder extends Controller
     {
         $data = [
             'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name']),
+            'distributorShops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name']),
         ];
 
         return view('Orders.PurchaseOrder.index', getIndexData(
@@ -202,6 +203,7 @@ class PurchaseOrder extends Controller
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->supplier_name ?? "<p class='text-center'>-</p>";
+            $row[] = $key->shop_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->subtotal);
             $row[] = formatPrice($key->discount_price);
             $row[] = formatPrice($key->total);

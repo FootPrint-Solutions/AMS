@@ -38,6 +38,15 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label for="filter-distributor-shop">Distributor Shop</label>
+                    <select class="form-control" id="filter-distributor-shop" onchange="reloadTable()">
+                        <option value="">All Distributor Shops</option>
+                        @foreach ($data['distributorShops'] as $shop)
+                            <option value="{{ $shop['id'] }}">{{ $shop['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label for="filter-date-start">Date From</label>
                     <input type="date" class="form-control" id="filter-date-start" onchange="reloadTable()">
                 </div>
@@ -61,6 +70,7 @@
                         <th scope="col">Invoice Number</th>
                         <th scope="col">Date</th>
                         <th scope="col">Supplier</th>
+                        <th scope="col">Ship To</th>
                         <th scope="col">Subtotal</th>
                         <th scope="col">Discount</th>
                         <th scope="col">Total</th>
@@ -103,6 +113,7 @@
                         d.supplier_id = $("#filter-supplier").val();
                         d.dateStart = $("#filter-date-start").val();
                         d.dateEnd = $("#filter-date-end").val();
+                        d.distributor_shop_id = $("#filter-distributor-shop").val();
                     }
                 },
                 columnDefs: [{
@@ -141,16 +152,20 @@
                         data: 5
                     },
                     {
-                        data: 6
+                        data: 6,
                     },
                     {
-                        data: 7
+                        data: 7,
                     },
                     {
-                        data: 8
+                        data: 8,
+
                     },
                     {
-                        data: 9
+                        data: 9,
+                    },
+                    {
+                        data: 10,
                     }
                 ],
                 dom: "lBfrtip",

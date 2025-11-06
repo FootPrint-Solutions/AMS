@@ -89,6 +89,7 @@ class PurchaseOrderModel extends Model implements Auditable
             'purchase_orders.invoice_number',
             'purchase_orders.date',
             'suppliers.name as supplier_name',
+            'distributor_shops.name as shop_name',
             'purchase_orders.subtotal',
             'purchase_orders.discount_price',
             'purchase_orders.total',
@@ -102,6 +103,7 @@ class PurchaseOrderModel extends Model implements Auditable
             'suppliers.name',
             'payment_status',
             'purchase_orders.status',
+            'distributor_shops.name',
         ];
 
         $orderColumns = [
@@ -115,10 +117,12 @@ class PurchaseOrderModel extends Model implements Auditable
             'total',
             'payment_status',
             'purchase_orders.status',
+            'shop_name',
         ];
 
         $query = self::query()
-            ->leftJoin('suppliers', 'purchase_orders.supplier_id', '=', 'suppliers.id');
+            ->leftJoin('suppliers', 'purchase_orders.supplier_id', '=', 'suppliers.id')
+            ->leftJoin('distributor_shops', 'purchase_orders.ship_to', '=', 'distributor_shops.id');
 
         // Filter by status if provided
         if ($request->has('status') && $request->status !== null && $request->status !== '' && $request->status !== 'all') {
@@ -133,6 +137,11 @@ class PurchaseOrderModel extends Model implements Auditable
         // Filter by date range if provided
         if ($request->has('dateStart') && $request->has('dateEnd') && $request->dateStart && $request->dateEnd) {
             $query->whereBetween('purchase_orders.date', [$request->dateStart, $request->dateEnd]);
+        }
+
+        // Filter by distributor shop if provided
+        if ($request->has('distributor_shop_id') && $request->distributor_shop_id !== null && $request->distributor_shop_id !== '' && $request->distributor_shop_id !== 'all') {
+            $query->where('purchase_orders.ship_to', $request->distributor_shop_id);
         }
 
         $query->select($selectColumns);
