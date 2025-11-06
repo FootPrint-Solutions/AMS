@@ -12,6 +12,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Inventory\InventoryModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 class InventoryDetailModel extends Model implements Auditable
 {
@@ -21,6 +22,7 @@ class InventoryDetailModel extends Model implements Auditable
 
     protected $fillable = [
         'inventory_id',
+        'distributor_shop_id',
         'battery_id',
         'type',
         'reference',
@@ -48,6 +50,12 @@ class InventoryDetailModel extends Model implements Auditable
     public function reference()
     {
         return $this->morphTo();
+    }
+
+    // Relationship dengan DistributorShop
+    public function distributorShop()
+    {
+        return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
     }
 
     public static function allForDataTables($request)

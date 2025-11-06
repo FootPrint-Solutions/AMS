@@ -15,6 +15,7 @@ use App\Models\MasterData\Battery\BatteryRecycleModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 class InventoryRecycleDetailModel extends Model implements Auditable
 {
@@ -24,6 +25,7 @@ class InventoryRecycleDetailModel extends Model implements Auditable
 
     protected $fillable = [
         'inventory_id',
+        'distributor_shop_id',
         'battery_id',
         'battery_recycle_id',
         'type',
@@ -64,6 +66,12 @@ class InventoryRecycleDetailModel extends Model implements Auditable
     public function salesOrderBattery()
     {
         return $this->hasOne(SalesOrderBatteryModel::class, 'id', 'reference_id')->with('salesOrder');
+    }
+
+    // Relationship dengan DistributorShop
+    public function distributorShop()
+    {
+        return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
     }
 
     public static function allForDataTables($request)

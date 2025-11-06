@@ -74,10 +74,26 @@
                                                     {{ $supplier['name'] }}
                                                 </option>
                                             @endforeach
-                                            <option value="new">Quick add new supplier</option>
+                                            {{-- <option value="new">Quick add new supplier</option> --}}
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {{-- Shops --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="shop">Ship To <span class="login-danger">*</span></label>
+                                <select class="form-control" id="shop" name="shop" required>
+                                    <option></option>
+                                    @foreach ($data['shops'] as $shop)
+                                        <option value="{{ $shop['id'] }}"
+                                            @if (isset($data['profile']) && $data['profile']['shop_id'] == $shop['id']) selected @endif>
+                                            {{ $shop['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
@@ -115,10 +131,10 @@
                         {{-- Contact --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="supplier-contact">Supplier Contact <span class="login-danger">*</span></label>
+                                <label for="supplier-contact">Supplier Contact</label>
                                 <div class="input-group">
                                     <span class="input-group-text border-end country-code">+62</span>
-                                    <input type="tel" pattern="[1-9][0-9]{7,}"
+                                    <input type="number" pattern="[1-9][0-9]{7,}"
                                         title="At least 8 digits with no leading zero" class="form-control"
                                         id="supplier-contact" name="customercontact" placeholder="Enter supplier contact">
                                 </div>
@@ -196,6 +212,7 @@
                                                 "battery-priceretail-$counter",
                                                 "battery-discount-$counter",
                                                 "battery-type-$counter",
+                                                "battery-type-$counter",
                                             ];
                                             $encodedTargets = json_encode($targets);
                                         @endphp
@@ -239,6 +256,7 @@
                                             class="form-control battery-type-{{ $counter }} battery-type"
                                             id="battery-type-{{ $counter }}" name="batteriestype[]"
                                             @isset($battery['battery']['type'])value="{{ $battery['battery']['type'] }}" @endisset>
+
 
                                         <div class="input-group">
                                             <input type="text" class="form-control text-end battery-tax"

@@ -26,6 +26,7 @@ use App\Models\MasterData\Battery\BatteryCodeModel;
 use App\Models\MasterData\Battery\BatteryPriceModel;
 use App\Models\MasterData\Vehicle\VehicleBatteryModel;
 use App\Models\MasterData\Battery\BatteryImageModel;
+use App\Models\MasterData\Battery\BatteryRecycleModel;
 
 class BatteryModel extends Model implements Auditable
 {
@@ -208,19 +209,32 @@ class BatteryModel extends Model implements Auditable
     public static function allForAutocomplete($keyword, $extraColumn, $whereIn = [], $limit = 5)
     {
         $columns = ["batteries.id", "batteries.name"];
-        $query = self::select(array_merge($columns, $extraColumn))
+        $batteryQuery = self::select(array_merge($columns, $extraColumn))
             ->where("batteries.type", "regular")
             ->where("batteries.name", "like", "%{$keyword}%")
             ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')
-            // ->join('battery_size_categories', 'batteries.size_category_id', '=', 'battery_size_categories.id', 'left')
-            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id')
-            ->take($limit);
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id');
 
-        if (!empty($whereIn))
-            $query->whereIn('battery_codes.code', $whereIn);
+        if (!empty($whereIn)) {
+            $batteryQuery->whereIn('battery_codes.code', $whereIn);
+        }
 
-        return $query->get()
-            ->toArray();
+        $batteryResults = $batteryQuery->limit($limit)->get()->toArray();
+
+        // Query for battery_recycles table
+        $recycleColumns = ["id", "name"];
+        $recycleQuery = DB::table('battery_recycles')
+            ->select($recycleColumns)
+            ->where('name', 'like', "%{$keyword}%")
+            ->where('status', 1);
+
+        // add column type constant 'recycle' to distinguish from batteries table
+        $recycleQuery->selectRaw("'recycle' as type");
+        $recycleQuery->groupBy('id');
+        $recycleResults = $recycleQuery->limit($limit)->get()->toArray();
+
+        // Merge both results
+        return array_merge($batteryResults, $recycleResults);
     }
 
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)
