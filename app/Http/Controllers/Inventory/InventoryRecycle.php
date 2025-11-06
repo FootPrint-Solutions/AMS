@@ -28,7 +28,7 @@ class InventoryRecycle extends Controller
         return view(
             "Inventory.InventoryRecycle.index",
             getIndexData(
-                $this->title
+                $this->title,
             )
         );
     }
@@ -94,15 +94,50 @@ class InventoryRecycle extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+
+            if ($key->reference === 'Sales Order Battery') {
+                $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+                $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+            } elseif ($key->reference === 'Purchase Order') {
+                $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
+                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->batteryRecycle->name ?? '-';
+                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->price_net ?? '0') : '0';
+                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->battery_production_code ?? '-' : '-';
+            } else {
+                $date = '-';
+                $orderNumber = '-';
+                $distributorShop = '-';
+                $battery = '-';
+                $batteryPrice = '-';
+                $batteryProductionCode = '-';
+            }
+
             $row = [];
             $row[] = $no++;
-            $row[] = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-            $row[] = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
-            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
-            $row[] = $key->battery->name ?? '-';
-            $row[] = $key->salesOrderBattery->battery_production_code ?? '-';
+            $row[] = $date;
+            $row[] = $orderNumber;
+            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? $key->purchaseOrder->supplier->name ?? '-';
+            $row[] = $distributorShop;
+            $row[] = $battery;
+            $row[] = $batteryProductionCode;
+
+            if ($key->type === 'in') {
+                $row[] = '<span style="color:green;"><i class="fas fa-arrow-down"></i> IN</span>';
+            } elseif ($key->type === 'out') {
+                $row[] = '<span style="color:red;"><i class="fas fa-arrow-up"></i> OUT</span>';
+            } elseif ($key->type === 'adjustment') {
+                $row[] = '<span style="color:orange;"><i class="fas fa-exchange-alt"></i> ADJ</span>';
+            } else {
+                $row[] = '-';
+            }
             $row[] = $key->quantity ?? '-';
-            $row[] = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+            $row[] = $batteryPrice;
             $row[] = $key->id ?? '-';
             $row[] = $key->sold ?? '-';
             $rows[] = $row;

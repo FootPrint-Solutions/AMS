@@ -32,7 +32,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-1"></div>
+
 
             </div>
         </div>
@@ -47,11 +47,13 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">SO Date</th>
-                        <th scope="col">SO Number</th>
-                        <th scope="col">Customer Name</th>
-                        <th scope="col">Battery Name</th>
+                        <th scope="col">SO/PO Date</th>
+                        <th scope="col">SO/PO Number</th>
+                        <th scope="col">Customer/Supplier</th>
+                        <th scope="col">Distributor Shop</th>
+                        <th scope="col">Battery</th>
                         <th scope="col">Production Code</th>
+                        <th scope="col">Type</th>
                         <th scope="col">Qty</th>
                         <th scope="col">Price</th>
                         <th scope="col">id</th>
@@ -104,12 +106,12 @@
                         className: "text-end table-col-price",
                     },
                     {
-                        targets: [8],
+                        targets: [10],
                         visible: false,
                         searchable: false
                     },
                     {
-                        targets: [9],
+                        targets: [11],
                         visible: false,
                         searchable: false
                     }
@@ -127,7 +129,7 @@
                                 }).data().toArray();
                                 if (data.length > 0) {
                                     var ids = data.map(function(item) {
-                                        return item[8];
+                                        return item[10];
                                     });
                                     soldOut(ids);
                                 } else {
@@ -145,7 +147,7 @@
                 select: true,
                 multiselect: true,
                 rowCallback: function(row, data) {
-                    if (data[9] == 1) {
+                    if (data[11] == 1) {
                         $('td', row).addClass("text-danger");
                     }
 

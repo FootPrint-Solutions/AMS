@@ -16,6 +16,7 @@ use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 
 class InventoryRecycleDetailModel extends Model implements Auditable
 {
@@ -74,6 +75,12 @@ class InventoryRecycleDetailModel extends Model implements Auditable
         return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
     }
 
+    // Relationship dengan PurchaseOrder
+    public function purchaseOrder()
+    {
+        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id')->with('supplier', 'batteries');
+    }
+
     public static function allForDataTables($request)
     {
         $start = $request->input("start");
@@ -95,6 +102,7 @@ class InventoryRecycleDetailModel extends Model implements Auditable
             'reference_type',
             'sold',
             'sold_at',
+            'distributor_shop_id',
         ];
 
         $searchColumns = [
@@ -122,14 +130,18 @@ class InventoryRecycleDetailModel extends Model implements Auditable
             'inventoryRecycle',
             'battery',
             'batteryRecycle',
-            'salesOrderBattery'
+            'salesOrderBattery',
+            'purchaseOrder',
+            'distributorShop'
         ]);
 
         $query->withCount([
             'inventoryRecycle',
             'battery',
             'batteryRecycle',
-            'salesOrderBattery'
+            'salesOrderBattery',
+            'purchaseOrder',
+            'distributorShop'
         ]);
 
         // Searching process.
@@ -144,7 +156,7 @@ class InventoryRecycleDetailModel extends Model implements Auditable
                 });
 
                 $query->orWhereHas('batteryRecycle', function ($query) use ($searchValue) {
-                    $query->where('recycle_code', 'LIKE', "%" . $searchValue . "%");
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
                 });
 
                 $query->orWhereHas('salesOrderBattery', function ($query) use ($searchValue) {
@@ -157,6 +169,14 @@ class InventoryRecycleDetailModel extends Model implements Auditable
 
                 $query->orWhereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($searchValue) {
                     $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('distributorShop', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
+                    $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
                 });
             });
         }
