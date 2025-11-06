@@ -228,6 +228,9 @@ class PurchaseOrder extends Controller
     public function edit($id)
     {
         $purchaseOrder = PurchaseOrderModel::with('supplier', 'batteries.battery')->findOrFail($id);
+        if ($purchaseOrder->status !== 'draft') {
+            return redirect()->route('purchase-order.index')->with('error', 'Only draft purchase orders can be edited.');
+        }
 
         $data = [
             'profile' => $purchaseOrder->toArray(),
@@ -382,6 +385,9 @@ class PurchaseOrder extends Controller
             foreach ($ids as $id) {
                 $purchaseOrder = PurchaseOrderModel::find($id);
                 if ($purchaseOrder) {
+                    if ($purchaseOrder->status !== 'draft') {
+                        continue;
+                    }
                     $purchaseOrder->batteries()->forceDelete();
                     $purchaseOrder->forceDelete();
                 }
@@ -508,8 +514,7 @@ class PurchaseOrder extends Controller
                         $batteryType = $battery->source ?? 'regular';
                         $batteryCode = $battery->battery_production_code ?? null;
                         $shopId = $purchaseOrder->ship_to;
-
-                        if ($batteryType === 'regular') {
+                        if ($batteryType == 'regular') {
                             $inventory = InventoryModel::where('battery_id', $batteryId)->first();
                             if ($inventory) {
                                 $inventory->stock += $battery->quantity;
@@ -534,14 +539,15 @@ class PurchaseOrder extends Controller
                                 'reference_id' => $purchaseOrder->id,
                                 'reference_type' => PurchaseOrderModel::class,
                             ]);
-                        } elseif ($batteryType === 'recycle') {
-                            $inventoryRecycle = InventoryRecycleModel::where('battery_id', $batteryId)->first();
+                        } else if ($batteryType == 'recycle') {
+                            $inventoryRecycle = InventoryRecycleModel::where('battery_recycle_id', $batteryId)->first();
                             if ($inventoryRecycle) {
                                 $inventoryRecycle->stock += $battery->quantity;
                                 $inventoryRecycle->save();
                             } else {
                                 $inventoryRecycle = InventoryRecycleModel::create([
-                                    'battery_id' => $batteryId,
+                                    'battery_id' => NULL,
+                                    'battery_recycle_id' => $batteryId,
                                     'code' => $batteryCode,
                                     'stock' => $battery->quantity,
                                 ]);
@@ -550,7 +556,7 @@ class PurchaseOrder extends Controller
                             InventoryRecycleDetailModel::create([
                                 'inventory_id' => $inventoryRecycle->id,
                                 'distributor_shop_id' => $shopId,
-                                'battery_id' => $batteryId,
+                                'battery_id' => NULL,
                                 'battery_recycle_id' => $batteryId,
                                 'type' => 'in',
                                 'reference' => 'purchase_order',

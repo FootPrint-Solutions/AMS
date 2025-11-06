@@ -72,6 +72,9 @@
         </div>
     </div>
 
+    {{-- Toastr JS --}}
+    <script src="{{ asset('/plugins/toastr/toastr.min.js') }}"></script>
+
     {{-- DataTables Configuration --}}
     <script>
         let table;
@@ -454,5 +457,10 @@
                 }
             });
         }
+
+
+        @if (session('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
     </script>
 @endsection
