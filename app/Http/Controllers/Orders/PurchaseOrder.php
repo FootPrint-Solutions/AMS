@@ -13,6 +13,7 @@ use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\Orders\PurchaseOrder\PurchaseOrderBatteryModel;
 use App\Models\MasterData\Supplier\SupplierModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatteryRecycleModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Company\CompanyModel;
@@ -51,7 +52,6 @@ class PurchaseOrder extends Controller
     {
         $data = [
             'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
-            'batteries' => BatteryModel::orderBy('name')->get(['id', 'name', 'price_retail', 'type']),
             'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
             'number' => PurchaseOrderModel::generatePurchaseOrderNumber(),
             'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
@@ -75,27 +75,6 @@ class PurchaseOrder extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'purchaseordernumber' => 'required|string|unique:purchase_orders,purchase_order_number',
-            'date' => 'required|date',
-            'supplier' => 'required|exists:suppliers,id',
-            'shop' => 'required|exists:distributor_shops,id',
-            'Address' => 'required|string',
-            'batteriesid.*' => 'required|exists:batteries,id',
-            'batteriespriceretail.*' => 'required|numeric|min:0',
-            'batteriesdiscountprice.*' => 'required|numeric|min:0',
-            'batteriesprice.*' => 'required|numeric|min:0',
-            'batteriesname.*' => 'required|string',
-            'batteriestax.*' => 'required|numeric|min:0',
-            'batteriescode.*' => 'nullable|string',
-            'batteriestype.*' => 'required|string',
-            'subtotal' => 'required|numeric|min:0',
-            'discountprice' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
-            'status' => 'required|in:paid,pending,failed'
-        ]);
-
         try {
             DB::beginTransaction();
 
@@ -120,7 +99,19 @@ class PurchaseOrder extends Controller
             if ($request->batteriesid && is_array($request->batteriesid)) {
                 foreach ($request->batteriesid as $index => $batteryId) {
                     $battery = BatteryModel::find($batteryId);
-                    if ($battery) {
+                    $batteryType = $request->batteriestype[$index] ?? ($battery ? 'regular' : 'recycle');
+
+                    $batteryName = $request->batteriesname[$index] ?? ($battery ? $battery->name : null);
+
+                    if (!$battery && $batteryType === 'recycle') {
+                        $batteryRecycle = BatteryRecycleModel::find($batteryId);
+                        $batteryName = $batteryName ?? ($batteryRecycle ? $batteryRecycle->name : null);
+                        $batteryType = 'recycle';
+                    } else {
+                        $batteryType = 'regular';
+                    }
+
+                    if ($battery || isset($batteryRecycle)) {
                         $batteryPriceRetail = (int)str_replace(['Rp', '.', ' '], '', $request->batteriespriceretail[$index] ?? '0');
                         $tax = $request->batteriestax[$index] ?? 0;
                         $taxPrice = $batteryPriceRetail * $tax / 100;
@@ -130,9 +121,9 @@ class PurchaseOrder extends Controller
 
                         PurchaseOrderBatteryModel::create([
                             'purchase_order_id' => $purchaseOrder->id,
-                            'source' => $request->batteriestype[$index] ?? 'regular',
+                            'source' => $batteryType,
                             'battery_id' => $batteryId,
-                            'battery_name' => $request->batteriesname[$index] ?? $battery->name,
+                            'battery_name' => $batteryName,
                             'battery_price_retail' => $batteryPriceRetail,
                             'tax' => $tax,
                             'tax_price' => $taxPrice,
@@ -142,68 +133,6 @@ class PurchaseOrder extends Controller
                             'quantity' => 1,
                             'battery_production_code' => $request->batteriescode[$index] ?? null,
                         ]);
-
-
-                        // send to inventory if type regular to inventory if recycle to inventory_recycle
-                        if (($request->batteriestype[$index] ?? 'regular') === 'regular') {
-
-                            $inventory = InventoryModel::where('battery_id', $batteryId)->first();
-                            if ($inventory) {
-                                $inventory->stock += 1;
-                                $inventory->save();
-                            } else {
-                                $inventory = InventoryModel::create([
-                                    'battery_id' => $batteryId,
-                                    'code' => $request->batteriescode[$index] ?? null,
-                                    'stock' => 1,
-                                ]);
-                            }
-
-                            InventoryDetailModel::create([
-                                'inventory_id' => $inventory->id,
-                                'distributor_shop_id' => $request->shop,
-                                'battery_id' => $batteryId,
-                                'type' => 'in',
-                                'reference' => 'purchase_order',
-                                'quantity' => 1,
-                                'sold' => 0,
-                                'note' => null,
-                                'reference_id' => $purchaseOrder->id,
-                                'reference_type' => PurchaseOrderModel::class,
-                            ]);
-                        } else if (($request->batteriestype[$index] ?? 'regular') === 'recycle') {
-                            $inventoryRecycle = InventoryRecycleModel::where('battery_id', $batteryId)->first();
-                            if ($inventoryRecycle) {
-                                $inventoryRecycle->stock += 1;
-                                $inventoryRecycle->save();
-                            } else {
-                                $inventoryRecycle = InventoryRecycleModel::create([
-                                    'battery_id' => $batteryId,
-                                    'code' => $request->batteriescode[$index] ?? null,
-                                    'stock' => 1,
-                                ]);
-                            }
-
-                            InventoryRecycleDetailModel::create([
-                                'inventory_id' => $inventoryRecycle->id,
-                                'distributor_shop_id' => $request->shop,
-                                'battery_id' => $batteryId,
-                                'battery_recycle_id' => $batteryId,
-                                'type' => 'in',
-                                'reference' => 'purchase_order',
-                                'quantity' => 1,
-                                'reference_id' => $purchaseOrder->id,
-                                'reference_type' => PurchaseOrderModel::class,
-                            ]);
-                        } else {
-                            Log::warning('Unknown battery type for purchase order battery', [
-                                'purchase_order_id' => $purchaseOrder->id,
-                                'battery_id' => $batteryId,
-                                'type' => $request->batteriestype[$index] ?? 'unknown',
-                            ]);
-
-                            DB::rollBack();
-                        }
                     }
                 }
             }
@@ -303,7 +232,6 @@ class PurchaseOrder extends Controller
         $data = [
             'profile' => $purchaseOrder->toArray(),
             'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
-            'batteries' => BatteryModel::orderBy('name')->get(['id', 'name', 'price_retail', 'type']),
             'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
             'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
             'shops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address']),
@@ -323,7 +251,7 @@ class PurchaseOrder extends Controller
                 'price_net' => $battery->price_net,
                 'quantity' => $battery->quantity,
                 'battery_production_code' => $battery->battery_production_code,
-                'type' => $battery->battery->type ?? 'regular',
+                'type' => $battery->source ?? 'regular',
             ];
         })->toArray();
 
@@ -341,34 +269,11 @@ class PurchaseOrder extends Controller
      */
     public function update(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'id' => 'required|exists:purchase_orders,id',
-            'purchaseordernumber' => 'required|string',
-            'date' => 'required|date',
-            'supplier' => 'required|exists:suppliers,id',
-            'shop' => 'required|exists:distributor_shops,id',
-            'Address' => 'required|string',
-            'batteriesid.*' => 'required|exists:batteries,id',
-            'batteriespriceretail.*' => 'required|numeric|min:0',
-            'batteriesdiscountprice.*' => 'required|numeric|min:0',
-            'batteriesprice.*' => 'required|numeric|min:0',
-            'batteriesname.*' => 'required|string',
-            'batteriestax.*' => 'required|numeric|min:0',
-            'batteriescode.*' => 'nullable|string',
-            'batteriestype.*' => 'required|string',
-            'subtotal' => 'required|numeric|min:0',
-            'discountprice' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
-            'status' => 'required|in:paid,pending,failed'
-        ]);
-
         try {
             DB::beginTransaction();
 
             $purchaseOrder = PurchaseOrderModel::findOrFail($request->id);
 
-            // Update purchase order
             $purchaseOrder->update([
                 'purchase_order_number' => $request->purchaseordernumber,
                 'date' => $request->date,
@@ -381,40 +286,64 @@ class PurchaseOrder extends Controller
                 'subtotal' => (int)str_replace(['Rp', '.', ' '], '', $request->subtotal ?? '0'),
                 'total' => (int)str_replace(['Rp', '.', ' '], '', $request->total ?? '0'),
                 'payment_status' => $request->status,
-                'status' => 'draft',
                 'invoice_number' => $request->InvoiceNumber
             ]);
 
-            // Delete existing batteries and recreate them
-            $purchaseOrder->batteries()->delete();
-
-            // Create purchase order batteries
-            if ($request->batteriesid && is_array($request->batteriesid)) {
-                foreach ($request->batteriesid as $index => $batteryId) {
-                    $battery = BatteryModel::find($batteryId);
-                    if ($battery) {
-                        $batteryPriceRetail = (int)str_replace(['Rp', '.', ' '], '', $request->batteriespriceretail[$index] ?? '0');
-                        $tax = $request->batteriestax[$index] ?? 0;
-                        $taxPrice = $batteryPriceRetail * $tax / 100;
-                        $discountPrice = (int)str_replace(['Rp', '.', ' '], '', $request->batteriesdiscountprice[$index] ?? '0');
-                        $discount = $batteryPriceRetail > 0 ? ($discountPrice / $batteryPriceRetail) * 100 : 0;
-                        $priceNet = $batteryPriceRetail + $taxPrice - $discountPrice;
-
-                        PurchaseOrderBatteryModel::create([
-                            'purchase_order_id' => $purchaseOrder->id,
-                            'source' => $request->batteriestype[$index] ?? 'regular',
-                            'battery_id' => $batteryId,
-                            'battery_name' => $request->batteriesname[$index] ?? $battery->name,
-                            'battery_price_retail' => $batteryPriceRetail,
-                            'tax' => $tax,
-                            'tax_price' => $taxPrice,
-                            'discount' => $discount,
-                            'discount_price' => $discountPrice,
-                            'price_net' => $priceNet,
-                            'quantity' => 1,
-                            'battery_production_code' => $request->batteriescode[$index] ?? null,
-                        ]);
+            if ($request->detailid && is_array($request->detailid)) {
+                foreach ($request->detailid as $index => $detailId) {
+                    if (empty($detailId)) {
+                        continue;
                     }
+
+                    $detail = PurchaseOrderBatteryModel::find($detailId);
+                    if (!$detail) {
+                        continue;
+                    }
+
+                    $batteryIdInput = $request->batteriesid[$index] ?? null;
+                    $battery = null;
+                    $batteryRecycle = null;
+                    if ($batteryIdInput) {
+                        $battery = BatteryModel::find($batteryIdInput);
+                        if (!$battery) {
+                            $batteryRecycle = BatteryRecycleModel::find($batteryIdInput);
+                        }
+                    }
+
+                    $batteryIdToSave = $battery ? $battery->id : ($batteryRecycle ? $batteryRecycle->id : $detail->battery_id);
+                    $batteryNameToSave = $battery ? $battery->name : ($batteryRecycle ? $batteryRecycle->name : $detail->battery_name);
+
+                    $batteryPriceRetailRaw = $request->batteriespriceretail[$index] ?? $request->batteriesprice[$index] ?? null;
+                    $batteryPriceRetail = $batteryPriceRetailRaw !== null
+                        ? (int)str_replace(['Rp', '.', ' '], '', $batteryPriceRetailRaw)
+                        : ($detail->battery_price_retail ?? 0);
+
+                    $batteryType = $request->batteriestype[$index] ?? $detail->source ?? 'regular';
+                    $tax = isset($request->batteriestax[$index]) ? (float)$request->batteriestax[$index] : ($detail->tax ?? 0);
+                    $taxPrice = $batteryPriceRetail * $tax / 100;
+
+                    $discountPrice = isset($request->batteriesdiscountprice[$index])
+                        ? (int)str_replace(['Rp', '.', ' '], '', $request->batteriesdiscountprice[$index])
+                        : ($detail->discount_price ?? 0);
+
+                    $discount = $batteryPriceRetail > 0 ? ($discountPrice / $batteryPriceRetail) * 100 : 0;
+                    $priceNet = $batteryPriceRetail + $taxPrice - $discountPrice;
+
+                    $batteryCode = $request->batteriescode[$index] ?? $detail->battery_production_code ?? null;
+
+                    $detail->update([
+                        'source' => $batteryType,
+                        'battery_id' => $batteryIdToSave,
+                        'battery_name' => $batteryNameToSave,
+                        'battery_price_retail' => $batteryPriceRetail,
+                        'tax' => $tax,
+                        'tax_price' => $taxPrice,
+                        'discount' => $discount,
+                        'discount_price' => $discountPrice,
+                        'price_net' => $priceNet,
+                        'quantity' => $detail->quantity ?? 1,
+                        'battery_production_code' => $batteryCode,
+                    ]);
                 }
             }
 
@@ -557,5 +486,107 @@ class PurchaseOrder extends Controller
         $view->with('fileName', $fileName);
 
         return $view;
+    }
+
+    public function post(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!is_array($ids)) {
+            $ids = [$ids];
+        }
+
+        try {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $purchaseOrder = PurchaseOrderModel::with('batteries')->find($id);
+                if ($purchaseOrder && $purchaseOrder->status === 'draft') {
+                    $purchaseOrder->status = 'posted';
+                    $purchaseOrder->save();
+
+                    foreach ($purchaseOrder->batteries as $battery) {
+                        $batteryId = $battery->battery_id;
+                        $batteryType = $battery->source ?? 'regular';
+                        $batteryCode = $battery->battery_production_code ?? null;
+                        $shopId = $purchaseOrder->ship_to;
+
+                        if ($batteryType === 'regular') {
+                            $inventory = InventoryModel::where('battery_id', $batteryId)->first();
+                            if ($inventory) {
+                                $inventory->stock += $battery->quantity;
+                                $inventory->save();
+                            } else {
+                                $inventory = InventoryModel::create([
+                                    'battery_id' => $batteryId,
+                                    'code' => $batteryCode,
+                                    'stock' => $battery->quantity,
+                                ]);
+                            }
+
+                            InventoryDetailModel::create([
+                                'inventory_id' => $inventory->id,
+                                'distributor_shop_id' => $shopId,
+                                'battery_id' => $batteryId,
+                                'type' => 'in',
+                                'reference' => 'purchase_order',
+                                'quantity' => $battery->quantity,
+                                'sold' => 0,
+                                'note' => null,
+                                'reference_id' => $purchaseOrder->id,
+                                'reference_type' => PurchaseOrderModel::class,
+                            ]);
+                        } elseif ($batteryType === 'recycle') {
+                            $inventoryRecycle = InventoryRecycleModel::where('battery_id', $batteryId)->first();
+                            if ($inventoryRecycle) {
+                                $inventoryRecycle->stock += $battery->quantity;
+                                $inventoryRecycle->save();
+                            } else {
+                                $inventoryRecycle = InventoryRecycleModel::create([
+                                    'battery_id' => $batteryId,
+                                    'code' => $batteryCode,
+                                    'stock' => $battery->quantity,
+                                ]);
+                            }
+
+                            InventoryRecycleDetailModel::create([
+                                'inventory_id' => $inventoryRecycle->id,
+                                'distributor_shop_id' => $shopId,
+                                'battery_id' => $batteryId,
+                                'battery_recycle_id' => $batteryId,
+                                'type' => 'in',
+                                'reference' => 'purchase_order',
+                                'quantity' => $battery->quantity,
+                                'reference_id' => $purchaseOrder->id,
+                                'reference_type' => PurchaseOrderModel::class,
+                            ]);
+                        } else {
+                            Log::warning('Unknown battery type for purchase order battery', [
+                                'purchase_order_id' => $purchaseOrder->id,
+                                'battery_id' => $batteryId,
+                                'type' => $batteryType,
+                            ]);
+                            DB::rollBack();
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Unknown battery type found.'
+                            ], 400);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Purchase order(s) posted successfully!'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Purchase Order Post Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while posting purchase order.'
+            ], 500);
+        }
     }
 }

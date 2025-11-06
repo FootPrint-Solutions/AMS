@@ -90,6 +90,7 @@
                 serverSide: true,
                 destroy: true,
                 order: [],
+                pageLength: 10,
                 ajax: {
                     url: "/purchase-order/show",
                     type: "POST",
@@ -296,6 +297,56 @@
                             }
                         }
                     },
+                    {
+                        text: "<i class='fas fa-paper-plane'></i> Post",
+                        className: "btn btn-outline-success btn-sm",
+                        action: function(e, dt, node, config) {
+                            var selectedRows = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selectedRows.length === 0) {
+                                Swal.fire('No row selected', 'Please select at least one row to post.',
+                                    'warning');
+                                return;
+                            }
+                            let ids = selectedRows.map(row => row[0]);
+                            Swal.fire({
+                                title: 'Post Purchase Order',
+                                text: 'Are you sure you want to post the selected Purchase Order(s)?',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, Post',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonColor: '#3085d6'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: '/purchase-order/post',
+                                        type: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            ids: ids
+                                        },
+                                        success: function(response) {
+                                            if (response.status === 'success') {
+                                                Swal.fire('Posted!', response.message,
+                                                    'success');
+                                                table.ajax.reload();
+                                            } else {
+                                                Swal.fire('Error!', response.message,
+                                                    'error');
+                                            }
+                                        },
+                                        error: function(xhr) {
+                                            let errorMessage = xhr.responseJSON
+                                                ?.message || 'An error occurred';
+                                            Swal.fire('Error!', errorMessage, 'error');
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
                 ],
                 language: getDatatablesLanguangeConfigurations("Purchase Order"),
                 select: true,

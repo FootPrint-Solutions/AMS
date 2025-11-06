@@ -89,7 +89,7 @@
                                     <option></option>
                                     @foreach ($data['shops'] as $shop)
                                         <option value="{{ $shop['id'] }}"
-                                            @if (isset($data['profile']) && $data['profile']['shop_id'] == $shop['id']) selected @endif>
+                                            @if (isset($data['profile']) && $data['profile']['ship_to'] == $shop['id']) selected @endif>
                                             {{ $shop['name'] }}
                                         </option>
                                     @endforeach
@@ -103,7 +103,7 @@
                                 <input type="text" class="form-control" name="Address"
                                     id="AddressSearchColumnSalesOrderEditable"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                    required>
+                                    required autocomplete="off">
                             </div>
                         </div>
 
@@ -112,7 +112,8 @@
                             <div class="form-group local-forms">
                                 <label for="InvoiceNumber">Invoice Number <span class="login-danger">*</span></label>
                                 <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif">
+                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
+                                    autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -241,7 +242,7 @@
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="number" class="form-control text-end battery-priceretail"
+                                            <input type="text" class="form-control text-end battery-priceretail"
                                                 id="battery-priceretail-{{ $counter }}"
                                                 name="batteriespriceretail[]" placeholder="Enter item retail price"
                                                 required
@@ -255,7 +256,7 @@
                                         <input type="hidden"
                                             class="form-control battery-type-{{ $counter }} battery-type"
                                             id="battery-type-{{ $counter }}" name="batteriestype[]"
-                                            @isset($battery['battery']['type'])value="{{ $battery['battery']['type'] }}" @endisset>
+                                            @isset($battery['type']) value="{{ $battery['type'] }}" @endisset>
 
 
                                         <div class="input-group">
@@ -548,14 +549,14 @@
             calculateTotal();
 
             // Show loading Swal
-            Swal.fire({
-                title: "Processing...",
-                text: "Please wait while your data is being saved.",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            // Swal.fire({
+            //     title: "Processing...",
+            //     text: "Please wait while your data is being saved.",
+            //     allowOutsideClick: false,
+            //     didOpen: () => {
+            //         Swal.showLoading();
+            //     }
+            // });
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
@@ -742,7 +743,7 @@
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     if (type != 'regular') {
-                        subtotal -= value;
+                        subtotal += value;
                         console.log("Subtotal: " + subtotal);
                         console.log("type: " + type);
                     } else {

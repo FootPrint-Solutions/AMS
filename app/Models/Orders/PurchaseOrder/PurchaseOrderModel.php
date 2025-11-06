@@ -37,6 +37,7 @@ class PurchaseOrderModel extends Model implements Auditable
         'invoice_number',
         'date',
         'supplier_id',
+        'ship_to',
         'discount_price',
         'subtotal',
         'total',
