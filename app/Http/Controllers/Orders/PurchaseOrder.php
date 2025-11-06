@@ -561,7 +561,7 @@ class PurchaseOrder extends Controller
                                 'battery_id' => NULL,
                                 'battery_recycle_id' => $batteryId,
                                 'type' => 'in',
-                                'reference' => 'purchase_order',
+                                'reference' => 'Purchase Order',
                                 'quantity' => $battery->quantity,
                                 'reference_id' => $purchaseOrder->id,
                                 'reference_type' => PurchaseOrderModel::class,

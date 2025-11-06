@@ -166,4 +166,80 @@ class Inventory extends Controller
             "data" => $rows
         ));
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return string
+     */
+    public function show(Request $request)
+    {
+        // Get all DataTables requests.
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+
+        // Get battery brand data (rows and count).
+        $data = InventoryDetailModel::allForDataTables($request);
+
+        // Set rows to be displayed in battery brand table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+
+            if ($key->reference === 'Sales Order Battery') {
+                $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+                $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+            } elseif ($key->reference === 'Purchase Order') {
+                $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
+                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->price_net ?? '0') : '0';
+                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->battery_production_code ?? '-' : '-';
+            } else {
+                $date = '-';
+                $orderNumber = '-';
+                $distributorShop = '-';
+                $battery = '-';
+                $batteryPrice = '-';
+                $batteryProductionCode = '-';
+            }
+
+            $row = [];
+            $row[] = $no++;
+            $row[] = $date;
+            $row[] = $orderNumber;
+            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? $key->purchaseOrder->supplier->name ?? '-';
+            $row[] = $distributorShop;
+            $row[] = $battery;
+            $row[] = $batteryProductionCode;
+
+            if ($key->type === 'in') {
+                $row[] = '<span style="color:green;"><i class="fas fa-arrow-down"></i> IN</span>';
+            } elseif ($key->type === 'out') {
+                $row[] = '<span style="color:red;"><i class="fas fa-arrow-up"></i> OUT</span>';
+            } elseif ($key->type === 'adjustment') {
+                $row[] = '<span style="color:orange;"><i class="fas fa-exchange-alt"></i> ADJ</span>';
+            } else {
+                $row[] = '-';
+            }
+            $row[] = $key->quantity ?? '-';
+            $row[] = $batteryPrice;
+            $row[] = $key->id ?? '-';
+            $row[] = $key->sold ?? '-';
+            $rows[] = $row;
+        }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => InventoryDetailModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
 }

@@ -13,6 +13,8 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Inventory\InventoryModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 
 class InventoryDetailModel extends Model implements Auditable
 {
@@ -58,6 +60,17 @@ class InventoryDetailModel extends Model implements Auditable
         return $this->belongsTo(DistributorShopModel::class, 'distributor_shop_id');
     }
 
+    // Relationship dengan SalesOrderBattery
+    public function salesOrderBattery()
+    {
+        return $this->hasOne(SalesOrderBatteryModel::class, 'id', 'reference_id')->with('salesOrder');
+    }
+
+    public function purchaseOrder()
+    {
+        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id');
+    }
+
     public static function allForDataTables($request)
     {
         $start = $request->input("start");
@@ -73,13 +86,12 @@ class InventoryDetailModel extends Model implements Auditable
             'type',
             'reference',
             'quantity',
-            'sold',
-            'sold_at',
             'note',
-            'created_at',
-            'updated_at',
             'reference_id',
             'reference_type',
+            'sold',
+            'sold_at',
+            'distributor_shop_id',
         ];
 
         $searchColumns = [
@@ -89,11 +101,7 @@ class InventoryDetailModel extends Model implements Auditable
             'type',
             'reference',
             'quantity',
-            'sold',
-            'sold_at',
             'note',
-            'created_at',
-            'updated_at',
             'reference_id',
             'reference_type',
         ];
@@ -107,8 +115,17 @@ class InventoryDetailModel extends Model implements Auditable
         $query->select($selectColumns);
 
         $query->with([
-            'inventory',
             'battery',
+            'salesOrderBattery',
+            'purchaseOrder',
+            'distributorShop'
+        ]);
+
+        $query->withCount([
+            'battery',
+            'salesOrderBattery',
+            'purchaseOrder',
+            'distributorShop'
         ]);
 
         // Searching process.
@@ -117,9 +134,41 @@ class InventoryDetailModel extends Model implements Auditable
                 foreach ($searchColumns as $column) {
                     $query->orWhere($column, "LIKE", "%" . $searchValue . "%");
                 }
+
                 $query->orWhereHas('battery', function ($query) use ($searchValue) {
                     $query->where('name', 'LIKE', "%" . $searchValue . "%");
                 });
+
+                $query->orWhereHas('batteryRecycle', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery', function ($query) use ($searchValue) {
+                    $query->whereHas('salesOrder', function ($query) use ($searchValue) {
+                        $query->where('sales_order_number', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('price_net', 'LIKE', "%" . $searchValue . "%")
+                            ->orWhere('battery_production_code', 'LIKE', "%" . $searchValue . "%");
+                    });
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('distributorShop', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
+                    $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
+                });
+            });
+        }
+
+        if ($request->dateStart && $request->dateEnd) {
+            $query->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                $query->where('date', '>=', $request->dateStart)
+                    ->where('date', '<=', $request->dateEnd);
             });
         }
 
