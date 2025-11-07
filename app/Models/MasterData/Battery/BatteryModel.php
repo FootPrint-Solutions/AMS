@@ -230,7 +230,6 @@ class BatteryModel extends Model implements Auditable
 
         // add column type constant 'recycle' to distinguish from batteries table
         $recycleQuery->selectRaw("'recycle' as type");
-        $recycleQuery->groupBy('id');
         $recycleResults = $recycleQuery->limit($limit)->get()->toArray();
 
         // Merge both results
