@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
     // Customer
     require __DIR__ . '/web/master-data/customer.php';
 
+    // Supplier
+    require __DIR__ . '/web/master-data/supplier.php';
+
     // Vehicle
     require __DIR__ . '/web/master-data/vehicle.php';
 
@@ -134,6 +137,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Battery
     require __DIR__ . '/web/master-data/battery.php';
+
+    // Battery Recycle
+    require __DIR__ . '/web/master-data/battery-recycle.php';
 
     // Battery Brand
     require __DIR__ . '/web/master-data/battery-brand.php';
@@ -233,6 +239,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Sales Consignment
     require __DIR__ . '/web/orders/sales-consignment.php';
+
+    // Purchase Order
+    require __DIR__ . '/web/orders/purchase-order.php';
 
     // Expense
     require __DIR__ . '/web/accounting/expense.php';

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTablesSalesConsignment extends Migration
+class CreateTablePurchaseOrder extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,23 @@ class CreateTablesSalesConsignment extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('sales_consignments')) {
-            Schema::create('sales_consignments', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->string('sales_consignment_number', 255)->unique();
+        if (!Schema::hasTable('purchase_orders')) {
+            Schema::create('purchase_orders', function (Blueprint $table) {
+                $table->id();
+                $table->string('purchase_order_number');
+                $table->string('invoice_number')->nullable();
                 $table->date('date');
-                $table->decimal('discount', 5, 2)->default(0.00);
+                $table->unsignedBigInteger('supplier_id');
                 $table->double('discount_price')->default(0);
                 $table->double('subtotal')->default(0);
-                $table->double('total_expenses')->default(0);
                 $table->double('total')->default(0);
-                $table->string('payment_status', 255);
+                $table->string('payment_status');
                 $table->enum('status', ['draft', 'posted', 'completed'])->default('draft');
+                $table->text('address')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
+
+                $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('restrict')->onUpdate('restrict');
             });
         }
     }
@@ -38,6 +41,6 @@ class CreateTablesSalesConsignment extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sales_consignments');
+        Schema::dropIfExists('purchase_orders');
     }
 }

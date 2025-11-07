@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 
 // MODELS
-use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryRecycleDetailModel;
 
 
 class InventoryRecycle extends Controller
@@ -28,7 +28,7 @@ class InventoryRecycle extends Controller
         return view(
             "Inventory.InventoryRecycle.index",
             getIndexData(
-                $this->title
+                $this->title,
             )
         );
     }
@@ -59,7 +59,7 @@ class InventoryRecycle extends Controller
         if ($id == null) {
             return redirect()->route("battery.brand.index");
         }
-        $brand = InventoryDetailModel::find($id);
+        $brand = InventoryRecycleDetailModel::find($id);
         if ($brand == null) {
             return redirect()->route("battery.brand.index");
         }
@@ -88,21 +88,56 @@ class InventoryRecycle extends Controller
         $start = $request->input('start');
 
         // Get battery brand data (rows and count).
-        $data = InventoryDetailModel::allForDataTables($request);
+        $data = InventoryRecycleDetailModel::allForDataTables($request);
 
         // Set rows to be displayed in battery brand table.
         $rows = [];
         $no = $start + 1;
         foreach ($data["row"] as $key) {
+
+            if ($key->reference === 'Sales Order Battery') {
+                $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+                $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+            } elseif ($key->reference === 'Purchase Order') {
+                $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
+                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                $distributorShop = $key->distributorShop->name ?? '-';
+                $battery = $key->batteryRecycle->name ?? '-';
+                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->price_net ?? '0') : '0';
+                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->battery_production_code ?? '-' : '-';
+            } else {
+                $date = '-';
+                $orderNumber = '-';
+                $distributorShop = '-';
+                $battery = '-';
+                $batteryPrice = '-';
+                $batteryProductionCode = '-';
+            }
+
             $row = [];
             $row[] = $no++;
-            $row[] = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-            $row[] = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
-            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
-            $row[] = $key->battery->name ?? '-';
-            $row[] = $key->salesOrderBattery->battery_production_code ?? '-';
+            $row[] = $date;
+            $row[] = $orderNumber;
+            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? $key->purchaseOrder->supplier->name ?? '-';
+            $row[] = $distributorShop;
+            $row[] = $battery;
+            $row[] = $batteryProductionCode;
+
+            if ($key->type === 'in') {
+                $row[] = '<span style="color:green;"><i class="fas fa-arrow-down"></i> IN</span>';
+            } elseif ($key->type === 'out') {
+                $row[] = '<span style="color:red;"><i class="fas fa-arrow-up"></i> OUT</span>';
+            } elseif ($key->type === 'adjustment') {
+                $row[] = '<span style="color:orange;"><i class="fas fa-exchange-alt"></i> ADJ</span>';
+            } else {
+                $row[] = '-';
+            }
             $row[] = $key->quantity ?? '-';
-            $row[] = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+            $row[] = $batteryPrice;
             $row[] = $key->id ?? '-';
             $row[] = $key->sold ?? '-';
             $rows[] = $row;
@@ -110,7 +145,7 @@ class InventoryRecycle extends Controller
 
         return response()->json(array(
             "draw" => $draw,
-            "recordsTotal" => InventoryDetailModel::count(),
+            "recordsTotal" => InventoryRecycleDetailModel::count(),
             "recordsFiltered" => $data["count"],
             "data" => $rows
         ));
@@ -136,7 +171,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = new InventoryDetailModel();
+            $brand = new InventoryRecycleDetailModel();
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -188,7 +223,7 @@ class InventoryRecycle extends Controller
                 ]
             );
 
-            $brand = InventoryDetailModel::find($request->id);
+            $brand = InventoryRecycleDetailModel::find($request->id);
             $brand->name = $validatedData['name'];
             $status = $brand->save();
 
@@ -235,7 +270,7 @@ class InventoryRecycle extends Controller
             $ids = $request->id;
 
             foreach ($ids as $id) {
-                $brand = InventoryDetailModel::find($id);
+                $brand = InventoryRecycleDetailModel::find($id);
                 $status = $brand->delete();
             }
 
@@ -275,7 +310,7 @@ class InventoryRecycle extends Controller
             $status = true;
             $ids = $request->input('ids', []);
             foreach ($ids as $id) {
-                $brand = InventoryDetailModel::find($id);
+                $brand = InventoryRecycleDetailModel::find($id);
                 if ($brand) {
                     $brand->sold = 1;
                     $brand->sold_at = now(); // Use Laravel's helper for current timestamp

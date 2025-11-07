@@ -1188,6 +1188,7 @@ $arrayVehicle
         $query = $request->input('query');
         // $results = BatteryModel::where('name', 'like', '%' . $query . '%')->limit(10)->get();
         $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
+            ->where('batteries.type', 'regular')
             ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
             ->orderBy('batteries.name', 'asc')
             ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
@@ -1704,7 +1705,8 @@ $arrayVehicle
         $capacity = $request->input('capacity') ?? 'all';
         $dimension = $request->input('dimension') ?? 'all';
 
-        $results = BatteryModel::where('name', 'like', '%' . $query . '%');
+        $results = BatteryModel::where('name', 'like', '%' . $query . '%')
+            ->where('type', 'regular');
         if ($category != 'all') {
             $results = $results->where('size_category_id', $category);
         }

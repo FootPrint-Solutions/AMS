@@ -27,8 +27,8 @@ use App\Models\MasterData\Vehicle\VehicleModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
-use App\Models\Inventory\InventoryModel;
-use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryRecycleModel;
+use App\Models\Inventory\InventoryRecycleDetailModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -470,13 +470,13 @@ class SalesOrder extends Controller
                     foreach ($salesOrderBattery as $battery) {
 
                         // Delete inventory detail
-                        $inventoryDetail = InventoryDetailModel::where('reference_id', $battery->id)
+                        $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
                             ->first();
                         if ($inventoryDetail) {
                             $status &= $inventoryDetail->delete();
                         }
 
-                        $inventoryDetailSum = InventoryDetailModel::where('battery_id', $battery->battery_id)
+                        $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_id', $battery->battery_id)
                             ->where('type', 'in')
                             ->sum('quantity');
 
@@ -484,7 +484,7 @@ class SalesOrder extends Controller
 
 
                         // update total to inventory where battery id = battery_id
-                        $inventory = InventoryModel::where('battery_id', $battery->battery_id)->first();
+                        $inventory = InventoryRecycleModel::where('battery_id', $battery->battery_id)->first();
                         if ($inventory) {
                             $inventory->stock = $inventoryDetailSum;
                             $status &= $inventory->save();
@@ -509,14 +509,14 @@ class SalesOrder extends Controller
                     } else {
                         foreach ($salesOrderBattery as $battery) {
                             if ($battery->battery && $battery->battery->type === 'recycle') {
-                                $inventory = InventoryModel::firstOrNew([
+                                $inventory = InventoryRecycleModel::firstOrNew([
                                     'battery_id' => $battery->battery_id
                                 ]);
 
                                 $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
                                 $status &= $inventory->save();
 
-                                $inventoryDetail = new InventoryDetailModel([
+                                $inventoryDetail = new InventoryRecycleDetailModel([
                                     'inventory_id' => $inventory->id,
                                     'battery_id' => $battery->battery_id,
                                     'type' => 'in',
