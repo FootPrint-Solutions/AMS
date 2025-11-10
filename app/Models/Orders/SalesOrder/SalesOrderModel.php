@@ -46,23 +46,24 @@ class SalesOrderModel extends Model implements Auditable
         'vehicle_id',
         'distributor_shop_id',
         'distributor_shop_technician_id',
-        'tax',
-        'tax_price',
-        'discount_price',
         'discount',
-        'extra_discount',
+        'discount_price',
         'subtotal',
         'total',
+        'payment_status',
         'status',
         'address',
+        'alternative_address',
         'latitude',
         'longitude',
-        'status',
         'payment_method_id',
-        'payment_status',
         'midtrans_invoice_number',
         'midtrans_payment_link',
-        'alternative_address'
+        'source_platform',
+        'source_id',
+        'vendor',
+        'ship_to',
+        'type',
     ];
 
     /**
@@ -95,7 +96,7 @@ class SalesOrderModel extends Model implements Auditable
     public function batteries(): HasMany
     {
         return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id")
-        ->with('battery');
+            ->with('battery');
     }
 
     /**

@@ -207,4 +207,23 @@ class BatteryRecycle extends Controller
             return getResponseData(false);
         }
     }
+
+    public function getBatteryRecycle($keyword)
+    {
+        $batteries = BatteryRecycleModel::where('name', 'like', '%' . $keyword . '%')
+            ->where('status', 1)
+            ->get();
+
+        $result = $batteries->map(function ($b) {
+            return [
+                'id' => $b->id,
+                'name' => $b->name,
+                'price_retail' => $b->price !== null ? (int) $b->price : null,
+                'discount' => '0.00',
+                'type' => 'regular',
+            ];
+        })->values();
+
+        return response()->json($result);
+    }
 }

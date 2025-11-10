@@ -11,8 +11,24 @@
                     </div>
 
                     <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-plus"></i> Add New
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0)" id="btn-add">
+                                        <i class="fas fa-plus me-2"></i> Add New Sales Order
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0)" id="btn-add-recycle">
+                                        <i class="fas fa-recycle me-2"></i> Add New Sales Order Recycle
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,6 +102,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                pageLength: 10,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -662,5 +679,9 @@
                 }
             });
         }
+
+        $('#btn-add-recycle').on('click', function() {
+            goToPage("/sales-order/create-recycle");
+        });
     </script>
 @endsection

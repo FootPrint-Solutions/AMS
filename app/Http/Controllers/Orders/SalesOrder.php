@@ -29,6 +29,7 @@ use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\MasterData\Distributor\DistributorModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -1016,5 +1017,22 @@ class SalesOrder extends Controller
                 'message' => 'Sales Order is already posted or completed.'
             ]);
         }
+    }
+
+    public function createRecycle()
+    {
+        return view(
+            'Orders.SalesOrder.recycle.create',
+            getIndexData(
+                "Sales Order Recycle",
+                array(
+                    "number" => SalesOrderModel::newCode(),
+                    "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "DistributorShop" => DistributorShopModel::get()->toArray(),
+                    "Distributor" => DistributorModel::get()->toArray(),
+                )
+            )
+        );
     }
 }
