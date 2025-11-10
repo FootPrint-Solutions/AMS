@@ -50,23 +50,25 @@
             <div class="card-body">
 
                 {{-- Table --}}
-                <table class="table table-striped" id="table-sales-order">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">Sales Order Number</th>
-                            <th scope="col">Marketplace Inv No.</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Customer</th>
-                            <th scope="col">Vehicle</th>
-                            <th scope="col">Distributor/Shop</th>
-                            <th scope="col">Technician</th>
-                            <th scope="col">Total (IDR)</th>
-                            <th scope="col">Payment Status</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="table-sales-order">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="table-col-no">#</th>
+                                <th scope="col">Sales Order Number</th>
+                                <th scope="col">Marketplace Inv No.</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Vehicle</th>
+                                <th scope="col">Distributor/Shop</th>
+                                <th scope="col">Technician</th>
+                                <th scope="col">Total (IDR)</th>
+                                <th scope="col">Payment Status</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
