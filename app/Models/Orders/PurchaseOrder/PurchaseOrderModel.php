@@ -189,24 +189,25 @@ class PurchaseOrderModel extends Model implements Auditable
      */
     public static function generatePurchaseOrderNumber()
     {
-        $prefix = 'PO';
-        $currentYear = date('Y');
-        $currentMonth = date('m');
+        $prefix = 'KP';
+        $yearShort = date('y');
+        $yearFull = date('Y');
+        $month = date('m');
 
         // Get the latest purchase order for the current month and year
-        $latestOrder = self::whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', $currentMonth)
+        $latestOrder = self::whereYear('created_at', $yearFull)
+            ->whereMonth('created_at', $month)
             ->orderBy('id', 'desc')
             ->first();
 
-        if ($latestOrder) {
-            // Extract the number from the latest order
-            $lastNumber = (int) substr($latestOrder->purchase_order_number, -5);
-            $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+        if ($latestOrder && strlen($latestOrder->purchase_order_number) >= 6) {
+            // Extract the last 6 digits as the sequence number
+            $lastNumber = (int) substr($latestOrder->purchase_order_number, -6);
+            $newNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
         } else {
-            $newNumber = '00001';
+            $newNumber = '000001';
         }
 
-        return $prefix . $currentYear . $currentMonth . $newNumber;
+        return $prefix . $yearShort . $month . $newNumber;
     }
 }

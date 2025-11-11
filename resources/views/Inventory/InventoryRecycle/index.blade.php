@@ -117,32 +117,7 @@
                     }
                 ],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(
-                    [
-                        // "Sold Out Button"
-                        {
-                            text: '<i class="fa-solid fa-cart-arrow-down"></i> Sold Out',
-                            className: "btn btn-outline-danger btn-sm ml-1",
-                            action: function(e, dt, node, config) {
-                                var data = dt.rows({
-                                    selected: true
-                                }).data().toArray();
-                                if (data.length > 0) {
-                                    var ids = data.map(function(item) {
-                                        return item[10];
-                                    });
-                                    soldOut(ids);
-                                } else {
-                                    swal.fire({
-                                        icon: "warning",
-                                        title: "Warning",
-                                        text: "Please select at least one item.",
-                                    });
-                                }
-                            }
-                        }
-                    ]
-                ),
+                buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Inventory Recycle"),
                 select: true,
                 multiselect: true,
