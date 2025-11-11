@@ -124,6 +124,11 @@
             animation: jump 1s infinite;
         }
 
+        .badge-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
         /* End of jump animation img-loader */
     </style>
 

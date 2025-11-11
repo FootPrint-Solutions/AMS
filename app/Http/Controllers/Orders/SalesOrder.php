@@ -110,19 +110,38 @@ class SalesOrder extends Controller
      */
     public function edit($id)
     {
-        return view(
-            'Orders.SalesOrder.create',
-            getIndexData(
-                $this->title,
-                array(
-                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
-                    "customers" => CustomerModel::all()->toArray(),
-                    "vehicles" => VehicleModel::all()->toArray(),
-                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
-                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+        $type = SalesOrderModel::find($id)->type;
+        if ($type == 'recycle') {
+            return view(
+                'Orders.SalesOrder.recycle.create',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                        "customers" => CustomerModel::all()->toArray(),
+                        "vehicles" => VehicleModel::all()->toArray(),
+                        "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                        "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                        "DistributorShop" => DistributorShopModel::get()->toArray(),
+                        "Distributor" => DistributorModel::get()->toArray(),
+                    )
                 )
-            )
-        );
+            );
+        } else {
+            return view(
+                'Orders.SalesOrder.create',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                        "customers" => CustomerModel::all()->toArray(),
+                        "vehicles" => VehicleModel::all()->toArray(),
+                        "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                        "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    )
+                )
+            );
+        }
     }
 
     /**
@@ -221,7 +240,7 @@ class SalesOrder extends Controller
 
             // Set the payment status badge class name depending on the status.
             if ($key->status == "draft") {
-                $statusBadgeClass = "badge-secondary text-dark";
+                $statusBadgeClass = "badge-secondary";
             } else if ($key->status == "posted") {
                 $statusBadgeClass = "badge-success";
             } else {
@@ -238,15 +257,26 @@ class SalesOrder extends Controller
                 $sourcePlatformBadge = "";
             }
 
+            // badge type sales order
+            if ($key->type == 'recycle') {
+                $typeBadge = " <span class='badge badge-warning text-dark'>Recycle</span>";
+            } else {
+                $typeBadge = "";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->sales_order_number;
+            $row[] = $key->sales_order_number . $typeBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
-            $row[] = $key->customer_name;
-            $row[] = $key->vehicle_name;
-            $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            $row[] = $key->customer_name ?? "<p class='text-center'>-</p>";
+            $row[] = $key->vehicle_name ?? "<p class='text-center'>-</p>";
+            if ($key->type == 'recycle') {
+                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            } else {
+                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            }
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
             $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge . $sourcePlatformBadge;

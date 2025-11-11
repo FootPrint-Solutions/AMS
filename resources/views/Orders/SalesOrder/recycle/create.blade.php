@@ -496,9 +496,19 @@
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
 
+            // Show SweetAlert loading
+            Swal.fire({
+                title: 'Please wait',
+                text: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             // Send submit POST request via AJAX.
             sendSubmitRequest(url, formData, function() {
-                // Redirect to index page.
+                Swal.close();
                 goToPage(indexUrl);
             });
         });
