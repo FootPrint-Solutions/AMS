@@ -31,6 +31,7 @@ class SalesOrderBatteryModel extends Model
         'battery_name',
         'battery_price',
         'battery_price_retail',
+        'type',
         'battery_production_code',
         'quantity'
     ];

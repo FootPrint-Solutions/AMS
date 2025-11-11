@@ -30,6 +30,8 @@ use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
 use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -488,7 +490,7 @@ class SalesOrder extends Controller
 
                 if ($salesOrder->status === 'posted') {
 
-                    // return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
+                    return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
                     $salesOrder->status = 'draft';
                     $status = $salesOrder->save();
@@ -505,25 +507,29 @@ class SalesOrder extends Controller
                     $total_quantity = 0;
                     foreach ($salesOrderBattery as $battery) {
 
-                        // Delete inventory detail
-                        $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
-                            ->first();
-                        if ($inventoryDetail) {
-                            $status &= $inventoryDetail->delete();
-                        }
+                        $checkType = $battery->type;
+                        if ($checkType == 'recycle') {
+                            // Delete inventory detail
+                            $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
+                                ->first();
+                            if ($inventoryDetail) {
+                                $status &= $inventoryDetail->delete();
+                            }
 
-                        $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_id', $battery->battery_id)
-                            ->where('type', 'in')
-                            ->sum('quantity');
+                            $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_recycle_id', $battery->battery_id)
+                                ->where('type', 'in')
+                                ->sum('quantity');
 
-                        $total_quantity += $inventoryDetailSum;
+                            $total_quantity += $inventoryDetailSum;
 
 
-                        // update total to inventory where battery id = battery_id
-                        $inventory = InventoryRecycleModel::where('battery_id', $battery->battery_id)->first();
-                        if ($inventory) {
-                            $inventory->stock = $inventoryDetailSum;
-                            $status &= $inventory->save();
+                            // update total to inventory where battery id = battery_id
+                            $inventory = InventoryRecycleModel::where('battery_recycle_id', $battery->battery_id)->first();
+                            if ($inventory) {
+                                $inventory->stock = $inventoryDetailSum;
+                                $status &= $inventory->save();
+                            }
+                        } else {
                         }
                     }
 
@@ -544,20 +550,41 @@ class SalesOrder extends Controller
                         Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
                     } else {
                         foreach ($salesOrderBattery as $battery) {
-                            if ($battery->battery && $battery->battery->type === 'recycle') {
+                            $checkType = $battery->type;
+                            $qty = $battery->quantity;
+                            if ($checkType == 'recycle') {
                                 $inventory = InventoryRecycleModel::firstOrNew([
-                                    'battery_id' => $battery->battery_id
+                                    'battery_recycle_id' => $battery->battery_id
                                 ]);
 
-                                $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
+                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
                                 $status &= $inventory->save();
 
                                 $inventoryDetail = new InventoryRecycleDetailModel([
                                     'inventory_id' => $inventory->id,
-                                    'battery_id' => $battery->battery_id,
-                                    'type' => 'in',
+                                    'battery_recycle_id' => $battery->battery_id,
+                                    'type' => 'out',
                                     'reference' => 'Sales Order Battery',
-                                    'quantity' => 1,
+                                    'quantity' => -$qty,
+                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                                ]);
+
+                                $inventoryDetail->reference()->associate($battery);
+                                $status &= $inventoryDetail->save();
+                            } else {
+                                $inventory = InventoryModel::firstOrNew([
+                                    'battery_id' => $battery->battery_id
+                                ]);
+
+                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                                $status &= $inventory->save();
+
+                                $inventoryDetail = new InventoryDetailModel([
+                                    'inventory_id' => $inventory->id,
+                                    'battery_id' => $battery->battery_id,
+                                    'type' => 'out',
+                                    'reference' => 'Sales Order Battery',
+                                    'quantity' => -$qty,
                                     'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
                                 ]);
 
@@ -1136,6 +1163,7 @@ class SalesOrder extends Controller
                 $battery->battery_id = $request->batteriesid[$i];
                 $battery->battery_name = $request->batteriesname[$i];
                 $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->type = 'recycle';
                 $battery->tax = (float) $request->batteriestax[$i];
                 $battery->tax_price = (float) $request->batteriestaxprice[$i];
                 $battery->discount = (float) $request->batteriesdiscount[$i];
