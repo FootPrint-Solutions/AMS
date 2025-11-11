@@ -1035,4 +1035,137 @@ class SalesOrder extends Controller
             )
         );
     }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function storeRecycle(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Store sales order data.
+            $salesOrder = new SalesOrderModel();
+            $salesOrder->sales_order_number = $request->salesordernumber;
+            $salesOrder->invoice_number = $request->invoicenumber;
+            $salesOrder->date = $request->date;
+            $salesOrder->vehicle_id = $request->vehicle;
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->discount = $request->discount;
+            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesOrder->total = (float) str_replace(".", "", $request->total);
+            $salesOrder->payment_method_id = $request->paymentmethod;
+            $salesOrder->payment_status = $request->status;
+            $salesOrder->vendor = $request->vendor;
+            $salesOrder->ship_to = $request->ship_to;
+            $salesOrder->type = 'recycle';
+            $status = $salesOrder->save();
+
+            // Store sales order detail data.
+            for ($i = 0; $i < count($request->batteriesid); $i++) {
+                $battery = new SalesOrderBatteryModel();
+                $battery->sales_order_id = $salesOrder->id;
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
+                $battery->battery_production_code = $request->batteriescode[$i];
+                $status &= $battery->save();
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new sales order was successfully created!" : "Failed to create the new sales order!"
+            );
+        } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateRecycle(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Update sales order data.
+            $salesOrder = SalesOrderModel::find($request->id);
+
+            $salesOrder->invoice_number = $request->invoicenumber;
+            $salesOrder->date = $request->date;
+            $salesOrder->vehicle_id = $request->vehicle;
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->discount = $request->discount;
+            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesOrder->total = (float) str_replace(".", "", $request->total);
+            $salesOrder->payment_method_id = $request->paymentmethod;
+            $salesOrder->payment_status = $request->status;
+            $salesOrder->vendor = $request->vendor;
+            $salesOrder->ship_to = $request->ship_to;
+            $salesOrder->type = 'recycle';
+            $status = $salesOrder->save();
+
+            // Store sales order detail data.
+            for ($i = 0; $i < count($request->batteriesprice); $i++) {
+                $battery = SalesOrderBatteryModel::find($request->detailid[$i]);
+                $battery->battery_production_code = $request->batteriescode[$i];
+                $status &= $battery->save();
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The sales order was successfully updated!" : "Failed to update the sales order!"
+            );
+        } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
+            // Logging error message.
+            Log::error($e);
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
 }

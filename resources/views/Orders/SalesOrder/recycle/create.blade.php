@@ -191,7 +191,7 @@
                                             <span class="input-group-text border-end">IDR</span>
                                             <input type="text" class="form-control text-end battery-priceretail"
                                                 id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
-                                                placeholder="Enter item retail price" required readonly
+                                                placeholder="Enter item retail price" required
                                                 @isset($data['profile']['batteries']) value="{{ $battery['battery_price_retail'] }}" @endisset>
                                         </div>
                                     </td>
@@ -485,19 +485,12 @@
             event.preventDefault();
 
             let mode = $("#btn-save").attr("value"); // update || create
-            let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
+            let url = (mode == "update") ? "/sales-order/recycle/update" : "/sales-order/recycle/store";
 
             let address = $("#AddressSearchColumnSalesOrderEditable").val();
             let lat = $("#Latitude").val();
             let lon = $("#Longitude").val();
-            if (address == "" || lat == "" || lon == "") {
-                Swal.fire({
-                    title: "Error",
-                    text: "Please select address",
-                    icon: "error",
-                });
-                return;
-            }
+
             calculateTotal();
 
             // Obtain submitted form data.

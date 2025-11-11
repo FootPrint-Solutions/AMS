@@ -30,3 +30,5 @@ Route::post('/sales-order/post/check', [SalesOrder::class, 'checkPost'])->name('
 
 // Sales Order Recycle
 Route::get('/sales-order/create-recycle', [SalesOrder::class, 'createRecycle'])->middleware('permission:add_sales_order_(so)');
+Route::post('/sales-order/recycle/store', [SalesOrder::class, 'storeRecycle'])->name('sales-order.recycle.store')->middleware('permission:add_sales_order_(so)');
+Route::post('/sales-order/recycle/update', [SalesOrder::class, 'updateRecycle'])->name('sales-order.recycle.update')->middleware('permission:edit_sales_order_(so)');
