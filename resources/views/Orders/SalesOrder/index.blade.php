@@ -643,6 +643,16 @@
             var salesOrderNumbers = selectedRows.map(row => row[1]);
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
+            const recycleSpanRegex = /<span[^>]*>\s*Recycle\s*<\/span>/i;
+            if (recycleSpanRegex.test(salesOrderNumbersString)) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Purchase Order creation is not available for recycle type Sales Orders.",
+                    icon: "error",
+                });
+                return;
+            }
+
             Swal.fire({
                 title: "Print Purchase Order",
                 text: "Are you sure you want to print the purchase order for the following sales orders? \n" +

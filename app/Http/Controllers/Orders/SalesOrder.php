@@ -151,6 +151,11 @@ class SalesOrder extends Controller
      */
     public function invoice($id)
     {
+        $checkType = SalesOrderModel::find($id)->type;
+        if ($checkType == 'recycle') {
+            return getResponseData(false, "Invoice is not available for recycle type Sales Orders.");
+        }
+
         return view(
             'Orders.SalesOrder.invoice',
             getIndexData(
@@ -694,6 +699,12 @@ class SalesOrder extends Controller
         try {
             // Check if sales order is posted or not.
             $salesOrder = SalesOrderModel::find($id);
+
+            $checkType = $salesOrder->type;
+            if ($checkType == "recycle") {
+                return getResponseData(false, "Work Order creation is not available for recycle type Sales Orders.");
+            }
+
             if ($salesOrder->status == "draft") {
                 return getResponseData(false, "Unable to create Work Order of an unposted Sales Order.");
             }
@@ -738,6 +749,11 @@ class SalesOrder extends Controller
             $salesOrder = SalesOrderModel::find($id);
             if ($salesOrder->status == "posted") {
                 return getResponseData(false, "Unable to create Payment Link of an posted Sales Order.");
+            }
+
+            // if type recycle
+            if ($salesOrder->type == "recycle") {
+                return getResponseData(false, "Payment Link recreation is not available for recycle type Sales Orders.");
             }
 
             // get detail sales order
@@ -923,6 +939,11 @@ class SalesOrder extends Controller
         try {
             // check payment method is midtrans
             $salesOrder = SalesOrderModel::find($id);
+
+            if ($salesOrder->type == "recycle") {
+                return getResponseData(false, "Payment Link is not available for recycle type Sales Orders.");
+            }
+
             $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
 
             if ($paymentMethod->name == 'Midtrans') {
@@ -954,6 +975,15 @@ class SalesOrder extends Controller
     public function getPurchaseOrderNumber($id)
     {
         $salesOrder = SalesOrderModel::find($id);
+        $checkType = $salesOrder->type;
+        if ($checkType == 'recycle') {
+            return response()->json([
+                'status' => "error",
+                'message' => "Purchase Order Number is not available for recycle type Sales Orders.",
+                'data' => null
+            ]);
+        }
+
         $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
         return response()->json([
             'status' => "success",
