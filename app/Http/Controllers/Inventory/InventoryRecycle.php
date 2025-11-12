@@ -12,6 +12,7 @@ use Exception;
 
 // MODELS
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 
 
 class InventoryRecycle extends Controller
@@ -29,6 +30,9 @@ class InventoryRecycle extends Controller
             "Inventory.InventoryRecycle.index",
             getIndexData(
                 $this->title,
+                array(
+                    "distributorShops" => DistributorShopModel::all()
+                )
             )
         );
     }

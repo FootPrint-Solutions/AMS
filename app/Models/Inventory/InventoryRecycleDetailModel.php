@@ -188,6 +188,10 @@ class InventoryRecycleDetailModel extends Model implements Auditable
             });
         }
 
+        if ($request->distributorShopId) {
+            $query->where('distributor_shop_id', $request->distributorShopId);
+        }
+
         // Ordering process.
         if ($orderColumn !== null) {
             $columnName = $selectColumns[$orderColumn] ?? null;
