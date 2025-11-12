@@ -36,8 +36,10 @@ class PurchaseOrderModel extends Model implements Auditable
         'purchase_order_number',
         'invoice_number',
         'date',
-        'supplier_id',
-        'ship_to',
+        'vendor_id',
+        'vendor_type',
+        'ship_to_id',
+        'ship_to_type',
         'discount_price',
         'subtotal',
         'total',
@@ -57,6 +59,22 @@ class PurchaseOrderModel extends Model implements Auditable
         'subtotal' => 'double',
         'total' => 'double',
     ];
+
+    /**
+     * Get the vendor associated with the purchase order.
+     */
+    public function vendor(): BelongsTo
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * Get the ship to associated with the purchase order.
+     */
+    public function shipTo(): BelongsTo
+    {
+        return $this->morphTo();
+    }
 
     /**
      * Get the supplier associated with the purchase order.

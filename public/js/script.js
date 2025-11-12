@@ -221,9 +221,9 @@ Version      : 1.0
 
     // Tooltip
 
-    if ($('[data-toggle="tooltip"]').length > 0) {
-        $('[data-toggle="tooltip"]').tooltip();
-    }
+    // if ($('[data-toggle="tooltip"]').length > 0) {
+    //     $('[data-toggle="tooltip"]').tooltip();
+    // }
 
     // Datatable
 

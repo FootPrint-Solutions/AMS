@@ -65,16 +65,13 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group local-forms">
-                                        <label for="supplier">Supplier <span class="login-danger">*</span></label>
-                                        <select class="form-control" id="supplier" name="supplier" required>
-                                            <option></option>
-                                            @foreach ($data['suppliers'] as $supplier)
-                                                <option value="{{ $supplier['id'] }}"
-                                                    @if (isset($data['profile']) && $data['profile']['supplier_id'] == $supplier['id']) selected @endif>
-                                                    {{ $supplier['name'] }}
-                                                </option>
-                                            @endforeach
-                                            {{-- <option value="new">Quick add new supplier</option> --}}
+                                        <label for="vendor">Vendor <span class="login-danger">*</span>
+                                            <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="This vendor data contains customer or supplier data."></i>
+                                        </label>
+                                        <select class="form-control" id="vendor" name="vendor" required>
+
                                         </select>
                                     </div>
                                 </div>
@@ -84,15 +81,11 @@
                         {{-- Shops --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="shop">Ship To <span class="login-danger">*</span></label>
-                                <select class="form-control" id="shop" name="shop" required>
-                                    <option></option>
-                                    @foreach ($data['shops'] as $shop)
-                                        <option value="{{ $shop['id'] }}"
-                                            @if (isset($data['profile']) && $data['profile']['ship_to'] == $shop['id']) selected @endif>
-                                            {{ $shop['name'] }}
-                                        </option>
-                                    @endforeach
+                                <label for="ship_to">Ship To <span class="login-danger">*</span>
+                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
+                                        title="This vendor data contains shop or distributor data."></i>
+                                </label>
+                                <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
                             </div>
                         </div>
@@ -475,53 +468,102 @@
 
 
         $(document).ready(function() {
-            $('#supplier').select2({
-                placeholder: "Enter supplier"
-            });
-
-            $("#supplier").on("select2:select", function(e) {
-                if (e.params.data.id === "new") {
-                    $("#supplier-new-row").removeClass('d-none');
-                    $("#supplier-name").attr("required", true);
-                    $("#supplier-contact").attr("required", true);
-
-                    $('#supplier-vehicle').select2({
-                        placeholder: "Enter supplier owned vehicle"
-                    });
-                } else {
-                    $("#supplier-new-row").addClass('d-none');
-                    $("#supplier-name").attr("required", false);
-                    $("#supplier-contact").attr("required", false);
+            $('#vendor').select2({
+                placeholder: "Enter vendor",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/purchase-order/vendor/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id + '-' + item.reference_type,
+                                    text: item.text || item.name || '',
+                                    raw_id: item.id,
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
                 }
             });
 
-            $('#vehicle').select2({
-                placeholder: "Enter vehicle"
-            });
+            @isset($data['profile'])
+                (function() {
+                    // Try common vendor fields; fallback to empty if not present
+                    var vendorId =
+                        "{{ $data['profile']['vendor_id'] ?? '' }}";
+                    var vendorType =
+                        "{{ $data['profile']['vendor_type'] ?? '' }}";
+                    var vendorText =
+                        "{{ $data['profile']['vendor_name'] ?? '' }}";
+                    if (vendorId && vendorType) {
+                        var option = new Option(vendorText, vendorId + '-' + vendorType, true,
+                            true);
+                        $('#vendor').append(option).trigger('change');
+                    }
+                })();
+            @endisset
 
-            $('#shop').select2({
-                placeholder: "Enter distributor shop"
-            });
-
-            $('#payment-method').select2({
-                placeholder: "Enter payment method"
+            $('#ship_to').select2({
+                placeholder: "Enter Ship To",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/purchase-order/shipto/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id + '-' + item.reference_type,
+                                    text: item.text || item.name || '',
+                                    raw_id: item.id,
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
+                }
             });
 
             $('#status').select2({});
-
-            $("#shop").on("select2:select", function(e) {
-                // Obtain selected parent id.
-                let parentId = e.params.data.id;
-
-                // Get the list of menus inside the selected parent.
-                loadTechnicianData();
-            });
-
-            $('#technician').select2({
-                placeholder: "Enter technician"
-            });
-
-            loadTechnicianData();
         })
     </script>
 

@@ -201,7 +201,7 @@
     <script src="{{ asset('/plugins/clipboard/clipboard.min.js') }}" type=" text/javascript"></script>
 
     {{-- Custom JS --}}
-    <script src="{{ asset('/js/script.js') }}"></script>
+    <script src="{{ asset('/js/script.js?v=' . time()) }}"></script>
 
     {{-- Bootstrap Form Wizard --}}
     <script src="{{ asset('/plugins/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
@@ -806,6 +806,10 @@
     $(window).on('beforeunload', function() {
         $('.preloader').show();
     });
+
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 </script>
 
 </html>

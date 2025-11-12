@@ -24,4 +24,7 @@ Route::prefix('purchase-order')->group(function () {
     Route::post('/get-print', [PurchaseOrder::class, 'getPrint'])->name('purchase-order.get-print');
     Route::get('/print/{ids}', [PurchaseOrder::class, 'print'])->name('purchase-order.print');
     Route::post('/post', [PurchaseOrder::class, 'post'])->name('purchase-order.post');
+
+    Route::get('/vendor/get', [PurchaseOrder::class, 'getVendor'])->name('purchase-order.vendor.get');
+    Route::get('/shipto/get', [PurchaseOrder::class, 'getShipTo'])->name('purchase-order.shipto.get');
 });

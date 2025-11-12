@@ -22,6 +22,9 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 
 class PurchaseOrder extends Controller
 {
@@ -79,12 +82,17 @@ class PurchaseOrder extends Controller
         try {
             DB::beginTransaction();
 
+            $vendor = explode('-', $request->vendor);
+            $shipTo = explode('-', $request->ship_to);
+
             // Create purchase order
             $purchaseOrder = PurchaseOrderModel::create([
                 'purchase_order_number' => $request->purchaseordernumber,
                 'date' => $request->date,
-                'supplier_id' => $request->supplier,
-                'ship_to' => $request->shop,
+                'vendor_id' => $vendor[0] ?? null,
+                'vendor_type' => $vendor[1] ?? null,
+                'ship_to_id' => $shipTo[0] ?? null,
+                'ship_to_type' => $shipTo[1] ?? null,
                 'address' => $request->Address,
                 'latitude' => $request->Latitude ?? 0,
                 'longitude' => $request->Longitude ?? 0,
@@ -278,12 +286,16 @@ class PurchaseOrder extends Controller
             DB::beginTransaction();
 
             $purchaseOrder = PurchaseOrderModel::findOrFail($request->id);
+            $vendor = explode('-', $request->vendor);
+            $shipTo = explode('-', $request->ship_to);
 
             $purchaseOrder->update([
                 'purchase_order_number' => $request->purchaseordernumber,
                 'date' => $request->date,
-                'supplier_id' => $request->supplier,
-                'ship_to' => $request->shop,
+                'vendor_id' => $vendor[0] ?? null,
+                'vendor_type' => $vendor[1] ?? null,
+                'ship_to_id' => $shipTo[0] ?? null,
+                'ship_to_type' => $shipTo[1] ?? null,
                 'address' => $request->Address,
                 'latitude' => $request->Latitude ?? 0,
                 'longitude' => $request->Longitude ?? 0,
@@ -457,6 +469,12 @@ class PurchaseOrder extends Controller
         }
     }
 
+    /**
+     * Print the specified purchase order(s).
+     *
+     * @param  string  $ids
+     * @return \Illuminate\Http\Response
+     */
     public function print($ids)
     {
         $ids = explode(",", $ids);
@@ -496,6 +514,12 @@ class PurchaseOrder extends Controller
         return $view;
     }
 
+    /**
+     * Post the specified purchase order(s).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function post(Request $request)
     {
         $ids = $request->input('ids');
@@ -596,5 +620,176 @@ class PurchaseOrder extends Controller
                 'message' => 'An error occurred while posting purchase order.'
             ], 500);
         }
+    }
+
+    public function getVendor(Request $request)
+    {
+        $search = $request->input('q', '');
+        $type = $request->input('type', null);
+
+        $results = [];
+
+        if ($type === 'customer') {
+            $query = CustomerModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $customers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'customer',
+                    'reference_type' => CustomerModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
+        if ($type === 'supplier') {
+            $query = SupplierModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $suppliers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($suppliers as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'supplier',
+                    'reference_type' => SupplierModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
+        // If no type specified, return both suppliers and customers
+        $supplierQuery = SupplierModel::query();
+        $customerQuery = CustomerModel::query();
+
+        if (!empty($search)) {
+            $supplierQuery->where('name', 'like', '%' . $search . '%');
+            $customerQuery->where('name', 'like', '%' . $search . '%');
+        }
+
+        $suppliers = $supplierQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+
+        foreach ($suppliers as $s) {
+            $results[] = [
+                'id' => $s->id,
+                'text' => $s->name,
+                'type' => 'supplier',
+                'reference_type' => SupplierModel::class,
+            ];
+        }
+
+        foreach ($customers as $c) {
+            $results[] = [
+                'id' => $c->id,
+                'text' => $c->name,
+                'type' => 'customer',
+                'reference_type' => CustomerModel::class,
+            ];
+        }
+
+        // optional: sort combined results by text
+        $results = collect($results)->sortBy('text')->values()->all();
+
+        return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
+    }
+
+    public function getShipTo(Request $request)
+    {
+        $search = $request->input('q', '');
+        $type = $request->input('type', null);
+
+        $results = [];
+        $results = [];
+
+        if ($type === 'shop') {
+            $query = DistributorShopModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $customers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'shop',
+                    'reference_type' => DistributorShopModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
+        if ($type === 'distributor') {
+            $query = DistributorModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $suppliers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($suppliers as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'distributor',
+                    'reference_type' => DistributorModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
+        // If no type specified, return both suppliers and customers
+        $distributorQuery = DistributorModel::query();
+        $shopQuery = DistributorShopModel::query();
+
+        if (!empty($search)) {
+            $distributorQuery->where('name', 'like', '%' . $search . '%');
+            $shopQuery->where('name', 'like', '%' . $search . '%');
+        }
+
+        $distributors = $distributorQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $shops = $shopQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+
+        foreach ($distributors as $s) {
+            $results[] = [
+                'id' => $s->id,
+                'text' => $s->name,
+                'type' => 'distributor',
+                'reference_type' =>  DistributorModel::class,
+            ];
+        }
+
+        foreach ($shops as $c) {
+            $results[] = [
+                'id' => $c->id,
+                'text' => $c->name,
+                'type' => 'shop',
+                'reference_type' => DistributorShopModel::class,
+            ];
+        }
+
+        // optional: sort combined results by text
+        $results = collect($results)->sortBy('text')->values()->all();
+
+        return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
     }
 }
