@@ -112,8 +112,16 @@ class SalesOrder extends Controller
      */
     public function edit($id)
     {
-        $type = SalesOrderModel::find($id)->type;
-        if ($type == 'recycle') {
+        $salesOrder = SalesOrderModel::find($id);
+        if (!$salesOrder) {
+            return redirect()->route('sales-order.index')->with('error', 'Sales Order not found.');
+        }
+
+        if ($salesOrder->status !== 'draft') {
+            return redirect()->route('sales-order.index')->with('error', 'Unable to edit posted Sales Order.');
+        }
+
+        if ($salesOrder->type == 'recycle') {
             return view(
                 'Orders.SalesOrder.recycle.create',
                 getIndexData(
@@ -562,6 +570,7 @@ class SalesOrder extends Controller
 
                                 $inventoryDetail = new InventoryRecycleDetailModel([
                                     'inventory_id' => $inventory->id,
+                                    'distributor_shop_id' => $salesOrder->vendor,
                                     'battery_recycle_id' => $battery->battery_id,
                                     'type' => 'out',
                                     'reference' => 'Sales Order Battery',

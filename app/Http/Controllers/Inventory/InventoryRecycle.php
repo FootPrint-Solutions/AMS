@@ -99,7 +99,7 @@ class InventoryRecycle extends Controller
                 $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
                 $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
                 $distributorShop = $key->distributorShop->name ?? '-';
-                $battery = $key->battery->name ?? '-';
+                $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
                 $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
                 $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
             } elseif ($key->reference === 'Purchase Order') {
