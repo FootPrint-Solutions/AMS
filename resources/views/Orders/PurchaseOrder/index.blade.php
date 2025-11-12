@@ -29,21 +29,13 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="filter-supplier">Supplier</label>
-                    <select class="form-control" id="filter-supplier" onchange="reloadTable()">
-                        <option value="">All Suppliers</option>
-                        @foreach ($data['suppliers'] as $supplier)
-                            <option value="{{ $supplier['id'] }}">{{ $supplier['name'] }}</option>
-                        @endforeach
+                    <label for="filter-vendor">Vendor</label>
+                    <select class="form-control" id="filter-vendor" onchange="reloadTable()">
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="filter-distributor-shop">Distributor Shop</label>
-                    <select class="form-control" id="filter-distributor-shop" onchange="reloadTable()">
-                        <option value="">All Distributor Shops</option>
-                        @foreach ($data['distributorShops'] as $shop)
-                            <option value="{{ $shop['id'] }}">{{ $shop['name'] }}</option>
-                        @endforeach
+                    <label for="filter-ship-to">Ship To</label>
+                    <select class="form-control" id="filter-ship-to" onchange="reloadTable()">
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -69,7 +61,7 @@
                         <th scope="col">PO Number</th>
                         <th scope="col">Invoice Number</th>
                         <th scope="col">Date</th>
-                        <th scope="col">Supplier</th>
+                        <th scope="col">Vendor</th>
                         <th scope="col">Ship To</th>
                         <th scope="col">Subtotal</th>
                         <th scope="col">Discount</th>
@@ -110,10 +102,10 @@
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
                         d.status = $("#filter-status").val();
-                        d.supplier_id = $("#filter-supplier").val();
+                        d.vendor_id = $("#filter-vendor").val();
                         d.dateStart = $("#filter-date-start").val();
                         d.dateEnd = $("#filter-date-end").val();
-                        d.distributor_shop_id = $("#filter-distributor-shop").val();
+                        d.ship_to_id = $("#filter-ship-to").val();
                     }
                 },
                 columnDefs: [{
@@ -159,7 +151,6 @@
                     },
                     {
                         data: 8,
-
                     },
                     {
                         data: 9,
@@ -170,65 +161,6 @@
                 ],
                 dom: "lBfrtip",
                 buttons: [{
-                        text: "<i class='fas fa-file-excel'></i> Export All to Excel",
-                        className: "btn btn-outline-secondary btn-sm",
-                        action: function(e, dt, node, config) {
-                            Swal.fire({
-                                title: "Exporting Data",
-                                text: "Please wait...",
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-
-                            $.ajax({
-                                url: '/purchase-order/export/details',
-                                method: 'POST',
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    status: $("#filter-status").val(),
-                                    supplier_id: $("#filter-supplier").val(),
-                                    dateStart: $("#filter-date-start").val(),
-                                    dateEnd: $("#filter-date-end").val()
-                                },
-                                xhrFields: {
-                                    responseType: 'blob'
-                                },
-                                success: function(data) {
-                                    var url = window.URL.createObjectURL(data);
-                                    var a = document.createElement('a');
-                                    a.href = url;
-
-                                    var dateStart = $("#filter-date-start").val();
-                                    var dateEnd = $("#filter-date-end").val();
-                                    var filename = 'purchase-orders-details';
-                                    if (dateStart && dateEnd) {
-                                        filename += ' ' + dateStart + ' to ' + dateEnd;
-                                    } else if (dateStart) {
-                                        filename += ' from ' + dateStart;
-                                    } else if (dateEnd) {
-                                        filename += ' until ' + dateEnd;
-                                    } else {
-                                        filename += ' ' + new Date().toISOString().slice(0,
-                                            10);
-                                    }
-                                    filename += '.xlsx';
-                                    a.download = filename;
-                                    document.body.append(a);
-                                    a.click();
-                                    a.remove();
-                                    window.URL.revokeObjectURL(url);
-
-                                    Swal.close();
-                                },
-                                error: function() {
-                                    alert('Error exporting data');
-                                }
-                            });
-                        }
-                    },
-                    {
                         text: "<i class='fas fa-pencil'></i> Edit",
                         className: "btn btn-outline-primary btn-sm",
                         action: function(e, dt, node, config) {
@@ -298,21 +230,6 @@
                                     });
                                 }
                             });
-                        }
-                    },
-                    {
-                        text: "<i class='fas fa-print'></i> Print",
-                        className: "btn btn-outline-danger btn-sm",
-                        action: function(e, dt, node, config) {
-                            let selectedData = dt.row({
-                                selected: true
-                            }).data();
-                            if (selectedData) {
-                                printPurchaseOrder();
-                            } else {
-                                Swal.fire('No row selected', 'Please select a row to post.',
-                                    'warning');
-                            }
                         }
                     },
                     {
@@ -477,5 +394,87 @@
         @if (session('error'))
             toastr.error("{{ session('error') }}");
         @endif
+
+        $(document).ready(function() {
+            $('#filter-vendor').select2({
+                placeholder: "Enter vendor",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/purchase-order/vendor/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id + '-' + item.reference_type,
+                                    text: item.text || item.name || '',
+                                    raw_id: item.id,
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
+                }
+            });
+
+            $('#filter-ship-to').select2({
+                placeholder: "Enter Ship To",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/purchase-order/shipto/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id + '-' + item.reference_type,
+                                    text: item.text || item.name || '',
+                                    raw_id: item.id,
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
+                }
+            });
+
+            $('#status').select2({});
+        })
     </script>
 @endsection

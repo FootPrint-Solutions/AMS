@@ -124,6 +124,11 @@
             animation: jump 1s infinite;
         }
 
+        .badge-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
         /* End of jump animation img-loader */
     </style>
 
@@ -196,7 +201,7 @@
     <script src="{{ asset('/plugins/clipboard/clipboard.min.js') }}" type=" text/javascript"></script>
 
     {{-- Custom JS --}}
-    <script src="{{ asset('/js/script.js') }}"></script>
+    <script src="{{ asset('/js/script.js?v=' . time()) }}"></script>
 
     {{-- Bootstrap Form Wizard --}}
     <script src="{{ asset('/plugins/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
@@ -620,7 +625,24 @@
             contentType: 'application/json',
             responseType: 'document',
             success: function(response) {
-                // Create an iframe element
+                // If the response is JSON with an error, show a user-friendly alert and stop.
+                try {
+                    var parsed = (typeof response === 'string') ? JSON.parse(response) : response;
+                    if (parsed && typeof parsed === 'object' && parsed.hasOwnProperty('status') && parsed
+                        .status === false) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: parsed.message ||
+                                'An error occurred while generating the invoice.',
+                            icon: 'error',
+                        });
+                        return;
+                    }
+                } catch (e) {
+
+                }
+
+                // Create an iframe element to render/print the response content
                 var iframe = document.createElement('iframe');
                 iframe.style.visibility = 'hidden';
 
@@ -784,6 +806,10 @@
     $(window).on('beforeunload', function() {
         $('.preloader').show();
     });
+
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 </script>
 
 </html>

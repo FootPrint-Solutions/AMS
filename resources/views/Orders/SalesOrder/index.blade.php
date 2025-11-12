@@ -11,8 +11,24 @@
                     </div>
 
                     <div class="col-auto text-end float-end ms-auto download-grp">
-                        <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add
-                            New Sales Order</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-plus"></i> Add New
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0)" id="btn-add">
+                                        <i class="fas fa-plus me-2"></i> Add New Sales Order
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0)" id="btn-add-recycle">
+                                        <i class="fas fa-recycle me-2"></i> Add New Sales Order Recycle
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,24 +65,32 @@
         <div class="card bg-white">
             <div class="card-body">
 
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 {{-- Table --}}
-                <table class="table table-striped" id="table-sales-order">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">Sales Order Number</th>
-                            <th scope="col">Marketplace Inv No.</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Customer</th>
-                            <th scope="col">Vehicle</th>
-                            <th scope="col">Distributor/Shop</th>
-                            <th scope="col">Technician</th>
-                            <th scope="col">Total (IDR)</th>
-                            <th scope="col">Payment Status</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="table-sales-order">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="table-col-no">#</th>
+                                <th scope="col">Sales Order Number</th>
+                                <th scope="col">Marketplace Inv No.</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Vehicle</th>
+                                <th scope="col">Distributor/Shop</th>
+                                <th scope="col">Technician</th>
+                                <th scope="col">Total (IDR)</th>
+                                <th scope="col">Payment Status</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -84,6 +108,7 @@
                     [5, 10, 25],
                     [5, 10, 25]
                 ],
+                pageLength: 10,
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -624,6 +649,16 @@
             var salesOrderNumbers = selectedRows.map(row => row[1]);
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
+            const recycleSpanRegex = /<span[^>]*>\s*Recycle\s*<\/span>/i;
+            if (recycleSpanRegex.test(salesOrderNumbersString)) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Purchase Order creation is not available for recycle type Sales Orders.",
+                    icon: "error",
+                });
+                return;
+            }
+
             Swal.fire({
                 title: "Print Purchase Order",
                 text: "Are you sure you want to print the purchase order for the following sales orders? \n" +
@@ -660,5 +695,9 @@
                 }
             });
         }
+
+        $('#btn-add-recycle').on('click', function() {
+            goToPage("/sales-order/create-recycle");
+        });
     </script>
 @endsection

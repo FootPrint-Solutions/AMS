@@ -24,6 +24,8 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Weight</th>
                         <th scope="col">Note</th>
                         <th scope="col">id</th>
                     </tr>
@@ -64,11 +66,41 @@
                     },
                     {
                         data: 2,
+                        name: 'price',
+                        render: function(data, type, row) {
+                            if (data === null || data === '') return '';
+                            if (type === 'display' || type === 'filter') {
+                                var n = Number(data);
+                                if (isNaN(n)) return data;
+                                return new Intl.NumberFormat('id-ID').format(
+                                    n);
+                            }
+                            return data;
+                        },
+                        className: 'table-col-price'
+                    },
+                    {
+                        data: 3,
+                        name: 'weight',
+                        render: function(data, type, row) {
+                            if (data === null || data === '') return '';
+                            if (type === 'display' || type === 'filter') {
+                                var n = Number(data);
+                                if (isNaN(n)) return data;
+                                return new Intl.NumberFormat('id-ID').format(
+                                    n);
+                            }
+                            return data;
+                        },
+                        className: 'table-col-weight'
+                    },
+                    {
+                        data: 4,
                         name: 'note'
                     },
                     // hide kolom id
                     {
-                        data: 3,
+                        data: 5,
                         name: 'id',
                         visible: false
                     }
@@ -80,7 +112,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(3, "/battery-recycle/edit/", "/battery-recycle/destroy");
+            appendDatatablesToolbar(5, "/battery-recycle/edit/", "/battery-recycle/destroy");
 
             // Add New Battery Recycle button
             $("#btn-add").on("click", function() {

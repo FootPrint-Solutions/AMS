@@ -15,6 +15,8 @@ class BatteryRecycleModel extends Model
     protected $fillable = [
         'name',
         'status',
+        'price',
+        'weight',
         'note',
     ];
 }

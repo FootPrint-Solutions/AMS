@@ -29,6 +29,9 @@ use App\Models\Settings\PaymentMethodModel;
 use App\Models\Settings\TaxModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -109,19 +112,46 @@ class SalesOrder extends Controller
      */
     public function edit($id)
     {
-        return view(
-            'Orders.SalesOrder.create',
-            getIndexData(
-                $this->title,
-                array(
-                    "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
-                    "customers" => CustomerModel::all()->toArray(),
-                    "vehicles" => VehicleModel::all()->toArray(),
-                    "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
-                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+        $salesOrder = SalesOrderModel::find($id);
+        if (!$salesOrder) {
+            return redirect()->route('sales-order.index')->with('error', 'Sales Order not found.');
+        }
+
+        if ($salesOrder->status !== 'draft') {
+            return redirect()->route('sales-order.index')->with('error', 'Unable to edit posted Sales Order.');
+        }
+
+        if ($salesOrder->type == 'recycle') {
+            return view(
+                'Orders.SalesOrder.recycle.create',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                        "customers" => CustomerModel::all()->toArray(),
+                        "vehicles" => VehicleModel::all()->toArray(),
+                        "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                        "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                        "DistributorShop" => DistributorShopModel::get()->toArray(),
+                        "Distributor" => DistributorModel::get()->toArray(),
+                    )
                 )
-            )
-        );
+            );
+        } else {
+            return view(
+                'Orders.SalesOrder.create',
+                getIndexData(
+                    $this->title,
+                    array(
+                        "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
+                        "customers" => CustomerModel::all()->toArray(),
+                        "vehicles" => VehicleModel::all()->toArray(),
+                        "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
+                        "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    )
+                )
+            );
+        }
     }
 
     /**
@@ -131,6 +161,11 @@ class SalesOrder extends Controller
      */
     public function invoice($id)
     {
+        $checkType = SalesOrderModel::find($id)->type;
+        if ($checkType == 'recycle') {
+            return getResponseData(false, "Invoice is not available for recycle type Sales Orders.");
+        }
+
         return view(
             'Orders.SalesOrder.invoice',
             getIndexData(
@@ -220,7 +255,7 @@ class SalesOrder extends Controller
 
             // Set the payment status badge class name depending on the status.
             if ($key->status == "draft") {
-                $statusBadgeClass = "badge-secondary text-dark";
+                $statusBadgeClass = "badge-secondary";
             } else if ($key->status == "posted") {
                 $statusBadgeClass = "badge-success";
             } else {
@@ -237,15 +272,26 @@ class SalesOrder extends Controller
                 $sourcePlatformBadge = "";
             }
 
+            // badge type sales order
+            if ($key->type == 'recycle') {
+                $typeBadge = " <span class='badge badge-warning text-dark'>Recycle</span>";
+            } else {
+                $typeBadge = "";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
-            $row[] = $key->sales_order_number;
+            $row[] = $key->sales_order_number . $typeBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
-            $row[] = $key->customer_name;
-            $row[] = $key->vehicle_name;
-            $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            $row[] = $key->customer_name ?? "<p class='text-center'>-</p>";
+            $row[] = $key->vehicle_name ?? "<p class='text-center'>-</p>";
+            if ($key->type == 'recycle') {
+                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            } else {
+                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+            }
             $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
             $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge . $sourcePlatformBadge;
@@ -452,7 +498,7 @@ class SalesOrder extends Controller
 
                 if ($salesOrder->status === 'posted') {
 
-                    // return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
+                    return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
 
                     $salesOrder->status = 'draft';
                     $status = $salesOrder->save();
@@ -469,25 +515,29 @@ class SalesOrder extends Controller
                     $total_quantity = 0;
                     foreach ($salesOrderBattery as $battery) {
 
-                        // Delete inventory detail
-                        $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
-                            ->first();
-                        if ($inventoryDetail) {
-                            $status &= $inventoryDetail->delete();
-                        }
+                        $checkType = $battery->type;
+                        if ($checkType == 'recycle') {
+                            // Delete inventory detail
+                            $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
+                                ->first();
+                            if ($inventoryDetail) {
+                                $status &= $inventoryDetail->delete();
+                            }
 
-                        $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_id', $battery->battery_id)
-                            ->where('type', 'in')
-                            ->sum('quantity');
+                            $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_recycle_id', $battery->battery_id)
+                                ->where('type', 'in')
+                                ->sum('quantity');
 
-                        $total_quantity += $inventoryDetailSum;
+                            $total_quantity += $inventoryDetailSum;
 
 
-                        // update total to inventory where battery id = battery_id
-                        $inventory = InventoryRecycleModel::where('battery_id', $battery->battery_id)->first();
-                        if ($inventory) {
-                            $inventory->stock = $inventoryDetailSum;
-                            $status &= $inventory->save();
+                            // update total to inventory where battery id = battery_id
+                            $inventory = InventoryRecycleModel::where('battery_recycle_id', $battery->battery_id)->first();
+                            if ($inventory) {
+                                $inventory->stock = $inventoryDetailSum;
+                                $status &= $inventory->save();
+                            }
+                        } else {
                         }
                     }
 
@@ -508,20 +558,42 @@ class SalesOrder extends Controller
                         Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
                     } else {
                         foreach ($salesOrderBattery as $battery) {
-                            if ($battery->battery && $battery->battery->type === 'recycle') {
+                            $checkType = $battery->type;
+                            $qty = $battery->quantity;
+                            if ($checkType == 'recycle') {
                                 $inventory = InventoryRecycleModel::firstOrNew([
-                                    'battery_id' => $battery->battery_id
+                                    'battery_recycle_id' => $battery->battery_id
                                 ]);
 
-                                $inventory->stock = ($inventory->exists ? $inventory->stock + 1 : 1);
+                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
                                 $status &= $inventory->save();
 
                                 $inventoryDetail = new InventoryRecycleDetailModel([
                                     'inventory_id' => $inventory->id,
-                                    'battery_id' => $battery->battery_id,
-                                    'type' => 'in',
+                                    'distributor_shop_id' => $salesOrder->vendor,
+                                    'battery_recycle_id' => $battery->battery_id,
+                                    'type' => 'out',
                                     'reference' => 'Sales Order Battery',
-                                    'quantity' => 1,
+                                    'quantity' => -$qty,
+                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                                ]);
+
+                                $inventoryDetail->reference()->associate($battery);
+                                $status &= $inventoryDetail->save();
+                            } else {
+                                $inventory = InventoryModel::firstOrNew([
+                                    'battery_id' => $battery->battery_id
+                                ]);
+
+                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                                $status &= $inventory->save();
+
+                                $inventoryDetail = new InventoryDetailModel([
+                                    'inventory_id' => $inventory->id,
+                                    'battery_id' => $battery->battery_id,
+                                    'type' => 'out',
+                                    'reference' => 'Sales Order Battery',
+                                    'quantity' => -$qty,
                                     'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
                                 ]);
 
@@ -663,6 +735,12 @@ class SalesOrder extends Controller
         try {
             // Check if sales order is posted or not.
             $salesOrder = SalesOrderModel::find($id);
+
+            $checkType = $salesOrder->type;
+            if ($checkType == "recycle") {
+                return getResponseData(false, "Work Order creation is not available for recycle type Sales Orders.");
+            }
+
             if ($salesOrder->status == "draft") {
                 return getResponseData(false, "Unable to create Work Order of an unposted Sales Order.");
             }
@@ -707,6 +785,11 @@ class SalesOrder extends Controller
             $salesOrder = SalesOrderModel::find($id);
             if ($salesOrder->status == "posted") {
                 return getResponseData(false, "Unable to create Payment Link of an posted Sales Order.");
+            }
+
+            // if type recycle
+            if ($salesOrder->type == "recycle") {
+                return getResponseData(false, "Payment Link recreation is not available for recycle type Sales Orders.");
             }
 
             // get detail sales order
@@ -892,6 +975,11 @@ class SalesOrder extends Controller
         try {
             // check payment method is midtrans
             $salesOrder = SalesOrderModel::find($id);
+
+            if ($salesOrder->type == "recycle") {
+                return getResponseData(false, "Payment Link is not available for recycle type Sales Orders.");
+            }
+
             $paymentMethod = PaymentMethodModel::find($salesOrder->payment_method_id);
 
             if ($paymentMethod->name == 'Midtrans') {
@@ -923,6 +1011,15 @@ class SalesOrder extends Controller
     public function getPurchaseOrderNumber($id)
     {
         $salesOrder = SalesOrderModel::find($id);
+        $checkType = $salesOrder->type;
+        if ($checkType == 'recycle') {
+            return response()->json([
+                'status' => "error",
+                'message' => "Purchase Order Number is not available for recycle type Sales Orders.",
+                'data' => null
+            ]);
+        }
+
         $poNumber = str_replace('AK', 'KP', $salesOrder->sales_order_number);
         return response()->json([
             'status' => "success",
@@ -1015,6 +1112,157 @@ class SalesOrder extends Controller
                 'status' => 'success',
                 'message' => 'Sales Order is already posted or completed.'
             ]);
+        }
+    }
+
+    public function createRecycle()
+    {
+        return view(
+            'Orders.SalesOrder.recycle.create',
+            getIndexData(
+                "Sales Order Recycle",
+                array(
+                    "number" => SalesOrderModel::newCode(),
+                    "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+                    "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "DistributorShop" => DistributorShopModel::get()->toArray(),
+                    "Distributor" => DistributorModel::get()->toArray(),
+                )
+            )
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function storeRecycle(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Store sales order data.
+            $salesOrder = new SalesOrderModel();
+            $salesOrder->sales_order_number = $request->salesordernumber;
+            $salesOrder->invoice_number = $request->invoicenumber;
+            $salesOrder->date = $request->date;
+            $salesOrder->vehicle_id = $request->vehicle;
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->discount = $request->discount;
+            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesOrder->total = (float) str_replace(".", "", $request->total);
+            $salesOrder->payment_method_id = $request->paymentmethod;
+            $salesOrder->payment_status = $request->status;
+            $salesOrder->vendor = $request->vendor;
+            $salesOrder->ship_to = $request->ship_to;
+            $salesOrder->type = 'recycle';
+            $status = $salesOrder->save();
+
+            // Store sales order detail data.
+            for ($i = 0; $i < count($request->batteriesid); $i++) {
+                $battery = new SalesOrderBatteryModel();
+                $battery->sales_order_id = $salesOrder->id;
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->type = 'recycle';
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
+                $battery->battery_production_code = $request->batteriescode[$i];
+                $status &= $battery->save();
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The new sales order was successfully created!" : "Failed to create the new sales order!"
+            );
+        } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateRecycle(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Update sales order data.
+            $salesOrder = SalesOrderModel::find($request->id);
+
+            $salesOrder->invoice_number = $request->invoicenumber;
+            $salesOrder->date = $request->date;
+            $salesOrder->vehicle_id = $request->vehicle;
+            $salesOrder->address = $request->Address;
+            $salesOrder->latitude = $request->Latitude;
+            $salesOrder->longitude = $request->Longitude;
+            $salesOrder->distributor_shop_id = $request->shop;
+            $salesOrder->distributor_shop_technician_id = $request->technician;
+            $salesOrder->discount = $request->discount;
+            $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
+            $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
+            $salesOrder->total = (float) str_replace(".", "", $request->total);
+            $salesOrder->payment_method_id = $request->paymentmethod;
+            $salesOrder->payment_status = $request->status;
+            $salesOrder->vendor = $request->vendor;
+            $salesOrder->ship_to = $request->ship_to;
+            $salesOrder->type = 'recycle';
+            $status = $salesOrder->save();
+
+            // Store sales order detail data.
+            for ($i = 0; $i < count($request->batteriesprice); $i++) {
+                $battery = SalesOrderBatteryModel::find($request->detailid[$i]);
+                $battery->battery_production_code = $request->batteriescode[$i];
+                $status &= $battery->save();
+            }
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            // Set a new response data to be sent.
+            return getResponseData(
+                $status,
+                $status ? "The sales order was successfully updated!" : "Failed to update the sales order!"
+            );
+        } catch (Exception $e) {
+            // Rollback if any of the database processes failed.
+            DB::rollBack();
+
+            // Logging error message.
+            Log::error($e);
+
+            // Set an error response data to be sent.
+            return getResponseData(false);
         }
     }
 }

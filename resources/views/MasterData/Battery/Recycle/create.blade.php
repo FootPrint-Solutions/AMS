@@ -29,6 +29,27 @@
                         @endisset>
                 </div>
 
+                {{-- Price --}}
+                <div class="form-group local-forms">
+                    <label for="price">Price</label>
+                    <input type="text" class="form-control" id="price" name="price" placeholder="Enter price"
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['price'] }}"
+                        @endisset>
+                    <small id="price-warning-number" class="form-text text-danger" style="display: none;">Please
+                        enter a valid numeric value for the price.</small>
+                </div>
+
+                {{-- Weight --}}
+                <div class="form-group local-forms">
+                    <label for="weight">Weight</label>
+                    <input type="number" step="0.01" class="form-control" id="weight" name="weight"
+                        placeholder="Enter weight"
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['weight'] }}"
+                        @endisset>
+                </div>
+
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>
@@ -85,6 +106,12 @@
 
             $("#battery-recycle-form").on("reset", function() {
                 goToPage("/battery-recycle");
+            });
+
+            formatPrice($("#price"), $("#price-warning-number"));
+
+            $('#price').on("keyup", function() {
+                formatPrice($("#price"), $("#price-warning-number"));
             });
         });
     </script>

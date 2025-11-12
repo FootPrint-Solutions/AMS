@@ -33,6 +33,19 @@
                 </div>
 
 
+                {{-- Distributor Shop --}}
+                <div class="col-md-1 d-flex align-items-center">
+                    Distributor Shop
+                </div>
+
+                <div class="col-md-4">
+                    <select class="form-select" id="select-inventory-recycle-distributor-shop" onchange="reloadTable()">
+                        <option value="">-- All Distributor Shop --</option>
+                        @foreach ($data['distributorShops'] as $distributorShop)
+                            <option value="{{ $distributorShop->id }}">{{ $distributorShop->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
             </div>
         </div>
@@ -87,6 +100,9 @@
                         d.dateStart = document.getElementById('input-inventory-recycle-date-start')
                             .value;
                         d.dateEnd = document.getElementById('input-inventory-recycle-date-end').value;
+                        d.distributorShopId = document.getElementById(
+                                'select-inventory-recycle-distributor-shop')
+                            .value;
                     }
                 },
                 columnDefs: [{
@@ -117,32 +133,7 @@
                     }
                 ],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(
-                    [
-                        // "Sold Out Button"
-                        {
-                            text: '<i class="fa-solid fa-cart-arrow-down"></i> Sold Out',
-                            className: "btn btn-outline-danger btn-sm ml-1",
-                            action: function(e, dt, node, config) {
-                                var data = dt.rows({
-                                    selected: true
-                                }).data().toArray();
-                                if (data.length > 0) {
-                                    var ids = data.map(function(item) {
-                                        return item[10];
-                                    });
-                                    soldOut(ids);
-                                } else {
-                                    swal.fire({
-                                        icon: "warning",
-                                        title: "Warning",
-                                        text: "Please select at least one item.",
-                                    });
-                                }
-                            }
-                        }
-                    ]
-                ),
+                buttons: getDatatablesButtonConfigurations(),
                 language: getDatatablesLanguangeConfigurations("Inventory Recycle"),
                 select: true,
                 multiselect: true,

@@ -26,3 +26,9 @@ Route::get('/sales-order/multiple-print-purchase-order/{ids}', [SalesOrder::clas
 Route::post('/sales-order/export', [SalesOrder::class, 'export'])->name('sales-order.export')->middleware('permission:view_sales_order_(so)');
 Route::post('/sales-order/export/details', [SalesOrder::class, 'exportDetails'])->name('sales-order.export.details')->middleware('permission:view_sales_order_(so)');
 Route::post('/sales-order/post/check', [SalesOrder::class, 'checkPost'])->name('sales-order.checkPost')->middleware('permission:edit_sales_order_(so)');
+
+
+// Sales Order Recycle
+Route::get('/sales-order/create-recycle', [SalesOrder::class, 'createRecycle'])->middleware('permission:add_sales_order_(so)');
+Route::post('/sales-order/recycle/store', [SalesOrder::class, 'storeRecycle'])->name('sales-order.recycle.store')->middleware('permission:add_sales_order_(so)');
+Route::post('/sales-order/recycle/update', [SalesOrder::class, 'updateRecycle'])->name('sales-order.recycle.update')->middleware('permission:edit_sales_order_(so)');

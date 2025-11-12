@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 // MODELS
 use App\Models\User;
@@ -78,10 +79,25 @@ class Profile extends Controller
     {
         $user = User::where("username", auth()->user()->username)->first();
 
-        // Check if an image has been uploaded or not.
-        if ($request->hasFile("image")) {
-            // Set new image value.
-            $user->image = basename($request->file("image")->store("public/image/profile"));
+        // Check if an image has been uploaded or not and the upload is valid.
+        if ($request->hasFile("image") && $request->file("image")->isValid()) {
+            try {
+                // Ensure directory exists on the public disk.
+                $dir = 'image/profile';
+                $disk = Storage::disk('public');
+                if (!$disk->exists($dir)) {
+                    $disk->makeDirectory($dir, 0755, true);
+                }
+
+                // Store uploaded file with a unique name and set new image value.
+                $file = $request->file('image');
+                $filename = uniqid('profile_') . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('public/' . $dir, $filename);
+                $user->image = $path ? basename($path) : "";
+            } catch (\Throwable $th) {
+                // If storage fails, clear image value (avoid throwing).
+                $user->image = "";
+            }
         } else {
             // Remove current image value.
             $user->image = "";

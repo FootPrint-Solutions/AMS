@@ -46,23 +46,24 @@ class SalesOrderModel extends Model implements Auditable
         'vehicle_id',
         'distributor_shop_id',
         'distributor_shop_technician_id',
-        'tax',
-        'tax_price',
-        'discount_price',
         'discount',
-        'extra_discount',
+        'discount_price',
         'subtotal',
         'total',
+        'payment_status',
         'status',
         'address',
+        'alternative_address',
         'latitude',
         'longitude',
-        'status',
         'payment_method_id',
-        'payment_status',
         'midtrans_invoice_number',
         'midtrans_payment_link',
-        'alternative_address'
+        'source_platform',
+        'source_id',
+        'vendor',
+        'ship_to',
+        'type',
     ];
 
     /**
@@ -95,7 +96,7 @@ class SalesOrderModel extends Model implements Auditable
     public function batteries(): HasMany
     {
         return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id")
-        ->with('battery');
+            ->with('battery');
     }
 
     /**
@@ -197,8 +198,14 @@ class SalesOrderModel extends Model implements Auditable
         $query = self::query();
         $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
         $query->leftJoin("vehicles", "sales_orders.vehicle_id", "=", "vehicles.id");
-        $query->leftJoin("distributor_shops AS shops", "sales_orders.distributor_shop_id", "=", "shops.id");
-        $query->leftJoin("distributors", "shops.distributor_id", "=", "distributors.id");
+        $query->leftJoin("distributor_shops AS shops", function ($join) {
+            $join->on("sales_orders.distributor_shop_id", "=", "shops.id")
+                ->orOn("sales_orders.vendor", "=", "shops.id");
+        });
+        $query->leftJoin("distributors", function ($join) {
+            $join->on("shops.distributor_id", "=", "distributors.id")
+                ->orOn("sales_orders.ship_to", "=", "distributors.id");
+        });
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
 

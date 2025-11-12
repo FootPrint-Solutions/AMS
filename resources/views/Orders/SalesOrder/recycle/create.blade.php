@@ -1,5 +1,4 @@
 @extends('template.master')
-{{-- @dd($data); --}}
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
@@ -22,7 +21,7 @@
                     @else
                         Add New
                     @endif
-                    Purchase Order
+                    Sales Order Recycle
                 </div>
                 <br>
 
@@ -35,12 +34,12 @@
                         {{-- Quotation Number --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="purchase-order-number">Purchase Order Number <span
+                                <label for="sales-order-number">Sales Order Number <span
                                         class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="purchase-order-number"
-                                    name="purchaseordernumber" placeholder="Enter distributor name" required readonly
+                                <input type="text" class="form-control" id="sales-order-number" name="salesordernumber"
+                                    placeholder="Enter distributor name" required readonly
                                     @isset($data['profile'])
-                                value="{{ $data['profile']['purchase_order_number'] }}"
+                                value="{{ $data['profile']['sales_order_number'] }}"
                                 @else
                                 value="{{ $data['number'] }}"
                                 @endisset>
@@ -53,94 +52,51 @@
                                 <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
-                                value="{{ \Carbon\Carbon::parse($data['profile']['date'])->format('Y-m-d') }}"
+                                value="{{ $data['profile']['date'] }}"
                                 @else
                                 value="{{ date('Y-m-d') }}"
                                 @endisset>
                             </div>
                         </div>
 
-                        {{-- Supplier --}}
-                        <div class="col">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group local-forms">
-                                        <label for="vendor">Vendor <span class="login-danger">*</span>
-                                            <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="This vendor data contains customer or supplier data."></i>
-                                        </label>
-                                        <select class="form-control" id="vendor" name="vendor" required>
+                        <input type="hidden" name="Latitude" id="Latitude"
+                            value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                            required>
+                        <input type="hidden" name="Longitude" id="Longitude"
+                            value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                            required>
+                    </div>
 
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Shops --}}
+                    {{-- Customer, Distributor Shop & Technician --}}
+                    <div class="row">
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="ship_to">Ship To <span class="login-danger">*</span>
-                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop or distributor data."></i>
-                                </label>
-                                <select class="form-control" id="ship_to" name="ship_to" required>
+                                <label for="vendor">Vendor <span class="login-danger">*</span></label>
+                                <select class="form-control" id="vendor" name="vendor" required>
+                                    <option></option>
+                                    @foreach ($data['DistributorShop'] as $distributorShop)
+                                        <option value="{{ $distributorShop['id'] }}"
+                                            @if (isset($data['profile']) && $data['profile']['vendor'] == $distributorShop['id']) selected @endif>
+                                            {{ $distributorShop['name'] }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
 
+                        {{-- Distributor Shop --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="address">Address <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" name="Address"
-                                    id="AddressSearchColumnSalesOrderEditable"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
-                                    required autocomplete="off">
-                            </div>
-                        </div>
-
-                        {{-- Invoice Number --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="InvoiceNumber">Invoice Number <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
-                                    autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Quick Add --}}
-                    <div class="row d-none" id="supplier-new-row">
-                        {{-- Name --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-name">Supplier Name <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="supplier-name" name="customername"
-                                    placeholder="Enter supplier name">
-                            </div>
-                        </div>
-
-                        {{-- Contact --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-contact">Supplier Contact</label>
-                                <div class="input-group">
-                                    <span class="input-group-text border-end country-code">+62</span>
-                                    <input type="number" pattern="[1-9][0-9]{7,}"
-                                        title="At least 8 digits with no leading zero" class="form-control"
-                                        id="supplier-contact" name="customercontact" placeholder="Enter supplier contact">
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Email --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-email">Supplier E-mail</label>
-                                <input type="email" class="form-control" id="supplier-email" name="customeremail"
-                                    placeholder="Enter supplier e-mail">
+                                <label for="ship_to">Ship To <span class="login-danger">*</span></label>
+                                <select class="form-control" id="ship_to" name="ship_to" required>
+                                    <option></option>
+                                    @foreach ($data['Distributor'] as $distributor)
+                                        <option value="{{ $distributor['id'] }}"
+                                            @if (isset($data['profile']) && $data['profile']['ship_to'] == $distributor['id']) selected @endif>
+                                            {{ $distributor['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -193,9 +149,8 @@
                                 <tr class="table-battery-detail-row {{ $class_tr }}">
                                     {{-- Production Code --}}
                                     <td>
-                                        <input type="text" class="form-control battery-code"
-                                            id="battery-production-code" name="batteriescode[]"
-                                            placeholder="Enter item production code"
+                                        <input type="text" class="form-control battery-code" id="battery-production-code"
+                                            name="batteriescode[]" placeholder="Enter item production code"
                                             @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
                                     </td>
 
@@ -205,7 +160,6 @@
                                             $targets = [
                                                 "battery-priceretail-$counter",
                                                 "battery-discount-$counter",
-                                                "battery-type-$counter",
                                                 "battery-type-$counter",
                                             ];
                                             $encodedTargets = json_encode($targets);
@@ -222,7 +176,7 @@
                                                 'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
                                                 'name' => 'batteriesname[]',
                                                 'nameHiddenId' => 'batteriesid[]',
-                                                'url' => '/battery/get/',
+                                                'url' => '/battery-recycle/get/',
                                                 'placeholder' => 'Enter item name',
                                                 'targets' => $encodedTargets,
                                                 'callback' => 'calculateTotal',
@@ -236,9 +190,8 @@
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
                                             <input type="text" class="form-control text-end battery-priceretail"
-                                                id="battery-priceretail-{{ $counter }}"
-                                                name="batteriespriceretail[]" placeholder="Enter item retail price"
-                                                required
+                                                id="battery-priceretail-{{ $counter }}" name="batteriespriceretail[]"
+                                                placeholder="Enter item retail price" required
                                                 @isset($data['profile']['batteries']) value="{{ $battery['battery_price_retail'] }}" @endisset>
                                         </div>
                                     </td>
@@ -249,8 +202,7 @@
                                         <input type="hidden"
                                             class="form-control battery-type-{{ $counter }} battery-type"
                                             id="battery-type-{{ $counter }}" name="batteriestype[]"
-                                            @isset($battery['type']) value="{{ $battery['type'] }}" @endisset>
-
+                                            @isset($battery['battery']['type'])value="{{ $battery['battery']['type'] }}" @endisset>
 
                                         <div class="input-group">
                                             <input type="text" class="form-control text-end battery-tax"
@@ -278,7 +230,7 @@
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-text border-end">IDR</span>
-                                            <input type="number" class="form-control text-end battery-discountprice"
+                                            <input type="text" class="form-control text-end battery-discountprice"
                                                 id="battery-discountprice-{{ $counter }}"
                                                 name="batteriesdiscountprice[]" placeholder="Enter item discount price"
                                                 required @isset($data['profile']['batteries']) readonly @endisset
@@ -350,6 +302,15 @@
                     <td>
                         <div class="row">
                             <div class="col">
+                                {{-- Discount Percentage --}}
+                                <div class="input-group d-none" id="discount-percentage">
+                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
+                                        name="discount"
+                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                        @isset($data['profile']['discount']) readonly @endisset required>
+                                    <span class="input-group-text border-end">%</span>
+                                </div>
+
                                 {{-- Discount Price --}}
                                 <div class="input-group" id="discount-price">
                                     <span class="input-group-text border-end">IDR</span>
@@ -385,10 +346,22 @@
                 {{-- Payment Method & Status --}}
                 <tr>
                     <td colspan="5"></td>
-                    <td class="text-end">Payment Status</td>
+                    <td class="text-end">Payment method</td>
                     <td>
                         <div class="row">
                             <div class="col">
+                                <select class="form-control" id="payment-method" name="paymentmethod" required>
+                                    <option></option>
+                                    @foreach ($data['payment_methods'] as $method)
+                                        <option value="{{ $method['id'] }}"
+                                            @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
+                                            {{ $method['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-5">
                                 <select name="status" id="status" class="form-control" required>
                                     <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
                                     </option>
@@ -428,7 +401,7 @@
             </form>
         </div>
     </div>
-
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -468,99 +441,36 @@
 
 
         $(document).ready(function() {
-            $('#vendor').select2({
-                placeholder: "Enter vendor",
-                minimumInputLength: 1,
-                ajax: {
-                    url: "/purchase-order/vendor/get",
-                    dataType: "json",
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function(response) {
-                        var items = (response && response.data) ? response.data : response;
-                        return {
-                            results: items.map(function(item) {
-                                return {
-                                    id: item.id + '-' + item.reference_type,
-                                    text: item.text || item.name || '',
-                                    raw_id: item.id,
-                                    type: item.type,
-                                    reference_type: item.reference_type || null,
-                                };
-                            })
-                        };
-                    },
-                    cache: true
-                },
-                escapeMarkup: function(markup) {
-                    return markup;
-                },
-                templateResult: function(repo) {
-                    return repo.text;
-                },
-                templateSelection: function(repo) {
-                    return repo.text;
+            $('#customer').select2({
+                placeholder: "Enter customer"
+            });
+
+            $("#customer").on("select2:select", function(e) {
+                if (e.params.data.id === "new") {
+                    $("#customer-new-row").removeClass('d-none');
+                    $("#customer-name").attr("required", true);
+                    $("#customer-contact").attr("required", true);
+
+                    $('#customer-vehicle').select2({
+                        placeholder: "Enter customer owned vehicle"
+                    });
+                } else {
+                    $("#customer-new-row").addClass('d-none');
+                    $("#customer-name").attr("required", false);
+                    $("#customer-contact").attr("required", false);
                 }
             });
 
-            @isset($data['profile'])
-                (function() {
-                    // Try common vendor fields; fallback to empty if not present
-                    var vendorId =
-                        "{{ $data['profile']['vendor_id'] ?? '' }}";
-                    var vendorType =
-                        "{{ $data['profile']['vendor_type'] ?? '' }}";
-                    var vendorText =
-                        "{{ $data['profile']['vendor_name'] ?? '' }}";
-                    if (vendorId && vendorType) {
-                        var option = new Option(vendorText, vendorId + '-' + vendorType, true,
-                            true);
-                        $('#vendor').append(option).trigger('change');
-                    }
-                })();
-            @endisset
+            $('#vendor').select2({
+                placeholder: "Enter vendor"
+            });
 
             $('#ship_to').select2({
-                placeholder: "Enter Ship To",
-                minimumInputLength: 1,
-                ajax: {
-                    url: "/purchase-order/shipto/get",
-                    dataType: "json",
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function(response) {
-                        var items = (response && response.data) ? response.data : response;
-                        return {
-                            results: items.map(function(item) {
-                                return {
-                                    id: item.id + '-' + item.reference_type,
-                                    text: item.text || item.name || '',
-                                    raw_id: item.id,
-                                    type: item.type,
-                                    reference_type: item.reference_type || null,
-                                };
-                            })
-                        };
-                    },
-                    cache: true
-                },
-                escapeMarkup: function(markup) {
-                    return markup;
-                },
-                templateResult: function(repo) {
-                    return repo.text;
-                },
-                templateSelection: function(repo) {
-                    return repo.text;
-                }
+                placeholder: "Enter Ship To"
+            });
+
+            $('#payment-method').select2({
+                placeholder: "Enter payment method"
             });
 
             $('#status').select2({});
@@ -569,43 +479,36 @@
 
     {{-- Form Handler --}}
     <script>
-        let indexUrl = "/purchase-order";
+        let indexUrl = "/sales-order";
 
         $("#quotation-form").on("submit", function(event) {
             event.preventDefault();
 
             let mode = $("#btn-save").attr("value"); // update || create
-            let url = (mode == "update") ? "/purchase-order/update" : "/purchase-order/store";
+            let url = (mode == "update") ? "/sales-order/recycle/update" : "/sales-order/recycle/store";
 
             let address = $("#AddressSearchColumnSalesOrderEditable").val();
             let lat = $("#Latitude").val();
             let lon = $("#Longitude").val();
-            if (address == "") {
-                Swal.fire({
-                    title: "Error",
-                    text: "Please select address",
-                    icon: "error",
-                });
-                return;
-            }
-            calculateTotal();
 
-            // Show loading Swal
-            // Swal.fire({
-            //     title: "Processing...",
-            //     text: "Please wait while your data is being saved.",
-            //     allowOutsideClick: false,
-            //     didOpen: () => {
-            //         Swal.showLoading();
-            //     }
-            // });
+            calculateTotal();
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
 
+            // Show SweetAlert loading
+            Swal.fire({
+                title: 'Please wait',
+                text: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             // Send submit POST request via AJAX.
             sendSubmitRequest(url, formData, function() {
-                // Redirect to index page.
+                Swal.close();
                 goToPage(indexUrl);
             });
         });
@@ -688,8 +591,7 @@
             });
         });
 
-        $(document).on("change keyup",
-            ".battery-discountprice, #tax, #discount, #discount-price-value, #extra-discount, .battery-priceretail",
+        $(document).on("change keyup", ".battery-discountprice, #tax, #discount, #discount-price-value, #extra-discount",
             function() {
                 // Validate input value.
                 let value = parseInt($(this).val(), 10);
@@ -721,7 +623,7 @@
 
             if (parentId)
                 $.ajax({
-                    url: "/purchase-order/technician/get/" + parentId,
+                    url: "/sales-order/technician/get/" + parentId,
                     method: "GET",
                     success: function(response) {
                         // Clear current options and value.
@@ -785,7 +687,7 @@
                 let value = parseInt($(this).val().replace(/\D/g, ''));
                 if (!isNaN(value)) {
                     if (type != 'regular') {
-                        subtotal += value;
+                        subtotal -= value;
                         console.log("Subtotal: " + subtotal);
                         console.log("type: " + type);
                     } else {

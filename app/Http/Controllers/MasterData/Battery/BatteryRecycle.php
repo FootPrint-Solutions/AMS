@@ -71,6 +71,8 @@ class BatteryRecycle extends Controller
             $row = [];
             $row[] = $no++;
             $row[] = $key->name;
+            $row[] = $key->price;
+            $row[] = $key->weight;
             $row[] = $key->note;
             $row[] = $key->id;
             $rows[] = $row;
@@ -92,6 +94,8 @@ class BatteryRecycle extends Controller
             $validatedData = $request->validate(
                 [
                     'name' => 'required|string',
+                    'price' => 'nullable|string',
+                    'weight' => 'nullable|numeric',
                     'note' => 'nullable|string',
                 ],
                 [
@@ -101,6 +105,8 @@ class BatteryRecycle extends Controller
 
             $recycle = new BatteryRecycleModel();
             $recycle->name = $validatedData['name'];
+            $recycle->price = str_replace('.', '', $validatedData['price']) ?? null;
+            $recycle->weight = $validatedData['weight'] ?? null;
             $recycle->status = 1;
             $recycle->note = $validatedData['note'] ?? null;
             $status = $recycle->save();
@@ -132,6 +138,8 @@ class BatteryRecycle extends Controller
             $validatedData = $request->validate(
                 [
                     'name' => 'required|string',
+                    'price' => 'nullable|string',
+                    'weight' => 'nullable|numeric',
                     'note' => 'nullable|string'
                 ],
                 [
@@ -145,6 +153,8 @@ class BatteryRecycle extends Controller
                 return getResponseData(false, "Battery recycle not found!");
             }
             $recycle->name = $validatedData['name'];
+            $recycle->price = str_replace('.', '', $validatedData['price']) ?? null;
+            $recycle->weight = $validatedData['weight'] ?? null;
             $recycle->note = $validatedData['note'] ?? null;
             $status = $recycle->save();
 
@@ -196,5 +206,24 @@ class BatteryRecycle extends Controller
             Log::error($e->getMessage());
             return getResponseData(false);
         }
+    }
+
+    public function getBatteryRecycle($keyword)
+    {
+        $batteries = BatteryRecycleModel::where('name', 'like', '%' . $keyword . '%')
+            ->where('status', 1)
+            ->get();
+
+        $result = $batteries->map(function ($b) {
+            return [
+                'id' => $b->id,
+                'name' => $b->name,
+                'price_retail' => $b->price !== null ? (int) $b->price : null,
+                'discount' => '0.00',
+                'type' => 'regular',
+            ];
+        })->values();
+
+        return response()->json($result);
     }
 }
