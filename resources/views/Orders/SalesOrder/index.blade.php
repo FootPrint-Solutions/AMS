@@ -137,6 +137,7 @@
                         <thead>
                             <tr>
                                 <th scope="col" class="table-col-no">#</th>
+                                <th scope="col" class="table-col-no">No</th>
                                 <th scope="col">Sales Order Number</th>
                                 <th scope="col">Marketplace Inv No.</th>
                                 <th scope="col">Date</th>
@@ -183,16 +184,26 @@
                         d.salesOrderType = document.getElementById('filter-sales-order-type').value;
                     }
                 },
-                columnDefs: [{
-                    targets: [0],
-                    orderable: false,
-                }, {
-                    targets: [8],
-                    className: 'dt-body-right table-col-price'
-                }, {
-                    targets: [0, -1, -2],
-                    className: 'dt-body-center'
-                }],
+                columnDefs: [
+                    // subgrid
+                    {
+                        targets: 0,
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                    },
+                    {
+                        targets: [1],
+                        orderable: false,
+                    }, {
+                        targets: [8],
+                        className: 'dt-body-right table-col-price'
+                    }, {
+                        targets: [0, -1, -2],
+                        className: 'dt-body-center'
+                    }
+                ],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([
                     // Export to Excel
@@ -278,7 +289,7 @@
                                 });
                                 return;
                             }
-                            let id = selectedRows[0][11];
+                            let id = selectedRows[0][12];
                             goToPage("/sales-order/edit/" + id);
                         }
                     },
@@ -299,7 +310,7 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[11]);
+                            let ids = selectedRows.map(row => row[12]);
                             sendDestroyRequest(ids, "/sales-order/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
@@ -317,7 +328,7 @@
                             }).data().toArray();
 
                             // Show modal more action
-                            showModalMoreAction(selectedRows[0][11], selectedRows[0][11]);
+                            showModalMoreAction(selectedRows[0][12], selectedRows[0][12]);
                         }
                     },
                 ]),
@@ -330,16 +341,87 @@
                         $('td', row).addClass("text-info");
                 }
             });
+
+            // Add event listener for opening and closing details
+            $('#table-sales-order tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    var salesOrderId = row.data()[12];
+
+                    // Fetch items via AJAX
+                    $.ajax({
+                        url: '/sales-order/items/' + salesOrderId,
+                        method: 'GET',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            if (response && (response.success === true || response.status ===
+                                    'success')) {
+                                var items = response.data || [];
+                                if (items.length === 0) {
+                                    row.child('<div class="p-2">No items found.</div>').show();
+                                    tr.addClass('shown');
+                                    return;
+                                }
+
+                                var itemTable =
+                                    '<table class="table table-bordered"><thead><tr>' +
+                                    '<th>Item Name</th><th>Quantity</th><th>Price (IDR)</th><th>Type</th><th>Production Code</th>' +
+                                    '</tr></thead><tbody>';
+
+                                items.forEach(function(item) {
+                                    var name = item.battery_name || item.item_name ||
+                                        '-';
+                                    var qty = (item.quantity !== null && item
+                                            .quantity !== undefined) ? item.quantity :
+                                        '-';
+                                    var price = formatCurrency(item.battery_price ??
+                                        item.price);
+                                    var type = item.type || '-';
+                                    var prodCode = item.battery_production_code || '-';
+
+                                    itemTable += '<tr>' +
+                                        '<td>' + name + '</td>' +
+                                        '<td>' + qty + '</td>' +
+                                        '<td>' + price + '</td>' +
+                                        '<td>' + type + '</td>' +
+                                        '<td>' + prodCode + '</td>' +
+                                        '</tr>';
+                                });
+
+                                itemTable += '</tbody></table>';
+
+                                row.child(itemTable).show();
+                                tr.addClass('shown');
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Failed to fetch items.",
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+            function reloadTable() {
+                var dateStart = document.getElementById('input-sales-order-date-start').value;
+                var dateEnd = document.getElementById('input-sales-order-date-end').value;
+                var salesOrderType = document.getElementById('filter-sales-order-type').value;
+
+                // Reload the table.
+                table.ajax.reload(null, false);
+            }
         });
-
-        function reloadTable() {
-            var dateStart = document.getElementById('input-sales-order-date-start').value;
-            var dateEnd = document.getElementById('input-sales-order-date-end').value;
-            var salesOrderType = document.getElementById('filter-sales-order-type').value;
-
-            // Reload the table.
-            table.ajax.reload(null, false);
-        }
     </script>
 
     {{-- Modal More Action --}}
