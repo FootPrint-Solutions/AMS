@@ -412,16 +412,16 @@
                     });
                 }
             });
-
-            function reloadTable() {
-                var dateStart = document.getElementById('input-sales-order-date-start').value;
-                var dateEnd = document.getElementById('input-sales-order-date-end').value;
-                var salesOrderType = document.getElementById('filter-sales-order-type').value;
-
-                // Reload the table.
-                table.ajax.reload(null, false);
-            }
         });
+
+        function reloadTable() {
+            var dateStart = document.getElementById('input-sales-order-date-start').value;
+            var dateEnd = document.getElementById('input-sales-order-date-end').value;
+            var salesOrderType = document.getElementById('filter-sales-order-type').value;
+
+            // Reload the table.
+            table.ajax.reload(null, false);
+        }
     </script>
 
     {{-- Modal More Action --}}
