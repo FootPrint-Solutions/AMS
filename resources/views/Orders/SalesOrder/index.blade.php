@@ -3,6 +3,56 @@
 @section('content')
     {{-- Form --}}
     <div class="d-none d-lg-block">
+        <div class="row mb-3" id="sales-order-summary-cards">
+            <div class="col-md-4">
+                <div class="card bg-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle">Total Qty</h6>
+                                <h3 id="total-sales-order-qty">-</h3>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-boxes fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle">Total Transactions</h6>
+                                <h3 id="total-sales-order-transactions">-</h3>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-receipt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle">Total Revenue</h6>
+                                <h3 id="total-sales-order-nominal">-</h3>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card bg-white">
             <div class="card-header">
                 <div class="row align-items-center">
@@ -35,7 +85,7 @@
             <div class="card-body">
                 {{-- filter tanggal --}}
                 <div class="row mt-2">
-                    <div class="col-md-1 d-flex align-items-center">
+                    <div class="col-md-2 d-flex align-items-center">
                         Date
                     </div>
 
@@ -55,7 +105,17 @@
                         </div>
                     </div>
 
-                    <div class="col-md-1"></div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        Sales Order Type
+                    </div>
+
+                    <div class="col-md-3">
+                        <select class="form-select" id="filter-sales-order-type" onchange="reloadTable()">
+                            <option value="">All Types</option>
+                            <option value="regular">Regular</option>
+                            <option value="recycle">Recycle</option>
+                        </select>
+                    </div>
 
                 </div>
             </div>
@@ -120,6 +180,7 @@
                         d._token = "{{ csrf_token() }}";
                         d.dateStart = document.getElementById('input-sales-order-date-start').value;
                         d.dateEnd = document.getElementById('input-sales-order-date-end').value;
+                        d.salesOrderType = document.getElementById('filter-sales-order-type').value;
                     }
                 },
                 columnDefs: [{
@@ -274,6 +335,7 @@
         function reloadTable() {
             var dateStart = document.getElementById('input-sales-order-date-start').value;
             var dateEnd = document.getElementById('input-sales-order-date-end').value;
+            var salesOrderType = document.getElementById('filter-sales-order-type').value;
 
             // Reload the table.
             table.ajax.reload(null, false);
@@ -306,7 +368,8 @@
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             {{-- button print po --}}
-                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice" onclick="downloadPurchaseOrder()">
+                            <button class="btn btn-primary w-100 btn-sm" id="btn-invoice"
+                                onclick="downloadPurchaseOrder()">
                                 <i class="fas fa-file-text me-2"></i> Purchase Order
                             </button>
                         </div>
@@ -319,8 +382,8 @@
                         </div>
                         <div class="col-6 col-md-3 mb-3">
                             <!-- Button Re-Create Payment Link -->
-                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom" id="btn-recreate-payment-link"
-                                onclick="recreatePaymentLink()">
+                            <button class="btn btn-primary w-100 btn-sm text-truncate-custom"
+                                id="btn-recreate-payment-link" onclick="recreatePaymentLink()">
                                 <i class="fas fa-link me-2"></i> Re-Create Payment Link
                             </button>
                         </div>
@@ -698,6 +761,74 @@
 
         $('#btn-add-recycle').on('click', function() {
             goToPage("/sales-order/create-recycle");
+        });
+
+
+
+        function formatCurrency(amount) {
+            if (amount === null || amount === undefined) return '-';
+            var num = parseFloat(amount) || 0;
+            return 'Rp. ' + num.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        function setSummaryLoading() {
+            $('#total-sales-order-qty').text('...');
+            $('#total-sales-order-transactions').text('...');
+            $('#total-sales-order-nominal').text('...');
+        }
+
+        function fetchSalesOrderSummary() {
+            var dateStart = document.getElementById('input-sales-order-date-start').value;
+            var dateEnd = document.getElementById('input-sales-order-date-end').value;
+            var salesOrderType = document.getElementById('filter-sales-order-type').value;
+
+            setSummaryLoading();
+
+            $.ajax({
+                url: '/sales-order/summary',
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    dateStart: dateStart,
+                    dateEnd: dateEnd,
+                    salesOrderType: salesOrderType
+                },
+                success: function(response) {
+                    if (response && response.status === 'success' && response.data) {
+                        $('#total-sales-order-qty').text(response.data.total_qty ?? 0);
+                        $('#total-sales-order-transactions').text(response.data.total_transactions ?? 0);
+                        $('#total-sales-order-nominal').text(formatCurrency(response.data.total_nominal ?? 0));
+                    } else {
+                        $('#total-sales-order-qty').text(0);
+                        $('#total-sales-order-transactions').text(0);
+                        $('#total-sales-order-nominal').text(formatCurrency(0));
+                    }
+                },
+                error: function() {
+                    $('#total-sales-order-qty').text(0);
+                    $('#total-sales-order-transactions').text(0);
+                    $('#total-sales-order-nominal').text(formatCurrency(0));
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // initial fetch
+            fetchSalesOrderSummary();
+
+            // refetch when date filters change
+            $('#input-sales-order-date-start, #input-sales-order-date-end, #input-sales-order-type').on('change',
+                function() {
+                    fetchSalesOrderSummary();
+                });
+
+            // refetch after DataTable ajax completes (works when table reloads)
+            $(document).on('xhr.dt', '#table-sales-order', function(e, settings, json, xhr) {
+                fetchSalesOrderSummary();
+            });
         });
     </script>
 @endsection

@@ -1265,4 +1265,30 @@ class SalesOrder extends Controller
             return getResponseData(false);
         }
     }
+
+    /**
+     * Get sales order summary.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function summary(Request $request)
+    {
+        try {
+            $summary = SalesOrderModel::getSalesOrderSummary($request->dateStart, $request->dateEnd, $request->salesOrderType);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sales order summary fetched successfully.',
+                'data' => $summary
+            ]);
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch sales order summary.'
+            ]);
+        }
+    }
 }
