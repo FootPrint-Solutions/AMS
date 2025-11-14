@@ -281,6 +281,7 @@ class SalesOrder extends Controller
 
             // Set an array for each row.
             $row = [];
+            $row[] = "";
             $row[] = $no++;
             $row[] = $key->sales_order_number . $typeBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
@@ -1263,6 +1264,73 @@ class SalesOrder extends Controller
 
             // Set an error response data to be sent.
             return getResponseData(false);
+        }
+    }
+
+    /**
+     * Get sales order items for subgrid.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getItems($id)
+    {
+        try {
+            $salesOrder = SalesOrderModel::with('batteries')->find($id);
+
+            if (!$salesOrder) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sales order not found.'
+                ]);
+            }
+
+            $items = $salesOrder->batteries->map(function ($battery) {
+                return [
+                    'battery_name' => $battery->battery_name,
+                    'type' => $battery->type,
+                    'battery_price' => $battery->price_net,
+                    'quantity' => $battery->quantity,
+                    'battery_production_code' => $battery->battery_production_code
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $items
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch sales order items.'
+            ]);
+        }
+    }
+
+    /**
+     * Get sales order summary.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function summary(Request $request)
+    {
+        try {
+            $summary = SalesOrderModel::getSalesOrderSummary($request->dateStart, $request->dateEnd, $request->salesOrderType);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Sales order summary fetched successfully.',
+                'data' => $summary
+            ]);
+        } catch (Exception $e) {
+            // Logging error message.
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch sales order summary.'
+            ]);
         }
     }
 }

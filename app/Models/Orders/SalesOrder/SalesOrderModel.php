@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Support\Facades\DB;
 
 // TRAITS
 use App\Traits\DataTablesTrait;
@@ -214,12 +215,20 @@ class SalesOrderModel extends Model implements Auditable
             $query->whereBetween('sales_orders.date', [$request->dateStart, $request->dateEnd]);
         }
 
+        // filter sales order type
+        if ($request->salesOrderType) {
+            $query->where('sales_orders.type', $request->salesOrderType);
+        }
+
         $query->select($selectColumns);
 
 
         return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
     }
 
+    /**
+     * Create Work Order from Sales Order
+     */
     public static function CreateWorkOrder($id)
     {
         $salesOrder = self::with('customer', 'shop', 'technician', 'batteries')->find($id);
@@ -259,5 +268,47 @@ class SalesOrderModel extends Model implements Auditable
     public function workOrder()
     {
         return $this->hasOne(WorkOrderModel::class, 'sales_order_id');
+    }
+
+    /**
+     * Get sales order summary based on date range and type.
+     *
+     * @param string $dateStart The start date for the summary.
+     * @param string $dateEnd The end date for the summary.
+     * @param string|null $salesOrderType The type of sales order (optional).
+     * @return array Associative array containing total quantity, total transactions, and total nominal.
+     */
+    public static function getSalesOrderSummary($dateStart, $dateEnd, $salesOrderType)
+    {
+        $query = self::query();
+
+        if ($dateStart && $dateEnd) {
+            $query->whereBetween('sales_orders.date', [$dateStart, $dateEnd]);
+        }
+
+        if ($salesOrderType) {
+            $query->where('sales_orders.type', $salesOrderType);
+        }
+
+        $totalQtyQuery = DB::table('sales_order_battery')
+            ->join('sales_orders', 'sales_order_battery.sales_order_id', '=', 'sales_orders.id');
+
+        if ($dateStart && $dateEnd) {
+            $totalQtyQuery->whereBetween('sales_orders.date', [$dateStart, $dateEnd]);
+        }
+
+        if ($salesOrderType) {
+            $totalQtyQuery->where('sales_orders.type', $salesOrderType);
+        }
+
+        $totalQty = (int) $totalQtyQuery->sum('sales_order_battery.quantity');
+        $totalTransactions = $query->count();
+        $totalNominal = $query->sum('sales_orders.total');
+
+        return [
+            'total_qty' => $totalQty,
+            'total_transactions' => $totalTransactions,
+            'total_nominal' => $totalNominal,
+        ];
     }
 }

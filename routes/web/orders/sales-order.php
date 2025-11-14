@@ -6,6 +6,8 @@ use App\Http\Controllers\Orders\SalesOrderBattery;
 
 Route::get('/sales-order', [SalesOrder::class, 'index'])->name('sales-order.index')->middleware('permission:view_sales_order_(so)');
 Route::post('/sales-order/show', [SalesOrder::class, 'show'])->name('sales-order.show')->middleware('permission:view_sales_order_(so)');
+Route::get('/sales-order/items/{id}', [SalesOrder::class, 'getItems'])->name('sales-order.getItems')->middleware('permission:view_sales_order_(so)');
+Route::post('/sales-order/summary', [SalesOrder::class, 'summary'])->name('sales-order.summary')->middleware('permission:view_sales_order_(so)');
 Route::get('/sales-order/invoice/{id}', [SalesOrder::class, 'invoice'])->name('sales-order.invoice')->middleware('permission:view_sales_order_(so)');
 Route::get('/sales-order/purchase-order/{id}', [SalesOrder::class, 'purchaseOrder'])->name('sales-order.purchaseOrder')->middleware('permission:view_sales_order_(so)');
 Route::get('/sales-order/create', [SalesOrder::class, 'create'])->middleware('permission:add_sales_order_(so)');
