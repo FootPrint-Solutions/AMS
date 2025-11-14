@@ -94,7 +94,9 @@
                 processing: true,
                 serverSide: true,
                 destroy: true,
-                order: [],
+                order: [
+                    [1, 'desc']
+                ],
                 pageLength: 10,
                 ajax: {
                     url: "/purchase-order/show",

@@ -180,6 +180,8 @@ class PurchaseOrder extends Controller
         $dateStart = $request->input('dateStart', null);
         $dateEnd = $request->input('dateEnd', null);
         $search = $request->input('search.value', null);
+        $orderColumnIndex = $request->input('order.0.column', null);
+        $orderDirection = $request->input('order.0.dir', 'asc');
 
         $query = PurchaseOrderModel::with(['vendor', 'shipTo']);
 
@@ -214,6 +216,28 @@ class PurchaseOrder extends Controller
                         $shipToQuery->where('name', 'like', '%' . $search . '%');
                     });
             });
+        }
+
+        if ($orderColumnIndex !== null) {
+            $columns = [
+                0 => 'id',
+                1 => 'purchase_order_number',
+                2 => 'invoice_number',
+                3 => 'date',
+                4 => 'vendor_id',
+                5 => 'ship_to_id',
+                6 => 'subtotal',
+                7 => 'discount_price',
+                8 => 'total',
+                9 => 'payment_status',
+                10 => 'status',
+            ];
+
+            if (isset($columns[$orderColumnIndex])) {
+                $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+            }
+        } else {
+            $query->orderBy('id', 'desc');
         }
 
         $data = $query->get()->toArray();
