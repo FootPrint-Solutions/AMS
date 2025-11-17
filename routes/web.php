@@ -246,6 +246,9 @@ Route::middleware(['auth'])->group(function () {
     // Expense
     require __DIR__ . '/web/accounting/expense.php';
 
+    // Billing
+    require __DIR__ . '/web/accounting/billing.php';
+
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 

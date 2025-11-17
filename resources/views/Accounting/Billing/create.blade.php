@@ -3,12 +3,6 @@
 @section('content')
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
-        #MapsAddressFinder {
-            height: 400px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
         /* Styling for readonly fields */
         .form-control[readonly] {
             background-color: #f8f9fa;
@@ -326,7 +320,6 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    Sales Invoices Lov
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
