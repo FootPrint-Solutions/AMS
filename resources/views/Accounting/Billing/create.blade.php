@@ -1,6 +1,7 @@
 @extends('template.master')
 
 @section('content')
+    {{-- @dd($data) --}}
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
         /* Styling for readonly fields */
@@ -44,7 +45,7 @@
                     @else
                         Add New
                     @endif
-                    Sales Consignment
+                    Billing
                 </div>
                 <br>
 
@@ -53,23 +54,23 @@
 
                     {{-- Quotation Number & Date --}}
                     <div class="row mb-5">
-                        {{-- Sales Consignment Number --}}
+                        {{-- Billing Number --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="sales-consignment-number">Sales Consignment Number</label>
+                                <label for="sales-consignment-number">Billing Number</label>
                                 <input type="text" class="form-control" id="sales-consignment-number"
                                     name="salesconsignmentnumber" placeholder="Enter consignment number" readonly
-                                    value="{{ isset($data['sales_consignment']) ? $data['sales_consignment']->sales_consignment_number : $data['consignment_number'] ?? '' }}">
+                                    value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['billing_number'] ?? '' }}">
                             </div>
                         </div>
 
-                        {{-- Sales Consignment Date --}}
+                        {{-- Billing Date --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="sales-consignment-date">Sales Consignment Date</label>
+                                <label for="sales-consignment-date">Billing Date</label>
                                 <input type="date" class="form-control" id="sales-consignment-date"
                                     name="salesconsignmentdate"
-                                    value="{{ isset($data['sales_consignment']) ? \Illuminate\Support\Carbon::parse($data['sales_consignment']->date)->format('Y-m-d') : (isset($data['consignment_date']) ? \Illuminate\Support\Carbon::parse($data['consignment_date'])->format('Y-m-d') : date('Y-m-d')) }}">
+                                    value="{{ isset($data['billing']) ? \Illuminate\Support\Carbon::parse($data['billing']->date)->format('Y-m-d') : (isset($data['consignment_date']) ? \Illuminate\Support\Carbon::parse($data['consignment_date'])->format('Y-m-d') : date('Y-m-d')) }}">
                             </div>
                         </div>
 
@@ -80,10 +81,10 @@
                                 <select class="form-control select" id="vendor_id" name="vendor_id"
                                     data-placeholder="Select Vendor" required>
                                     <option value="">Select Vendor</option>
-                                    @foreach ($data['distributors'] as $distributor)
-                                        <option value="{{ $distributor['id'] }}"
-                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->vendor_id == $distributor['id'] ? 'selected' : '' }}>
-                                            {{ $distributor['name'] }}
+                                    @foreach ($data['distributorShops'] as $distributorshop)
+                                        <option value="{{ $distributorshop['id'] }}"
+                                            {{ isset($data['billing']) && $data['billing']->vendor_id == $distributorshop['id'] ? 'selected' : '' }}>
+                                            {{ $distributorshop['name'] }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -96,10 +97,10 @@
                                 <label for="to">Ship To <span class="login-danger">*</span></label>
                                 <select class="form-control select" id="ship_to_id" name="ship_to_id"
                                     data-placeholder="Select Shop" required>
-                                    <option value="">Select Shop</option>
-                                    @foreach ($data['shops'] as $shop)
+                                    <option value="">Select Ship To</option>
+                                    @foreach ($data['customers'] as $shop)
                                         <option value="{{ $shop['id'] }}"
-                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->ship_to_id == $shop['id'] ? 'selected' : '' }}>
+                                            {{ isset($data['billing']) && $data['billing']->ship_to_id == $shop['id'] ? 'selected' : '' }}>
                                             {{ $shop['name'] }}
                                         </option>
                                     @endforeach
@@ -119,7 +120,7 @@
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['sales_consignment']))
+                            @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
                                 {{-- Edit Mode: Show existing invoices --}}
                                 <h6 class="mb-3">Selected Sales Invoices</h6>
                                 <table class="table table-striped mt-5" id="selected-sales-invoices-table">
@@ -139,7 +140,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data['sales_consignment']->consignmentBatteries as $index => $battery)
+                                        @foreach ($data['billing']->consignmentBatteries as $index => $battery)
                                             @if ($battery->salesInvoice)
                                                 <tr>
                                                     <td>
@@ -263,13 +264,13 @@
                                     <label for="status">Status <span class="login-danger">*</span></label>
                                     <select class="form-control select" id="status" name="status" required>
                                         <option value="draft"
-                                            {{ (isset($data['sales_consignment']) && $data['sales_consignment']->status == 'draft') || !isset($data['sales_consignment']) ? 'selected' : '' }}>
+                                            {{ (isset($data['billing']) && $data['billing']->status == 'draft') || !isset($data['billing']) ? 'selected' : '' }}>
                                             Draft</option>
                                         <option value="posted"
-                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->status == 'posted' ? 'selected' : '' }}>
+                                            {{ isset($data['billing']) && $data['billing']->status == 'posted' ? 'selected' : '' }}>
                                             Posted</option>
                                         <option value="completed"
-                                            {{ isset($data['sales_consignment']) && $data['sales_consignment']->status == 'completed' ? 'selected' : '' }}>
+                                            {{ isset($data['billing']) && $data['billing']->status == 'completed' ? 'selected' : '' }}>
                                             Completed</option>
                                     </select>
                                 </div>
@@ -289,7 +290,7 @@
 
                     @if (isset($data['type']) && $data['type'] == 'edit')
                         <input type="hidden" name="_method" value="PUT">
-                        <input type="hidden" name="id" value="{{ $data['sales_consignment']->id }}">
+                        <input type="hidden" name="id" value="{{ $data['billing']->id }}">
                     @endif
 
                     {{-- Submit Button --}}
@@ -301,9 +302,9 @@
                             <button type="submit" class="btn btn-success" id="btn-save-consignment">
                                 <i class="fas fa-save"></i>
                                 @if (isset($data['type']) && $data['type'] == 'edit')
-                                    Update Sales Consignment
+                                    Update Billing
                                 @else
-                                    Save Sales Consignment
+                                    Save Billing
                                 @endif
                             </button>
                         </div>
@@ -376,9 +377,9 @@
         const modalShowInvoice = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
         // Edit mode data
-        @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['sales_consignment']))
+        @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
             const isEditMode = true;
-            const editDiscountPrice = {{ $data['sales_consignment']->discount_price ?? 0 }};
+            const editDiscountPrice = {{ $data['billing']->discount_price ?? 0 }};
         @else
             const isEditMode = false;
             const editDiscountPrice = 0;
@@ -774,7 +775,7 @@
                         Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: `Sales Consignment ${actionedText} successfully!`
+                                text: `Billing ${actionedText} successfully!`
                             })
                             .then(() => {
                                 window.location.href = '/sales-consignment';
@@ -783,13 +784,13 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: res.message || `Failed to ${actionText} Sales Consignment.`
+                            text: res.message || `Failed to ${actionText} Billing.`
                         });
                     }
                 },
                 error: function(xhr) {
                     const msg = xhr.responseJSON?.message ||
-                        `Failed to ${actionText} Sales Consignment. Please try again.`;
+                        `Failed to ${actionText} Billing. Please try again.`;
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -798,8 +799,8 @@
                 },
                 complete: function() {
                     const buttonText = isEdit ?
-                        '<i class="fas fa-save"></i> Update Sales Consignment' :
-                        '<i class="fas fa-save"></i> Save Sales Consignment';
+                        '<i class="fas fa-save"></i> Update Billing' :
+                        '<i class="fas fa-save"></i> Save Billing';
                     $('#btn-save-consignment').prop('disabled', false).html(buttonText);
                 }
             });
