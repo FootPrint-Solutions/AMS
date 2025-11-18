@@ -172,7 +172,7 @@
                                 </table>
                             @else
                                 {{-- Create Mode: Empty table for dynamic content --}}
-                                <table class="table table-striped mt-5" id="selected-sales-invoices-table">
+                                <table class="table table-striped mt-5" id="selected-orders-table">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -562,16 +562,39 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        $('#selected-orders-table tbody').html(response.html);
+                        let no = 1;
+                        response.data.forEach(function(order) {
+                            const existingRow = $(
+                                `#selected-orders-table tbody tr .subtotal[data-id="${order.id}"]`
+                            );
+                            if (existingRow.length === 0) {
+                                const newRow = `
+                                    <tr>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-danger delete-order-row">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                        <td>${no++}</td>
+                                        <td>${order.order_number}</td>
+                                        <td>${order.type}</td>
+                                        <td>${order.date}</td>
+                                        <td>${order.customer_supplier_name}</td>
+                                        <td>${order.shop_name}</td>
+                                        <td>
+                                            <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control subtotal" data-id="${order.id}" data-original-total="${order.total_raw}" value="${order.total_formatted}" readonly>
+                                            <input type="hidden" name="invoice_ids[]" value="${order.id}">
+                                        </td>
+                                    </tr>
+                                `;
+                                $('#selected-orders-table tbody').append(newRow);
+                            }
+                        });
                         calculateTotals();
                         modalShowOrders.hide();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
                     } else {
                         Swal.fire({
                             icon: 'error',

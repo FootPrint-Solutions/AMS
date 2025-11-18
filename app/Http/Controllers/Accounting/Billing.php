@@ -297,8 +297,7 @@ class Billing extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Orders added to billing successfully',
-                'data' => $tempData,
-                'html' => view('Accounting.Billing.partials.selected-orders-table', ['orders' => $tempData])->render()
+                'data' => $tempData
             ]);
         } catch (\Exception $e) {
             return response()->json([
