@@ -59,7 +59,7 @@
                             <div class="form-group local-forms">
                                 <label for="sales-consignment-number">Billing Number</label>
                                 <input type="text" class="form-control" id="sales-consignment-number"
-                                    name="salesconsignmentnumber" placeholder="Enter consignment number" readonly
+                                    name="salesconsignmentnumber" placeholder="Enter Billingnumber" readonly
                                     value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['billing_number'] ?? '' }}">
                             </div>
                         </div>
@@ -77,41 +77,31 @@
                         {{-- Vendor --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="distributor">Vendor <span class="login-danger">*</span></label>
-                                <select class="form-control select" id="vendor_id" name="vendor_id"
-                                    data-placeholder="Select Vendor" required>
-                                    <option value="">Select Vendor</option>
-                                    @foreach ($data['distributorShops'] as $distributorshop)
-                                        <option value="{{ $distributorshop['id'] }}"
-                                            {{ isset($data['billing']) && $data['billing']->vendor_id == $distributorshop['id'] ? 'selected' : '' }}>
-                                            {{ $distributorshop['name'] }}
-                                        </option>
-                                    @endforeach
+                                <label for="vendor">Vendor <span class="login-danger">*</span>
+                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
+                                        title="This vendor data contains customer or supplier data."></i>
+                                </label>
+                                <select class="form-control" id="vendor" name="vendor" required>
                                 </select>
                             </div>
                         </div>
 
-                        {{-- To --}}
+                        {{-- Shops --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="to">Ship To <span class="login-danger">*</span></label>
-                                <select class="form-control select" id="ship_to_id" name="ship_to_id"
-                                    data-placeholder="Select Shop" required>
-                                    <option value="">Select Ship To</option>
-                                    @foreach ($data['customers'] as $shop)
-                                        <option value="{{ $shop['id'] }}"
-                                            {{ isset($data['billing']) && $data['billing']->ship_to_id == $shop['id'] ? 'selected' : '' }}>
-                                            {{ $shop['name'] }}
-                                        </option>
-                                    @endforeach
+                                <label for="ship_to">Ship To <span class="login-danger">*</span>
+                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
+                                        title="This vendor data contains shop or distributor data."></i>
+                                </label>
+                                <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
                             </div>
                         </div>
 
-                        {{-- Button Find Sales Invoice --}}
-                        <div class="col d-flex align-items-end">
+                        {{-- Button Find Billing --}}
+                        <div class="col">
                             <div class="form-group local-forms">
-                                <button type="button" class="btn btn-primary" id="btn-find-sales-invoice">
+                                <button type="button" class="btn btn-primary" id="btn-find-billing">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -122,20 +112,19 @@
                         <div class="col-12">
                             @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
                                 {{-- Edit Mode: Show existing invoices --}}
-                                <h6 class="mb-3">Selected Sales Invoices</h6>
-                                <table class="table table-striped mt-5" id="selected-sales-invoices-table">
+                                <h6 class="mb-3">Selected Orders</h6>
+                                <table class="table table-striped mt-5" id="selected-orders-table">
                                     <thead>
                                         <tr>
                                             <th>#</th>
                                             <th>No</th>
-                                            <th>Sales Invoice Number</th>
-                                            <th>Invoice Number</th>
+                                            <th>Order Number</th>
+                                            <th>Type</th>
                                             <th>Date</th>
-                                            <th>Customer Name</th>
+                                            <th>Customer/Supplier Name</th>
+                                            <th>Ship To</th>
                                             <th>Total</th>
-                                            <th>Address</th>
                                             <th>Discount</th>
-                                            <th>Note</th>
                                             <th>Subtotal</th>
                                         </tr>
                                     </thead>
@@ -188,10 +177,10 @@
                                         <tr>
                                             <th>#</th>
                                             <th>No</th>
-                                            <th>Sales Invoice Number</th>
-                                            <th>Invoice Number</th>
+                                            <th>Sales/Purchase Order Number</th>
+                                            <th>Type</th>
                                             <th>Date</th>
-                                            <th>Customer Name</th>
+                                            <th>Customer/Supplier Name</th>
                                             <th>Total</th>
                                             <th>Address</th>
                                             <th>Discount</th>
@@ -200,7 +189,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- Rows will be dynamically added via JavaScript --}}
                                     </tbody>
                                 </table>
                             @endif
@@ -211,7 +199,7 @@
                     {{-- Summary Section --}}
                     <div class="summary-section">
                         <h6 class="mb-3">
-                            Consignment Summary
+                            Billing Summary
                             <span class="badge bg-secondary ms-2" id="discount-savings-badge" style="display: none;">
                                 Total Discount: Rp <span id="total-savings">0</span>
                             </span>
@@ -321,6 +309,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">Select Orders</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -340,17 +329,17 @@
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle" id="table-sales-invoice">
+                            <table class="table table-bordered table-hover align-middle" id="table-orders">
                                 <thead class="table-light">
                                     <tr>
                                         <th style="width:40px;" class="text-center">
-                                            <input type="checkbox" id="select-all-invoices" class="form-check-input">
+                                            <input type="checkbox" id="select-all-orders" class="form-check-input">
                                         </th>
                                         <th style="width:40px;" class="text-center">No</th>
-                                        <th>Sales Invoice Number</th>
-                                        <th>Invoice Number</th>
+                                        <th id="order-number-header">Order Number</th>
                                         <th>Date</th>
-                                        <th>Customer Name</th>
+                                        <th id="customer-supplier-header">Customer/Supplier Name</th>
+                                        <th>Ship To</th>
                                         <th class="text-end">Total</th>
                                     </tr>
                                 </thead>
@@ -364,31 +353,51 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btn-select-invoices">Select Invoices</button>
+                    <button type="button" class="btn btn-primary" id="btn-select-orders">Select Orders</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let salesInvoiceDataTable = null;
-        const distributorSelect = $("#ship_to_id");
-        const btnFindSalesInvoice = $('#btn-find-sales-invoice');
-        const modalShowInvoice = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
-        // Edit mode data
-        @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
+    @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
+        <script>
             const isEditMode = true;
             const editDiscountPrice = {{ $data['billing']->discount_price ?? 0 }};
-        @else
+        </script>
+    @else
+        <script>
             const isEditMode = false;
             const editDiscountPrice = 0;
-        @endif
+        </script>
+    @endif
 
-        function initializeSalesInvoiceDataTable() {
-            if (salesInvoiceDataTable) salesInvoiceDataTable.destroy();
+    <script>
+        let ordersDataTable = null;
+        const vendorSelect = $("#vendor");
+        const shipToSelect = $("#ship_to");
+        const btnFind = $('#btn-find-billing');
+        const modalShowOrders = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
-            salesInvoiceDataTable = $('#table-sales-invoice').DataTable({
+        function initializeOrdersDataTable() {
+            if (ordersDataTable) ordersDataTable.destroy();
+
+            const shipToData = shipToSelect.select2('data')[0];
+            const shipToType = shipToData ? shipToData.type : null;
+            const shipToId = shipToData ? shipToData.id : null;
+
+            // Update modal title and headers based on vendor type
+            if (shipToType === 'customer') {
+                $('#modal-title').text('Select Sales Orders');
+                $('#order-number-header').text('Sales Order Number');
+                $('#customer-supplier-header').text('Customer Name');
+            } else if (shipToType === 'supplier') {
+                $('#modal-title').text('Select Purchase Orders');
+                $('#order-number-header').text('Purchase Order Number');
+                $('#customer-supplier-header').text('Supplier Name');
+            }
+
+            ordersDataTable = $('#table-orders').DataTable({
                 processing: true,
                 serverSide: true,
                 searching: true,
@@ -401,11 +410,12 @@
                     [10, 25, 50, 100]
                 ],
                 ajax: {
-                    url: '/sales-invoices/by-distributor-datatable',
+                    url: '/billing/orders/get',
                     type: 'POST',
                     data: function(d) {
                         d._token = '{{ csrf_token() }}';
-                        d.distributor_id = distributorSelect.val();
+                        d.ship_to_id = shipToId;
+                        d.ship_to_type = shipToType;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
                     },
@@ -413,7 +423,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Failed to load sales invoices.'
+                            text: 'Failed to load orders.'
                         });
                     }
                 },
@@ -432,13 +442,8 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'sales_invoice_number',
-                        name: 'sales_invoice_number',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'invoice_number',
-                        name: 'invoice_number',
+                        data: 'order_number',
+                        name: 'order_number',
                         className: 'text-center'
                     },
                     {
@@ -447,8 +452,12 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'customer_name',
-                        name: 'customer_name'
+                        data: 'customer_supplier_name',
+                        name: 'customer_supplier_name'
+                    },
+                    {
+                        data: 'shop_name',
+                        name: 'shop_name'
                     },
                     {
                         data: 'total',
@@ -460,9 +469,9 @@
                     [2, 'desc']
                 ],
                 language: {
-                    processing: "Loading sales invoices...",
-                    emptyTable: "No sales invoices found for selected distributor and date range",
-                    zeroRecords: "No matching sales invoices found"
+                    processing: "Loading orders...",
+                    emptyTable: "No orders found for selected vendor and date range",
+                    zeroRecords: "No matching orders found"
                 },
                 drawCallback: function() {
                     updateSelectAllCheckbox();
@@ -471,9 +480,9 @@
         }
 
         function updateSelectAllCheckbox() {
-            const total = $('#table-sales-invoice tbody .select-invoice').length;
-            const checked = $('#table-sales-invoice tbody .select-invoice:checked').length;
-            const $master = $('#select-all-invoices');
+            const total = $('#table-orders tbody .select-order').length;
+            const checked = $('#table-orders tbody .select-order:checked').length;
+            const $master = $('#select-all-orders');
             if (total === 0) {
                 $master.prop({
                     indeterminate: false,
@@ -494,16 +503,16 @@
             });
         }
 
-        $('#select-all-invoices').on('change', function() {
+        $('#select-all-orders').on('change', function() {
             const v = $(this).is(':checked');
-            $('#table-sales-invoice tbody .select-invoice').prop('checked', v);
+            $('#table-orders tbody .select-order').prop('checked', v);
         });
 
-        $('#table-sales-invoice').on('change', '.select-invoice', updateSelectAllCheckbox);
+        $('#table-orders').on('change', '.select-order', updateSelectAllCheckbox);
 
-        btnFindSalesInvoice.on('click', function() {
-            const distributorId = distributorSelect.val();
-            if (!distributorId) {
+        btnFind.on('click', function() {
+            const shipToData = shipToSelect.select2('data')[0];
+            if (!shipToData || !shipToData.id) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Ship To Required',
@@ -511,28 +520,32 @@
                 });
                 return;
             }
-            modalShowInvoice.show();
-            salesInvoiceDataTable ? salesInvoiceDataTable.ajax.reload() : initializeSalesInvoiceDataTable();
+            modalShowOrders.show();
+            ordersDataTable ? ordersDataTable.ajax.reload() : initializeOrdersDataTable();
         });
 
         $('#filter-start-date, #filter-end-date').on('change', function() {
-            if (salesInvoiceDataTable && distributorSelect.val()) salesInvoiceDataTable.ajax.reload();
+            if (ordersDataTable && shipToSelect.val()) ordersDataTable.ajax.reload();
         });
 
-        distributorSelect.on('change', function() {
-            if (salesInvoiceDataTable) salesInvoiceDataTable.ajax.reload();
+        shipToSelect.on('change', function() {
+            if (ordersDataTable) ordersDataTable.ajax.reload();
         });
 
-        $('#btn-select-invoices').on('click', function() {
+        $('#btn-select-orders').on('click', function() {
             const ids = [];
-            $('.select-invoice:checked').each(function() {
+            let orderType = null;
+            $('.select-order:checked').each(function() {
                 ids.push($(this).data('id'));
+                if (!orderType) {
+                    orderType = $(this).data('type');
+                }
             });
             if (ids.length === 0) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No Invoice Selected',
-                    text: 'Please select at least one invoice.'
+                    title: 'No Selection',
+                    text: 'Please select at least one order.'
                 });
                 return;
             }
@@ -540,61 +553,53 @@
             const $btn = $(this).prop('disabled', true).html(
                 '<i class="fas fa-spinner fa-spin"></i> Processing...');
             $.ajax({
-                url: '/sales-invoices/add-consignment-temp',
+                url: '/billing/orders/add-temp',
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    invoice_ids: ids
+                    order_ids: ids,
+                    order_type: orderType
                 },
                 success: function(response) {
-                    const $tbody = $('#selected-sales-invoices-table tbody').empty();
-                    let no = 1;
-                    response.data.forEach(inv => {
-                        const total = inv.total ?? 0;
-                        const row = `
-                    <tr>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm delete-invoice-row">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <input type="hidden" name="invoice_ids[]" value="${inv.id}">
-                        </td>
-                        <td>${no++}</td>
-                        <td>${inv.sales_invoice_number ?? ''}</td>
-                        <td>${inv.invoice_number ?? ''}</td>
-                        <td>${inv.date ?? ''}</td>
-                        <td>${inv.customer ? inv.customer.name : ''}</td>
-                        <td>Rp ${Math.floor(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</td>
-                        <td>${inv.address ?? ''}</td>
-                        <td><input type="number" class="form-control form-input discount" data-id="${inv.id}" value="0" min="0" max="${total}"></td>
-                        <td><input type="text" class="form-control form-input note" data-id="${inv.id}" value="" placeholder="Optional note"></td>
-                        <td><input type="text" class="form-control form-input subtotal" data-id="${inv.id}" data-original-total="${total}" value="${Math.floor(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}" readonly></td>
-                    </tr>`;
-                        $tbody.append(row);
-                    });
-                    calculateTotals();
-                    modalShowInvoice.hide();
-                    $btn.prop('disabled', false).text('Select Invoices');
-                    $('.select-invoice').prop('checked', false);
-                    $('#select-all-invoices').prop('checked', false);
+                    if (response.status === 'success') {
+                        $('#selected-orders-table tbody').html(response.html);
+                        calculateTotals();
+                        modalShowOrders.hide();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
                 },
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Failed',
-                        text: 'Failed to fetch invoice details.'
+                        title: 'Error',
+                        text: 'Failed to add orders to billing.'
                     });
-                    $btn.prop('disabled', false).text('Select Invoices');
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).html('Select Orders');
+                    $('#select-all-orders').prop('checked', false);
                 }
             });
         });
 
-        $('#selected-sales-invoices-table').on('click', '.delete-invoice-row', function() {
+        $('#selected-orders-table').on('click', '.delete-order-row', function() {
             $(this).closest('tr').remove();
             calculateTotals();
         });
 
-        $('#selected-sales-invoices-table').on('input', '.discount', function() {
+        $('#selected-orders-table').on('input', '.discount', function() {
             const id = $(this).data('id');
             let disc = parseFloat($(this).val()) || 0;
             const $sub = $(`.subtotal[data-id="${id}"]`);
@@ -615,7 +620,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
-                    text: 'Discount cannot exceed the original invoice total.'
+                    text: 'Discount cannot exceed the original order total.'
                 });
             }
 
@@ -631,7 +636,7 @@
             let subtotal = 0,
                 rowDisc = 0,
                 afterRow = 0;
-            $('#selected-sales-invoices-table tbody tr').each(function() {
+            $('#selected-orders-table tbody tr').each(function() {
                 const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
                 const disc = parseFloat(($(this).find('.discount').val() || '0').replace(/[,.]/g, '')) || 0;
                 const sub = Math.max(0, total - disc);
@@ -666,7 +671,7 @@
         $('#total-discount').on('blur', function() {
             // validasi terhadap subtotal setelah item discount
             let afterRow = 0;
-            $('#selected-sales-invoices-table tbody tr').each(function() {
+            $('#selected-orders-table tbody tr').each(function() {
                 const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
                 const disc = parseFloat($(this).find('.discount').val()) || 0;
                 afterRow += Math.max(0, total - disc);
@@ -703,11 +708,11 @@
         $('#quotation-form').on('submit', function(e) {
             e.preventDefault();
 
-            if ($('#selected-sales-invoices-table tbody tr').length === 0) {
+            if ($('#selected-orders-table tbody tr').length === 0) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No Invoice Selected',
-                    text: 'Please select at least one sales invoice to create consignment.'
+                    title: 'No Order Selected',
+                    text: 'Please select at least one order to create billing.'
                 });
                 return;
             }
@@ -724,26 +729,31 @@
             formData.set('subtotal', subtotal);
 
             const grandTotal = $('#grand-total').val().replace(/[,.]/g, '') || '0';
-            // backend kamu sebelumnya membaca total grand di key 'total'
             formData.set('total', grandTotal);
 
             // totalexpenses diset 0 (sesuai hidden)
             formData.set('totalexpenses', '0');
             $('#total-expenses-hidden').val('0');
 
-            // kirim array id invoice (pakai nama yg backend harapkan)
-            const ids = [];
-            $('#selected-sales-invoices-table tbody tr').each(function() {
-                const id = $(this).find('input[name="invoice_ids[]"]').val();
-                if (id) ids.push(id);
+            // kirim array data orders
+            const orderData = [];
+            $('#selected-orders-table tbody tr').each(function() {
+                const orderId = $(this).data('order-id');
+                const orderType = $(this).data('order-type');
+                const discount = parseFloat($(this).find('.discount').val()) || 0;
+                if (orderId) {
+                    orderData.push({
+                        id: orderId,
+                        type: orderType,
+                        discount: discount
+                    });
+                }
             });
-            // pastikan hanya ada sales_invoice_ids[] (hapus varian lain bila ada)
-            formData.delete('sales_invoice_ids');
-            formData.delete('sales_invoice_ids[]');
-            ids.forEach(id => formData.append('sales_invoice_ids[]', id));
+
+            formData.set('order_data', JSON.stringify(orderData));
 
             // Determine URL and method based on mode
-            let url = '/sales-consignment/store';
+            let url = '/billing/store';
             let method = 'POST';
             let actionText = 'create';
             let actioningText = 'Creating';
@@ -751,7 +761,7 @@
 
             if (isEdit) {
                 const id = formData.get('id');
-                url = `/sales-consignment/update/${id}`;
+                url = `/billing/update/${id}`;
                 method = 'POST';
                 actionText = 'update';
                 actioningText = 'Updating';
@@ -778,7 +788,7 @@
                                 text: `Billing ${actionedText} successfully!`
                             })
                             .then(() => {
-                                window.location.href = '/sales-consignment';
+                                window.location.href = '/billing';
                             });
                     } else {
                         Swal.fire({
@@ -801,7 +811,88 @@
                     const buttonText = isEdit ?
                         '<i class="fas fa-save"></i> Update Billing' :
                         '<i class="fas fa-save"></i> Save Billing';
-                    $('#btn-save-consignment').prop('disabled', false).html(buttonText);
+                    $('#btn-save-billing').prop('disabled', false).html(buttonText);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            // Initialize vendor select2
+            $('#vendor').select2({
+                placeholder: "Select Vendor",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/billing/vendor/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text || item.name || '',
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
+                }
+            });
+
+            // Initialize ship to select2
+            $('#ship_to').select2({
+                placeholder: "Enter Ship To",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "/billing/shipto/get",
+                    dataType: "json",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(response) {
+                        var items = (response && response.data) ? response.data : response;
+                        return {
+                            results: items.map(function(item) {
+                                return {
+                                    id: item.id + '-' + item.reference_type,
+                                    text: item.text || item.name || '',
+                                    raw_id: item.id,
+                                    type: item.type,
+                                    reference_type: item.reference_type || null,
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(repo) {
+                    return repo.text;
+                },
+                templateSelection: function(repo) {
+                    return repo.text;
                 }
             });
         });

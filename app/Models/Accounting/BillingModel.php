@@ -4,8 +4,58 @@ namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BillingModel extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'billings';
+
+    protected $fillable = [
+        'billing_number',
+        'vendor_id',
+        'vendor_type',
+        'ship_to_id',
+        'ship_to_type',
+        'date',
+        'discount',
+        'discount_price',
+        'subtotal',
+        'total',
+    ];
+
+    protected $dates = [
+        'date',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    public static function generateBillingNumber()
+    {
+        $latestCodeModel = self::withTrashed()
+            ->orderByDesc('created_at')
+            ->first();
+        $latestCode = $latestCodeModel ? $latestCodeModel->billing_number : null;
+
+        $year = substr($latestCode, 2, 2);
+        $month = substr($latestCode, 4, 2);
+        $currentYear = date('y');
+        $currentMonth = date('m');
+
+        $newCode = "AB";
+        if ($year == $currentYear) {
+            if ($month == $currentMonth) {
+                $iteration = substr($latestCode, 6);
+                $nextIteration = str_pad((int)$iteration + 1, strlen($iteration), '0', STR_PAD_LEFT);
+                $newCode .= $year . $month . $nextIteration;
+            } else {
+                $newCode .= $year . $currentMonth . '00001';
+            }
+        } else {
+            $newCode .= $currentYear . $currentMonth . '00001';
+        }
+        return $newCode;
+    }
 }
