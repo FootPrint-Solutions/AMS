@@ -55,9 +55,14 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">No</th>
+                            <th scope="col">Billing Number</th>
+                            <th scope="col">Vendor</th>
+                            <th scope="col">Ship To</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Discount Price</th>
+                            <th scope="col">Subtotal</th>
+                            <th scope="col">Total Amount</th>
                         </tr>
                     </thead>
                 </table>
@@ -78,53 +83,81 @@
                 responsive: true,
                 processing: true,
                 serverSide: true,
-                order: [],
+                order: [
+                    [9, "desc"]
+                ], // default order by date desc
                 ajax: {
                     url: "/billing/show",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
                         d.status = $("#billing-status-filter").val();
+                        d.date_start = $("#input-billing-date-start").val();
+                        d.date_end = $("#input-billing-date-end").val();
                     }
                 },
                 columns: [{
-                        data: 0,
-                        orderable: false
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                        searchable: false
                     },
                     {
-                        data: 1
-                    },
+                        data: 1,
+                        searchable: false
+                    }, // rownum
                     {
                         data: 2
+                    }, // billing_number
+                    {
+                        data: 3
+                    }, // vendor_name
+                    {
+                        data: 4
+                    }, // ship_to
+                    {
+                        data: 5
+                    }, // billing_date
+                    {
+                        data: 6,
+                        className: "text-end"
+                    }, // discount_price
+                    {
+                        data: 7,
+                        className: "text-end"
+                    }, // subtotal
+                    {
+                        data: 8,
+                        className: "text-end"
+                    }, // total_amount
+                    {
+                        data: 9,
+                        visible: false,
+                        searchable: false
+                    } // hidden id
+                ],
+                columnDefs: [{
+                        targets: 0,
+                        orderable: false,
                     },
                     {
-                        data: 3,
-                        render: function(data, type, row) {
-                            if (data == 1 || data == 'Active') {
-                                return '<i class="fa-solid fa-circle text-success"></i>';
-                            } else {
-                                return '<i class="fa-solid fa-circle text-danger"></i>';
-                            }
-                        },
+                        targets: 6,
                         className: 'dt-body-center'
                     }
                 ],
-                columnDefs: [{
-                    targets: [0],
-                    orderable: false,
-                }],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations(),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[3] == 'Inactive') {
+                    if (data[13]) {
                         $('td', row).addClass("text-muted");
                     }
                 }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/billing/edit/", null, "/billing/toggle");
+            appendDatatablesToolbar(9, "/billing/edit/", null, "/billing/toggle");
 
             $("#btn-add").on("click", function() {
                 goToPage("/billing/create");
@@ -132,6 +165,78 @@
 
             $("#billing-status-filter").on("change", function() {
                 table.ajax.reload();
+            });
+
+            $("#input-billing-date-start, #input-billing-date-end").on("change", function() {
+                table.ajax.reload();
+            });
+
+            $('#table-billing tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    var billingId = row.data()[9];
+
+                    // Fetch items via AJAX
+                    $.ajax({
+                        url: '/billing/items/' + billingId,
+                        method: 'GET',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            if (response && (response.status === 'success' || response
+                                    .success === true)) {
+                                var items = response.data || [];
+                                if (items.length === 0) {
+                                    row.child('<div class="p-2">No items found.</div>').show();
+                                    tr.addClass('shown');
+                                    return;
+                                }
+
+                                var itemTable =
+                                    '<table class="table table-bordered"><thead><tr>' +
+                                    '<th>Invoice Number</th><th>Date</th><th>Discount Price</th><th>Subtotal</th><th>Total</th>' +
+                                    '</tr></thead><tbody>';
+
+                                items.forEach(function(item) {
+                                    var billingId = item.billing_id ?? '-';
+                                    var invoiceNumber = item.invoice_number ?? '-';
+                                    var date = item.date ?? '-';
+                                    var discount = item.discount ?? '-';
+                                    var discountPrice = item.discount_price ?? '-';
+                                    var subtotal = item.subtotal ?? '-';
+                                    var total = item.total ?? '-';
+
+                                    itemTable += '<tr>' +
+                                        '<td>' + invoiceNumber + '</td>' +
+                                        '<td>' + date + '</td>' +
+                                        '<td>' + discountPrice + '</td>' +
+                                        '<td>' + subtotal + '</td>' +
+                                        '<td>' + total + '</td>' +
+                                        '</tr>';
+                                });
+
+                                itemTable += '</tbody></table>';
+
+                                row.child(itemTable).show();
+                                tr.addClass('shown');
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Failed to fetch items.",
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+                }
             });
         });
     </script>

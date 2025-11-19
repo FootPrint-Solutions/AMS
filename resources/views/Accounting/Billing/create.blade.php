@@ -59,7 +59,7 @@
                             <div class="form-group local-forms">
                                 <label for="sales-consignment-number">Billing Number</label>
                                 <input type="text" class="form-control" id="sales-consignment-number"
-                                    name="salesconsignmentnumber" placeholder="Enter Billingnumber" readonly
+                                    name="billingnumber" placeholder="Enter Billingnumber" readonly
                                     value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['billing_number'] ?? '' }}">
                             </div>
                         </div>
@@ -68,8 +68,7 @@
                         <div class="col">
                             <div class="form-group local-forms">
                                 <label for="sales-consignment-date">Billing Date</label>
-                                <input type="date" class="form-control" id="sales-consignment-date"
-                                    name="salesconsignmentdate"
+                                <input type="date" class="form-control" id="sales-consignment-date" name="billingdate"
                                     value="{{ isset($data['billing']) ? \Illuminate\Support\Carbon::parse($data['billing']->date)->format('Y-m-d') : (isset($data['consignment_date']) ? \Illuminate\Support\Carbon::parse($data['consignment_date'])->format('Y-m-d') : date('Y-m-d')) }}">
                             </div>
                         </div>
@@ -79,7 +78,7 @@
                             <div class="form-group local-forms">
                                 <label for="vendor">Vendor <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains customer or supplier data."></i>
+                                        title="This vendor data contains shop data."></i>
                                 </label>
                                 <select class="form-control" id="vendor" name="vendor" required>
                                 </select>
@@ -91,7 +90,7 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop or distributor data."></i>
+                                        title="This vendor data contains customer or supplier data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -475,6 +474,15 @@
                 },
                 drawCallback: function() {
                     updateSelectAllCheckbox();
+
+                    $('#table-orders tbody tr').off('click.rowCheckbox').on('click.rowCheckbox', function(e) {
+                        if ($(e.target).is('input[type="checkbox"]')) return;
+
+                        const $checkbox = $(this).find('.select-order');
+                        if ($checkbox.length) {
+                            $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
+                        }
+                    });
                 }
             });
         }
@@ -577,15 +585,24 @@
                                         </td>
                                         <td>${no++}</td>
                                         <td>${order.order_number}</td>
-                                        <td>${order.type}</td>
+                                        <td>
+                                            ${order.type === 'sales_order' ? 'Sales' : order.type === 'purchase_order' ? 'Purchase' : (order.type || '')}
+                                            <input type="hidden" name="order_types[]" value="${order.type}">
+                                            <input type="hidden" name="order_sources[]" value="${order.source}">
+                                            <input type="hidden" name="order_numbers[]" value="${order.order_number}">
+                                        </td>
                                         <td>${order.date}</td>
                                         <td>${order.customer_supplier_name}</td>
+                                        <td class="text-end">Rp ${order.formatted_total}</td>
                                         <td>${order.shop_name}</td>
                                         <td>
                                             <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control subtotal" data-id="${order.id}" data-original-total="${order.total_raw}" value="${order.total_formatted}" readonly>
+                                            <input type="text" class="form-control" name="notes[]" placeholder="Enter note" value="">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control subtotal" data-id="${order.id}" data-original-total="${order.total}" value="${order.total_formatted}" readonly>
                                             <input type="hidden" name="invoice_ids[]" value="${order.id}">
                                         </td>
                                     </tr>
@@ -763,12 +780,18 @@
             $('#selected-orders-table tbody tr').each(function() {
                 const orderId = $(this).data('order-id');
                 const orderType = $(this).data('order-type');
+                const orderSource = $(this).data('order-source');
                 const discount = parseFloat($(this).find('.discount').val()) || 0;
+                const orderNumber = $(this).data('order-number');
+                const note = $(this).find('input[name="notes[]"]').val() || '';
                 if (orderId) {
                     orderData.push({
                         id: orderId,
                         type: orderType,
-                        discount: discount
+                        source: orderSource,
+                        discount: discount,
+                        order_number: orderNumber,
+                        note: note
                     });
                 }
             });
@@ -804,11 +827,11 @@
                         `<i class="fas fa-spinner fa-spin"></i> ${actioningText}...`);
                 },
                 success: function(res) {
-                    if (res.success) {
+                    if (res.status === 'success') {
                         Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: `Billing ${actionedText} successfully!`
+                                text: res.message || `Billing ${actionedText} successfully!`
                             })
                             .then(() => {
                                 window.location.href = '/billing';

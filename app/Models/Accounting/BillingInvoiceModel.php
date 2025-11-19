@@ -27,7 +27,7 @@ class BillingInvoiceModel extends Model
     ];
 
     protected $casts = [
-        'date' => 'float',
+        'date' => 'date',
         'discount' => 'decimal:2',
         'discount_price' => 'float',
         'subtotal' => 'float',
@@ -37,5 +37,10 @@ class BillingInvoiceModel extends Model
     public function billing()
     {
         return $this->belongsTo(BillingModel::class, 'billing_id');
+    }
+
+    public function invoice()
+    {
+        return $this->morphTo();
     }
 }

@@ -58,4 +58,19 @@ class BillingModel extends Model
         }
         return $newCode;
     }
+
+    public function vendor()
+    {
+        return $this->morphTo();
+    }
+
+    public function shipTo()
+    {
+        return $this->morphTo();
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(BillingInvoiceModel::class, 'billing_id');
+    }
 }
