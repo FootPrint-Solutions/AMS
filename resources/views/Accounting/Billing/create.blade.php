@@ -49,7 +49,8 @@
                 </div>
                 <br>
 
-                <form id="quotation-form" method="POST">
+                <form id="quotation-form" method="POST"
+                    action="{{ isset($data['type']) && $data['type'] == 'edit' ? route('billing.update', $data['billing']->id) : route('billing.store') }}">
                     @csrf
 
                     {{-- Quotation Number & Date --}}
@@ -128,45 +129,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data['billing']->consignmentBatteries as $index => $battery)
-                                            @if ($battery->salesInvoice)
-                                                <tr>
-                                                    <td>
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-danger delete-invoice-row">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $battery->salesInvoice->sales_invoice_number ?? 'N/A' }}</td>
-                                                    <td>{{ $battery->salesInvoice->invoice_number ?? 'N/A' }}</td>
-                                                    <td>{{ $battery->date ?? 'N/A' }}</td>
-                                                    <td>{{ $battery->salesInvoice->customer->name ?? 'N/A' }}</td>
-                                                    <td class="text-end">
-                                                        {{ number_format($battery->subtotal ?? 0, 0, ',', '.') }}</td>
-                                                    <td>{{ $battery->salesInvoice->customer->address ?? 'N/A' }}</td>
-                                                    <td>
-                                                        <input type="number" class="form-control discount"
-                                                            data-id="{{ $battery->salesInvoice->id }}"
-                                                            value="{{ $battery->discount ?? 0 }}" min="0"
-                                                            step="0.01">
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control" name="notes[]"
-                                                            placeholder="Enter note" value="">
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control subtotal"
-                                                            data-id="{{ $battery->salesInvoice->id }}"
-                                                            data-original-total="{{ $battery->subtotal ?? 0 }}"
-                                                            value="{{ number_format($battery->total ?? 0, 0, ',', '.') }}"
-                                                            readonly>
-                                                        <input type="hidden" name="invoice_ids[]"
-                                                            value="{{ $battery->salesInvoice->id }}">
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
                                     </tbody>
                                 </table>
                             @else
@@ -223,11 +185,10 @@
                                         Discount (Overall)
                                     </label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="total-discount"
-                                            name="total_discount" placeholder="Enter additional discount amount"
-                                            value="0">
-                                        <button class="btn btn-outline-secondary" type="button"
-                                            id="reset-total-discount" title="Reset to 0">
+                                        <input type="text" class="form-control" id="total-discount" name="total_discount"
+                                            placeholder="Enter additional discount amount" value="0">
+                                        <button class="btn btn-outline-secondary" type="button" id="reset-total-discount"
+                                            title="Reset to 0">
                                             <i class="fas fa-undo"></i>
                                         </button>
                                     </div>
@@ -274,6 +235,9 @@
                     <input type="hidden" name="discount" id="discount-percentage" value="0">
                     <input type="hidden" name="discountprice" id="discount-price-hidden" value="0">
                     <input type="hidden" name="totalexpenses" id="total-expenses-hidden" value="0">
+                    <input type="hidden" name="status" value="draft">
+                    <input type="hidden" name="subtotal" id="subtotal-hidden">
+                    <input type="hidden" name="total" id="total-hidden">
 
                     @if (isset($data['type']) && $data['type'] == 'edit')
                         <input type="hidden" name="_method" value="PUT">
@@ -363,11 +327,13 @@
         <script>
             const isEditMode = true;
             const editDiscountPrice = {{ $data['billing']->discount_price ?? 0 }};
+            const billingId = {{ $data['billing']->id }};
         </script>
     @else
         <script>
             const isEditMode = false;
             const editDiscountPrice = 0;
+            const billingId = null;
         </script>
     @endif
 
@@ -694,6 +660,10 @@
             $('#item-discounts-total').val(rowDisc.toLocaleString('id-ID'));
             $('#grand-total').val(grand.toLocaleString('id-ID'));
 
+            // Update hidden fields
+            $('#subtotal-hidden').val(subtotal);
+            $('#total-hidden').val(grand);
+
             if (savings > 0) {
                 $('#total-savings').text(savings.toLocaleString('id-ID'));
                 $('#discount-savings-badge').show();
@@ -740,7 +710,8 @@
             // Initialize values for edit mode
             if (isEditMode) {
                 $('#total-discount').val(editDiscountPrice.toLocaleString('id-ID'));
-                calculateTotals();
+                // Load existing billing data
+                loadBillingData();
             }
         });
 
@@ -765,10 +736,10 @@
             formData.set('discountprice', totalDiscount);
             $('#discount-price-hidden').val(totalDiscount);
 
-            const subtotal = $('#subtotal').val().replace(/[,.]/g, '') || '0';
+            const subtotal = $('#subtotal-hidden').val() || '0';
             formData.set('subtotal', subtotal);
 
-            const grandTotal = $('#grand-total').val().replace(/[,.]/g, '') || '0';
+            const grandTotal = $('#total-hidden').val() || '0';
             formData.set('total', grandTotal);
 
             // totalexpenses diset 0 (sesuai hidden)
@@ -776,44 +747,62 @@
             $('#total-expenses-hidden').val('0');
 
             // kirim array data orders
-            const orderData = [];
+            const orderTypes = [];
+            const orderSources = [];
+            const invoiceIds = [];
+            const orderNumbers = [];
+            const notes = [];
+
             $('#selected-orders-table tbody tr').each(function() {
                 const orderId = $(this).data('order-id');
                 const orderType = $(this).data('order-type');
                 const orderSource = $(this).data('order-source');
-                const discount = parseFloat($(this).find('.discount').val()) || 0;
                 const orderNumber = $(this).data('order-number');
                 const note = $(this).find('input[name="notes[]"]').val() || '';
+
                 if (orderId) {
-                    orderData.push({
-                        id: orderId,
-                        type: orderType,
-                        source: orderSource,
-                        discount: discount,
-                        order_number: orderNumber,
-                        note: note
-                    });
+                    invoiceIds.push(orderId);
+                    orderTypes.push(orderType);
+                    orderSources.push(orderSource);
+                    orderNumbers.push(orderNumber);
+                    notes.push(note);
                 }
             });
 
-            formData.set('order_data', JSON.stringify(orderData));
+            // Set arrays in FormData
+            formData.delete('order_types');
+            formData.delete('order_sources');
+            formData.delete('invoice_ids');
+            formData.delete('order_numbers');
+            formData.delete('notes');
+
+            orderTypes.forEach((type, index) => {
+                formData.append('order_types[]', type);
+            });
+            orderSources.forEach((source, index) => {
+                formData.append('order_sources[]', source);
+            });
+            invoiceIds.forEach((id, index) => {
+                formData.append('invoice_ids[]', id);
+            });
+            orderNumbers.forEach((number, index) => {
+                formData.append('order_numbers[]', number);
+            });
+            notes.forEach((note, index) => {
+                formData.append('notes[]', note);
+            });
 
             // Determine URL and method based on mode
-            let url = '/billing/store';
+            let url = $('#quotation-form').attr('action') || '/billing/store';
             let method = 'POST';
             let actionText = 'create';
             let actioningText = 'Creating';
             let actionedText = 'created';
 
             if (isEdit) {
-                const id = formData.get('id');
-                url = `/billing/update/${id}`;
-                method = 'POST';
                 actionText = 'update';
                 actioningText = 'Updating';
                 actionedText = 'updated';
-
-                formData.delete('_method');
             }
 
             $.ajax({
@@ -857,10 +846,105 @@
                     const buttonText = isEdit ?
                         '<i class="fas fa-save"></i> Update Billing' :
                         '<i class="fas fa-save"></i> Save Billing';
-                    $('#btn-save-billing').prop('disabled', false).html(buttonText);
+                    $('#btn-save-consignment').prop('disabled', false).html(buttonText);
                 }
             });
         });
+
+        // Function to load billing data for edit mode
+        function loadBillingData() {
+            if (!billingId) return;
+
+            $.ajax({
+                url: '/billing/data/' + billingId,
+                method: 'GET',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success' && response.data) {
+                        const billing = response.data;
+
+                        // Populate form fields
+                        $('#billingnumber').val(billing.billing_number);
+                        $('#billingdate').val(billing.date);
+
+                        // Set vendor
+                        if (billing.vendor && billing.vendor.id && billing.vendor.name) {
+                            const vendorOption = new Option(billing.vendor.name, billing.vendor.id, true, true);
+                            $('#vendor').append(vendorOption).trigger('change');
+                        }
+
+                        // Set ship to
+                        if (billing.ship_to && billing.ship_to.id && billing.ship_to.name && billing.ship_to
+                            .type) {
+                            const shipToValue = billing.ship_to.id + '-' + billing.ship_to.type;
+                            const shipToOption = new Option(billing.ship_to.name, shipToValue, true, true);
+                            $('#ship_to').append(shipToOption).trigger('change');
+                        }
+
+                        // Populate selected orders table
+                        if (billing.invoices && billing.invoices.length > 0) {
+                            billing.invoices.forEach(function(invoice) {
+                                addOrderToTable({
+                                    id: invoice.invoice_id,
+                                    type: invoice.invoice_type,
+                                    source: invoice.invoice_source,
+                                    order_number: invoice.invoice_number,
+                                    date: invoice.date,
+                                    total: invoice.total,
+                                    discount: invoice.discount_price || 0
+                                });
+                            });
+                        }
+
+                        // Set discount and calculate totals
+                        $('#total-discount').val(billing.discount_price.toLocaleString('id-ID'));
+                        calculateTotals();
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load billing data.'
+                    });
+                }
+            });
+        }
+
+        // Function to add order to selected orders table
+        function addOrderToTable(orderData) {
+            const tableBody = $('#selected-orders-table tbody');
+            const rowId = 'order-' + orderData.id;
+
+            // Check if row already exists
+            if ($('#' + rowId).length > 0) return;
+
+            const row = `
+                <tr id="${rowId}" data-order-id="${orderData.id}" data-order-type="${orderData.type}" data-order-source="${orderData.source}" data-order-number="${orderData.order_number}">
+                    <td>${orderData.order_number}</td>
+                    <td>${orderData.date}</td>
+                    <td class="text-end">${orderData.total.toLocaleString('id-ID')}</td>
+                    <td>
+                        <input type="number" class="form-control discount" data-id="${orderData.id}" value="${orderData.discount || 0}" min="0">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control subtotal" data-id="${orderData.id}" data-original-total="${orderData.total}" readonly>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="notes[]" placeholder="Add note...">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-danger delete-order-row">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            tableBody.append(row);
+        }
 
         $(document).ready(function() {
             // Initialize vendor select2

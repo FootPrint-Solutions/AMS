@@ -49,6 +49,13 @@
 
     <div class="card shadow-lg">
         <div class="card-body">
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             {{-- Table --}}
             <div class="table-responsive">
                 <table class="table table-striped" id="table-billing">

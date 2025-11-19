@@ -52,6 +52,33 @@ class Billing extends Controller
         );
     }
 
+    public function edit($id)
+    {
+        $billing = BillingModel::with([
+            'vendor',
+            'shipTo',
+            'invoices'
+        ])->find($id);
+
+        if (!$billing) {
+            return redirect()->route('accounting.billing.index')
+                ->with('error', 'Billing not found.');
+        }
+
+        return view(
+            "Accounting.Billing.create",
+            getIndexData(
+                $this->title,
+                [
+                    'type' => 'edit',
+                    'billing' => $billing,
+                    'distributorShops' => DistributorShopModel::all(),
+                    'customers' => CustomerModel::all(),
+                ]
+            )
+        );
+    }
+
     /**
      * Display all resources for DataTables.
      *
@@ -196,6 +223,7 @@ class Billing extends Controller
                 'discount_price' => $request->input('discountprice', 0),
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
+                'status' => $request->input('status', 'draft'),
             ]);
 
             // Save BillingInvoice(s)
@@ -234,6 +262,106 @@ class Billing extends Controller
         }
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $billing = BillingModel::find($id);
+            if (!$billing) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Billing not found'
+                ], 404);
+            }
+
+            $request->validate([
+                'billingnumber' => 'required|string',
+                'billingdate' => 'required|date',
+                'vendor' => 'required|integer',
+                'ship_to' => 'required|string',
+                'order_types' => 'required|array',
+                'order_sources' => 'required|array',
+                'invoice_ids' => 'required|array',
+                'subtotal' => 'required|numeric',
+                'item_discounts_total' => 'nullable',
+                'total_discount' => 'nullable',
+                'grand_total' => 'required|numeric',
+                'status' => 'required|string',
+                'discount' => 'nullable|numeric',
+                'discountprice' => 'nullable|numeric',
+                'totalexpenses' => 'nullable|numeric',
+                'total' => 'required|numeric',
+            ]);
+
+            // Parse ship_to (format: id-ClassName)
+            list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
+
+            // Update Billing
+            $billing->update([
+                'billing_number' => $request->input('billingnumber'),
+                'vendor_id' => $request->input('vendor'),
+                'vendor_type' => DistributorShopModel::class,
+                'ship_to_id' => $shipToId,
+                'ship_to_type' => $shipToType,
+                'date' => $request->input('billingdate'),
+                'discount' => $request->input('discount', 0),
+                'discount_price' => $request->input('discountprice', 0),
+                'subtotal' => $request->input('subtotal', 0),
+                'total' => $request->input('total', 0),
+                'status' => $request->input('status', 'draft'),
+            ]);
+
+            // Delete existing BillingInvoice records
+            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
+
+            // Save new BillingInvoice(s)
+            $invoiceIds = $request->input('invoice_ids', []);
+            $orderTypes = $request->input('order_types', []);
+            $orderSources = $request->input('order_sources', []);
+            $orderNumbers = $request->input('order_numbers', []);
+            $notes = $request->input('notes', []);
+
+            foreach ($invoiceIds as $idx => $invoiceId) {
+                BillingInvoiceModel::create([
+                    'billing_id' => $billing->id,
+                    'invoice_id' => $invoiceId,
+                    'invoice_type' => $orderSources[$idx] ?? null,
+                    'invoice_number' => $orderNumbers[$idx] ?? null,
+                    'date' => $request->input('billingdate'),
+                    'discount' => $request->input('discount', 0),
+                    'discount_price' => $request->input('discountprice', 0),
+                    'subtotal' => $request->input('subtotal', 0),
+                    'total' => $request->input('total', 0),
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Billing updated successfully',
+                'data' => $billing
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update Billing: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get Billing Items by Billing ID
+     */
     public function getBillingItems($id)
     {
         $billing = BillingModel::with(['invoices'])->find($id);
@@ -492,11 +620,12 @@ class Billing extends Controller
                 }
             } else if ($orderType === 'purchase_order') {
                 $orders = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
-                    ->whereIn('id', $orderIds)->get();
+                    ->whereIn('id', $orderIds)
+                    ->get();
 
                 foreach ($orders as $order) {
-                    // Get supplier name from either relation
                     $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+                    $shipToName = $order->shipTo ? $order->shipTo->name : '-';
 
                     $tempData[] = [
                         'id' => $order->id,
@@ -506,7 +635,7 @@ class Billing extends Controller
                         'invoice_number' => $order->invoice_number ?? '-',
                         'date' => formatDate($order->date),
                         'customer_supplier_name' => $supplierName,
-                        'shop_name' => $order->shipTo->name ?? '-',
+                        'shop_name' => $shipToName,
                         'total' => $order->total,
                         'formatted_total' => formatPrice($order->total)
                     ];
@@ -525,6 +654,72 @@ class Billing extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to add orders: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get Billing Data for Edit
+     */
+    public function getBillingData($id)
+    {
+        try {
+            $billing = BillingModel::with([
+                'vendor',
+                'shipTo',
+                'invoices' => function ($query) {
+                    $query->select('billing_id', 'invoice_id', 'invoice_type', 'invoice_number', 'date', 'discount', 'discount_price', 'subtotal', 'total');
+                }
+            ])->find($id);
+
+            if (!$billing) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Billing not found'
+                ], 404);
+            }
+
+            // Format billing data for frontend
+            $billingData = [
+                'id' => $billing->id,
+                'billing_number' => $billing->billing_number,
+                'date' => $billing->date,
+                'vendor' => [
+                    'id' => $billing->vendor_id,
+                    'name' => $billing->vendor ? $billing->vendor->name : '',
+                    'type' => $billing->vendor_type
+                ],
+                'ship_to' => [
+                    'id' => $billing->ship_to_id,
+                    'name' => $billing->shipTo ? $billing->shipTo->name : '',
+                    'type' => $billing->ship_to_type
+                ],
+                'discount' => $billing->discount,
+                'discount_price' => $billing->discount_price,
+                'subtotal' => $billing->subtotal,
+                'total' => $billing->total,
+                'invoices' => $billing->invoices->map(function ($invoice) {
+                    return [
+                        'invoice_id' => $invoice->invoice_id,
+                        'invoice_type' => $invoice->invoice_type,
+                        'invoice_number' => $invoice->invoice_number,
+                        'date' => $invoice->date,
+                        'discount' => $invoice->discount,
+                        'discount_price' => $invoice->discount_price,
+                        'subtotal' => $invoice->subtotal,
+                        'total' => $invoice->total,
+                    ];
+                })
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $billingData
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get billing data: ' . $th->getMessage()
             ], 500);
         }
     }
