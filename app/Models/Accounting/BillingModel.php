@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Accounting\BillingInvoiceModel;
+
 class BillingModel extends Model
 {
     use HasFactory, SoftDeletes;

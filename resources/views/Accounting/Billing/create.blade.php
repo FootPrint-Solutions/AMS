@@ -99,60 +99,40 @@
                         </div>
 
                         {{-- Button Find Billing --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <button type="button" class="btn btn-primary" id="btn-find-billing">
-                                    <i class="fas fa-search"></i>
-                                </button>
+                        @if (!(isset($data['type']) && $data['type'] == 'edit'))
+                            <div class="col">
+                                <div class="form-group local-forms">
+                                    <button type="button" class="btn btn-primary" id="btn-find-billing">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     <div class="row mt-4">
-                        <div class="col-12">
-                            @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
-                                {{-- Edit Mode: Show existing invoices --}}
-                                <h6 class="mb-3">Selected Orders</h6>
-                                <table class="table table-striped mt-5" id="selected-orders-table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>No</th>
-                                            <th>Order Number</th>
-                                            <th>Type</th>
-                                            <th>Date</th>
-                                            <th>Customer/Supplier Name</th>
-                                            <th>Ship To</th>
-                                            <th>Total</th>
-                                            <th>Discount</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            @else
-                                {{-- Create Mode: Empty table for dynamic content --}}
-                                <table class="table table-striped mt-5" id="selected-orders-table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>No</th>
-                                            <th>Sales/Purchase Order Number</th>
-                                            <th>Type</th>
-                                            <th>Date</th>
-                                            <th>Customer/Supplier Name</th>
-                                            <th>Total</th>
-                                            <th>Address</th>
-                                            <th>Discount</th>
-                                            <th>Note</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            @endif
+
+                        {{-- Create Mode: Empty table for dynamic content --}}
+                        <div class="table-responsive">
+                            <table class="table table-striped mt-5" id="selected-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>No</th>
+                                        <th>Sales/Purchase Order Number</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Customer/Supplier Name</th>
+                                        <th>Total</th>
+                                        <th>Address</th>
+                                        <th style="min-width: 300px; width: 30%;">Discount</th>
+                                        <th style="min-width: 300px; width: 30%;">Note</th>
+                                        <th style="min-width: 300px; width: 30%;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -752,6 +732,8 @@
             const invoiceIds = [];
             const orderNumbers = [];
             const notes = [];
+            const discounts = [];
+            const subtotals = [];
 
             $('#selected-orders-table tbody tr').each(function() {
                 const orderId = $(this).data('order-id');
@@ -759,6 +741,8 @@
                 const orderSource = $(this).data('order-source');
                 const orderNumber = $(this).data('order-number');
                 const note = $(this).find('input[name="notes[]"]').val() || '';
+                const discount = $(this).find('.discount').val().replace(/[,.]/g, '') || '0';
+                const subtotal = $(this).find('.subtotal').val().replace(/[,.]/g, '') || '0';
 
                 if (orderId) {
                     invoiceIds.push(orderId);
@@ -766,6 +750,8 @@
                     orderSources.push(orderSource);
                     orderNumbers.push(orderNumber);
                     notes.push(note);
+                    discounts.push(discount);
+                    subtotals.push(subtotal);
                 }
             });
 
@@ -775,6 +761,8 @@
             formData.delete('invoice_ids');
             formData.delete('order_numbers');
             formData.delete('notes');
+            formData.delete('discounts');
+            formData.delete('subtotals');
 
             orderTypes.forEach((type, index) => {
                 formData.append('order_types[]', type);
@@ -790,6 +778,12 @@
             });
             notes.forEach((note, index) => {
                 formData.append('notes[]', note);
+            });
+            discounts.forEach((discount, index) => {
+                formData.append('discounts[]', discount);
+            });
+            subtotals.forEach((subtotal, index) => {
+                formData.append('subtotals[]', subtotal);
             });
 
             // Determine URL and method based on mode
@@ -893,7 +887,9 @@
                                     order_number: invoice.invoice_number,
                                     date: invoice.date,
                                     total: invoice.total,
-                                    discount: invoice.discount_price || 0
+                                    discount: invoice.discount_price || 0,
+                                    name: billing.ship_to.name,
+                                    note: invoice.note || '',
                                 });
                             });
                         }
@@ -917,28 +913,41 @@
         function addOrderToTable(orderData) {
             const tableBody = $('#selected-orders-table tbody');
             const rowId = 'order-' + orderData.id;
+            const no = tableBody.children('tr').length + 1;
 
             // Check if row already exists
             if ($('#' + rowId).length > 0) return;
 
             const row = `
-                <tr id="${rowId}" data-order-id="${orderData.id}" data-order-type="${orderData.type}" data-order-source="${orderData.source}" data-order-number="${orderData.order_number}">
+                <tr id="${rowId}" 
+                    data-order-id="${orderData.id}" 
+                    data-order-type="${orderData.type}" 
+                    data-order-source="${orderData.source}" 
+                    data-order-number="${orderData.order_number}">
+                    <td></td>
+                    <td>
+                        ${no}
+                    </td>
                     <td>${orderData.order_number}</td>
-                    <td>${orderData.date}</td>
-                    <td class="text-end">${orderData.total.toLocaleString('id-ID')}</td>
                     <td>
-                        <input type="number" class="form-control discount" data-id="${orderData.id}" value="${orderData.discount || 0}" min="0">
+                        ${orderData.type === 'App\\Models\\Orders\\SalesOrder\\SalesOrderModel' ? 'Sales' : orderData.type === 'App\\Models\\Orders\\PurchaseOrder\\PurchaseOrderModel' ? 'Purchase' : (orderData.type || '')}
+                        <input type="hidden" name="order_types[]" value="${orderData.type}">
+                        <input type="hidden" name="order_sources[]" value="${orderData.source}">
+                        <input type="hidden" name="order_numbers[]" value="${orderData.order_number}">
+                    </td>
+                    <td>${orderData.date ? new Date(orderData.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</td>
+                    <td>${orderData.name || ''}</td>
+                    <td class="text-end">Rp ${orderData.total ? orderData.total.toLocaleString('id-ID') : '0'}</td>
+                    <td>${orderData.shop_name || ''}</td>
+                    <td>
+                        <input type="number" class="form-control discount" data-id="${orderData.id}" value="${orderData.discount || 0}" min="0" step="0.01">
                     </td>
                     <td>
-                        <input type="text" class="form-control subtotal" data-id="${orderData.id}" data-original-total="${orderData.total}" readonly>
+                        <input type="text" class="form-control" name="notes[]" placeholder="Enter note" value="${orderData.note || ''}">
                     </td>
                     <td>
-                        <input type="text" class="form-control" name="notes[]" placeholder="Add note...">
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger delete-order-row">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <input type="text" class="form-control subtotal" data-id="${orderData.id}" data-original-total="${orderData.total || 0}" value="${orderData.total ? orderData.total.toLocaleString('id-ID') : '0'}" readonly>
+                        <input type="hidden" name="invoice_ids[]" value="${orderData.id}">
                     </td>
                 </tr>
             `;

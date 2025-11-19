@@ -24,6 +24,7 @@ class BillingInvoiceModel extends Model
         'discount_price',
         'subtotal',
         'total',
+        'note',
     ];
 
     protected $casts = [

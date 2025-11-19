@@ -243,6 +243,7 @@ class Billing extends Controller
                     'discount_price' => $request->input('discountprice', 0),
                     'subtotal' => $request->input('subtotal', 0),
                     'total' => $request->input('total', 0),
+                    'note' => $notes[$idx] ?? null,
                 ]);
             }
 
@@ -319,28 +320,30 @@ class Billing extends Controller
                 'status' => $request->input('status', 'draft'),
             ]);
 
-            // Delete existing BillingInvoice records
-            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
-
-            // Save new BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
             $orderTypes = $request->input('order_types', []);
             $orderSources = $request->input('order_sources', []);
             $orderNumbers = $request->input('order_numbers', []);
             $notes = $request->input('notes', []);
+            $discounts = $request->input('discounts', []);
+            $subtotals = $request->input('subtotals', []);
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::create([
-                    'billing_id' => $billing->id,
-                    'invoice_id' => $invoiceId,
-                    'invoice_type' => $orderSources[$idx] ?? null,
-                    'invoice_number' => $orderNumbers[$idx] ?? null,
-                    'date' => $request->input('billingdate'),
-                    'discount' => $request->input('discount', 0),
-                    'discount_price' => $request->input('discountprice', 0),
-                    'subtotal' => $request->input('subtotal', 0),
-                    'total' => $request->input('total', 0),
-                ]);
+                BillingInvoiceModel::updateOrCreate(
+                    [
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $invoiceId,
+                    ],
+                    [
+                        'invoice_type' => $orderTypes[$idx] ?? null,
+                        'invoice_number' => $orderNumbers[$idx] ?? null,
+                        'date' => $request->input('billingdate'),
+                        'discount_price' => $discounts[$idx] ?? 0,
+                        'subtotal' => $subtotals[$idx] ?? 0,
+                        'total' => $request->input('total', 0),
+                        'note' => $notes[$idx] ?? null,
+                    ]
+                );
             }
 
             DB::commit();
@@ -668,7 +671,7 @@ class Billing extends Controller
                 'vendor',
                 'shipTo',
                 'invoices' => function ($query) {
-                    $query->select('billing_id', 'invoice_id', 'invoice_type', 'invoice_number', 'date', 'discount', 'discount_price', 'subtotal', 'total');
+                    $query->select('billing_id', 'invoice_id', 'invoice_type', 'invoice_number', 'date', 'discount', 'discount_price', 'subtotal', 'total', 'note');
                 }
             ])->find($id);
 
@@ -708,6 +711,7 @@ class Billing extends Controller
                         'discount_price' => $invoice->discount_price,
                         'subtotal' => $invoice->subtotal,
                         'total' => $invoice->total,
+                        'note' => $invoice->note,
                     ];
                 })
             ];
