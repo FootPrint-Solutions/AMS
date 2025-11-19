@@ -73,6 +73,6 @@ class BillingModel extends Model
 
     public function invoices()
     {
-        return $this->hasMany(BillingInvoiceModel::class, 'billing_id');
+        return $this->hasMany(BillingInvoiceModel::class, 'billing_id')->with('invoice');
     }
 }

@@ -93,6 +93,16 @@ class PurchaseOrderModel extends Model implements Auditable
             ->with('battery');
     }
 
+
+    /**
+     * Get all of the batteries of the purchase order.
+     */
+    public function details(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderBatteryModel::class, 'purchase_order_id')
+            ->with('battery');
+    }
+
     /**
      * Get all data for DataTables.
      * 

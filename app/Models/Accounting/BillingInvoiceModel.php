@@ -42,6 +42,6 @@ class BillingInvoiceModel extends Model
 
     public function invoice()
     {
-        return $this->morphTo();
+        return $this->morphTo(__FUNCTION__, 'invoice_type', 'invoice_id');
     }
 }

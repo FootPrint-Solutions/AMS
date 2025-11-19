@@ -61,8 +61,13 @@ class Billing extends Controller
         ])->find($id);
 
         if (!$billing) {
-            return redirect()->route('accounting.billing.index')
+            return redirect()->route('billing.index')
                 ->with('error', 'Billing not found.');
+        }
+
+        if ($billing->status === 'posted') {
+            return redirect()->route('billing.index')
+                ->with('error', 'Posted Billing cannot be edited.');
         }
 
         return view(
@@ -157,6 +162,15 @@ class Billing extends Controller
         $rows = [];
         $no = $start + 1;
         foreach ($data as $item) {
+            $status =  $item->status;
+            if ($status === "draft") {
+                $statusBadgeClass = "badge-secondary text-dark";
+            } elseif ($status === "posted") {
+                $statusBadgeClass = "badge-success";
+            } else {
+                $statusBadgeClass = "badge-info";
+            }
+
             $rows[] = [
                 '',
                 $no++,
@@ -167,6 +181,7 @@ class Billing extends Controller
                 number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->subtotal, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
+                '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
                 $item->id // Hidden ID for internal use
             ];
         }
@@ -363,6 +378,32 @@ class Billing extends Controller
     }
 
     /**
+     * Post the specified Billing(s).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function post(Request $request)
+    {
+        $billingIds = $request->input('ids', []);
+
+        try {
+            BillingModel::whereIn('id', $billingIds)
+                ->update(['status' => 'posted']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Billing(s) posted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to post Billing(s): ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get Billing Items by Billing ID
      */
     public function getBillingItems($id)
@@ -486,6 +527,51 @@ class Billing extends Controller
         return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
     }
 
+    /**
+     * Get Vendors for Select2
+     */
+    public function destroy(Request $request)
+    {
+        try {
+            $billingIds = $request->input('ids', []);
+
+            if (empty($billingIds)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No Billing IDs provided'
+                ], 400);
+            }
+
+            foreach ($billingIds as $billingId) {
+                $billing = BillingModel::find($billingId);
+                if ($billing && $billing->status === 'posted') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Posted Billing(s) cannot be deleted'
+                    ], 400);
+                }
+            }
+
+            BillingModel::whereIn('id', $billingIds)->delete();
+
+            BillingInvoiceModel::whereIn('billing_id', $billingIds)->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Billing(s) deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete Billing(s): ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Get Orders Data for Ship To
+     */
     public function getOrdersData(Request $request)
     {
         $draw = (int) $request->input('draw', 0);
@@ -728,6 +814,12 @@ class Billing extends Controller
         }
     }
 
+    /**
+     * Get Vendors for Select2
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function getVendors(Request $request)
     {
         $search = $request->input('q', '');
@@ -757,5 +849,32 @@ class Billing extends Controller
             'message' => 'Vendors retrieved successfully.',
             'data' => $results
         ]);
+    }
+
+    public function print($id)
+    {
+        $billing = BillingModel::with([
+            'vendor',
+            'shipTo',
+            'invoices.invoice.details'
+        ])->find($id);
+
+        if (!$billing) {
+            return redirect()->route('billing.index')
+                ->with('error', 'Billing not found.');
+        }
+
+        // Example: Use vendor name/type to determine which view to use
+        $vendorName = $billing->vendor ? $billing->vendor->name : '';
+        $vendorId = $billing->vendor ? $billing->vendor->id : null;
+        return view(
+            'Accounting.Billing.print',
+            getIndexData(
+                $this->title,
+                [
+                    "profile" => $billing->toArray(),
+                ]
+            )
+        );
     }
 }
