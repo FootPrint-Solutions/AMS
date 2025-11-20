@@ -443,6 +443,24 @@
         });
     </script>
 
+    @isset($data['profile'])
+        <script>
+            (function() {
+                var vendorId =
+                    "{{ $data['profile']['vendor_id'] ?? '' }}";
+                var vendorType =
+                    "{{ $data['profile']['vendor_type'] ?? '' }}";
+                var vendorText =
+                    "{{ $data['profile']['vendor_name'] ?? '' }}";
+                if (vendorId && vendorType) {
+                    var option = new Option(vendorText, vendorId + '-' + vendorType, true,
+                        true);
+                    $('#vendor').append(option).trigger('change');
+                }
+            })();
+        </script>
+    @endisset
+
     {{-- Select2 Configurations --}}
     <script>
         function sanitizeCoordinates(input) {
@@ -506,23 +524,6 @@
                     return repo.text;
                 }
             });
-
-            @isset($data['profile'])
-                (function() {
-                    // Try common vendor fields; fallback to empty if not present
-                    var vendorId =
-                        "{{ $data['profile']['vendor_id'] ?? '' }}";
-                    var vendorType =
-                        "{{ $data['profile']['vendor_type'] ?? '' }}";
-                    var vendorText =
-                        "{{ $data['profile']['vendor_name'] ?? '' }}";
-                    if (vendorId && vendorType) {
-                        var option = new Option(vendorText, vendorId + '-' + vendorType, true,
-                            true);
-                        $('#vendor').append(option).trigger('change');
-                    }
-                })();
-            @endisset
 
             $('#ship_to').select2({
                 placeholder: "Enter Ship To",

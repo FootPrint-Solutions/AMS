@@ -101,6 +101,15 @@ class SalesOrderModel extends Model implements Auditable
     }
 
     /**
+     * Get all of the batteries of the quotations.
+     */
+    public function details(): HasMany
+    {
+        return $this->hasMany(SalesOrderBatteryModel::class, "sales_order_id")
+            ->with('battery');
+    }
+
+    /**
      * Get the distributor shop has many sales order.
      */
     public function distributorShop(): BelongsTo

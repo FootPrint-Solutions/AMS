@@ -5,7 +5,7 @@
     <div class="d-none d-lg-block">
         <div class="row mb-3" id="sales-order-summary-cards">
             <div class="col-md-4">
-                <div class="card bg-white">
+                <div class="card bg-white shadow-lg">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -21,7 +21,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card bg-white">
+                <div class="card bg-white shadow-lg">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -37,7 +37,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card bg-white">
+                <div class="card bg-white shadow-lg">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <div class="card bg-white">
+        <div class="card bg-white shadow-lg">
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
@@ -122,7 +122,7 @@
         </div>
 
 
-        <div class="card bg-white">
+        <div class="card bg-white shadow-lg">
             <div class="card-body">
 
                 @if (session('error'))

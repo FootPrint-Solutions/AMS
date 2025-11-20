@@ -12,7 +12,7 @@
 
     {{-- Form --}}
     <div class="d-none d-lg-block">
-        <div class="card">
+        <div class="card shadow-lg">
             <div class="card-body">
                 {{-- Title --}}
                 <div class="card-title h5">
