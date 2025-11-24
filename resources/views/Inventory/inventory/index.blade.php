@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- Form --}}
-    <div class="card">
+    <div class="card d-none">
 
         <div class="card-body">
             {{-- Title --}}

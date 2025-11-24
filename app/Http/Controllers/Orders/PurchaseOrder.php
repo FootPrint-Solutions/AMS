@@ -744,17 +744,41 @@ class PurchaseOrder extends Controller
             return response()->json(['results' => $results]);
         }
 
+        if ($type === 'shop') {
+            $query = DistributorShopModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $shops = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($shops as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'shop',
+                    'reference_type' => DistributorShopModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
         // If no type specified, return both suppliers and customers
         $supplierQuery = SupplierModel::query();
         $customerQuery = CustomerModel::query();
+        $shopQuery = DistributorShopModel::query();
 
         if (!empty($search)) {
             $supplierQuery->where('name', 'like', '%' . $search . '%');
             $customerQuery->where('name', 'like', '%' . $search . '%');
+            $shopQuery->where('name', 'like', '%' . $search . '%');
         }
 
         $suppliers = $supplierQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
         $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $shops = $shopQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
 
         foreach ($suppliers as $s) {
             $results[] = [
@@ -771,6 +795,15 @@ class PurchaseOrder extends Controller
                 'text' => $c->name,
                 'type' => 'customer',
                 'reference_type' => CustomerModel::class,
+            ];
+        }
+
+        foreach ($shops as $s) {
+            $results[] = [
+                'id' => $s->id,
+                'text' => $s->name,
+                'type' => 'shop',
+                'reference_type' => DistributorShopModel::class,
             ];
         }
 
