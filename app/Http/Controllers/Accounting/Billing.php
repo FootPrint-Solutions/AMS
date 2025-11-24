@@ -120,8 +120,12 @@ class Billing extends Controller
         if ($searchValue) {
             $query->where(function ($q) use ($searchValue) {
                 $q->where('billing_number', 'like', "%{$searchValue}%")
-                    ->orWhere('vendor_id', 'like', "%{$searchValue}%")
-                    ->orWhere('ship_to_id', 'like', "%{$searchValue}%");
+                    ->orWhereHas('vendor', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('shipTo', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%");
+                    });
             });
         }
 
@@ -131,23 +135,19 @@ class Billing extends Controller
         // Ordering
         if (!empty($order)) {
             $columns = [
-                0 => null, // No
-                1 => 'billing_number',
-                2 => 'vendor_id',
-                3 => 'vendor_type',
-                4 => 'ship_to_id',
-                5 => 'ship_to_type',
-                6 => 'date',
-                7 => 'discount',
-                8 => 'discount_price',
-                9 => 'subtotal',
-                10 => 'total',
-                11 => 'created_at',
-                12 => 'updated_at',
-                13 => 'deleted_at',
-                14 => 'id' // Hidden ID for internal use
+                0 => null, // dt-control
+                1 => null, // #
+                2 => 'billing_number',
+                3 => null, // vendor name
+                4 => null, // shipTo name
+                5 => 'date',
+                6 => 'discount_price',
+                7 => 'subtotal',
+                8 => 'total',
+                9 => 'status',
+                10 => 'id' // hidden
             ];
-            $orderColIdx = $order[0]['column'] ?? 6;
+            $orderColIdx = $order[0]['column'] ?? 5;
             $orderDir = $order[0]['dir'] ?? 'desc';
             $orderCol = $columns[$orderColIdx] ?? 'date';
             if ($orderCol) {
@@ -172,7 +172,7 @@ class Billing extends Controller
             }
 
             $rows[] = [
-                '',
+                '', // dt-control
                 $no++,
                 $item->billing_number,
                 $item->vendor ? $item->vendor->name : '',
@@ -182,7 +182,7 @@ class Billing extends Controller
                 number_format($item->subtotal, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
                 '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
-                $item->id // Hidden ID for internal use
+                $item->id // hidden
             ];
         }
 
@@ -204,26 +204,7 @@ class Billing extends Controller
     {
         try {
             DB::beginTransaction();
-            $request->validate([
-                'billingnumber' => 'required|string',
-                'billingdate' => 'required|date',
-                'vendor' => 'required|integer',
-                'ship_to' => 'required|string',
-                'order_types' => 'required|array',
-                'order_sources' => 'required|array',
-                'invoice_ids' => 'required|array',
-                'subtotal' => 'required|numeric',
-                'item_discounts_total' => 'nullable',
-                'total_discount' => 'nullable',
-                'grand_total' => 'required|numeric',
-                'status' => 'required|string',
-                'discount' => 'nullable|numeric',
-                'discountprice' => 'nullable|numeric',
-                'totalexpenses' => 'nullable|numeric',
-                'total' => 'required|numeric',
-            ]);
 
-            // Parse ship_to (format: id-ClassName)
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
 
             // Create Billing
@@ -247,6 +228,9 @@ class Billing extends Controller
             $orderSources = $request->input('order_sources', []);
             $orderNumbers = $request->input('order_numbers', []);
             $notes = $request->input('notes', []);
+            $discounts = $request->input('discounts', []);
+            $subtotals = $request->input('subtotals', []);
+
             foreach ($invoiceIds as $idx => $invoiceId) {
                 BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
@@ -254,10 +238,10 @@ class Billing extends Controller
                     'invoice_type' => $orderSources[$idx] ?? null,
                     'invoice_number' => $orderNumbers[$idx] ?? null,
                     'date' => $request->input('billingdate'),
-                    'discount' => $request->input('discount', 0),
-                    'discount_price' => $request->input('discountprice', 0),
-                    'subtotal' => $request->input('subtotal', 0),
-                    'total' => $request->input('total', 0),
+                    'discount' => $discounts[$idx] ?? 0,
+                    'discount_price' => $discounts[$idx] ?? 0,
+                    'subtotal' => $subtotals[$idx] ?? 0,
+                    'total' => $subtotals[$idx] ?? 0,
                     'note' => $notes[$idx] ?? null,
                 ]);
             }
@@ -298,24 +282,12 @@ class Billing extends Controller
                 ], 404);
             }
 
-            $request->validate([
-                'billingnumber' => 'required|string',
-                'billingdate' => 'required|date',
-                'vendor' => 'required|integer',
-                'ship_to' => 'required|string',
-                'order_types' => 'required|array',
-                'order_sources' => 'required|array',
-                'invoice_ids' => 'required|array',
-                'subtotal' => 'required|numeric',
-                'item_discounts_total' => 'nullable',
-                'total_discount' => 'nullable',
-                'grand_total' => 'required|numeric',
-                'status' => 'required|string',
-                'discount' => 'nullable|numeric',
-                'discountprice' => 'nullable|numeric',
-                'totalexpenses' => 'nullable|numeric',
-                'total' => 'required|numeric',
-            ]);
+            if ($billing->status === 'posted') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Posted Billing cannot be edited'
+                ], 400);
+            }
 
             // Parse ship_to (format: id-ClassName)
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
