@@ -68,7 +68,7 @@
                                         <label for="vendor">Vendor <span class="login-danger">*</span>
                                             <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
                                                 data-placement="top"
-                                                title="This vendor data contains customer or supplier data."></i>
+                                                title="This vendor data contains customer, supplier, or distributor shop data."></i>
                                         </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
