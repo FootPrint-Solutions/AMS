@@ -973,11 +973,16 @@
                         var items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
+                                let typeBadge = '';
+                                if (item.type) {
+                                    typeBadge =
+                                        `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>`;
+                                }
                                 return {
                                     id: item.id,
-                                    text: item.text || item.name || '',
+                                    text: (item.text || item.name || '') + ' ' + typeBadge,
+                                    raw_id: item.id,
                                     type: item.type,
-                                    reference_type: item.reference_type || null,
                                 };
                             })
                         };
@@ -1012,9 +1017,14 @@
                         var items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
+                                let typeBadge = '';
+                                if (item.type) {
+                                    typeBadge =
+                                        `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>`;
+                                }
                                 return {
                                     id: item.id + '-' + item.reference_type,
-                                    text: item.text || item.name || '',
+                                    text: (item.text || item.name || '') + ' ' + typeBadge,
                                     raw_id: item.id,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
