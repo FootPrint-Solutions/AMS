@@ -4,10 +4,34 @@
     {{-- @dd($data) --}}
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
-        #MapsAddressFinder {
-            height: 400px;
-            width: 100%;
-            margin-bottom: 20px;
+        /* Styling for readonly fields */
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        /* Styling for editable discount fields */
+        #total-discount {
+            border-left: 4px solid #28a745;
+            background-color: #f8fff9;
+        }
+
+        .discount {
+            border-left: 3px solid #ffc107;
+            background-color: #fffef7;
+        }
+
+        /* Summary section styling */
+        .summary-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .dataTables_filter {
+            margin-top: 0px;
         }
     </style>
 
@@ -25,42 +49,40 @@
                 </div>
                 <br>
 
-                {{-- Form --}}
-                <form id="quotation-form">
+                <form id="quotation-form" method="POST"
+                    action="{{ isset($data['type']) && $data['type'] == 'edit' ? route('billing.update', $data['billing']->id) : route('billing.store') }}">
                     @csrf
 
                     {{-- Quotation Number & Date --}}
-                    <div class="row">
+                    <div class="row mb-5">
                         {{-- Billing Number --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="billing-number">Billing Number <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="billing-number" name="billingnumber"
-                                    placeholder="Enter billing number" required readonly
+                                <label for="sales-consignment-number">Billing Number</label>
+                                <input type="text" class="form-control" id="sales-consignment-number"
+                                    name="billingnumber" placeholder="Enter Billingnumber" readonly
                                     value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['billing_number'] ?? '' }}">
                             </div>
                         </div>
 
-                        {{-- Date --}}
+                        {{-- Billing Date --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="quotation-date">Billing Date <span class="login-danger">*</span></label>
-                                <input type="date" class="form-control" id="quotation-date" name="date" required
-                                    value="{{ isset($data['billing']) ? \Carbon\Carbon::parse($data['billing']->date)->format('Y-m-d') : date('Y-m-d') }}">
+                                <label for="sales-consignment-date">Billing Date</label>
+                                <input type="date" class="form-control" id="sales-consignment-date" name="billingdate"
+                                    value="{{ isset($data['billing']) ? \Illuminate\Support\Carbon::parse($data['billing']->date)->format('Y-m-d') : (isset($data['consignment_date']) ? \Illuminate\Support\Carbon::parse($data['consignment_date'])->format('Y-m-d') : date('Y-m-d')) }}">
                             </div>
                         </div>
 
                         {{-- Vendor --}}
                         <div class="col">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group local-forms">
-                                        <label for="vendor">Vendor <span class="login-danger">*</span></label>
-                                        <select class="form-control" id="vendor" name="vendor" required>
-
-                                        </select>
-                                    </div>
-                                </div>
+                            <div class="form-group local-forms">
+                                <label for="vendor">Vendor <span class="login-danger">*</span>
+                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
+                                        title="This vendor data contains shop data."></i>
+                                </label>
+                                <select class="form-control" id="vendor" name="vendor" required>
+                                </select>
                             </div>
                         </div>
 
@@ -69,14 +91,14 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop or distributor data."></i>
+                                        title="This vendor data contains customer or supplier data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
                             </div>
                         </div>
 
-                        {{-- Find Orders Button --}}
+                        {{-- Button Find Billing --}}
                         @if (!(isset($data['type']) && $data['type'] == 'edit'))
                             <div class="col">
                                 <div class="form-group local-forms">
@@ -88,130 +110,135 @@
                         @endif
                     </div>
 
-                    {{-- Details --}}
-                    <table class="table mb-2" id="selected-orders-table">
-                        {{-- Header --}}
-                        <thead>
-                            <tr>
-                                <td colspan="10" class="h5 text-center">
-                                    Selected Orders
-                                </td>
-                            </tr>
+                    <div class="row mt-4">
 
-                            <tr class="text-center">
-                                <td class="p-1 text-muted small">#</td>
-                                <td class="p-1 text-muted small">No</td>
-                                <td class="p-1 text-muted small">Order Number</td>
-                                <td class="p-1 text-muted small">Type</td>
-                                <td class="p-1 text-muted small">Date</td>
-                                <td class="p-1 text-muted small">Customer/Supplier</td>
-                                <td class="p-1 text-muted small">Address</td>
-                                <td class="p-1 text-muted small">Subtotal</td>
-                                <td class="p-1 text-muted small">Discount</td>
-                                <td class="p-1 text-muted small">Total</td>
-                            </tr>
-                        </thead>
+                        {{-- Create Mode: Empty table for dynamic content --}}
+                        <div class="table-responsive">
+                            <table class="table table-striped mt-5" id="selected-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>No</th>
+                                        <th>Sales/Purchase Order Number</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Customer/Supplier Name</th>
+                                        <th>Total</th>
+                                        <th>Address</th>
+                                        <th style="min-width: 300px; width: 30%;">Discount</th>
+                                        <th style="min-width: 300px; width: 30%;">Note</th>
+                                        <th style="min-width: 300px; width: 30%;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                        {{-- Body (Items) --}}
-                        <tbody>
-                        </tbody>
 
-                        {{-- Footer (Tax, Discount, Total) --}}
-                        <tfoot>
-                            {{-- Subtotal --}}
-                            <tr>
-                                <td colspan="8"></td>
-                                <td class="text-end">Subtotal</td>
-                                <td>
+                    {{-- Summary Section --}}
+                    <div class="summary-section">
+                        <h6 class="mb-3">
+                            Billing Summary
+                            <span class="badge bg-secondary ms-2" id="discount-savings-badge" style="display: none;">
+                                Total Discount: Rp <span id="total-savings">0</span>
+                            </span>
+                        </h6>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="subtotal">Subtotal (Before Discounts)</label>
+                                    <input type="text" class="form-control" id="subtotal" name="subtotal" readonly>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="item-discounts-total">Total Item Discounts</label>
+                                    <input type="text" class="form-control" id="item-discounts-total"
+                                        name="item_discounts_total" readonly>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="total-discount">
+                                        Discount (Overall)
+                                    </label>
                                     <div class="input-group">
-                                        <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" class="form-control text-end" id="subtotal" name="subtotal"
-                                            value="0" readonly required>
+                                        <input type="text" class="form-control" id="total-discount" name="total_discount"
+                                            placeholder="Enter additional discount amount" value="0">
+                                        <button class="btn btn-outline-secondary" type="button" id="reset-total-discount"
+                                            title="Reset to 0">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="grand-total">
+                                        <strong>Grand Total</strong>
+                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Grand Total = Subtotal - Item Discounts - Additional Discount"></i>
+                                    </label>
+                                    <input type="text" class="form-control font-weight-bold" id="grand-total"
+                                        name="grand_total" readonly
+                                        style="font-weight: bold; font-size: 1.1em; background-color: #e8f5e8;">
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <div class="form-group local-forms">
+                                    <label for="status">Status <span class="login-danger">*</span></label>
+                                    <select class="form-control select" id="status" name="status" required>
+                                        <option value="draft"
+                                            {{ (isset($data['billing']) && $data['billing']->status == 'draft') || !isset($data['billing']) ? 'selected' : '' }}>
+                                            Draft</option>
+                                        <option value="posted"
+                                            {{ isset($data['billing']) && $data['billing']->status == 'posted' ? 'selected' : '' }}>
+                                            Posted</option>
+                                        <option value="completed"
+                                            {{ isset($data['billing']) && $data['billing']->status == 'completed' ? 'selected' : '' }}>
+                                            Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                            {{-- Discount --}}
-                            <tr>
-                                <td colspan="8"></td>
-                                <td class="text-end">Discount</td>
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            {{-- Discount Price --}}
-                                            <div class="input-group" id="discount-price">
-                                                <span class="input-group-text border-end">IDR</span>
-                                                <input type="text" class="form-control text-end"
-                                                    id="discount-price-value" name="discountprice" value="0">
-                                            </div>
-                                        </div>
+                    {{-- Additional Form Fields --}}
+                    <div class="row mt-3">
 
-                                        <div class="col-sm-2">
-                                            <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                                data-offlabel="%" data-onlabel="IDR" checked readonly>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                    </div>
 
-                            {{-- Total --}}
-                            <tr>
-                                <td colspan="8"></td>
-                                <td class="text-end">Total</td>
-                                <td>
-                                    <div class="input-group">
-                                        <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" class="form-control text-end" id="total"
-                                            name="total" value="0" required readonly>
-                                    </div>
-                                </td>
-                            </tr>
+                    {{-- Hidden Fields --}}
+                    <input type="hidden" name="discount" id="discount-percentage" value="0">
+                    <input type="hidden" name="discountprice" id="discount-price-hidden" value="0">
+                    <input type="hidden" name="totalexpenses" id="total-expenses-hidden" value="0">
+                    <input type="hidden" name="status" value="draft">
+                    <input type="hidden" name="subtotal" id="subtotal-hidden">
+                    <input type="hidden" name="total" id="total-hidden">
 
-                            {{-- Payment Method & Status --}}
-                            <tr>
-                                <td colspan="8"></td>
-                                <td class="text-end">Payment Status</td>
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <select name="status" id="status" class="form-control" required>
-                                                <option value="draft"
-                                                    {{ (isset($data['billing']) && $data['billing']->status == 'draft') || !isset($data['billing']) ? 'selected' : '' }}>
-                                                    Draft</option>
-                                                <option value="posted"
-                                                    {{ isset($data['billing']) && $data['billing']->status == 'posted' ? 'selected' : '' }}>
-                                                    Posted</option>
-                                                <option value="completed"
-                                                    {{ isset($data['billing']) && $data['billing']->status == 'completed' ? 'selected' : '' }}>
-                                                    Completed</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <br>
-
-
-                    {{-- Hidden Inputs --}}
                     @if (isset($data['type']) && $data['type'] == 'edit')
-                        <input type="hidden" id="id" name="id" value="{{ $data['billing']->id }}">
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" name="id" value="{{ $data['billing']->id }}">
                     @endif
 
-                    {{-- Buttons --}}
-                    <div class="d-flex flex-row-reverse">
-                        {{-- Create Button --}}
-                        <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                            @if (isset($data['type']) && $data['type'] == 'edit') value="update">
-                                Update
-                            @else
-                                value="create">
-                                Create @endif
-                            Billing </button>
-
-                            {{-- Cancel Button --}}
-                            <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                    {{-- Submit Button --}}
+                    <div class="row mt-4">
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-danger me-2" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button type="submit" class="btn btn-success" id="btn-save-consignment">
+                                <i class="fas fa-save"></i>
+                                @if (isset($data['type']) && $data['type'] == 'edit')
+                                    Update Billing
+                                @else
+                                    Save Billing
+                                @endif
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -512,15 +539,16 @@
                                         </td>
                                         <td>${order.date}</td>
                                         <td>${order.customer_supplier_name}</td>
+                                        <td class="text-end">Rp ${order.formatted_total}</td>
                                         <td>${order.shop_name}</td>
-                                        <td class="text-end">Rp ${order.formatted_total}
-                                            <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${order.total}" value="${order.total}">    
-                                        </td>
                                         <td>
                                             <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control total" data-id="${order.id}" data-original-total="${order.total}" value="${order.formatted_total}" readonly>
+                                            <input type="text" class="form-control" name="notes[]" placeholder="Enter note" value="">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control subtotal" data-id="${order.id}" data-original-total="${order.total}" value="${order.total_formatted}" readonly>
                                             <input type="hidden" name="invoice_ids[]" value="${order.id}">
                                         </td>
                                     </tr>
@@ -560,9 +588,8 @@
         $('#selected-orders-table').on('input', '.discount', function() {
             const id = $(this).data('id');
             let disc = parseFloat($(this).val()) || 0;
-            const $sub = $(
-                `#selected-orders-table tbody tr .subtotal[data-id="${id}"]`);
-            const original = parseFloat($sub.attr('data-original-subtotal')) || 0;
+            const $sub = $(`.subtotal[data-id="${id}"]`);
+            const original = parseFloat($sub.attr('data-original-total')) || 0;
 
             if (disc < 0) {
                 disc = 0;
@@ -572,66 +599,89 @@
                     title: 'Invalid Discount',
                     text: 'Discount cannot be negative.'
                 });
-                $(this).val(0);
             }
-
             if (disc > original) {
                 disc = original;
                 $(this).val(original);
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
-                    text: 'Discount cannot exceed the original subtotal.'
+                    text: 'Discount cannot exceed the original order total.'
                 });
-
-                $(this).val(original);
             }
 
-            const newTotal = Math.max(0, original - disc);
-            const $totalInput = $(
-                `#selected-orders-table tbody tr .total[data-id="${id}"]`);
-            $totalInput.val(newTotal.toLocaleString('id-ID'));
-
+            const newSub = Math.max(0, original - disc);
+            $sub.val(newSub.toLocaleString('id-ID'));
             calculateTotals();
         }).on('blur', '.discount', function() {
-            let disc = parseFloat($(this).val()) || 0;
-            $(this).val(disc);
+            let v = parseFloat($(this).val()) || 0;
+            $(this).val(v);
         });
 
         function calculateTotals() {
-            let subtotal = 0;
-            let afterRowDiscount = 0;
-
+            let subtotal = 0,
+                rowDisc = 0,
+                afterRow = 0;
             $('#selected-orders-table tbody tr').each(function() {
-                const total = parseFloat($(this).find('.total').val().replace(/[^\d]/g, '')) || 0;
-
+                const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
+                const disc = parseFloat(($(this).find('.discount').val() || '0').replace(/[,.]/g, '')) || 0;
+                const sub = Math.max(0, total - disc);
                 subtotal += total;
+                rowDisc += disc;
+                afterRow += sub;
+                $(this).find('.subtotal').val(sub.toLocaleString('id-ID'));
             });
+
+            const addDisc = parseFloat($('#total-discount').val().replace(/[^\d]/g, '')) || 0;
+            const grand = Math.max(0, afterRow - addDisc);
+            const savings = rowDisc + addDisc;
+
             $('#subtotal').val(subtotal.toLocaleString('id-ID'));
+            $('#item-discounts-total').val(rowDisc.toLocaleString('id-ID'));
+            $('#grand-total').val(grand.toLocaleString('id-ID'));
+
+            // Update hidden fields
             $('#subtotal-hidden').val(subtotal);
+            $('#total-hidden').val(grand);
 
-            let totalDiscount = parseInt($('#discount-price-value').val().replace(/[^\d]/g, '')) || 0;
-
-            let grandTotal = Math.max(0, subtotal - totalDiscount);
-            $('#total').val(grandTotal.toLocaleString('id-ID'));
-            $('#total-hidden').val(grandTotal);
-
-            console.log({
-                subtotal,
-                totalDiscount,
-                grandTotal
-            });
+            if (savings > 0) {
+                $('#total-savings').text(savings.toLocaleString('id-ID'));
+                $('#discount-savings-badge').show();
+            } else {
+                $('#discount-savings-badge').hide();
+            }
         }
 
-
-        $('#discount-price-value').on('input', function() {
-            let val = $(this).val().replace(/[^\d]/g, '');
-            val = parseInt(val) || 0;
-            $(this).val(val.toLocaleString('id-ID'));
+        $('#total-discount').on('input', function() {
+            let v = $(this).val().replace(/[^\d]/g, '');
+            $(this).val(v ? parseInt(v).toLocaleString('id-ID') : '0');
             calculateTotals();
-        }).on('blur', function() {
-            let val = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
-            $(this).val(val.toLocaleString('id-ID'));
+        });
+
+        $('#total-discount').on('blur', function() {
+            // validasi terhadap subtotal setelah item discount
+            let afterRow = 0;
+            $('#selected-orders-table tbody tr').each(function() {
+                const total = parseFloat($(this).find('.subtotal').attr('data-original-total')) || 0;
+                const disc = parseFloat($(this).find('.discount').val()) || 0;
+                afterRow += Math.max(0, total - disc);
+            });
+            let v = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
+            if (v > afterRow) {
+                v = afterRow;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Discount',
+                    text: 'Total discount cannot exceed the subtotal after item discounts.'
+                });
+            }
+            $(this).val(v.toLocaleString('id-ID'));
+            calculateTotals();
+        });
+
+        $('#reset-total-discount').on('click', function() {
+            $('#total-discount').val('0');
+            calculateTotals();
         });
 
         $(document).ready(function() {
@@ -639,7 +689,7 @@
 
             // Initialize values for edit mode
             if (isEditMode) {
-                $('#discount-price-value').val(editDiscountPrice.toLocaleString('id-ID'));
+                $('#total-discount').val(editDiscountPrice.toLocaleString('id-ID'));
                 // Load existing billing data
                 loadBillingData();
             }
@@ -994,10 +1044,6 @@
                     return repo.text;
                 }
             });
-        });
-
-        $("#quotation-form").on("reset", function() {
-            goToPage(indexUrl);
         });
     </script>
 @endsection
