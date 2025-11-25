@@ -69,7 +69,7 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop or distributor data."></i>
+                                        title="This vendor data contains customer or supplier data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -297,12 +297,27 @@
         const btnFind = $('#btn-find-billing');
         const modalShowOrders = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
 
+        function getShipToData() {
+            const selected = shipToSelect.select2('data');
+            if (selected && selected.length > 0) {
+                const idType = selected[0].id.split('-');
+                return {
+                    id: idType[0],
+                    type: idType[1] || selected[0].type
+                };
+            }
+            return {
+                id: null,
+                type: null
+            };
+        }
+
         function initializeOrdersDataTable() {
             if (ordersDataTable) ordersDataTable.destroy();
 
-            const shipToData = shipToSelect.select2('data')[0];
-            const shipToType = shipToData ? shipToData.type : null;
-            const shipToId = shipToData ? shipToData.id : null;
+            const shipToData = getShipToData();
+            const shipToType = shipToData.type;
+            const shipToId = shipToData.id;
 
             // Update modal title and headers based on vendor type
             if (shipToType === 'customer') {
@@ -331,9 +346,10 @@
                     url: '/billing/orders/get',
                     type: 'POST',
                     data: function(d) {
+                        const shipToData = getShipToData();
                         d._token = '{{ csrf_token() }}';
-                        d.ship_to_id = shipToId;
-                        d.ship_to_type = shipToType;
+                        d.ship_to_id = shipToData.id;
+                        d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
                     },
@@ -499,8 +515,21 @@
                                 return; // Skip jika sudah ada
                             }
 
-                            const orderType = order.type === 'sales_order' ? 'Sales' :
-                                order.type === 'purchase_order' ? 'Purchase' : order.type || '';
+                            let orderType = '';
+                            let orderTotal = order.total;
+                            let formattedTotal = order.formatted_total;
+
+                            if (order.type === 'sales_order') {
+                                orderType = 'Sales';
+                            } else if (order.type === 'purchase_order') {
+                                orderType = 'Purchase';
+                                // Make total negative for purchase
+                                orderTotal = -Math.abs(order.total);
+                                formattedTotal = 'Rp -' + Math.abs(order.total).toLocaleString(
+                                    'id-ID');
+                            } else {
+                                orderType = order.type || '';
+                            }
 
                             const newRow = `
                                 <tr>
@@ -520,14 +549,14 @@
                                     <td>${order.date}</td>
                                     <td>${order.customer_supplier_name}</td>
                                     <td class="text-end">
-                                        Rp ${order.formatted_total}
-                                        <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${order.total}">
+                                        ${formattedTotal}
+                                        <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${orderTotal}">
                                     </td>
                                     <td>
                                         <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control total" data-id="${order.id}" value="${order.formatted_total}" readonly>
+                                        <input type="text" class="form-control total" data-id="${order.id}" value="${orderTotal.toLocaleString('id-ID')}" readonly>
                                         <input type="hidden" name="invoice_ids[]" value="${order.id}">
                                     </td>
                                 </tr>
@@ -586,14 +615,6 @@
                     title: 'Invalid Discount',
                     text: 'Discount cannot be negative.'
                 });
-            } else if (discount > originalSubtotal) {
-                discount = originalSubtotal;
-                $(this).val(originalSubtotal);
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Discount',
-                    text: 'Discount cannot exceed the original subtotal.'
-                });
             }
 
             // Update total per row
@@ -606,21 +627,23 @@
         function calculateTotals() {
             let subtotal = 0;
 
-            // Hitung subtotal dari semua row setelah discount per item
             $('#selected-orders-table tbody tr').each(function() {
-                const total = parseFloat($(this).find('.total').val().replace(/[^\d]/g, '')) || 0;
+                const total = parseFloat($(this).find('.total').val().replace(/[^-\d]/g, '')) || 0;
+                console.log('Row Total:', total);
                 subtotal += total;
             });
 
-            // Update subtotal
             $('#subtotal').val(subtotal.toLocaleString('id-ID'));
 
-            // Hitung discount keseluruhan
             const overallDiscount = parseFloat($('#discount-price-value').val().replace(/[^\d]/g, '')) || 0;
-
-            // Hitung grand total
             const grandTotal = Math.max(0, subtotal - overallDiscount);
             $('#total').val(grandTotal.toLocaleString('id-ID'));
+
+            console.log({
+                subtotal,
+                overallDiscount,
+                grandTotal
+            });
         }
 
 

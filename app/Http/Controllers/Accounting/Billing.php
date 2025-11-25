@@ -555,7 +555,7 @@ class Billing extends Controller
         $totalRecords = 0;
         $filteredRecords = 0;
 
-        if ($shipToType === 'customer') {
+        if ($shipToType === 'customer' || $shipToType === 'App\Models\MasterData\Customer\CustomerModel') {
 
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
                 ->where('customer_id', $shipToId);
@@ -590,7 +590,7 @@ class Billing extends Controller
                     'total' => formatPrice($order->total)
                 ];
             }
-        } else if ($shipToType === 'supplier') {
+        } else if ($shipToType === 'supplier' || $shipToType === 'App\Models\MasterData\Supplier\SupplierModel') {
             // Get Purchase Orders for supplier  
             // Using either vendor_id/vendor_type (polymorphic) or supplier_id (direct relation)
             $query = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
@@ -598,7 +598,7 @@ class Billing extends Controller
                     $q->where(function ($subQ) use ($shipToId) {
                         $subQ->where('vendor_id', $shipToId)
                             ->where('vendor_type', 'App\\Models\\MasterData\\Supplier\\SupplierModel');
-                    })->orWhere('supplier_id', $shipToId);
+                    })->orWhere('vendor_id', $shipToId);
                 })
                 ->where('status', 'posted');
 
