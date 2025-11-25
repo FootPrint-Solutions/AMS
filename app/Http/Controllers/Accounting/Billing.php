@@ -141,8 +141,8 @@ class Billing extends Controller
                 3 => null, // vendor name
                 4 => null, // shipTo name
                 5 => 'date',
-                6 => 'discount_price',
-                7 => 'subtotal',
+                6 => 'subtotal',
+                7 => 'discount_price',
                 8 => 'total',
                 9 => 'status',
                 10 => 'id' // hidden
@@ -178,8 +178,8 @@ class Billing extends Controller
                 $item->vendor ? $item->vendor->name : '',
                 $item->shipTo ? $item->shipTo->name : '',
                 formatDate($item->date),
-                number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->subtotal, 0, ',', '.'),
+                number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
                 '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
                 $item->id // hidden
@@ -202,22 +202,21 @@ class Billing extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
 
         try {
             DB::beginTransaction();
 
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
 
-            // Create Billing
             $billing = BillingModel::create([
                 'billing_number' => $request->input('billingnumber'),
                 'vendor_id' => $request->input('vendor'),
                 'vendor_type' => DistributorShopModel::class,
                 'ship_to_id' => $shipToId,
                 'ship_to_type' => $shipToType,
-                'date' => $request->input('billingdate'),
-                'discount' => $request->input('discount', 0),
+                'date' => $request->input('date'),
+                'discount' => 0,
                 'discount_price' => $request->input('discountprice', 0),
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
@@ -232,6 +231,7 @@ class Billing extends Controller
             $notes = $request->input('notes', []);
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
+            $totals = $request->input('totals', []);
 
             foreach ($invoiceIds as $idx => $invoiceId) {
                 BillingInvoiceModel::create([
@@ -239,11 +239,11 @@ class Billing extends Controller
                     'invoice_id' => $invoiceId,
                     'invoice_type' => $orderSources[$idx] ?? null,
                     'invoice_number' => $orderNumbers[$idx] ?? null,
-                    'date' => $request->input('billingdate'),
-                    'discount' => $discounts[$idx] ?? 0,
+                    'date' => $request->input('date'),
+                    'discount' => 0,
                     'discount_price' => $discounts[$idx] ?? 0,
                     'subtotal' => $subtotals[$idx] ?? 0,
-                    'total' => $subtotals[$idx] ?? 0,
+                    'total' => $totals[$idx] ?? 0,
                     'note' => $notes[$idx] ?? null,
                 ]);
             }

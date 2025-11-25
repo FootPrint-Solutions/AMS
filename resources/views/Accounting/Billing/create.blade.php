@@ -491,42 +491,49 @@
                     if (response.status === 'success') {
                         let no = 1;
                         response.data.forEach(function(order) {
-                            const existingRow = $(
-                                `#selected-orders-table tbody tr .subtotal[data-id="${order.id}"]`
-                            );
-                            if (existingRow.length === 0) {
-                                const newRow = `
-                                    <tr>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-danger delete-order-row">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                        <td>${no++}</td>
-                                        <td>${order.order_number}</td>
-                                        <td>
-                                            ${order.type === 'sales_order' ? 'Sales' : order.type === 'purchase_order' ? 'Purchase' : (order.type || '')}
-                                            <input type="hidden" name="order_types[]" value="${order.type}">
-                                            <input type="hidden" name="order_sources[]" value="${order.source}">
-                                            <input type="hidden" name="order_numbers[]" value="${order.order_number}">
-                                        </td>
-                                        <td>${order.date}</td>
-                                        <td>${order.customer_supplier_name}</td>
-                                        <td>${order.shop_name}</td>
-                                        <td class="text-end">Rp ${order.formatted_total}
-                                            <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${order.total}" value="${order.total}">    
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control total" data-id="${order.id}" data-original-total="${order.total}" value="${order.formatted_total}" readonly>
-                                            <input type="hidden" name="invoice_ids[]" value="${order.id}">
-                                        </td>
-                                    </tr>
-                                `;
-                                $('#selected-orders-table tbody').append(newRow);
+                            // Check jika order sudah ada
+                            if ($(
+                                    `#selected-orders-table tbody tr .subtotal[data-id="${order.id}"]`
+                                )
+                                .length > 0) {
+                                return; // Skip jika sudah ada
                             }
+
+                            const orderType = order.type === 'sales_order' ? 'Sales' :
+                                order.type === 'purchase_order' ? 'Purchase' : order.type || '';
+
+                            const newRow = `
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger delete-order-row">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td>${no++}</td>
+                                    <td>${order.order_number}</td>
+                                    <td>
+                                        ${orderType}
+                                        <input type="hidden" name="order_types[]" value="${order.type}">
+                                        <input type="hidden" name="order_sources[]" value="${order.source}">
+                                        <input type="hidden" name="order_numbers[]" value="${order.order_number}">
+                                    </td>
+                                    <td>${order.date}</td>
+                                    <td>${order.customer_supplier_name}</td>
+                                    <td>${order.shop_name}</td>
+                                    <td class="text-end">
+                                        Rp ${order.formatted_total}
+                                        <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${order.total}">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control discount" data-id="${order.id}" value="0" min="0" step="0.01">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control total" data-id="${order.id}" value="${order.formatted_total}" readonly>
+                                        <input type="hidden" name="invoice_ids[]" value="${order.id}">
+                                    </td>
+                                </tr>
+                            `;
+                            $('#selected-orders-table tbody').append(newRow);
                         });
                         calculateTotals();
                         modalShowOrders.hide();
@@ -552,86 +559,76 @@
             });
         });
 
+        // Delete order row
         $('#selected-orders-table').on('click', '.delete-order-row', function() {
             $(this).closest('tr').remove();
+
+            // Update nomor urut
+            $('#selected-orders-table tbody tr').each(function(index) {
+                $(this).find('td:eq(1)').text(index + 1);
+            });
+
             calculateTotals();
         });
 
         $('#selected-orders-table').on('input', '.discount', function() {
+            const $row = $(this).closest('tr');
             const id = $(this).data('id');
-            let disc = parseFloat($(this).val()) || 0;
-            const $sub = $(
-                `#selected-orders-table tbody tr .subtotal[data-id="${id}"]`);
-            const original = parseFloat($sub.attr('data-original-subtotal')) || 0;
+            let discount = parseFloat($(this).val()) || 0;
+            const $subtotal = $row.find('.subtotal[data-id="' + id + '"]');
+            const originalSubtotal = parseFloat($subtotal.attr('data-original-subtotal')) || 0;
 
-            if (disc < 0) {
-                disc = 0;
+            // Validasi discount
+            if (discount < 0) {
+                discount = 0;
                 $(this).val(0);
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
                     text: 'Discount cannot be negative.'
                 });
-                $(this).val(0);
-            }
-
-            if (disc > original) {
-                disc = original;
-                $(this).val(original);
+            } else if (discount > originalSubtotal) {
+                discount = originalSubtotal;
+                $(this).val(originalSubtotal);
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Discount',
                     text: 'Discount cannot exceed the original subtotal.'
                 });
-
-                $(this).val(original);
             }
 
-            const newTotal = Math.max(0, original - disc);
-            const $totalInput = $(
-                `#selected-orders-table tbody tr .total[data-id="${id}"]`);
-            $totalInput.val(newTotal.toLocaleString('id-ID'));
+            // Update total per row
+            const newTotal = originalSubtotal - discount;
+            $row.find('.total[data-id="' + id + '"]').val(newTotal.toLocaleString('id-ID'));
 
             calculateTotals();
-        }).on('blur', '.discount', function() {
-            let disc = parseFloat($(this).val()) || 0;
-            $(this).val(disc);
         });
 
         function calculateTotals() {
             let subtotal = 0;
-            let afterRowDiscount = 0;
 
+            // Hitung subtotal dari semua row setelah discount per item
             $('#selected-orders-table tbody tr').each(function() {
                 const total = parseFloat($(this).find('.total').val().replace(/[^\d]/g, '')) || 0;
-
                 subtotal += total;
             });
+
+            // Update subtotal
             $('#subtotal').val(subtotal.toLocaleString('id-ID'));
-            $('#subtotal-hidden').val(subtotal);
 
-            let totalDiscount = parseInt($('#discount-price-value').val().replace(/[^\d]/g, '')) || 0;
+            // Hitung discount keseluruhan
+            const overallDiscount = parseFloat($('#discount-price-value').val().replace(/[^\d]/g, '')) || 0;
 
-            let grandTotal = Math.max(0, subtotal - totalDiscount);
+            // Hitung grand total
+            const grandTotal = Math.max(0, subtotal - overallDiscount);
             $('#total').val(grandTotal.toLocaleString('id-ID'));
-            $('#total-hidden').val(grandTotal);
-
-            console.log({
-                subtotal,
-                totalDiscount,
-                grandTotal
-            });
         }
 
 
         $('#discount-price-value').on('input', function() {
-            let val = $(this).val().replace(/[^\d]/g, '');
-            val = parseInt(val) || 0;
+            const val = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
             $(this).val(val.toLocaleString('id-ID'));
             calculateTotals();
-        }).on('blur', function() {
-            let val = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
-            $(this).val(val.toLocaleString('id-ID'));
         });
 
         $(document).ready(function() {
@@ -645,10 +642,11 @@
             }
         });
 
-        // ======= S A T U - S A T U N Y A  H A N D L E R  S U B M I T =======
+        // Form Submit Handler
         $('#quotation-form').on('submit', function(e) {
             e.preventDefault();
 
+            // Validasi minimal 1 order
             if ($('#selected-orders-table tbody tr').length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -659,116 +657,79 @@
             }
 
             const formData = new FormData(this);
-            const isEdit = formData.has('_method') && formData.get('_method') === 'PUT';
+            const isEdit = $('#btn-save').val() === 'update';
 
-            // angka diformat → balik ke numerik
-            const totalDiscount = $('#total-discount').val().replace(/[,.]/g, '') || '0';
-            formData.set('discountprice', totalDiscount);
-            $('#discount-price-hidden').val(totalDiscount);
+            // Set nilai subtotal dan total
+            const subtotal = parseFloat($('#subtotal').val().replace(/[^\d]/g, '')) || 0;
+            const overallDiscount = parseFloat($('#discount-price-value').val().replace(/[^\d]/g, '')) || 0;
+            const grandTotal = parseFloat($('#total').val().replace(/[^\d]/g, '')) || 0;
 
-            const subtotal = $('#subtotal-hidden').val() || '0';
             formData.set('subtotal', subtotal);
-
-            const grandTotal = $('#total-hidden').val() || '0';
+            formData.set('discountprice', overallDiscount);
             formData.set('total', grandTotal);
 
-            // totalexpenses diset 0 (sesuai hidden)
-            formData.set('totalexpenses', '0');
-            $('#total-expenses-hidden').val('0');
-
-            // kirim array data orders
-            const orderTypes = [];
-            const orderSources = [];
-            const invoiceIds = [];
-            const orderNumbers = [];
-            const notes = [];
-            const discounts = [];
-            const subtotals = [];
-
+            // Kumpulkan data orders
+            const ordersData = [];
             $('#selected-orders-table tbody tr').each(function() {
-                const orderId = $(this).data('order-id');
-                const orderType = $(this).data('order-type');
-                const orderSource = $(this).data('order-source');
-                const orderNumber = $(this).data('order-number');
-                const note = $(this).find('input[name="notes[]"]').val() || '';
-                const discount = $(this).find('.discount').val().replace(/[,.]/g, '') || '0';
-                const subtotal = $(this).find('.subtotal').val().replace(/[,.]/g, '') || '0';
+                const $row = $(this);
+                const invoiceId = $row.find('input[name="invoice_ids[]"]').val();
 
-                if (orderId) {
-                    invoiceIds.push(orderId);
-                    orderTypes.push(orderType);
-                    orderSources.push(orderSource);
-                    orderNumbers.push(orderNumber);
-                    notes.push(note);
-                    discounts.push(discount);
-                    subtotals.push(subtotal);
+                if (invoiceId) {
+                    ordersData.push({
+                        invoice_id: invoiceId,
+                        order_type: $row.find('input[name="order_types[]"]').val(),
+                        order_source: $row.find('input[name="order_sources[]"]').val(),
+                        order_number: $row.find('input[name="order_numbers[]"]').val(),
+                        discount: parseFloat($row.find('.discount').val()) || 0,
+                        subtotal: parseFloat($row.find('.subtotal').attr(
+                            'data-original-subtotal')) || 0,
+                        total: parseFloat($row.find('.total').val().replace(/[^\d]/g, '')) || 0
+                    });
                 }
             });
 
-            // Set arrays in FormData
-            formData.delete('order_types');
-            formData.delete('order_sources');
-            formData.delete('invoice_ids');
-            formData.delete('order_numbers');
-            formData.delete('notes');
-            formData.delete('discounts');
-            formData.delete('subtotals');
+            // Append orders data ke FormData
+            formData.delete('order_types[]');
+            formData.delete('order_sources[]');
+            formData.delete('invoice_ids[]');
+            formData.delete('order_numbers[]');
+            formData.delete('discounts[]');
+            formData.delete('subtotals[]');
+            formData.delete('totals[]');
 
-            orderTypes.forEach((type, index) => {
-                formData.append('order_types[]', type);
-            });
-            orderSources.forEach((source, index) => {
-                formData.append('order_sources[]', source);
-            });
-            invoiceIds.forEach((id, index) => {
-                formData.append('invoice_ids[]', id);
-            });
-            orderNumbers.forEach((number, index) => {
-                formData.append('order_numbers[]', number);
-            });
-            notes.forEach((note, index) => {
-                formData.append('notes[]', note);
-            });
-            discounts.forEach((discount, index) => {
-                formData.append('discounts[]', discount);
-            });
-            subtotals.forEach((subtotal, index) => {
-                formData.append('subtotals[]', subtotal);
+            ordersData.forEach((order) => {
+                formData.append('invoice_ids[]', order.invoice_id);
+                formData.append('order_types[]', order.order_type);
+                formData.append('order_sources[]', order.order_source);
+                formData.append('order_numbers[]', order.order_number);
+                formData.append('discounts[]', order.discount);
+                formData.append('subtotals[]', order.subtotal);
+                formData.append('totals[]', order.total);
             });
 
-            // Determine URL and method based on mode
-            let url = $('#quotation-form').attr('action') || '/billing/store';
-            let method = 'POST';
-            let actionText = 'create';
-            let actioningText = 'Creating';
-            let actionedText = 'created';
-
-            if (isEdit) {
-                actionText = 'update';
-                actioningText = 'Updating';
-                actionedText = 'updated';
-            }
+            const url = isEdit ? '/billing/update' : '/billing/store';
+            const actionText = isEdit ? 'update' : 'create';
+            const actioningText = isEdit ? 'Updating' : 'Creating';
 
             $.ajax({
                 url: url,
-                method: method,
+                method: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 beforeSend: function() {
-                    $('#btn-save-consignment').prop('disabled', true).html(
+                    $('#btn-save').prop('disabled', true).html(
                         `<i class="fas fa-spinner fa-spin"></i> ${actioningText}...`);
                 },
                 success: function(res) {
                     if (res.status === 'success') {
                         Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.message || `Billing ${actionedText} successfully!`
-                            })
-                            .then(() => {
-                                window.location.href = '/billing';
-                            });
+                            icon: 'success',
+                            title: 'Success',
+                            text: res.message || `Billing ${actionText}d successfully!`
+                        }).then(() => {
+                            window.location.href = '/billing';
+                        });
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -778,19 +739,16 @@
                     }
                 },
                 error: function(xhr) {
-                    const msg = xhr.responseJSON?.message ||
-                        `Failed to ${actionText} Billing. Please try again.`;
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: msg
+                        text: xhr.responseJSON?.message ||
+                            `Failed to ${actionText} Billing. Please try again.`
                     });
                 },
                 complete: function() {
-                    const buttonText = isEdit ?
-                        '<i class="fas fa-save"></i> Update Billing' :
-                        '<i class="fas fa-save"></i> Save Billing';
-                    $('#btn-save-consignment').prop('disabled', false).html(buttonText);
+                    const buttonText = isEdit ? 'Update' : 'Create';
+                    $('#btn-save').prop('disabled', false).html(buttonText + ' Billing');
                 }
             });
         });
@@ -906,7 +864,7 @@
         }
 
         $(document).ready(function() {
-            // Initialize vendor select2
+            // Initialize Select2
             $('#vendor').select2({
                 placeholder: "Select Vendor",
                 minimumInputLength: 1,
@@ -920,19 +878,16 @@
                         };
                     },
                     processResults: function(response) {
-                        var items = (response && response.data) ? response.data : response;
+                        const items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
-                                let typeBadge = '';
-                                if (item.type) {
-                                    typeBadge =
-                                        `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>`;
-                                }
+                                const typeBadge = item.type ?
+                                    `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>` :
+                                    '';
                                 return {
                                     id: item.id,
                                     text: (item.text || item.name || '') + ' ' + typeBadge,
-                                    raw_id: item.id,
-                                    type: item.type,
+                                    type: item.type
                                 };
                             })
                         };
@@ -941,16 +896,9 @@
                 },
                 escapeMarkup: function(markup) {
                     return markup;
-                },
-                templateResult: function(repo) {
-                    return repo.text;
-                },
-                templateSelection: function(repo) {
-                    return repo.text;
                 }
             });
 
-            // Initialize ship to select2
             $('#ship_to').select2({
                 placeholder: "Enter Ship To",
                 minimumInputLength: 1,
@@ -964,20 +912,17 @@
                         };
                     },
                     processResults: function(response) {
-                        var items = (response && response.data) ? response.data : response;
+                        const items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
-                                let typeBadge = '';
-                                if (item.type) {
-                                    typeBadge =
-                                        `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>`;
-                                }
+                                const typeBadge = item.type ?
+                                    `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>` :
+                                    '';
                                 return {
                                     id: item.id + '-' + item.reference_type,
                                     text: (item.text || item.name || '') + ' ' + typeBadge,
-                                    raw_id: item.id,
                                     type: item.type,
-                                    reference_type: item.reference_type || null,
+                                    reference_type: item.reference_type
                                 };
                             })
                         };
@@ -986,18 +931,19 @@
                 },
                 escapeMarkup: function(markup) {
                     return markup;
-                },
-                templateResult: function(repo) {
-                    return repo.text;
-                },
-                templateSelection: function(repo) {
-                    return repo.text;
                 }
             });
+
+            // Initialize values for edit mode
+            if (isEditMode) {
+                $('#discount-price-value').val(editDiscountPrice.toLocaleString('id-ID'));
+                loadBillingData();
+            }
         });
 
-        $("#quotation-form").on("reset", function() {
-            goToPage(indexUrl);
+        // Cancel button handler
+        $("#btn-cancel").on("click", function() {
+            window.location.href = '/billing';
         });
     </script>
 @endsection

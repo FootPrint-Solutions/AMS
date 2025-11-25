@@ -58,8 +58,8 @@
                             <th>Vendor</th>
                             <th>Ship To</th>
                             <th>Date</th>
-                            <th class="text-end">Discount Price</th>
                             <th class="text-end">Subtotal</th>
+                            <th class="text-end">Discount Price</th>
                             <th class="text-end">Total Amount</th>
                             <th>Status</th>
                         </tr>
@@ -302,8 +302,8 @@
                                     <tr>
                                         <th>Invoice Number</th>
                                         <th>Date</th>
-                                        <th>Discount Price</th>
                                         <th>Subtotal</th>
+                                        <th>Discount Price</th>
                                         <th>Total</th>
                                     </tr>
                                 </thead>
@@ -314,8 +314,8 @@
                                 <tr>
                                     <td>${item.invoice_number ?? '-'}</td>
                                     <td>${item.date ?? '-'}</td>
-                                    <td>${item.discount_price ?? '-'}</td>
                                     <td>${item.subtotal ?? '-'}</td>
+                                    <td>${item.discount_price ?? '-'}</td>
                                     <td>${item.total ?? '-'}</td>
                                 </tr>
                             `;
