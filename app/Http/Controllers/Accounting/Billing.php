@@ -202,8 +202,6 @@ class Billing extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-
         try {
             DB::beginTransaction();
 
@@ -271,12 +269,12 @@ class Billing extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         try {
             DB::beginTransaction();
 
-            $billing = BillingModel::find($id);
+            $billing = BillingModel::find($request->input('id'));
             if (!$billing) {
                 return response()->json([
                     'status' => 'error',
@@ -284,31 +282,26 @@ class Billing extends Controller
                 ], 404);
             }
 
-            if ($billing->status === 'posted') {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Posted Billing cannot be edited'
-                ], 400);
-            }
-
-            // Parse ship_to (format: id-ClassName)
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
 
-            // Update Billing
             $billing->update([
                 'billing_number' => $request->input('billingnumber'),
                 'vendor_id' => $request->input('vendor'),
                 'vendor_type' => DistributorShopModel::class,
                 'ship_to_id' => $shipToId,
                 'ship_to_type' => $shipToType,
-                'date' => $request->input('billingdate'),
-                'discount' => $request->input('discount', 0),
+                'date' => $request->input('date'),
+                'discount' => 0,
                 'discount_price' => $request->input('discountprice', 0),
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
             ]);
 
+            // Delete old invoices
+            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
+
+            // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
             $orderTypes = $request->input('order_types', []);
             $orderSources = $request->input('order_sources', []);
@@ -316,23 +309,21 @@ class Billing extends Controller
             $notes = $request->input('notes', []);
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
+            $totals = $request->input('totals', []);
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::updateOrCreate(
-                    [
-                        'billing_id' => $billing->id,
-                        'invoice_id' => $invoiceId,
-                    ],
-                    [
-                        'invoice_type' => $orderTypes[$idx] ?? null,
-                        'invoice_number' => $orderNumbers[$idx] ?? null,
-                        'date' => $request->input('billingdate'),
-                        'discount_price' => $discounts[$idx] ?? 0,
-                        'subtotal' => $subtotals[$idx] ?? 0,
-                        'total' => $request->input('total', 0),
-                        'note' => $notes[$idx] ?? null,
-                    ]
-                );
+                BillingInvoiceModel::create([
+                    'billing_id' => $billing->id,
+                    'invoice_id' => $invoiceId,
+                    'invoice_type' => $orderSources[$idx] ?? null,
+                    'invoice_number' => $orderNumbers[$idx] ?? null,
+                    'date' => $request->input('date'),
+                    'discount' => 0,
+                    'discount_price' => $discounts[$idx] ?? 0,
+                    'subtotal' => $subtotals[$idx] ?? 0,
+                    'total' => $totals[$idx] ?? 0,
+                    'note' => $notes[$idx] ?? null,
+                ]);
             }
 
             DB::commit();
@@ -742,7 +733,6 @@ class Billing extends Controller
                 ], 404);
             }
 
-            // Format billing data for frontend
             $billingData = [
                 'id' => $billing->id,
                 'billing_number' => $billing->billing_number,
@@ -762,10 +752,34 @@ class Billing extends Controller
                 'subtotal' => $billing->subtotal,
                 'total' => $billing->total,
                 'invoices' => $billing->invoices->map(function ($invoice) {
+                    $name = '';
+
+                    if ($invoice->invoice_type === SalesOrderModel::class) {
+                        $order = SalesOrderModel::select('id', 'customer_id')
+                            ->with(['customer:id,name'])
+                            ->find($invoice->invoice_id);
+                        $name = $order && $order->customer ? $order->customer->name : '';
+                    } else if ($invoice->invoice_type === PurchaseOrderModel::class) {
+                        $order = PurchaseOrderModel::select('id', 'supplier_id', 'vendor_id', 'vendor_type')
+                            ->with(['supplier:id,name', 'vendor:id,name'])
+                            ->find($invoice->invoice_id);
+                        if ($order) {
+                            if ($order->supplier) {
+                                $name = $order->supplier->name;
+                            } elseif ($order->vendor) {
+                                $name = $order->vendor->name;
+                            } else {
+                                $name = '';
+                            }
+                        } else {
+                            $name = '';
+                        }
+                    }
                     return [
                         'invoice_id' => $invoice->invoice_id,
                         'invoice_type' => $invoice->invoice_type,
                         'invoice_number' => $invoice->invoice_number,
+                        'invoice_name' => $name,
                         'date' => $invoice->date,
                         'discount' => $invoice->discount,
                         'discount_price' => $invoice->discount_price,

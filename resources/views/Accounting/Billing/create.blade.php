@@ -93,7 +93,7 @@
                         {{-- Header --}}
                         <thead>
                             <tr>
-                                <td colspan="10" class="h5 text-center">
+                                <td colspan="9" class="h5 text-center">
                                     Selected Orders
                                 </td>
                             </tr>
@@ -104,8 +104,7 @@
                                 <td class="p-1 text-muted small">Order Number</td>
                                 <td class="p-1 text-muted small">Type</td>
                                 <td class="p-1 text-muted small">Date</td>
-                                <td class="p-1 text-muted small">Customer/Supplier</td>
-                                <td class="p-1 text-muted small">Address</td>
+                                <td class="p-1 text-muted small">Name</td>
                                 <td class="p-1 text-muted small">Subtotal</td>
                                 <td class="p-1 text-muted small">Discount</td>
                                 <td class="p-1 text-muted small">Total</td>
@@ -120,7 +119,7 @@
                         <tfoot>
                             {{-- Subtotal --}}
                             <tr>
-                                <td colspan="8"></td>
+                                <td colspan="7"></td>
                                 <td class="text-end">Subtotal</td>
                                 <td>
                                     <div class="input-group">
@@ -133,7 +132,7 @@
 
                             {{-- Discount --}}
                             <tr>
-                                <td colspan="8"></td>
+                                <td colspan="7"></td>
                                 <td class="text-end">Discount</td>
                                 <td>
                                     <div class="row">
@@ -156,21 +155,22 @@
 
                             {{-- Total --}}
                             <tr>
-                                <td colspan="8"></td>
+                                <td colspan="7"></td>
                                 <td class="text-end">Total</td>
                                 <td>
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" class="form-control text-end" id="total"
-                                            name="total" value="0" required readonly>
+                                        <input type="text" class="form-control text-end" id="total" name="total"
+                                            value="0" required readonly>
                                     </div>
                                 </td>
                             </tr>
 
                             {{-- Payment Method & Status --}}
                             <tr>
-                                <td colspan="8"></td>
-                                <td class="text-end">Payment Status</td>
+                                <td colspan="7"></td>
+                                <td class="text-end">Payment Status
+                                </td>
                                 <td>
                                     <div class="row">
                                         <div class="col">
@@ -254,7 +254,7 @@
                                         <th style="width:40px;" class="text-center">No</th>
                                         <th id="order-number-header">Order Number</th>
                                         <th>Date</th>
-                                        <th id="customer-supplier-header">Customer/Supplier Name</th>
+                                        <th id="customer-supplier-header">Name</th>
                                         <th>Ship To</th>
                                         <th class="text-end">Total</th>
                                     </tr>
@@ -519,7 +519,6 @@
                                     </td>
                                     <td>${order.date}</td>
                                     <td>${order.customer_supplier_name}</td>
-                                    <td>${order.shop_name}</td>
                                     <td class="text-end">
                                         Rp ${order.formatted_total}
                                         <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${order.total}">
@@ -629,17 +628,6 @@
             const val = parseInt($(this).val().replace(/[^\d]/g, '')) || 0;
             $(this).val(val.toLocaleString('id-ID'));
             calculateTotals();
-        });
-
-        $(document).ready(function() {
-            $('[data-bs-toggle="tooltip"]').tooltip();
-
-            // Initialize values for edit mode
-            if (isEditMode) {
-                $('#discount-price-value').val(editDiscountPrice.toLocaleString('id-ID'));
-                // Load existing billing data
-                loadBillingData();
-            }
         });
 
         // Form Submit Handler
@@ -790,14 +778,14 @@
                             billing.invoices.forEach(function(invoice) {
                                 addOrderToTable({
                                     id: invoice.invoice_id,
-                                    type: invoice.invoice_type,
-                                    source: invoice.invoice_source,
                                     order_number: invoice.invoice_number,
+                                    type: invoice.invoice_type,
+                                    source: invoice.invoice_type,
                                     date: invoice.date,
-                                    total: invoice.total,
-                                    discount: invoice.discount_price || 0,
-                                    name: billing.ship_to.name,
-                                    note: invoice.note || '',
+                                    name: invoice.invoice_name,
+                                    subtotal: invoice.subtotal,
+                                    discount_price: invoice.discount_price,
+                                    total: invoice.subtotal - invoice.discount_price
                                 });
                             });
                         }
@@ -845,16 +833,15 @@
                     </td>
                     <td>${orderData.date ? new Date(orderData.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</td>
                     <td>${orderData.name || ''}</td>
-                    <td class="text-end">Rp ${orderData.total ? orderData.total.toLocaleString('id-ID') : '0'}</td>
-                    <td>${orderData.shop_name || ''}</td>
-                    <td>
-                        <input type="number" class="form-control discount" data-id="${orderData.id}" value="${orderData.discount || 0}" min="0" step="0.01">
+                    <td class="text-end">
+                        Rp ${orderData.subtotal.toLocaleString('id-ID')}
+                        <input type="hidden" class="subtotal" data-id="${orderData.id}" data-original-subtotal="${orderData.subtotal}">
                     </td>
                     <td>
-                        <input type="text" class="form-control" name="notes[]" placeholder="Enter note" value="${orderData.note || ''}">
+                        <input type="number" class="form-control discount" data-id="${orderData.id}" value="${orderData.discount_price}" min="0" step="0.01">
                     </td>
                     <td>
-                        <input type="text" class="form-control subtotal" data-id="${orderData.id}" data-original-total="${orderData.total || 0}" value="${orderData.total ? orderData.total.toLocaleString('id-ID') : '0'}" readonly>
+                        <input type="text" class="form-control total" data-id="${orderData.id}" value="${(orderData.subtotal - orderData.discount_price).toLocaleString('id-ID')}" readonly>
                         <input type="hidden" name="invoice_ids[]" value="${orderData.id}">
                     </td>
                 </tr>
