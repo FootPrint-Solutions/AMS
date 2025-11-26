@@ -853,7 +853,6 @@ class PurchaseOrder extends Controller
         $type = $request->input('type', null);
 
         $results = [];
-        $results = [];
 
         if ($type === 'shop') {
             $query = DistributorShopModel::query();
@@ -897,17 +896,41 @@ class PurchaseOrder extends Controller
             return response()->json(['results' => $results]);
         }
 
+        if ($type === 'customer') {
+            $query = CustomerModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $customers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'customer',
+                    'reference_type' => CustomerModel::class,
+                ];
+            }
+
+            return response()->json(['results' => $results]);
+        }
+
         // If no type specified, return both suppliers and customers
         $distributorQuery = DistributorModel::query();
         $shopQuery = DistributorShopModel::query();
+        $customerQuery = CustomerModel::query();
 
         if (!empty($search)) {
             $distributorQuery->where('name', 'like', '%' . $search . '%');
             $shopQuery->where('name', 'like', '%' . $search . '%');
+            $customerQuery->where('name', 'like', '%' . $search . '%');
         }
 
         $distributors = $distributorQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
         $shops = $shopQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
 
         foreach ($distributors as $s) {
             $results[] = [
@@ -924,6 +947,15 @@ class PurchaseOrder extends Controller
                 'text' => $c->name,
                 'type' => 'shop',
                 'reference_type' => DistributorShopModel::class,
+            ];
+        }
+
+        foreach ($customers as $c) {
+            $results[] = [
+                'id' => $c->id,
+                'text' => $c->name,
+                'type' => 'customer',
+                'reference_type' => CustomerModel::class,
             ];
         }
 

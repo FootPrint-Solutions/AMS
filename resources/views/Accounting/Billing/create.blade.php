@@ -4,10 +4,8 @@
     {{-- @dd($data) --}}
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap5-toggle/css/bootstrap5-toggle.min.css') }}">
     <style>
-        #MapsAddressFinder {
-            height: 400px;
-            width: 100%;
-            margin-bottom: 20px;
+        #table-orders_filter {
+            margin-top: 10px !important;
         }
     </style>
 
@@ -55,7 +53,11 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group local-forms">
-                                        <label for="vendor">Vendor <span class="login-danger">*</span></label>
+                                        <label for="vendor">Vendor <span class="login-danger">*</span>
+                                            <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="This vendor data contains distributor shop data."></i>
+                                        </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
                                         </select>
@@ -160,8 +162,8 @@
                                 <td>
                                     <div class="input-group">
                                         <span class="input-group-text border-end">IDR</span>
-                                        <input type="text" class="form-control text-end" id="total" name="total"
-                                            value="0" required readonly>
+                                        <input type="text" class="form-control text-end" id="total"
+                                            name="total" value="0" required readonly>
                                     </div>
                                 </td>
                             </tr>
@@ -231,6 +233,7 @@
                 <div class="modal-body">
 
                     <div class="container-fluid px-0">
+                        {{-- Filter Section --}}
                         <div class="row mb-3 align-items-end">
                             <div class="col-md-5">
                                 <label for="filter-start-date" class="form-label mb-1">Start Date</label>
@@ -243,29 +246,59 @@
                                     value="{{ date('Y-m-d') }}">
                             </div>
                         </div>
+                        <hr>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle" id="table-orders">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width:40px;" class="text-center">
-                                            <input type="checkbox" id="select-all-orders" class="form-check-input">
-                                        </th>
-                                        <th style="width:40px;" class="text-center">No</th>
-                                        <th id="order-number-header">Order Number</th>
-                                        <th>Date</th>
-                                        <th id="customer-supplier-header">Name</th>
-                                        <th>Ship To</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{-- Data will be populated via AJAX DataTable --}}
-                                </tbody>
-                            </table>
+                        {{-- Sales Orders Table --}}
+                        <div class="mb-4">
+                            <h5 class="mb-2">Sales Orders</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle" id="table-orders">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:40px;" class="text-center">
+                                                <input type="checkbox" id="select-all-orders" class="form-check-input">
+                                            </th>
+                                            <th style="width:40px;" class="text-center">No</th>
+                                            <th id="order-number-header">Order Number</th>
+                                            <th>Date</th>
+                                            <th id="customer-supplier-header">Name</th>
+                                            <th>Ship To</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Data populated via AJAX --}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {{-- Purchase Orders Table --}}
+                        <div>
+                            <h5 class="mb-2">Purchase Orders</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle" id="table-purchase-orders">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:40px;" class="text-center">
+                                                <input type="checkbox" id="select-all-purchase-orders"
+                                                    class="form-check-input">
+                                            </th>
+                                            <th style="width:40px;" class="text-center">No</th>
+                                            <th id="purchase-order-number-header">Order Number</th>
+                                            <th>Date</th>
+                                            <th id="supplier-header">Name</th>
+                                            <th>Ship To</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Data populated via AJAX --}}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -292,6 +325,7 @@
 
     <script>
         let ordersDataTable = null;
+        let purchaseOrdersDataTable = null;
         const vendorSelect = $("#vendor");
         const shipToSelect = $("#ship_to");
         const btnFind = $('#btn-find-billing');
@@ -318,17 +352,6 @@
             const shipToData = getShipToData();
             const shipToType = shipToData.type;
             const shipToId = shipToData.id;
-
-            // Update modal title and headers based on vendor type
-            if (shipToType === 'customer') {
-                $('#modal-title').text('Select Sales Orders');
-                $('#order-number-header').text('Sales Order Number');
-                $('#customer-supplier-header').text('Customer Name');
-            } else if (shipToType === 'supplier') {
-                $('#modal-title').text('Select Purchase Orders');
-                $('#order-number-header').text('Purchase Order Number');
-                $('#customer-supplier-header').text('Supplier Name');
-            }
 
             ordersDataTable = $('#table-orders').DataTable({
                 processing: true,
@@ -422,10 +445,132 @@
             });
         }
 
+        function initializePurchaseOrdersDataTable() {
+            const shipToData = getShipToData();
+            const shipToType = shipToData.type;
+            const shipToId = shipToData.id;
+
+            purchaseOrdersDataTable = $('#table-purchase-orders').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: true,
+                paging: true,
+                lengthChange: true,
+                pageLength: 10,
+                autoWidth: false,
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                ajax: {
+                    url: '/billing/purchase-orders/get',
+                    type: 'POST',
+                    data: function(d) {
+                        const shipToData = getShipToData();
+                        d._token = '{{ csrf_token() }}';
+                        d.ship_to_id = shipToData.id;
+                        d.ship_to_type = shipToData.type;
+                        d.start_date = $('#filter-start-date').val();
+                        d.end_date = $('#filter-end-date').val();
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load purchase orders.'
+                        });
+                    }
+                },
+                columns: [{
+                        data: 'checkbox',
+                        name: 'checkbox',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'number',
+                        name: 'number',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'order_number',
+                        name: 'order_number',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'customer_supplier_name',
+                        name: 'supplier_name'
+                    },
+                    {
+                        data: 'shop_name',
+                        name: 'ship_to_name'
+                    },
+                    {
+                        data: 'total',
+                        name: 'total',
+                        className: 'text-end'
+                    }
+                ],
+                order: [
+                    [2, 'desc']
+                ],
+                language: {
+                    processing: "Loading purchase orders...",
+                    emptyTable: "No purchase orders found for selected vendor and date range",
+                    zeroRecords: "No matching purchase orders found"
+                },
+                drawCallback: function() {
+                    updateSelectAllCheckbox();
+
+                    $('#table-purchase-orders tbody tr').off('click.rowCheckbox').on('click.rowCheckbox',
+                        function(e) {
+                            if ($(e.target).is('input[type="checkbox"]')) return;
+
+                            const $checkbox = $(this).find('.select-order');
+                            if ($checkbox.length) {
+                                $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
+                            }
+                        });
+                }
+            });
+        }
+
         function updateSelectAllCheckbox() {
             const total = $('#table-orders tbody .select-order').length;
             const checked = $('#table-orders tbody .select-order:checked').length;
             const $master = $('#select-all-orders');
+            if (total === 0) {
+                $master.prop({
+                    indeterminate: false,
+                    checked: false
+                });
+                return;
+            }
+            if (checked === total) $master.prop({
+                indeterminate: false,
+                checked: true
+            });
+            else if (checked > 0) $master.prop({
+                indeterminate: true
+            });
+            else $master.prop({
+                indeterminate: false,
+                checked: false
+            });
+        }
+
+        function updateSelectAllPurchaseOrdersCheckbox() {
+            const total = $('#table-purchase-orders tbody .select-order').length;
+            const checked = $('#table-purchase-orders tbody .select-order:checked').length;
+            const $master = $('#select-all-purchase-orders');
             if (total === 0) {
                 $master.prop({
                     indeterminate: false,
@@ -451,7 +596,13 @@
             $('#table-orders tbody .select-order').prop('checked', v);
         });
 
+        $('#select-all-purchase-orders').on('change', function() {
+            const v = $(this).is(':checked');
+            $('#table-purchase-orders tbody .select-order').prop('checked', v);
+        });
+
         $('#table-orders').on('change', '.select-order', updateSelectAllCheckbox);
+        $('#table-purchase-orders').on('change', '.select-order', updateSelectAllPurchaseOrdersCheckbox);
 
         btnFind.on('click', function() {
             const shipToData = shipToSelect.select2('data')[0];
@@ -465,14 +616,17 @@
             }
             modalShowOrders.show();
             ordersDataTable ? ordersDataTable.ajax.reload() : initializeOrdersDataTable();
+            purchaseOrdersDataTable ? purchaseOrdersDataTable.ajax.reload() : initializePurchaseOrdersDataTable();
         });
 
         $('#filter-start-date, #filter-end-date').on('change', function() {
             if (ordersDataTable && shipToSelect.val()) ordersDataTable.ajax.reload();
+            if (purchaseOrdersDataTable && shipToSelect.val()) purchaseOrdersDataTable.ajax.reload();
         });
 
         shipToSelect.on('change', function() {
             if (ordersDataTable) ordersDataTable.ajax.reload();
+            if (purchaseOrdersDataTable) purchaseOrdersDataTable.ajax.reload();
         });
 
         $('#btn-select-orders').on('click', function() {

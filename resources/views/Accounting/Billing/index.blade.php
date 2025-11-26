@@ -8,9 +8,22 @@
                     <h3 class="page-title mb-0">Billing</h3>
                 </div>
                 <div class="col-auto ms-auto text-end">
-                    <button id="btn-add" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Add New Billing
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-plus"></i> Add New
                     </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" id="btn-add">
+                                <i class="fas fa-plus me-2"></i> Add New Sales Billing
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" id="btn-add-purchase-billing">
+                                <i class="fas fa-recycle me-2"></i> Add New Purchase Billing
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
