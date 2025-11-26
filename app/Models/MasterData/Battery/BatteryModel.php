@@ -206,7 +206,7 @@ class BatteryModel extends Model implements Auditable
      * @param array $whereIn The list of to be included battery-only.
      * @param int $limit The limit number of rows returned.
      */
-    public static function allForAutocomplete($keyword, $extraColumn, $whereIn = [], $limit = 5)
+    public static function allForAutocompleteWithRecycle($keyword, $extraColumn, $whereIn = [], $limit = 5)
     {
         $columns = ["batteries.id", "batteries.name"];
         $batteryQuery = self::select(array_merge($columns, $extraColumn))
@@ -222,7 +222,7 @@ class BatteryModel extends Model implements Auditable
         $batteryResults = $batteryQuery->limit($limit)->get()->toArray();
 
         // Query for battery_recycles table
-        $recycleColumns = ["id", "name"];
+        $recycleColumns = ["id", "name", "price"];
         $recycleQuery = DB::table('battery_recycles')
             ->select($recycleColumns)
             ->where('name', 'like', "%{$keyword}%")
@@ -234,6 +234,32 @@ class BatteryModel extends Model implements Auditable
 
         // Merge both results
         return array_merge($batteryResults, $recycleResults);
+    }
+
+    /**
+     * Get rows for autocomplete.
+     * 
+     * @param string $keyword The autocomplete keyword.
+     * @param array $extraColumn The list of other columns except id and name to obtain.
+     * @param array $whereIn The list of to be included battery-only.
+     * @param int $limit The limit number of rows returned.
+     */
+    public static function allForAutocomplete($keyword, $extraColumn, $whereIn = [], $limit = 5)
+    {
+        $columns = ["batteries.id", "batteries.name"];
+        $batteryQuery = self::select(array_merge($columns, $extraColumn))
+            ->where("batteries.type", "regular")
+            ->where("batteries.name", "like", "%{$keyword}%")
+            ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')
+            ->leftJoin('battery_codes', 'batteries.id', '=', 'battery_codes.battery_id');
+
+        if (!empty($whereIn)) {
+            $batteryQuery->whereIn('battery_codes.code', $whereIn);
+        }
+
+        $batteryResults = $batteryQuery->limit($limit)->get()->toArray();
+
+        return $batteryResults;
     }
 
     public static function getBatteryDistributor($selectedBatteryIds, $distributorShopId)

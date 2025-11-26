@@ -22,7 +22,7 @@
                     @else
                         Add New
                     @endif
-                    Purchase Order
+                    Purchase Order Recycle
                 </div>
                 <br>
 
@@ -30,7 +30,7 @@
                 <form id="quotation-form">
                     @csrf
 
-                    <input type="hidden" id="type" name="type" value="regular">
+                    <input type="hidden" id="type" name="type" value="recycle">
 
                     {{-- Quotation Number & Date --}}
                     <div class="row">
@@ -223,7 +223,7 @@
                                                 'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
                                                 'name' => 'batteriesname[]',
                                                 'nameHiddenId' => 'batteriesid[]',
-                                                'url' => '/battery/get/',
+                                                'url' => '/battery/get/recycle/',
                                                 'placeholder' => 'Enter item name',
                                                 'targets' => $encodedTargets,
                                                 'callback' => 'calculateTotal',
@@ -313,9 +313,8 @@
                                                 title="Delete Item"><i class="fas fa-xmark"></i></button>
                                         </div>
                             @endif
+                            </td>
             </div>
-            </td>
-
             {{-- Hidden Inputs --}}
             @isset($data['profile']['batteries'])
                 <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
@@ -593,14 +592,14 @@
             calculateTotal();
 
             // Show loading Swal
-            // Swal.fire({
-            //     title: "Processing...",
-            //     text: "Please wait while your data is being saved.",
-            //     allowOutsideClick: false,
-            //     didOpen: () => {
-            //         Swal.showLoading();
-            //     }
-            // });
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your data is being saved.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);

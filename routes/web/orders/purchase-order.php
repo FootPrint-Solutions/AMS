@@ -15,6 +15,7 @@ use App\Http\Controllers\Orders\PurchaseOrder;
 Route::prefix('purchase-order')->group(function () {
     Route::get('/', [PurchaseOrder::class, 'index'])->name('purchase-order.index');
     Route::get('/create', [PurchaseOrder::class, 'create'])->name('purchase-order.create');
+    Route::get('/create-recycle', [PurchaseOrder::class, 'createRecycle'])->name('purchase-order.create-recycle');
     Route::post('/store', [PurchaseOrder::class, 'store'])->name('purchase-order.store');
     Route::post('/show', [PurchaseOrder::class, 'show'])->name('purchase-order.show');
     Route::get('/edit/{id}', [PurchaseOrder::class, 'edit'])->name('purchase-order.edit');

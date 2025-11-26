@@ -72,6 +72,30 @@ class PurchaseOrder extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createRecycle()
+    {
+        $data = [
+            'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
+            'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
+            'number' => PurchaseOrderModel::generatePurchaseOrderNumber(),
+            'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+            'shops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address']),
+        ];
+
+        return view(
+            'Orders.PurchaseOrder.recycle.create',
+            getIndexData(
+                $this->title,
+                $data
+            )
+        );
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -101,7 +125,8 @@ class PurchaseOrder extends Controller
                 'total' => (int)str_replace(['Rp', '.', ' '], '', $request->total ?? '0'),
                 'payment_status' => $request->status,
                 'status' => 'draft',
-                'invoice_number' => $request->InvoiceNumber
+                'invoice_number' => $request->InvoiceNumber,
+                'type' => $request->type ?? 'regular',
             ]);
 
             // Create purchase order batteries
@@ -266,6 +291,15 @@ class PurchaseOrder extends Controller
                 $statusBadgeClass = "badge-info";
             }
 
+            $type = $item['type'] ?? '';
+            if ($type === "regular") {
+                $typeBadgeClass = "<span class='badge badge-success'>Regular</span>";
+            } elseif ($type === "recycle") {
+                $typeBadgeClass = "<span class='badge badge-warning text-dark'>Recycle</span>";
+            } else {
+                $typeBadgeClass = "<span class='badge badge-secondary'>Unknown</span>";
+            }
+
             $id = $item['id'] ?? null;
 
             $action = '
@@ -278,7 +312,7 @@ class PurchaseOrder extends Controller
 
             $row = [];
             $row[] = $id;
-            $row[] = $item['purchase_order_number'] ?? '';
+            $row[] = $item['purchase_order_number'] . " " . $typeBadgeClass;
             $row[] = $item['invoice_number'] ?? "<p class='text-center'>-</p>";
             $row[] = isset($item['date']) ? formatDate($item['date']) : '';
             $row[] = $vendorName;

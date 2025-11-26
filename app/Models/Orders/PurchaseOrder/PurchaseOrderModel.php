@@ -46,6 +46,7 @@ class PurchaseOrderModel extends Model implements Auditable
         'payment_status',
         'status',
         'address',
+        'type',
     ];
 
     /**
