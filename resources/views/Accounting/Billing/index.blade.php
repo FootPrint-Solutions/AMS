@@ -284,6 +284,10 @@
                 window.location.href = "/billing/create";
             });
 
+            $("#btn-add-purchase-billing").on("click", function() {
+                window.location.href = "/billing/create-purchase";
+            });
+
             $("#billing-status-filter, #input-billing-date-start, #input-billing-date-end").on("change",
                 function() {
                     table.ajax.reload();

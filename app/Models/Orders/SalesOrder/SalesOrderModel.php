@@ -16,6 +16,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 
 // CONTROLLER
 use App\Models\MasterData\Customer\CustomerModel;
+use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorShopTechnicianModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
@@ -131,6 +132,22 @@ class SalesOrderModel extends Model implements Auditable
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethodModel::class, "payment_method_id");
+    }
+
+    /**
+     * Get the vendor distributor shop of the sales order.
+     */
+    public function vendorData(): BelongsTo
+    {
+        return $this->belongsTo(DistributorShopModel::class, "vendor");
+    }
+
+    /**
+     * Get the ship to distributor of the sales order.
+     */
+    public function shipToData(): BelongsTo
+    {
+        return $this->belongsTo(DistributorModel::class, "ship_to");
     }
 
 
