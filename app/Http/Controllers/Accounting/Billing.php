@@ -44,7 +44,7 @@ class Billing extends Controller
             getIndexData(
                 $this->title,
                 [
-                    'billing_number' => BillingModel::generateBillingNumber(),
+                    'billing_number' => BillingModel::generateSalesBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
                 ]
@@ -720,50 +720,53 @@ class Billing extends Controller
     {
         try {
             $orderIds = $request->input('order_ids', []);
-            $orderType = $request->input('order_type'); // 'sales_order' or 'purchase_order'
+            $orderTypes = $request->input('order_types', []);
 
             $tempData = [];
 
-            if ($orderType === 'sales_order') {
-                $orders = SalesOrderModel::with(['customer', 'shop.distributor'])
-                    ->whereIn('id', $orderIds)->get();
+            foreach ($orderIds as $index => $orderId) {
+                $orderType = $orderTypes[$index] ?? null;
 
-                foreach ($orders as $order) {
-                    $shopName = $order->shop ? $order->shop->distributor->name . ' / ' . $order->shop->name : '-';
-                    $tempData[] = [
-                        'id' => $order->id,
-                        'type' => 'sales_order',
-                        'source' => SalesOrderModel::class,
-                        'order_number' => $order->sales_order_number,
-                        'invoice_number' => $order->invoice_number ?? '-',
-                        'date' => formatDate($order->date),
-                        'customer_supplier_name' => $order->customer->name ?? '-',
-                        'shop_name' => $shopName,
-                        'total' => $order->total,
-                        'formatted_total' => formatPrice($order->total)
-                    ];
-                }
-            } else if ($orderType === 'purchase_order') {
-                $orders = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
-                    ->whereIn('id', $orderIds)
-                    ->get();
+                if ($orderType === 'sales_order') {
+                    $order = SalesOrderModel::with(['customer', 'shop.distributor'])
+                        ->find($orderId);
 
-                foreach ($orders as $order) {
-                    $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
-                    $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+                    if ($order) {
+                        $shopName = $order->shop ? $order->shop->distributor->name . ' / ' . $order->shop->name : '-';
+                        $tempData[] = [
+                            'id' => $order->id,
+                            'type' => 'sales_order',
+                            'source' => SalesOrderModel::class,
+                            'order_number' => $order->sales_order_number,
+                            'invoice_number' => $order->invoice_number ?? '-',
+                            'date' => formatDate($order->date),
+                            'customer_supplier_name' => $order->customer->name ?? '-',
+                            'shop_name' => $shopName,
+                            'total' => $order->total,
+                            'formatted_total' => formatPrice($order->total)
+                        ];
+                    }
+                } else if ($orderType === 'purchase_order') {
+                    $order = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
+                        ->find($orderId);
 
-                    $tempData[] = [
-                        'id' => $order->id,
-                        'type' => 'purchase_order',
-                        'source' => PurchaseOrderModel::class,
-                        'order_number' => $order->purchase_order_number,
-                        'invoice_number' => $order->invoice_number ?? '-',
-                        'date' => formatDate($order->date),
-                        'customer_supplier_name' => $supplierName,
-                        'shop_name' => $shipToName,
-                        'total' => $order->total,
-                        'formatted_total' => formatPrice($order->total)
-                    ];
+                    if ($order) {
+                        $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+                        $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+
+                        $tempData[] = [
+                            'id' => $order->id,
+                            'type' => 'purchase_order',
+                            'source' => PurchaseOrderModel::class,
+                            'order_number' => $order->purchase_order_number,
+                            'invoice_number' => $order->invoice_number ?? '-',
+                            'date' => formatDate($order->date),
+                            'customer_supplier_name' => $supplierName,
+                            'shop_name' => $shipToName,
+                            'total' => $order->total,
+                            'formatted_total' => formatPrice($order->total)
+                        ];
+                    }
                 }
             }
 

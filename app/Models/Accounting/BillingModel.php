@@ -61,6 +61,33 @@ class BillingModel extends Model
         return $newCode;
     }
 
+    public static function generateSalesBillingNumber()
+    {
+        $latestCodeModel = self::withTrashed()
+            ->orderByDesc('created_at')
+            ->first();
+        $latestCode = $latestCodeModel ? $latestCodeModel->billing_number : null;
+
+        $year = substr($latestCode, 2, 2);
+        $month = substr($latestCode, 4, 2);
+        $currentYear = date('y');
+        $currentMonth = date('m');
+
+        $newCode = "SB";
+        if ($year == $currentYear) {
+            if ($month == $currentMonth) {
+                $iteration = substr($latestCode, 6);
+                $nextIteration = str_pad((int)$iteration + 1, strlen($iteration), '0', STR_PAD_LEFT);
+                $newCode .= $year . $month . $nextIteration;
+            } else {
+                $newCode .= $year . $currentMonth . '00001';
+            }
+        } else {
+            $newCode .= $currentYear . $currentMonth . '00001';
+        }
+        return $newCode;
+    }
+
     public function vendor()
     {
         return $this->morphTo();

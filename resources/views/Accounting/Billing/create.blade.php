@@ -528,7 +528,7 @@
                     zeroRecords: "No matching purchase orders found"
                 },
                 drawCallback: function() {
-                    updateSelectAllCheckbox();
+                    updateSelectAllPurchaseOrdersCheckbox();
 
                     $('#table-purchase-orders tbody tr').off('click.rowCheckbox').on('click.rowCheckbox',
                         function(e) {
@@ -631,13 +631,22 @@
 
         $('#btn-select-orders').on('click', function() {
             const ids = [];
-            let orderType = null;
-            $('.select-order:checked').each(function() {
-                ids.push($(this).data('id'));
-                if (!orderType) {
-                    orderType = $(this).data('type');
-                }
+
+            $('#table-orders .select-order:checked, #table-purchase-orders .select-order:checked').each(function() {
+                const id = $(this).data('id');
+                const type = $(this).data('type');
+                console.log('Selected order:', {
+                    id,
+                    type
+                }); // Debug log
+                ids.push({
+                    id: id,
+                    type: type
+                });
             });
+
+            console.log('All selected orders:', ids); // Debug log
+
             if (ids.length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -649,18 +658,25 @@
 
             const $btn = $(this).prop('disabled', true).html(
                 '<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+            const requestData = {
+                _token: '{{ csrf_token() }}',
+                order_ids: ids.map(item => item.id),
+                order_types: ids.map(item => item.type)
+            };
+
+            console.log('Request data:', requestData); // Debug log
+
             $.ajax({
                 url: '/billing/orders/add-temp',
                 method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    order_ids: ids,
-                    order_type: orderType
-                },
+                data: requestData,
                 success: function(response) {
+                    console.log('Response from server:', response); // Debug log
                     if (response.status === 'success') {
-                        let no = 1;
+                        let no = $('#selected-orders-table tbody tr').length + 1;
                         response.data.forEach(function(order) {
+                            console.log('Processing order:', order); // Debug log
                             // Check jika order sudah ada
                             if ($(
                                     `#selected-orders-table tbody tr .subtotal[data-id="${order.id}"]`
@@ -737,6 +753,7 @@
                 complete: function() {
                     $btn.prop('disabled', false).html('Select Orders');
                     $('#select-all-orders').prop('checked', false);
+                    $('#select-all-purchase-orders').prop('checked', false);
                 }
             });
         });
@@ -756,7 +773,9 @@
         $('#selected-orders-table').on('input', '.discount', function() {
             const $row = $(this).closest('tr');
             const id = $(this).data('id');
+
             let discount = parseFloat($(this).val()) || 0;
+
             const $subtotal = $row.find('.subtotal[data-id="' + id + '"]');
             const originalSubtotal = parseFloat($subtotal.attr('data-original-subtotal')) || 0;
 
@@ -771,9 +790,15 @@
                 });
             }
 
-            // Update total per row
-            const newTotal = originalSubtotal - discount;
-            $row.find('.total[data-id="' + id + '"]').val(newTotal.toLocaleString('id-ID'));
+            let newTotal;
+            if (originalSubtotal < 0) {
+                newTotal = originalSubtotal + discount;
+            } else {
+                newTotal = originalSubtotal - discount;
+            }
+
+            $row.find('.total[data-id="' + id + '"]')
+                .val(newTotal.toLocaleString('id-ID'));
 
             calculateTotals();
         });
@@ -848,7 +873,8 @@
                         discount: parseFloat($row.find('.discount').val()) || 0,
                         subtotal: parseFloat($row.find('.subtotal').attr(
                             'data-original-subtotal')) || 0,
-                        total: parseFloat($row.find('.total').val().replace(/[^\d]/g, '')) || 0
+                        total: parseFloat($row.find('.total').val().replace(/[^-\d]/g, '')) ||
+                            0
                     });
                 }
             });
