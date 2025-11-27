@@ -22,4 +22,5 @@ Route::get('/billing/shipto/get', [Billing::class, 'getShipTo'])->name('billing.
 Route::get('/billing/vendor/get', [Billing::class, 'getVendors'])->name('billing.vendor.get')->middleware('permission:view_billing');
 Route::post('/billing/orders/get', [Billing::class, 'getOrdersData'])->name('billing.orders.get')->middleware('permission:view_billing');
 Route::post('/billing/purchase-orders/get', [Billing::class, 'getPurchaseOrdersData'])->name('billing.purchase-orders.get')->middleware('permission:view_billing');
+Route::post('/billing/purchase-orders/sales/get', [Billing::class, 'getSalesPurchaseOrdersData'])->name('billing.sales-purchase-orders.get')->middleware('permission:view_billing');
 Route::post('/billing/orders/add-temp', [Billing::class, 'addOrdersToTemp'])->name('billing.orders.add-temp')->middleware('permission:view_billing');

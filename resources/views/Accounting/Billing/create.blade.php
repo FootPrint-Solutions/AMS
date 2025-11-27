@@ -463,7 +463,7 @@
                     [10, 25, 50, 100]
                 ],
                 ajax: {
-                    url: '/billing/purchase-orders/get',
+                    url: '/billing/purchase-orders/sales/get',
                     type: 'POST',
                     data: function(d) {
                         const shipToData = getShipToData();

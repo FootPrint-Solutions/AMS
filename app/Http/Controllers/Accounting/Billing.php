@@ -781,6 +781,77 @@ class Billing extends Controller
         ]);
     }
 
+
+    public function getSalesPurchaseOrdersData(Request $request)
+    {
+        $draw = (int) $request->input('draw', 0);
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $search = $request->input('search.value', '');
+        $orderColumnIndex = $request->input('order.0.column', 0);
+        $orderDirection = $request->input('order.0.dir', 'asc');
+
+        $shipToId = explode('-', $request->input('ship_to_id'))[0];
+        $shipToType = $request->input('ship_to_type');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $rows = [];
+        $totalRecords = 0;
+        $filteredRecords = 0;
+
+        $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
+            ->where(function ($q) use ($shipToId, $shipToType) {
+                $q->where(function ($subQ) use ($shipToId, $shipToType) {
+                    $subQ->where('ship_to_id', $shipToId)
+                        ->where('ship_to_type', $shipToType);
+                })->orWhere('ship_to_id', $shipToId);
+            })
+            ->where('status', 'posted');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('purchase_order_number', 'like', '%' . $search . '%')
+                    ->orWhere('invoice_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        $totalQuery = clone $query;
+        $totalRecords = $totalQuery->count();
+        $filteredRecords = $totalRecords;
+
+        $orders = $query->skip($start)->take($length)->get();
+
+        $no = $start + 1;
+        foreach ($orders as $order) {
+            // Get supplier/vendor name from vendor relation (polymorphic)
+            $supplierName = $order->vendor ? $order->vendor->name : '-';
+
+            $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+            $rows[] = [
+                'checkbox' => '<input type="checkbox" class="form-check-input select-order" data-id="' . $order->id . '" data-type="purchase_order">',
+                'number' => $no++,
+                'order_number' => $order->purchase_order_number,
+                'date' => formatDate($order->date),
+                'customer_supplier_name' => $supplierName,
+                'shop_name' => $shipToName,
+                'total' => formatPrice($order->total)
+            ];
+        }
+
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $rows
+        ]);
+    }
+
     public function addOrdersToTemp(Request $request)
     {
         try {
