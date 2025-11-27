@@ -344,41 +344,72 @@ class PurchaseOrder extends Controller
      */
     public function edit($id)
     {
-        $purchaseOrder = PurchaseOrderModel::with('supplier', 'batteries.battery')->findOrFail($id);
+        $purchaseOrder = PurchaseOrderModel::with('vendor', 'shipTo', 'batteries.battery')->findOrFail($id);
         if ($purchaseOrder->status !== 'draft') {
             return redirect()->route('purchase-order.index')->with('error', 'Only draft purchase orders can be edited.');
         }
 
-        $data = [
-            'profile' => $purchaseOrder->toArray(),
-            'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
-            'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
-            'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
-            'shops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address']),
-        ];
-
-        // Prepare batteries data for the form
-        $data['profile']['batteries'] = $purchaseOrder->batteries->map(function ($battery) {
-            return [
-                'id' => $battery->id,
-                'battery_id' => $battery->battery_id,
-                'battery_name' => $battery->battery_name,
-                'battery_price_retail' => $battery->battery_price_retail,
-                'tax' => $battery->tax,
-                'tax_price' => $battery->tax_price,
-                'discount' => $battery->discount,
-                'discount_price' => $battery->discount_price,
-                'price_net' => $battery->price_net,
-                'quantity' => $battery->quantity,
-                'battery_production_code' => $battery->battery_production_code,
-                'type' => $battery->source ?? 'regular',
+        if ($purchaseOrder->type === 'recycle') {
+            $data = [
+                'profile' => $purchaseOrder->toArray(),
+                'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
+                'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
+                'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+                'shops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address']),
             ];
-        })->toArray();
 
-        return view('Orders.PurchaseOrder.create', getIndexData(
-            $this->title,
-            $data
-        ));
+            $data['profile']['batteries'] = $purchaseOrder->batteries->map(function ($battery) {
+                return [
+                    'id' => $battery->id,
+                    'battery_id' => $battery->battery_id,
+                    'battery_name' => $battery->battery_name,
+                    'battery_price_retail' => $battery->battery_price_retail,
+                    'tax' => $battery->tax,
+                    'tax_price' => $battery->tax_price,
+                    'discount' => $battery->discount,
+                    'discount_price' => $battery->discount_price,
+                    'price_net' => $battery->price_net,
+                    'quantity' => $battery->quantity,
+                    'battery_production_code' => $battery->battery_production_code,
+                    'type' => $battery->source ?? 'recycle',
+                ];
+            })->toArray();
+
+            return view('Orders.PurchaseOrder.recycle.create', getIndexData(
+                $this->title,
+                $data
+            ));
+        } else {
+            $data = [
+                'profile' => $purchaseOrder->toArray(),
+                'suppliers' => SupplierModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address', 'contact', 'email']),
+                'payment_methods' => PaymentMethodModel::orderBy('name')->get(['id', 'name']),
+                'tax' => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
+                'shops' => DistributorShopModel::where('status', 1)->orderBy('name')->get(['id', 'name', 'address']),
+            ];
+
+            $data['profile']['batteries'] = $purchaseOrder->batteries->map(function ($battery) {
+                return [
+                    'id' => $battery->id,
+                    'battery_id' => $battery->battery_id,
+                    'battery_name' => $battery->battery_name,
+                    'battery_price_retail' => $battery->battery_price_retail,
+                    'tax' => $battery->tax,
+                    'tax_price' => $battery->tax_price,
+                    'discount' => $battery->discount,
+                    'discount_price' => $battery->discount_price,
+                    'price_net' => $battery->price_net,
+                    'quantity' => $battery->quantity,
+                    'battery_production_code' => $battery->battery_production_code,
+                    'type' => $battery->source ?? 'regular',
+                ];
+            })->toArray();
+
+            return view('Orders.PurchaseOrder.create', getIndexData(
+                $this->title,
+                $data
+            ));
+        }
     }
 
     /**

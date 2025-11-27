@@ -112,40 +112,6 @@
                         </div>
                     </div>
 
-                    {{-- Quick Add --}}
-                    <div class="row d-none" id="supplier-new-row">
-                        {{-- Name --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-name">Supplier Name <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="supplier-name" name="customername"
-                                    placeholder="Enter supplier name">
-                            </div>
-                        </div>
-
-                        {{-- Contact --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-contact">Supplier Contact</label>
-                                <div class="input-group">
-                                    <span class="input-group-text border-end country-code">+62</span>
-                                    <input type="number" pattern="[1-9][0-9]{7,}"
-                                        title="At least 8 digits with no leading zero" class="form-control"
-                                        id="supplier-contact" name="customercontact" placeholder="Enter supplier contact">
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Email --}}
-                        <div class="col">
-                            <div class="form-group local-forms">
-                                <label for="supplier-email">Supplier E-mail</label>
-                                <input type="email" class="form-control" id="supplier-email" name="customeremail"
-                                    placeholder="Enter supplier e-mail">
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Details --}}
                     <table class="table mb-2" id="table-battery-detail">
                         {{-- Header --}}
@@ -194,9 +160,8 @@
                                 <tr class="table-battery-detail-row {{ $class_tr }}">
                                     {{-- Production Code --}}
                                     <td>
-                                        <input type="text" class="form-control battery-code"
-                                            id="battery-production-code" name="batteriescode[]"
-                                            placeholder="Enter item production code"
+                                        <input type="text" class="form-control battery-code" id="battery-production-code"
+                                            name="batteriescode[]" placeholder="Enter item production code"
                                             @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
                                     </td>
 
@@ -447,16 +412,30 @@
     @isset($data['profile'])
         <script>
             (function() {
+                // Vendor
                 var vendorId =
                     "{{ $data['profile']['vendor_id'] ?? '' }}";
                 var vendorType =
-                    "{{ $data['profile']['vendor_type'] ?? '' }}";
+                    {!! json_encode($data['profile']['vendor_type'] ?? '') !!};
                 var vendorText =
-                    "{{ $data['profile']['vendor_name'] ?? '' }}";
+                    "{{ $data['profile']['vendor']['name'] ?? '' }}";
                 if (vendorId && vendorType) {
                     var option = new Option(vendorText, vendorId + '-' + vendorType, true,
                         true);
                     $('#vendor').append(option).trigger('change');
+                }
+
+                // Ship To
+                var shipToId =
+                    "{{ $data['profile']['ship_to_id'] ?? '' }}";
+                var shipToType =
+                    {!! json_encode($data['profile']['ship_to_type'] ?? '') !!};
+                var shipToText =
+                    "{{ $data['profile']['ship_to']['name'] ?? '' }}";
+                if (shipToId && shipToType) {
+                    var option = new Option(shipToText, shipToId + '-' + shipToType, true,
+                        true);
+                    $('#ship_to').append(option).trigger('change');
                 }
             })();
         </script>

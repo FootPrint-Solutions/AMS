@@ -446,16 +446,30 @@
     @isset($data['profile'])
         <script>
             (function() {
+                // Vendor
                 var vendorId =
                     "{{ $data['profile']['vendor_id'] ?? '' }}";
                 var vendorType =
-                    "{{ $data['profile']['vendor_type'] ?? '' }}";
+                    {!! json_encode($data['profile']['vendor_type'] ?? '') !!};
                 var vendorText =
-                    "{{ $data['profile']['vendor_name'] ?? '' }}";
+                    "{{ $data['profile']['vendor']['name'] ?? '' }}";
                 if (vendorId && vendorType) {
                     var option = new Option(vendorText, vendorId + '-' + vendorType, true,
                         true);
                     $('#vendor').append(option).trigger('change');
+                }
+
+                // Ship To
+                var shipToId =
+                    "{{ $data['profile']['ship_to_id'] ?? '' }}";
+                var shipToType =
+                    {!! json_encode($data['profile']['ship_to_type'] ?? '') !!};
+                var shipToText =
+                    "{{ $data['profile']['ship_to']['name'] ?? '' }}";
+                if (shipToId && shipToType) {
+                    var option = new Option(shipToText, shipToId + '-' + shipToType, true,
+                        true);
+                    $('#ship_to').append(option).trigger('change');
                 }
             })();
         </script>
