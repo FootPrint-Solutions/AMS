@@ -248,31 +248,6 @@
                         </div>
                         <hr>
 
-                        {{-- Sales Orders Table --}}
-                        <div class="mb-4">
-                            <h5 class="mb-2">Sales Orders</h5>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover align-middle" id="table-orders">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width:40px;" class="text-center">
-                                                <input type="checkbox" id="select-all-orders" class="form-check-input">
-                                            </th>
-                                            <th style="width:40px;" class="text-center">No</th>
-                                            <th id="order-number-header">Order Number</th>
-                                            <th>Date</th>
-                                            <th id="customer-supplier-header">Name</th>
-                                            <th>Ship To</th>
-                                            <th class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {{-- Data populated via AJAX --}}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                         {{-- Purchase Orders Table --}}
                         <div>
                             <h5 class="mb-2">Purchase Orders</h5>
@@ -288,6 +263,31 @@
                                             <th id="purchase-order-number-header">Order Number</th>
                                             <th>Date</th>
                                             <th id="supplier-header">Name</th>
+                                            <th>Ship To</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Data populated via AJAX --}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {{-- Sales Orders Table --}}
+                        <div class="mb-4">
+                            <h5 class="mb-2">Sales Orders</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle" id="table-orders">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:40px;" class="text-center">
+                                                <input type="checkbox" id="select-all-orders" class="form-check-input">
+                                            </th>
+                                            <th style="width:40px;" class="text-center">No</th>
+                                            <th id="order-number-header">Order Number</th>
+                                            <th>Date</th>
+                                            <th id="customer-supplier-header">Name</th>
                                             <th>Ship To</th>
                                             <th class="text-end">Total</th>
                                         </tr>

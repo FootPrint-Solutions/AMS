@@ -95,7 +95,7 @@ class SalesOrder extends Controller
                 $this->title,
                 array(
                     "number" => SalesOrderModel::newCode(),
-                    "customers" => CustomerModel::all()->toArray(),
+                    "customers" => CustomerModel::where('status', 1)->orderBy('name')->get()->toArray(),
                     "vehicles" => VehicleModel::all()->toArray(),
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
@@ -128,7 +128,7 @@ class SalesOrder extends Controller
                     $this->title,
                     array(
                         "profile" => SalesOrderModel::with(["batteries"])->find($id)->toArray(),
-                        "customers" => CustomerModel::all()->toArray(),
+                        "customers" => CustomerModel::where('status', 1)->orderBy('name')->get()->toArray(),
                         "vehicles" => VehicleModel::all()->toArray(),
                         "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                         "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),

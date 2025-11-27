@@ -69,7 +69,7 @@
                                         <label for="vendor">Vendor <span class="login-danger">*</span>
                                             <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
                                                 data-placement="top"
-                                                title="This vendor data contains customer, supplier, or distributor shop data."></i>
+                                                title="This vendor data contains distributor data."></i>
                                         </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
@@ -475,16 +475,20 @@
                     delay: 250,
                     data: function(params) {
                         return {
-                            q: params.term
+                            q: params.term,
+                            type: 'distributor'
                         };
                     },
                     processResults: function(response) {
                         var items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
+                                const typeBadge = item.type ?
+                                    `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>` :
+                                    '';
                                 return {
                                     id: item.id + '-' + item.reference_type,
-                                    text: item.text || item.name || '',
+                                    text: (item.text || item.name || '') + ' ' + typeBadge,
                                     raw_id: item.id,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
@@ -521,10 +525,12 @@
                         var items = (response && response.data) ? response.data : response;
                         return {
                             results: items.map(function(item) {
+                                const typeBadge = item.type ?
+                                    `<span class="badge bg-info ms-2">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>` :
+                                    '';
                                 return {
                                     id: item.id + '-' + item.reference_type,
-                                    text: item.text || item.name || '',
-                                    raw_id: item.id,
+                                    text: (item.text || item.name || '') + ' ' + typeBadge,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
                                 };

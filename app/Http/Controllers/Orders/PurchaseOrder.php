@@ -785,7 +785,7 @@ class PurchaseOrder extends Controller
                 ];
             }
 
-            return response()->json(['results' => $results]);
+            return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
         }
 
         if ($type === 'supplier') {
@@ -806,7 +806,7 @@ class PurchaseOrder extends Controller
                 ];
             }
 
-            return response()->json(['results' => $results]);
+            return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
         }
 
         if ($type === 'shop') {
@@ -827,23 +827,47 @@ class PurchaseOrder extends Controller
                 ];
             }
 
-            return response()->json(['results' => $results]);
+            return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
+        }
+
+        if ($type === 'distributor') {
+            $query = DistributorModel::query();
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            $suppliers = $query->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($suppliers as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'distributor',
+                    'reference_type' => DistributorModel::class,
+                ];
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
         }
 
         // If no type specified, return both suppliers and customers
         $supplierQuery = SupplierModel::query();
         $customerQuery = CustomerModel::query();
         $shopQuery = DistributorShopModel::query();
+        $distributorQuery = DistributorModel::query();
 
         if (!empty($search)) {
             $supplierQuery->where('name', 'like', '%' . $search . '%');
             $customerQuery->where('name', 'like', '%' . $search . '%');
             $shopQuery->where('name', 'like', '%' . $search . '%');
+            $distributorQuery = DistributorModel::query();
         }
 
         $suppliers = $supplierQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
         $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
         $shops = $shopQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $distributors = DistributorModel::query()->where('status', 1)->orderBy('name')->get(['id', 'name']);
 
         foreach ($suppliers as $s) {
             $results[] = [
@@ -869,6 +893,15 @@ class PurchaseOrder extends Controller
                 'text' => $s->name,
                 'type' => 'shop',
                 'reference_type' => DistributorShopModel::class,
+            ];
+        }
+
+        foreach ($distributors as $s) {
+            $results[] = [
+                'id' => $s->id,
+                'text' => $s->name,
+                'type' => 'distributor',
+                'reference_type' => DistributorModel::class,
             ];
         }
 
