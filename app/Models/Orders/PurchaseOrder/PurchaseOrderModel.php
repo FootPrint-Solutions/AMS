@@ -13,9 +13,6 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 
-// MODELS
-use App\Models\MasterData\Supplier\SupplierModel;
-
 class PurchaseOrderModel extends Model implements Auditable
 {
     use HasFactory, SoftDeletes, DataTablesTrait, AuditableTrait;
@@ -75,14 +72,6 @@ class PurchaseOrderModel extends Model implements Auditable
     public function shipTo(): BelongsTo
     {
         return $this->morphTo();
-    }
-
-    /**
-     * Get the supplier associated with the purchase order.
-     */
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(SupplierModel::class, 'supplier_id');
     }
 
     /**

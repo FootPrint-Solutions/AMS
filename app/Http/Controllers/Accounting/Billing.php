@@ -624,8 +624,8 @@ class Billing extends Controller
             }
         } else if ($shipToType === 'supplier' || $shipToType === 'App\Models\MasterData\Supplier\SupplierModel') {
             // Get Purchase Orders for supplier  
-            // Using either vendor_id/vendor_type (polymorphic) or supplier_id (direct relation)
-            $query = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
+            // Using vendor_id/vendor_type (polymorphic relation)
+            $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
                 ->where(function ($q) use ($shipToId) {
                     $q->where(function ($subQ) use ($shipToId) {
                         $subQ->where('vendor_id', $shipToId)
@@ -653,8 +653,8 @@ class Billing extends Controller
 
             $no = $start + 1;
             foreach ($orders as $order) {
-                // Get supplier name from either relation
-                $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+                // Get supplier/vendor name from vendor relation (polymorphic)
+                $supplierName = $order->vendor ? $order->vendor->name : '-';
 
                 $shipToName = $order->shipTo ? $order->shipTo->name : '-';
                 $rows[] = [
@@ -729,7 +729,7 @@ class Billing extends Controller
         $totalRecords = 0;
         $filteredRecords = 0;
 
-        $query = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
+        $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
             ->where(function ($q) use ($shipToId) {
                 $q->where(function ($subQ) use ($shipToId) {
                     $subQ->where('vendor_id', $shipToId)
@@ -757,8 +757,8 @@ class Billing extends Controller
 
         $no = $start + 1;
         foreach ($orders as $order) {
-            // Get supplier name from either relation
-            $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+            // Get supplier/vendor name from vendor relation (polymorphic)
+            $supplierName = $order->vendor ? $order->vendor->name : '-';
 
             $shipToName = $order->shipTo ? $order->shipTo->name : '-';
             $rows[] = [
@@ -812,11 +812,11 @@ class Billing extends Controller
                         ];
                     }
                 } else if ($orderType === 'purchase_order') {
-                    $order = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
+                    $order = PurchaseOrderModel::with(['vendor', 'shipTo'])
                         ->find($orderId);
 
                     if ($order) {
-                        $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+                        $supplierName = $order->vendor ? $order->vendor->name : '-';
                         $shipToName = $order->shipTo ? $order->shipTo->name : '-';
 
                         $tempData[] = [
@@ -892,24 +892,17 @@ class Billing extends Controller
                 'total' => $billing->total,
                 'invoices' => $billing->invoices->map(function ($invoice) {
                     $name = '';
-
                     if ($invoice->invoice_type === SalesOrderModel::class) {
                         $order = SalesOrderModel::select('id', 'customer_id')
                             ->with(['customer:id,name'])
                             ->find($invoice->invoice_id);
                         $name = $order && $order->customer ? $order->customer->name : '';
                     } else if ($invoice->invoice_type === PurchaseOrderModel::class) {
-                        $order = PurchaseOrderModel::select('id', 'supplier_id', 'vendor_id', 'vendor_type')
-                            ->with(['supplier:id,name', 'vendor:id,name'])
+                        $order = PurchaseOrderModel::select('id', 'vendor_id', 'vendor_type')
+                            ->with(['vendor'])
                             ->find($invoice->invoice_id);
-                        if ($order) {
-                            if ($order->supplier) {
-                                $name = $order->supplier->name;
-                            } elseif ($order->vendor) {
-                                $name = $order->vendor->name;
-                            } else {
-                                $name = '';
-                            }
+                        if ($order && $order->vendor) {
+                            $name = $order->vendor->name;
                         } else {
                             $name = '';
                         }
