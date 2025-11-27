@@ -268,6 +268,24 @@
                             let id = selected[0][10];
                             window.open("/billing/print/" + id, "_blank");
                         }
+                    },
+                    // Print Kwitansi Button
+                    {
+                        text: "<i class='fas fa-receipt'></i> Print Kwitansi",
+                        className: "btn btn-outline-secondary btn-sm ms-1",
+                        action: function() {
+                            let selected = table.rows({
+                                selected: true
+                            }).data().toArray();
+                            if (selected.length !== 1) {
+                                Swal.fire("Error",
+                                    "Please select a single row for printing Kwitansi.",
+                                    "error");
+                                return;
+                            }
+                            let id = selected[0][10];
+                            window.open("/billing/print-receipt/" + id, "_blank");
+                        }
                     }
                 ],
                 select: true,

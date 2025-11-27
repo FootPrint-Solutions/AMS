@@ -1091,4 +1091,38 @@ class Billing extends Controller
             )
         );
     }
+
+    /**
+     * Print receipt (kwitansi) for a billing.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function printReceipt($id)
+    {
+        $billing = BillingModel::with([
+            'vendor',
+            'shipTo',
+            'invoices.invoice.details'
+        ])->find($id);
+
+        if (!$billing) {
+            return redirect()->route('billing.index')
+                ->with('error', 'Billing not found.');
+        }
+
+        // Example: Use vendor name/type to determine which view to use
+        $vendorName = $billing->vendor ? $billing->vendor->name : '';
+        $vendorId = $billing->vendor ? $billing->vendor->id : null;
+        // dd($billing->toArray());
+        return view(
+            'Accounting.Billing.print-receipt',
+            getIndexData(
+                $this->title,
+                [
+                    "profile" => $billing->toArray(),
+                ]
+            )
+        );
+    }
 }

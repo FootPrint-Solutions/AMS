@@ -17,6 +17,7 @@ Route::post('/billing/destroy', [Billing::class, 'destroy'])->name('billing.dest
 Route::post('/billing/toggle', [Billing::class, 'toggle'])->name('billing.toggle')->middleware('permission:edit_billing');
 Route::post('/billing/post', [Billing::class, 'post'])->name('billing.post')->middleware('permission:edit_billing');
 Route::get('/billing/print/{id}', [Billing::class, 'print'])->name('billing.print')->middleware('permission:view_billing');
+Route::get('/billing/print-receipt/{id}', [Billing::class, 'printReceipt'])->name('billing.print-receipt')->middleware('permission:view_billing');
 
 Route::get('/billing/shipto/get', [Billing::class, 'getShipTo'])->name('billing.shipto.get')->middleware('permission:view_billing');
 Route::get('/billing/vendor/get', [Billing::class, 'getVendors'])->name('billing.vendor.get')->middleware('permission:view_billing');
