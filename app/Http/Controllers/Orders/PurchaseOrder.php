@@ -537,8 +537,12 @@ class PurchaseOrder extends Controller
             foreach ($ids as $id) {
                 $purchaseOrder = PurchaseOrderModel::find($id);
                 if ($purchaseOrder) {
-                    if ($purchaseOrder->status !== 'draft') {
-                        continue;
+                    if ($purchaseOrder->status === 'posted') {
+
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Only draft purchase orders can be deleted.'
+                        ]);
                     }
                     $purchaseOrder->batteries()->forceDelete();
                     $purchaseOrder->forceDelete();
