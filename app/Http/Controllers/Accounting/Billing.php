@@ -150,6 +150,15 @@ class Billing extends Controller
             });
         }
 
+        $billingType = $request->input('billing_type');
+        if ($billingType && $billingType !== 'all') {
+            if ($billingType === 'sales_billing') {
+                $query->where('billing_number', 'like', 'SB%');
+            } elseif ($billingType === 'purchase_billing') {
+                $query->where('billing_number', 'like', 'PB%');
+            }
+        }
+
         $recordsTotal = BillingModel::count();
         $recordsFiltered = $query->count();
 
@@ -192,10 +201,17 @@ class Billing extends Controller
                 $statusBadgeClass = "badge-info";
             }
 
+            $billingType = '';
+            if (strpos($item->billing_number, 'PB') === 0) {
+                $billingType = '<br><span class="badge badge-warning text-dark">Purchase Billing</span>';
+            } elseif (strpos($item->billing_number, 'SB') === 0) {
+                $billingType = '<br><span class="badge badge-success">Sales Billing</span>';
+            }
+
             $rows[] = [
                 '', // dt-control
                 $no++,
-                $item->billing_number,
+                $item->billing_number . ' ' . $billingType,
                 $item->vendor ? $item->vendor->name : '',
                 $item->shipTo ? $item->shipTo->name : '',
                 formatDate($item->date),
