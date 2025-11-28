@@ -809,9 +809,9 @@ class Billing extends Controller
         $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
             ->where(function ($q) use ($shipToId, $shipToType) {
                 $q->where(function ($subQ) use ($shipToId, $shipToType) {
-                    $subQ->where('ship_to_id', $shipToId)
-                        ->where('ship_to_type', $shipToType);
-                })->orWhere('ship_to_id', $shipToId);
+                    $subQ->where('vendor_id', $shipToId)
+                        ->where('vendor_type', $shipToType);
+                })->orWhere('vendor_id', $shipToId);
             })
             ->where('status', 'posted')
             ->where('type', $type);
