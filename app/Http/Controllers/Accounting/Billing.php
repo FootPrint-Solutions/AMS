@@ -390,6 +390,18 @@ class Billing extends Controller
         $billingIds = $request->input('ids', []);
 
         try {
+            $alreadyPosted = BillingModel::whereIn('id', $billingIds)
+                ->where('status', 'posted')
+                ->pluck('billing_number')
+                ->toArray();
+
+            if (!empty($alreadyPosted)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Billing(s) already posted: ' . implode(', ', $alreadyPosted)
+                ], 400);
+            }
+
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 

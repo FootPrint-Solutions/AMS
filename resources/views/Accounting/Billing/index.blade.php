@@ -234,8 +234,8 @@
                             }
                             let ids = selected.map(row => row[10]);
                             Swal.fire({
-                                title: 'Post Purchase Order',
-                                text: 'Are you sure you want to post the selected Purchase Order(s)?',
+                                title: 'Post Billing',
+                                text: 'Are you sure you want to post the selected Billing(s)?',
                                 icon: 'question',
                                 showCancelButton: true,
                                 confirmButtonText: 'Yes, Post',
