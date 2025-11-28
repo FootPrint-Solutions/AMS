@@ -11,8 +11,22 @@
 
 
                 <div class="col-auto text-end float-end ms-auto download-grp">
-                    <button id="btn-add" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New Purchase
-                        Order</button>
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-plus"></i> Add New
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" id="btn-add">
+                                <i class="fas fa-plus me-2"></i> Add New Purchase Order
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" id="btn-add-recycle">
+                                <i class="fas fa-recycle me-2"></i> Add New Purchase Order Recycle
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -335,6 +349,10 @@
 
         $('#btn-add').on('click', function() {
             goToPage("/purchase-order/create");
+        });
+
+        $('#btn-add-recycle').on('click', function() {
+            goToPage("/purchase-order/create-recycle");
         });
 
         function printPurchaseOrder() {

@@ -117,3 +117,16 @@ function formatTanggal($date)
     // 2024-04-28T23:41:51.000000Z to 2024-04-28 23:41:51
     return date_format(date_create($date), "Y-m-d H:i:s");
 }
+
+/**
+ * Alias untuk convertToTerbilang - mengkonversi angka ke kata-kata (terbilang)
+ * 
+ * @param int $price Angka yang akan dikonversi
+ * @return string Representasi terbilang dari angka
+ */
+if (!function_exists('terbilang')) {
+    function terbilang($price)
+    {
+        return convertToTerbilang($price);
+    }
+}

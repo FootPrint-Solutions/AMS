@@ -701,6 +701,21 @@ class Battery extends Controller
         );
     }
 
+    public function getBatteriesByKeywordRecycle($keyword)
+    {
+        return BatteryModel::allForAutocompleteWithRecycle(
+            $keyword,
+            [
+                "battery_prices.price_retail", // retail price
+                "battery_prices.discount", // discount
+                "battery_prices.price_retail", // retail price
+                "batteries.type", // type
+            ],
+            '',
+            5
+        );
+    }
+
     /**
      * Get the list of batteries based on size category.
      * 

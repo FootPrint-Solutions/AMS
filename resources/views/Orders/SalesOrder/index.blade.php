@@ -536,12 +536,12 @@
                 method: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    id: selectedRows[0][11]
+                    id: selectedRows[0][12]
                 },
                 success: function(response) {
                     if (response.status == 'success') {
                         // Redirect to create sales invoice page.
-                        goToPage(url + "/" + selectedRows[0][11]);
+                        goToPage(url + "/" + selectedRows[0][12]);
                     } else {
                         Swal.fire({
                             title: "Error",

@@ -22,7 +22,7 @@
                     @else
                         Add New
                     @endif
-                    Purchase Order
+                    Purchase Order Recycle
                 </div>
                 <br>
 
@@ -30,7 +30,7 @@
                 <form id="quotation-form">
                     @csrf
 
-                    <input type="hidden" id="type" name="type" value="regular">
+                    <input type="hidden" id="type" name="type" value="recycle">
 
                     {{-- Quotation Number & Date --}}
                     <div class="row">
@@ -68,8 +68,7 @@
                                     <div class="form-group local-forms">
                                         <label for="vendor">Vendor <span class="login-danger">*</span>
                                             <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="This vendor data contains distributor data."></i>
+                                                data-placement="top" title="This vendor data contains customer data."></i>
                                         </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
@@ -108,6 +107,40 @@
                                 <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
                                     autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Quick Add --}}
+                    <div class="row d-none" id="supplier-new-row">
+                        {{-- Name --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="supplier-name">Supplier Name <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" id="supplier-name" name="customername"
+                                    placeholder="Enter supplier name">
+                            </div>
+                        </div>
+
+                        {{-- Contact --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="supplier-contact">Supplier Contact</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end country-code">+62</span>
+                                    <input type="number" pattern="[1-9][0-9]{7,}"
+                                        title="At least 8 digits with no leading zero" class="form-control"
+                                        id="supplier-contact" name="customercontact" placeholder="Enter supplier contact">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Email --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="supplier-email">Supplier E-mail</label>
+                                <input type="email" class="form-control" id="supplier-email" name="customeremail"
+                                    placeholder="Enter supplier e-mail">
                             </div>
                         </div>
                     </div>
@@ -160,8 +193,9 @@
                                 <tr class="table-battery-detail-row {{ $class_tr }}">
                                     {{-- Production Code --}}
                                     <td>
-                                        <input type="text" class="form-control battery-code" id="battery-production-code"
-                                            name="batteriescode[]" placeholder="Enter item production code"
+                                        <input type="text" class="form-control battery-code"
+                                            id="battery-production-code" name="batteriescode[]"
+                                            placeholder="Enter item production code"
                                             @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
                                     </td>
 
@@ -188,7 +222,7 @@
                                                 'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
                                                 'name' => 'batteriesname[]',
                                                 'nameHiddenId' => 'batteriesid[]',
-                                                'url' => '/battery/get/',
+                                                'url' => '/battery/get/recycle/',
                                                 'placeholder' => 'Enter item name',
                                                 'targets' => $encodedTargets,
                                                 'callback' => 'calculateTotal',
@@ -278,9 +312,8 @@
                                                 title="Delete Item"><i class="fas fa-xmark"></i></button>
                                         </div>
                             @endif
+                            </td>
             </div>
-            </td>
-
             {{-- Hidden Inputs --}}
             @isset($data['profile']['batteries'])
                 <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
@@ -476,7 +509,7 @@
                     data: function(params) {
                         return {
                             q: params.term,
-                            type: 'distributor'
+                            type: 'customer'
                         };
                     },
                     processResults: function(response) {
@@ -531,6 +564,7 @@
                                 return {
                                     id: item.id + '-' + item.reference_type,
                                     text: (item.text || item.name || '') + ' ' + typeBadge,
+                                    raw_id: item.id,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
                                 };
@@ -578,14 +612,14 @@
             calculateTotal();
 
             // Show loading Swal
-            // Swal.fire({
-            //     title: "Processing...",
-            //     text: "Please wait while your data is being saved.",
-            //     allowOutsideClick: false,
-            //     didOpen: () => {
-            //         Swal.showLoading();
-            //     }
-            // });
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your data is being saved.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);

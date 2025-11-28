@@ -14,6 +14,7 @@ use App\Models\MasterData\Supplier\SupplierModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
+use App\Models\MasterData\Distributor\DistributorModel;
 
 class Billing extends Controller
 {
@@ -44,7 +45,27 @@ class Billing extends Controller
             getIndexData(
                 $this->title,
                 [
-                    'billing_number' => BillingModel::generateBillingNumber(),
+                    'billing_number' => BillingModel::generateSalesBillingNumber(),
+                    'distributorShops' => DistributorShopModel::all(),
+                    'customers' => CustomerModel::all(),
+                ]
+            )
+        );
+    }
+
+    /** 
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createPurchase()
+    {
+        return view(
+            "Accounting.Billing.purchase.create",
+            getIndexData(
+                $this->title,
+                [
+                    'billing_number' => BillingModel::generatePurchaseBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
                 ]
@@ -120,8 +141,12 @@ class Billing extends Controller
         if ($searchValue) {
             $query->where(function ($q) use ($searchValue) {
                 $q->where('billing_number', 'like', "%{$searchValue}%")
-                    ->orWhere('vendor_id', 'like', "%{$searchValue}%")
-                    ->orWhere('ship_to_id', 'like', "%{$searchValue}%");
+                    ->orWhereHas('vendor', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('shipTo', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%");
+                    });
             });
         }
 
@@ -131,23 +156,19 @@ class Billing extends Controller
         // Ordering
         if (!empty($order)) {
             $columns = [
-                0 => null, // No
-                1 => 'billing_number',
-                2 => 'vendor_id',
-                3 => 'vendor_type',
-                4 => 'ship_to_id',
-                5 => 'ship_to_type',
-                6 => 'date',
-                7 => 'discount',
-                8 => 'discount_price',
-                9 => 'subtotal',
-                10 => 'total',
-                11 => 'created_at',
-                12 => 'updated_at',
-                13 => 'deleted_at',
-                14 => 'id' // Hidden ID for internal use
+                0 => null, // dt-control
+                1 => null, // #
+                2 => 'billing_number',
+                3 => null, // vendor name
+                4 => null, // shipTo name
+                5 => 'date',
+                6 => 'subtotal',
+                7 => 'discount_price',
+                8 => 'total',
+                9 => 'status',
+                10 => 'id' // hidden
             ];
-            $orderColIdx = $order[0]['column'] ?? 6;
+            $orderColIdx = $order[0]['column'] ?? 5;
             $orderDir = $order[0]['dir'] ?? 'desc';
             $orderCol = $columns[$orderColIdx] ?? 'date';
             if ($orderCol) {
@@ -172,17 +193,17 @@ class Billing extends Controller
             }
 
             $rows[] = [
-                '',
+                '', // dt-control
                 $no++,
                 $item->billing_number,
                 $item->vendor ? $item->vendor->name : '',
                 $item->shipTo ? $item->shipTo->name : '',
                 formatDate($item->date),
-                number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->subtotal, 0, ',', '.'),
+                number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
                 '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
-                $item->id // Hidden ID for internal use
+                $item->id // hidden
             ];
         }
 
@@ -204,37 +225,17 @@ class Billing extends Controller
     {
         try {
             DB::beginTransaction();
-            $request->validate([
-                'billingnumber' => 'required|string',
-                'billingdate' => 'required|date',
-                'vendor' => 'required|integer',
-                'ship_to' => 'required|string',
-                'order_types' => 'required|array',
-                'order_sources' => 'required|array',
-                'invoice_ids' => 'required|array',
-                'subtotal' => 'required|numeric',
-                'item_discounts_total' => 'nullable',
-                'total_discount' => 'nullable',
-                'grand_total' => 'required|numeric',
-                'status' => 'required|string',
-                'discount' => 'nullable|numeric',
-                'discountprice' => 'nullable|numeric',
-                'totalexpenses' => 'nullable|numeric',
-                'total' => 'required|numeric',
-            ]);
 
-            // Parse ship_to (format: id-ClassName)
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
 
-            // Create Billing
             $billing = BillingModel::create([
                 'billing_number' => $request->input('billingnumber'),
                 'vendor_id' => $request->input('vendor'),
                 'vendor_type' => DistributorShopModel::class,
                 'ship_to_id' => $shipToId,
                 'ship_to_type' => $shipToType,
-                'date' => $request->input('billingdate'),
-                'discount' => $request->input('discount', 0),
+                'date' => $request->input('date'),
+                'discount' => 0,
                 'discount_price' => $request->input('discountprice', 0),
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
@@ -247,17 +248,21 @@ class Billing extends Controller
             $orderSources = $request->input('order_sources', []);
             $orderNumbers = $request->input('order_numbers', []);
             $notes = $request->input('notes', []);
+            $discounts = $request->input('discounts', []);
+            $subtotals = $request->input('subtotals', []);
+            $totals = $request->input('totals', []);
+
             foreach ($invoiceIds as $idx => $invoiceId) {
                 BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
                     'invoice_id' => $invoiceId,
                     'invoice_type' => $orderSources[$idx] ?? null,
                     'invoice_number' => $orderNumbers[$idx] ?? null,
-                    'date' => $request->input('billingdate'),
-                    'discount' => $request->input('discount', 0),
-                    'discount_price' => $request->input('discountprice', 0),
-                    'subtotal' => $request->input('subtotal', 0),
-                    'total' => $request->input('total', 0),
+                    'date' => $request->input('date'),
+                    'discount' => 0,
+                    'discount_price' => $discounts[$idx] ?? 0,
+                    'subtotal' => $subtotals[$idx] ?? 0,
+                    'total' => $totals[$idx] ?? 0,
                     'note' => $notes[$idx] ?? null,
                 ]);
             }
@@ -285,12 +290,12 @@ class Billing extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         try {
             DB::beginTransaction();
 
-            $billing = BillingModel::find($id);
+            $billing = BillingModel::find($request->input('id'));
             if (!$billing) {
                 return response()->json([
                     'status' => 'error',
@@ -298,43 +303,26 @@ class Billing extends Controller
                 ], 404);
             }
 
-            $request->validate([
-                'billingnumber' => 'required|string',
-                'billingdate' => 'required|date',
-                'vendor' => 'required|integer',
-                'ship_to' => 'required|string',
-                'order_types' => 'required|array',
-                'order_sources' => 'required|array',
-                'invoice_ids' => 'required|array',
-                'subtotal' => 'required|numeric',
-                'item_discounts_total' => 'nullable',
-                'total_discount' => 'nullable',
-                'grand_total' => 'required|numeric',
-                'status' => 'required|string',
-                'discount' => 'nullable|numeric',
-                'discountprice' => 'nullable|numeric',
-                'totalexpenses' => 'nullable|numeric',
-                'total' => 'required|numeric',
-            ]);
-
-            // Parse ship_to (format: id-ClassName)
             list($shipToId, $shipToType) = explode('-', $request->input('ship_to'));
 
-            // Update Billing
             $billing->update([
                 'billing_number' => $request->input('billingnumber'),
                 'vendor_id' => $request->input('vendor'),
                 'vendor_type' => DistributorShopModel::class,
                 'ship_to_id' => $shipToId,
                 'ship_to_type' => $shipToType,
-                'date' => $request->input('billingdate'),
-                'discount' => $request->input('discount', 0),
+                'date' => $request->input('date'),
+                'discount' => 0,
                 'discount_price' => $request->input('discountprice', 0),
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
             ]);
 
+            // Delete old invoices
+            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
+
+            // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
             $orderTypes = $request->input('order_types', []);
             $orderSources = $request->input('order_sources', []);
@@ -342,23 +330,21 @@ class Billing extends Controller
             $notes = $request->input('notes', []);
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
+            $totals = $request->input('totals', []);
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::updateOrCreate(
-                    [
-                        'billing_id' => $billing->id,
-                        'invoice_id' => $invoiceId,
-                    ],
-                    [
-                        'invoice_type' => $orderTypes[$idx] ?? null,
-                        'invoice_number' => $orderNumbers[$idx] ?? null,
-                        'date' => $request->input('billingdate'),
-                        'discount_price' => $discounts[$idx] ?? 0,
-                        'subtotal' => $subtotals[$idx] ?? 0,
-                        'total' => $request->input('total', 0),
-                        'note' => $notes[$idx] ?? null,
-                    ]
-                );
+                BillingInvoiceModel::create([
+                    'billing_id' => $billing->id,
+                    'invoice_id' => $invoiceId,
+                    'invoice_type' => $orderSources[$idx] ?? null,
+                    'invoice_number' => $orderNumbers[$idx] ?? null,
+                    'date' => $request->input('date'),
+                    'discount' => 0,
+                    'discount_price' => $discounts[$idx] ?? 0,
+                    'subtotal' => $subtotals[$idx] ?? 0,
+                    'total' => $totals[$idx] ?? 0,
+                    'note' => $notes[$idx] ?? null,
+                ]);
             }
 
             DB::commit();
@@ -448,14 +434,13 @@ class Billing extends Controller
         $type = $request->input('type', null);
 
         $results = [];
-        $results = [];
 
         if ($type === 'customer') {
-            $query = CustomerModel::query();
+            $customerQuery = CustomerModel::query();
             if (!empty($search)) {
-                $query->where('name', 'like', '%' . $search . '%');
+                $customerQuery->where('name', 'like', '%' . $search . '%');
             }
-            $customers = $query->where('status', 1)
+            $customers = $customerQuery->where('status', 1)
                 ->orderBy('name')
                 ->get(['id', 'name']);
 
@@ -467,16 +452,12 @@ class Billing extends Controller
                     'reference_type' => CustomerModel::class,
                 ];
             }
-
-            return response()->json(['results' => $results]);
-        }
-
-        if ($type === 'distributor') {
-            $query = SupplierModel::query();
+        } else if ($type === 'supplier') {
+            $supplierQuery = SupplierModel::query();
             if (!empty($search)) {
-                $query->where('name', 'like', '%' . $search . '%');
+                $supplierQuery->where('name', 'like', '%' . $search . '%');
             }
-            $suppliers = $query->where('status', 1)
+            $suppliers = $supplierQuery->where('status', 1)
                 ->orderBy('name')
                 ->get(['id', 'name']);
 
@@ -488,43 +469,59 @@ class Billing extends Controller
                     'reference_type' => SupplierModel::class,
                 ];
             }
+        } else if ($type === 'distributorshop') {
+            $shopQuery = DistributorShopModel::query();
+            if (!empty($search)) {
+                $shopQuery->where('name', 'like', '%' . $search . '%');
+            }
+            $shops = $shopQuery->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
 
-            return response()->json(['results' => $results]);
+            foreach ($shops as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'distributorshop',
+                    'reference_type' => DistributorShopModel::class,
+                ];
+            }
+        } else {
+            // All types
+            $customerQuery = CustomerModel::query();
+            $supplierQuery = SupplierModel::query();
+
+            if (!empty($search)) {
+                $customerQuery->where('name', 'like', '%' . $search . '%');
+                $supplierQuery->where('name', 'like', '%' . $search . '%');
+            }
+
+            $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+            $suppliers = $supplierQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
+
+            foreach ($suppliers as $s) {
+                $results[] = [
+                    'id' => $s->id,
+                    'text' => $s->name,
+                    'type' => 'supplier',
+                    'reference_type' => SupplierModel::class,
+                ];
+            }
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'customer',
+                    'reference_type' => CustomerModel::class,
+                ];
+            }
         }
 
-        // If no type specified, return both suppliers and customers
-        $supplierQuery = SupplierModel::query();
-        $customerQuery = CustomerModel::query();
-
-        if (!empty($search)) {
-            $supplierQuery->where('name', 'like', '%' . $search . '%');
-            $customerQuery->where('name', 'like', '%' . $search . '%');
-        }
-
-        $suppliers = $supplierQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
-        $customers = $customerQuery->where('status', 1)->orderBy('name')->get(['id', 'name']);
-        foreach ($suppliers as $s) {
-            $results[] = [
-                'id' => $s->id,
-                'text' => $s->name,
-                'type' => 'supplier',
-                'reference_type' =>  SupplierModel::class,
-            ];
-        }
-
-        foreach ($customers as $c) {
-            $results[] = [
-                'id' => $c->id,
-                'text' => $c->name,
-                'type' => 'customer',
-                'reference_type' => CustomerModel::class,
-            ];
-        }
-
-        // optional: sort combined results by text
-        $results = collect($results)->sortBy('text')->values()->all();
-
-        return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Ship To retrieved successfully.',
+            'data' => $results
+        ]);
     }
 
     /**
@@ -585,15 +582,18 @@ class Billing extends Controller
         $shipToType = $request->input('ship_to_type');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
 
         $rows = [];
         $totalRecords = 0;
         $filteredRecords = 0;
 
-        if ($shipToType === 'customer') {
+        if ($shipToType === 'customer' || $shipToType === 'App\Models\MasterData\Customer\CustomerModel') {
 
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
-                ->where('customer_id', $shipToId);
+                ->where('customer_id', $shipToId)
+                ->whereIn('status', ['posted', 'completed'])
+                ->where('type', $type);
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -625,15 +625,15 @@ class Billing extends Controller
                     'total' => formatPrice($order->total)
                 ];
             }
-        } else if ($shipToType === 'supplier') {
+        } else if ($shipToType === 'supplier' || $shipToType === 'App\Models\MasterData\Supplier\SupplierModel') {
             // Get Purchase Orders for supplier  
-            // Using either vendor_id/vendor_type (polymorphic) or supplier_id (direct relation)
-            $query = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
+            // Using vendor_id/vendor_type (polymorphic relation)
+            $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
                 ->where(function ($q) use ($shipToId) {
                     $q->where(function ($subQ) use ($shipToId) {
                         $subQ->where('vendor_id', $shipToId)
                             ->where('vendor_type', 'App\\Models\\MasterData\\Supplier\\SupplierModel');
-                    })->orWhere('supplier_id', $shipToId);
+                    })->orWhere('vendor_id', $shipToId);
                 })
                 ->where('status', 'posted');
 
@@ -656,8 +656,8 @@ class Billing extends Controller
 
             $no = $start + 1;
             foreach ($orders as $order) {
-                // Get supplier name from either relation
-                $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
+                // Get supplier/vendor name from vendor relation (polymorphic)
+                $supplierName = $order->vendor ? $order->vendor->name : '-';
 
                 $shipToName = $order->shipTo ? $order->shipTo->name : '-';
                 $rows[] = [
@@ -667,6 +667,39 @@ class Billing extends Controller
                     'date' => formatDate($order->date),
                     'customer_supplier_name' => $supplierName,
                     'shop_name' => $shipToName,
+                    'total' => formatPrice($order->total)
+                ];
+            }
+        } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
+            $query = SalesOrderModel::with(['vendorData', 'shipToData'])
+                ->where('vendor', $shipToId);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            }
+
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('sales_order_number', 'like', '%' . $search . '%')
+                        ->orWhere('invoice_number', 'like', '%' . $search . '%');
+                });
+            }
+
+            $totalQuery = clone $query;
+            $totalRecords = $totalQuery->count();
+            $filteredRecords = $totalRecords;
+
+            $orders = $query->skip($start)->take($length)->get();
+
+            $no = $start + 1;
+            foreach ($orders as $order) {
+                $rows[] = [
+                    'checkbox' => '<input type="checkbox" class="form-check-input select-order" data-id="' . $order->id . '" data-type="sales_order">',
+                    'number' => $no++,
+                    'order_number' => $order->sales_order_number,
+                    'date' => formatDate($order->date),
+                    'customer_supplier_name' => $order->vendorData ? $order->vendorData->name : '-',
+                    'shop_name' => $order->shipToData ? $order->shipToData->name : '-',
                     'total' => formatPrice($order->total)
                 ];
             }
@@ -680,54 +713,203 @@ class Billing extends Controller
         ]);
     }
 
+
+    public function getPurchaseOrdersData(Request $request)
+    {
+        $draw = (int) $request->input('draw', 0);
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $search = $request->input('search.value', '');
+        $orderColumnIndex = $request->input('order.0.column', 0);
+        $orderDirection = $request->input('order.0.dir', 'asc');
+
+        $shipToId = explode('-', $request->input('ship_to_id'))[0];
+        $shipToType = $request->input('ship_to_type');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
+
+        $rows = [];
+        $totalRecords = 0;
+        $filteredRecords = 0;
+
+        $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
+            ->where(function ($q) use ($shipToId, $shipToType) {
+                $q->where(function ($subQ) use ($shipToId, $shipToType) {
+                    $subQ->where('vendor_id', $shipToId)
+                        ->where('vendor_type', $shipToType);
+                })->orWhere('vendor_id', $shipToId);
+            })
+            ->where('status', 'posted')
+            ->where('type', $type);
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('purchase_order_number', 'like', '%' . $search . '%')
+                    ->orWhere('invoice_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        $totalQuery = clone $query;
+        $totalRecords = $totalQuery->count();
+        $filteredRecords = $totalRecords;
+
+        $orders = $query->skip($start)->take($length)->get();
+
+        $no = $start + 1;
+        foreach ($orders as $order) {
+            // Get supplier/vendor name from vendor relation (polymorphic)
+            $supplierName = $order->vendor ? $order->vendor->name : '-';
+
+            $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+            $rows[] = [
+                'checkbox' => '<input type="checkbox" class="form-check-input select-order" data-id="' . $order->id . '" data-type="purchase_order">',
+                'number' => $no++,
+                'order_number' => $order->purchase_order_number,
+                'date' => formatDate($order->date),
+                'customer_supplier_name' => $supplierName,
+                'shop_name' => $shipToName,
+                'total' => formatPrice($order->total)
+            ];
+        }
+
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $rows
+        ]);
+    }
+
+
+    public function getSalesPurchaseOrdersData(Request $request)
+    {
+        $draw = (int) $request->input('draw', 0);
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $search = $request->input('search.value', '');
+        $orderColumnIndex = $request->input('order.0.column', 0);
+        $orderDirection = $request->input('order.0.dir', 'asc');
+
+        $shipToId = explode('-', $request->input('ship_to_id'))[0];
+        $shipToType = $request->input('ship_to_type');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
+
+        $rows = [];
+        $totalRecords = 0;
+        $filteredRecords = 0;
+
+        $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
+            ->where(function ($q) use ($shipToId, $shipToType) {
+                $q->where(function ($subQ) use ($shipToId, $shipToType) {
+                    $subQ->where('ship_to_id', $shipToId)
+                        ->where('ship_to_type', $shipToType);
+                })->orWhere('ship_to_id', $shipToId);
+            })
+            ->where('status', 'posted')
+            ->where('type', $type);
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('purchase_order_number', 'like', '%' . $search . '%')
+                    ->orWhere('invoice_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        $totalQuery = clone $query;
+        $totalRecords = $totalQuery->count();
+        $filteredRecords = $totalRecords;
+
+        $orders = $query->skip($start)->take($length)->get();
+
+        $no = $start + 1;
+        foreach ($orders as $order) {
+            // Get supplier/vendor name from vendor relation (polymorphic)
+            $supplierName = $order->vendor ? $order->vendor->name : '-';
+
+            $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+            $rows[] = [
+                'checkbox' => '<input type="checkbox" class="form-check-input select-order" data-id="' . $order->id . '" data-type="purchase_order">',
+                'number' => $no++,
+                'order_number' => $order->purchase_order_number,
+                'date' => formatDate($order->date),
+                'customer_supplier_name' => $supplierName,
+                'shop_name' => $shipToName,
+                'total' => formatPrice($order->total)
+            ];
+        }
+
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $rows
+        ]);
+    }
+
     public function addOrdersToTemp(Request $request)
     {
         try {
             $orderIds = $request->input('order_ids', []);
-            $orderType = $request->input('order_type'); // 'sales_order' or 'purchase_order'
+            $orderTypes = $request->input('order_types', []);
 
             $tempData = [];
 
-            if ($orderType === 'sales_order') {
-                $orders = SalesOrderModel::with(['customer', 'shop.distributor'])
-                    ->whereIn('id', $orderIds)->get();
+            foreach ($orderIds as $index => $orderId) {
+                $orderType = $orderTypes[$index] ?? null;
 
-                foreach ($orders as $order) {
-                    $shopName = $order->shop ? $order->shop->distributor->name . ' / ' . $order->shop->name : '-';
-                    $tempData[] = [
-                        'id' => $order->id,
-                        'type' => 'sales_order',
-                        'source' => SalesOrderModel::class,
-                        'order_number' => $order->sales_order_number,
-                        'invoice_number' => $order->invoice_number ?? '-',
-                        'date' => formatDate($order->date),
-                        'customer_supplier_name' => $order->customer->name ?? '-',
-                        'shop_name' => $shopName,
-                        'total' => $order->total,
-                        'formatted_total' => formatPrice($order->total)
-                    ];
-                }
-            } else if ($orderType === 'purchase_order') {
-                $orders = PurchaseOrderModel::with(['supplier', 'vendor', 'shipTo'])
-                    ->whereIn('id', $orderIds)
-                    ->get();
+                if ($orderType === 'sales_order') {
+                    $order = SalesOrderModel::with(['customer', 'shop.distributor', 'vendorData', 'shipToData'])
+                        ->find($orderId);
 
-                foreach ($orders as $order) {
-                    $supplierName = $order->supplier ? $order->supplier->name : ($order->vendor ? $order->vendor->name : '-');
-                    $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+                    if ($order) {
+                        $shopName = $order->shop ? $order->shop->distributor->name . ' / ' . $order->shop->name : '-';
+                        $tempData[] = [
+                            'id' => $order->id,
+                            'type' => 'sales_order',
+                            'source' => SalesOrderModel::class,
+                            'order_number' => $order->sales_order_number,
+                            'invoice_number' => $order->invoice_number ?? '-',
+                            'date' => formatDate($order->date),
+                            'customer_supplier_name' => $order->customer->name ?? $order->vendorData->name ?? '-',
+                            'shop_name' => $shopName ?? $order->shipToData->name ?? '-',
+                            'total' => $order->total,
+                            'formatted_total' => formatPrice($order->total)
+                        ];
+                    }
+                } else if ($orderType === 'purchase_order') {
+                    $order = PurchaseOrderModel::with(['vendor', 'shipTo'])
+                        ->find($orderId);
 
-                    $tempData[] = [
-                        'id' => $order->id,
-                        'type' => 'purchase_order',
-                        'source' => PurchaseOrderModel::class,
-                        'order_number' => $order->purchase_order_number,
-                        'invoice_number' => $order->invoice_number ?? '-',
-                        'date' => formatDate($order->date),
-                        'customer_supplier_name' => $supplierName,
-                        'shop_name' => $shipToName,
-                        'total' => $order->total,
-                        'formatted_total' => formatPrice($order->total)
-                    ];
+                    if ($order) {
+                        $supplierName = $order->vendor ? $order->vendor->name : '-';
+                        $shipToName = $order->shipTo ? $order->shipTo->name : '-';
+
+                        $tempData[] = [
+                            'id' => $order->id,
+                            'type' => 'purchase_order',
+                            'source' => PurchaseOrderModel::class,
+                            'order_number' => $order->purchase_order_number,
+                            'invoice_number' => $order->invoice_number ?? '-',
+                            'date' => formatDate($order->date),
+                            'customer_supplier_name' => $supplierName,
+                            'shop_name' => $shipToName,
+                            'total' => $order->total,
+                            'formatted_total' => formatPrice($order->total)
+                        ];
+                    }
                 }
             }
 
@@ -768,7 +950,6 @@ class Billing extends Controller
                 ], 404);
             }
 
-            // Format billing data for frontend
             $billingData = [
                 'id' => $billing->id,
                 'billing_number' => $billing->billing_number,
@@ -788,10 +969,27 @@ class Billing extends Controller
                 'subtotal' => $billing->subtotal,
                 'total' => $billing->total,
                 'invoices' => $billing->invoices->map(function ($invoice) {
+                    $name = '';
+                    if ($invoice->invoice_type === SalesOrderModel::class) {
+                        $order = SalesOrderModel::select('id', 'customer_id')
+                            ->with(['customer:id,name'])
+                            ->find($invoice->invoice_id);
+                        $name = $order && $order->customer ? $order->customer->name : '';
+                    } else if ($invoice->invoice_type === PurchaseOrderModel::class) {
+                        $order = PurchaseOrderModel::select('id', 'vendor_id', 'vendor_type')
+                            ->with(['vendor'])
+                            ->find($invoice->invoice_id);
+                        if ($order && $order->vendor) {
+                            $name = $order->vendor->name;
+                        } else {
+                            $name = '';
+                        }
+                    }
                     return [
                         'invoice_id' => $invoice->invoice_id,
                         'invoice_type' => $invoice->invoice_type,
                         'invoice_number' => $invoice->invoice_number,
+                        'invoice_name' => $name,
                         'date' => $invoice->date,
                         'discount' => $invoice->discount,
                         'discount_price' => $invoice->discount_price,
@@ -823,25 +1021,48 @@ class Billing extends Controller
     public function getVendors(Request $request)
     {
         $search = $request->input('q', '');
+        $type = $request->input('type', null);
 
         $results = [];
 
-        // Fetch Suppliers
-        $distributorShopQuery = DistributorShopModel::query();
-        if (!empty($search)) {
-            $distributorShopQuery->where('name', 'like', '%' . $search . '%');
-        }
-        $distributors = $distributorShopQuery->where('status', 1)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        if ($type === 'distributorshop' || $type === null) {
+            // Fetch Distributor Shops
+            $distributorShopQuery = DistributorShopModel::query();
+            if (!empty($search)) {
+                $distributorShopQuery->where('name', 'like', '%' . $search . '%');
+            }
+            $distributors = $distributorShopQuery->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
 
-        foreach ($distributors as $d) {
-            $results[] = [
-                'id' => $d->id,
-                'text' => $d->name,
-                'type' => 'distributorshop',
-                'reference_type' => DistributorShopModel::class,
-            ];
+            foreach ($distributors as $d) {
+                $results[] = [
+                    'id' => $d->id,
+                    'text' => $d->name,
+                    'type' => 'distributorshop',
+                    'reference_type' => DistributorShopModel::class,
+                ];
+            }
+        } else if ($type === 'distributor') {
+
+            // fetch distributors
+            $distributorQuery = DistributorModel::query();
+            if (!empty($search)) {
+                $distributorQuery->where('name', 'like', '%' . $search . '%');
+            }
+
+            $distributors = $distributorQuery->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($distributors as $d) {
+                $results[] = [
+                    'id' => $d->id,
+                    'text' => $d->name,
+                    'type' => 'distributor',
+                    'reference_type' => DistributorModel::class,
+                ];
+            }
         }
 
         return response()->json([
@@ -869,6 +1090,40 @@ class Billing extends Controller
         $vendorId = $billing->vendor ? $billing->vendor->id : null;
         return view(
             'Accounting.Billing.print',
+            getIndexData(
+                $this->title,
+                [
+                    "profile" => $billing->toArray(),
+                ]
+            )
+        );
+    }
+
+    /**
+     * Print receipt (kwitansi) for a billing.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function printReceipt($id)
+    {
+        $billing = BillingModel::with([
+            'vendor',
+            'shipTo',
+            'invoices.invoice.details'
+        ])->find($id);
+
+        if (!$billing) {
+            return redirect()->route('billing.index')
+                ->with('error', 'Billing not found.');
+        }
+
+        // Example: Use vendor name/type to determine which view to use
+        $vendorName = $billing->vendor ? $billing->vendor->name : '';
+        $vendorId = $billing->vendor ? $billing->vendor->id : null;
+        // dd($billing->toArray());
+        return view(
+            'Accounting.Billing.print-receipt',
             getIndexData(
                 $this->title,
                 [

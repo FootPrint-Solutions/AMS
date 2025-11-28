@@ -205,6 +205,7 @@
                                         <th class="header text" width="20%">Subtotal</th>
                                         <th class="header text" width="15%">Discount</th>
                                         <th class="header text" width="20%">Total</th>
+                                        <th class="header text" width="10%">Note</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -230,6 +231,9 @@
                                                 <td class="text">
                                                     Rp {{ number_format($invoice['total'] ?? 0, 0, ',', '.') }}
                                                 </td>
+                                                <td class="text">
+                                                    {{ $invoice['note'] ?? '' }}
+                                                </td>
                                             </tr>
                                             @php
                                                 $grandTotal += $invoice['total'] ?? 0;
@@ -237,7 +241,7 @@
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td colspan="5" class="text center">Tidak ada data invoice.</td>
+                                            <td colspan="6" class="text center">Tidak ada data invoice.</td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -443,6 +447,8 @@
                                         <th class="header text" width="5%" style="text-align:left;">No.</th>
                                         <th class="header text" width="35%" style="text-align:left;">Nama Produk
                                         </th>
+                                        <th class="header text" width="15%" style="text-align:left;">Kode Produksi
+                                        </th>
                                         <th class="header text" width="10%" style="text-align:left;">Qty</th>
                                         <th class="header text" width="15%" style="text-align:left;">Harga</th>
                                         <th class="header text" width="20%" style="text-align:left;">Total</th>
@@ -460,6 +466,8 @@
                                                     <tr>
                                                         <td class="text">{{ $productNo++ }}</td>
                                                         <td class="text">{{ $detail['battery_name'] ?? 'N/A' }}</td>
+                                                        <td class="text">
+                                                            {{ $detail['battery_production_code'] ?? 'N/A' }}</td>
                                                         <td class="text">
                                                             {{ number_format($detail['quantity'] ?? 0, 0, ',', '.') }}
                                                         </td>

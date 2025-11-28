@@ -56,7 +56,7 @@
                                         <label for="vendor">Vendor <span class="login-danger">*</span>
                                             <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
                                                 data-placement="top"
-                                                title="This vendor data contains distributor shop data."></i>
+                                                title="This vendor data contains distributor data."></i>
                                         </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
@@ -71,7 +71,7 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains customer data."></i>
+                                        title="This vendor data contains distributor shop data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -248,31 +248,6 @@
                         </div>
                         <hr>
 
-                        {{-- Sales Orders Table --}}
-                        <div class="mb-4">
-                            <h5 class="mb-2">Sales Orders</h5>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover align-middle" id="table-orders">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width:40px;" class="text-center">
-                                                <input type="checkbox" id="select-all-orders" class="form-check-input">
-                                            </th>
-                                            <th style="width:40px;" class="text-center">No</th>
-                                            <th id="order-number-header">Order Number</th>
-                                            <th>Date</th>
-                                            <th id="customer-supplier-header">Name</th>
-                                            <th>Ship To</th>
-                                            <th class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {{-- Data populated via AJAX --}}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                         {{-- Purchase Orders Table --}}
                         <div>
                             <h5 class="mb-2">Purchase Orders</h5>
@@ -288,6 +263,31 @@
                                             <th id="purchase-order-number-header">Order Number</th>
                                             <th>Date</th>
                                             <th id="supplier-header">Name</th>
+                                            <th>Ship To</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Data populated via AJAX --}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {{-- Sales Orders Table --}}
+                        <div class="mb-4">
+                            <h5 class="mb-2">Sales Orders</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle" id="table-orders">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:40px;" class="text-center">
+                                                <input type="checkbox" id="select-all-orders" class="form-check-input">
+                                            </th>
+                                            <th style="width:40px;" class="text-center">No</th>
+                                            <th id="order-number-header">Order Number</th>
+                                            <th>Date</th>
+                                            <th id="customer-supplier-header">Name</th>
                                             <th>Ship To</th>
                                             <th class="text-end">Total</th>
                                         </tr>
@@ -375,7 +375,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
-                        d.type = 'regular';
+                        d.type = 'recycle';
                     },
                     error: function() {
                         Swal.fire({
@@ -464,7 +464,7 @@
                     [10, 25, 50, 100]
                 ],
                 ajax: {
-                    url: '/billing/purchase-orders/sales/get',
+                    url: '/billing/purchase-orders/get',
                     type: 'POST',
                     data: function(d) {
                         const shipToData = getShipToData();
@@ -473,7 +473,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
-                        d.type = 'recycle';
+                        d.type = 'regular';
                     },
                     error: function() {
                         Swal.fire({
@@ -693,12 +693,12 @@
 
                             if (order.type === 'sales_order') {
                                 orderType = 'Sales';
-                            } else if (order.type === 'purchase_order') {
-                                orderType = 'Purchase';
                                 // Make total negative for purchase
                                 orderTotal = -Math.abs(order.total);
                                 formattedTotal = 'Rp -' + Math.abs(order.total).toLocaleString(
                                     'id-ID');
+                            } else if (order.type === 'purchase_order') {
+                                orderType = 'Purchase';
                             } else {
                                 orderType = order.type || '';
                             }
@@ -1066,7 +1066,8 @@
                     delay: 250,
                     data: function(params) {
                         return {
-                            q: params.term
+                            q: params.term,
+                            type: 'distributor'
                         };
                     },
                     processResults: function(response) {
@@ -1101,7 +1102,7 @@
                     data: function(params) {
                         return {
                             q: params.term,
-                            type: 'customer',
+                            type: 'distributorshop'
                         };
                     },
                     processResults: function(response) {
