@@ -590,10 +590,13 @@ class Billing extends Controller
 
         if ($shipToType === 'customer' || $shipToType === 'App\Models\MasterData\Customer\CustomerModel') {
 
+            $usedInvoiceIds = DB::table('billing_invoices')->pluck('invoice_id')->toArray();
+
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
                 ->where('customer_id', $shipToId)
                 ->whereIn('status', ['posted', 'completed'])
-                ->where('type', $type);
+                ->where('type', $type)
+                ->whereNotIn('id', $usedInvoiceIds);
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -733,15 +736,18 @@ class Billing extends Controller
         $totalRecords = 0;
         $filteredRecords = 0;
 
+        $usedInvoiceIds = DB::table('billing_invoices')->pluck('invoice_id')->toArray();
+
         $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
             ->where(function ($q) use ($shipToId, $shipToType) {
                 $q->where(function ($subQ) use ($shipToId, $shipToType) {
-                    $subQ->where('vendor_id', $shipToId)
-                        ->where('vendor_type', $shipToType);
-                })->orWhere('vendor_id', $shipToId);
+                    $subQ->where('ship_to_id', $shipToId)
+                        ->where('ship_to_type', $shipToType);
+                })->orWhere('ship_to_id', $shipToId);
             })
             ->where('status', 'posted')
-            ->where('type', $type);
+            ->where('type', $type)
+            ->whereNotIn('id', $usedInvoiceIds);
 
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate, $endDate]);
@@ -806,6 +812,7 @@ class Billing extends Controller
         $totalRecords = 0;
         $filteredRecords = 0;
 
+        $usedInvoiceIds = DB::table('billing_invoices')->pluck('invoice_id')->toArray();
         $query = PurchaseOrderModel::with(['vendor', 'shipTo'])
             ->where(function ($q) use ($shipToId, $shipToType) {
                 $q->where(function ($subQ) use ($shipToId, $shipToType) {
@@ -814,7 +821,8 @@ class Billing extends Controller
                 })->orWhere('vendor_id', $shipToId);
             })
             ->where('status', 'posted')
-            ->where('type', $type);
+            ->where('type', $type)
+            ->whereNotIn('id', $usedInvoiceIds);
 
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate, $endDate]);
