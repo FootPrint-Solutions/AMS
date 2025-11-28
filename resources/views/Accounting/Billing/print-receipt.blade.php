@@ -184,8 +184,6 @@
                 color: #000;
                 text-decoration: none;
             }
-
-            /* opsional kalau printer B/W */
         }
     </style>
 </head>
@@ -194,9 +192,8 @@
 
     @php
         // ==== NORMALISASI DATA DARI getIndexData() ====
-        $profile =
-            $profile ??
-            ($data['profile'] ?? null ?? ($pageData['profile'] ?? null ?? ($result['profile'] ?? null ?? null)));
+       $profile = $data['profile'] ?? $pageData['profile'] ?? $result['profile'] ?? null;
+
 
         $rupiah = fn($n) => number_format((float) $n, 0, ',', '.');
         $billingDate = isset($profile['date']) ? \Carbon\Carbon::parse($profile['date']) : null;
@@ -235,9 +232,8 @@
         {{-- HEADER --}}
         <div class="header">
             <div class="brand">
-                {{-- ganti src logo kamu --}}
-                <img src="{{ asset('assets/logo-akikita.png') }}" alt="akikita">
-                <span>akikita.id</span>
+
+                <img src="https://akikita.id/img/logo-aki.png" alt="akikita">
             </div>
             <div class="header-title">KWITANSI</div>
         </div>
@@ -341,9 +337,9 @@
     </div>
 
     <script>
-        window.onload = () => {
-            window.print();
-        };
+        // window.onload = () => {
+        //     window.print();
+        // };
     </script>
 
 </body>
