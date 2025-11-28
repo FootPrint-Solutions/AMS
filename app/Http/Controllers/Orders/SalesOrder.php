@@ -276,7 +276,7 @@ class SalesOrder extends Controller
             if ($key->type == 'recycle') {
                 $typeBadge = " <span class='badge badge-warning text-dark'>Recycle</span>";
             } else {
-                $typeBadge = "";
+                $typeBadge = " <span class='badge badge-success'>Regular</span>";
             }
 
             // Set an array for each row.
