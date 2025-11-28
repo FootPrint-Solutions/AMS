@@ -207,6 +207,7 @@ class PurchaseOrder extends Controller
         $search = $request->input('search.value', null);
         $orderColumnIndex = $request->input('order.0.column', null);
         $orderDirection = $request->input('order.0.dir', 'asc');
+        $poType = $request->input('po_type', null);
 
         $query = PurchaseOrderModel::with(['vendor', 'shipTo']);
 
@@ -241,6 +242,10 @@ class PurchaseOrder extends Controller
                         $shipToQuery->where('name', 'like', '%' . $search . '%');
                     });
             });
+        }
+
+        if (!empty($poType)) {
+            $query->where('type', $poType);
         }
 
         if ($orderColumnIndex !== null) {

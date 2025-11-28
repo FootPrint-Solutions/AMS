@@ -60,6 +60,15 @@
                     <label for="filter-date-end">Date To</label>
                     <input type="date" class="form-control" id="filter-date-end" onchange="reloadTable()">
                 </div>
+
+                <div class="col-md-3">
+                    <label for="filter-po-type">Purchase Order Type</label>
+                    <select class="form-control" id="filter-po-type" onchange="reloadTable()">
+                        <option value="">All Types</option>
+                        <option value="regular">Regular</option>
+                        <option value="recycle">Recycle</option>
+                    </select>
+                </div>
             </div>
 
         </div>
@@ -122,6 +131,7 @@
                         d.dateStart = $("#filter-date-start").val();
                         d.dateEnd = $("#filter-date-end").val();
                         d.ship_to_id = $("#filter-ship-to").val();
+                        d.po_type = $("#filter-po-type").val();
                     }
                 },
                 columnDefs: [{
