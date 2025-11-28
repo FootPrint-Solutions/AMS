@@ -1,11 +1,11 @@
-{{-- @dd($data);í --}}
-
 @php
     $current_date = isset($data['profile']['date'])
         ? date('m/d/Y', strtotime($data['profile']['date']))
         : date('m/d/Y');
     $billing_number = isset($data['profile']['billing_number']) ? $data['profile']['billing_number'] : 'N/A';
 @endphp
+
+{{-- @dd($data) --}}
 
 <style type="text/css">
     @media print {
@@ -203,6 +203,7 @@
                                         <th class="header text" width="5%">No.</th>
                                         <th class="header text" width="30%">Invoice Number</th>
                                         <th class="header text" width="20%">Subtotal</th>
+                                        <th class="header text" width="10%">Qty</th>
                                         <th class="header text" width="15%">Discount</th>
                                         <th class="header text" width="20%">Total</th>
                                     </tr>
@@ -213,6 +214,14 @@
                                     @endphp
                                     @if (!empty($data['profile']['invoices']))
                                         @foreach ($data['profile']['invoices'] as $index => $invoice)
+                                            @php
+                                                $qty = 0;
+                                                if (!empty($invoice['invoice']['details'])) {
+                                                    foreach ($invoice['invoice']['details'] as $detail) {
+                                                        $qty += $detail['quantity'] ?? 0;
+                                                    }
+                                                }
+                                            @endphp
                                             <tr>
                                                 <td class="text">
                                                     {{ $index + 1 }}
@@ -222,6 +231,9 @@
                                                 </td>
                                                 <td class="text">
                                                     Rp {{ number_format($invoice['subtotal'] ?? 0, 0, ',', '.') }}
+                                                </td>
+                                                <td class="text">
+                                                    {{ number_format($qty, 0, ',', '.') }}
                                                 </td>
                                                 <td class="text">
                                                     Rp
@@ -237,7 +249,7 @@
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td colspan="5" class="text center">Tidak ada data invoice.</td>
+                                            <td colspan="7" class="text center">Tidak ada data invoice.</td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -457,23 +469,33 @@
                                         @foreach ($data['profile']['invoices'] as $invoice)
                                             @if (!empty($invoice['invoice']['details']))
                                                 @foreach ($invoice['invoice']['details'] as $detail)
+                                                    @php
+                                                        $qty = $detail['quantity'] ?? 0;
+                                                        $price = $detail['battery_price_retail'] ?? 0;
+                                                        $total = $qty * $price;
+
+                                                        $totalInvoice = $invoice['total'] ?? 0;
+                                                        if (($totalInvoice ?? 0) < 0) {
+                                                            $qty = $qty;
+                                                            $price = -abs($price);
+                                                            $total = -abs($total);
+                                                        }
+                                                    @endphp
                                                     <tr>
                                                         <td class="text">{{ $productNo++ }}</td>
                                                         <td class="text">{{ $detail['battery_name'] ?? 'N/A' }}</td>
                                                         <td class="text">
-                                                            {{ number_format($detail['quantity'] ?? 0, 0, ',', '.') }}
+                                                            {{ number_format($qty, 0, ',', '.') }}
                                                         </td>
                                                         <td class="text">Rp
-                                                            {{ number_format($detail['battery_price_retail'] ?? 0, 0, ',', '.') }}
+                                                            {{ number_format($price, 0, ',', '.') }}
                                                         </td>
                                                         <td class="text">Rp
-                                                            {{ number_format(($detail['quantity'] ?? 0) * ($detail['battery_price_retail'] ?? 0), 0, ',', '.') }}
+                                                            {{ number_format($total, 0, ',', '.') }}
                                                         </td>
                                                     </tr>
                                                     @php
-                                                        $grandTotalProducts +=
-                                                            ($detail['quantity'] ?? 0) *
-                                                            ($detail['battery_price_retail'] ?? 0);
+                                                        $grandTotalProducts += $total;
                                                     @endphp
                                                 @endforeach
                                             @endif
