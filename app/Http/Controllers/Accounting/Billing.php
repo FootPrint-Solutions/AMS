@@ -703,7 +703,9 @@ class Billing extends Controller
             }
         } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
             $query = SalesOrderModel::with(['vendorData', 'shipToData'])
-                ->where('vendor', $shipToId);
+                ->where('vendor', $shipToId)
+                ->whereIn('status', ['posted', 'completed'])
+                ->where('type', $type);
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
