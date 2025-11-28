@@ -347,13 +347,13 @@
                             }
 
                             items.forEach(item => {
-                                if (item.invoice_type ===
+                                if (item.invoice_source ===
                                     "App\\Models\\Orders\\PurchaseOrder\\PurchaseOrderModel"
                                 ) {
-                                    item.invoice_type = "Purchase Order";
-                                } else if (item.invoice_type ===
+                                    item.invoice_source = "Purchase order";
+                                } else if (item.invoice_source ===
                                     "App\\Models\\Orders\\SalesOrder\\SalesOrderModel") {
-                                    item.invoice_type = "Sales Order";
+                                    item.invoice_source = "Sales order";
                                 }
                             });
 
@@ -375,7 +375,7 @@
                                 itemTable += `
                                 <tr>
                                     <td>${item.invoice_number ?? '-'}</td>
-                                    <td>${item.invoice_type ?? '-'}</td>
+                                    <td>${item.invoice_source ?? '-'} ${item.invoice_type ?? '-'}</td>
                                     <td>${item.date ?? '-'}</td>
                                     <td>${item.subtotal ?? '-'}</td>
                                     <td>${item.discount_price ?? '-'}</td>
