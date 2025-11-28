@@ -7,6 +7,10 @@
         #table-orders_filter {
             margin-top: 10px !important;
         }
+
+        #table-purchase-orders_filter {
+            margin-top: 10px !important;
+        }
     </style>
 
     <div class="d-none d-lg-block">
