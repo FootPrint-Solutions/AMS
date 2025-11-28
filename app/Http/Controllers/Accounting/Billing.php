@@ -582,6 +582,7 @@ class Billing extends Controller
         $shipToType = $request->input('ship_to_type');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
 
         $rows = [];
         $totalRecords = 0;
@@ -590,7 +591,9 @@ class Billing extends Controller
         if ($shipToType === 'customer' || $shipToType === 'App\Models\MasterData\Customer\CustomerModel') {
 
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
-                ->where('customer_id', $shipToId);
+                ->where('customer_id', $shipToId)
+                ->whereIn('status', ['posted', 'completed'])
+                ->where('type', $type);
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -724,6 +727,7 @@ class Billing extends Controller
         $shipToType = $request->input('ship_to_type');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
 
         $rows = [];
         $totalRecords = 0;
@@ -736,7 +740,8 @@ class Billing extends Controller
                         ->where('vendor_type', $shipToType);
                 })->orWhere('vendor_id', $shipToId);
             })
-            ->where('status', 'posted');
+            ->where('status', 'posted')
+            ->where('type', $type);
 
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate, $endDate]);
@@ -795,6 +800,7 @@ class Billing extends Controller
         $shipToType = $request->input('ship_to_type');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $type = $request->input('type', 'regular');
 
         $rows = [];
         $totalRecords = 0;
@@ -807,7 +813,8 @@ class Billing extends Controller
                         ->where('ship_to_type', $shipToType);
                 })->orWhere('ship_to_id', $shipToId);
             })
-            ->where('status', 'posted');
+            ->where('status', 'posted')
+            ->where('type', $type);
 
         if ($startDate && $endDate) {
             $query->whereBetween('date', [$startDate, $endDate]);

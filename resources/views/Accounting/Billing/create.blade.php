@@ -71,7 +71,7 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains customer or supplier data."></i>
+                                        title="This vendor data contains customer data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -375,6 +375,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
+                        d.type = 'regular';
                     },
                     error: function() {
                         Swal.fire({
@@ -472,6 +473,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
+                        d.type = 'recycle';
                     },
                     error: function() {
                         Swal.fire({
@@ -1098,7 +1100,8 @@
                     delay: 250,
                     data: function(params) {
                         return {
-                            q: params.term
+                            q: params.term,
+                            type: 'customer',
                         };
                     },
                     processResults: function(response) {

@@ -375,6 +375,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
+                        d.type = 'recycle';
                     },
                     error: function() {
                         Swal.fire({
@@ -472,6 +473,7 @@
                         d.ship_to_type = shipToData.type;
                         d.start_date = $('#filter-start-date').val();
                         d.end_date = $('#filter-end-date').val();
+                        d.type = 'regular';
                     },
                     error: function() {
                         Swal.fire({
