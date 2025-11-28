@@ -49,6 +49,16 @@
                         <option value="posted">Posted</option>
                     </select>
                 </div>
+
+                {{-- Filter Billing Type ( Sales Billing / Purchase Billing ) --}}
+                <label class="col-md-2 col-form-label fw-bold">Billing Type</label>
+                <div class="col-md-2">
+                    <select class="form-select" id="billing-type-filter">
+                        <option value="all" selected>All</option>
+                        <option value="sales_billing">Sales Billing</option>
+                        <option value="purchase_billing">Purchase Billing</option>
+                    </select>
+                </div>
             </form>
         </div>
     </div>
@@ -104,6 +114,7 @@
                         d.status = $("#billing-status-filter").val();
                         d.date_start = $("#input-billing-date-start").val();
                         d.date_end = $("#input-billing-date-end").val();
+                        d.billing_type = $("#billing-type-filter").val();
                     }
                 },
                 columns: [{
@@ -308,10 +319,11 @@
                 window.location.href = "/billing/create-purchase";
             });
 
-            $("#billing-status-filter, #input-billing-date-start, #input-billing-date-end").on("change",
-                function() {
-                    table.ajax.reload();
-                });
+            $("#billing-status-filter, #input-billing-date-start, #input-billing-date-end, #billing-type-filter")
+                .on("change",
+                    function() {
+                        table.ajax.reload();
+                    });
 
             $('#table-billing tbody').on('click', 'td.dt-control', function() {
                 let tr = $(this).closest('tr');
@@ -333,11 +345,24 @@
                                 tr.addClass('shown');
                                 return;
                             }
+
+                            items.forEach(item => {
+                                if (item.invoice_type ===
+                                    "App\\Models\\Orders\\PurchaseOrder\\PurchaseOrderModel"
+                                ) {
+                                    item.invoice_type = "Purchase Order";
+                                } else if (item.invoice_type ===
+                                    "App\\Models\\Orders\\SalesOrder\\SalesOrderModel") {
+                                    item.invoice_type = "Sales Order";
+                                }
+                            });
+
                             let itemTable = `
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th>Invoice Number</th>
+                                        <th>Invoice Type</th>
                                         <th>Date</th>
                                         <th>Subtotal</th>
                                         <th>Discount Price</th>
@@ -350,6 +375,7 @@
                                 itemTable += `
                                 <tr>
                                     <td>${item.invoice_number ?? '-'}</td>
+                                    <td>${item.invoice_type ?? '-'}</td>
                                     <td>${item.date ?? '-'}</td>
                                     <td>${item.subtotal ?? '-'}</td>
                                     <td>${item.discount_price ?? '-'}</td>
