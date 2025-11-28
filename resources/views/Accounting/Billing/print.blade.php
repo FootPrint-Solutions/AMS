@@ -518,5 +518,27 @@
                 </tbody>
             </table>
         </div>
+
+        @if (Str::startsWith($billing_number, 'SB'))
+            <br>
+            <div style="text-align:center; font-size:18px; font-weight:bold; margin-top:20px;">
+                Pembayaran bisa dilakukan via transfer ke rekening OCBC:<br>
+                <span style="font-size:20px;">CV SERIAKITA</span><br>
+                <span style="font-size:20px;">060800030110</span><br><br>
+                Klik link di bawah untuk<br>
+                <a href="https://akikita.id/syarat-garansi" target="_blank"
+                    style="color:blue; text-decoration:underline;">
+                    Syarat & Ketentuan Garansi Produk
+                </a>
+                <br><br>
+                Terimakasih atas pembelian Anda!<br><br>
+                <span style="font-size:16px;">
+                    <img src="https://img.icons8.com/ios-filled/20/000000/whatsapp.png"
+                        style="vertical-align:middle;" /> 082228800175
+                </span>
+                &nbsp;&nbsp;
+                <a href="https://www.akikita.id" target="_blank">www.akikita.id</a>
+            </div>
+        @endif
     </div>
 </body>
