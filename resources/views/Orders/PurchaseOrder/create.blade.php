@@ -33,67 +33,82 @@
                     <input type="hidden" id="type" name="type" value="regular">
 
                     {{-- Quotation Number & Date --}}
-                    <div class="row">
+                    <div class="row mb-3">
                         {{-- Quotation Number --}}
-                        <div class="col">
+                        <div class="col-md-3">
                             <div class="form-group local-forms">
-                                <label for="purchase-order-number">PO Number <span class="login-danger">*</span></label>
+                                <label for="purchase-order-number" class="form-label">
+                                    PO Number <span class="login-danger">*</span>
+                                </label>
                                 <input type="text" class="form-control" id="purchase-order-number"
-                                    name="purchaseordernumber" placeholder="Enter distributor name" required readonly
+                                    name="purchaseordernumber" placeholder="Enter PO number" required readonly
                                     @isset($data['profile'])
-                                value="{{ $data['profile']['purchase_order_number'] }}"
-                                @else
-                                value="{{ $data['number'] }}"
-                                @endisset>
+                                        value="{{ $data['profile']['purchase_order_number'] }}"
+                                    @else
+                                        value="{{ $data['number'] }}"
+                                    @endisset>
                             </div>
                         </div>
 
                         {{-- Date --}}
-                        <div class="col">
+                        <div class="col-md-3">
                             <div class="form-group local-forms">
-                                <label for="quotation-date">Quotation Date <span class="login-danger">*</span></label>
+                                <label for="quotation-date" class="form-label">
+                                    Quotation Date <span class="login-danger">*</span>
+                                </label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
-                                value="{{ \Carbon\Carbon::parse($data['profile']['date'])->format('Y-m-d') }}"
-                                @else
-                                value="{{ date('Y-m-d') }}"
-                                @endisset>
+                                        value="{{ \Carbon\Carbon::parse($data['profile']['date'])->format('Y-m-d') }}"
+                                    @else
+                                        value="{{ date('Y-m-d') }}"
+                                    @endisset>
                             </div>
                         </div>
 
-                        {{-- Supplier --}}
-                        <div class="col">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group local-forms">
-                                        <label for="vendor">Vendor <span class="login-danger">*</span>
-                                            <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="This vendor data contains distributor data."></i>
-                                        </label>
-                                        <select class="form-control" id="vendor" name="vendor" required>
-
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Shops --}}
-                        <div class="col">
+                        {{-- Vendor --}}
+                        <div class="col-md-3">
                             <div class="form-group local-forms">
-                                <label for="ship_to">Ship To <span class="login-danger">*</span>
+                                <label for="vendor" class="form-label">
+                                    Vendor <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop, distributor, or customer data."></i>
+                                        title="This vendor data contains distributor data."></i>
+                                </label>
+                                <select class="form-control" id="vendor" name="vendor" required>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Ship To --}}
+                        <div class="col-md-2">
+                            <div class="form-group local-forms">
+                                <label for="ship_to" class="form-label">
+                                    Ship To <span class="login-danger">*</span>
+                                    <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
+                                        title="This vendor data contains shop data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col">
+                        {{-- Find Billing Button --}}
+                        <div class="col-md-1 d-flex align-items-end">
                             <div class="form-group local-forms">
-                                <label for="address">Address <span class="login-danger">*</span></label>
+                                <button type="button" class="btn btn-primary" id="btn-find-sales-order"
+                                    title="Find Billing">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        {{-- Address --}}
+                        <div class="col-md-8">
+                            <div class="form-group local-forms">
+                                <label for="AddressSearchColumnSalesOrderEditable" class="form-label">
+                                    Address <span class="login-danger">*</span>
+                                </label>
                                 <input type="text" class="form-control" name="Address"
                                     id="AddressSearchColumnSalesOrderEditable"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['address']) }} @endif"
@@ -102,9 +117,11 @@
                         </div>
 
                         {{-- Invoice Number --}}
-                        <div class="col">
+                        <div class="col-md-4">
                             <div class="form-group local-forms">
-                                <label for="InvoiceNumber">Invoice Number <span class="login-danger">*</span></label>
+                                <label for="InvoiceNumber" class="form-label">
+                                    Invoice Number <span class="login-danger">*</span>
+                                </label>
                                 <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
                                     autocomplete="off">
@@ -160,8 +177,9 @@
                                 <tr class="table-battery-detail-row {{ $class_tr }}">
                                     {{-- Production Code --}}
                                     <td>
-                                        <input type="text" class="form-control battery-code" id="battery-production-code"
-                                            name="batteriescode[]" placeholder="Enter item production code"
+                                        <input type="text" class="form-control battery-code"
+                                            id="battery-production-code" name="batteriescode[]"
+                                            placeholder="Enter item production code"
                                             @isset($data['profile']['batteries'])value="{{ $battery['battery_production_code'] }}" @endisset>
                                     </td>
 
@@ -518,7 +536,8 @@
                     delay: 250,
                     data: function(params) {
                         return {
-                            q: params.term
+                            q: params.term,
+                            type: 'shop'
                         };
                     },
                     processResults: function(response) {
@@ -578,14 +597,14 @@
             calculateTotal();
 
             // Show loading Swal
-            // Swal.fire({
-            //     title: "Processing...",
-            //     text: "Please wait while your data is being saved.",
-            //     allowOutsideClick: false,
-            //     didOpen: () => {
-            //         Swal.showLoading();
-            //     }
-            // });
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your data is being saved.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
@@ -647,6 +666,68 @@
                     $(".btn-delete-row").addClass("disabled");
                 }
             }
+        });
+
+        // btn-find-sales-order
+        $("#btn-find-sales-order").on("click", function() {
+            let shipTo = $("#ship_to").val();
+            if (!shipTo) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select Ship To shop first.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Loading...",
+                text: "Please wait while your data is being loaded.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: "/purchase-order/sales-order/find",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    ship_to: shipTo
+                },
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.status === 'success') {
+                        $("#AddressSearchColumnSalesOrderEditable").val(response.data.address);
+                        $("#InvoiceNumber").val(response.data.invoice_number);
+
+                        let tbody = $('#table-battery-detail tbody');
+                        tbody.empty();
+                        response.data.batteries.forEach(function(battery, index) {
+                            let newRow = createBatteryRow(battery, index + 1);
+                            tbody.append(newRow);
+                        });
+
+                        calculateTotal();
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message || "Failed to load sales order data.",
+                            icon: "error",
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.close();
+                    Swal.fire({
+                        title: "Error",
+                        text: "An error occurred while fetching sales order data.",
+                        icon: "error",
+                    });
+                }
+            });
         });
     </script>
 

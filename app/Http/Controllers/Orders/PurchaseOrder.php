@@ -25,6 +25,7 @@ use App\Models\Inventory\InventoryRecycleDetailModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 class PurchaseOrder extends Controller
 {
@@ -945,7 +946,7 @@ class PurchaseOrder extends Controller
                 ];
             }
 
-            return response()->json(['results' => $results]);
+            return response()->json(['status' => 'success', 'message' => 'Shop retrieved successfully.', 'data' => $results]);
         }
 
         if ($type === 'distributor') {
@@ -1036,5 +1037,25 @@ class PurchaseOrder extends Controller
         $results = collect($results)->sortBy('text')->values()->all();
 
         return response()->json(['status' => 'success', 'message' => 'Vendors retrieved successfully.', 'data' => $results]);
+    }
+
+    public function findShop(Request $request)
+    {
+        $id = $request->input('ship_to');
+        $id = explode('-', $id)[0] ?? null;
+        $shop = SalesOrderModel::with('batteries')->where('distributor_shop_id', $id)->where('status', 'posted')->orderBy('id', 'desc')->get();
+
+        if (!$shop) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Shop not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Shop retrieved successfully.',
+            'data' => $shop
+        ]);
     }
 }
