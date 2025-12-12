@@ -405,6 +405,31 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
+            $invoices = BillingInvoiceModel::whereIn('billing_id', $billingIds)->get();
+
+            $salesOrderIds = [];
+            $purchaseOrderIds = [];
+
+            foreach ($invoices as $inv) {
+                if ($inv->invoice_type === SalesOrderModel::class) {
+                    $salesOrderIds[] = $inv->invoice_id;
+                } elseif ($inv->invoice_type === PurchaseOrderModel::class) {
+                    $purchaseOrderIds[] = $inv->invoice_id;
+                }
+            }
+
+            if (!empty($salesOrderIds)) {
+                SalesOrderModel::whereIn('id', $salesOrderIds)
+                    ->where('status', 'draft')
+                    ->update(['status' => 'posted']);
+            }
+
+            if (!empty($purchaseOrderIds)) {
+                PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
+                    ->where('status', 'draft')
+                    ->update(['status' => 'posted']);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Billing(s) posted successfully'
