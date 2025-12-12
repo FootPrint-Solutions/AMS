@@ -790,8 +790,9 @@
                 return;
             }
 
-            var salesOrderIds = selectedRows.map(row => row[11]);
-            var salesOrderNumbers = selectedRows.map(row => row[1]);
+            var salesOrderIds = selectedRows.map(row => row[12]);
+            var salesOrderNumbers = selectedRows.map(row => row[2]);
+            salesOrderNumbers = salesOrderNumbers.map(num => num.replace(/<span[^>]*>.*?<\/span>/gi, '').trim());
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
 
             const recycleSpanRegex = /<span[^>]*>\s*Recycle\s*<\/span>/i;
