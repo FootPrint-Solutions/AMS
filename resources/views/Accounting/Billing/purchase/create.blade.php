@@ -23,7 +23,7 @@
                     @else
                         Add New
                     @endif
-                    Billing
+                    Purchase Billing
                 </div>
                 <br>
 
@@ -279,7 +279,7 @@
 
                         {{-- Sales Orders Table --}}
                         <div class="mb-4">
-                            <h5 class="mb-2">Sales Orders</h5>
+                            <h5 class="mb-2">Sales Orders Recycle</h5>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover align-middle" id="table-orders">
                                     <thead class="table-light">
@@ -1142,5 +1142,7 @@
         $("#btn-cancel").on("click", function() {
             window.location.href = '/billing';
         });
+
+        document.title = "Purchase Billing - AMS";
     </script>
 @endsection
