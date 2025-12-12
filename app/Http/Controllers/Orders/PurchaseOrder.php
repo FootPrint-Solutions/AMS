@@ -156,6 +156,7 @@ class PurchaseOrder extends Controller
 
                         PurchaseOrderBatteryModel::create([
                             'purchase_order_id' => $purchaseOrder->id,
+                            'sales_order_battery_id' => $request->salesorderbatteryid[$index] ?? null,
                             'source' => $batteryType,
                             'battery_id' => $batteryId,
                             'battery_name' => $batteryName,
@@ -1057,5 +1058,274 @@ class PurchaseOrder extends Controller
             'message' => 'Shop retrieved successfully.',
             'data' => $shop
         ]);
+    }
+
+    /**
+     * Get sales order battery details list for DataTable
+     */
+    public function getSalesOrderList(Request $request)
+    {
+        try {
+            $shipTo = $request->input('ship_to');
+            $dateStart = $request->input('date_start');
+            $dateEnd = $request->input('date_end');
+            $search = $request->input('search.value');
+
+            if (!$shipTo) {
+                return response()->json([
+                    'draw' => intval($request->input('draw')),
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                    'message' => 'Parameter ship_to is required.'
+                ]);
+            }
+
+            $shipToData = explode('-', $shipTo);
+            $shipToId = $shipToData[0] ?? null;
+
+            $query = DB::table('sales_order_battery as sob')
+                ->join('sales_orders as so', 'sob.sales_order_id', '=', 'so.id')
+                ->leftJoin('batteries as b', 'sob.battery_id', '=', 'b.id')
+                ->leftJoin('customers as c', 'so.customer_id', '=', 'c.id')
+                ->where('so.status', 'posted')
+                ->where('so.distributor_shop_id', $shipToId)
+                ->select(
+                    'sob.id',
+                    'sob.sales_order_id',
+                    'so.sales_order_number',
+                    'so.date',
+                    'so.invoice_number',
+                    'so.address',
+                    'sob.battery_id',
+                    'sob.battery_name',
+                    'sob.battery_price_retail',
+                    'sob.type',
+                    'sob.tax',
+                    'sob.tax_price',
+                    'sob.discount',
+                    'sob.discount_price',
+                    'sob.price_net',
+                    'sob.quantity',
+                    'sob.battery_production_code',
+                    'sob.image',
+                    'c.name as customer_name',
+                    DB::raw('(sob.battery_price_retail + sob.tax_price - sob.discount_price) as final_price')
+                );
+
+            // Filter by date range
+            if (!empty($dateStart) && !empty($dateEnd)) {
+                $query->whereBetween('so.date', [$dateStart, $dateEnd]);
+            } elseif (!empty($dateStart)) {
+                $query->where('so.date', '>=', $dateStart);
+            } elseif (!empty($dateEnd)) {
+                $query->where('so.date', '<=', $dateEnd);
+            }
+
+            // Search
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('so.sales_order_number', 'like', '%' . $search . '%')
+                        ->orWhere('so.invoice_number', 'like', '%' . $search . '%')
+                        ->orWhere('sob.battery_name', 'like', '%' . $search . '%')
+                        ->orWhere('sob.battery_production_code', 'like', '%' . $search . '%');
+                });
+            }
+
+            // Get total records before pagination
+            $recordsFiltered = $query->count();
+            $recordsTotal = DB::table('sales_order_battery as sob')
+                ->join('sales_orders as so', 'sob.sales_order_id', '=', 'so.id')
+                ->where('so.status', 'posted')
+                ->count();
+
+            // Pagination
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10);
+
+            $batteryDetails = $query->skip($start)
+                ->take($length)
+                ->orderBy('so.date', 'desc')
+                ->get();
+
+            $data = [];
+            foreach ($batteryDetails as $detail) {
+                $data[] = [
+                    'id' => $detail->id,
+                    'sales_order_id' => $detail->sales_order_id,
+                    'sales_order_number' => $detail->sales_order_number,
+                    'date' => $detail->date,
+                    'invoice_number' => $detail->invoice_number,
+                    'address' => $detail->address,
+                    'battery_id' => $detail->battery_id,
+                    'battery_name' => $detail->battery_name ?? '-',
+                    'battery_price_retail' => $detail->battery_price_retail,
+                    'type' => $detail->type ?? 'regular',
+                    'tax' => $detail->tax,
+                    'tax_price' => $detail->tax_price,
+                    'discount' => $detail->discount,
+                    'discount_price' => $detail->discount_price,
+                    'price_net' => $detail->price_net,
+                    'quantity' => $detail->quantity,
+                    'battery_production_code' => $detail->battery_production_code,
+                    'image' => $detail->image,
+                    'final_price' => $detail->final_price,
+                    'customer_name' => $detail->customer_name ?? '-',
+                ];
+            }
+
+            return response()->json([
+                'draw' => intval($request->input('draw')),
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $data
+            ]);
+        } catch (Exception $e) {
+            Log::error('Get Sales Order List Error: ' . $e->getMessage());
+            return response()->json([
+                'draw' => intval($request->input('draw')),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'message' => 'An error occurred while retrieving sales order battery details.'
+            ]);
+        }
+    }
+
+    /**
+     * Get sales order battery details by detail IDs
+     */
+    public function getSalesOrderDetails(Request $request)
+    {
+        try {
+            $detailIds = $request->input('detail_ids');
+
+            if (!is_array($detailIds) || empty($detailIds)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No battery items selected.'
+                ], 400);
+            }
+
+            $batteryDetails = DB::table('sales_order_battery as sob')
+                ->join('sales_orders as so', 'sob.sales_order_id', '=', 'so.id')
+                ->leftJoin('batteries as b', 'sob.battery_id', '=', 'b.id')
+                ->whereIn('sob.id', $detailIds)
+                ->where('so.status', 'posted')
+                ->select(
+                    'sob.id',
+                    'sob.sales_order_id',
+                    'sob.battery_id',
+                    'sob.battery_name',
+                    'sob.battery_price_retail',
+                    'sob.type',
+                    'sob.tax',
+                    'sob.tax_price',
+                    'sob.discount',
+                    'sob.discount_price',
+                    'sob.price_net',
+                    'sob.quantity',
+                    'sob.battery_production_code',
+                    'sob.image',
+                    'so.sales_order_number',
+                    'so.invoice_number',
+                    'so.date',
+                    'so.customer_id',
+                    'so.vehicle_id',
+                    'so.distributor_shop_id',
+                    'so.distributor_shop_technician_id',
+                    'so.discount as so_discount',
+                    'so.discount_price as so_discount_price',
+                    'so.subtotal',
+                    'so.total',
+                    'so.payment_status',
+                    'so.status as so_status',
+                    'so.address',
+                    'so.alternative_address',
+                    'so.latitude',
+                    'so.longitude',
+                    'so.payment_method_id',
+                    'so.midtrans_invoice_number',
+                    'so.midtrans_payment_link',
+                    'so.source_platform',
+                    'so.source_id',
+                    'so.vendor',
+                    'so.ship_to',
+                    'so.type as so_type',
+                    'so.created_at as so_created_at',
+                    'so.updated_at as so_updated_at',
+                    'so.deleted_at as so_deleted_at'
+                )
+                ->get();
+
+            if ($batteryDetails->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No battery items found.'
+                ], 404);
+            }
+
+            $data = [];
+            foreach ($batteryDetails as $detail) {
+                $data[] = [
+                    // sales_order_battery fields
+                    'id' => $detail->id,
+                    'sales_order_id' => $detail->sales_order_id,
+                    'battery_id' => $detail->battery_id,
+                    'battery_name' => $detail->battery_name,
+                    'battery_price_retail' => $detail->battery_price_retail,
+                    'type' => $detail->type,
+                    'tax' => $detail->tax,
+                    'tax_price' => $detail->tax_price,
+                    'discount' => $detail->discount,
+                    'discount_price' => $detail->discount_price,
+                    'price_net' => $detail->price_net,
+                    'quantity' => $detail->quantity,
+                    'battery_production_code' => $detail->battery_production_code,
+                    'image' => $detail->image,
+                    // sales_orders fields
+                    'sales_order_number' => $detail->sales_order_number,
+                    'invoice_number' => $detail->invoice_number,
+                    'date' => $detail->date,
+                    'customer_id' => $detail->customer_id,
+                    'vehicle_id' => $detail->vehicle_id,
+                    'distributor_shop_id' => $detail->distributor_shop_id,
+                    'distributor_shop_technician_id' => $detail->distributor_shop_technician_id,
+                    'so_discount' => $detail->so_discount,
+                    'so_discount_price' => $detail->so_discount_price,
+                    'subtotal' => $detail->subtotal,
+                    'total' => $detail->total,
+                    'payment_status' => $detail->payment_status,
+                    'so_status' => $detail->so_status,
+                    'address' => $detail->address,
+                    'alternative_address' => $detail->alternative_address,
+                    'latitude' => $detail->latitude,
+                    'longitude' => $detail->longitude,
+                    'payment_method_id' => $detail->payment_method_id,
+                    'midtrans_invoice_number' => $detail->midtrans_invoice_number,
+                    'midtrans_payment_link' => $detail->midtrans_payment_link,
+                    'source_platform' => $detail->source_platform,
+                    'source_id' => $detail->source_id,
+                    'vendor' => $detail->vendor,
+                    'ship_to' => $detail->ship_to,
+                    'so_type' => $detail->so_type,
+                    'so_created_at' => $detail->so_created_at,
+                    'so_updated_at' => $detail->so_updated_at,
+                    'so_deleted_at' => $detail->so_deleted_at,
+                ];
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Battery details retrieved successfully.',
+                'data' => $data
+            ]);
+        } catch (Exception $e) {
+            Log::error('Get Sales Order Details Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while retrieving battery details.'
+            ], 500);
+        }
     }
 }

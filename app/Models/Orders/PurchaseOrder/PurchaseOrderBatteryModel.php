@@ -27,6 +27,7 @@ class PurchaseOrderBatteryModel extends Model
      */
     protected $fillable = [
         'purchase_order_id',
+        'sales_order_battery_id',
         'source',
         'battery_id',
         'battery_name',

@@ -29,4 +29,6 @@ Route::prefix('purchase-order')->group(function () {
     Route::get('/vendor/get', [PurchaseOrder::class, 'getVendor'])->name('purchase-order.vendor.get');
     Route::get('/shipto/get', [PurchaseOrder::class, 'getShipTo'])->name('purchase-order.shipto.get');
     Route::post('/sales-order/find', [PurchaseOrder::class, 'findShop'])->name('purchase-order.shop.find');
+    Route::post('/sales-order/list', [PurchaseOrder::class, 'getSalesOrderList'])->name('purchase-order.sales-order.list');
+    Route::post('/sales-order/details', [PurchaseOrder::class, 'getSalesOrderDetails'])->name('purchase-order.sales-order.details');
 });

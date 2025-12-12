@@ -9,6 +9,11 @@
             width: 100%;
             margin-bottom: 20px;
         }
+
+
+        #table-sales-order_filter {
+            margin-top: 10px !important;
+        }
     </style>
 
     {{-- Form --}}
@@ -92,7 +97,7 @@
                         </div>
 
                         {{-- Find Billing Button --}}
-                        <div class="col-md-1 d-flex align-items-end">
+                        <div class="col-md-1 d-flex">
                             <div class="form-group local-forms">
                                 <button type="button" class="btn btn-primary" id="btn-find-sales-order"
                                     title="Find Billing">
@@ -299,6 +304,9 @@
             </div>
             </td>
 
+            {{-- Sales Order Battery Id --}}
+            <input type="hidden" name="salesorderbatteryid[]" value="{{ $battery['sales_order_battery_id'] ?? '' }}">
+
             {{-- Hidden Inputs --}}
             @isset($data['profile']['batteries'])
                 <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
@@ -413,6 +421,57 @@
         </div>
     </div>
 
+    {{-- Modal for Sales Order Selection --}}
+    <div class="modal fade" id="modalSalesOrder" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Sales Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- Date Filter --}}
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" id="filter-date-start">
+                        </div>
+                        <div class="col">
+                            <label>End Date</label>
+                            <input type="date" class="form-control" id="filter-date-end">
+                        </div>
+                    </div>
+
+                    {{-- DataTable --}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle" id="table-sales-order">
+                            <thead>
+                                <tr>
+                                    <th width="5%"><input type="checkbox" id="select-all-sales-orders"></th>
+                                    <th>SO Number</th>
+                                    <th>Marketplace Invoice Number</th>
+                                    <th>Production Code</th>
+                                    <th>Name</th>
+                                    <th>Date</th>
+                                    <th>Battery</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-add-selected-sales-orders">
+                        Select Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -680,54 +739,15 @@
                 return;
             }
 
-            Swal.fire({
-                title: "Loading...",
-                text: "Please wait while your data is being loaded.",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            // Show modal and load data
+            $('#modalSalesOrder').modal('show');
 
-            $.ajax({
-                url: "/purchase-order/sales-order/find",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    ship_to: shipTo
-                },
-                success: function(response) {
-                    Swal.close();
-
-                    if (response.status === 'success') {
-                        $("#AddressSearchColumnSalesOrderEditable").val(response.data.address);
-                        $("#InvoiceNumber").val(response.data.invoice_number);
-
-                        let tbody = $('#table-battery-detail tbody');
-                        tbody.empty();
-                        response.data.batteries.forEach(function(battery, index) {
-                            let newRow = createBatteryRow(battery, index + 1);
-                            tbody.append(newRow);
-                        });
-
-                        calculateTotal();
-                    } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: response.message || "Failed to load sales order data.",
-                            icon: "error",
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.close();
-                    Swal.fire({
-                        title: "Error",
-                        text: "An error occurred while fetching sales order data.",
-                        icon: "error",
-                    });
-                }
-            });
+            // Reload DataTable
+            if ($.fn.DataTable.isDataTable('#table-sales-order')) {
+                $('#table-sales-order').DataTable().ajax.reload();
+            } else {
+                initSalesOrderTable();
+            }
         });
     </script>
 
@@ -882,6 +902,261 @@
             formatPrice($("#discount-price-value"));
 
             return total;
+        }
+
+        /**
+         * Initialize Sales Order DataTable
+         */
+        let salesOrderTable;
+
+        function initSalesOrderTable() {
+            let shipTo = $("#ship_to").val();
+
+            salesOrderTable = $('#table-sales-order').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/purchase-order/sales-order/list",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.ship_to = shipTo;
+                        d.date_start = $("#filter-date-start").val();
+                        d.date_end = $("#filter-date-end").val();
+                    }
+                },
+                columns: [{
+                        data: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return '<input type="checkbox" class="sales-order-checkbox" data-detail-id="' +
+                                data +
+                                '" data-address="' + (row.address || '') +
+                                '" data-invoice="' + (row.invoice_number || '') + '">';
+                        }
+                    },
+                    {
+                        data: 'sales_order_number'
+                    },
+                    {
+                        data: 'invoice_number',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'battery_production_code',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'customer_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'date',
+                        render: function(data) {
+                            if (data) {
+                                let date = new Date(data);
+                                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                                    "Sep", "Oct", "Nov", "Dec"
+                                ];
+                                let day = date.getDate();
+                                let month = monthNames[date.getMonth()];
+                                let year = date.getFullYear();
+                                return `${day} ${month} ${year}`;
+                            }
+                            return '-';
+                        }
+                    },
+                    {
+                        data: 'battery_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'type',
+                        render: function(data) {
+                            if (data === 'recycle') {
+                                return '<span class="badge badge-warning">Recycle</span>';
+                            } else if (data === 'regular') {
+                                return '<span class="badge badge-success">Regular</span>';
+                            }
+                            return data || 'Regular';
+                        }
+                    },
+                    {
+                        data: 'price_net',
+                        render: function(data) {
+                            return 'Rp ' + parseInt(data || 0).toLocaleString('id-ID');
+                        }
+                    },
+                ],
+                order: [
+                    [1, 'desc']
+                ],
+                pageLength: 10,
+                drawCallback: function(settings) {
+                    $("#select-all-sales-orders").prop('checked', false);
+
+                    $('#table-sales-order tbody tr').off('click').on('click', function(e) {
+                        if (e.target.type !== 'checkbox') {
+                            let checkbox = $(this).find('.sales-order-checkbox');
+                            checkbox.prop('checked', !checkbox.prop('checked'));
+                        }
+                    });
+                }
+            });
+        }
+
+        // onchange filter inputs
+        $(document).on("change", "#filter-date-start, #filter-date-end", function() {
+            if ($.fn.DataTable.isDataTable('#table-sales-order')) {
+                $('#table-sales-order').DataTable().ajax.reload();
+            }
+        });
+
+        // Select all checkboxes
+        $(document).on("change", "#select-all-sales-orders", function() {
+            $(".sales-order-checkbox").prop('checked', $(this).prop('checked'));
+        });
+
+        // Add selected battery details to main table
+        $(document).on("click", "#btn-add-selected-sales-orders", function() {
+            let selectedDetails = [];
+            let firstAddress = '';
+            let firstInvoice = '';
+
+            $(".sales-order-checkbox:checked").each(function(index) {
+                selectedDetails.push($(this).data('detail-id'));
+
+                if (index === 0) {
+                    firstAddress = $(this).data('address');
+                    firstInvoice = $(this).data('invoice');
+                }
+            });
+
+            if (selectedDetails.length === 0) {
+                Swal.fire({
+                    title: "Warning",
+                    text: "Please select at least one battery item.",
+                    icon: "warning",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Loading...",
+                text: "Please wait while loading battery details.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: "/purchase-order/sales-order/details",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    detail_ids: selectedDetails
+                },
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.status === 'success') {
+                        let tbody = $('#table-battery-detail tbody');
+
+                        response.data.forEach(function(battery, index) {
+                            let newRow = createBatteryRow(battery, index + 1);
+                            tbody.append(newRow);
+                        });
+
+                        if ($('.table-battery-detail-row').length > 1) {
+                            $('.btn-delete-row').removeClass('disabled');
+                        }
+
+                        calculateTotal();
+
+                        $('#modalSalesOrder').modal('hide');
+
+                        Swal.fire({
+                            title: "Success",
+                            text: selectedDetails.length +
+                                " battery item(s) added successfully!",
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message || "Failed to load battery details.",
+                            icon: "error",
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.close();
+                    Swal.fire({
+                        title: "Error",
+                        text: "An error occurred while fetching battery details.",
+                        icon: "error",
+                    });
+                }
+            });
+        });
+
+        /**
+         * Helper function to create battery row
+         */
+        function createBatteryRow(battery, index) {
+            let row = $('.table-battery-detail-row').last().clone();
+
+            if ($('.table-battery-detail-row').length === 1) {
+                row = $('.table-battery-detail-row').first().clone();
+            }
+
+            row.find('input').not('.battery-tax').val('');
+
+            row.find('.battery-code').val(battery.battery_production_code || '');
+            row.find('.autocomplete').val(battery.battery_name || '');
+            row.find('[name="batteriesid[]"]').val(battery.battery_id || '');
+            row.find('.battery-priceretail').val(battery.battery_price_retail || 0);
+            row.find('.battery-type').val(battery.type || 'regular');
+            row.find('.battery-tax').val(battery.tax || 0);
+            row.find('.battery-taxprice').val(battery.tax_price || 0);
+            row.find('.battery-discount').val(0);
+            row.find('.battery-discountprice').val(0);
+            row.find('.battery-priceaftertax').val(
+                (parseInt(battery.battery_price_retail || 0) + parseInt(battery.tax_price || 0)) || 0
+            );
+            row.find('.battery-price').val(battery.price_net || 0);
+            row.find('[name="salesorderbatteryid[]"]').val(battery.id || '');
+
+            // Update IDs
+            row.find('*[id]').each(function() {
+                let id = $(this).attr("id");
+                let parts = id.split('-');
+                if (parts.length > 2) {
+                    parts[parts.length - 1] = index;
+                    $(this).attr("id", parts.join('-'));
+                }
+            });
+
+            var targets = JSON.stringify([
+                "battery-priceretail-" + index,
+                "battery-discount-" + index,
+                "battery-type-" + index
+            ]);
+            row.find(".autocomplete").attr("data-targets", targets);
+
+            row.find('.btn-delete-row').removeClass('disabled');
+
+            if (battery.type === 'recycle') {
+                row.addClass('bg-danger');
+            } else {
+                row.removeClass('bg-danger');
+            }
+
+            return row;
         }
     </script>
 @endsection
