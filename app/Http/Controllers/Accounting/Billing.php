@@ -623,7 +623,6 @@ class Billing extends Controller
 
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
                 ->where('customer_id', $shipToId)
-                ->whereIn('status', ['posted', 'completed'])
                 ->where('type', $type)
                 ->whereNotIn('id', $usedInvoiceIds);
 
@@ -666,8 +665,7 @@ class Billing extends Controller
                         $subQ->where('vendor_id', $shipToId)
                             ->where('vendor_type', 'App\\Models\\MasterData\\Supplier\\SupplierModel');
                     })->orWhere('vendor_id', $shipToId);
-                })
-                ->where('status', 'posted');
+                });
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -705,7 +703,6 @@ class Billing extends Controller
         } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
             $query = SalesOrderModel::with(['vendorData', 'shipToData'])
                 ->where('vendor', $shipToId)
-                ->whereIn('status', ['posted', 'completed'])
                 ->where('type', $type);
 
             if ($startDate && $endDate) {
@@ -776,7 +773,6 @@ class Billing extends Controller
                         ->where('ship_to_type', $shipToType);
                 })->orWhere('ship_to_id', $shipToId);
             })
-            ->where('status', 'posted')
             ->where('type', $type)
             ->whereNotIn('id', $usedInvoiceIds);
 
@@ -851,7 +847,6 @@ class Billing extends Controller
                         ->where('vendor_type', $shipToType);
                 })->orWhere('vendor_id', $shipToId);
             })
-            ->where('status', 'posted')
             ->where('type', $type)
             ->whereNotIn('id', $usedInvoiceIds);
 
