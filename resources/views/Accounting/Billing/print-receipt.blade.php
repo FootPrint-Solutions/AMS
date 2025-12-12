@@ -24,12 +24,12 @@
             background: #fff;
         }
 
-        /* paper A4 print */
+        /* paper A5 print */
         .page {
-            width: 210mm;
-            min-height: 297mm;
+            width: 148mm;
+            min-height: 210mm;
             margin: 0 auto;
-            padding: 12mm 14mm;
+            padding: 10mm 12mm;
         }
 
         /* ===== HEADER ===== */
@@ -49,12 +49,11 @@
         }
 
         .brand img {
-            height: 28px;
-            /* sesuaikan logo */
+            height: 50px;
         }
 
         .header-title {
-            font-size: 22px;
+            font-size: 40px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -83,11 +82,12 @@
         }
 
         .info .label {
-            font-weight: 700;
+            font-weight: 800;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         .info .muted {
-            color: var(--muted);
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         .info p {
@@ -162,6 +162,14 @@
         .footer-center {
             text-align: center;
             margin-top: 6mm;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 800;
+        }
+
+        .footer-center-custom {
+            text-align: center;
+            margin-top: 6mm;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         .footer b {
@@ -170,19 +178,30 @@
 
         .footer a {
             color: #1a0dab;
-            /* biru link seperti contoh */
             text-decoration: underline;
             font-weight: 700;
         }
 
+        .custom-bg-dark {
+            background-color: #323332;
+            color: #fff;
+        }
+
         @media print {
             .page {
-                padding: 0;
+                padding: 5;
             }
 
             a {
                 color: #000;
                 text-decoration: none;
+            }
+
+            .custom-bg-dark {
+                background-color: #323332 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
@@ -192,8 +211,7 @@
 
     @php
         // ==== NORMALISASI DATA DARI getIndexData() ====
-       $profile = $data['profile'] ?? $pageData['profile'] ?? $result['profile'] ?? null;
-
+        $profile = $data['profile'] ?? ($pageData['profile'] ?? ($result['profile'] ?? null));
 
         $rupiah = fn($n) => number_format((float) $n, 0, ',', '.');
         $billingDate = isset($profile['date']) ? \Carbon\Carbon::parse($profile['date']) : null;
@@ -256,7 +274,6 @@
                 <p><span class="label">Tanggal:</span>
                     {{ $billingDate ? $billingDate->translatedFormat('M d, Y') : '-' }}
                 </p>
-                <p><span class="label">Vendor:</span> {{ $vendor['name'] ?? '-' }}</p>
             </div>
         </div>
 
@@ -264,23 +281,25 @@
         <table>
             <thead>
                 <tr>
-                    <th>Item</th>
-                    <th class="col-qty">Jumlah</th>
-                    <th class="col-unit">Harga Unit</th>
-                    <th class="col-total">Total</th>
+                    <th class="custom-bg-dark">Item</th>
+                    <th class="custom-bg-dark col-qty">Jumlah</th>
+                    <th class="custom-bg-dark col-unit">Harga Unit</th>
+                    <th class="custom-bg-dark col-total">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($items as $it)
                     <tr>
-                        <td>{{ $it['name'] }}</td>
-                        <td class="col-qty nowrap">
+                        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: 800;">{{ $it['name'] }}
+                        </td>
+                        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; width: 12%;"
+                            class="nowrap">
                             {{ rtrim(rtrim(number_format($it['qty'], 2, ',', '.'), '0'), ',') }}
                         </td>
-                        <td class="col-unit nowrap">
+                        <td style="font-family: Arial, Helvetica, sans-serif;" class="col-unit nowrap">
                             {{ $it['unit'] < 0 ? '-' : '' }}{{ $rupiah(abs($it['unit'])) }}
                         </td>
-                        <td class="col-total nowrap">
+                        <td style="font-family: Arial, Helvetica, sans-serif;" class="col-total nowrap">
                             {{ $it['total'] < 0 ? '-' : '' }}{{ $rupiah(abs($it['total'])) }}
                         </td>
                     </tr>
@@ -295,16 +314,26 @@
         {{-- SUMMARY --}}
         <div class="summary-wrap">
             <div class="summary-line">
-                <div>Subtotal:</div>
-                <div class="nowrap">{{ $rupiah($subtotal) }}</div>
+                <div
+                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; min-width: 110px; text-align:right;">
+                    Subtotal:
+                </div>
+                <div class="nowrap" style="padding-left:10px;">{{ $rupiah($subtotal) }}</div>
             </div>
             <div class="summary-line">
-                <div>Total Diskon:</div>
-                <div class="nowrap">{{ $rupiah($discountPrice) }}</div>
+                <div
+                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; min-width: 110px; text-align:right;">
+                    Total Diskon:
+                </div>
+                <div class="nowrap" style="padding-left:10px;">{{ $rupiah($discountPrice) }}</div>
             </div>
             <div class="summary-line summary-total">
-                <div>Total:</div>
-                <div class="nowrap">{{ $rupiah($total) }}</div>
+                <div
+                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; font-size: 20px; min-width: 110px; text-align:right;">
+                    Total:
+                </div>
+                <div style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; font-size: 20px; padding-left:10px;"
+                    class="nowrap">{{ $rupiah($total) }}</div>
             </div>
         </div>
 
@@ -317,9 +346,10 @@
                 060800030110
             </div>
 
-            <div class="footer-center" style="margin-top:4mm;">
+            <div class="footer-center-custom" style="margin-top:4mm;">
                 Klik link di bawah untuk<br>
-                <a href="https://www.akikita.id/garansi" target="_blank">
+                <a style="font-family: Arial, Helvetica, sans-serif; font-weight: 800;"
+                    href="https://www.akikita.id/garansi" target="_blank">
                     Syarat &amp; Ketentuan Garansi Produk
                 </a>
             </div>
