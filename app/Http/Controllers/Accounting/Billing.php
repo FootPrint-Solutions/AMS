@@ -436,7 +436,7 @@ class Billing extends Controller
             $items[] = [
                 'billing_id' => $invoice->billing_id,
                 'invoice_id' => $invoice->invoice_id,
-                'invoice_type' => $invoice->invoice->type,
+                'invoice_type' => $invoice->invoice->type ?? '',
                 'invoice_source' => $invoice->invoice_type,
                 'invoice_number' => $invoice->invoice_number,
                 'date' => formatDate($invoice->date),

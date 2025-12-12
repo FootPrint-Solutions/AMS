@@ -1328,4 +1328,41 @@ class PurchaseOrder extends Controller
             ], 500);
         }
     }
+
+    public function getPurchaseOrderItems($purchaseOrderId)
+    {
+        try {
+            $purchaseOrder = PurchaseOrderModel::with('batteries.battery')->findOrFail($purchaseOrderId);
+
+            $data = [];
+            foreach ($purchaseOrder->batteries as $battery) {
+                $data[] = [
+                    'id' => $battery->id,
+                    'battery_id' => $battery->battery_id,
+                    'battery_name' => $battery->battery_name,
+                    'quantity' => $battery->quantity,
+                    'source' => $battery->source,
+                    'battery_production_code' => $battery->battery_production_code,
+                    'price_net' => $battery->price_net,
+                    'battery_type' => $battery->source,
+                ];
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Purchase Order not found.'
+            ], 404);
+        } catch (Exception $e) {
+            Log::error('Get Purchase Order Items Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while retrieving purchase order items.'
+            ], 500);
+        }
+    }
 }

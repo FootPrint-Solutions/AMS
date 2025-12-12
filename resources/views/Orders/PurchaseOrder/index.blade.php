@@ -80,7 +80,8 @@
             <table class="table table-striped" id="table-purchase-order">
                 <thead>
                     <tr>
-                        <th scope="col" class="table-col-no">#</th>
+                        <th scope="col">#</th>
+                        <th scope="col" class="table-col-no">No</th>
                         <th scope="col">PO Number</th>
                         <th scope="col">Invoice Number</th>
                         <th scope="col">Date</th>
@@ -105,6 +106,76 @@
         let table;
         $(document).ready(function() {
             loadTable();
+
+            $('#table-purchase-order tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    var purchaseOrderId = table.row(tr).data()[0];
+
+                    // Fetch items via AJAX
+                    $.ajax({
+                        url: '/purchase-order/items/' + purchaseOrderId,
+                        method: 'GET',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            if (response && (response.success === true || response.status ===
+                                    'success')) {
+                                var items = response.data || [];
+                                if (items.length === 0) {
+                                    row.child('<div class="p-2">No items found.</div>').show();
+                                    tr.addClass('shown');
+                                    return;
+                                }
+
+                                var itemTable =
+                                    '<table class="table table-bordered"><thead><tr>' +
+                                    '<th>Item Name</th><th>Quantity</th><th>Price (IDR)</th><th>Type</th><th>Production Code</th>' +
+                                    '</tr></thead><tbody>';
+
+                                items.forEach(function(item) {
+                                    var name = item.battery_name || item.item_name ||
+                                        '-';
+                                    var qty = (item.quantity !== null && item
+                                            .quantity !== undefined) ? item.quantity :
+                                        '-';
+                                    var price = formatCurrency(item.price_net ??
+                                        item.price_net);
+                                    var type = item.battery_type || '-';
+                                    var prodCode = item.battery_production_code || '-';
+
+                                    itemTable += '<tr>' +
+                                        '<td>' + name + '</td>' +
+                                        '<td>' + qty + '</td>' +
+                                        '<td>' + price + '</td>' +
+                                        '<td>' + type + '</td>' +
+                                        '<td>' + prodCode + '</td>' +
+                                        '</tr>';
+                                });
+
+                                itemTable += '</tbody></table>';
+
+                                row.child(itemTable).show();
+                                tr.addClass('shown');
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Failed to fetch items.",
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
         });
 
         function loadTable() {
@@ -149,6 +220,13 @@
                     }
                 ],
                 columns: [{
+                        targets: 0,
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                    },
+                    {
                         data: null,
                         render: function(data, type, row, meta) {
                             return meta.row + 1;
@@ -506,5 +584,14 @@
 
             $('#status').select2({});
         })
+
+        function formatCurrency(amount) {
+            if (amount === null || amount === undefined) return '-';
+            var num = parseFloat(amount) || 0;
+            return 'Rp. ' + num.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
     </script>
 @endsection
