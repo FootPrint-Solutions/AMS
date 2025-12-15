@@ -48,13 +48,13 @@ class InventoryRecycleDetailModel extends Model implements Auditable
     // Relationship dengan Battery
     public function battery()
     {
-        return $this->belongsTo(BatteryModel::class, 'battery_id');
+        return $this->belongsTo(BatteryModel::class, 'battery_id')->withTrashed();
     }
 
     // Relationship dengan BatteryRecycle
     public function batteryRecycle()
     {
-        return $this->belongsTo(BatteryRecycleModel::class, 'battery_recycle_id');
+        return $this->belongsTo(BatteryRecycleModel::class, 'battery_recycle_id')->withTrashed();
     }
 
     // Morph relationship reference
@@ -177,6 +177,26 @@ class InventoryRecycleDetailModel extends Model implements Auditable
 
                 $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
                     $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.vendorData', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.shipToData', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
+                    $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder.vendor', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder.shipTo', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
                 });
             });
         }
