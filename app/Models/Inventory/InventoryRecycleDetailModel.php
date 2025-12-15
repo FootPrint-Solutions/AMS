@@ -78,7 +78,7 @@ class InventoryRecycleDetailModel extends Model implements Auditable
     // Relationship dengan PurchaseOrder
     public function purchaseOrder()
     {
-        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id')->with('supplier', 'batteries');
+        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id')->with('supplier', 'batteries')->withTrashed();
     }
 
     public static function allForDataTables($request)
