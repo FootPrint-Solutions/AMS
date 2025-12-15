@@ -73,6 +73,6 @@ class SalesOrderBatteryModel extends Model
      */
     public function salesOrder()
     {
-        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id', 'id')->with('customer');
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id', 'id')->with('customer')->withTrashed();
     }
 }

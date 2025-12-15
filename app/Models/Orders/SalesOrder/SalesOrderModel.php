@@ -209,7 +209,7 @@ class SalesOrderModel extends Model implements Auditable
             'payment_methods.name AS payment_method_name',
             'billing.billing_number AS billing_number'
         ];
-        $searchColumns = ['sales_order_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
+        $searchColumns = ['sales_order_number', 'sales_orders.invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
         $orderColumns = [
             'id',
@@ -405,5 +405,10 @@ class SalesOrderModel extends Model implements Auditable
             }
         }
         return $status;
+    }
+
+    public function ship_to(): BelongsTo
+    {
+        return $this->morphTo('ship_to', 'ship_to_type', 'ship_to_id');
     }
 }
