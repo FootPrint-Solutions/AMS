@@ -71,6 +71,11 @@ class InventoryDetailModel extends Model implements Auditable
         return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id')->withTrashed();
     }
 
+    public function batteryRecycle()
+    {
+        return $this->hasOne(BatteryModel::class, 'id', 'battery_id')->withTrashed();
+    }
+
     public static function allForDataTables($request)
     {
         $start = $request->input("start");
@@ -161,6 +166,26 @@ class InventoryDetailModel extends Model implements Auditable
 
                 $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
                     $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.vendorData', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('salesOrderBattery.salesOrder.shipToData', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder', function ($query) use ($searchValue) {
+                    $query->where('purchase_order_number', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder.vendor', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
+                });
+
+                $query->orWhereHas('purchaseOrder.shipTo', function ($query) use ($searchValue) {
+                    $query->where('name', 'LIKE', "%" . $searchValue . "%");
                 });
             });
         }
