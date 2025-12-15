@@ -297,8 +297,8 @@ class SalesOrder extends Controller
             $row[] = $key->sales_order_number . $typeBadge . $billingNumberBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
-            $row[] = $key->customer_name ?? "<p class='text-center'>-</p>";
-            $row[] = $key->vehicle_name ?? "<p class='text-center'>-</p>";
+            $row[] = $key->customer_name ?? $key->vendorData->name ?? "<p class='text-center'>-</p>";
+            $row[] = $key->vehicle_name ?? $key->shipToData->name ?? "<p class='text-center'>-</p>";
             if ($key->type == 'recycle') {
                 $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
             } else {

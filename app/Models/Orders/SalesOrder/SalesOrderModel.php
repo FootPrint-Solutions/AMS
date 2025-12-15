@@ -246,6 +246,8 @@ class SalesOrderModel extends Model implements Auditable
         });
         $query->leftJoin("billings AS billing", "billing_invoices.billing_id", "=", "billing.id");
 
+        $query->with('vendorData', 'shipToData');
+
         // filter tanggal
         if ($request->dateStart && $request->dateEnd) {
             $query->whereBetween('sales_orders.date', [$request->dateStart, $request->dateEnd]);
