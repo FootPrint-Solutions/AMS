@@ -155,7 +155,12 @@ class InventoryRecycle extends Controller
                 }
             } elseif ($key->reference === 'Purchase Order' || $key->reference === 'Purchase Order Battery') {
                 $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
-                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+
+                if ($key->purchaseOrder && method_exists($key->purchaseOrder, 'trashed') && $key->purchaseOrder->trashed()) {
+                    $orderNumber = ($key->purchaseOrder->purchase_order_number ?? '-') . ' (Was Deleted)';
+                } else {
+                    $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                }
 
                 if ($key->battery && $key->battery->trashed()) {
                     $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
@@ -168,16 +173,20 @@ class InventoryRecycle extends Controller
                 $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->price_net ?? '0') : '0';
                 $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->battery_production_code ?? '-' : '-';
 
-                if ($key->purchaseOrder->supplier && $key->purchaseOrder->supplier->trashed()) {
+                if ($key->purchaseOrder && $key->purchaseOrder->supplier && $key->purchaseOrder->supplier->trashed()) {
                     $vendor = ($key->purchaseOrder->supplier->name ?? '-') . ' (Was Deleted)';
-                } else {
+                } elseif ($key->purchaseOrder && $key->purchaseOrder->supplier) {
                     $vendor = $key->purchaseOrder->supplier->name ?? '-';
+                } else {
+                    $vendor = '-';
                 }
 
-                if ($key->purchaseOrder->shipTo && $key->purchaseOrder->shipTo->trashed()) {
+                if ($key->purchaseOrder && $key->purchaseOrder->shipTo && $key->purchaseOrder->shipTo->trashed()) {
                     $distributorShop = ($key->purchaseOrder->shipTo->name ?? '-') . ' (Was Deleted)';
-                } else {
+                } elseif ($key->purchaseOrder && $key->purchaseOrder->shipTo) {
                     $distributorShop = $key->purchaseOrder->shipTo->name ?? '-';
+                } else {
+                    $distributorShop = '-';
                 }
             } else {
                 $date = '-';
