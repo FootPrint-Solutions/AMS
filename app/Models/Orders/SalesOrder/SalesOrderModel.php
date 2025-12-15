@@ -202,7 +202,8 @@ class SalesOrderModel extends Model implements Auditable
             'distributors.id AS distributor_id',
             'distributors.name AS distributor_name',
             'technicians.name AS technician_name',
-            'payment_methods.name AS payment_method_name'
+            'payment_methods.name AS payment_method_name',
+            'billing.billing_number AS billing_number'
         ];
         $searchColumns = ['sales_order_number', 'invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
@@ -235,6 +236,11 @@ class SalesOrderModel extends Model implements Auditable
         });
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
+        $query->leftJoin("billing_invoices AS billing_invoices", function ($join) {
+            $join->on("sales_orders.id", "=", "billing_invoices.invoice_id")
+                ->where("billing_invoices.invoice_type", SalesOrderModel::class);
+        });
+        $query->leftJoin("billings AS billing", "billing_invoices.billing_id", "=", "billing.id");
 
         // filter tanggal
         if ($request->dateStart && $request->dateEnd) {

@@ -1122,6 +1122,25 @@ class Billing extends Controller
                     'reference_type' => DistributorModel::class,
                 ];
             }
+
+            // fetch customers
+            $customerQuery = CustomerModel::query();
+            if (!empty($search)) {
+                $customerQuery->where('name', 'like', '%' . $search . '%');
+            }
+
+            $customers = $customerQuery->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'customer',
+                    'reference_type' => CustomerModel::class,
+                ];
+            }
         }
 
         return response()->json([
@@ -1148,7 +1167,7 @@ class Billing extends Controller
         $vendorName = $billing->vendor ? $billing->vendor->name : '';
         $vendorId = $billing->vendor ? $billing->vendor->id : null;
         return view(
-            'Accounting.Billing.print',
+            'Accounting.Billing.print-purchase',
             getIndexData(
                 $this->title,
                 [

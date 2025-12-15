@@ -279,11 +279,22 @@ class SalesOrder extends Controller
                 $typeBadge = " <span class='badge badge-success'>Regular</span>";
             }
 
+            // Sales Billing Number badge
+            if ($key->billing_number) {
+                if (substr($key->billing_number, 0, 2) === 'PB') {
+                    $billingNumberBadge = "<br><span class='badge badge-warning text-dark'>Billing: $key->billing_number</span>";
+                } else {
+                    $billingNumberBadge = "<br><span class='badge badge-success'>Billing: $key->billing_number</span>";
+                }
+            } else {
+                $billingNumberBadge = "";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = "";
             $row[] = $no++;
-            $row[] = $key->sales_order_number . $typeBadge;
+            $row[] = $key->sales_order_number . $typeBadge . $billingNumberBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name ?? "<p class='text-center'>-</p>";
