@@ -100,12 +100,25 @@ class InventoryRecycle extends Controller
         foreach ($data["row"] as $key) {
 
             if ($key->reference === 'Sales Order Battery') {
-                $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-                $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
-                $distributorShop = $key->distributorShop->name ?? '-';
-                $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
-                $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
-                $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+                if ($key->type === 'recycle') {
+                    $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
+                    $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                    $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+
+                    $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
+                    $distributorShop = $key->salesOrderBattery->salesOrder->shipToData->name ?? '-';
+                } else {
+                    $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
+                    $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                    $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+
+                    $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
+                    $distributorShop = $key->distributorShop->name ?? '-';
+                }
             } elseif ($key->reference === 'Purchase Order') {
                 $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
                 $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
@@ -113,6 +126,8 @@ class InventoryRecycle extends Controller
                 $battery = $key->batteryRecycle->name ?? '-';
                 $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->price_net ?? '0') : '0';
                 $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->battery_production_code ?? '-' : '-';
+
+                $vendor = $key->purchaseOrder->supplier->name ?? '-';
             } else {
                 $date = '-';
                 $orderNumber = '-';
@@ -126,7 +141,7 @@ class InventoryRecycle extends Controller
             $row[] = $no++;
             $row[] = $date;
             $row[] = $orderNumber;
-            $row[] = $key->salesOrderBattery->salesOrder->customer->name ?? $key->purchaseOrder->supplier->name ?? '-';
+            $row[] = $vendor;
             $row[] = $distributorShop;
             $row[] = $battery;
             $row[] = $batteryProductionCode;

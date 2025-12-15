@@ -68,7 +68,7 @@ class InventoryDetailModel extends Model implements Auditable
 
     public function purchaseOrder()
     {
-        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id');
+        return $this->hasOne(PurchaseOrderModel::class, 'id', 'reference_id')->withTrashed();
     }
 
     public static function allForDataTables($request)

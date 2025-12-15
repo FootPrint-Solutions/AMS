@@ -145,7 +145,12 @@ class PurchaseOrderModel extends Model implements Auditable
 
     public function supplier(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->morphTo('supplier', 'vendor_type', 'vendor_id');
+    }
+
+    public function ship_to(): BelongsTo
+    {
+        return $this->morphTo('ship_to', 'ship_to_type', 'ship_to_id');
     }
 
     public static function sendToInventorySystem($purchaseOrderIds)
