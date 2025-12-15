@@ -406,7 +406,6 @@ class Billing extends Controller
                 ->update(['status' => 'posted']);
 
             $invoices = BillingInvoiceModel::whereIn('billing_id', $billingIds)->get();
-
             $salesOrderIds = [];
             $purchaseOrderIds = [];
 
@@ -419,19 +418,31 @@ class Billing extends Controller
             }
 
             if (!empty($salesOrderIds)) {
-                SalesOrderModel::whereIn('id', $salesOrderIds)
+                $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
                     ->where('status', 'draft')
-                    ->update(['status' => 'posted']);
+                    ->pluck('id')
+                    ->toArray();
 
-                SalesOrderModel::sendToInventorySystem($salesOrderIds);
+                if (!empty($draftSalesOrderIds)) {
+                    SalesOrderModel::whereIn('id', $draftSalesOrderIds)
+                        ->update(['status' => 'posted']);
+
+                    SalesOrderModel::sendToInventorySystem($draftSalesOrderIds);
+                }
             }
 
             if (!empty($purchaseOrderIds)) {
-                PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
+                $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
                     ->where('status', 'draft')
-                    ->update(['status' => 'posted']);
+                    ->pluck('id')
+                    ->toArray();
 
-                PurchaseOrderModel::sendToInventorySystem($purchaseOrderIds);
+                if (!empty($draftPurchaseOrderIds)) {
+                    PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
+                        ->update(['status' => 'posted']);
+
+                    PurchaseOrderModel::sendToInventorySystem($draftPurchaseOrderIds);
+                }
             }
 
             return response()->json([
