@@ -405,6 +405,35 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
+            $invoices = BillingInvoiceModel::whereIn('billing_id', $billingIds)->get();
+
+            $salesOrderIds = [];
+            $purchaseOrderIds = [];
+
+            foreach ($invoices as $inv) {
+                if ($inv->invoice_type === SalesOrderModel::class) {
+                    $salesOrderIds[] = $inv->invoice_id;
+                } elseif ($inv->invoice_type === PurchaseOrderModel::class) {
+                    $purchaseOrderIds[] = $inv->invoice_id;
+                }
+            }
+
+            if (!empty($salesOrderIds)) {
+                SalesOrderModel::whereIn('id', $salesOrderIds)
+                    ->where('status', 'draft')
+                    ->update(['status' => 'posted']);
+
+                SalesOrderModel::sendToInventorySystem($salesOrderIds);
+            }
+
+            if (!empty($purchaseOrderIds)) {
+                PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
+                    ->where('status', 'draft')
+                    ->update(['status' => 'posted']);
+
+                PurchaseOrderModel::sendToInventorySystem($purchaseOrderIds);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Billing(s) posted successfully'
@@ -436,7 +465,7 @@ class Billing extends Controller
             $items[] = [
                 'billing_id' => $invoice->billing_id,
                 'invoice_id' => $invoice->invoice_id,
-                'invoice_type' => $invoice->invoice->type,
+                'invoice_type' => $invoice->invoice->type ?? '',
                 'invoice_source' => $invoice->invoice_type,
                 'invoice_number' => $invoice->invoice_number,
                 'date' => formatDate($invoice->date),
@@ -623,7 +652,6 @@ class Billing extends Controller
 
             $query = SalesOrderModel::with(['customer', 'shop.distributor'])
                 ->where('customer_id', $shipToId)
-                ->whereIn('status', ['posted', 'completed'])
                 ->where('type', $type)
                 ->whereNotIn('id', $usedInvoiceIds);
 
@@ -666,8 +694,7 @@ class Billing extends Controller
                         $subQ->where('vendor_id', $shipToId)
                             ->where('vendor_type', 'App\\Models\\MasterData\\Supplier\\SupplierModel');
                     })->orWhere('vendor_id', $shipToId);
-                })
-                ->where('status', 'posted');
+                });
 
             if ($startDate && $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -705,7 +732,6 @@ class Billing extends Controller
         } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
             $query = SalesOrderModel::with(['vendorData', 'shipToData'])
                 ->where('vendor', $shipToId)
-                ->whereIn('status', ['posted', 'completed'])
                 ->where('type', $type);
 
             if ($startDate && $endDate) {
@@ -776,7 +802,6 @@ class Billing extends Controller
                         ->where('ship_to_type', $shipToType);
                 })->orWhere('ship_to_id', $shipToId);
             })
-            ->where('status', 'posted')
             ->where('type', $type)
             ->whereNotIn('id', $usedInvoiceIds);
 
@@ -851,7 +876,6 @@ class Billing extends Controller
                         ->where('vendor_type', $shipToType);
                 })->orWhere('vendor_id', $shipToId);
             })
-            ->where('status', 'posted')
             ->where('type', $type)
             ->whereNotIn('id', $usedInvoiceIds);
 
@@ -1102,6 +1126,25 @@ class Billing extends Controller
                     'reference_type' => DistributorModel::class,
                 ];
             }
+
+            // fetch customers
+            $customerQuery = CustomerModel::query();
+            if (!empty($search)) {
+                $customerQuery->where('name', 'like', '%' . $search . '%');
+            }
+
+            $customers = $customerQuery->where('status', 1)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            foreach ($customers as $c) {
+                $results[] = [
+                    'id' => $c->id,
+                    'text' => $c->name,
+                    'type' => 'customer',
+                    'reference_type' => CustomerModel::class,
+                ];
+            }
         }
 
         return response()->json([
@@ -1128,7 +1171,7 @@ class Billing extends Controller
         $vendorName = $billing->vendor ? $billing->vendor->name : '';
         $vendorId = $billing->vendor ? $billing->vendor->id : null;
         return view(
-            'Accounting.Billing.print',
+            'Accounting.Billing.print-purchase',
             getIndexData(
                 $this->title,
                 [

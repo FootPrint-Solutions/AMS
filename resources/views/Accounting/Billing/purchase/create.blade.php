@@ -23,7 +23,7 @@
                     @else
                         Add New
                     @endif
-                    Billing
+                    Purchase Billing
                 </div>
                 <br>
 
@@ -60,7 +60,7 @@
                                         <label for="vendor">Vendor <span class="login-danger">*</span>
                                             <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip"
                                                 data-placement="top"
-                                                title="This vendor data contains distributor data."></i>
+                                                title="This vendor data contains distributor or customer data."></i>
                                         </label>
                                         <select class="form-control" id="vendor" name="vendor" required>
 
@@ -242,12 +242,11 @@
                             <div class="col-md-5">
                                 <label for="filter-start-date" class="form-label mb-1">Start Date</label>
                                 <input type="date" class="form-control" id="filter-start-date"
-                                    name="filter_start_date" value="{{ date('Y-m-d', strtotime('-30 days')) }}">
+                                    name="filter_start_date">
                             </div>
                             <div class="col-md-5">
                                 <label for="filter-end-date" class="form-label mb-1">End Date</label>
-                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date"
-                                    value="{{ date('Y-m-d') }}">
+                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date">
                             </div>
                         </div>
                         <hr>
@@ -280,7 +279,7 @@
 
                         {{-- Sales Orders Table --}}
                         <div class="mb-4">
-                            <h5 class="mb-2">Sales Orders</h5>
+                            <h5 class="mb-2">Sales Orders Recycle</h5>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover align-middle" id="table-orders">
                                     <thead class="table-light">
@@ -1143,5 +1142,7 @@
         $("#btn-cancel").on("click", function() {
             window.location.href = '/billing';
         });
+
+        document.title = "Purchase Billing - AMS";
     </script>
 @endsection

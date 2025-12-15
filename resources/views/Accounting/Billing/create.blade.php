@@ -23,7 +23,7 @@
                     @else
                         Add New
                     @endif
-                    Billing
+                    Sales Billing
                 </div>
                 <br>
 
@@ -242,12 +242,11 @@
                             <div class="col-md-5">
                                 <label for="filter-start-date" class="form-label mb-1">Start Date</label>
                                 <input type="date" class="form-control" id="filter-start-date"
-                                    name="filter_start_date" value="{{ date('Y-m-d', strtotime('-30 days')) }}">
+                                    name="filter_start_date">
                             </div>
                             <div class="col-md-5">
                                 <label for="filter-end-date" class="form-label mb-1">End Date</label>
-                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date"
-                                    value="{{ date('Y-m-d') }}">
+                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date">
                             </div>
                         </div>
                         <hr>
@@ -279,7 +278,7 @@
 
                         {{-- Purchase Orders Table --}}
                         <div>
-                            <h5 class="mb-2">Purchase Orders</h5>
+                            <h5 class="mb-2">Purchase Orders Recycle</h5>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover align-middle" id="table-purchase-orders">
                                     <thead class="table-light">
@@ -1142,5 +1141,7 @@
         $("#btn-cancel").on("click", function() {
             window.location.href = '/billing';
         });
+
+        document.title = "Sales Billing - AMS";
     </script>
 @endsection
