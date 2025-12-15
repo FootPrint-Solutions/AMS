@@ -191,21 +191,42 @@ class Inventory extends Controller
                 if ($key->type === 'recycle') {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
                     $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
-                    $battery = $key->battery->name ?? '-';
+
+                    if ($key->battery && $key->battery->trashed()) {
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $battery = $key->battery->name ?? '-';
+                    }
+
                     $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
                     $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
 
-                    $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
-                    $distributorShop = $key->salesOrderBattery->salesOrder->shipToData->name ?? '-';
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
+                        $vendor = ($key->salesOrderBattery->salesOrder->vendorData->name ?? '-') . ' (Was Deleted)';
+                        $distributorShop = ($key->salesOrderBattery->salesOrder->shipToData->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
+                        $distributorShop = $key->salesOrderBattery->salesOrder->shipToData->name ?? '-';
+                    }
                 } else {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
                     $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
-                    $battery = $key->battery->name ?? '-';
+
+                    if ($key->battery && $key->battery->trashed()) {
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $battery = $key->battery->name ?? '-';
+                    }
                     $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
                     $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
 
-                    $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
-                    $distributorShop = $key->salesOrderBattery->salesOrder->distributorShop->name ?? '-';
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
+                        $vendor = ($key->salesOrderBattery->salesOrder->customer->name ?? '-') . ' (Was Deleted)';
+                        $distributorShop = ($key->salesOrderBattery->salesOrder->distributorShop->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
+                        $distributorShop = $key->salesOrderBattery->salesOrder->distributorShop->name ?? '-';
+                    }
                 }
             } elseif ($key->reference === 'Purchase Order' || $key->reference === 'purchase_order') {
                 $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
