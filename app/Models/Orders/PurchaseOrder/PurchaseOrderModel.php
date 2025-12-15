@@ -12,6 +12,14 @@ use OwenIt\Auditing\Contracts\Auditable;
 // TRAITS
 use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
+// MODELS
+use App\Models\Inventory\InventoryModel;
+use App\Models\Inventory\InventoryDetailModel;
+use App\Models\Inventory\InventoryRecycleModel;
+use App\Models\Inventory\InventoryRecycleDetailModel;
 
 class PurchaseOrderModel extends Model implements Auditable
 {
@@ -133,5 +141,86 @@ class PurchaseOrderModel extends Model implements Auditable
         }
 
         return $prefix . $yearShort . $month . $newNumber;
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->morphTo();
+    }
+
+    public static function sendToInventorySystem($purchaseOrderIds)
+    {
+        $purchaseOrders = self::with('batteries')->whereIn('id', $purchaseOrderIds)->get();
+
+        foreach ($purchaseOrders as $purchaseOrder) {
+            foreach ($purchaseOrder->batteries as $battery) {
+                $batteryId = $battery->battery_id;
+                $batteryType = $battery->source ?? 'regular';
+                $batteryCode = $battery->battery_production_code ?? null;
+                $shopId = $purchaseOrder->ship_to;
+                if ($batteryType == 'regular') {
+                    $inventory = InventoryModel::where('battery_id', $batteryId)->first();
+                    if ($inventory) {
+                        $inventory->stock += $battery->quantity;
+                        $inventory->save();
+                    } else {
+                        $inventory = InventoryModel::create([
+                            'battery_id' => $batteryId,
+                            'code' => $batteryCode,
+                            'stock' => $battery->quantity,
+                        ]);
+                    }
+
+                    InventoryDetailModel::create([
+                        'inventory_id' => $inventory->id,
+                        'distributor_shop_id' => $shopId,
+                        'battery_id' => $batteryId,
+                        'type' => 'in',
+                        'reference' => 'purchase_order',
+                        'quantity' => $battery->quantity,
+                        'sold' => 0,
+                        'note' => null,
+                        'reference_id' => $purchaseOrder->id,
+                        'reference_type' => PurchaseOrderModel::class,
+                    ]);
+                } else if ($batteryType == 'recycle') {
+                    $inventoryRecycle = InventoryRecycleModel::where('battery_recycle_id', $batteryId)->first();
+                    if ($inventoryRecycle) {
+                        $inventoryRecycle->stock += $battery->quantity;
+                        $inventoryRecycle->save();
+                    } else {
+                        $inventoryRecycle = InventoryRecycleModel::create([
+                            'battery_id' => NULL,
+                            'battery_recycle_id' => $batteryId,
+                            'code' => $batteryCode,
+                            'stock' => $battery->quantity,
+                        ]);
+                    }
+
+                    InventoryRecycleDetailModel::create([
+                        'inventory_id' => $inventoryRecycle->id,
+                        'distributor_shop_id' => $shopId,
+                        'battery_id' => NULL,
+                        'battery_recycle_id' => $batteryId,
+                        'type' => 'in',
+                        'reference' => 'Purchase Order',
+                        'quantity' => $battery->quantity,
+                        'reference_id' => $purchaseOrder->id,
+                        'reference_type' => PurchaseOrderModel::class,
+                    ]);
+                } else {
+                    Log::warning('Unknown battery type for purchase order battery', [
+                        'purchase_order_id' => $purchaseOrder->id,
+                        'battery_id' => $batteryId,
+                        'type' => $batteryType,
+                    ]);
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Unknown battery type found.'
+                    ], 400);
+                }
+            }
+        }
     }
 }

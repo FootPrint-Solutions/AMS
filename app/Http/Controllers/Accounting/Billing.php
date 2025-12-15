@@ -422,12 +422,16 @@ class Billing extends Controller
                 SalesOrderModel::whereIn('id', $salesOrderIds)
                     ->where('status', 'draft')
                     ->update(['status' => 'posted']);
+
+                SalesOrderModel::sendToInventorySystem($salesOrderIds);
             }
 
             if (!empty($purchaseOrderIds)) {
                 PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
                     ->where('status', 'draft')
                     ->update(['status' => 'posted']);
+
+                PurchaseOrderModel::sendToInventorySystem($purchaseOrderIds);
             }
 
             return response()->json([
