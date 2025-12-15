@@ -190,7 +190,12 @@ class Inventory extends Controller
             if ($key->reference === 'Sales Order Battery') {
                 if ($key->type === 'recycle') {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    }
 
                     if ($key->battery && $key->battery->trashed()) {
                         $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
@@ -210,7 +215,12 @@ class Inventory extends Controller
                     }
                 } else {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    }
 
                     if ($key->battery && $key->battery->trashed()) {
                         $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
