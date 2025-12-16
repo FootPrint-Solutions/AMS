@@ -244,7 +244,7 @@ class PurchaseOrderModel extends Model implements Auditable
                 $batteryId = $battery->battery_id;
                 $batteryType = $battery->source ?? 'regular';
                 $batteryCode = $battery->battery_production_code ?? null;
-                $shopId = $purchaseOrder->ship_to;
+                $shopId = $purchaseOrder->ship_to_id;
                 if ($batteryType == 'regular') {
                     $inventory = InventoryModel::where('battery_id', $batteryId)->first();
                     if ($inventory) {
