@@ -413,4 +413,123 @@ class SalesOrderModel extends Model implements Auditable
     {
         return $this->morphTo('ship_to', 'ship_to_type', 'ship_to_id');
     }
+
+
+    public static function sendToInventorySystemSalesBilling($salesOrderIds)
+    {
+        $salesOrders = self::with('batteries')->whereIn('id', $salesOrderIds)->get();
+
+        $status = true;
+        foreach ($salesOrders as $salesOrder) {
+            $salesOrderBattery = $salesOrder->batteries;
+            foreach ($salesOrderBattery as $battery) {
+                $checkType = $battery->type;
+                $qty = $battery->quantity;
+                if ($checkType == 'recycle') {
+                    $inventory = InventoryRecycleModel::firstOrNew([
+                        'battery_recycle_id' => $battery->battery_id
+                    ]);
+
+                    $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                    $status &= $inventory->save();
+
+                    $inventoryDetail = new InventoryRecycleDetailModel([
+                        'inventory_id' => $inventory->id,
+                        'distributor_shop_id' => $salesOrder->vendor,
+                        'battery_recycle_id' => $battery->battery_id,
+                        'type' => 'out',
+                        'reference' => 'Sales Order Battery',
+                        'quantity' => -$qty,
+                        'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                    ]);
+
+                    if (method_exists($inventoryDetail, 'reference')) {
+                        $inventoryDetail->reference()->associate($battery);
+                    }
+                    $status &= $inventoryDetail->save();
+                } else {
+                    $inventory = InventoryModel::firstOrNew([
+                        'battery_id' => $battery->battery_id
+                    ]);
+
+                    $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                    $status &= $inventory->save();
+
+                    $inventoryDetail = new InventoryDetailModel([
+                        'inventory_id' => $inventory->id,
+                        'battery_id' => $battery->battery_id,
+                        'type' => 'out',
+                        'reference' => 'Sales Order Battery',
+                        'quantity' => -$qty,
+                        'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                    ]);
+
+                    if (method_exists($inventoryDetail, 'reference')) {
+                        $inventoryDetail->reference()->associate($battery);
+                    }
+                    $status &= $inventoryDetail->save();
+                }
+            }
+        }
+        return $status;
+    }
+
+    public static function sendToInventorySystemPurchaseBilling($salesOrderIds)
+    {
+        $salesOrders = self::with('batteries')->whereIn('id', $salesOrderIds)->get();
+
+        $status = true;
+        foreach ($salesOrders as $salesOrder) {
+            $salesOrderBattery = $salesOrder->batteries;
+            foreach ($salesOrderBattery as $battery) {
+                $checkType = $battery->type;
+                $qty = $battery->quantity;
+                if ($checkType == 'recycle') {
+                    $inventory = InventoryRecycleModel::firstOrNew([
+                        'battery_recycle_id' => $battery->battery_id
+                    ]);
+
+                    $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                    $status &= $inventory->save();
+
+                    $inventoryDetail = new InventoryRecycleDetailModel([
+                        'inventory_id' => $inventory->id,
+                        'distributor_shop_id' => $salesOrder->vendor,
+                        'battery_recycle_id' => $battery->battery_id,
+                        'type' => 'in',
+                        'reference' => 'Sales Order Battery',
+                        'quantity' => +$qty,
+                        'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                    ]);
+
+                    if (method_exists($inventoryDetail, 'reference')) {
+                        $inventoryDetail->reference()->associate($battery);
+                    }
+                    $status &= $inventoryDetail->save();
+                } else {
+                    $inventory = InventoryModel::firstOrNew([
+                        'battery_id' => $battery->battery_id
+                    ]);
+
+                    $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
+                    $status &= $inventory->save();
+
+                    $inventoryDetail = new InventoryDetailModel([
+                        'inventory_id' => $inventory->id,
+                        'battery_id' => $battery->battery_id,
+                        'type' => 'in',
+                        'reference' => 'Sales Order Battery',
+                        'quantity' => +$qty,
+                        'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
+                    ]);
+
+                    if (method_exists($inventoryDetail, 'reference')) {
+                        $inventoryDetail->reference()->associate($battery);
+                    }
+                    $status &= $inventoryDetail->save();
+                }
+            }
+        }
+        return $status;
+    }
 }

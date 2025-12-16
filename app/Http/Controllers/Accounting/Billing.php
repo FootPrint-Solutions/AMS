@@ -417,33 +417,72 @@ class Billing extends Controller
                 }
             }
 
-            if (!empty($salesOrderIds)) {
-                $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
-                    ->where('status', 'draft')
-                    ->pluck('id')
-                    ->toArray();
+            $billingNumber = BillingModel::whereIn('id', $billingIds)->pluck('billing_number')->toArray();
 
-                if (!empty($draftSalesOrderIds)) {
-                    SalesOrderModel::whereIn('id', $draftSalesOrderIds)
-                        ->update(['status' => 'posted']);
+            // get 2 char prefix to determine sales or purchase billing
+            $prefixes = array_map(function ($number) {
+                return substr($number, 0, 2);
+            }, $billingNumber);
 
-                    SalesOrderModel::sendToInventorySystem($draftSalesOrderIds);
+            if (in_array('SB', $prefixes)) {
+                if (!empty($salesOrderIds)) {
+                    $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
+                        ->where('status', 'draft')
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($draftSalesOrderIds)) {
+                        SalesOrderModel::whereIn('id', $draftSalesOrderIds)
+                            ->update(['status' => 'posted']);
+
+                        SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
+                    }
+                }
+
+                if (!empty($purchaseOrderIds)) {
+                    $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
+                        ->where('status', 'draft')
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($draftPurchaseOrderIds)) {
+                        PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
+                            ->update(['status' => 'posted']);
+
+                        PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
+                    }
+                }
+            } else if (in_array('PB', $prefixes)) {
+                if (!empty($purchaseOrderIds)) {
+                    $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
+                        ->where('status', 'draft')
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($draftPurchaseOrderIds)) {
+                        PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
+                            ->update(['status' => 'posted']);
+
+                        PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
+                    }
+                }
+
+                if (!empty($salesOrderIds)) {
+                    $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
+                        ->where('status', 'draft')
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($draftSalesOrderIds)) {
+                        SalesOrderModel::whereIn('id', $draftSalesOrderIds)
+                            ->update(['status' => 'posted']);
+
+                        SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
+                    }
                 }
             }
 
-            if (!empty($purchaseOrderIds)) {
-                $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
-                    ->where('status', 'draft')
-                    ->pluck('id')
-                    ->toArray();
 
-                if (!empty($draftPurchaseOrderIds)) {
-                    PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
-                        ->update(['status' => 'posted']);
-
-                    PurchaseOrderModel::sendToInventorySystem($draftPurchaseOrderIds);
-                }
-            }
 
             return response()->json([
                 'status' => 'success',
