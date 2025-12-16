@@ -523,99 +523,12 @@ class SalesOrder extends Controller
                         ->with('battery')
                         ->get();
 
-                    // sum inventory detail where battery id = battery_id and type = in
-                    $total_quantity = 0;
-                    foreach ($salesOrderBattery as $battery) {
-
-                        $checkType = $battery->type;
-                        if ($checkType == 'recycle') {
-                            // Delete inventory detail
-                            $inventoryDetail = InventoryRecycleDetailModel::where('reference_id', $battery->id)
-                                ->first();
-                            if ($inventoryDetail) {
-                                $status &= $inventoryDetail->delete();
-                            }
-
-                            $inventoryDetailSum = InventoryRecycleDetailModel::where('battery_recycle_id', $battery->battery_id)
-                                ->where('type', 'in')
-                                ->sum('quantity');
-
-                            $total_quantity += $inventoryDetailSum;
-
-
-                            // update total to inventory where battery id = battery_id
-                            $inventory = InventoryRecycleModel::where('battery_recycle_id', $battery->battery_id)->first();
-                            if ($inventory) {
-                                $inventory->stock = $inventoryDetailSum;
-                                $status &= $inventory->save();
-                            }
-                        } else {
-                        }
-                    }
-
-
                     $successMessage = "The selected sales order was successfully unposted!";
                     $failedMessage = "Failed to unpost the selected sales order!";
                 } else {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
-
-                    // Store to inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
-                        ->with('battery')
-                        ->get();
-
-                    if ($salesOrderBattery->isEmpty()) {
-                        Log::warning('No batteries found for Sales Order ID: ' . $salesOrder->id);
-                    } else {
-                        foreach ($salesOrderBattery as $battery) {
-                            $checkType = $battery->type;
-                            $qty = $battery->quantity;
-                            if ($checkType == 'recycle') {
-                                $inventory = InventoryRecycleModel::firstOrNew([
-                                    'battery_recycle_id' => $battery->battery_id
-                                ]);
-
-                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
-                                $status &= $inventory->save();
-
-                                $inventoryDetail = new InventoryRecycleDetailModel([
-                                    'inventory_id' => $inventory->id,
-                                    'distributor_shop_id' => $salesOrder->vendor,
-                                    'battery_recycle_id' => $battery->battery_id,
-                                    'type' => 'out',
-                                    'reference' => 'Sales Order Battery',
-                                    'quantity' => -$qty,
-                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
-                                ]);
-
-                                $inventoryDetail->reference()->associate($battery);
-                                $status &= $inventoryDetail->save();
-                            } else {
-                                $inventory = InventoryModel::firstOrNew([
-                                    'battery_id' => $battery->battery_id
-                                ]);
-
-                                $inventory->stock = ($inventory->exists ? $inventory->stock : 0) - $qty;
-                                $status &= $inventory->save();
-
-                                $inventoryDetail = new InventoryDetailModel([
-                                    'inventory_id' => $inventory->id,
-                                    'battery_id' => $battery->battery_id,
-                                    'type' => 'out',
-                                    'reference' => 'Sales Order Battery',
-                                    'quantity' => -$qty,
-                                    'note' => 'Sales Order Battery - ' . $salesOrder->sales_order_number,
-                                ]);
-
-                                $inventoryDetail->reference()->associate($battery);
-                                $status &= $inventoryDetail->save();
-                            }
-                        }
-                    }
-
-
 
                     $successMessage = "The selected sales order was successfully posted!";
                     $failedMessage = "Failed to upost the selected sales order!";
