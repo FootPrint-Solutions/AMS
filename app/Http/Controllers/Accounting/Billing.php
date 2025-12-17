@@ -428,7 +428,6 @@ class Billing extends Controller
             if (in_array('SB', $prefixes)) {
                 if (!empty($salesOrderIds)) {
                     $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
-                        ->where('status', 'draft')
                         ->pluck('id')
                         ->toArray();
 
@@ -444,7 +443,6 @@ class Billing extends Controller
 
                 if (!empty($purchaseOrderIds)) {
                     $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
-                        ->where('status', 'draft')
                         ->pluck('id')
                         ->toArray();
 
@@ -460,7 +458,6 @@ class Billing extends Controller
             } else if (in_array('PB', $prefixes)) {
                 if (!empty($purchaseOrderIds)) {
                     $draftPurchaseOrderIds = PurchaseOrderModel::whereIn('id', $purchaseOrderIds)
-                        ->where('status', 'draft')
                         ->pluck('id')
                         ->toArray();
 
@@ -476,7 +473,6 @@ class Billing extends Controller
 
                 if (!empty($salesOrderIds)) {
                     $draftSalesOrderIds = SalesOrderModel::whereIn('id', $salesOrderIds)
-                        ->where('status', 'draft')
                         ->pluck('id')
                         ->toArray();
 
