@@ -14,6 +14,7 @@ use App\Traits\DataTablesTrait;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log as Logger;
 
 // MODELS
 use App\Models\Inventory\InventoryModel;
@@ -157,17 +158,16 @@ class PurchaseOrderModel extends Model implements Auditable
     {
         $purchaseOrders = self::with('batteries')->whereIn('id', $purchaseOrderIds)->get();
 
+        $logMessage = '';
+        $logMessage .= "Function sendToInventorySystem: Processing Purchase Order IDs: " . implode(', ', $purchaseOrderIds) . "\n";
         foreach ($purchaseOrders as $purchaseOrder) {
+            $logMessage .= "Function sendToInventorySystem: Processing Purchase Order ID " . $purchaseOrder->id . "\n";
             foreach ($purchaseOrder->batteries as $battery) {
+                $logMessage .= "Function sendToInventorySystem: Processing Battery ID " . $battery->battery_id . "\n";
                 $batteryId = $battery->battery_id;
                 $batteryType = $battery->source ?? 'regular';
                 $batteryCode = $battery->battery_production_code ?? null;
-                // Ensure $shopId is an integer ID, not an object/array
-                $shopId = is_object($purchaseOrder->ship_to) && isset($purchaseOrder->ship_to->id)
-                    ? $purchaseOrder->ship_to->id
-                    : (is_array($purchaseOrder->ship_to) && isset($purchaseOrder->ship_to['id'])
-                        ? $purchaseOrder->ship_to['id']
-                        : $purchaseOrder->ship_to);
+                $shopId = $purchaseOrder->ship_to_id;
 
                 if ($batteryType == 'regular') {
                     $inventory = InventoryModel::where('battery_id', $batteryId)->first();
@@ -194,6 +194,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystem: Processed Battery ID " . $battery->battery_id . "\n";
                 } else if ($batteryType == 'recycle') {
                     $inventoryRecycle = InventoryRecycleModel::where('battery_recycle_id', $batteryId)->first();
                     if ($inventoryRecycle) {
@@ -219,6 +221,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystem: Processed Recycle Battery ID " . $battery->battery_id . "\n";
                 } else {
                     Log::warning('Unknown battery type for purchase order battery', [
                         'purchase_order_id' => $purchaseOrder->id,
@@ -232,6 +236,10 @@ class PurchaseOrderModel extends Model implements Auditable
                     ], 400);
                 }
             }
+
+            $logMessage .= "Function sendToInventorySystem: Completed processing Purchase Order ID " . $purchaseOrder->id . " - Purchase Order Number " . $purchaseOrder->purchase_order_number . "\n";
+            Logger::info($logMessage);
+            $logMessage = '';
         }
     }
 
@@ -239,8 +247,12 @@ class PurchaseOrderModel extends Model implements Auditable
     {
         $purchaseOrders = self::with('batteries')->whereIn('id', $purchaseOrderIds)->get();
 
+        $logMessage = '';
+        $logMessage = "Function sendToInventorySystemPurchaseBilling: Processing Purchase Order IDs: " . implode(', ', $purchaseOrderIds) . "\n";
         foreach ($purchaseOrders as $purchaseOrder) {
+            $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processing Purchase Order ID " . $purchaseOrder->id . "\n";
             foreach ($purchaseOrder->batteries as $battery) {
+                $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processing Battery ID " . $battery->battery_id . "\n";
                 $batteryId = $battery->battery_id;
                 $batteryType = $battery->source ?? 'regular';
                 $batteryCode = $battery->battery_production_code ?? null;
@@ -270,6 +282,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processed Battery ID " . $battery->battery_id . "\n";
                 } else if ($batteryType == 'recycle') {
                     $inventoryRecycle = InventoryRecycleModel::where('battery_recycle_id', $batteryId)->first();
                     if ($inventoryRecycle) {
@@ -295,6 +309,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processed Recycle Battery ID " . $battery->battery_id . "\n";
                 } else {
                     Log::warning('Unknown battery type for purchase order battery', [
                         'purchase_order_id' => $purchaseOrder->id,
@@ -308,6 +324,10 @@ class PurchaseOrderModel extends Model implements Auditable
                     ], 400);
                 }
             }
+
+            $logMessage .= "Function sendToInventorySystemPurchaseBilling: Completed processing Purchase Order ID " . $purchaseOrder->id . " - Purchase Order Number " . $purchaseOrder->purchase_order_number . "\n";
+            Logger::info($logMessage);
+            $logMessage = '';
         }
     }
 
@@ -315,8 +335,12 @@ class PurchaseOrderModel extends Model implements Auditable
     {
         $purchaseOrders = self::with('batteries')->whereIn('id', $purchaseOrderIds)->get();
 
+        $logMessage = '';
+        $logMessage = "Function sendToInventorySystemSalesBilling: Processing Purchase Order IDs: " . implode(', ', $purchaseOrderIds) . "\n";
         foreach ($purchaseOrders as $purchaseOrder) {
+            $logMessage .= "Function sendToInventorySystemSalesBilling: Processing Purchase Order ID " . $purchaseOrder->id . "\n";
             foreach ($purchaseOrder->batteries as $battery) {
+                $logMessage .= "Function sendToInventorySystemSalesBilling: Processing Battery ID " . $battery->battery_id . "\n";
                 $batteryId = $battery->battery_id;
                 $batteryType = $battery->source ?? 'regular';
                 $batteryCode = $battery->battery_production_code ?? null;
@@ -346,6 +370,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystemSalesBilling: Processed Battery ID " . $battery->battery_id . "\n";
                 } else if ($batteryType == 'recycle') {
                     $inventoryRecycle = InventoryRecycleModel::where('battery_recycle_id', $batteryId)->first();
                     if ($inventoryRecycle) {
@@ -371,6 +397,8 @@ class PurchaseOrderModel extends Model implements Auditable
                         'reference_id' => $purchaseOrder->id,
                         'reference_type' => PurchaseOrderModel::class,
                     ]);
+
+                    $logMessage .= "Function sendToInventorySystemSalesBilling: Processed Recycle Battery ID " . $battery->battery_id . "\n";
                 } else {
                     Log::warning('Unknown battery type for purchase order battery', [
                         'purchase_order_id' => $purchaseOrder->id,
@@ -384,6 +412,10 @@ class PurchaseOrderModel extends Model implements Auditable
                     ], 400);
                 }
             }
+
+            $logMessage .= "Function sendToInventorySystemSalesBilling: Completed processing Purchase Order ID " . $purchaseOrder->id . " - Purchase Order Number " . $purchaseOrder->purchase_order_number . "\n";
+            Logger::info($logMessage);
+            $logMessage = '';
         }
     }
 }

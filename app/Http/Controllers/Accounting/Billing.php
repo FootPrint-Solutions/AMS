@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Accounting;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 // Models
 use App\Http\Controllers\Controller;
@@ -432,9 +433,11 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftSalesOrderIds)) {
+                        Log::info("Posting Sales Orders with IDs: " . implode(', ', $draftSalesOrderIds));
                         SalesOrderModel::whereIn('id', $draftSalesOrderIds)
                             ->update(['status' => 'posted']);
 
+                        Log::info("Sending Sales Orders to Inventory System for Sales Billing: " . implode(', ', $draftSalesOrderIds));
                         SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
                     }
                 }
@@ -446,9 +449,11 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftPurchaseOrderIds)) {
+                        Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
                         PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
                             ->update(['status' => 'posted']);
 
+                        Log::info("Sending Purchase Orders to Inventory System for Sales Billing: " . implode(', ', $draftPurchaseOrderIds));
                         PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
                     }
                 }
@@ -460,9 +465,11 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftPurchaseOrderIds)) {
+                        Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
                         PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
                             ->update(['status' => 'posted']);
 
+                        Log::info("Sending Purchase Orders to Inventory System for Purchase Billing: " . implode(', ', $draftPurchaseOrderIds));
                         PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
                     }
                 }
@@ -474,9 +481,11 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftSalesOrderIds)) {
+                        Log::info("Posting Sales Orders with IDs: " . implode(', ', $draftSalesOrderIds));
                         SalesOrderModel::whereIn('id', $draftSalesOrderIds)
                             ->update(['status' => 'posted']);
 
+                        Log::info("Sending Sales Orders to Inventory System for Purchase Billing: " . implode(', ', $draftSalesOrderIds));
                         SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
                     }
                 }
