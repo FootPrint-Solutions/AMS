@@ -27,6 +27,7 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use Illuminate\Support\Facades\Log as Logger;
 
 class SalesOrderModel extends Model implements Auditable
 {
@@ -355,9 +356,14 @@ class SalesOrderModel extends Model implements Auditable
         $salesOrders = self::with('batteries')->whereIn('id', $salesOrderIds)->get();
 
         $status = true;
+        $logMessage = '';
+        $logMessage .= "Function sendToInventorySystem: Starting inventory update for Sales Order IDs: " . implode(', ', $salesOrderIds) . "\n";
         foreach ($salesOrders as $salesOrder) {
+            $logMessage .= "Function sendToInventorySystem: Processing Sales Order ID " . $salesOrder->id . " with Sales Order Number " . $salesOrder->sales_order_number . "\n";
             $salesOrderBattery = $salesOrder->batteries;
             foreach ($salesOrderBattery as $battery) {
+                $logMessage .= "Function sendToInventorySystem: Processing Battery ID " . $battery->battery_id . " of type " . $battery->type . " with quantity " . $battery->quantity . "\n";
+
                 $checkType = $battery->type;
                 $qty = $battery->quantity;
                 if ($checkType == 'recycle') {
@@ -382,6 +388,8 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+
+                    $logMessage .= "Function sendToInventorySystem: Processed recycle battery ID " . $battery->battery_id . "\n";
                 } else {
                     $inventory = InventoryModel::firstOrNew([
                         'battery_id' => $battery->battery_id
@@ -403,7 +411,17 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+
+                    $logMessage .= "Function sendToInventorySystem: Processed regular battery ID " . $battery->battery_id . "\n";
                 }
+            }
+
+            if (!$status) {
+                $logMessage .= "Function sendToInventorySystem: Error occurred while processing Sales Order ID " . $salesOrder->id . " - Sales Order Number " . $salesOrder->sales_order_number . "\n";
+                Logger::error($logMessage);
+            } else {
+                Logger::info($logMessage);
+                $logMessage = '';
             }
         }
         return $status;
@@ -420,9 +438,13 @@ class SalesOrderModel extends Model implements Auditable
         $salesOrders = self::with('batteries')->whereIn('id', $salesOrderIds)->get();
 
         $status = true;
+        $logMessage = '';
+        $logMessage .= "Function sendToInventorySystemSalesBilling: Starting inventory update for Sales Order IDs: " . implode(', ', $salesOrderIds) . "\n";
         foreach ($salesOrders as $salesOrder) {
+            $logMessage .= "Function sendToInventorySystemSalesBilling: Processing Sales Order ID " . $salesOrder->id . " with Sales Order Number " . $salesOrder->sales_order_number . "\n";
             $salesOrderBattery = $salesOrder->batteries;
             foreach ($salesOrderBattery as $battery) {
+                $logMessage .= "Function sendToInventorySystemSalesBilling: Processing Battery ID " . $battery->battery_id . " of type " . $battery->type . " with quantity " . $battery->quantity . "\n";
                 $checkType = $battery->type;
                 $qty = $battery->quantity;
                 if ($checkType == 'recycle') {
@@ -447,6 +469,8 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+
+                    $logMessage .= "Function sendToInventorySystemSalesBilling: Processed recycle battery ID " . $battery->battery_id . "\n";
                 } else {
                     $inventory = InventoryModel::firstOrNew([
                         'battery_id' => $battery->battery_id
@@ -468,7 +492,17 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+
+                    $logMessage .= "Function sendToInventorySystemSalesBilling: Processed regular battery ID " . $battery->battery_id . "\n";
                 }
+            }
+
+            if (!$status) {
+                $logMessage .= "Function sendToInventorySystemSalesBilling: Error occurred while processing Sales Order ID " . $salesOrder->id . " - Sales Order Number " . $salesOrder->sales_order_number . "\n";
+                Logger::error($logMessage);
+            } else {
+                Logger::info($logMessage);
+                $logMessage = '';
             }
         }
         return $status;
@@ -479,9 +513,13 @@ class SalesOrderModel extends Model implements Auditable
         $salesOrders = self::with('batteries')->whereIn('id', $salesOrderIds)->get();
 
         $status = true;
+        $logMessage = '';
+        $logMessage .= "Function sendToInventorySystemPurchaseBilling: Starting inventory update for Sales Order IDs: " . implode(', ', $salesOrderIds) . "\n";
         foreach ($salesOrders as $salesOrder) {
+            $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processing Sales Order ID " . $salesOrder->id . " with Sales Order Number " . $salesOrder->sales_order_number . "\n";
             $salesOrderBattery = $salesOrder->batteries;
             foreach ($salesOrderBattery as $battery) {
+                $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processing Battery ID " . $battery->battery_id . " of type " . $battery->type . " with quantity " . $battery->quantity . "\n";
                 $checkType = $battery->type;
                 $qty = $battery->quantity;
                 if ($checkType == 'recycle') {
@@ -506,6 +544,7 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+                    $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processed recycle battery ID " . $battery->battery_id . "\n";
                 } else {
                     $inventory = InventoryModel::firstOrNew([
                         'battery_id' => $battery->battery_id
@@ -527,7 +566,16 @@ class SalesOrderModel extends Model implements Auditable
                         $inventoryDetail->reference()->associate($battery);
                     }
                     $status &= $inventoryDetail->save();
+                    $logMessage .= "Function sendToInventorySystemPurchaseBilling: Processed regular battery ID " . $battery->battery_id . "\n";
                 }
+            }
+
+            if (!$status) {
+                $logMessage .= "Function sendToInventorySystemPurchaseBilling: Error occurred while processing Sales Order ID " . $salesOrder->id . " - Sales Order Number " . $salesOrder->sales_order_number . "\n";
+                Logger::error($logMessage);
+            } else {
+                Logger::info($logMessage);
+                $logMessage = '';
             }
         }
         return $status;
