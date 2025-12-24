@@ -209,10 +209,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($details as $index => $item)
-                                        @if (($item['battery']['type'] ?? 'regular') != 'regular')
-                                            @continue
-                                        @endif
+                                    @php
+                                        $grouped = [];
+                                        foreach ($details as $item) {
+                                            if (($item['battery']['type'] ?? 'regular') != 'regular') {
+                                                continue;
+                                            }
+                                            $batteryId = $item['battery']['id'] ?? null;
+                                            if ($batteryId === null) {
+                                                continue;
+                                            }
+                                            if (!isset($grouped[$batteryId])) {
+                                                $grouped[$batteryId] = [
+                                                    'battery_name' => $item['battery_name'],
+                                                    'quantity' => 0,
+                                                ];
+                                            }
+                                            $grouped[$batteryId]['quantity'] += $item['quantity'];
+                                        }
+                                        $grouped = array_values($grouped);
+                                    @endphp
+                                    @forelse ($grouped as $index => $item)
                                         <tr>
                                             <td class="text">{{ $index + 1 }}</td>
                                             <td class="text">{{ $item['battery_name'] }}</td>

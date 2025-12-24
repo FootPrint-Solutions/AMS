@@ -279,6 +279,14 @@
                             let id = selected[0][10];
                             // window.open("/billing/print/" + id, "_blank");
 
+                            var billingNumber = selected[0][2];
+                            var prefix = billingNumber.substring(0, 2);
+                            if (prefix === 'SB') {
+                                Swal.fire("Error", "Use Print Kwitansi for Sales Billing.",
+                                    "error");
+                                return;
+                            }
+
                             downloadPDF("/billing/print/" + id, "_blank");
                         }
                     },
