@@ -1222,6 +1222,13 @@ class Billing extends Controller
                 ->with('error', 'Billing not found.');
         }
 
+        $billingNumber = $billing->billing_number;
+        $prefix = substr($billingNumber, 0, 2);
+        if ($prefix === 'SB') {
+            return redirect()->route('billing.index')
+                ->with('error', 'Use Print Kwitansi for Sales Billing.');
+        }
+
         // Example: Use vendor name/type to determine which view to use
         $vendorName = $billing->vendor ? $billing->vendor->name : '';
         $vendorId = $billing->vendor ? $billing->vendor->id : null;

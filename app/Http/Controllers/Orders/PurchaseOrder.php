@@ -867,7 +867,7 @@ class PurchaseOrder extends Controller
             }
             $customers = $query->where('status', 1)
                 ->orderBy('name')
-                ->get(['id', 'name']);
+                ->get(['id', 'name', 'address']);
 
             foreach ($customers as $c) {
                 $results[] = [
@@ -875,6 +875,7 @@ class PurchaseOrder extends Controller
                     'text' => $c->name,
                     'type' => 'shop',
                     'reference_type' => DistributorShopModel::class,
+                    'address' => $c->address,
                 ];
             }
 

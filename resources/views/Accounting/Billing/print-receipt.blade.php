@@ -18,7 +18,7 @@
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
             color: var(--text);
             margin: 0;
             background: #fff;
@@ -83,11 +83,11 @@
 
         .info .label {
             font-weight: 800;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
         }
 
         .info .muted {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
         }
 
         .info p {
@@ -162,14 +162,14 @@
         .footer-center {
             text-align: center;
             margin-top: 6mm;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
             font-weight: 800;
         }
 
         .footer-center-custom {
             text-align: center;
             margin-top: 6mm;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
         }
 
         .footer b {
@@ -290,16 +290,15 @@
             <tbody>
                 @forelse($items as $it)
                     <tr>
-                        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: 800;">{{ $it['name'] }}
+                        <td style="font-family: Arial; font-weight: 800;">{{ $it['name'] }}
                         </td>
-                        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; width: 12%;"
-                            class="nowrap">
+                        <td style="font-family: Arial; font-weight: 800; width: 12%;" class="nowrap">
                             {{ rtrim(rtrim(number_format($it['qty'], 2, ',', '.'), '0'), ',') }}
                         </td>
-                        <td style="font-family: Arial, Helvetica, sans-serif;" class="col-unit nowrap">
+                        <td style="font-family: Arial;" class="col-unit nowrap">
                             {{ $it['unit'] < 0 ? '-' : '' }}{{ $rupiah(abs($it['unit'])) }}
                         </td>
-                        <td style="font-family: Arial, Helvetica, sans-serif;" class="col-total nowrap">
+                        <td style="font-family: Arial;" class="col-total nowrap">
                             {{ $it['total'] < 0 ? '-' : '' }}{{ $rupiah(abs($it['total'])) }}
                         </td>
                     </tr>
@@ -314,26 +313,23 @@
         {{-- SUMMARY --}}
         <div class="summary-wrap">
             <div class="summary-line">
-                <div
-                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; min-width: 110px; text-align:right;">
+                <div style="font-family: Arial; font-weight: 800; min-width: 110px; text-align:right;">
                     Subtotal:
                 </div>
                 <div class="nowrap" style="padding-left:10px;">{{ $rupiah($subtotal) }}</div>
             </div>
             <div class="summary-line">
-                <div
-                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; min-width: 110px; text-align:right;">
+                <div style="font-family: Arial; font-weight: 800; min-width: 110px; text-align:right;">
                     Total Diskon:
                 </div>
                 <div class="nowrap" style="padding-left:10px;">{{ $rupiah($discountPrice) }}</div>
             </div>
             <div class="summary-line summary-total">
-                <div
-                    style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; font-size: 20px; min-width: 110px; text-align:right;">
+                <div style="font-family: Arial; font-weight: 800; font-size: 15px; min-width: 110px; text-align:right;">
                     Total:
                 </div>
-                <div style="font-family: Arial, Helvetica, sans-serif; font-weight: 800; font-size: 20px; padding-left:10px;"
-                    class="nowrap">{{ $rupiah($total) }}</div>
+                <div style="font-family: Arial; font-weight: 800; font-size: 15px; padding-left:10px;" class="nowrap">
+                    {{ $rupiah($total) }}</div>
             </div>
         </div>
 
@@ -348,8 +344,7 @@
 
             <div class="footer-center-custom" style="margin-top:4mm;">
                 Klik link di bawah untuk<br>
-                <a style="font-family: Arial, Helvetica, sans-serif; font-weight: 800;"
-                    href="https://www.akikita.id/garansi" target="_blank">
+                <a style="font-family: Arial; font-weight: 800;" href="https://www.akikita.id/garansi" target="_blank">
                     Syarat &amp; Ketentuan Garansi Produk
                 </a>
             </div>
