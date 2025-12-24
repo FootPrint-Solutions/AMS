@@ -83,7 +83,7 @@
                             <div class="form-group local-forms">
                                 <label for="ship_to">Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop"></i>
+                                        title="This ship to data contains shop"></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -568,6 +568,8 @@
                                     raw_id: item.id,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
+                                    address: item.address || '',
+                                    'data-address': item.address || '',
                                 };
                             })
                         };
@@ -586,6 +588,15 @@
             });
 
             $('#status').select2({});
+
+            $('#ship_to').on('select2:select', function(e) {
+                var data = e.params.data;
+                if (data && data.address) {
+                    $('#AddressSearchColumnSalesOrderEditable').val(data.address);
+                } else {
+                    $('#AddressSearchColumnSalesOrderEditable').val('');
+                }
+            });
         })
     </script>
 

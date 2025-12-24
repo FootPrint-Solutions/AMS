@@ -89,7 +89,7 @@
                                 <label for="ship_to" class="form-label">
                                     Ship To <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains shop data."></i>
+                                        title="This ship to data contains shop data."></i>
                                 </label>
                                 <select class="form-control" id="ship_to" name="ship_to" required>
                                 </select>
@@ -125,7 +125,7 @@
                         <div class="col-md-4">
                             <div class="form-group local-forms">
                                 <label for="InvoiceNumber" class="form-label">
-                                    Invoice Number <span class="login-danger">*</span>
+                                    Invoice Number
                                 </label>
                                 <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
@@ -382,10 +382,10 @@
                         <div class="row">
                             <div class="col">
                                 <select name="status" id="status" class="form-control" required>
-                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
-                                    </option>
                                     <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
                                         Pending</option>
+                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
+                                    </option>
                                     <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
                                         Failed</option>
                                 </select>
@@ -611,6 +611,8 @@
                                     text: (item.text || item.name || '') + ' ' + typeBadge,
                                     type: item.type,
                                     reference_type: item.reference_type || null,
+                                    address: item.address || '',
+                                    'data-address': item.address || '',
                                 };
                             })
                         };
@@ -629,7 +631,16 @@
             });
 
             $('#status').select2({});
-        })
+
+            $('#ship_to').on('select2:select', function(e) {
+                var data = e.params.data;
+                if (data && data.address) {
+                    $('#AddressSearchColumnSalesOrderEditable').val(data.address);
+                } else {
+                    $('#AddressSearchColumnSalesOrderEditable').val('');
+                }
+            });
+        });
     </script>
 
     {{-- Form Handler --}}
@@ -1073,6 +1084,9 @@
                             $('.btn-delete-row').removeClass('disabled');
                         }
 
+                        removeEmptyBatteryRows();
+
+
                         calculateTotal();
 
                         $('#modalSalesOrder').modal('hide');
@@ -1157,6 +1171,32 @@
             }
 
             return row;
+        }
+
+        function isBatteryRowEmpty($row) {
+            const batteryId = ($row.find('[name="batteriesid[]"]').val() || '').toString().trim();
+            const salesOrderBatteryId = ($row.find('[name="salesorderbatteryid[]"]').val() || '').toString().trim();
+            const batteryName = ($row.find('.autocomplete').val() || '').toString().trim();
+
+            return batteryId === '' && salesOrderBatteryId === '' && batteryName === '';
+        }
+
+        function removeEmptyBatteryRows() {
+            $('#table-battery-detail tbody .table-battery-detail-row').each(function() {
+                const $row = $(this);
+
+                if ($('#table-battery-detail tbody .table-battery-detail-row').length === 1) return;
+
+                if (isBatteryRowEmpty($row)) {
+                    $row.remove();
+                }
+            });
+
+            if ($('#table-battery-detail tbody .table-battery-detail-row').length <= 1) {
+                $('.btn-delete-row').addClass('disabled');
+            } else {
+                $('.btn-delete-row').removeClass('disabled');
+            }
         }
     </script>
 @endsection
