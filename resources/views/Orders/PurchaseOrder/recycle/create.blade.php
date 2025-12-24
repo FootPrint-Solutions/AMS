@@ -103,7 +103,7 @@
                         {{-- Invoice Number --}}
                         <div class="col">
                             <div class="form-group local-forms">
-                                <label for="InvoiceNumber">Invoice Number <span class="login-danger">*</span></label>
+                                <label for="InvoiceNumber">Invoice Number</label>
                                 <input type="text" class="form-control" name="InvoiceNumber" id="InvoiceNumber"
                                     value="@if (isset($data['profile'])) {{ ltrim($data['profile']['invoice_number']) }} @endif"
                                     autocomplete="off">
@@ -389,10 +389,10 @@
                         <div class="row">
                             <div class="col">
                                 <select name="status" id="status" class="form-control" required>
-                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
-                                    </option>
                                     <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
                                         Pending</option>
+                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
+                                    </option>
                                     <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
                                         Failed</option>
                                 </select>
