@@ -395,6 +395,7 @@
                     var QtyTabel = [];
                     var PriceTabel = [];
                     var BatteryNameTabel = [];
+                    var BatteryType = [];
                     var Platform = [];
                     var LinkTokopedia = [];
                     var BatteryIdCheckout = [];
@@ -433,6 +434,11 @@
                     $(".BatteryIdCheckout").each(function() {
                         var value = $(this).val();
                         BatteryIdCheckout.push(value);
+                    });
+
+                    $(".BatteryType").each(function() {
+                        var value = $(this).val();
+                        BatteryType.push(value);
                     });
 
                     $(".GrossPrice").each(function() {
@@ -493,6 +499,7 @@
                     Discount: Discount,
                     ExtraDiscount: ExtraDiscount,
                     BatteryNameTabel: BatteryNameTabel,
+                    BatteryType: BatteryType,
                     QtyTabel: QtyTabel,
                     PriceTabel: PriceTabel,
                     DistributorShopId: DistributorShopId,
@@ -772,6 +779,7 @@
                 var QtyTabel = [];
                 var PriceTabel = [];
                 var BatteryNameTabel = [];
+                var BatteryType = [];
                 var LinkTokopedia = [];
                 var QtyPayment = [];
                 var GrossPricePayment = [];
@@ -842,6 +850,11 @@
                     BatteryIdCheckout.push(value);
                 });
 
+                $(".BatteryTypeCheckout").each(function() {
+                    var value = $(this).val();
+                    BatteryType.push(value);
+                });
+
                 var PaymentMethod = $("#PaymentMethod").val();
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
@@ -890,7 +903,8 @@
                     BatteryIdCheckout: BatteryIdCheckout,
                     typeDiscount: typeDiscount,
                     alternative_address: alternative_address,
-                    MarketplaceInvoice: MarketplaceInvoice
+                    MarketplaceInvoice: MarketplaceInvoice,
+                    BatteryType: BatteryType
                 };
 
                 $.ajax({
