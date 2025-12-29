@@ -21,6 +21,7 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\Accounting\BillingInvoiceModel;
 
 class PurchaseOrderModel extends Model implements Auditable
 {
@@ -100,6 +101,12 @@ class PurchaseOrderModel extends Model implements Auditable
     {
         return $this->hasMany(PurchaseOrderBatteryModel::class, 'purchase_order_id')
             ->with('battery');
+    }
+
+    public function billingInvoices(): HasMany
+    {
+        return $this->hasMany(BillingInvoiceModel::class, 'invoice_id')
+            ->where('invoice_type', PurchaseOrderModel::class)->with('billing');
     }
 
     /**
