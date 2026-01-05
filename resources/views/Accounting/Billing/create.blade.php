@@ -862,6 +862,7 @@
             formData.set('subtotal', subtotal);
             formData.set('discountprice', overallDiscount);
             formData.set('total', grandTotal);
+            formData.set('status', $('#status').val());
 
             // Kumpulkan data orders
             const ordersData = [];

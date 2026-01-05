@@ -241,11 +241,18 @@ class SalesOrderModel extends Model implements Auditable
         });
         $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
         $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
-        $query->leftJoin("billing_invoices AS billing_invoices", function ($join) {
-            $join->on("sales_orders.id", "=", "billing_invoices.invoice_id")
-                ->where("billing_invoices.invoice_type", SalesOrderModel::class);
+        $billingInvoiceSub = DB::table('billing_invoices')
+            ->select('invoice_id', DB::raw('MAX(id) as max_id'))
+            ->where('invoice_type', SalesOrderModel::class)
+            ->groupBy('invoice_id');
+
+        $query->leftJoinSub($billingInvoiceSub, 'bi_pick', function ($join) {
+            $join->on('sales_orders.id', '=', 'bi_pick.invoice_id');
         });
-        $query->leftJoin("billings AS billing", "billing_invoices.billing_id", "=", "billing.id");
+
+        $query->leftJoin('billing_invoices as billing_invoices', 'billing_invoices.id', '=', 'bi_pick.max_id');
+        $query->leftJoin('billings as billing', 'billing_invoices.billing_id', '=', 'billing.id');
+
 
         $query->with('vendorData', 'shipToData');
 

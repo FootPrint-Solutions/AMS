@@ -872,7 +872,6 @@ $arrayBattery
                 foreach ($request->input('BatteryNameTabel') as $key => $value) {
                     if ($batteryType[$key] == 'recycle') {
                         $subtotalRecycle += str_replace(".", "", $request->input('SubtotalPayment')[$key]);
-                        $totalRecycle += str_replace(".", "", $request->input('NetPricePayment')[$key]);
                         if ($request->input('DiscountPayment')[$key] != 0) {
                             $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
                             $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
@@ -880,6 +879,8 @@ $arrayBattery
                             $discountRecycle += $discountPercent;
                         }
                     }
+
+                    $totalRecycle = $subtotalRecycle - $discountRecycle;
                 }
 
                 $purchaseOrder = PurchaseOrderModel::create([
@@ -908,12 +909,40 @@ $arrayBattery
                     'ship_to_id' => $Customer->id,
                     'ship_to_type' => CustomerModel::class,
                     'date' => date('Y-m-d'),
-                    'discount' => $request->input('Discount', 0),
-                    'discount_price' => $discountRecycle,
-                    'subtotal' => $subtotalRecycle,
-                    'total' => $totalRecycle,
+                    'discount' => $DiscountPercentage ?? 0,
+                    'discount_price' => $DiscountRupiah ?? 0,
+                    'subtotal' => $subtotal,
+                    'total' => $total,
                     'status' => $request->input('status', 'draft'),
                 ]);
+
+                if ($billing ?? false) {
+                    BillingInvoiceModel::create([
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $Quotation->id,
+                        'invoice_type' => SalesOrderModel::class,
+                        'invoice_number' => $Quotation->sales_order_number,
+                        'date' => date('Y-m-d'),
+                        'discount' => $DiscountPercentage ?? 0,
+                        'discount_price' => $DiscountRupiah ?? 0,
+                        'subtotal' => $subtotal,
+                        'total' => $total,
+                        'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
+                    ]);
+
+                    BillingInvoiceModel::create([
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $purchaseOrder->id,
+                        'invoice_type' => PurchaseOrderModel::class,
+                        'invoice_number' => $purchaseOrder->purchase_order_number,
+                        'date' => date('Y-m-d'),
+                        'discount' => 0,
+                        'discount_price' => $discountRecycle,
+                        'subtotal' => $subtotalRecycle,
+                        'total' => $totalRecycle,
+                        'note' => 'Battery Recycle From Purchase Order ' . $purchaseOrder->purchase_order_number,
+                    ]);
+                }
             }
 
             $dataProduct = [];
@@ -952,21 +981,6 @@ $arrayBattery
                             'created_at' => date('Y-m-d H:i:s'),
                             'updated_at' => date('Y-m-d H:i:s'),
                         ];
-
-                        if ($billing ?? false) {
-                            BillingInvoiceModel::create([
-                                'billing_id' => $billing->id,
-                                'invoice_id' => $Quotation->id,
-                                'invoice_type' => SalesOrderModel::class,
-                                'invoice_number' => $Quotation->sales_order_number,
-                                'date' => date('Y-m-d'),
-                                'discount' => 0,
-                                'discount_price' => $DiscountPrice,
-                                'subtotal' => $Subtotal,
-                                'total' => $PriceNet,
-                                'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
-                            ]);
-                        }
                     } else {
                         if ($request->input('DiscountPayment')[$key] != 0) {
                             $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
@@ -1015,19 +1029,6 @@ $arrayBattery
                             'quantity' => 1,
                             'battery_production_code' => NULL
                         ]);
-
-                        BillingInvoiceModel::create([
-                            'billing_id' => $billing->id,
-                            'invoice_id' => $purchaseOrder->id,
-                            'invoice_type' => PurchaseOrderModel::class,
-                            'invoice_number' => $purchaseOrder->purchase_order_number,
-                            'date' => date('Y-m-d'),
-                            'discount' => 0,
-                            'discount_price' => $DiscountPrice,
-                            'subtotal' => $Subtotal,
-                            'total' => $PriceNet,
-                            'note' => 'Battery Recycle From Sales Order ' . $Quotation->sales_order_number,
-                        ]);
                     }
                 }
             }
@@ -1039,7 +1040,7 @@ $arrayBattery
                 return getResponseData(false, "Failed to save data");
             } else {
                 DB::commit();
-                return getResponseData(true, "Data saved successfully");
+                // return getResponseData(true, "Data saved successfully");
             }
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -1340,16 +1341,9 @@ $arrayVehicle
             }
         } else {
             // Get battery data for autocomplete (non-regular type)
-            $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
-                ->where('batteries.type', '!=', 'regular')
-                ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
-                ->orderBy('batteries.name', 'asc')
-                ->select(
-                    'batteries.*',
-                    'battery_prices.discount',
-                    'battery_prices.price_net',
-                    'battery_prices.price_retail as price_retail_original'
-                )
+            $results = BatteryRecycleModel::where('battery_recycles.name', 'like', '%' . $query . '%')
+                ->orderBy('battery_recycles.name', 'asc')
+                ->select('battery_recycles.*', DB::raw('0 as discount'), 'battery_recycles.price as price_net', 'battery_recycles.price as price_retail_original', DB::raw('"recycle" as type'))
                 ->limit(10)
                 ->get();
 
@@ -1357,7 +1351,7 @@ $arrayVehicle
             foreach ($results as $result) {
                 $result->tax = $tax ? $tax->percentage : 0;
                 $result->price_retail = $result->price_retail_original ?? 0;
-                $result->discount = $result->discount ?? 0;
+                $result->discount = 0;
                 $result->price_net = $result->price_retail_original ?? 0;
                 $result->price_tax = $result->price_net + ($result->price_net * $result->tax / 100);
                 $result->net_price = $result->price_tax - ($result->price_tax * $result->discount / 100);

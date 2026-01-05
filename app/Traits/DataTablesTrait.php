@@ -137,14 +137,12 @@ trait DataTablesTrait
 
     public static function getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns = null, $orderDefault = null, $orderColumnCustom)
     {
-        // Get DataTables configuration request.
         $start = $request->input("start");
         $length = $request->input("length");
         $searchValue = $request->input("search.value");
         $orderColumn = $request->input("order.0.column");
         $orderDirection = $request->input("order.0.dir");
 
-        // Searching process.
         if ($searchColumns != null && $searchValue != null) {
             $query->where(function ($query) use ($searchValue, $searchColumns) {
                 foreach ($searchColumns as $column) {
@@ -153,7 +151,8 @@ trait DataTablesTrait
             });
         }
 
-        // Ordering process.
+        $countQuery = (clone $query);
+
         if ($orderColumn !== null) {
             $columnName = $orderColumnCustom[$orderColumn] ?? null;
             if ($columnName !== null) {
@@ -167,13 +166,12 @@ trait DataTablesTrait
             }
         }
 
-        return array(
-            "count" => $query->count(),
-            "row" => $query->skip($start)
-                ->take($length)
-                ->get(),
-        );
+        return [
+            "count" => $countQuery->distinct('sales_orders.id')->count('sales_orders.id'),
+            "row" => $query->skip($start)->take($length)->get(),
+        ];
     }
+
 
     public static function getAllRowWorkOrderInstruction($request, $query, $selectColumns, $searchColumns = null, $orderDefault = null, $orderColumnCustom)
     {

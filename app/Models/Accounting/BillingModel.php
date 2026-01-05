@@ -25,6 +25,7 @@ class BillingModel extends Model
         'discount_price',
         'subtotal',
         'total',
+        'status',
     ];
 
     protected $dates = [
