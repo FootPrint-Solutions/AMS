@@ -69,6 +69,7 @@
                                             <option></option>
                                             @foreach ($data['customers'] as $customer)
                                                 <option value="{{ $customer['id'] }}"
+                                                    data-address="{{ $customer['address'] }}"
                                                     @if (isset($data['profile']) && $data['profile']['customer_id'] == $customer['id']) selected @endif>
                                                     {{ $customer['name'] }}
                                                 </option>
@@ -866,5 +867,12 @@
 
             return total;
         }
+
+        $("#customer").on("change", function() {
+            let selectedOption = $(this).find('option:selected');
+            let address = selectedOption.data('address') || '';
+
+            $("#AddressSearchColumnSalesOrderEditable").val(address);
+        });
     </script>
 @endsection

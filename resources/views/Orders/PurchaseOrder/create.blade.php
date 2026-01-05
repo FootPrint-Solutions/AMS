@@ -63,7 +63,7 @@
                                 </label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
                                     @isset($data['profile'])
-                                        value="{{ \Carbon\Carbon::parse($data['profile']['date'])->format('Y-m-d') }}"
+                                        value="{{ date('Y-m-d', strtotime($data['profile']['date'])) }}"
                                     @else
                                         value="{{ date('Y-m-d') }}"
                                     @endisset>

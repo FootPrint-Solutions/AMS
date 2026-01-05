@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Orders\QuickQuotation;
+use App\Http\Controllers\Orders\WorkOrder;
 
 Route::get('/quotation/quick', [QuickQuotation::class, 'index'])->name('quotation.index')->middleware('permission:view_quick_quotation');
 Route::get('/quotation/customer/find', [QuickQuotation::class, 'findCustomer'])->name('quotation.findCustomer')->middleware('permission:view_quick_quotation');

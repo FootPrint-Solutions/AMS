@@ -334,7 +334,7 @@ class PurchaseOrder extends Controller
             $row[] = $id;
             $row[] = $item['purchase_order_number'] . " " . $typeBadgeClass . " " . $billingNumberBadge;
             $row[] = $item['invoice_number'] ?? "<p class='text-center'>-</p>";
-            $row[] = isset($item['date']) ? formatDate($item['date']) : '';
+            $row[] = isset($item['date']) ? date('j M Y', strtotime($item['date'])) : '';
             $row[] = $vendorName;
             $row[] = $shopName;
             $row[] = formatPrice($item['subtotal'] ?? 0);
