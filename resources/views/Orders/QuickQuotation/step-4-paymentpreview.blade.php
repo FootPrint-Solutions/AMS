@@ -52,10 +52,12 @@
                 </thead>
                 <tbody>
                     @foreach ($dataProduct as $data)
-                        <tr>
+                        <tr @if ($data['BatteryType'] == 'recycle') class="bg-danger" @endif>
                             <td>
                                 <input type="text" name="BatteryNamePaymentDetails[]"
                                     class="form-control BatteryNamePaymentDetails" value="{{ $data['name'] }}" readonly>
+                                <input type="hidden" name="BatteryType[]" class="BatteryTypeCheckout"
+                                    value="{{ $data['BatteryType'] }}">
                             </td>
                             <td>
                                 <input readonly type="number" name="QtyPaymentDetails[]"
@@ -93,7 +95,7 @@
         </div>
 
 
-        <div class="row align-items-center justify-content-center">
+        <div class="row align-items-center justify-content-center mt-3">
             <div class="col-lg-6 col-md-6">
                 <div class="invoice-total-card">
                     <div class="invoice-total-box">

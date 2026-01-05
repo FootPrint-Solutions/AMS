@@ -24,13 +24,18 @@ class SalesOrderDetailsExport implements FromCollection, WithHeadings, WithMappi
     public function collection()
     {
         $query = SalesOrderBatteryModel::with([
+            'salesOrder' => function ($q) {
+                $q->whereNull('deleted_at');
+            },
             'salesOrder.customer',
             'salesOrder.vehicle',
             'salesOrder.distributorShop',
             'salesOrder.technician',
             'salesOrder.paymentMethod',
             'battery'
-        ]);
+        ])->whereHas('salesOrder', function ($q) {
+            $q->whereNull('deleted_at');
+        });
 
         if (isset($this->dateStart) && isset($this->dateEnd)) {
             $query->whereHas('salesOrder', function ($q) {

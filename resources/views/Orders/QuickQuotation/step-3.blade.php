@@ -7,7 +7,8 @@
 
     <div class="row">
         <div class="col">
-            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i class="bx bx-chevron-left me-1"></i> Previous</a>
+            <a href="javascript: void(0);" class="btn btn-primary seller-previous-btn"><i
+                    class="bx bx-chevron-left me-1"></i> Previous</a>
         </div>
 
         <div class="col text-end">
@@ -97,7 +98,7 @@
         var html = '';
         html += '<tr>';
         html +=
-            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="hidden" name="BatteryType[]" id="BatteryType" class="BatteryType"><input type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
+            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="hidden" name="BatteryType[]" id="BatteryType" class="BatteryType"><input type="text" data-type-battery="regular" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
         html +=
             '<td><input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout" value="1"></td>';
         html +=
@@ -118,6 +119,31 @@
         $('.add-table-items tbody').append(html);
     });
 
+    $(document).on('click', '.add-recycle-row', function() {
+        var html = '';
+        html += '<tr class="bg-danger">';
+        html +=
+            '<td><input type="hidden" name="BatteryIdCheckout[]" id="BatteryIdCheckout" class="BatteryIdCheckout"><input type="hidden" name="BatteryType[]" id="BatteryType" class="BatteryType"><input data-type-battery="recycle" type="text" name="BatteryNameCheckout[]" id="BatteryNameCheckout" class="form-control BatteryNameCheckout" value="" autocomplete="off"><div id="showAutoCompleteBattery" class="autocomplete-suggestions"></div></td>';
+        html +=
+            '<td><input type="number" name="QtyCheckout[]" id="QtyCheckout" class="form-control QtyCheckout" value="1"></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="GrossPrice[]" id="GrossPrice" class="form-control GrossPrice text-end" value="" ></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="TaxRow[]" id="TaxRow" class="form-control TaxRow text-end" value="" ></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="PriceTaxRow[]" id="PriceTaxRow" class="form-control PriceTaxRow text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="DiscountRow[]" id="DiscountRow" class="form-control DiscountRow text-end" value=""></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="NetPrice[]" id="NetPrice" class="form-control NetPrice text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="text" name="SubtotalRow[]" id="SubtotalRow" class="form-control SubtotalRow text-end" value="" disabled></div></td>';
+        html +=
+            '<td><button type="button" class="btn btn-light btn-sm remove-row text-danger"><i class="fas fa-trash"></i></button></td>';
+        html += '</tr>';
+        $('.add-table-items tbody').append(html);
+    });
+
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
@@ -125,13 +151,15 @@
     // autocomplete battery
     $(document).on('keyup', '.BatteryNameCheckout', function() {
         var query = $(this).val();
+        var typeBattery = $(this).data('type-battery');
         var row = $(this).closest('tr'); // Mendapatkan baris yang sedang diubah
         if (query != '') {
             $.ajax({
                 url: "/quotation/battery/autoComplete",
                 method: "GET",
                 data: {
-                    query: query
+                    query: query,
+                    typeBattery: typeBattery
                 },
                 success: function(data) {
                     var suggestions = '';
@@ -165,7 +193,8 @@
                             formatNumber(battery.tax) + '" data-price-tax="' +
                             formatNumber(battery.price_tax) + '" data-type="' +
                             formatNumber(battery.type) + '"  data-editable-price="' +
-                            formatNumber(battery.editable_price) + '" data-net_price-tax="' +
+                            formatNumber(battery.editable_price) +
+                            '" data-net_price-tax="' +
                             formatNumber(battery.net_price) + '">' +
                             battery.name +
                             '</div>';

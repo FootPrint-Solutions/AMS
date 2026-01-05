@@ -211,7 +211,7 @@ class PurchaseOrder extends Controller
         $orderDirection = $request->input('order.0.dir', 'asc');
         $poType = $request->input('po_type', null);
 
-        $query = PurchaseOrderModel::with(['vendor', 'shipTo']);
+        $query = PurchaseOrderModel::with(['vendor', 'shipTo', 'billingInvoices']);
 
         if (!empty($status)) {
             $query->where('status', $status);
@@ -314,12 +314,25 @@ class PurchaseOrder extends Controller
                 <button data-id="' . $id . '" class="btn btn-sm btn-danger btn-delete">Delete</button>
             ';
 
+            // if billing invoice exists for this purchase order add badge
+            $billingNumberBadge = "";
+            if (!empty($item['billing_invoices']) && is_array($item['billing_invoices']) && count($item['billing_invoices']) > 0) {
+                $billing_number = $item['billing_invoices'][0]['billing']['billing_number'] ?? null;
+                if ($billing_number) {
+                    if (substr($billing_number, 0, 2) === 'PB') {
+                        $billingNumberBadge = "<br><span class='badge badge-warning text-dark'>Billing: $billing_number</span>";
+                    } else {
+                        $billingNumberBadge = "<br><span class='badge badge-success'>Billing: $billing_number</span>";
+                    }
+                }
+            }
+
             $vendorName = $item['vendor']['name'] ?? "<p class='text-center'>-</p>";
             $shopName = $item['ship_to']['name'] ?? "<p class='text-center'>-</p>";
 
             $row = [];
             $row[] = $id;
-            $row[] = $item['purchase_order_number'] . " " . $typeBadgeClass;
+            $row[] = $item['purchase_order_number'] . " " . $typeBadgeClass . " " . $billingNumberBadge;
             $row[] = $item['invoice_number'] ?? "<p class='text-center'>-</p>";
             $row[] = isset($item['date']) ? formatDate($item['date']) : '';
             $row[] = $vendorName;

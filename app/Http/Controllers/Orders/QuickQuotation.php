@@ -18,11 +18,16 @@ use App\Models\MasterData\Vehicle\VehicleFuelModel;
 use App\Models\MasterData\Vehicle\VehicleTransmissionModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Battery\BatteryRecycleModel;
 use App\Models\MasterData\Battery\BatteryImport;
 use App\Models\MasterData\Battery\BatterySizeCategoryModel;
 use App\Models\MasterData\Distributor\DistributorShopBatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderBatteryModel;
+use App\Models\Accounting\BillingModel;
+use App\Models\Accounting\BillingInvoiceModel;
 use App\Models\Settings\MessageTemplateModel;
 use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
@@ -419,6 +424,7 @@ $arrayBattery
                     'SubtotalRow' => $SubtotalRow[$key],
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
+                    'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
                 ];
             }
         } else {
@@ -435,6 +441,7 @@ $arrayBattery
                     'SubtotalRow' => $SubtotalRow[$key],
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
+                    'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
                 ];
             }
         }
@@ -795,6 +802,7 @@ $arrayBattery
             $PaymentMethodData = PaymentMethodModel::where('id', $PaymentMethod)->first()->toArray();
             $VehicleCustomer = $request->input('VehicleCustomer');
             $MarketplaceInvoice = $request->input('MarketplaceInvoice') ?? null;
+            $batteryType = $request->input('BatteryType');
 
             if ($PaymentMethodData['id'] == 1) {
                 $payment_methode = "midtrans";
@@ -856,46 +864,173 @@ $arrayBattery
 
             $Quotation = SalesOrderModel::create($data);
 
+            // check if battery recycle is exist in batteryType
+            if (in_array('recycle', $batteryType)) {
+                $subtotalRecycle = 0;
+                $totalRecycle = 0;
+                $discountRecycle = 0;
+                foreach ($request->input('BatteryNameTabel') as $key => $value) {
+                    if ($batteryType[$key] == 'recycle') {
+                        $subtotalRecycle += str_replace(".", "", $request->input('SubtotalPayment')[$key]);
+                        $totalRecycle += str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                        if ($request->input('DiscountPayment')[$key] != 0) {
+                            $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                            $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                            $discountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                            $discountRecycle += $discountPercent;
+                        }
+                    }
+                }
+
+                $purchaseOrder = PurchaseOrderModel::create([
+                    'purchase_order_number' => PurchaseOrderModel::generatePurchaseOrderNumber(),
+                    'date' => date('Y-m-d'),
+                    'vendor_id' => $Customer->id,
+                    'vendor_type' => CustomerModel::class,
+                    'ship_to_id' => $DistributorShop->id,
+                    'ship_to_type' => DistributorShopModel::class,
+                    'address' => $request->input('AddressCustomer') ?? 'unknown address',
+                    'latitude' => $request->input('Latitude') ?? 0,
+                    'longitude' => $request->input('Longitude') ?? 0,
+                    'discount_price' => $discountRecycle,
+                    'subtotal' => $subtotalRecycle,
+                    'total' => $totalRecycle,
+                    'payment_status' => $request->input('status') ?? 'pending',
+                    'status' => 'draft',
+                    'invoice_number' => $Quotation->sales_order_number,
+                    'type' => $request->input('type') ?? 'regular',
+                ]);
+
+                $billing = BillingModel::create([
+                    'billing_number' => BillingModel::generateSalesBillingNumber(),
+                    'vendor_id' => $DistributorShop->id,
+                    'vendor_type' => DistributorShopModel::class,
+                    'ship_to_id' => $Customer->id,
+                    'ship_to_type' => CustomerModel::class,
+                    'date' => date('Y-m-d'),
+                    'discount' => $request->input('Discount', 0),
+                    'discount_price' => $discountRecycle,
+                    'subtotal' => $subtotalRecycle,
+                    'total' => $totalRecycle,
+                    'status' => $request->input('status', 'draft'),
+                ]);
+            }
 
             $dataProduct = [];
+            $dataProductRecycle = [];
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
                 for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
-                    if ($request->input('DiscountPayment')[$key] != 0) {
-                        $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
-                        $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                        $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
-                        $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                        $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
-                        $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                    if ($batteryType[$key] == 'regular') {
+                        if ($request->input('DiscountPayment')[$key] != 0) {
+                            $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
+                            $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                            $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                            $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                            $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
+                            $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                            $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                        } else {
+                            $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
+                            $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                            $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                            $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                            $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
+                            $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                            $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                        }
+                        $dataProduct[] = [
+                            'sales_order_id' => $Quotation->id,
+                            'battery_id' => $request->input('BatteryIdCheckout')[$key],
+                            'battery_name' => $value,
+                            'battery_price_retail' => $GrossPrice,
+                            'discount' => $DiscountPercent,
+                            'discount_price' => $DiscountPrice,
+                            'tax' => $request->input('TaxPayment')[$key],
+                            'tax_price' =>  $TaxPrice,
+                            'price_net' =>  str_replace(".", "", $PriceNet),
+                            'quantity' => 1,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ];
+
+                        BillingInvoiceModel::create([
+                            'billing_id' => $billing->id,
+                            'invoice_id' => $Quotation->id,
+                            'invoice_type' => SalesOrderModel::class,
+                            'invoice_number' => $Quotation->sales_order_number,
+                            'date' => date('Y-m-d'),
+                            'discount' => 0,
+                            'discount_price' => $DiscountPrice,
+                            'subtotal' => $Subtotal,
+                            'total' => $PriceNet,
+                            'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
+                        ]);
                     } else {
-                        $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
-                        $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
-                        $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
-                        $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
-                        $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
-                        $TaxPrice = $GrossPrice * $TaxPayment / 100;
-                        $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                        if ($request->input('DiscountPayment')[$key] != 0) {
+                            $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
+                            $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                            $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                            $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                            $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
+                            $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                            $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                        } else {
+                            $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
+                            $GrossPrice = str_replace(".", "", $request->input('GrossPricePayment')[$key]);
+                            $DiscountPrice = str_replace(".", "", $request->input('DiscountPayment')[$key]);
+                            $PriceNet = str_replace(".", "", $request->input('NetPricePayment')[$key]);
+                            $Subtotal = str_replace(".", "", $request->input('SubtotalPayment')[$key]);
+                            $TaxPrice = $GrossPrice * $TaxPayment / 100;
+                            $DiscountPercent = $GrossPrice != 0 ? ($DiscountPrice / $GrossPrice) * 100 : 0;
+                        }
+                        $dataProductRecycle[] = [
+                            'sales_order_id' => $Quotation->id,
+                            'battery_id' => $request->input('BatteryIdCheckout')[$key],
+                            'battery_name' => $value,
+                            'battery_price_retail' => $GrossPrice,
+                            'discount' => $DiscountPercent,
+                            'discount_price' => $DiscountPrice,
+                            'tax' => $request->input('TaxPayment')[$key],
+                            'tax_price' =>  $TaxPrice,
+                            'price_net' =>  str_replace(".", "", $PriceNet),
+                            'quantity' => 1,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ];
+
+                        PurchaseOrderBatteryModel::create([
+                            'purchase_order_id' => $purchaseOrder->id,
+                            'sales_order_battery_id' => NULL,
+                            'source' => 'recycle',
+                            'battery_id' => $request->input('BatteryIdCheckout')[$key],
+                            'battery_name' => $value,
+                            'battery_price_retail' => $GrossPrice,
+                            'tax' => $request->input('TaxPayment')[$key],
+                            'tax_price' =>  $TaxPrice,
+                            'discount' => $request->input('DiscountPayment')[$key],
+                            'discount_price' => $DiscountPrice,
+                            'price_net' =>  str_replace(".", "", $PriceNet),
+                            'quantity' => 1,
+                            'battery_production_code' => NULL
+                        ]);
+
+                        BillingInvoiceModel::create([
+                            'billing_id' => $billing->id,
+                            'invoice_id' => $purchaseOrder->id,
+                            'invoice_type' => PurchaseOrderModel::class,
+                            'invoice_number' => $purchaseOrder->purchase_order_number,
+                            'date' => date('Y-m-d'),
+                            'discount' => 0,
+                            'discount_price' => $DiscountPrice,
+                            'subtotal' => $Subtotal,
+                            'total' => $PriceNet,
+                            'note' => 'Battery Recycle From Sales Order ' . $Quotation->sales_order_number,
+                        ]);
                     }
-                    $dataProduct[] = [
-                        'sales_order_id' => $Quotation->id,
-                        'battery_id' => $request->input('BatteryIdCheckout')[$key],
-                        'battery_name' => $value,
-                        'battery_price_retail' => $GrossPrice,
-                        'discount' => $DiscountPercent,
-                        'discount_price' => $DiscountPrice,
-                        'tax' => $request->input('TaxPayment')[$key],
-                        'tax_price' =>  $TaxPrice,
-                        'price_net' =>  str_replace(".", "", $PriceNet),
-                        'quantity' => 1,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
-                    ];
                 }
             }
 
             // sum price_net and sum discount_price
-
             $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
             if (!$QuuotationBattery) {
                 DB::rollBack();
@@ -1186,20 +1321,48 @@ $arrayVehicle
     public function autoCompleteBattery(Request $request)
     {
         $query = $request->input('query');
-        // $results = BatteryModel::where('name', 'like', '%' . $query . '%')->limit(10)->get();
-        $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
-            ->where('batteries.type', 'regular')
-            ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
-            ->orderBy('batteries.name', 'asc')
-            ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
-            ->limit(10)
-            ->get();
-        $tax = TaxModel::where('status', '1')->first();
-        if ($tax && $results) {
+        $type = $request->input('typeBattery');
+        if ($type && $type == 'regular') {
+            $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
+                ->where('batteries.type', 'regular')
+                ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+                ->orderBy('batteries.name', 'asc')
+                ->select('batteries.*', 'battery_prices.discount', 'battery_prices.price_net', 'battery_prices.price_retail as price_retail_original')
+                ->limit(10)
+                ->get();
+            $tax = TaxModel::where('status', '1')->first();
+            if ($tax && $results) {
+                foreach ($results as $result) {
+                    $result->tax = $tax->percentage;
+                }
+            }
+        } else {
+            // Get battery data for autocomplete (non-regular type)
+            $results = BatteryModel::where('batteries.name', 'like', '%' . $query . '%')
+                ->where('batteries.type', '!=', 'regular')
+                ->leftJoin('battery_prices', 'battery_prices.battery_id', '=', 'batteries.id')
+                ->orderBy('batteries.name', 'asc')
+                ->select(
+                    'batteries.*',
+                    'battery_prices.discount',
+                    'battery_prices.price_net',
+                    'battery_prices.price_retail as price_retail_original'
+                )
+                ->limit(10)
+                ->get();
+
+            $tax = TaxModel::where('status', '1')->first();
             foreach ($results as $result) {
-                $result->tax = $tax->percentage;
+                $result->tax = $tax ? $tax->percentage : 0;
+                $result->price_retail = $result->price_retail_original ?? 0;
+                $result->discount = $result->discount ?? 0;
+                $result->price_net = $result->price_retail_original ?? 0;
+                $result->price_tax = $result->price_net + ($result->price_net * $result->tax / 100);
+                $result->net_price = $result->price_tax - ($result->price_tax * $result->discount / 100);
+                $result->editable_price = $result->editable_price ?? 0;
             }
         }
+
         return response()->json($results);
     }
 

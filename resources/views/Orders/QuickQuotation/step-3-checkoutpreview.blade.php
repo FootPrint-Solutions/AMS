@@ -147,6 +147,9 @@
             </tbody>
         </table>
         <button type="button" class="btn btn-primary btn-sm mt-3 mb-3 add-row">Add Row</button>
+        {{-- Button Add Recycle --}}
+        <button type="button" class="btn btn-danger btn-sm mt-3 mb-3 add-recycle-row">Add Recycle
+            Battery</button>
     </div>
 </div>
 
@@ -443,6 +446,10 @@
         });
 
         $(document).on('click', '.add-row', function() {
+            calculateTotalAmount();
+        });
+
+        $(document).on('click', '.add-recycle-row', function() {
             calculateTotalAmount();
         });
 
