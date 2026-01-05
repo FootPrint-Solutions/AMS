@@ -953,18 +953,20 @@ $arrayBattery
                             'updated_at' => date('Y-m-d H:i:s'),
                         ];
 
-                        BillingInvoiceModel::create([
-                            'billing_id' => $billing->id,
-                            'invoice_id' => $Quotation->id,
-                            'invoice_type' => SalesOrderModel::class,
-                            'invoice_number' => $Quotation->sales_order_number,
-                            'date' => date('Y-m-d'),
-                            'discount' => 0,
-                            'discount_price' => $DiscountPrice,
-                            'subtotal' => $Subtotal,
-                            'total' => $PriceNet,
-                            'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
-                        ]);
+                        if ($billing ?? false) {
+                            BillingInvoiceModel::create([
+                                'billing_id' => $billing->id,
+                                'invoice_id' => $Quotation->id,
+                                'invoice_type' => SalesOrderModel::class,
+                                'invoice_number' => $Quotation->sales_order_number,
+                                'date' => date('Y-m-d'),
+                                'discount' => 0,
+                                'discount_price' => $DiscountPrice,
+                                'subtotal' => $Subtotal,
+                                'total' => $PriceNet,
+                                'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
+                            ]);
+                        }
                     } else {
                         if ($request->input('DiscountPayment')[$key] != 0) {
                             $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
