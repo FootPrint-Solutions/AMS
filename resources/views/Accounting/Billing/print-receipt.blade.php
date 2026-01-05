@@ -220,8 +220,15 @@
         foreach ($profile['invoices'] ?? [] as $invWrap) {
             $inv = $invWrap['invoice'] ?? [];
             foreach ($inv['details'] ?? [] as $d) {
-                $qty = (float) ($d['quantity'] ?? 0);
-                $unit = (float) ($d['price_net'] ?? ($d['battery_price_retail'] ?? 0));
+                if (isset($d['source']) && $d['source'] == 'recycle') {
+                    $qty = -1 * (float) ($d['quantity'] ?? 0);
+                    $unit = -1 * (float) ($d['price_net'] ?? 0);
+                    $total = -1 * (float) ($d['total'] ?? $qty * $unit);
+                } else {
+                    $qty = (float) ($d['quantity'] ?? 0);
+                    $unit = (float) ($d['price_net'] ?? ($d['battery_price_retail'] ?? 0));
+                    $total = (float) ($d['total'] ?? $qty * $unit);
+                }
 
                 $sign = 1;
                 if (isset($invWrap['total']) && (float) $invWrap['total'] < 0) {
@@ -232,7 +239,7 @@
                     'name' => $d['battery_name'] ?? 'Item',
                     'qty' => $qty,
                     'unit' => $unit * $sign,
-                    'total' => $qty * $unit * $sign,
+                    'total' => $total * $sign,
                 ];
             }
         }
