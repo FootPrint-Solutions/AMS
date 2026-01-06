@@ -1290,6 +1290,7 @@ class PurchaseOrder extends Controller
                     'battery_production_code' => $battery->battery_production_code,
                     'price_net' => $battery->price_net,
                     'battery_type' => $battery->source,
+                    'discount_price' => $battery->discount_price,
                 ];
             }
 

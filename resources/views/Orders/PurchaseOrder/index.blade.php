@@ -138,7 +138,7 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Item Name</th><th>Quantity</th><th>Price (IDR)</th><th>Type</th><th>Production Code</th>' +
+                                    '<th>Production Code</th><th>Item Name</th><th>Quantity</th><th>Price (IDR)</th><th>Type</th><th>Discount</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
@@ -151,13 +151,16 @@
                                         item.price_net);
                                     var type = item.battery_type || '-';
                                     var prodCode = item.battery_production_code || '-';
+                                    var discount = item.discount_price ? formatCurrency(
+                                        item.discount_price) : '-';
 
                                     itemTable += '<tr>' +
+                                        '<td>' + prodCode + '</td>' +
                                         '<td>' + name + '</td>' +
                                         '<td>' + qty + '</td>' +
                                         '<td>' + price + '</td>' +
                                         '<td>' + type + '</td>' +
-                                        '<td>' + prodCode + '</td>' +
+                                        '<td>' + discount + '</td>' +
                                         '</tr>';
                                 });
 

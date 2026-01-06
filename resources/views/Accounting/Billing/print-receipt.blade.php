@@ -214,7 +214,9 @@
         $profile = $data['profile'] ?? ($pageData['profile'] ?? ($result['profile'] ?? null));
 
         $rupiah = fn($n) => number_format((float) $n, 0, ',', '.');
-        $billingDate = isset($profile['date']) ? \Carbon\Carbon::parse($profile['date']) : null;
+        $billingDate = isset($profile['date'])
+            ? \Carbon\Carbon::parse($profile['date'])->setTimezone('Asia/Jakarta')
+            : null;
 
         $items = [];
         foreach ($profile['invoices'] ?? [] as $invWrap) {

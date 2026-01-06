@@ -947,6 +947,9 @@ $arrayBattery
 
             $dataProduct = [];
             $dataProductRecycle = [];
+            $totalPriceNetAll = 0;
+            $totalPriceNetRecycle = 0;
+            $totalPriceNetRegular = 0;
             foreach ($request->input('BatteryNameTabel') as $key => $value) {
                 for ($i = 0; $i < $request->input('QtyTabel')[$key]; $i++) {
                     if ($batteryType[$key] == 'regular') {
@@ -981,6 +984,8 @@ $arrayBattery
                             'created_at' => date('Y-m-d H:i:s'),
                             'updated_at' => date('Y-m-d H:i:s'),
                         ];
+
+                        $totalPriceNetRegular += str_replace(".", "", $request->input('NetPricePayment')[$key]);
                     } else {
                         if ($request->input('DiscountPayment')[$key] != 0) {
                             $TaxPayment = $request->input('TaxPayment')[$key] ?? 0;
@@ -1029,9 +1034,27 @@ $arrayBattery
                             'quantity' => 1,
                             'battery_production_code' => NULL
                         ]);
+
+                        $totalPriceNetRecycle += str_replace(".", "", $request->input('NetPricePayment')[$key]);
                     }
                 }
+                $totalPriceNetAll += str_replace(".", "", $request->input('NetPricePayment')[$key]) * $request->input('QtyTabel')[$key];
             }
+
+            // update total price net in sales order
+            $Quotation->total = $totalPriceNetRegular;
+            $Quotation->save();
+
+            // update total price net in billing invoice
+            $billing = BillingInvoiceModel::where('invoice_id', $Quotation->id)
+                ->where('invoice_type', SalesOrderModel::class)
+                ->first();
+            if ($billing) {
+                $billing->subtotal = $totalPriceNetRegular;
+                $billing->total = $totalPriceNetRegular;
+                $billing->save();
+            }
+
 
             // sum price_net and sum discount_price
             $QuuotationBattery = SalesOrderBatteryModel::insert($dataProduct);
@@ -1040,7 +1063,7 @@ $arrayBattery
                 return getResponseData(false, "Failed to save data");
             } else {
                 DB::commit();
-                // return getResponseData(true, "Data saved successfully");
+                return getResponseData(true, "Data saved successfully");
             }
         } catch (\Throwable $th) {
             DB::rollBack();

@@ -2,11 +2,17 @@
     $profile = $data['profile'];
     $vendor = $profile['vendor'];
     $ship_to = $profile['ship_to'];
-    $current_date = \Carbon\Carbon::parse($profile['date'])->format('d/m/Y');
-    $po_number = $profile['invoices'][0]['invoice']['purchase_order_number'] ?? 'N/A';
-    $details = $profile['invoices'][0]['invoice']['details'] ?? [];
-    $total = 0;
+    $current_date = \Carbon\Carbon::parse($profile['date'])->setTimezone('Asia/Jakarta')->format('d/m/Y');
+    $invoices = $profile['invoices'] ?? [];
 
+    // Gabungkan semua details dari semua invoice
+    $all_details = [];
+    foreach ($invoices as $invoice) {
+        if (isset($invoice['invoice']['details'])) {
+            $all_details = array_merge($all_details, $invoice['invoice']['details']);
+        }
+    }
+    $total = 0;
 @endphp
 
 <style type="text/css">
@@ -110,20 +116,23 @@
                             <td colspan="5" class="text"></td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="text" style="padding: 0px;">Green Sedayu Bizpark DM5 Nomor 58,
+                            <td colspan="2" class="text" style="padding: 0px;">Green Sedayu Bizpark DM5 Nomor
+                                58,
                             </td>
                             <td class="text" colspan="2" style="padding: 0px;">Tanggal</td>
                             <td class="text" colspan="3" style="padding: 0px;">{{ $current_date }}</td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI Jakarta</td>
+                            <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI Jakarta
+                            </td>
                             <td class="text" colspan="2" style="padding: 0px;">Billing No</td>
                             <td class="text" colspan="3" style="padding: 0px;">{{ $profile['billing_number'] }}
                             </td>
                         </tr>
                         <tr>
                             <td colspan="7" class="text" style="padding: 0px;"><span class="judul">TEL</span>:
-                                (+62) 081288279143</td>
+                                (+62)
+                                081288279143</td>
                         </tr>
                         <tr>
                             <td colspan="7" class="text" style="padding: 0px;"><span class="judul">EMAIL</span>:
@@ -211,7 +220,7 @@
                                 <tbody>
                                     @php
                                         $grouped = [];
-                                        foreach ($details as $item) {
+                                        foreach ($all_details as $item) {
                                             if (($item['battery']['type'] ?? 'regular') != 'regular') {
                                                 continue;
                                             }
@@ -375,14 +384,16 @@
                             <td colspan="5" class="text"></td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="text" style="padding: 0px;">Green Sedayu Bizpark DM5 Nomor
+                            <td colspan="2" class="text" style="padding: 0px;">Green Sedayu Bizpark DM5
+                                Nomor
                                 58,
                             </td>
                             <td class="text" colspan="2" style="padding: 0px;">Tanggal</td>
                             <td class="text" colspan="3" style="padding: 0px;">{{ $current_date }}</td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI Jakarta
+                            <td colspan="2" class="text" style="padding: 0px;">Kalideres, Provinsi DKI
+                                Jakarta
                             </td>
                             <td class="text" colspan="2" style="padding: 0px;">Billing No</td>
                             <td class="text" colspan="3" style="padding: 0px;">
@@ -420,13 +431,14 @@
                             <table border="1" width="100%;" cellpadding="0" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th class="header text" width="50%" style="text-align:left;">Nama Produk
+                                        <th class="header text" width="50%" style="text-align:left;">Nama
+                                            Produk
                                         </th>
                                         <th class="header text" style="text-align:left;">Kode Produksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($details as $item)
+                                    @forelse ($all_details as $item)
                                         <tr>
                                             <td class="text">{{ $item['battery_name'] }}</td>
                                             <td class="text">{{ $item['battery_production_code'] }}</td>
