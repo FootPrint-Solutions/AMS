@@ -363,6 +363,14 @@
                                     "App\\Models\\Orders\\SalesOrder\\SalesOrderModel") {
                                     item.invoice_source = "Sales order";
                                 }
+
+                                if (item.invoice_type === "recycle") {
+                                    item.subtotal = (parseFloat(item.subtotal) * -1)
+                                        .toFixed(3);
+                                    item.discount_price = (parseFloat(item.discount_price) *
+                                        -1).toFixed(3);
+                                    item.total = (parseFloat(item.total) * -1).toFixed(3);
+                                }
                             });
 
                             let itemTable = `
