@@ -899,7 +899,7 @@ $arrayBattery
                     'payment_status' => $request->input('status') ?? 'pending',
                     'status' => 'draft',
                     'invoice_number' => $Quotation->sales_order_number,
-                    'type' => $request->input('type') ?? 'regular',
+                    'type' => 'recycle'
                 ]);
 
                 $billing = BillingModel::create([
