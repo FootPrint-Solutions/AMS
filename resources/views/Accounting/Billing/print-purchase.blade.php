@@ -2,7 +2,7 @@
     $profile = $data['profile'];
     $vendor = $profile['vendor'];
     $ship_to = $profile['ship_to'];
-    $current_date = \Carbon\Carbon::parse($profile['date'])->format('d/m/Y');
+    $current_date = \Carbon\Carbon::parse($profile['date'])->setTimezone('Asia/Jakarta')->format('d/m/Y');
     $po_number = $profile['invoices'][0]['invoice']['purchase_order_number'] ?? 'N/A';
     $details = $profile['invoices'][0]['invoice']['details'] ?? [];
     $total = 0;
