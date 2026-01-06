@@ -368,7 +368,7 @@
                                     item.subtotal = (parseFloat(item.subtotal) * -1)
                                         .toFixed(3);
                                     item.discount_price = (parseFloat(item.discount_price) *
-                                        -1).toFixed(3);
+                                        -1).toFixed(0);
                                     item.total = (parseFloat(item.total) * -1).toFixed(3);
                                 }
                             });
