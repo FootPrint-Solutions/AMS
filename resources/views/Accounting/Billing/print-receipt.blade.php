@@ -239,7 +239,7 @@
 
                 $items[] = [
                     'name' => $d['battery_name'] ?? 'Item',
-                    'qty' => $qty,
+                    'qty' => abs($qty),
                     'unit' => $unit * $sign,
                     'total' => $total * $sign,
                 ];
