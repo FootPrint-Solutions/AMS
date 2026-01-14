@@ -1070,7 +1070,7 @@
                     data: function(params) {
                         return {
                             q: params.term,
-                            type: 'distributor'
+                            type: 'distributorshop'
                         };
                     },
                     processResults: function(response) {

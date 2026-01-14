@@ -476,11 +476,11 @@
                     var DiscountPercentage = $("#discount-percent").val();
                     var typeDiscount = $("#type-discount").val();
                     var alternative_address = $("#alternative_address").val();
+                }
 
-                    if (TotalAmount <= 0) {
-                        swal.fire("Error!", "Total Amount must be greater than 0", "error");
-                        return false;
-                    }
+                if (TotalAmount <= 0) {
+                    swal.fire("Error!", "Total Amount must be greater than 0", "error");
+                    return false;
                 }
 
                 var data = {
@@ -855,6 +855,22 @@
                     BatteryType.push(value);
                 });
 
+                var onlyRecycle = BatteryType.every(function(type) {
+                    return type === 'recycle';
+                });
+                if (onlyRecycle) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Cannot save quotation with only recycle battery",
+                        icon: "error",
+                    });
+                    button.prop('disabled', false);
+                    button.html(
+                        "Save Changes"
+                    );
+                    return;
+                }
+
                 var PaymentMethod = $("#PaymentMethod").val();
                 var DistributorShopId = $("#DistributorShopId").val();
                 var DiscountRupiah = $("#discount-rupiah").val();
@@ -920,8 +936,8 @@
                                 icon: "success",
                             });
                             setTimeout(function() {
-                                window.location.href = "/sales-order";
-                            }, 2000);
+                                window.location.href = "/billing";
+                            }, 1000);
                         } else {
                             Swal.fire({
                                 title: "Error",
