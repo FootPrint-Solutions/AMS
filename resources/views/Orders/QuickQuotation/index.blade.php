@@ -920,8 +920,8 @@
                                 icon: "success",
                             });
                             setTimeout(function() {
-                                window.location.href = "/sales-order";
-                            }, 2000);
+                                window.location.href = "/billing";
+                            }, 1000);
                         } else {
                             Swal.fire({
                                 title: "Error",

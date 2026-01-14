@@ -943,6 +943,35 @@ $arrayBattery
                         'note' => 'Battery Recycle From Purchase Order ' . $purchaseOrder->purchase_order_number,
                     ]);
                 }
+            } else {
+                $billing = BillingModel::create([
+                    'billing_number' => BillingModel::generateSalesBillingNumber(),
+                    'vendor_id' => $DistributorShop->id,
+                    'vendor_type' => DistributorShopModel::class,
+                    'ship_to_id' => $Customer->id,
+                    'ship_to_type' => CustomerModel::class,
+                    'date' => date('Y-m-d'),
+                    'discount' => $DiscountPercentage ?? 0,
+                    'discount_price' => $DiscountRupiah ?? 0,
+                    'subtotal' => $subtotal,
+                    'total' => $total,
+                    'status' => $request->input('status', 'draft'),
+                ]);
+
+                if ($billing ?? false) {
+                    BillingInvoiceModel::create([
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $Quotation->id,
+                        'invoice_type' => SalesOrderModel::class,
+                        'invoice_number' => $Quotation->sales_order_number,
+                        'date' => date('Y-m-d'),
+                        'discount' => $DiscountPercentage ?? 0,
+                        'discount_price' => $DiscountRupiah ?? 0,
+                        'subtotal' => $subtotal,
+                        'total' => $total,
+                        'note' => 'Battery Regular From Sales Order ' . $Quotation->sales_order_number,
+                    ]);
+                }
             }
 
             $dataProduct = [];
