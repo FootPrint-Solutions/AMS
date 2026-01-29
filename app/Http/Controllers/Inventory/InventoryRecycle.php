@@ -3,80 +3,49 @@
 namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterData\Battery\BatteryCodeModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
-use Exception;
-
-// MODELS
 use App\Models\Inventory\InventoryRecycleDetailModel;
-use App\Models\MasterData\Distributor\DistributorShopModel;
-
+use App\Models\Inventory\InventoryRecycleModel;
 
 class InventoryRecycle extends Controller
 {
     private $title = "Inventory Recycle";
 
-    /**
-     * Show the Inventory index page.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
-        return view(
-            "Inventory.InventoryRecycle.index",
-            getIndexData(
-                $this->title,
-                array(
-                    "distributorShops" => DistributorShopModel::all()
-                )
-            )
-        );
+        return view('Inventory.inventoryRecycle.index', getIndexData(
+            $this->title,
+        ));
     }
 
-    /**
-     * Show the form for creating Inventory Recycle profile resource.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
+    public function show(Request $request)
     {
-        return view(
-            "Inventory.InventoryRecycle.create",
-            getIndexData(
-                $this->title
-            )
-        );
-    }
+        // Get all DataTables requests.
+        $draw = $request->input('draw');
+        $start = $request->input('start');
 
-    /**
-     * Show the form for editing Battery Brand resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id = null)
-    {
-        if ($id == null) {
-            return redirect()->route("battery.brand.index");
-        }
-        $brand = InventoryRecycleDetailModel::find($id);
-        if ($brand == null) {
-            return redirect()->route("battery.brand.index");
+        $data = InventoryRecycleModel::allForDataTables($request);
+
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            $row = [];
+            $row[] = $no++; // #
+            $row[] = $key->id; // ID
+            $row[] = $key->batteryRecycle ? ($key->batteryRecycle->name ?? '-') : 'Battery Recycle Deleted'; // Battery Recycle Name
+            $row[] = $key->stock;
+            $rows[] = $row;
         }
 
-        return view(
-            "Inventory.InventoryRecycle.create",
-            getIndexData(
-                $this->title,
-                array(
-                    "profile" => $brand->toArray()
-                )
-            )
-        );
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => InventoryRecycleDetailModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
     }
 
     /**
@@ -85,7 +54,7 @@ class InventoryRecycle extends Controller
      * @param  int  $id
      * @return string
      */
-    public function show(Request $request)
+    public function showDeatails(Request $request)
     {
         // Get all DataTables requests.
         $draw = $request->input('draw');
@@ -100,94 +69,65 @@ class InventoryRecycle extends Controller
         foreach ($data["row"] as $key) {
 
             if ($key->reference === 'Sales Order Battery') {
-                if ($key->salesOrderBattery->salesOrder->type === 'recycle') {
+                if ($key->type === 'recycle') {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    }
 
                     if ($key->battery && $key->battery->trashed()) {
-                        $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
-                    } elseif ($key->batteryRecycle && $key->batteryRecycle->trashed()) {
-                        $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
                     } else {
-                        $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
+                        $battery = $key->battery->name ?? '-';
                     }
 
                     $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
                     $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
 
-                    if ($key->salesOrderBattery->salesOrder->vendorData && $key->salesOrderBattery->salesOrder->vendorData->trashed()) {
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
                         $vendor = ($key->salesOrderBattery->salesOrder->vendorData->name ?? '-') . ' (Was Deleted)';
-                    } else {
-                        $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
-                    }
-
-                    if ($key->salesOrderBattery->salesOrder->shipToData && $key->salesOrderBattery->salesOrder->shipToData->trashed()) {
                         $distributorShop = ($key->salesOrderBattery->salesOrder->shipToData->name ?? '-') . ' (Was Deleted)';
                     } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
                         $distributorShop = $key->salesOrderBattery->salesOrder->shipToData->name ?? '-';
                     }
                 } else {
                     $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
-                    $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
 
-                    if ($key->battery && $key->battery->trashed()) {
-                        $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
-                    } elseif ($key->batteryRecycle && $key->batteryRecycle->trashed()) {
-                        $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
                     } else {
-                        $battery = $key->battery->name ?? $key->batteryRecycle->name ?? '-';
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
                     }
 
+                    if ($key->battery && $key->battery->trashed()) {
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $battery = $key->battery->name ?? '-';
+                    }
                     $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
                     $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
 
-                    if ($key->salesOrderBattery->salesOrder->customer && $key->salesOrderBattery->salesOrder->customer->trashed()) {
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
                         $vendor = ($key->salesOrderBattery->salesOrder->customer->name ?? '-') . ' (Was Deleted)';
-                    } else {
-                        $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
-                    }
-
-                    if ($key->salesOrderBattery->salesOrder->distributorShop && $key->salesOrderBattery->salesOrder->distributorShop->trashed()) {
                         $distributorShop = ($key->salesOrderBattery->salesOrder->distributorShop->name ?? '-') . ' (Was Deleted)';
                     } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
                         $distributorShop = $key->salesOrderBattery->salesOrder->distributorShop->name ?? '-';
                     }
                 }
-            } elseif ($key->reference === 'Purchase Order' || $key->reference === 'Purchase Order Battery') {
+            } elseif ($key->reference === 'Purchase Order' || $key->reference === 'purchase_order') {
                 $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
+                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                $distributorShop = $key->purchaseOrder->ship_to->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->price_net ?? '0') : '0';
+                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->battery_production_code ?? '-' : '-';
 
-                if ($key->purchaseOrder && method_exists($key->purchaseOrder, 'trashed') && $key->purchaseOrder->trashed()) {
-                    $orderNumber = ($key->purchaseOrder->purchase_order_number ?? '-') . ' (Was Deleted)';
-                } else {
-                    $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
-                }
-
-                if ($key->battery && $key->battery->trashed()) {
-                    $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
-                } elseif ($key->batteryRecycle && $key->batteryRecycle->trashed()) {
-                    $battery = ($key->battery->name ?? $key->batteryRecycle->name ?? '-') . ' (Was Deleted)';
-                } else {
-                    $battery = $key->batteryRecycle->name ?? $key->battery->name ?? '-';
-                }
-
-                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->price_net ?? '0') : '0';
-                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_recycle_id)->battery_production_code ?? '-' : '-';
-
-                if ($key->purchaseOrder && $key->purchaseOrder->supplier && $key->purchaseOrder->supplier->trashed()) {
-                    $vendor = ($key->purchaseOrder->supplier->name ?? '-') . ' (Was Deleted)';
-                } elseif ($key->purchaseOrder && $key->purchaseOrder->supplier) {
-                    $vendor = $key->purchaseOrder->supplier->name ?? '-';
-                } else {
-                    $vendor = '-';
-                }
-
-                if ($key->purchaseOrder && $key->purchaseOrder->shipTo && $key->purchaseOrder->shipTo->trashed()) {
-                    $distributorShop = ($key->purchaseOrder->shipTo->name ?? '-') . ' (Was Deleted)';
-                } elseif ($key->purchaseOrder && $key->purchaseOrder->shipTo) {
-                    $distributorShop = $key->purchaseOrder->shipTo->name ?? '-';
-                } else {
-                    $distributorShop = '-';
-                }
+                $vendor = $key->purchaseOrder->supplier->name ?? '-';
             } else {
                 $date = '-';
                 $orderNumber = '-';
@@ -195,8 +135,6 @@ class InventoryRecycle extends Controller
                 $battery = '-';
                 $batteryPrice = '-';
                 $batteryProductionCode = '-';
-
-                $vendor = '-';
             }
 
             $row = [];
@@ -232,196 +170,147 @@ class InventoryRecycle extends Controller
         ));
     }
 
-    /**
-     * Store a newly created Inventory Recycle resource in database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string
-     */
-    public function store(Request $request)
+    public function showDetails(Request $request)
     {
-        DB::beginTransaction();
+        // Get all DataTables requests.
+        $draw = $request->input('draw');
+        $start = $request->input('start');
 
-        try {
-            $validatedData = $request->validate(
-                [
-                    'name' => 'required|string',
-                ],
-                [
-                    'name.required' => 'Battery brand name is required!',
-                ]
-            );
+        // Get battery brand data (rows and count).
+        $data = InventoryRecycleDetailModel::allForDataTables($request);
 
-            $brand = new InventoryRecycleDetailModel();
-            $brand->name = $validatedData['name'];
-            $status = $brand->save();
+        // Set rows to be displayed in battery brand table.
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
 
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
+            if ($key->reference === 'Sales Order Battery') {
+                if ($key->type === 'recycle') {
+                    $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
 
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The new battery brand was successfully created!" : "Failed to create the new battery brand!"
-            );
-        } catch (ValidationException $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    }
 
-            // Tangani pengecualian jika validasi gagal
-            return getResponseData(false, $e->validator->errors()->first());
-        } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
+                    if ($key->battery && $key->battery->trashed()) {
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $battery = $key->battery->name ?? '-';
+                    }
 
-            // Logging error message.
-            Log::error($e->getMessage());
+                    $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                    $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
 
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
-
-    /**
-     * Update the specified Battery Brand resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $validatedData = $request->validate(
-                [
-                    'name' => 'required|string',
-                ],
-                [
-                    'name.required' => 'Battery brand name is required!',
-                ]
-            );
-
-            $brand = InventoryRecycleDetailModel::find($request->id);
-            $brand->name = $validatedData['name'];
-            $status = $brand->save();
-
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The battery brand was successfully updated!" : "Failed to update the battery brand!"
-            );
-        } catch (ValidationException $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
-
-            // Tangani pengecualian jika validasi gagal
-            return getResponseData(false, $e->validator->errors()->first());
-        } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
-
-            // Logging error message.
-            Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $status = true;
-            $ids = $request->id;
-
-            foreach ($ids as $id) {
-                $brand = InventoryRecycleDetailModel::find($id);
-                $status = $brand->delete();
-            }
-
-            if ($status)
-                DB::commit();
-            else
-                DB::rollBack();
-
-            // Set a new response data to be sent.
-            return getResponseData(
-                $status,
-                $status ? "The selected brand was successfully deleted!" : "Failed to delete the selected brand!"
-            );
-        } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
-
-            // Logging error message.
-            Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
-            return getResponseData(false);
-        }
-    }
-
-    /**
-     * Mark the selected battery brand as sold out.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function soldOut(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $status = true;
-            $ids = $request->input('ids', []);
-            foreach ($ids as $id) {
-                $brand = InventoryRecycleDetailModel::find($id);
-                if ($brand) {
-                    $brand->sold = 1;
-                    $brand->sold_at = now(); // Use Laravel's helper for current timestamp
-                    $status = $brand->save();
-                    if (!$status) {
-                        DB::rollBack();
-                        return getResponseData(false, "Failed to mark brand with ID {$id} as sold out!");
+                    if ($key->salesOrderBattery->salesOrder->type->trashed()) {
+                        $vendor = ($key->salesOrderBattery->salesOrder->vendorData->name ?? '-') . ' (Was Deleted)';
+                        $distributorShop = ($key->salesOrderBattery->salesOrder->shipToData->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->vendorData->name ?? '-';
+                        $distributorShop = $key->salesOrderBattery->salesOrder->shipToData->name ?? '-';
                     }
                 } else {
-                    DB::rollBack();
-                    return getResponseData(false, "Brand with ID {$id} not found!");
+                    $date = isset($key->salesOrderBattery->salesOrder) ? formatDate($key->salesOrderBattery->salesOrder->date) : '-';
+
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
+                        $orderNumber = ($key->salesOrderBattery->salesOrder->sales_order_number ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $orderNumber = $key->salesOrderBattery->salesOrder->sales_order_number ?? '-';
+                    }
+
+                    if ($key->battery && $key->battery->trashed()) {
+                        $battery = ($key->battery->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $battery = $key->battery->name ?? '-';
+                    }
+                    $batteryPrice = isset($key->salesOrderBattery) ? formatPrice($key->salesOrderBattery->price_net) : '-';
+                    $batteryProductionCode = $key->salesOrderBattery->battery_production_code ?? '-';
+
+                    if ($key->salesOrderBattery->salesOrder->customer->trashed()) {
+                        $vendor = ($key->salesOrderBattery->salesOrder->customer->name ?? '-') . ' (Was Deleted)';
+                        $distributorShop = ($key->salesOrderBattery->salesOrder->distributorShop->name ?? '-') . ' (Was Deleted)';
+                    } else {
+                        $vendor = $key->salesOrderBattery->salesOrder->customer->name ?? '-';
+                        $distributorShop = $key->salesOrderBattery->salesOrder->distributorShop->name ?? '-';
+                    }
                 }
+            } elseif ($key->reference === 'Purchase Order' || $key->reference === 'purchase_order') {
+                $date = isset($key->purchaseOrder) ? formatDate($key->purchaseOrder->date) : '-';
+                $orderNumber = $key->purchaseOrder->purchase_order_number ?? '-';
+                $distributorShop = $key->purchaseOrder->ship_to->name ?? '-';
+                $battery = $key->battery->name ?? '-';
+                $batteryPrice = isset($key->purchaseOrder) ? formatPrice($key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->price_net ?? '0') : '0';
+                $batteryProductionCode = isset($key->purchaseOrder) ? $key->purchaseOrder->batteries->firstWhere('battery_id', $key->battery_id)->battery_production_code ?? '-' : '-';
+
+                $vendor = $key->purchaseOrder->supplier->name ?? '-';
+            } else {
+                $date = '-';
+                $orderNumber = '-';
+                $distributorShop = '-';
+                $battery = '-';
+                $batteryPrice = '-';
+                $batteryProductionCode = '-';
             }
 
-            DB::commit();
+            $row = [];
+            $row[] = $no++;
+            $row[] = $date;
+            $row[] = $orderNumber;
+            $row[] = $vendor;
+            $row[] = $distributorShop;
+            $row[] = $battery;
+            $row[] = $batteryProductionCode;
 
-            // Set a new response data to be sent.
-            return getResponseData(
-                true,
-                "The selected brands were successfully marked as sold out!"
-            );
-        } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
-            DB::rollBack();
-
-            // Logging error message.
-            Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
-            return getResponseData(false);
+            if ($key->type === 'in') {
+                $row[] = '<span style="color:green;"><i class="fas fa-arrow-down"></i> IN</span>';
+            } elseif ($key->type === 'out') {
+                $row[] = '<span style="color:red;"><i class="fas fa-arrow-up"></i> OUT</span>';
+            } elseif ($key->type === 'adjustment') {
+                $row[] = '<span style="color:orange;"><i class="fas fa-exchange-alt"></i> ADJ</span>';
+            } else {
+                $row[] = '-';
+            }
+            $row[] = $key->quantity ?? '-';
+            $row[] = $batteryPrice;
+            $row[] = $key->id ?? '-';
+            $row[] = $key->sold ?? '-';
+            $rows[] = $row;
         }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => InventoryRecycleDetailModel::count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
+
+    public function syncStock(Request $request)
+    {
+        // Get all inventories
+        $inventories = InventoryRecycleModel::all();
+        foreach ($inventories as $inventory) {
+            $totalIn = InventoryRecycleDetailModel::where('inventory_id', $inventory->id)
+                ->where('type', 'in')
+                ->sum('quantity');
+
+            $totalOut = InventoryRecycleDetailModel::where('inventory_id', $inventory->id)
+                ->where('type', 'out')
+                ->sum('quantity');
+
+            $totalAdjustment = InventoryRecycleDetailModel::where('inventory_id', $inventory->id)
+                ->where('type', 'adjustment')
+                ->sum('quantity');
+
+            $calculatedStock = $totalIn - abs($totalOut) + $totalAdjustment;
+            $inventory->stock = $calculatedStock;
+            $inventory->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Stock synchronized successfully'
+        ]);
     }
 }

@@ -11,3 +11,5 @@ Route::post('/inventory/recycle/store', [InventoryRecycle::class, 'store'])->nam
 Route::post('/inventory/recycle/update', [InventoryRecycle::class, 'update'])->name('inventory.recycle.update')->middleware('permission:edit_inventory');
 Route::post('/inventory/recycle/destroy', [InventoryRecycle::class, 'destroy'])->name('inventory.recycle.destroy')->middleware('permission:delete_inventory');
 Route::post('/inventory/recycle/sold-out', [InventoryRecycle::class, 'soldOut'])->name('inventory.recycle.sold-out')->middleware('permission:delete_inventory');
+Route::post('/inventory/recycle/sync-stock', [InventoryRecycle::class, 'syncStock'])->name('inventory.recycle.sync-stock')->middleware('permission:edit_inventory');
+Route::post('/inventory/recycle/details/show', [InventoryRecycle::class, 'showDetails'])->name('inventory.recycle.details.show')->middleware('permission:view_inventory');
