@@ -54,7 +54,7 @@ class InventoryRecycleModel extends Model implements Auditable
         $searchColumns = ['battery_id', 'battery_recycle_id', 'code', 'stock'];
 
         $query = self::query();
-        $query->select($selectColumns);
+        $query->select($selectColumns)->with(['battery', 'batteryRecycle']);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }

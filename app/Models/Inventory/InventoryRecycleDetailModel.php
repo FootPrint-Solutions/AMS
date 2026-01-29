@@ -83,8 +83,8 @@ class InventoryRecycleDetailModel extends Model implements Auditable
 
     public static function allForDataTables($request)
     {
-        $start = $request->input("start");
-        $length = $request->input("length");
+        $start = $request->input("start") ?? 0;
+        $length = $request->input("length") ?? 10;
         $searchValue = $request->input("search.value");
         $orderColumn = $request->input("order.0.column");
         $orderDirection = $request->input("order.0.dir");
@@ -210,6 +210,10 @@ class InventoryRecycleDetailModel extends Model implements Auditable
 
         if ($request->distributorShopId) {
             $query->where('distributor_shop_id', $request->distributorShopId);
+        }
+
+        if ($request->inventory_id) {
+            $query->where('inventory_id', $request->inventory_id);
         }
 
         // Ordering process.

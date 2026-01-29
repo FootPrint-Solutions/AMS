@@ -78,8 +78,8 @@ class InventoryDetailModel extends Model implements Auditable
 
     public static function allForDataTables($request)
     {
-        $start = $request->input("start");
-        $length = $request->input("length");
+        $start = $request->input("start") ?? 0;
+        $length = $request->input("length") ?? 10;
         $searchValue = $request->input("search.value");
         $orderColumn = $request->input("order.0.column");
         $orderDirection = $request->input("order.0.dir");
@@ -195,6 +195,10 @@ class InventoryDetailModel extends Model implements Auditable
                 $query->where('date', '>=', $request->dateStart)
                     ->where('date', '<=', $request->dateEnd);
             });
+        }
+
+        if ($request->inventory_id) {
+            $query->where('inventory_id', $request->inventory_id);
         }
 
         // Ordering process.

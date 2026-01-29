@@ -77,7 +77,8 @@ class InventoryModel extends Model implements Auditable
 
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->select($selectColumns);
+        $query->select($selectColumns)->with('battery');
+        $query->orderBy('id', 'desc');
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
