@@ -1,47 +1,6 @@
 @extends('template.master')
 
 @section('content')
-    {{-- Form --}}
-    <div class="card d-none">
-
-        <div class="card-body">
-            {{-- Title --}}
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Inventory Spreadsheet</h3>
-                    </div>
-                </div>
-            </div>
-            <br>
-
-            {{-- Table --}}
-            <div class="table-responsive">
-                <table class="table table-striped" id="table-battery">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="table-col-no">#</th>
-                            <th scope="col">ID</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Stock</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach ($data['inventories'] as $index => $item)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $item[0] }}</td>
-                                <td>{{ $item[2] }}</td>
-                                <td>{{ formatPrice($item[6]) }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <div class="card">
         <div class="card-body">
             {{-- Title --}}
@@ -54,60 +13,25 @@
             </div>
             <br>
 
-            {{-- Table Inventory Details --}}
             <div class="table-responsive">
-                <table class="table table-striped" id="table-inventory-details">
+                <table class="table table-striped" id="table-inventory">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">SO/PO Date</th>
-                            <th scope="col">SO/PO Number</th>
-                            <th scope="col">Customer/Supplier</th>
-                            <th scope="col">Distributor Shop</th>
-                            <th scope="col">Battery</th>
-                            <th scope="col">Production Code</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Qty</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">id</th>
-                            <th scope="col">sold</th>
+                            <th scope="col">No</th>
+                            <th scope="col">Battery Name</th>
+                            <th scope="col">Stock</th>
                         </tr>
                     </thead>
                 </table>
             </div>
-
-
         </div>
     </div>
 
     <script>
         $(function() {
-            // DataTables config for table-battery
-            $("#table-battery").DataTable({
-                lengthMenu: [
-                    [5, 10, 25],
-                    [5, 10, 25]
-                ],
-                pageLength: 10,
-                responsive: true,
-                processing: true,
-                order: [],
-                columnDefs: [{
-                        targets: 0,
-                        orderable: false
-                    },
-                    {
-                        targets: -1,
-                        className: 'dt-body-right'
-                    }
-                ],
-                dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
-                language: getDatatablesLanguangeConfigurations("Battery"),
-            });
-
-            // DataTables config for table-inventory-details
-            $("#table-inventory-details").DataTable({
+            // DataTables config for table-inventory
+            $("#table-inventory").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
                     [5, 10, 25]
@@ -122,55 +46,204 @@
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
-                        d.dateStart = $('#input-inventory-recycle-date-start').val();
-                        d.dateEnd = $('#input-inventory-recycle-date-end').val();
                     }
                 },
+                columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: 1,
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        },
+                        orderable: false
+                    },
+                    {
+                        data: 2,
+                        orderable: false
+                    },
+                    {
+                        data: 3,
+                        className: "text-end",
+                        orderable: false
+                    }
+                ],
                 columnDefs: [{
                         targets: 0,
                         orderable: false
                     },
                     {
-                        targets: 5,
+                        targets: 3,
                         className: "text-end"
                     },
-                    {
-                        targets: [6, 7],
-                        className: "text-end table-col-price"
-                    },
-                    {
-                        targets: [10, 11],
-                        visible: false,
-                        searchable: false
-                    }
                 ],
                 dom: "lBfrtip",
                 buttons: getDatatablesButtonConfigurations([{
-                    text: '<i class="fa-solid fa-cart-arrow-down"></i> Sold Out',
-                    className: "btn btn-outline-danger btn-sm ml-1",
+                    text: '<i class="fa-solid fa-sync"></i> Sync Stock',
+                    className: "btn btn-outline-primary btn-sm ml-1",
                     action: function(e, dt) {
-                        var data = dt.rows({
-                            selected: true
-                        }).data().toArray();
-                        if (data.length) {
-                            var ids = data.map(item => item[10]);
-                            soldOut(ids);
-                        } else {
-                            swal.fire({
-                                icon: "warning",
-                                title: "Warning",
-                                text: "Please select at least one item.",
-                            });
-                        }
+                        swal.fire({
+                            title: 'Are you sure?',
+                            text: "This will synchronize stock from details to master inventory.",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, sync it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: '/inventory/sync-stock',
+                                    type: 'POST',
+                                    data: {
+                                        _token: "{{ csrf_token() }}"
+                                    },
+                                    success: function(response) {
+                                        swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: response
+                                                .message ||
+                                                'Stock synchronized successfully!'
+                                        });
+                                        dt.ajax.reload();
+                                    },
+                                    error: function(xhr) {
+                                        swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: xhr
+                                                .responseJSON
+                                                ?.message ||
+                                                'Failed to sync stock.'
+                                        });
+                                    }
+                                });
+                            }
+                        });
                     }
                 }]),
-                language: getDatatablesLanguangeConfigurations("Inventory Recycle"),
+                language: getDatatablesLanguangeConfigurations("Inventory"),
                 select: true,
                 multiselect: true,
                 rowCallback: function(row, data) {
-                    if (data[11] == 1) $(row).find('td').addClass("text-danger");
+                    if (data[3] < 0) $(row).find('td').addClass("text-danger");
                 }
             });
+
+            // Add event listener for opening and closing details
+            $('#table-inventory tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = $('#table-inventory').DataTable().row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    var InventoryId = row.data()[1];
+                    row.child(formatSubGrid(row.data())).show();
+                    tr.addClass('shown');
+
+                    // Load details via AJAX
+                    $.ajax({
+                        url: '/inventory/details/show',
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            inventory_id: InventoryId
+                        },
+                        success: function(response) {
+                            row.child(response).show();
+                            // Initialize DataTable on the child row
+                            var childTable = $(row.child()).find('.table-inventory-details');
+                            if (childTable.length === 0) {
+                                var tableHtml = '<div class="table-responsive">' +
+                                    '<table class="table table-striped table-sm table-inventory-details">' +
+                                    '<thead>' +
+                                    '<tr>' +
+                                    '<th scope="col">#</th>' +
+                                    '<th scope="col">SO/PO Date</th>' +
+                                    '<th scope="col">SO/PO Number</th>' +
+                                    '<th scope="col">Customer/Supplier</th>' +
+                                    '<th scope="col">Distributor Shop</th>' +
+                                    '<th scope="col">Battery</th>' +
+                                    '<th scope="col">Production Code</th>' +
+                                    '<th scope="col">Type</th>' +
+                                    '<th scope="col">Qty</th>' +
+                                    '<th scope="col">Price</th>' +
+                                    '<th scope="col">id</th>' +
+                                    '<th scope="col">sold</th>' +
+                                    '</tr>' +
+                                    '</thead>' +
+                                    '</table>' +
+                                    '</div>';
+
+                                row.child(tableHtml).show();
+
+                                $(row.child()).find('.table-inventory-details').DataTable({
+                                    data: response.data,
+                                    paging: false,
+                                    searching: false,
+                                    info: false,
+                                    ordering: false,
+                                    columns: [{
+                                            data: 0
+                                        },
+                                        {
+                                            data: 1
+                                        },
+                                        {
+                                            data: 2
+                                        },
+                                        {
+                                            data: 3
+                                        },
+                                        {
+                                            data: 4
+                                        },
+                                        {
+                                            data: 5
+                                        },
+                                        {
+                                            data: 6
+                                        },
+                                        {
+                                            data: 7,
+                                            className: "text-center"
+                                        },
+                                        {
+                                            data: 8,
+                                            className: "text-end"
+                                        },
+                                        {
+                                            data: 9,
+                                            className: "text-end"
+                                        },
+                                        {
+                                            data: 10
+                                        },
+                                        {
+                                            data: 11
+                                        }
+                                    ]
+                                });
+                            }
+                        },
+                        error: function() {
+                            row.child(
+                                '<div class="p-3 text-danger">Failed to load details.</div>'
+                            ).show();
+                        }
+                    });
+                }
+            });
+
+            function formatSubGrid(data) {
+                return '<div class="p-3">Loading details for ' + data[2] + '...</div>';
+            }
         });
     </script>
 @endsection
