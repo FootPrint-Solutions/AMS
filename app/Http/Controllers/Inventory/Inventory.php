@@ -315,4 +315,32 @@ class Inventory extends Controller
             'message' => 'Stock synchronized successfully'
         ]);
     }
+
+    public function delete(Request $request)
+    {
+        $inventoryIds = $request->input('ids', []);
+
+        foreach ($inventoryIds as $inventoryId) {
+            try {
+                InventoryDetailModel::where('inventory_id', $inventoryId)->delete();
+
+                $inventory = InventoryModel::findOrFail($inventoryId);
+                $inventory->delete();
+            } catch (\Exception $e) {
+                Log::error('Error deleting inventory ID ' . $inventoryId . ': ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Inventory deleted successfully'
+        ]);
+    }
+
+    public function detailsIndex()
+    {
+        return view('Inventory.inventory.details', getIndexData(
+            'Inventory Details',
+        ));
+    }
 }
