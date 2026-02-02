@@ -19,7 +19,7 @@ class InventoryRecycle extends Controller
 
     public function index()
     {
-        return view('Inventory.inventoryRecycle.index', getIndexData(
+        return view('Inventory.InventoryRecycle.index', getIndexData(
             $this->title,
         ));
     }
