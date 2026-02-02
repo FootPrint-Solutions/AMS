@@ -28,11 +28,11 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Inventory Details</h3>
+                        <h3 class="page-title">Inventory Recycle Details</h3>
                     </div>
                     <div class="col-auto">
                         <a href="/inventory" class="btn btn-outline-secondary btn-sm">
-                            <i class="fa-solid fa-arrow-left"></i> Back to Inventory
+                            <i class="fa-solid fa-arrow-left"></i> Back to Inventory Recycle
                         </a>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped" id="table-inventory-details">
+                <table class="table table-striped" id="table-inventory-recycle-details">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -172,7 +172,7 @@
             // Function to load total qty
             function loadTotalQty() {
                 $.ajax({
-                    url: '/inventory/details/total-qty',
+                    url: '/inventory/recycle/details/total-qty',
                     type: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -192,8 +192,8 @@
             // Load initial total qty
             loadTotalQty();
 
-            // DataTables config for table-inventory-details
-            var table = $("#table-inventory-details").DataTable({
+            // DataTables config for table-inventory-recycle-details
+            var table = $("#table-inventory-recycle-details").DataTable({
                 lengthMenu: [
                     [10, 25, 50, 100],
                     [10, 25, 50, 100]
@@ -206,7 +206,7 @@
                     [1, 'desc']
                 ],
                 ajax: {
-                    url: "/inventory/details/show",
+                    url: "/inventory/recycle/details/show",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
@@ -269,7 +269,7 @@
                         columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 }],
-                language: getDatatablesLanguangeConfigurations("Inventory Details")
+                language: getDatatablesLanguangeConfigurations("Inventory Recycle Details")
             });
 
             // Apply filter button
