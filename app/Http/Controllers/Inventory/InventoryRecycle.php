@@ -395,4 +395,25 @@ class InventoryRecycle extends Controller
             'totalQty' => $totalQty ?? 0
         ]);
     }
+
+    public function delete(Request $request)
+    {
+        $inventoryIds = $request->input('ids', []);
+
+        foreach ($inventoryIds as $inventoryId) {
+            try {
+                InventoryRecycleDetailModel::where('inventory_id', $inventoryId)->delete();
+
+                $inventory = InventoryRecycleModel::findOrFail($inventoryId);
+                $inventory->delete();
+            } catch (\Exception $e) {
+                Log::error('Error deleting inventory ID ' . $inventoryId . ': ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Inventory deleted successfully'
+        ]);
+    }
 }

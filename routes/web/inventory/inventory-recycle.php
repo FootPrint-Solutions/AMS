@@ -15,3 +15,4 @@ Route::post('/inventory/recycle/sync-stock', [InventoryRecycle::class, 'syncStoc
 Route::post('/inventory/recycle/details/show', [InventoryRecycle::class, 'showDetails'])->name('inventory.recycle.details.show')->middleware('permission:view_inventory');
 Route::post('/inventory/recycle/details/total-qty', [InventoryRecycle::class, 'getTotalQty'])->name('inventory.recycle.details.total-qty')->middleware('permission:view_inventory');
 Route::get('/inventory/recycle/details', [InventoryRecycle::class, 'detailsIndex'])->name('inventory.recycle.details.index')->middleware('permission:view_inventory');
+Route::post('/inventory/recycle/delete', [InventoryRecycle::class, 'delete'])->name('inventory.recycle.delete')->middleware('permission:delete_inventory');
