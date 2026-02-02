@@ -328,7 +328,7 @@ class InventoryRecycle extends Controller
         $batteries = BatteryRecycleModel::all();
         $distributorShops = DistributorShopModel::all();
 
-        return view('Inventory.inventoryRecycle.details', array_merge(
+        return view('Inventory.InventoryRecycle.details', array_merge(
             getIndexData('Inventory Details'),
             [
                 'batteries' => $batteries,
