@@ -277,7 +277,7 @@ class SalesOrderModel extends Model implements Auditable
                 $query->orderBy($orderColumnName, $orderDirection);
             }
         } else {
-            $query->orderBy("sales_orders.updated_at", "desc");
+            $query->orderBy("sales_orders.date", "desc");
         }
 
 
