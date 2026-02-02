@@ -33,9 +33,13 @@ class InventoryRecycle extends Controller
         $no = $start + 1;
         foreach ($data["row"] as $key) {
             $row = [];
-            $row[] = $no++; // #
-            $row[] = $key->id; // ID
-            $row[] = $key->batteryRecycle ? ($key->batteryRecycle->name ?? '-') : 'Battery Recycle Deleted'; // Battery Recycle Name
+            $row[] = $no++;
+            $row[] = $key->id;
+            $row[] = $key->batteryRecycle
+                ? ($key->batteryRecycle->name ?? '-')
+                : ($key->battery
+                    ? ($key->battery->name ?? '-')
+                    : 'Battery Deleted');
             $row[] = $key->stock;
             $rows[] = $row;
         }
