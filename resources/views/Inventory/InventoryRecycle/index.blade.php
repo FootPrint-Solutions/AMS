@@ -95,6 +95,15 @@
                                 confirmButtonText: 'Yes, sync it!'
                             }).then((result) => {
                                 if (result.isConfirmed) {
+                                    swal.fire({
+                                        title: 'Syncing...',
+                                        text: 'Please wait while we synchronize the stock.',
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false,
+                                        didOpen: () => {
+                                            swal.showLoading();
+                                        }
+                                    });
                                     $.ajax({
                                         url: '/inventory/recycle/sync-stock',
                                         type: 'POST',
