@@ -81,7 +81,7 @@
                     },
                 ],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations([{
+                buttons: [{
                     text: '<i class="fa-solid fa-sync"></i> Sync Stock',
                     className: "btn btn-outline-primary btn-sm ml-1",
                     action: function(e, dt) {
@@ -125,7 +125,7 @@
                             }
                         });
                     }
-                }]),
+                }],
                 language: getDatatablesLanguangeConfigurations("Inventory"),
                 select: true,
                 multiselect: true,
