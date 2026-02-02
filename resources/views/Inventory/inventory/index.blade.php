@@ -82,50 +82,120 @@
                 ],
                 dom: "lBfrtip",
                 buttons: [{
-                    text: '<i class="fa-solid fa-sync"></i> Sync Stock',
-                    className: "btn btn-outline-primary btn-sm ml-1",
-                    action: function(e, dt) {
-                        swal.fire({
-                            title: 'Are you sure?',
-                            text: "This will synchronize stock from details to master inventory.",
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, sync it!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: '/inventory/sync-stock',
-                                    type: 'POST',
-                                    data: {
-                                        _token: "{{ csrf_token() }}"
-                                    },
-                                    success: function(response) {
-                                        swal.fire({
-                                            icon: 'success',
-                                            title: 'Success',
-                                            text: response
-                                                .message ||
-                                                'Stock synchronized successfully!'
-                                        });
-                                        dt.ajax.reload();
-                                    },
-                                    error: function(xhr) {
-                                        swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: xhr
-                                                .responseJSON
-                                                ?.message ||
-                                                'Failed to sync stock.'
-                                        });
-                                    }
+                        text: '<i class="fa-solid fa-sync"></i> Sync Stock',
+                        className: "btn btn-outline-primary btn-sm ml-1",
+                        action: function(e, dt) {
+                            swal.fire({
+                                title: 'Are you sure?',
+                                text: "This will synchronize stock from details to master inventory.",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, sync it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: '/inventory/sync-stock',
+                                        type: 'POST',
+                                        data: {
+                                            _token: "{{ csrf_token() }}"
+                                        },
+                                        success: function(response) {
+                                            swal.fire({
+                                                icon: 'success',
+                                                title: 'Success',
+                                                text: response
+                                                    .message ||
+                                                    'Stock synchronized successfully!'
+                                            });
+                                            dt.ajax.reload();
+                                        },
+                                        error: function(xhr) {
+                                            swal.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: xhr
+                                                    .responseJSON
+                                                    ?.message ||
+                                                    'Failed to sync stock.'
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: '<i class="fa-solid fa-trash"></i> Delete',
+                        className: "btn btn-outline-danger btn-sm ml-1",
+                        action: function(e, dt) {
+                            var selectedRows = dt.rows({
+                                selected: true
+                            }).data();
+                            if (selectedRows.length === 0) {
+                                swal.fire({
+                                    icon: 'warning',
+                                    title: 'No Selection',
+                                    text: 'Please select at least one item to delete.'
                                 });
+                                return;
                             }
-                        });
-                    }
-                }],
+
+                            var ids = [];
+                            selectedRows.each(function(row) {
+                                ids.push(row[1]);
+                            });
+
+                            swal.fire({
+                                title: 'Are you sure?',
+                                text: "You won't be able to revert this!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: '/inventory/delete',
+                                        type: 'POST',
+                                        data: {
+                                            _token: "{{ csrf_token() }}",
+                                            ids: ids
+                                        },
+                                        success: function(response) {
+                                            swal.fire({
+                                                icon: 'success',
+                                                title: 'Deleted!',
+                                                text: response
+                                                    .message ||
+                                                    'Items deleted successfully!'
+                                            });
+                                            dt.ajax.reload();
+                                        },
+                                        error: function(xhr) {
+                                            swal.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: xhr.responseJSON
+                                                    ?.message ||
+                                                    'Failed to delete items.'
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: '<i class="fa-solid fa-eye"></i> View Details',
+                        className: "btn btn-outline-info btn-sm ml-1",
+                        action: function(e, dt) {
+                            window.location.href = '/inventory/details';
+                        }
+                    },
+                ],
                 language: getDatatablesLanguangeConfigurations("Inventory"),
                 select: true,
                 multiselect: true,
