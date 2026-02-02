@@ -217,6 +217,7 @@ class SalesOrderModel extends Model implements Auditable
             'sales_order_number',
             'invoice_number',
             'date',
+            'date',
             'customer_name',
             'vehicle_name',
             'shop_name',
@@ -267,6 +268,19 @@ class SalesOrderModel extends Model implements Auditable
         }
 
         $query->select($selectColumns);
+
+        // order by
+        if ($request->order) {
+            $orderColumnIndex = $request->input("order.0.column");
+            $orderDirection = $request->input("order.0.dir");
+            $orderColumnName = $orderColumns[$orderColumnIndex] ?? null;
+            if ($orderColumnName !== null) {
+                $query->orderBy($orderColumnName, $orderDirection);
+            }
+        } else {
+            $query->orderBy("sales_orders.updated_at", "desc");
+        }
+
 
 
         return self::getAllRowSalesOrders($request, $query, $selectColumns, $searchColumns, null, $orderColumns);
