@@ -191,10 +191,41 @@ class InventoryDetailModel extends Model implements Auditable
         }
 
         if ($request->dateStart && $request->dateEnd) {
-            $query->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
-                $query->where('date', '>=', $request->dateStart)
-                    ->where('date', '<=', $request->dateEnd);
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                    $query->whereBetween('date', [$request->dateStart, $request->dateEnd]);
+                })->orWhereHas('purchaseOrder', function ($query) use ($request) {
+                    $query->whereBetween('date', [$request->dateStart, $request->dateEnd]);
+                });
             });
+        }
+
+        if ($request->orderNumber) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                    $query->where('sales_order_number', 'LIKE', '%' . $request->orderNumber . '%');
+                })->orWhereHas('purchaseOrder', function ($query) use ($request) {
+                    $query->where('purchase_order_number', 'LIKE', '%' . $request->orderNumber . '%');
+                });
+            });
+        }
+
+        if ($request->customerSupplier) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->customerSupplier . '%');
+                })->orWhereHas('purchaseOrder.supplier', function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->customerSupplier . '%');
+                });
+            });
+        }
+
+        if ($request->distributorShop) {
+            $query->where('distributor_shop_id', $request->distributorShop);
+        }
+
+        if ($request->battery) {
+            $query->where('battery_id', $request->battery);
         }
 
         if ($request->inventory_id) {

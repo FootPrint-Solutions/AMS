@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryCodeModel;
+use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\MasterData\Distributor\DistributorShopModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -339,8 +341,66 @@ class Inventory extends Controller
 
     public function detailsIndex()
     {
-        return view('Inventory.inventory.details', getIndexData(
-            'Inventory Details',
+        $batteries = BatteryModel::all();
+        $distributorShops = DistributorShopModel::all();
+
+        return view('Inventory.inventory.details', array_merge(
+            getIndexData('Inventory Details'),
+            [
+                'batteries' => $batteries,
+                'distributorShops' => $distributorShops
+            ]
         ));
+    }
+
+    public function getTotalQty(Request $request)
+    {
+        $query = InventoryDetailModel::query();
+
+        // Apply filters
+        if ($request->dateStart && $request->dateEnd) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                    $query->whereBetween('date', [$request->dateStart, $request->dateEnd]);
+                })->orWhereHas('purchaseOrder', function ($query) use ($request) {
+                    $query->whereBetween('date', [$request->dateStart, $request->dateEnd]);
+                });
+            });
+        }
+
+        if ($request->orderNumber) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
+                    $query->where('sales_order_number', 'LIKE', '%' . $request->orderNumber . '%');
+                })->orWhereHas('purchaseOrder', function ($query) use ($request) {
+                    $query->where('purchase_order_number', 'LIKE', '%' . $request->orderNumber . '%');
+                });
+            });
+        }
+
+        if ($request->customerSupplier) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('salesOrderBattery.salesOrder.customer', function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->customerSupplier . '%');
+                })->orWhereHas('purchaseOrder.supplier', function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->customerSupplier . '%');
+                });
+            });
+        }
+
+        if ($request->distributorShop) {
+            $query->where('distributor_shop_id', $request->distributorShop);
+        }
+
+        if ($request->battery) {
+            $query->where('battery_id', $request->battery);
+        }
+
+        $totalQty = $query->sum('quantity');
+
+        return response()->json([
+            'success' => true,
+            'totalQty' => $totalQty ?? 0
+        ]);
     }
 }
