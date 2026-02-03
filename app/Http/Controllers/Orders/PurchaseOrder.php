@@ -1035,6 +1035,7 @@ class PurchaseOrder extends Controller
                 ->leftJoin('customers as c', 'so.customer_id', '=', 'c.id')
                 ->where('so.status', 'posted')
                 ->where('so.distributor_shop_id', $shipToId)
+                ->whereNull('so.deleted_at')
                 ->select(
                     'sob.id',
                     'sob.sales_order_id',
@@ -1082,6 +1083,7 @@ class PurchaseOrder extends Controller
             $recordsTotal = DB::table('sales_order_battery as sob')
                 ->join('sales_orders as so', 'sob.sales_order_id', '=', 'so.id')
                 ->where('so.status', 'posted')
+                ->whereNull('so.deleted_at')
                 ->count();
 
             // Pagination
