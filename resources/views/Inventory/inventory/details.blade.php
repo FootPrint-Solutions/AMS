@@ -84,9 +84,14 @@
                                 <div class="form-group">
                                     <label>Battery</label>
                                     <select class="form-control" id="battery" name="battery">
-                                        <option value="">All Batteries</option>
+                                        @if (isset($selectedBattery) && $selectedBattery->id == null)
+                                            <option value="" selected>All Batteries</option>
+                                        @endif
                                         @foreach ($batteries as $battery)
-                                            <option value="{{ $battery->id }}">{{ $battery->name }}</option>
+                                            <option value="{{ $battery->id }}"
+                                                @if (isset($selectedBattery) && $selectedBattery->id == $battery->id) selected @endif>
+                                                {{ $battery->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -135,6 +140,12 @@
     </div>
 
     <script>
+        const DEFAULT_BATTERY_ID = "{{ isset($selectedBattery) && $selectedBattery->id ? $selectedBattery->id : '' }}";
+        const DEFAULT_BATTERY_NAME =
+            "{{ isset($selectedBattery) && $selectedBattery->name ? $selectedBattery->name : '' }}";
+        console.log('Default battery ID on page load:', DEFAULT_BATTERY_ID);
+        console.log('Default battery name on page load:', DEFAULT_BATTERY_NAME);
+
         $(function() {
             // Initialize daterangepicker
             $('#dateRange').daterangepicker({
@@ -285,7 +296,18 @@
                 $('#dateStart').val('');
                 $('#dateEnd').val('');
                 $('#distributorShop').val('').trigger('change');
-                $('#battery').val('').trigger('change');
+                if (DEFAULT_BATTERY_ID) {
+                    console.log('Default battery ID:', DEFAULT_BATTERY_ID);
+                    if ($('#battery option[value="' + DEFAULT_BATTERY_ID + '"]').length === 0) {
+                        const newOpt = new Option(DEFAULT_BATTERY_NAME || ('Battery #' +
+                            DEFAULT_BATTERY_ID), DEFAULT_BATTERY_ID, true, true);
+                        $('#battery').append(newOpt);
+                    }
+                    $('#battery').val(DEFAULT_BATTERY_ID).trigger('change');
+                } else {
+                    $('#battery').val('').trigger('change');
+                }
+
                 table.ajax.reload();
                 loadTotalQty();
             });

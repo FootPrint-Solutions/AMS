@@ -1,6 +1,14 @@
 @extends('template.master')
 
 @section('content')
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     <div class="card">
         <div class="card-body">
             {{-- Title --}}
@@ -124,8 +132,7 @@
                                             swal.fire({
                                                 icon: 'error',
                                                 title: 'Error',
-                                                text: xhr
-                                                    .responseJSON
+                                                text: xhr.responseJSON
                                                     ?.message ||
                                                     'Failed to sync stock.'
                                             });
@@ -150,12 +157,10 @@
                                 });
                                 return;
                             }
-
                             var ids = [];
                             selectedRows.each(function(row) {
                                 ids.push(row[1]);
                             });
-
                             swal.fire({
                                 title: 'Are you sure?',
                                 text: "You won't be able to revert this!",
@@ -201,7 +206,15 @@
                         text: '<i class="fa-solid fa-eye"></i> View Details',
                         className: "btn btn-outline-info btn-sm ml-1",
                         action: function(e, dt) {
-                            window.location.href = '/inventory/details';
+                            var selectedRows = dt.rows({
+                                selected: true
+                            }).data();
+                            if (selectedRows.length === 0) {
+                                window.location.href = '/inventory/details';
+                            } else {
+                                var inventoryId = selectedRows[0][1];
+                                window.location.href = '/inventory/details/' + inventoryId;
+                            }
                         }
                     },
                 ],
