@@ -3,6 +3,7 @@
 namespace App\Models\MasterData\Distributor;
 
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,6 +48,14 @@ class DistributorShopModel extends Model implements Auditable
     {
         return $this->belongsToMany(BatteryModel::class, 'distributor_shop_model', 'distributor_shop_id', 'battery_id')
             ->withTimestamps();
+    }
+
+    /**
+     * Get all of the sales orders associated with the distributor shop.
+     */
+    public function salesOrders()
+    {
+        return $this->hasMany(SalesOrderModel::class, 'distributor_shop_id', 'id');
     }
 
     /**

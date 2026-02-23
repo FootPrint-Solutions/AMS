@@ -339,18 +339,41 @@ class Inventory extends Controller
         ]);
     }
 
-    public function detailsIndex()
+    public function detailsIndex(Request $request, $id = null)
     {
-        $batteries = BatteryModel::all();
-        $distributorShops = DistributorShopModel::all();
+        try {
+            if ($id) {
+                $inventory = InventoryModel::find($id);
+                if (!$inventory) {
+                    return redirect()->route('inventory.details.index')->with('error', 'Inventory not found.');
+                }
 
-        return view('Inventory.inventory.details', array_merge(
-            getIndexData('Inventory Details'),
-            [
-                'batteries' => $batteries,
-                'distributorShops' => $distributorShops
-            ]
-        ));
+                $batteries = BatteryModel::where('id', $inventory->battery_id)->get();
+                $distributorShops = DistributorShopModel::whereHas('salesOrders', function ($query) use ($inventory) {
+                    $query->whereHas('batteries', function ($query) use ($inventory) {
+                        $query->where('battery_id', $inventory->battery_id);
+                    });
+                })->get();
+                $selectedBattery = BatteryModel::find($inventory->battery_id);
+            } else {
+                $batteries = BatteryModel::all();
+                $distributorShops = DistributorShopModel::all();
+            }
+
+
+            return view('Inventory.inventory.details', array_merge(
+                getIndexData('Inventory Details'),
+                [
+                    'batteries' => $batteries,
+                    'distributorShops' => $distributorShops,
+                    'inventoryId' => $id,
+                    'selectedBattery' => $selectedBattery,
+                ]
+            ));
+        } catch (\Exception $e) {
+            Log::error('Error loading inventory details: ' . $e->getMessage());
+            return redirect()->route('inventory.index')->with('error', 'An error occurred while loading inventory details.');
+        }
     }
 
     public function getTotalQty(Request $request)

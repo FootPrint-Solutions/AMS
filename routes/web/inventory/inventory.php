@@ -11,3 +11,4 @@ Route::post('/inventory/show', [Inventory::class, 'show'])->name('inventory.show
 Route::post('/inventory/sync-stock', [Inventory::class, 'syncStock'])->name('inventory.sync-stock')->middleware('permission:edit_inventory');
 Route::post('/inventory/delete', [Inventory::class, 'delete'])->name('inventory.delete')->middleware('permission:delete_inventory');
 Route::get('/inventory/details', [Inventory::class, 'detailsIndex'])->name('inventory.details.index')->middleware('permission:view_inventory');
+Route::get('/inventory/details/{id?}', [Inventory::class, 'detailsIndex'])->name('inventory.details')->middleware('permission:view_inventory');
