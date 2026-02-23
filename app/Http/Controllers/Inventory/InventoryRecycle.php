@@ -323,16 +323,38 @@ class InventoryRecycle extends Controller
         ]);
     }
 
-    public function detailsIndex()
+    public function detailsIndex(Request $request, $id = null)
     {
-        $batteries = BatteryRecycleModel::all();
-        $distributorShops = DistributorShopModel::all();
+        if ($id) {
+            $inventory = InventoryRecycleModel::find($id);
+            if (!$inventory) {
+                return redirect()->route('inventory.recycle.details.index')->with('error', 'Inventory not found.');
+            }
+
+            if ($inventory->battery_recycle_id == null) {
+                $batteryId = $inventory->battery_id;
+                $batteries = BatteryModel::where('id', $batteryId)->get();
+                $selectedBattery = BatteryModel::find($batteryId);
+            } else {
+                $batteryId = $inventory->battery_recycle_id;
+                $batteries = BatteryRecycleModel::where('id', $batteryId)->get();
+                $selectedBattery = BatteryRecycleModel::find($batteryId);
+            }
+
+            $distributorShops = DistributorShopModel::all();
+        } else {
+            $batteries = BatteryRecycleModel::all();
+            $distributorShops = DistributorShopModel::all();
+        }
+
 
         return view('Inventory.InventoryRecycle.details', array_merge(
             getIndexData('Inventory Details'),
             [
                 'batteries' => $batteries,
-                'distributorShops' => $distributorShops
+                'distributorShops' => $distributorShops,
+                'inventoryId' => $id,
+                'selectedBattery' => $selectedBattery,
             ]
         ));
     }
