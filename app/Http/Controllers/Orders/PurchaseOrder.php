@@ -696,6 +696,9 @@ class PurchaseOrder extends Controller
                 if ($purchaseOrder && $purchaseOrder->status === 'draft') {
                     $purchaseOrder->status = 'posted';
                     $purchaseOrder->save();
+                    $idsArray = [$id];
+
+                    PurchaseOrderModel::sendToInventorySystemPurchaseBilling($idsArray);
                 }
             }
             DB::commit();

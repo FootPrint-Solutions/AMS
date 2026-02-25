@@ -437,7 +437,7 @@ class Billing extends Controller
                             ->update(['status' => 'posted']);
 
                         Log::info("Sending Sales Orders to Inventory System for Sales Billing: " . implode(', ', $draftSalesOrderIds));
-                        SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
+                        // SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
                     }
                 }
 
@@ -452,7 +452,7 @@ class Billing extends Controller
                             ->update(['status' => 'posted']);
 
                         Log::info("Sending Purchase Orders to Inventory System for Sales Billing: " . implode(', ', $draftPurchaseOrderIds));
-                        PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
+                        // PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
                     }
                 }
             } else if (in_array('PB', $prefixes)) {
@@ -467,7 +467,7 @@ class Billing extends Controller
                             ->update(['status' => 'posted']);
 
                         Log::info("Sending Purchase Orders to Inventory System for Purchase Billing: " . implode(', ', $draftPurchaseOrderIds));
-                        PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
+                        // PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
                     }
                 }
 
@@ -482,7 +482,7 @@ class Billing extends Controller
                             ->update(['status' => 'posted']);
 
                         Log::info("Sending Sales Orders to Inventory System for Purchase Billing: " . implode(', ', $draftSalesOrderIds));
-                        SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
+                        // SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
                     }
                 }
             }

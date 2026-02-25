@@ -529,6 +529,8 @@ class SalesOrder extends Controller
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
                     $status = $salesOrder->save();
+                    $idsArray = [$request->id];
+                    SalesOrderModel::sendToInventorySystemSalesBilling($idsArray);
 
                     $successMessage = "The selected sales order was successfully posted!";
                     $failedMessage = "Failed to upost the selected sales order!";
