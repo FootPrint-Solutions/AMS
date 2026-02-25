@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 // TRAITS
 use App\Traits\DataTablesTrait;
 use App\Models\MasterData\Battery\BatteryModel;
+use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 
 class PurchaseOrderBatteryModel extends Model
 {
@@ -107,5 +108,13 @@ class PurchaseOrderBatteryModel extends Model
     public function purchaseOrder()
     {
         return $this->belongsTo(PurchaseOrderModel::class, 'purchase_order_id', 'id');
+    }
+
+    /**
+     * Get the sales order battery associated with the purchase order battery.
+     */
+    public function batterySalesOrder()
+    {
+        return $this->belongsTo(SalesOrderBatteryModel::class, 'sales_order_battery_id', 'id');
     }
 }
