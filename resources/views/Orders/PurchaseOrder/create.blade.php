@@ -919,6 +919,8 @@
          * Initialize Sales Order DataTable
          */
         let salesOrderTable;
+        let selectedSalesOrders = [];
+        let selectedSalesOrderMeta = {};
 
         function initSalesOrderTable() {
             let shipTo = $("#ship_to").val();
@@ -1006,13 +1008,27 @@
                 pageLength: 10,
                 drawCallback: function(settings) {
                     $("#select-all-sales-orders").prop('checked', false);
+                    $('.sales-order-checkbox').each(function() {
+                        let id = $(this).data('detail-id');
+                        if (selectedSalesOrders.includes(id)) {
+                            $(this).prop('checked', true);
+                        }
+                    });
 
                     $('#table-sales-order tbody tr').off('click').on('click', function(e) {
                         if (e.target.type !== 'checkbox') {
                             let checkbox = $(this).find('.sales-order-checkbox');
-                            checkbox.prop('checked', !checkbox.prop('checked'));
+                            checkbox.trigger('click');
                         }
                     });
+                },
+                stateSave: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data));
+                },
+                stateLoadCallback: function(settings) {
+                    let saved = localStorage.getItem('DataTables_' + settings.sInstance);
+                    return saved ? JSON.parse(saved) : null;
                 }
             });
         }
@@ -1026,23 +1042,59 @@
 
         // Select all checkboxes
         $(document).on("change", "#select-all-sales-orders", function() {
-            $(".sales-order-checkbox").prop('checked', $(this).prop('checked'));
+            let isChecked = $(this).prop('checked');
+
+            $(".sales-order-checkbox").each(function() {
+                let id = $(this).data('detail-id');
+
+                $(this).prop('checked', isChecked);
+
+                if (isChecked) {
+                    if (!selectedSalesOrders.includes(id)) {
+                        selectedSalesOrders.push(id);
+                    }
+                    selectedSalesOrderMeta[id] = {
+                        address: $(this).data('address') || '',
+                        invoice: $(this).data('invoice') || ''
+                    };
+                } else {
+                    selectedSalesOrders = selectedSalesOrders.filter(item => item !== id);
+                    delete selectedSalesOrderMeta[id];
+                }
+            });
+        });
+
+        $(document).on('change', '.sales-order-checkbox', function() {
+            let id = $(this).data('detail-id');
+
+            if ($(this).is(':checked')) {
+                if (!selectedSalesOrders.includes(id)) {
+                    selectedSalesOrders.push(id);
+                }
+
+                selectedSalesOrderMeta[id] = {
+                    address: $(this).data('address') || '',
+                    invoice: $(this).data('invoice') || ''
+                };
+
+            } else {
+                selectedSalesOrders = selectedSalesOrders.filter(item => item !== id);
+                delete selectedSalesOrderMeta[id];
+            }
         });
 
         // Add selected battery details to main table
         $(document).on("click", "#btn-add-selected-sales-orders", function() {
-            let selectedDetails = [];
+            // ambil dari list tersimpan (bisa lintas pagination)
+            let selectedDetails = selectedSalesOrders.slice(); // copy array
             let firstAddress = '';
             let firstInvoice = '';
 
-            $(".sales-order-checkbox:checked").each(function(index) {
-                selectedDetails.push($(this).data('detail-id'));
-
-                if (index === 0) {
-                    firstAddress = $(this).data('address');
-                    firstInvoice = $(this).data('invoice');
-                }
-            });
+            if (selectedDetails.length > 0) {
+                let firstId = selectedDetails[0];
+                firstAddress = (selectedSalesOrderMeta[firstId]?.address) || '';
+                firstInvoice = (selectedSalesOrderMeta[firstId]?.invoice) || '';
+            }
 
             if (selectedDetails.length === 0) {
                 Swal.fire({
@@ -1085,11 +1137,14 @@
                         }
 
                         removeEmptyBatteryRows();
-
-
                         calculateTotal();
 
                         $('#modalSalesOrder').modal('hide');
+
+                        // OPTIONAL: reset pilihan setelah sukses add
+                        selectedSalesOrders = [];
+                        selectedSalesOrderMeta = {};
+                        $("#select-all-sales-orders").prop('checked', false);
 
                         Swal.fire({
                             title: "Success",
