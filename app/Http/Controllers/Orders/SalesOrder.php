@@ -501,90 +501,55 @@ class SalesOrder extends Controller
         DB::beginTransaction();
 
         try {
-            if (isset($request->id)) {
-                $salesOrder = SalesOrderModel::find($request->id);
+            $ids = $request->input('ids', []);
+
+            if (empty($ids)) {
+                return getResponseData(false, "No sales orders selected.");
+            }
+
+            $status = true;
+
+            foreach ($ids as $id) {
+                $salesOrder = SalesOrderModel::find($id);
+
+                if (!$salesOrder) {
+                    continue;
+                }
 
                 if ($salesOrder->status === 'complete') {
                     return getResponseData(false, "Unable to post completed sales order.");
                 }
 
                 if ($salesOrder->status === 'posted') {
-
                     return getResponseData(false, "Unable to unpost this sales order as it has been already recorded in the inventory.");
+                }
 
-                    $salesOrder->status = 'draft';
-                    $status = $salesOrder->save();
-
-                    // Delete work order.
-                    WorkOrderModel::where('sales_order_id', $request->id)->delete();
-
-                    // Update inventory data.
-                    $salesOrderBattery = SalesOrderBatteryModel::where('sales_order_id', $request->id)
-                        ->with('battery')
-                        ->get();
-
-                    $successMessage = "The selected sales order was successfully unposted!";
-                    $failedMessage = "Failed to unpost the selected sales order!";
-                } else {
+                if ($salesOrder->status === 'draft') {
                     $salesOrder->payment_status = "paid";
                     $salesOrder->status = "posted";
-                    $status = $salesOrder->save();
-                    $idsArray = [$request->id];
-                    SalesOrderModel::sendToInventorySystemSalesBilling($idsArray);
+                    $status &= $salesOrder->save();
 
-                    $successMessage = "The selected sales order was successfully posted!";
-                    $failedMessage = "Failed to upost the selected sales order!";
+                    // Send to inventory system sales billing
+                    SalesOrderModel::sendToInventorySystemSalesBilling([$id]);
                 }
-
-                if ($status)
-                    DB::commit();
-                else
-                    DB::rollBack();
-
-                // Set a new response data to be sent.
-                return getResponseData(
-                    $status,
-                    $status ? $successMessage : $failedMessage
-                );
-            } else {
-                $ids = explode(",", $request->ids);
-                foreach ($ids as $id) {
-                    $salesOrder = SalesOrderModel::find($id);
-
-                    if ($salesOrder->status !== 'draft')
-                        break;
-
-                    $salesOrder->payment_status = "paid";
-                    $salesOrder->status = "posted";
-                    $status = $salesOrder->save();
-                }
-
-                if ($status)
-                    DB::commit();
-                else
-                    DB::rollBack();
-
-                // Set a new response data to be sent.
-                $successMessage = "The selected sales order was successfully posted!";
-                $failedMessage = "Failed to post the selected sales order!";
-                if (count($ids) > 1) {
-                    $successMessage = "The selected sales orders were successfully posted!";
-                    $failedMessage = "Failed to post the selected sales orders!";
-                }
-
-                return getResponseData(
-                    $status,
-                    $status ? $successMessage : $failedMessage
-                );
             }
+
+            if ($status) {
+                DB::commit();
+            } else {
+                DB::rollBack();
+            }
+
+            $successMessage = count($ids) > 1 ? "The selected sales orders were successfully posted!" : "The selected sales order was successfully posted!";
+            $failedMessage = count($ids) > 1 ? "Failed to post the selected sales orders!" : "Failed to post the selected sales order!";
+
+            return getResponseData(
+                $status,
+                $status ? $successMessage : $failedMessage
+            );
         } catch (Exception $e) {
-            // Rollback if any of the database processes failed.
             DB::rollBack();
-
-            // Logging error message.
             Log::error($e->getMessage());
-
-            // Set an error response data to be sent.
             return getResponseData(false);
         }
     }
