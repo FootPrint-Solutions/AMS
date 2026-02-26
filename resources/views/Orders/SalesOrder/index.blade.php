@@ -561,21 +561,75 @@
             var selectedRows = table.rows({
                 selected: true
             }).data().toArray();
-            if (selectedRows.length > 1) {
+            if (selectedRows.length < 1) {
                 Swal.fire({
                     title: "Error",
-                    text: "Please select a single row for posting.",
+                    text: "Please select at least one row for posting.",
                     icon: "error",
                 });
                 return;
             }
 
             // Post the selected sales order.
-            sendPostRequest($('#modal-more-action-id').val(), "/sales-order/post",
-                function() {
-                    // Reload the index table.
-                    table.ajax.reload();
+            var selectedRows = table.rows({
+                selected: true
+            }).data().toArray();
+
+            if (selectedRows.length === 0) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select at least one row for posting.",
+                    icon: "error",
                 });
+                return;
+            }
+
+            var ids = selectedRows.map(row => row[12]);
+
+            $.ajax({
+                url: "/sales-order/post",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    ids: ids
+                },
+                success: function(response) {
+                    let res = (typeof response === "string") ? JSON.parse(response) : response;
+
+                    console.log(res);
+
+                    if (res.status === 'success' || res.status === true || res.status === 1 || res.status ===
+                        '1') {
+                        Swal.fire({
+                            title: "Success",
+                            text: res.message || "Success",
+                            icon: "success",
+                        });
+                        table.ajax.reload();
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: res.message || "Failed",
+                            icon: "error",
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let msg = "Failed to post sales order.";
+                    if (xhr.responseJSON?.message) msg = xhr.responseJSON.message;
+                    else if (xhr.responseText) {
+                        try {
+                            msg = JSON.parse(xhr.responseText).message || msg;
+                        } catch (e) {}
+                    }
+
+                    Swal.fire({
+                        title: "Error",
+                        text: msg,
+                        icon: "error",
+                    });
+                }
+            });
 
             // Hide the modal.
             $('#modal-more-action').modal('hide');

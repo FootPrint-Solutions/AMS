@@ -100,7 +100,7 @@ class PurchaseOrderModel extends Model implements Auditable
     public function details(): HasMany
     {
         return $this->hasMany(PurchaseOrderBatteryModel::class, 'purchase_order_id')
-            ->with('battery');
+            ->with('battery', 'batterySalesOrder');
     }
 
     public function billingInvoices(): HasMany

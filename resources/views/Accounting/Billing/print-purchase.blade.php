@@ -440,7 +440,9 @@
                                 <tbody>
                                     @forelse ($all_details as $item)
                                         <tr>
-                                            <td class="text">{{ $item['battery_name'] }}</td>
+                                            <td class="text">
+                                                {{ isset($item['battery_sales_order']) ? $item['battery_sales_order']['battery_name'] : $item['battery_name'] }}
+                                            </td>
                                             <td class="text">{{ $item['battery_production_code'] }}</td>
                                         </tr>
                                     @empty
