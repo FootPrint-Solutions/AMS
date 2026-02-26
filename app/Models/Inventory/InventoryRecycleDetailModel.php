@@ -232,14 +232,14 @@ class InventoryRecycleDetailModel extends Model implements Auditable
             });
         }
 
-        if ($request->distributorShop) {
+        if ($request->distributorShopId) {
             $query->where(function ($q) use ($request) {
-                $q->where('distributor_shop_id', $request->distributorShop)
+                $q->where('distributor_shop_id', $request->distributorShopId)
                     ->orWhereHas('salesOrderBattery.salesOrder', function ($query) use ($request) {
-                        $query->where('distributor_shop_id', $request->distributorShop);
+                        $query->where('distributor_shop_id', $request->distributorShopId);
                     })
                     ->orWhereHas('purchaseOrder', function ($query) use ($request) {
-                        $query->where('distributor_shop_id', $request->distributorShop);
+                        $query->where('distributor_shop_id', $request->distributorShopId);
                     });
             });
         }
