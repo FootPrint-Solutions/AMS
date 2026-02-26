@@ -220,8 +220,8 @@ class InventoryDetailModel extends Model implements Auditable
             });
         }
 
-        if ($request->distributorShop) {
-            $query->where('distributor_shop_id', $request->distributorShop);
+        if ($request->distributorShopId) {
+            $query->where('distributor_shop_id', $request->distributorShopId);
         }
 
         if ($request->battery) {
