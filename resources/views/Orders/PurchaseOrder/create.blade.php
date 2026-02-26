@@ -1085,8 +1085,7 @@
 
         // Add selected battery details to main table
         $(document).on("click", "#btn-add-selected-sales-orders", function() {
-            // ambil dari list tersimpan (bisa lintas pagination)
-            let selectedDetails = selectedSalesOrders.slice(); // copy array
+            let selectedDetails = selectedSalesOrders.slice();
             let firstAddress = '';
             let firstInvoice = '';
 
