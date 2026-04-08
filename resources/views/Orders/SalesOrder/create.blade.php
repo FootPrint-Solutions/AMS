@@ -37,7 +37,7 @@
                                 <label for="sales-order-number">Sales Order Number <span
                                         class="login-danger">*</span></label>
                                 <input type="text" class="form-control" id="sales-order-number" name="salesordernumber"
-                                    placeholder="Enter distributor name" required readonly
+                                    placeholder="Enter distributor name" required
                                     @isset($data['profile'])
                                 value="{{ $data['profile']['sales_order_number'] }}"
                                 @else

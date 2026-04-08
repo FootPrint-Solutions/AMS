@@ -428,6 +428,7 @@ class SalesOrder extends Controller
             //     return getResponseData(false, "Unable to edit posted Sales Order.");
             // }
 
+            $salesOrder->sales_order_number = $request->salesordernumber;
             $salesOrder->invoice_number = $request->invoicenumber;
             $salesOrder->date = $request->date;
 
