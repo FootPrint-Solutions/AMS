@@ -12,6 +12,7 @@ use Exception;
 
 // MODELS
 use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Accounting\ChartOfAccountGroupModel;
 
 class ChartOfAccount extends Controller
 {
@@ -37,9 +38,13 @@ class ChartOfAccount extends Controller
      */
     public function create()
     {
+        $groups = ChartOfAccountGroupModel::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return view(
             "Accounting.ChartOfAccount.create",
-            getIndexData($this->title)
+            getIndexData($this->title, array("groups" => $groups->toArray()))
         );
     }
 
@@ -59,9 +64,16 @@ class ChartOfAccount extends Controller
             return redirect()->route("chart-of-account.index");
         }
 
+        $groups = ChartOfAccountGroupModel::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return view(
             "Accounting.ChartOfAccount.create",
-            getIndexData($this->title, array("profile" => $account->toArray()))
+            getIndexData($this->title, array(
+                "profile" => $account->toArray(),
+                "groups" => $groups->toArray(),
+            ))
         );
     }
 
@@ -85,8 +97,8 @@ class ChartOfAccount extends Controller
             $row[] = $no++;
             $row[] = $key->number;
             $row[] = $key->name;
-            $row[] = $key->chart_of_account_group_id;
-            $row[] = $key->is_active;
+            $row[] = $key->group ? $key->group->name : '-';
+            $row[] = $key->is_active ? "<i class='fa-solid fa-circle text-success'></i>" : "<i class='fa-solid fa-circle text-danger'></i>";
             $row[] = $key->id;
             $rows[] = $row;
         }
@@ -114,7 +126,11 @@ class ChartOfAccount extends Controller
                 [
                     'number' => 'required|string',
                     'name' => 'required|string',
-                    'chart_of_account_group_id' => 'required|integer',
+                    'chart_of_account_group_id' => [
+                        'required',
+                        'integer',
+                        Rule::exists('chart_of_account_group', 'id')->whereNull('deleted_at'),
+                    ],
                     'is_active' => 'required|boolean',
                 ],
                 [
@@ -163,7 +179,11 @@ class ChartOfAccount extends Controller
                 [
                     'number' => 'required|string',
                     'name' => 'required|string',
-                    'chart_of_account_group_id' => 'required|integer',
+                    'chart_of_account_group_id' => [
+                        'required',
+                        'integer',
+                        Rule::exists('chart_of_account_group', 'id')->whereNull('deleted_at'),
+                    ],
                     'is_active' => 'required|boolean',
                 ],
                 [
@@ -225,6 +245,179 @@ class ChartOfAccount extends Controller
                 $status,
                 $status ? "The selected account was successfully deleted!" : "Failed to delete the selected account!"
             );
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Display list of account groups.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function groupList()
+    {
+        $groups = ChartOfAccountGroupModel::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'status' => true,
+            'data' => $groups,
+        ]);
+    }
+
+    /**
+     * Store new account group.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function groupStore(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validatedData = $request->validate(
+                [
+                    'name' => [
+                        'required',
+                        'string',
+                        Rule::unique('chart_of_account_group', 'name')->whereNull('deleted_at'),
+                    ],
+                ],
+                [
+                    'name.required' => 'Account group name is required!',
+                    'name.unique' => 'Account group name already exists!',
+                ]
+            );
+
+            $group = new ChartOfAccountGroupModel();
+            $group->fill($validatedData);
+            $status = $group->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? 'Account group was successfully created!' : 'Failed to create account group!'
+            );
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return getResponseData(false, $e->validator->errors()->first());
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Update account group.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function groupUpdate(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $request->validate([
+                'id' => [
+                    'required',
+                    'integer',
+                    Rule::exists('chart_of_account_group', 'id')->whereNull('deleted_at'),
+                ],
+            ]);
+
+            $validatedData = $request->validate(
+                [
+                    'name' => [
+                        'required',
+                        'string',
+                        Rule::unique('chart_of_account_group', 'name')
+                            ->ignore($request->id)
+                            ->whereNull('deleted_at'),
+                    ],
+                ],
+                [
+                    'name.required' => 'Account group name is required!',
+                    'name.unique' => 'Account group name already exists!',
+                ]
+            );
+
+            $group = ChartOfAccountGroupModel::find($request->id);
+            $group->fill($validatedData);
+            $status = $group->save();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? 'Account group was successfully updated!' : 'Failed to update account group!'
+            );
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return getResponseData(false, $e->validator->errors()->first());
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return getResponseData(false);
+        }
+    }
+
+    /**
+     * Delete account group.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function groupDestroy(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $request->validate([
+                'id' => [
+                    'required',
+                    'integer',
+                    Rule::exists('chart_of_account_group', 'id')->whereNull('deleted_at'),
+                ],
+            ]);
+
+            $usedInAccount = ChartOfAccountModel::query()
+                ->where('chart_of_account_group_id', $request->id)
+                ->exists();
+
+            if ($usedInAccount) {
+                DB::rollBack();
+                return getResponseData(false, 'This account group is still used by chart of account data!');
+            }
+
+            $group = ChartOfAccountGroupModel::find($request->id);
+            $status = $group->delete();
+
+            if ($status)
+                DB::commit();
+            else
+                DB::rollBack();
+
+            return getResponseData(
+                $status,
+                $status ? 'Account group was successfully deleted!' : 'Failed to delete account group!'
+            );
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return getResponseData(false, $e->validator->errors()->first());
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());

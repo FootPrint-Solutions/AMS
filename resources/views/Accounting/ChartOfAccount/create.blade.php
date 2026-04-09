@@ -41,18 +41,25 @@
 
                 {{-- Account Group --}}
                 <div class="form-group local-forms">
-                    <label for="chart_of_account_group_id">Account Group <span class="login-danger">*</span></label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="chart_of_account_group_id">Account Group <span class="login-danger">*</span></label>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#account-group-modal">
+                            Manage Group
+                        </button>
+                    </div>
                     <select class="form-control" id="chart_of_account_group_id" name="chart_of_account_group_id" required>
                         <option value="">Select Account Group</option>
-                        <option value="1"
-                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '1') selected @endif @endisset>
-                            Aktiva</option>
-                        <option value="2"
-                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '2') selected @endif @endisset>
-                            Pasiva</option>
-                        <option value="3"
-                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '3') selected @endif @endisset>
-                            Laba Rugi</option>
+                        @if (isset($data['groups']) && count($data['groups']) > 0)
+                            @foreach ($data['groups'] as $group)
+                                <option value="{{ $group['id'] }}"
+                                    @isset($data['profile'])
+                                        @if ($data['profile']['chart_of_account_group_id'] == $group['id']) selected @endif
+                                    @endisset>
+                                    {{ $group['name'] }}
+                                </option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
 
@@ -92,8 +99,147 @@
         </div>
     </div>
 
+    {{-- Account Group Modal --}}
+    <div id="account-group-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="account-group-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="account-group-modal-label">Manage Account Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="account-group-form" class="mb-3">
+                        @csrf
+                        <input type="hidden" id="group_id" name="id">
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8">
+                                <label for="group_name" class="form-label">Group Name <span
+                                        class="login-danger">*</span></label>
+                                <input type="text" class="form-control" id="group_name" name="name"
+                                    placeholder="Enter account group name" required>
+                            </div>
+                            <div class="col-md-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-success" id="btn-group-save">Add Group</button>
+                                <button type="button" class="btn btn-secondary" id="btn-group-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 8%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 25%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="account-group-table-body">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Loading account groups...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
+            const csrfToken = "{{ csrf_token() }}";
+
+            function parseJsonResponse(response) {
+                if (typeof response === "string") {
+                    try {
+                        return JSON.parse(response);
+                    } catch (error) {
+                        return {
+                            status: false,
+                            data: []
+                        };
+                    }
+                }
+
+                return response;
+            }
+
+            function resetGroupForm() {
+                $("#group_id").val("");
+                $("#group_name").val("");
+                $("#btn-group-save").text("Add Group");
+            }
+
+            function escapeHtml(value) {
+                return $("<div>").text(value || "").html();
+            }
+
+            function setGroupOptions(groups, selectedId = null) {
+                const previousSelected = $("#chart_of_account_group_id").val();
+                const targetSelected = selectedId !== null ? String(selectedId) : String(previousSelected || "");
+
+                let optionsHtml = '<option value="">Select Account Group</option>';
+                groups.forEach(function(group) {
+                    optionsHtml += `<option value="${group.id}">${escapeHtml(group.name)}</option>`;
+                });
+
+                $("#chart_of_account_group_id").html(optionsHtml);
+
+                if (targetSelected !== "") {
+                    $("#chart_of_account_group_id").val(targetSelected);
+                }
+            }
+
+            function renderGroupTable(groups) {
+                if (!groups || groups.length === 0) {
+                    $("#account-group-table-body").html(
+                        '<tr><td colspan="3" class="text-center text-muted">No account group data.</td></tr>'
+                    );
+                    return;
+                }
+
+                let rowsHtml = "";
+                groups.forEach(function(group, index) {
+                    const safeName = escapeHtml(group.name);
+
+                    rowsHtml += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${safeName}</td>
+                            <td>
+                                <button type="button" class="btn btn-warning btn-sm btn-group-edit" data-id="${group.id}"
+                                    data-name="${safeName}">Edit</button>
+                                <button type="button" class="btn btn-danger btn-sm btn-group-delete" data-id="${group.id}">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                $("#account-group-table-body").html(rowsHtml);
+            }
+
+            function loadGroups(selectedId = null) {
+                $.ajax({
+                    url: "/chart-of-account/group/list",
+                    method: "POST",
+                    data: {
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        const responseData = parseJsonResponse(response);
+                        const groups = responseData.data || [];
+
+                        renderGroupTable(groups);
+                        setGroupOptions(groups, selectedId);
+                    }
+                });
+            }
+
             $("#chart-of-account-form").on("submit", function(event) {
                 event.preventDefault();
 
@@ -121,6 +267,63 @@
 
             $("#chart-of-account-form").on("reset", function() {
                 goToPage("/chart-of-account");
+            });
+
+            $("#account-group-form").on("submit", function(event) {
+                event.preventDefault();
+
+                const selectedGroupId = $("#chart_of_account_group_id").val();
+                const groupId = $("#group_id").val();
+                const url = groupId ? "/chart-of-account/group/update" : "/chart-of-account/group/store";
+                const formData = new FormData(this);
+
+                sendSubmitRequest(url, formData, function() {
+                    loadGroups(selectedGroupId);
+                    resetGroupForm();
+                });
+            });
+
+            $("#btn-group-cancel").on("click", function() {
+                resetGroupForm();
+            });
+
+            $("#account-group-modal").on("shown.bs.modal", function() {
+                loadGroups();
+            });
+
+            $("#account-group-table-body").on("click", ".btn-group-edit", function() {
+                $("#group_id").val($(this).attr("data-id"));
+                $("#group_name").val($(this).attr("data-name"));
+                $("#btn-group-save").text("Update Group");
+            });
+
+            $("#account-group-table-body").on("click", ".btn-group-delete", function() {
+                const groupId = $(this).attr("data-id");
+                const selectedGroupId = $("#chart_of_account_group_id").val();
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "Deleted account group cannot be restored.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel",
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append("_token", csrfToken);
+                    formData.append("id", groupId);
+
+                    sendSubmitRequest("/chart-of-account/group/destroy", formData, function() {
+                        const nextSelected = selectedGroupId == groupId ? null :
+                            selectedGroupId;
+                        loadGroups(nextSelected);
+                        resetGroupForm();
+                    });
+                });
             });
         });
     </script>

@@ -28,4 +28,14 @@ class ChartOfAccountGroupModel extends Model implements Auditable
      * @var array
      */
     protected $fillable = ['name'];
+
+    /**
+     * Relation to chart of accounts.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function accounts()
+    {
+        return $this->hasMany(ChartOfAccountModel::class, 'chart_of_account_group_id');
+    }
 }

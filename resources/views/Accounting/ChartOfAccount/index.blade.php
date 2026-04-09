@@ -65,7 +65,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(2, "/chart-of-account/edit/", "/chart-of-account/destroy");
+            appendDatatablesToolbar(5, "/chart-of-account/edit/", "/chart-of-account/destroy");
 
             // Add New Chart of Account button
             $("#btn-add").on("click", function() {

@@ -30,6 +30,16 @@ class ChartOfAccountModel extends Model implements Auditable
     protected $fillable = ['number', 'name', 'chart_of_account_group_id', 'is_active'];
 
     /**
+     * Relation to account group.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function group()
+    {
+        return $this->belongsTo(ChartOfAccountGroupModel::class, 'chart_of_account_group_id');
+    }
+
+    /**
      * Get all data for DataTables.
      * 
      * @param \Illuminate\Http\Request $request
@@ -40,7 +50,7 @@ class ChartOfAccountModel extends Model implements Auditable
         $selectColumns = ['id', 'number', 'name', 'chart_of_account_group_id', 'is_active'];
         $searchColumns = ['number', 'name'];
 
-        $query = self::query();
+        $query = self::query()->with('group');
         $query->select($selectColumns);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
