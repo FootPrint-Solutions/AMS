@@ -20,7 +20,7 @@ class ChartOfAccountModel extends Model implements Auditable
      *
      * @var string
      */
-    protected $table = 'chart_of_account';
+    protected $table = 'chart_of_accounts';
 
     /**
      * The attributes that are mass assignable.

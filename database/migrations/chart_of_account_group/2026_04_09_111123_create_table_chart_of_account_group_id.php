@@ -20,7 +20,7 @@ class CreateTableChartOfAccountGroupId extends Migration
             $table->softDeletes();
         });
 
-        Schema::table('chart_of_account', function (Blueprint $table) {
+        Schema::table('chart_of_accounts', function (Blueprint $table) {
             $table->foreign('chart_of_account_group_id')
                 ->references('id')
                 ->on('chart_of_account_group')

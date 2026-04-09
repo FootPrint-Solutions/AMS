@@ -13,7 +13,7 @@ class CreateTableChartOfAccount extends Migration
      */
     public function up()
     {
-        Schema::create('chart_of_account', function (Blueprint $table) {
+        Schema::create('chart_of_accounts', function (Blueprint $table) {
             $table->id();
             $table->string('number')->unique();
             $table->string('name');
@@ -31,6 +31,6 @@ class CreateTableChartOfAccount extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chart_of_account');
+        Schema::dropIfExists('chart_of_accounts');
     }
 }
