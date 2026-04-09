@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTableChartOfAccount extends Migration
+class CreateTableChartOfAccountGroupId extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,18 @@ class CreateTableChartOfAccount extends Migration
      */
     public function up()
     {
-        Schema::create('chart_of_account', function (Blueprint $table) {
+        Schema::create('chart_of_account_group', function (Blueprint $table) {
             $table->id();
-            $table->string('number')->unique();
             $table->string('name');
-            $table->unsignedBigInteger('chart_of_account_group_id');
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::table('chart_of_account', function (Blueprint $table) {
+            $table->foreign('chart_of_account_group_id')
+                ->references('id')
+                ->on('chart_of_account_group')
+                ->onDelete('restrict');
         });
     }
 
@@ -31,6 +35,6 @@ class CreateTableChartOfAccount extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chart_of_account');
+        Schema::dropIfExists('chart_of_account_group');
     }
 }

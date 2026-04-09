@@ -41,17 +41,17 @@
 
                 {{-- Account Group --}}
                 <div class="form-group local-forms">
-                    <label for="group_id">Account Group <span class="login-danger">*</span></label>
-                    <select class="form-control" id="group_id" name="group_id" required>
+                    <label for="chart_of_account_group_id">Account Group <span class="login-danger">*</span></label>
+                    <select class="form-control" id="chart_of_account_group_id" name="chart_of_account_group_id" required>
                         <option value="">Select Account Group</option>
                         <option value="1"
-                            @isset($data['profile']) @if ($data['profile']['group_id'] == '1') selected @endif @endisset>
+                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '1') selected @endif @endisset>
                             Aktiva</option>
                         <option value="2"
-                            @isset($data['profile']) @if ($data['profile']['group_id'] == '2') selected @endif @endisset>
+                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '2') selected @endif @endisset>
                             Pasiva</option>
                         <option value="3"
-                            @isset($data['profile']) @if ($data['profile']['group_id'] == '3') selected @endif @endisset>
+                            @isset($data['profile']) @if ($data['profile']['chart_of_account_group_id'] == '3') selected @endif @endisset>
                             Laba Rugi</option>
                     </select>
                 </div>

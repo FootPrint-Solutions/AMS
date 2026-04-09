@@ -85,7 +85,7 @@ class ChartOfAccount extends Controller
             $row[] = $no++;
             $row[] = $key->number;
             $row[] = $key->name;
-            $row[] = $key->group_id;
+            $row[] = $key->chart_of_account_group_id;
             $row[] = $key->is_active;
             $row[] = $key->id;
             $rows[] = $row;
@@ -114,13 +114,13 @@ class ChartOfAccount extends Controller
                 [
                     'number' => 'required|string',
                     'name' => 'required|string',
-                    'group_id' => 'required|integer',
+                    'chart_of_account_group_id' => 'required|integer',
                     'is_active' => 'required|boolean',
                 ],
                 [
                     'number.required' => 'Account number is required!',
                     'name.required' => 'Account name is required!',
-                    'group_id.required' => 'Account group is required!',
+                    'chart_of_account_group_id.required' => 'Account group is required!',
                     'is_active.required' => 'Active status is required!',
                 ]
             );
@@ -163,13 +163,13 @@ class ChartOfAccount extends Controller
                 [
                     'number' => 'required|string',
                     'name' => 'required|string',
-                    'group_id' => 'required|integer',
+                    'chart_of_account_group_id' => 'required|integer',
                     'is_active' => 'required|boolean',
                 ],
                 [
                     'number.required' => 'Account number is required!',
                     'name.required' => 'Account name is required!',
-                    'group_id.required' => 'Account group is required!',
+                    'chart_of_account_group_id.required' => 'Account group is required!',
                     'is_active.required' => 'Active status is required!',
                 ]
             );

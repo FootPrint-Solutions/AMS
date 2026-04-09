@@ -27,7 +27,7 @@ class ChartOfAccountModel extends Model implements Auditable
      *
      * @var array
      */
-    protected $fillable = ['number', 'name', 'group_id', 'is_active'];
+    protected $fillable = ['number', 'name', 'chart_of_account_group_id', 'is_active'];
 
     /**
      * Get all data for DataTables.
@@ -37,7 +37,7 @@ class ChartOfAccountModel extends Model implements Auditable
      */
     public static function allForDataTables($request)
     {
-        $selectColumns = ['id', 'number', 'name', 'group_id', 'is_active'];
+        $selectColumns = ['id', 'number', 'name', 'chart_of_account_group_id', 'is_active'];
         $searchColumns = ['number', 'name'];
 
         $query = self::query();
