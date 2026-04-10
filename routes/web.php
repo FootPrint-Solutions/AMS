@@ -249,6 +249,15 @@ Route::middleware(['auth'])->group(function () {
     // Billing
     require __DIR__ . '/web/accounting/billing.php';
 
+    // Chart of Account
+    require __DIR__ . '/web/accounting/chart-of-account.php';
+
+    // Journal Transaction
+    require __DIR__ . '/web/accounting/journal-transaction.php';
+
+    // Accounting Reports
+    require __DIR__ . '/web/accounting-report/journal-report.php';
+
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 
