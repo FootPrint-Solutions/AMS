@@ -252,6 +252,9 @@ Route::middleware(['auth'])->group(function () {
     // Chart of Account
     require __DIR__ . '/web/accounting/chart-of-account.php';
 
+    // Journal Transaction
+    require __DIR__ . '/web/accounting/journal-transaction.php';
+
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 
