@@ -143,4 +143,39 @@ class JournalTransactionModel extends Model implements Auditable
     {
         return $this->hasMany(JournalTransactionDetailModel::class, 'journal_entry_id', 'id');
     }
+
+    /**
+     * Get all journal entries with details for printing.
+     *
+     * @param string $dateStart Start date (Y-m-d format)
+     * @param string $dateEnd End date (Y-m-d format)
+     * @param string|null $filter Optional filter parameter
+     * @return array Array of journal entry details
+     */
+    public static function allForPrint(string $dateStart, string $dateEnd, ?string $filter = null): array
+    {
+        $query = JournalTransactionDetailModel::query()
+            ->join('journal_entries', 'journal_entry_details.journal_entry_id', '=', 'journal_entries.id')
+            ->select(
+                'journal_entries.voucher_number as number',
+                'journal_entries.date',
+                'journal_entry_details.account_number',
+                'journal_entry_details.account_name',
+                'journal_entry_details.description',
+                'journal_entry_details.debit as total_debit',
+                'journal_entry_details.credit as total_credit'
+            )
+            ->whereBetween('journal_entries.date', [$dateStart, $dateEnd])
+            ->orderBy('journal_entries.voucher_number')
+            ->orderBy('journal_entry_details.id');
+
+        if (!empty($filter)) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('journal_entries.voucher_number', 'like', '%' . $filter . '%')
+                    ->orWhere('journal_entry_details.account_name', 'like', '%' . $filter . '%');
+            });
+        }
+
+        return $query->get()->toArray();
+    }
 }
