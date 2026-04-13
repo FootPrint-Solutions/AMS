@@ -55,7 +55,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group local-forms">
-                            <label for="account_id">Main Account <span class="login-danger">*</span></label>
+                            <label for="account_id">Debet Account <span class="login-danger">*</span></label>
                             <select class="form-control" id="account_id" name="account_id" required>
                                 <option value="">Select Account</option>
                                 @foreach ($data['chartOfAccounts'] as $coa)
@@ -114,7 +114,7 @@
                     <table class="table table-bordered" id="table-expense-detail">
                         <thead>
                             <tr>
-                                <th style="width: 35%">Account</th>
+                                <th style="width: 35%">Credit Account</th>
                                 <th>Description</th>
                                 <th style="width: 20%">Total</th>
                                 <th style="width: 5%">Action</th>
@@ -266,7 +266,7 @@
 
                 const mode = $('#btn-save').attr('value');
                 const url = (mode === 'update') ? '/accounting-expense/update' :
-                '/accounting-expense/store';
+                    '/accounting-expense/store';
                 const formData = new FormData($(this)[0]);
 
                 Swal.fire({
