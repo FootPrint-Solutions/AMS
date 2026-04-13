@@ -46,7 +46,10 @@
                 responsive: true,
                 processing: true,
                 serverSide: true,
-                order: [],
+                order: [
+                    [1, "asc"]
+                ],
+                pageLength: 10,
                 ajax: {
                     url: "/chart-of-account/show",
                     type: "POST",
