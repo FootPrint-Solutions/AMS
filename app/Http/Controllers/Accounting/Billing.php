@@ -17,6 +17,8 @@ use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Accounting\JournalTransactionModel;
+use App\Models\Accounting\JournalTransactionDetailModel;
 
 class Billing extends Controller
 {
@@ -514,7 +516,9 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
-            $invoices = BillingInvoiceModel::whereIn('billing_id', $billingIds)->get();
+            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount'])
+                ->whereIn('billing_id', $billingIds)
+                ->get();
             $salesOrderIds = [];
             $purchaseOrderIds = [];
 
@@ -524,6 +528,35 @@ class Billing extends Controller
                 } elseif ($inv->invoice_type === PurchaseOrderModel::class) {
                     $purchaseOrderIds[] = $inv->invoice_id;
                 }
+
+                // insert to JournalTransaction and JournalTransactionDetail
+                $journalTransaction = JournalTransactionModel::create([
+                    'date' => now(),
+                    'voucher_number' => JournalTransactionModel::generateVoucherNumber(),
+                    'total' => $inv->total ?? 0,
+                    'status' => 'draft',
+                    'note' => 'Posting Billing - ' . $inv->invoice_number,
+                ]);
+
+                JournalTransactionDetailModel::create([
+                    'journal_entry_id' => $journalTransaction->id,
+                    'chart_of_account_id' => $inv->billing->debit_account_id,
+                    'account_number' => optional($inv->billing->debitAccount)->number,
+                    'account_name' => optional($inv->billing->debitAccount)->name,
+                    'description' => 'Debit for Billing - ' . $inv->invoice_number,
+                    'debit' => $inv->total ?? 0,
+                    'credit' => 0,
+                ]);
+
+                JournalTransactionDetailModel::create([
+                    'journal_entry_id' => $journalTransaction->id,
+                    'chart_of_account_id' => $inv->billing->credit_account_id,
+                    'account_number' => optional($inv->billing->creditAccount)->number,
+                    'account_name' => optional($inv->billing->creditAccount)->name,
+                    'description' => 'Credit for Billing - ' . $inv->invoice_number,
+                    'debit' => 0,
+                    'credit' => $inv->total ?? 0,
+                ]);
             }
 
             $billingNumber = BillingModel::whereIn('id', $billingIds)->pluck('billing_number')->toArray();
