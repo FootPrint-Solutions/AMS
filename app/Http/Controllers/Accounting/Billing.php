@@ -16,6 +16,9 @@ use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Accounting\JournalTransactionModel;
+use App\Models\Accounting\JournalTransactionDetailModel;
 
 class Billing extends Controller
 {
@@ -49,6 +52,7 @@ class Billing extends Controller
                     'billing_number' => BillingModel::generateSalesBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -69,6 +73,7 @@ class Billing extends Controller
                     'billing_number' => BillingModel::generatePurchaseBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -101,6 +106,7 @@ class Billing extends Controller
                     'billing' => $billing,
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -123,7 +129,7 @@ class Billing extends Controller
         $dateStart = $request->input('date_start');
         $dateEnd = $request->input('date_end');
 
-        $query = BillingModel::with(['vendor', 'shipTo']);
+        $query = BillingModel::with(['vendor', 'shipTo', 'debitAccount', 'creditAccount']);
 
         // Filter by status
         if ($status && $status !== 'all') {
@@ -147,6 +153,14 @@ class Billing extends Controller
                     })
                     ->orWhereHas('shipTo', function ($q2) use ($searchValue) {
                         $q2->where('name', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('debitAccount', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%")
+                            ->orWhere('number', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('creditAccount', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%")
+                            ->orWhere('number', 'like', "%{$searchValue}%");
                     });
             });
         }
@@ -175,8 +189,10 @@ class Billing extends Controller
                 6 => 'subtotal',
                 7 => 'discount_price',
                 8 => 'total',
-                9 => 'status',
-                10 => 'id' // hidden
+                9 => 'debit_account_id',
+                10 => 'credit_account_id',
+                11 => 'status',
+                12 => 'id' // hidden
             ];
             $orderColIdx = $order[0]['column'] ?? 5;
             $orderDir = $order[0]['dir'] ?? 'desc';
@@ -219,6 +235,8 @@ class Billing extends Controller
                 number_format($item->subtotal, 0, ',', '.'),
                 number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
+                $item->debitAccount ? $item->debitAccount->number . ' - ' . $item->debitAccount->name : '-',
+                $item->creditAccount ? $item->creditAccount->number . ' - ' . $item->creditAccount->name : '-',
                 '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
                 $item->id // hidden
             ];
@@ -257,6 +275,8 @@ class Billing extends Controller
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
+                'debit_account_id' => $request->input('debit_account'),
+                'credit_account_id' => $request->input('credit_account'),
             ]);
 
             // Save BillingInvoice(s)
@@ -334,6 +354,8 @@ class Billing extends Controller
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
+                'debit_account_id' => $request->input('debit_account'),
+                'credit_account_id' => $request->input('credit_account'),
             ]);
 
             // Delete old invoices
@@ -381,15 +403,103 @@ class Billing extends Controller
     }
 
     /**
-     * Post the specified Billing(s).
+     * Check if billings have missing debit or credit accounts
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function post(Request $request)
+    public function checkMissingAccounts(Request $request)
     {
         $billingIds = $request->input('ids', []);
 
+        $billingsWithMissingAccounts = BillingModel::whereIn('id', $billingIds)
+            ->where(function ($query) {
+                $query->whereNull('debit_account_id')
+                    ->orWhereNull('credit_account_id');
+            })
+            ->select('id', 'billing_number', 'debit_account_id', 'credit_account_id')
+            ->get();
+
+        if ($billingsWithMissingAccounts->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'has_missing_accounts' => false
+            ]);
+        }
+
+        $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
+            ->orderBy('name')
+            ->select('id', 'number', 'name')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'has_missing_accounts' => true,
+            'billings' => $billingsWithMissingAccounts,
+            'accounts' => $chartOfAccounts
+        ]);
+    }
+
+    /**
+     * Update billing accounts and post
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateAccountsAndPost(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $billingIds = $request->input('ids', []);
+            $accounts = $request->input('accounts', []); // Array dengan key billing_id, value {debit_account_id, credit_account_id}
+
+            // Update accounts untuk setiap billing
+            foreach ($accounts as $billingId => $accountData) {
+                BillingModel::where('id', $billingId)
+                    ->update([
+                        'debit_account_id' => $accountData['debit_account_id'] ?? null,
+                        'credit_account_id' => $accountData['credit_account_id'] ?? null,
+                    ]);
+            }
+
+            // Verify semua billing sekarang punya account
+            $stillMissingAccounts = BillingModel::whereIn('id', $billingIds)
+                ->where(function ($query) {
+                    $query->whereNull('debit_account_id')
+                        ->orWhereNull('credit_account_id');
+                })
+                ->count();
+
+            if ($stillMissingAccounts > 0) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please fill in all required accounts'
+                ], 400);
+            }
+
+            $result = $this->proceedWithPosting($billingIds);
+
+            DB::commit();
+            return $result;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update accounts and post: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Proceed dengan posting billing
+     *
+     * @param  array  $billingIds
+     * @return \Illuminate\Http\Response
+     */
+    private function proceedWithPosting($billingIds)
+    {
         try {
             $alreadyPosted = BillingModel::whereIn('id', $billingIds)
                 ->where('status', 'posted')
@@ -406,7 +516,9 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
-            $invoices = BillingInvoiceModel::whereIn('billing_id', $billingIds)->get();
+            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount'])
+                ->whereIn('billing_id', $billingIds)
+                ->get();
             $salesOrderIds = [];
             $purchaseOrderIds = [];
 
@@ -416,6 +528,35 @@ class Billing extends Controller
                 } elseif ($inv->invoice_type === PurchaseOrderModel::class) {
                     $purchaseOrderIds[] = $inv->invoice_id;
                 }
+
+                // insert to JournalTransaction and JournalTransactionDetail
+                $journalTransaction = JournalTransactionModel::create([
+                    'date' => now(),
+                    'voucher_number' => JournalTransactionModel::generateVoucherNumber(),
+                    'total' => $inv->total ?? 0,
+                    'status' => 'draft',
+                    'note' => 'Posting Billing - ' . $inv->invoice_number,
+                ]);
+
+                JournalTransactionDetailModel::create([
+                    'journal_entry_id' => $journalTransaction->id,
+                    'chart_of_account_id' => $inv->billing->debit_account_id,
+                    'account_number' => optional($inv->billing->debitAccount)->number,
+                    'account_name' => optional($inv->billing->debitAccount)->name,
+                    'description' => 'Debit for Billing - ' . $inv->invoice_number,
+                    'debit' => $inv->total ?? 0,
+                    'credit' => 0,
+                ]);
+
+                JournalTransactionDetailModel::create([
+                    'journal_entry_id' => $journalTransaction->id,
+                    'chart_of_account_id' => $inv->billing->credit_account_id,
+                    'account_number' => optional($inv->billing->creditAccount)->number,
+                    'account_name' => optional($inv->billing->creditAccount)->name,
+                    'description' => 'Credit for Billing - ' . $inv->invoice_number,
+                    'debit' => 0,
+                    'credit' => $inv->total ?? 0,
+                ]);
             }
 
             $billingNumber = BillingModel::whereIn('id', $billingIds)->pluck('billing_number')->toArray();
@@ -433,11 +574,14 @@ class Billing extends Controller
 
                     if (!empty($draftSalesOrderIds)) {
                         Log::info("Posting Sales Orders with IDs: " . implode(', ', $draftSalesOrderIds));
-                        SalesOrderModel::whereIn('id', $draftSalesOrderIds)
-                            ->update(['status' => 'posted']);
-
-                        Log::info("Sending Sales Orders to Inventory System for Sales Billing: " . implode(', ', $draftSalesOrderIds));
-                        // SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
+                        if (SalesOrderModel::whereIn('id', $draftSalesOrderIds)->where('status', 'posted')->exists()) {
+                            Log::warning("Some Sales Orders are already posted: " . implode(', ', $draftSalesOrderIds));
+                        } else {
+                            SalesOrderModel::whereIn('id', $draftSalesOrderIds)
+                                ->update(['status' => 'posted']);
+                            Log::info("Sending Sales Orders to Inventory System for Sales Billing: " . implode(', ', $draftSalesOrderIds));
+                            SalesOrderModel::sendToInventorySystemSalesBilling($draftSalesOrderIds);
+                        }
                     }
                 }
 
@@ -447,12 +591,16 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftPurchaseOrderIds)) {
-                        Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
-                        PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
-                            ->update(['status' => 'posted']);
+                        if (PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)->where('status', 'posted')->exists()) {
+                            Log::warning("Some Purchase Orders are already posted: " . implode(', ', $draftPurchaseOrderIds));
+                        } else {
+                            Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
+                            PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
+                                ->update(['status' => 'posted']);
 
-                        Log::info("Sending Purchase Orders to Inventory System for Sales Billing: " . implode(', ', $draftPurchaseOrderIds));
-                        // PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
+                            Log::info("Sending Purchase Orders to Inventory System for Sales Billing: " . implode(', ', $draftPurchaseOrderIds));
+                            PurchaseOrderModel::sendToInventorySystemSalesBilling($draftPurchaseOrderIds);
+                        }
                     }
                 }
             } else if (in_array('PB', $prefixes)) {
@@ -462,12 +610,15 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftPurchaseOrderIds)) {
-                        Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
-                        PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
-                            ->update(['status' => 'posted']);
-
-                        Log::info("Sending Purchase Orders to Inventory System for Purchase Billing: " . implode(', ', $draftPurchaseOrderIds));
-                        // PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
+                        if (PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)->where('status', 'posted')->exists()) {
+                            Log::warning("Some Purchase Orders are already posted: " . implode(', ', $draftPurchaseOrderIds));
+                        } else {
+                            Log::info("Posting Purchase Orders with IDs: " . implode(', ', $draftPurchaseOrderIds));
+                            PurchaseOrderModel::whereIn('id', $draftPurchaseOrderIds)
+                                ->update(['status' => 'posted']);
+                            Log::info("Sending Purchase Orders to Inventory System for Purchase Billing: " . implode(', ', $draftPurchaseOrderIds));
+                            PurchaseOrderModel::sendToInventorySystemPurchaseBilling($draftPurchaseOrderIds);
+                        }
                     }
                 }
 
@@ -477,17 +628,19 @@ class Billing extends Controller
                         ->toArray();
 
                     if (!empty($draftSalesOrderIds)) {
-                        Log::info("Posting Sales Orders with IDs: " . implode(', ', $draftSalesOrderIds));
-                        SalesOrderModel::whereIn('id', $draftSalesOrderIds)
-                            ->update(['status' => 'posted']);
+                        if (SalesOrderModel::whereIn('id', $draftSalesOrderIds)->where('status', 'posted')->exists()) {
+                            Log::warning("Some Sales Orders are already posted: " . implode(', ', $draftSalesOrderIds));
+                        } else {
+                            Log::info("Posting Sales Orders with IDs: " . implode(', ', $draftSalesOrderIds));
+                            SalesOrderModel::whereIn('id', $draftSalesOrderIds)
+                                ->update(['status' => 'posted']);
 
-                        Log::info("Sending Sales Orders to Inventory System for Purchase Billing: " . implode(', ', $draftSalesOrderIds));
-                        // SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
+                            Log::info("Sending Sales Orders to Inventory System for Purchase Billing: " . implode(', ', $draftSalesOrderIds));
+                            SalesOrderModel::sendToInventorySystemPurchaseBilling($draftSalesOrderIds);
+                        }
                     }
                 }
             }
-
-
 
             return response()->json([
                 'status' => 'success',
@@ -497,6 +650,56 @@ class Billing extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to post Billing(s): ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Post the specified Billing(s).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function post(Request $request)
+    {
+        $billingIds = $request->input('ids', []);
+
+        try {
+            $billingsWithMissingAccounts = BillingModel::whereIn('id', $billingIds)
+                ->where(function ($query) {
+                    $query->whereNull('debit_account_id')
+                        ->orWhereNull('credit_account_id');
+                })
+                ->count();
+
+            if ($billingsWithMissingAccounts > 0) {
+                $billingsData = BillingModel::whereIn('id', $billingIds)
+                    ->where(function ($query) {
+                        $query->whereNull('debit_account_id')
+                            ->orWhereNull('credit_account_id');
+                    })
+                    ->select('id', 'billing_number', 'debit_account_id', 'credit_account_id')
+                    ->get();
+
+                $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
+                    ->orderBy('name')
+                    ->select('id', 'number', 'name')
+                    ->get();
+
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 'MISSING_ACCOUNTS',
+                    'message' => 'Please select Debit and Credit accounts for the following Billing(s)',
+                    'billings' => $billingsData,
+                    'accounts' => $chartOfAccounts
+                ], 400);
+            }
+
+            return $this->proceedWithPosting($billingIds);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to check accounts: ' . $e->getMessage()
             ], 500);
         }
     }

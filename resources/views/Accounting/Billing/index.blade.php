@@ -84,6 +84,8 @@
                             <th class="text-end">Subtotal</th>
                             <th class="text-end">Discount Price</th>
                             <th class="text-end">Total Amount</th>
+                            <th>Debit Accounts</th>
+                            <th>Credit Accounts</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -157,6 +159,12 @@
                     },
                     {
                         data: 10,
+                    },
+                    {
+                        data: 11,
+                    },
+                    {
+                        data: 12,
                         visible: false
                     }
                 ],
@@ -173,7 +181,7 @@
                                     "error");
                                 return;
                             }
-                            window.location.href = "/billing/edit/" + selected[0][10];
+                            window.location.href = "/billing/edit/" + selected[0][12];
                         }
                     },
                     {
@@ -188,7 +196,7 @@
                                     "error");
                                 return;
                             }
-                            let ids = selected.map(row => row[10]);
+                            let ids = selected.map(row => row[12]);
                             Swal.fire({
                                 title: 'Are you sure?',
                                 text: "You won't be able to revert this!",
@@ -232,34 +240,29 @@
                                     'Please select at least one row to post.', 'warning');
                                 return;
                             }
-                            let ids = selected.map(row => row[10]);
-                            Swal.fire({
-                                title: 'Post Billing',
-                                text: 'Are you sure you want to post the selected Billing(s)?',
-                                icon: 'question',
-                                showCancelButton: true,
-                                confirmButtonText: 'Yes, Post',
-                                cancelButtonText: 'Cancel',
-                                confirmButtonColor: '#3085d6'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    $.post('/billing/post', {
-                                        _token: '{{ csrf_token() }}',
-                                        ids: ids
-                                    }, function(response) {
-                                        if (response.status === 'success') {
-                                            Swal.fire('Posted!', response.message,
-                                                'success');
-                                            table.ajax.reload();
-                                        } else {
-                                            Swal.fire('Error!', response.message,
-                                                'error');
-                                        }
-                                    }).fail(function(xhr) {
-                                        let errorMessage = xhr.responseJSON
-                                            ?.message || 'An error occurred';
-                                        Swal.fire('Error!', errorMessage, 'error');
-                                    });
+                            let ids = selected.map(row => row[12]);
+                            $.post('/billing/post', {
+                                _token: '{{ csrf_token() }}',
+                                ids: ids
+                            }, function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire('Posted!', response.message, 'success');
+                                    table.ajax.reload();
+                                } else if (response.code === 'MISSING_ACCOUNTS') {
+                                    showAccountSelectionModal(response.billings, response
+                                        .accounts, ids);
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            }).fail(function(xhr) {
+                                let errorData = xhr.responseJSON || {};
+                                if (errorData.code === 'MISSING_ACCOUNTS') {
+                                    showAccountSelectionModal(errorData.billings, errorData
+                                        .accounts, ids);
+                                } else {
+                                    let errorMessage = errorData.message ||
+                                        'An error occurred';
+                                    Swal.fire('Error!', errorMessage, 'error');
                                 }
                             });
                         }
@@ -276,7 +279,7 @@
                                     "error");
                                 return;
                             }
-                            let id = selected[0][10];
+                            let id = selected[0][12];
                             // window.open("/billing/print/" + id, "_blank");
 
                             var billingNumber = selected[0][2];
@@ -304,16 +307,16 @@
                                     "error");
                                 return;
                             }
-                            let id = selected[0][10];
+                            let id = selected[0][12];
                             downloadPDF("/billing/print-receipt/" + id, "_blank");
                         }
                     }
                 ],
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[9] === "posted") {
+                    if (data[11] === "posted") {
                         $(row).find('td').addClass("text-success");
-                    } else if (data[9] === "completed") {
+                    } else if (data[11] === "completed") {
                         $(row).find('td').addClass("text-info");
                     }
                 }
@@ -341,7 +344,7 @@
                     row.child.hide();
                     tr.removeClass('shown');
                 } else {
-                    let billingId = row.data()[10];
+                    let billingId = row.data()[12];
                     $.get('/billing/items/' + billingId, {
                         _token: "{{ csrf_token() }}"
                     }, function(response) {
@@ -408,6 +411,112 @@
                     });
                 }
             });
+
+            window.showAccountSelectionModal = function(billings, accounts, billingsIds) {
+                let accountOptions = '<option value="">-- Select Account --</option>';
+                accounts.forEach(account => {
+                    accountOptions +=
+                        `<option value="${account.id}">${account.number} - ${account.name}</option>`;
+                });
+
+                let billingRows = '';
+                billings.forEach(billing => {
+                    billingRows += `
+                        <tr>
+                            <td>${billing.billing_number}</td>
+                            <td>
+                                <select class="form-select form-select-sm debit-account-select" data-billing-id="${billing.id}">
+                                    ${accountOptions}
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm credit-account-select" data-billing-id="${billing.id}">
+                                    ${accountOptions}
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                Swal.fire({
+                    title: 'Select Debit & Credit Accounts',
+                    html: `
+                        <div class="text-start">
+                            <p>Please select Debit and Credit accounts for the following Billing(s):</p>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Billing Number</th>
+                                            <th>Debit Account</th>
+                                            <th>Credit Account</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${billingRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Continue Post',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+                    didOpen: function() {},
+                    preConfirm: function() {
+                        let accounts = {};
+                        let allFilled = true;
+
+                        $('[data-billing-id]').closest('tr').each(function() {
+                            let billingId = $(this).find('[data-billing-id]').first().data(
+                                'billing-id');
+                            let debitAccountId = $(this).find('.debit-account-select')
+                                .val();
+                            let creditAccountId = $(this).find('.credit-account-select')
+                                .val();
+
+                            if (!debitAccountId || !creditAccountId) {
+                                allFilled = false;
+                                return false;
+                            }
+
+                            accounts[billingId] = {
+                                debit_account_id: debitAccountId,
+                                credit_account_id: creditAccountId
+                            };
+                        });
+
+                        if (!allFilled) {
+                            Swal.showValidationMessage(
+                                'Please select both Debit and Credit accounts for all billing(s)'
+                            );
+                            return false;
+                        }
+
+                        return accounts;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('/billing/update-accounts-and-post', {
+                            _token: '{{ csrf_token() }}',
+                            ids: billingsIds,
+                            accounts: result.value
+                        }, function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire('Posted!', response.message, 'success');
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        }).fail(function(xhr) {
+                            let errorMessage = xhr.responseJSON?.message || 'An error occurred';
+                            Swal.fire('Error!', errorMessage, 'error');
+                        });
+                    }
+                });
+            };
         });
     </script>
 @endsection

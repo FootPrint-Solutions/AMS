@@ -5,14 +5,14 @@
         <div class="card-body">
             <div class="card-title h5">
                 @if (isset($data['profile']))
-                    Edit Accounting Expense
+                    Edit Accouting Receive
                 @else
-                    Add New Accounting Expense
+                    Add New Accouting Receive
                 @endif
             </div>
             <br>
 
-            <form id="accounting-expense-form">
+            <form id="accounting-receive-form">
                 @csrf
 
                 <div class="row">
@@ -135,7 +135,7 @@
                             @endphp
 
                             @foreach ($details as $detail)
-                                <tr class="expense-detail-row">
+                                <tr class="receive-detail-row">
                                     <td>
                                         <select class="form-control detail-account" name="detail_account_id[]" required>
                                             <option value="">Select Account</option>
@@ -181,8 +181,8 @@
 
                 <div class="d-flex flex-row-reverse mt-4">
                     <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                        @if (isset($data['profile'])) value="update">Update Accounting Expense
-                    @else value="create">Create Accounting Expense @endif
+                        @if (isset($data['profile'])) value="update">Update Accouting Receive
+                    @else value="create">Create Accouting Receive @endif
                         </button>
                         <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
                 </div>
@@ -191,7 +191,7 @@
     </div>
 
     <script>
-        const indexUrl = '/accounting-expense';
+        const indexUrl = '/accounting-receive';
         const coaOptionsHtml = `
             <option value="">Select Account</option>
             @foreach ($data['chartOfAccounts'] as $coa)
@@ -211,7 +211,7 @@
 
         function buildDetailRow() {
             return `
-                <tr class="expense-detail-row">
+                <tr class="receive-detail-row">
                     <td>
                         <select class="form-control detail-account" name="detail_account_id[]" required>
                             ${coaOptionsHtml}
@@ -253,7 +253,7 @@
                 recalculateGrandTotal();
             });
 
-            $('#accounting-expense-form').on('submit', function(event) {
+            $('#accounting-receive-form').on('submit', function(event) {
                 event.preventDefault();
 
                 recalculateGrandTotal();
@@ -265,8 +265,8 @@
                 }
 
                 const mode = $('#btn-save').attr('value');
-                const url = (mode === 'update') ? '/accounting-expense/update' :
-                    '/accounting-expense/store';
+                const url = (mode === 'update') ? '/accounting-receive/update' :
+                    '/accounting-receive/store';
                 const formData = new FormData($(this)[0]);
 
                 Swal.fire({
@@ -283,7 +283,7 @@
                 });
             });
 
-            $('#accounting-expense-form').on('reset', function() {
+            $('#accounting-receive-form').on('reset', function() {
                 goToPage(indexUrl);
             });
         });

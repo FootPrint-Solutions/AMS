@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\Accounting\BillingInvoiceModel;
+use App\Models\Accounting\ChartOfAccountModel;
 
 class BillingModel extends Model
 {
@@ -26,6 +27,8 @@ class BillingModel extends Model
         'subtotal',
         'total',
         'status',
+        'debit_account_id',
+        'credit_account_id',
     ];
 
     protected $dates = [
@@ -129,5 +132,15 @@ class BillingModel extends Model
     public function invoices()
     {
         return $this->hasMany(BillingInvoiceModel::class, 'billing_id')->with('invoice');
+    }
+
+    public function debitAccount()
+    {
+        return $this->belongsTo(ChartOfAccountModel::class, 'debit_account_id');
+    }
+
+    public function creditAccount()
+    {
+        return $this->belongsTo(ChartOfAccountModel::class, 'credit_account_id');
     }
 }
