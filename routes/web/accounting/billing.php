@@ -16,6 +16,8 @@ Route::post('/billing/update', [Billing::class, 'update'])->name('billing.update
 Route::post('/billing/destroy', [Billing::class, 'destroy'])->name('billing.destroy')->middleware('permission:delete_billing');
 Route::post('/billing/toggle', [Billing::class, 'toggle'])->name('billing.toggle')->middleware('permission:edit_billing');
 Route::post('/billing/post', [Billing::class, 'post'])->name('billing.post')->middleware('permission:edit_billing');
+Route::post('/billing/check-missing-accounts', [Billing::class, 'checkMissingAccounts'])->name('billing.check-missing-accounts')->middleware('permission:edit_billing');
+Route::post('/billing/update-accounts-and-post', [Billing::class, 'updateAccountsAndPost'])->name('billing.update-accounts-and-post')->middleware('permission:edit_billing');
 Route::get('/billing/print/{id}', [Billing::class, 'print'])->name('billing.print')->middleware('permission:view_billing');
 Route::get('/billing/print-receipt/{id}', [Billing::class, 'printReceipt'])->name('billing.print-receipt')->middleware('permission:view_billing');
 
