@@ -84,6 +84,8 @@
                             <th class="text-end">Subtotal</th>
                             <th class="text-end">Discount Price</th>
                             <th class="text-end">Total Amount</th>
+                            <th>Debit Accounts</th>
+                            <th>Credit Accounts</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -157,6 +159,12 @@
                     },
                     {
                         data: 10,
+                    },
+                    {
+                        data: 11,
+                    },
+                    {
+                        data: 12,
                         visible: false
                     }
                 ],
@@ -173,7 +181,7 @@
                                     "error");
                                 return;
                             }
-                            window.location.href = "/billing/edit/" + selected[0][10];
+                            window.location.href = "/billing/edit/" + selected[0][12];
                         }
                     },
                     {
@@ -188,7 +196,7 @@
                                     "error");
                                 return;
                             }
-                            let ids = selected.map(row => row[10]);
+                            let ids = selected.map(row => row[12]);
                             Swal.fire({
                                 title: 'Are you sure?',
                                 text: "You won't be able to revert this!",
@@ -232,7 +240,7 @@
                                     'Please select at least one row to post.', 'warning');
                                 return;
                             }
-                            let ids = selected.map(row => row[10]);
+                            let ids = selected.map(row => row[12]);
                             Swal.fire({
                                 title: 'Post Billing',
                                 text: 'Are you sure you want to post the selected Billing(s)?',
@@ -276,7 +284,7 @@
                                     "error");
                                 return;
                             }
-                            let id = selected[0][10];
+                            let id = selected[0][12];
                             // window.open("/billing/print/" + id, "_blank");
 
                             var billingNumber = selected[0][2];
@@ -304,16 +312,16 @@
                                     "error");
                                 return;
                             }
-                            let id = selected[0][10];
+                            let id = selected[0][12];
                             downloadPDF("/billing/print-receipt/" + id, "_blank");
                         }
                     }
                 ],
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[9] === "posted") {
+                    if (data[11] === "posted") {
                         $(row).find('td').addClass("text-success");
-                    } else if (data[9] === "completed") {
+                    } else if (data[11] === "completed") {
                         $(row).find('td').addClass("text-info");
                     }
                 }
@@ -341,7 +349,7 @@
                     row.child.hide();
                     tr.removeClass('shown');
                 } else {
-                    let billingId = row.data()[10];
+                    let billingId = row.data()[12];
                     $.get('/billing/items/' + billingId, {
                         _token: "{{ csrf_token() }}"
                     }, function(response) {

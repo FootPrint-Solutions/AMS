@@ -16,6 +16,7 @@ use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\Accounting\ChartOfAccountModel;
 
 class Billing extends Controller
 {
@@ -49,6 +50,7 @@ class Billing extends Controller
                     'billing_number' => BillingModel::generateSalesBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -69,6 +71,7 @@ class Billing extends Controller
                     'billing_number' => BillingModel::generatePurchaseBillingNumber(),
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -101,6 +104,7 @@ class Billing extends Controller
                     'billing' => $billing,
                     'distributorShops' => DistributorShopModel::all(),
                     'customers' => CustomerModel::all(),
+                    'chartOfAccounts' => ChartOfAccountModel::all(),
                 ]
             )
         );
@@ -123,7 +127,7 @@ class Billing extends Controller
         $dateStart = $request->input('date_start');
         $dateEnd = $request->input('date_end');
 
-        $query = BillingModel::with(['vendor', 'shipTo']);
+        $query = BillingModel::with(['vendor', 'shipTo', 'debitAccount', 'creditAccount']);
 
         // Filter by status
         if ($status && $status !== 'all') {
@@ -147,6 +151,14 @@ class Billing extends Controller
                     })
                     ->orWhereHas('shipTo', function ($q2) use ($searchValue) {
                         $q2->where('name', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('debitAccount', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%")
+                            ->orWhere('number', 'like', "%{$searchValue}%");
+                    })
+                    ->orWhereHas('creditAccount', function ($q2) use ($searchValue) {
+                        $q2->where('name', 'like', "%{$searchValue}%")
+                            ->orWhere('number', 'like', "%{$searchValue}%");
                     });
             });
         }
@@ -175,8 +187,10 @@ class Billing extends Controller
                 6 => 'subtotal',
                 7 => 'discount_price',
                 8 => 'total',
-                9 => 'status',
-                10 => 'id' // hidden
+                9 => 'debit_account_id',
+                10 => 'credit_account_id',
+                11 => 'status',
+                12 => 'id' // hidden
             ];
             $orderColIdx = $order[0]['column'] ?? 5;
             $orderDir = $order[0]['dir'] ?? 'desc';
@@ -219,6 +233,8 @@ class Billing extends Controller
                 number_format($item->subtotal, 0, ',', '.'),
                 number_format($item->discount_price, 0, ',', '.'),
                 number_format($item->total, 0, ',', '.'),
+                $item->debitAccount ? $item->debitAccount->number . ' - ' . $item->debitAccount->name : '-',
+                $item->creditAccount ? $item->creditAccount->number . ' - ' . $item->creditAccount->name : '-',
                 '<span class="badge ' . $statusBadgeClass . '">' . ucfirst($item->status) . '</span>',
                 $item->id // hidden
             ];
@@ -257,6 +273,8 @@ class Billing extends Controller
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
+                'debit_account_id' => $request->input('debit_account'),
+                'credit_account_id' => $request->input('credit_account'),
             ]);
 
             // Save BillingInvoice(s)
@@ -334,6 +352,8 @@ class Billing extends Controller
                 'subtotal' => $request->input('subtotal', 0),
                 'total' => $request->input('total', 0),
                 'status' => $request->input('status', 'draft'),
+                'debit_account_id' => $request->input('debit_account'),
+                'credit_account_id' => $request->input('credit_account'),
             ]);
 
             // Delete old invoices

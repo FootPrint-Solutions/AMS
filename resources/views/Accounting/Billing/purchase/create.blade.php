@@ -94,6 +94,43 @@
                         @endif
                     </div>
 
+
+                    <div class="row">
+                        {{-- Debit Account --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="debit_account">Debit Account <span class="login-danger">*</span></label>
+                                <select class="form-control" id="debit_account" name="debit_account" required>
+                                    <option value="">Select Debit Account</option>
+                                    @foreach ($data['chartOfAccounts'] as $account)
+                                        <option value="{{ $account->id }}"
+                                            {{ isset($data['billing']) && $data['billing']->debit_account_id == $account->id ? 'selected' : '' }}>
+                                            {{ $account->number }} -
+                                            {{ $account->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Credit Account --}}
+                        <div class="col">
+                            <div class="form-group local-forms">
+                                <label for="credit_account">Credit Account <span class="login-danger">*</span></label>
+                                <select class="form-control" id="credit_account" name="credit_account" required>
+                                    <option value="">Select Credit Account</option>
+                                    @foreach ($data['chartOfAccounts'] as $account)
+                                        <option value="{{ $account->id }}"
+                                            {{ isset($data['billing']) && $data['billing']->credit_account_id == $account->id ? 'selected' : '' }}>
+                                            {{ $account->number }} -
+                                            {{ $account->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Details --}}
                     <table class="table mb-2" id="selected-orders-table">
                         {{-- Header --}}
@@ -152,8 +189,8 @@
                                         </div>
 
                                         <div class="col-sm-2">
-                                            <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                                data-offlabel="%" data-onlabel="IDR" checked readonly>
+                                            <input type="checkbox" id="toggle-discount" data-toggle="toggle"
+                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" checked readonly>
                                         </div>
                                     </div>
                                 </td>
