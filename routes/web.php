@@ -249,6 +249,9 @@ Route::middleware(['auth'])->group(function () {
     // Accounting Expense
     require __DIR__ . '/web/accounting/acconting-expense.php';
 
+    // Accounting Receive
+    require __DIR__ . '/web/accounting/acconting-receive.php';
+
     // Billing
     require __DIR__ . '/web/accounting/billing.php';
 
