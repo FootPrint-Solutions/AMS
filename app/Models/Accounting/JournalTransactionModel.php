@@ -162,6 +162,7 @@ class JournalTransactionModel extends Model implements Auditable
                 'journal_entry_details.account_number',
                 'journal_entry_details.account_name',
                 'journal_entry_details.description',
+                'journal_entry_details.ref',
                 'journal_entry_details.debit as total_debit',
                 'journal_entry_details.credit as total_credit'
             )
@@ -173,7 +174,8 @@ class JournalTransactionModel extends Model implements Auditable
             $query->where(function ($q) use ($filter) {
                 $q->where('journal_entries.voucher_number', 'like', '%' . $filter . '%')
                     ->orWhere('journal_entry_details.account_name', 'like', '%' . $filter . '%')
-                    ->orWhere('journal_entry_details.account_number', 'like', '%' . $filter . '%');
+                    ->orWhere('journal_entry_details.account_number', 'like', '%' . $filter . '%')
+                    ->orWhere('journal_entry_details.ref', 'like', '%' . $filter . '%');
             });
         }
 

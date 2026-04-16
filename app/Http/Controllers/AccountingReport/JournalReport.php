@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Master\CompanyProfile;
 use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 use Illuminate\Http\Request;
 
 class JournalReport extends Controller
@@ -96,6 +98,45 @@ class JournalReport extends Controller
         return response()->json($results);
     }
 
+    public function refDetail($ref)
+    {
+        $ref = trim((string) urldecode($ref));
+
+        if ($ref === '') {
+            return redirect()->route('journal-report.index')->with('error', 'Reference is empty.');
+        }
+
+        $salesOrder = SalesOrderModel::select('id', 'sales_order_number', 'status', 'type')
+            ->where('sales_order_number', $ref)
+            ->first();
+
+        if ($salesOrder) {
+            if ($salesOrder->status === 'draft') {
+                return redirect()->route('sales-order.edit', $salesOrder->id);
+            }
+
+            if (($salesOrder->type ?? null) !== 'recycle') {
+                return redirect()->route('sales-order.invoice', $salesOrder->id);
+            }
+
+            return redirect()->route('sales-order.index', ['filter' => $salesOrder->sales_order_number]);
+        }
+
+        $purchaseOrder = PurchaseOrderModel::select('id', 'purchase_order_number', 'status')
+            ->where('purchase_order_number', $ref)
+            ->first();
+
+        if ($purchaseOrder) {
+            if ($purchaseOrder->status === 'draft') {
+                return redirect()->route('purchase-order.edit', $purchaseOrder->id);
+            }
+
+            return redirect()->route('purchase-order.print', ['ids' => $purchaseOrder->id]);
+        }
+
+        return redirect()->route('journal-report.index')->with('error', 'Reference ' . $ref . ' not found.');
+    }
+
     private function generateTableDetailPrint($row)
     {
         $detail = [];
@@ -107,6 +148,8 @@ class JournalReport extends Controller
 
         $detail["total_debit"] = $row['total_debit'];
         $detail["total_credit"] = $row['total_credit'];
+        $detail["ref"] = $row['ref'] ?? null;
+        $detail["ref_url"] = !empty($detail["ref"]) ? route('journal-report.ref-detail', ['ref' => $detail["ref"]]) : null;
         return $detail;
     }
 }
