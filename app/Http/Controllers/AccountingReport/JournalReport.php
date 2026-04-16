@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AccountingReport;
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Master\CompanyProfile;
+use App\Models\Accounting\ChartOfAccountModel;
 use Illuminate\Http\Request;
 
 class JournalReport extends Controller
@@ -64,6 +65,35 @@ class JournalReport extends Controller
                 'totalCredit' => $totalCredit,
             ),
         ));
+    }
+
+    public function coaAutocomplete(Request $request)
+    {
+        $term = trim((string) $request->input('term', ''));
+
+        if ($term === '') {
+            return response()->json([]);
+        }
+
+        $accounts = ChartOfAccountModel::query()
+            ->select('number', 'name')
+            ->where('is_active', 1)
+            ->where(function ($query) use ($term) {
+                $query->where('number', 'like', '%' . $term . '%')
+                    ->orWhere('name', 'like', '%' . $term . '%');
+            })
+            ->orderBy('number')
+            ->limit(20)
+            ->get();
+
+        $results = $accounts->map(function ($account) {
+            return [
+                'label' => $account->number . ' - ' . $account->name,
+                'value' => $account->name,
+            ];
+        })->values();
+
+        return response()->json($results);
     }
 
     private function generateTableDetailPrint($row)
