@@ -63,6 +63,11 @@
         text-align: right;
     }
 
+    .ref-link {
+        color: #0a58ca;
+        text-decoration: underline;
+    }
+
     .no-data {
         text-align: center;
         font-size: 14px;
@@ -122,7 +127,16 @@
                             @php $firstDetail = false; @endphp
                         @endif
 
-                        <td>{{ $detail['description'] }}</td>
+                        <td>
+                            {!! nl2br(e($detail['description'])) !!}
+                            @if (!empty($detail['ref']) && !empty($detail['ref_url']))
+                                <br>
+                                <a href="{{ $detail['ref_url'] }}" target="_blank" rel="noopener noreferrer"
+                                    class="ref-link">
+                                    Ref: {{ $detail['ref'] }}
+                                </a>
+                            @endif
+                        </td>
                         <td class="text-right">
                             {{ number_format($detail['total_debit'], 2) }}
                         </td>

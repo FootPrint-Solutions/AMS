@@ -264,6 +264,9 @@ Route::middleware(['auth'])->group(function () {
     // Accounting Reports
     require __DIR__ . '/web/accounting-report/journal-report.php';
 
+    // General Ledger Report
+    require __DIR__ . '/web/accounting-report/general-ledger-report.php';
+
     // user manager 
     require __DIR__ . '/web/settings/user-manager.php';
 

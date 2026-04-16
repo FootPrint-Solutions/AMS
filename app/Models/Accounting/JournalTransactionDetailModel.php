@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\DataTablesTrait;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
+use App\Models\Orders\SalesOrder\SalesOrderModel;
 
 class JournalTransactionDetailModel extends Model
 {
@@ -32,6 +34,7 @@ class JournalTransactionDetailModel extends Model
         'account_number',
         'account_name',
         'description',
+        'ref',
         'debit',
         'credit',
     ];
@@ -91,5 +94,20 @@ class JournalTransactionDetailModel extends Model
     public function journalEntry()
     {
         return $this->belongsTo(JournalTransactionModel::class, 'journal_entry_id', 'id');
+    }
+
+    public function ref()
+    {
+        $salesOrder = SalesOrderModel::where('sales_order_number', $this->ref)->first();
+        if ($salesOrder) {
+            return $salesOrder;
+        }
+
+        $purchaseOrder = PurchaseOrderModel::where('purchase_order_number', $this->ref)->first();
+        if ($purchaseOrder) {
+            return $purchaseOrder;
+        }
+
+        return null;
     }
 }

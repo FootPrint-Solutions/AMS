@@ -27,7 +27,7 @@
                     <div class="col-md-3">
                         <label for="filter" class="form-label">Filter (Optional)</label>
                         <input type="text" class="form-control" id="filter" name="filter"
-                            placeholder="Voucher Number or Account Name">
+                            placeholder="Voucher Number or Account Name" autocomplete="off">
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-primary" onclick="return submitForm(event)">
@@ -62,6 +62,26 @@
 
             $("#date-start").datepicker(datePickerConfig);
             $("#date-end").datepicker(datePickerConfig);
+
+            $("#filter").autocomplete({
+                minLength: 1,
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ route('journal-report.coa-autocomplete') }}",
+                        type: "GET",
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        },
+                        error: function() {
+                            response([]);
+                        }
+                    });
+                }
+            });
 
             const today = new Date();
             const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
