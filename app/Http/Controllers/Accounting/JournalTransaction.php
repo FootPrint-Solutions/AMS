@@ -284,7 +284,7 @@ class JournalTransaction extends Controller
     public function getJournalTransactionItems($journalTransactionId)
     {
         try {
-            $items = JournalTransactionDetailModel::where('journal_entry_id', $journalTransactionId)
+            $items = JournalTransactionDetailModel::where('journal_entry_id', $journalTransactionId)->with('chartOfAccount')
                 ->orderBy('id')
                 ->get([
                     'id',
@@ -294,7 +294,61 @@ class JournalTransaction extends Controller
                     'description',
                     'debit',
                     'credit',
+                    'ref',
+                    DB::raw("CONCAT(account_number, ' - ', account_name) AS account_display"),
+                    DB::raw('NULL AS ref_display'),
                 ]);
+
+            $refs = $items->pluck('ref')
+                ->filter(fn ($ref) => !empty($ref))
+                ->unique()
+                ->values();
+
+            $refDisplayMap = collect();
+
+            if ($refs->isNotEmpty()) {
+                $salesOrderMap = DB::table('sales_orders')
+                    ->leftJoin('customers', 'sales_orders.customer_id', '=', 'customers.id')
+                    ->whereIn('sales_orders.sales_order_number', $refs)
+                    ->select(
+                        'sales_orders.sales_order_number as ref_key',
+                        DB::raw("TRIM(CONCAT(sales_orders.sales_order_number, ' - ', COALESCE(customers.name, ''))) as ref_display")
+                    )
+                    ->get()
+                    ->pluck('ref_display', 'ref_key');
+
+                $purchaseOrderMap = DB::table('purchase_orders')
+                    ->leftJoin('distributor_shops', function ($join) {
+                        $join->on('purchase_orders.ship_to_id', '=', 'distributor_shops.id')
+                            ->where('purchase_orders.ship_to_type', '=', 'App\\Models\\MasterData\\Distributor\\DistributorShopModel');
+                    })
+                    ->leftJoin('customers', function ($join) {
+                        $join->on('purchase_orders.ship_to_id', '=', 'customers.id')
+                            ->where('purchase_orders.ship_to_type', '=', 'App\\Models\\MasterData\\Customer\\CustomerModel');
+                    })
+                    ->leftJoin('suppliers', function ($join) {
+                        $join->on('purchase_orders.ship_to_id', '=', 'suppliers.id')
+                            ->where('purchase_orders.ship_to_type', '=', 'App\\Models\\MasterData\\Supplier\\SupplierModel');
+                    })
+                    ->leftJoin('distributors', function ($join) {
+                        $join->on('purchase_orders.ship_to_id', '=', 'distributors.id')
+                            ->where('purchase_orders.ship_to_type', '=', 'App\\Models\\MasterData\\Distributor\\DistributorModel');
+                    })
+                    ->whereIn('purchase_orders.purchase_order_number', $refs)
+                    ->select(
+                        'purchase_orders.purchase_order_number as ref_key',
+                        DB::raw("TRIM(CONCAT(purchase_orders.purchase_order_number, ' - ', COALESCE(distributor_shops.name, customers.name, suppliers.name, distributors.name, ''))) as ref_display")
+                    )
+                    ->get()
+                    ->pluck('ref_display', 'ref_key');
+
+                $refDisplayMap = $salesOrderMap->merge($purchaseOrderMap);
+            }
+
+            $items = $items->map(function ($item) use ($refDisplayMap) {
+                $item->ref_display = $refDisplayMap->get($item->ref, $item->ref);
+                return $item;
+            });
 
             return response()->json([
                 'status' => 'success',

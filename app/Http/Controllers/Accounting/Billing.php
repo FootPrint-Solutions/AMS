@@ -214,7 +214,8 @@ class Billing extends Controller
                 $statusBadgeClass = "badge-secondary text-dark";
             } elseif ($status === "posted") {
                 $statusBadgeClass = "badge-success";
-            } else {
+            }
+            else {
                 $statusBadgeClass = "badge-info";
             }
 
@@ -516,7 +517,7 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
-            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount'])
+            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount', 'billing'])
                 ->whereIn('billing_id', $billingIds)
                 ->get();
             $salesOrderIds = [];
@@ -535,15 +536,18 @@ class Billing extends Controller
                     'voucher_number' => JournalTransactionModel::generateVoucherNumber(),
                     'total' => $inv->total ?? 0,
                     'status' => 'draft',
-                    'note' => 'Posting Billing - ' . $inv->invoice_number,
+                    'note' => 'Posting Billing - ' . $inv->billing->billing_number
                 ]);
+
+                $invoiceNumbers = [$inv->invoice_number];
 
                 JournalTransactionDetailModel::create([
                     'journal_entry_id' => $journalTransaction->id,
                     'chart_of_account_id' => $inv->billing->debit_account_id,
                     'account_number' => optional($inv->billing->debitAccount)->number,
                     'account_name' => optional($inv->billing->debitAccount)->name,
-                    'description' => 'Debit for Billing - ' . $inv->invoice_number,
+                    'description' => 'Debit for Billing - ' . implode(', ', $invoiceNumbers),
+                    'ref' => implode(', ', $invoiceNumbers),
                     'debit' => $inv->total ?? 0,
                     'credit' => 0,
                 ]);
@@ -553,7 +557,8 @@ class Billing extends Controller
                     'chart_of_account_id' => $inv->billing->credit_account_id,
                     'account_number' => optional($inv->billing->creditAccount)->number,
                     'account_name' => optional($inv->billing->creditAccount)->name,
-                    'description' => 'Credit for Billing - ' . $inv->invoice_number,
+                    'description' => 'Credit for Billing - ' . implode(', ', $invoiceNumbers),
+                    'ref' =>  implode(', ', $invoiceNumbers),
                     'debit' => 0,
                     'credit' => $inv->total ?? 0,
                 ]);
@@ -785,7 +790,8 @@ class Billing extends Controller
                     'reference_type' => SupplierModel::class,
                 ];
             }
-        } else if ($type === 'distributorshop') {
+        }
+        else if ($type === 'distributorshop') {
             $shopQuery = DistributorShopModel::query();
             if (!empty($search)) {
                 $shopQuery->where('name', 'like', '%' . $search . '%');
@@ -802,7 +808,8 @@ class Billing extends Controller
                     'reference_type' => DistributorShopModel::class,
                 ];
             }
-        } else {
+        }
+        else {
             // All types
             $customerQuery = CustomerModel::query();
             $supplierQuery = SupplierModel::query();
@@ -987,7 +994,8 @@ class Billing extends Controller
                     'total' => formatPrice($order->total)
                 ];
             }
-        } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
+        }
+        else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
             $query = SalesOrderModel::with(['vendorData', 'shipToData'])
                 ->where('vendor', $shipToId)
                 ->where('type', $type);

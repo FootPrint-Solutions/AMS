@@ -310,13 +310,14 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Account Number</th><th>Account Name</th><th>Description</th><th>Debit (IDR)</th><th>Credit (IDR)</th>' +
+                                    '<th>Account Number</th><th>Account Name</th><th>Description</th><th>Ref</th><th>Debit (IDR)</th><th>Credit (IDR)</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
                                     var accountNumber = item.account_number || '-';
                                     var accountName = item.account_name || '-';
                                     var description = item.description || '-';
+                                    var ref = item.ref_display || item.ref || '-';
                                     var debit = item.debit ? toCurrency(item
                                         .debit) : '-';
                                     var credit = item.credit ? toCurrency(item
@@ -326,6 +327,7 @@
                                         '<td>' + accountNumber + '</td>' +
                                         '<td>' + accountName + '</td>' +
                                         '<td>' + description + '</td>' +
+                                        '<td>' + ref + '</td>' +
                                         '<td>' + debit + '</td>' +
                                         '<td>' + credit + '</td>' +
                                         '</tr>';
