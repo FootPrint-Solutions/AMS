@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class AccountingReceive extends Controller
 {
@@ -41,11 +42,19 @@ class AccountingReceive extends Controller
     public function edit($id = null)
     {
         if ($id == null) {
+            Session::flash('error', 'Accounting receive not found.');
             return redirect()->route('accounting-receive.index');
         }
 
         $receive = AccountingReceiveModel::find($id);
         if ($receive == null) {
+            Session::flash('error', 'Accounting receive not found.');
+            return redirect()->route('accounting-receive.index');
+        }
+
+        // check if was posted
+        if ($receive->status === 'post') {
+            Session::flash('error', 'Posted accounting receive cannot be edited.');
             return redirect()->route('accounting-receive.index');
         }
 
@@ -280,6 +289,10 @@ class AccountingReceive extends Controller
                     continue;
                 }
 
+                if ($receive->status === 'post') {
+                    continue;
+                }
+
                 if ($receive->status === 'draft') {
                     $receive->status = 'post';
                     $receive->updated_by = auth()->id();
@@ -318,6 +331,7 @@ class AccountingReceive extends Controller
     {
         try {
             $items = AccountingReceiveDetailModel::where('cb_receive_id', $accountingExpenseId)
+                ->with('account:id,number,name')
                 ->orderBy('id')
                 ->get([
                     'id',

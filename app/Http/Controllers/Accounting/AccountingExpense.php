@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class AccountingExpense extends Controller
 {
@@ -41,15 +42,24 @@ class AccountingExpense extends Controller
     public function edit($id = null)
     {
         if ($id == null) {
+            Session::flash('error', 'Accounting expense not found.');
             return redirect()->route('accounting-expense.index');
         }
 
         $expense = AccountingExpenseModel::find($id);
         if ($expense == null) {
+            Session::flash('error', 'Accounting expense not found.');
             return redirect()->route('accounting-expense.index');
         }
 
         $profile = $expense->toArray();
+
+        // check if was posted
+        if ($expense->status === 'post') {
+            Session::flash('error', 'Posted accounting expense cannot be edited.');
+            return redirect()->route('accounting-expense.index');
+        }
+
         $profile['details'] = AccountingExpenseDetailModel::where('cb_expense_id', $expense->id)
             ->orderBy('id')
             ->get(['account_id', 'account_name', 'description', 'total'])
@@ -280,6 +290,10 @@ class AccountingExpense extends Controller
                     continue;
                 }
 
+                if ($expense->status === 'post') {
+                    continue;
+                }
+
                 if ($expense->status === 'draft') {
                     $expense->status = 'post';
                     $expense->updated_by = auth()->id();
@@ -318,6 +332,7 @@ class AccountingExpense extends Controller
     {
         try {
             $items = AccountingExpenseDetailModel::where('cb_expense_id', $accountingExpenseId)
+                ->with('account:id,number,name')
                 ->orderBy('id')
                 ->get([
                     'id',

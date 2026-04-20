@@ -138,10 +138,10 @@
                             @endif
                         </td>
                         <td class="text-right">
-                            {{ number_format($detail['total_debit'], 2) }}
+                            {{ formatPrice($detail['total_debit'], 0) }}
                         </td>
                         <td class="text-right">
-                            {{ number_format($detail['total_credit'], 2) }}
+                            {{ formatPrice($detail['total_credit'], 0) }}
                         </td>
                     </tr>
                 @endforeach
@@ -152,10 +152,10 @@
             <tr>
                 <th colspan="3" class="text-right">TOTAL</th>
                 <th class="text-right">
-                    {{ number_format($data['totalDebit'], 2) }}
+                    {{ formatPrice($data['totalDebit'], 0) }}
                 </th>
                 <th class="text-right">
-                    {{ number_format($data['totalCredit'], 2) }}
+                    {{ formatPrice($data['totalCredit'], 0) }}
                 </th>
             </tr>
         </tfoot>
