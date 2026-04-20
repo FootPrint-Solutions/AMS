@@ -40,6 +40,13 @@
 
     <div class="card">
         <div class="card-body">
+            {{-- Flash Messages --}}
+            @if (Session::has('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ Session::get('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <div class="table-responsive">
                 <table class="table table-striped" id="table-journal-transaction">
                     <thead>
@@ -49,8 +56,8 @@
                             <th>Voucher Number</th>
                             <th>Date</th>
                             <th>Note</th>
-                            <th>Total Debit</th>
-                            <th>Total Credit</th>
+                            <th class="text-end">Total Debit</th>
+                            <th class="text-end">Total Credit</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -117,11 +124,11 @@
                     },
                     {
                         data: 5,
-                        className: 'dt-body-end'
+                        className: 'text-end'
                     },
                     {
                         data: 6,
-                        className: 'dt-body-end'
+                        className: 'text-end'
                     },
                     {
                         data: 7,
@@ -310,7 +317,7 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Account Number</th><th>Account Name</th><th>Description</th><th>Ref</th><th>Debit (IDR)</th><th>Credit (IDR)</th>' +
+                                    '<th>Account Number</th><th>Account Name</th><th>Description</th><th>Ref</th><th class="text-end">Debit (IDR)</th><th class="text-end">Credit (IDR)</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
@@ -328,8 +335,8 @@
                                         '<td>' + accountName + '</td>' +
                                         '<td>' + description + '</td>' +
                                         '<td>' + ref + '</td>' +
-                                        '<td>' + debit + '</td>' +
-                                        '<td>' + credit + '</td>' +
+                                        '<td class="text-end">' + debit + '</td>' +
+                                        '<td class="text-end">' + credit + '</td>' +
                                         '</tr>';
                                 });
 

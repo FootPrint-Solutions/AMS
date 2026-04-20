@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class JournalTransaction extends Controller
 {
@@ -41,11 +42,18 @@ class JournalTransaction extends Controller
     public function edit($id = null)
     {
         if ($id == null) {
+            Session::flash('error', 'Journal transaction ID is required.');
             return redirect()->route('journal-transaction.index');
         }
 
         $journal = JournalTransactionModel::with('details')->find($id);
         if ($journal == null) {
+            Session::flash('error', 'Journal transaction not found.');
+            return redirect()->route('journal-transaction.index');
+        }
+
+        if ($journal->status === 'post') {
+            Session::flash('error', 'Posted journal transaction cannot be edited.');
             return redirect()->route('journal-transaction.index');
         }
 
@@ -247,6 +255,10 @@ class JournalTransaction extends Controller
                     continue;
                 }
 
+                if ($journal->status === 'post') {
+                    continue;
+                }
+
                 if ($journal->status === 'draft') {
                     $journal->status = 'post';
                     $journal->updated_by = auth()->id();
@@ -300,7 +312,7 @@ class JournalTransaction extends Controller
                 ]);
 
             $refs = $items->pluck('ref')
-                ->filter(fn ($ref) => !empty($ref))
+                ->filter(fn($ref) => !empty($ref))
                 ->unique()
                 ->values();
 
