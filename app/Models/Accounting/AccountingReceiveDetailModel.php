@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 // Models
 use App\Models\Accounting\AccountingReceiveModel;
+use App\Models\Accounting\ChartOfAccountModel;
 
 class AccountingReceiveDetailModel extends Model
 {
@@ -30,5 +31,10 @@ class AccountingReceiveDetailModel extends Model
     public function receive()
     {
         return $this->belongsTo(AccountingReceiveModel::class, 'cb_receive_id');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(ChartOfAccountModel::class, 'account_id');
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 // Models
 use App\Models\Accounting\AccountingExpenseModel;
+use App\Models\Accounting\ChartOfAccountModel;
 
 class AccountingExpenseDetailModel extends Model
 {
@@ -30,5 +31,10 @@ class AccountingExpenseDetailModel extends Model
     public function expense()
     {
         return $this->belongsTo(AccountingExpenseModel::class, 'cb_expense_id');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(ChartOfAccountModel::class, 'account_id');
     }
 }

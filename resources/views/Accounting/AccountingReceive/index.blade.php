@@ -48,6 +48,13 @@
 
     <div class="card">
         <div class="card-body">
+            {{-- Flash Messages --}}
+            @if (Session::has('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ Session::get('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <div class="table-responsive">
                 <table class="table table-striped" id="table-accounting-receive">
                     <thead>
@@ -58,7 +65,7 @@
                             <th>Date</th>
                             <th>To</th>
                             <th>Type</th>
-                            <th>Total</th>
+                            <th class="text-end">Total</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -130,7 +137,7 @@
                     },
                     {
                         data: 6,
-                        className: 'dt-body-end'
+                        className: 'text-end',
                     },
                     {
                         data: 7,
@@ -317,11 +324,12 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Account</th><th>Description</th><th>Total (IDR)</th>' +
+                                    '<th>Account</th><th>Description</th><th class="text-end">Total (IDR)</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
-                                    var accountName = item.account_name || '-';
+                                    var accountName = item.account.number + ' - ' + item
+                                        .account.name || '-';
                                     var description = item.description || '-';
                                     var total = item.total ? toCurrency(item.total) :
                                         '-';
@@ -329,7 +337,7 @@
                                     itemTable += '<tr>' +
                                         '<td>' + accountName + '</td>' +
                                         '<td>' + description + '</td>' +
-                                        '<td>' + total + '</td>' +
+                                        '<td class="text-end">' + total + '</td>' +
                                         '</tr>';
                                 });
 
