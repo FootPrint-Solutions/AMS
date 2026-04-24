@@ -9,19 +9,21 @@ use App\Models\MasterData\Battery\BatteryTechnologyModel;
 use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatterySubbrandCategoryModel;
 use App\Models\MasterData\Battery\BatteryCodeModel;
-use app\Models\MasterData\Battery\BatteryPriceModel;
+use App\Models\MasterData\Battery\BatteryPriceModel;
 
 
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
+use Illuminate\Support\Facades\Log;
 
 class BatteryImport implements ToModel, WithStartRow, WithEvents
 {
     private $unimportedRows = [];
     private $totalRows = 0;
     private $totalInsertedRows = 0;
+    private $processedRows = 0;
 
     public function getUnimportedRows()
     {
@@ -53,47 +55,54 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
      */
     public function model(array $row)
     {
+        $excelRowNumber = $this->startRow() + $this->processedRows;
+        $this->processedRows++;
+
         try {
-            // Validate the row before processing
-            if (!$this->validateRow($row)) {
-                // Add invalid row to unimportedRows array
-                $this->unimportedRows[] = $row;
+            $normalizedRow = $this->normalizeRow($row);
+
+            // Validate the row before processing.
+            if (!$this->validateRow($normalizedRow)) {
+                // Add invalid row to unimportedRows array.
+                $this->pushFailedRow($excelRowNumber, $normalizedRow, 'Beberapa kolom wajib belum terisi.');
                 return;
             }
 
             // Create or find related models
-            $brand = BatteryBrandModel::firstOrCreate(['name' => $row[2]]);
+            $brand = BatteryBrandModel::firstOrCreate(['name' => $normalizedRow['brand']]);
             $sizeCategoryId = null;
-            if (!empty($row[6]) && $row[6] !== "-") {
-                $sizeCategory = BatterySizeCategoryModel::firstOrCreate(['name' => $row[6]]);
+            if ($this->hasValue($normalizedRow['size_category'])) {
+                $sizeCategory = BatterySizeCategoryModel::firstOrCreate(['name' => $normalizedRow['size_category']]);
                 $sizeCategoryId = $sizeCategory->id;
             }
-            $usageType = BatteryUsageTypeModel::firstOrCreate(['name' => $row[4]]);
-            $technology = BatteryTechnologyModel::firstOrCreate(['name' => $row[5]]);
-            $subbrandCategory = BatterySubbrandCategoryModel::firstOrCreate(['name' => $row[3]]);
+            $usageType = BatteryUsageTypeModel::firstOrCreate(['name' => $normalizedRow['usage_type']]);
+            $technology = BatteryTechnologyModel::firstOrCreate(['name' => $normalizedRow['technology']]);
+            $subbrandCategory = BatterySubbrandCategoryModel::firstOrCreate(['name' => $normalizedRow['subbrand_category']]);
 
             // Clean and prepare data for battery creation
-            $standardCca = ($row[10] != '-') ? $row[10] : 0;
-            $capacity = ($row[11] != '-') ? str_replace(",", ".", $row[11]) : null;
-            $warranty = ($row[12] != '-') ? str_replace("bulan", "", $row[12]) : 0;
-            $priceRetail = ($row[13] != '-') ? $row[13] : null;
+            $standardCca = $this->normalizeNumber($normalizedRow['standard_cca'], 0);
+            $capacity = $this->normalizeNumber($normalizedRow['capacity'], 0);
+            $warranty = $this->normalizeWarranty($normalizedRow['warranty']);
+            $priceRetail = $this->normalizePrice($normalizedRow['retail_price']);
+            $priceBuy = $this->normalizePrice($normalizedRow['buy_price']);
 
             // Create the Battery model
             $battery = BatteryModel::create([
-                'name' => $row[0],
-                'name_alternate' => $row[1] ?? '',
+                'name' => $normalizedRow['name'],
+                'name_alternate' => $normalizedRow['alternate_name'],
                 'brand_id' => $brand->id,
                 'subbrand_category_id' => $subbrandCategory->id,
                 'usage_type_id' => $usageType->id,
                 'size_category_id' => $sizeCategoryId,
                 'technology_id' => $technology->id,
-                'dimension_length' => $row[7] ?? 0,
-                'dimension_width' => $row[8] ?? 0,
-                'dimension_height' => $row[9] ?? 0,
+                'dimension_length' => $this->normalizeNumber($normalizedRow['dimension_length'], 0),
+                'dimension_width' => $this->normalizeNumber($normalizedRow['dimension_width'], 0),
+                'dimension_height' => $this->normalizeNumber($normalizedRow['dimension_height'], 0),
                 'standard_cca' => $standardCca,
                 'capacity' => $capacity,
-                'warranty' => $warranty ?? 0,
+                'warranty' => $warranty,
                 'price_retail' => $priceRetail,
+                'price_buy' => $priceBuy,
             ]);
 
             $code = new BatteryCodeModel();
@@ -112,9 +121,123 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
             $this->totalInsertedRows++;
             return $battery;
         } catch (\Exception $e) {
-            $this->unimportedRows[] = $row;
+            // Log the error and add the row to unimportedRows array.
+            Log::error('Error importing battery row ' . $excelRowNumber . ': ' . $e->getMessage());
+            $this->pushFailedRow($excelRowNumber, $this->normalizeRow($row), 'Terjadi kesalahan saat menyimpan data.');
             return null;
         }
+    }
+
+    /**
+     * Normalize the imported row into named columns.
+     *
+     * @param array $row
+     * @return array
+     */
+    private function normalizeRow(array $row): array
+    {
+        return [
+            'id' => $row[0] ?? '',
+            'name' => trim((string) ($row[1] ?? '')),
+            'alternate_name' => trim((string) ($row[2] ?? '')),
+            'brand' => trim((string) ($row[3] ?? '')),
+            'subbrand_category' => trim((string) ($row[4] ?? '')),
+            'usage_type' => trim((string) ($row[5] ?? '')),
+            'size_category' => trim((string) ($row[6] ?? '')),
+            'technology' => trim((string) ($row[7] ?? '')),
+            'dimension_length' => $row[8] ?? 0,
+            'dimension_width' => $row[9] ?? 0,
+            'dimension_height' => $row[10] ?? 0,
+            'standard_cca' => $row[11] ?? 0,
+            'capacity' => $row[12] ?? 0,
+            'warranty' => $row[13] ?? 0,
+            'retail_price' => $row[14] ?? null,
+            'buy_price' => $row[15] ?? null,
+        ];
+    }
+
+    /**
+     * Build and store a readable failed-row entry.
+     *
+     * @param int $rowNumber
+     * @param array $row
+     * @param string $reason
+     * @return void
+     */
+    private function pushFailedRow(int $rowNumber, array $row, string $reason): void
+    {
+        $this->unimportedRows[] = [
+            'row_number' => $rowNumber,
+            'reason' => $reason,
+            'data' => $row,
+        ];
+    }
+
+    /**
+     * Check whether a column contains a real value.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    private function hasValue($value): bool
+    {
+        $value = trim((string) $value);
+
+        return $value !== '' && $value !== '-';
+    }
+
+    /**
+     * Normalize numeric values from spreadsheet cells.
+     *
+     * @param mixed $value
+     * @param mixed $default
+     * @return float|int|mixed
+     */
+    private function normalizeNumber($value, $default = null)
+    {
+        if (!$this->hasValue($value)) {
+            return $default;
+        }
+
+        $normalized = trim((string) $value);
+
+        if (strpos($normalized, ',') !== false) {
+            $normalized = str_replace('.', '', $normalized);
+            $normalized = str_replace(',', '.', $normalized);
+        } else {
+            $normalized = str_replace(',', '', $normalized);
+        }
+
+        return is_numeric($normalized) ? $normalized + 0 : $default;
+    }
+
+    /**
+     * Normalize the warranty value into a clean number.
+     *
+     * @param mixed $value
+     * @return int|float|null
+     */
+    private function normalizeWarranty($value)
+    {
+        if (!$this->hasValue($value)) {
+            return 0;
+        }
+
+        $cleanValue = strtolower(trim((string) $value));
+        $cleanValue = str_replace('bulan', '', $cleanValue);
+
+        return $this->normalizeNumber($cleanValue, 0);
+    }
+
+    /**
+     * Normalize price values.
+     *
+     * @param mixed $value
+     * @return float|int|null
+     */
+    private function normalizePrice($value)
+    {
+        return $this->normalizeNumber($value, null);
     }
 
 
@@ -126,8 +249,14 @@ class BatteryImport implements ToModel, WithStartRow, WithEvents
      */
     private function validateRow(array $row): bool
     {
-        if (empty($row[1]) || empty($row[4]) || empty($row[5]) || empty($row[6])) {
-            return false; // Validation failed
+        if (
+            empty($row['name']) ||
+            empty($row['brand']) ||
+            empty($row['subbrand_category']) ||
+            empty($row['usage_type']) ||
+            empty($row['technology'])
+        ) {
+            return false;
         }
 
         return true;

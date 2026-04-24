@@ -50,6 +50,9 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
         // Get new values (to replace).
         $newName = $row[1] ? $row[1] : "";
         $newPrice = $row[14] ? intval(str_replace(['.', ','], ['', '.'], $row[14])) : 0;
+        $newPriceBuy = (isset($row[15]) && $row[15] !== '')
+            ? intval(str_replace(['.', ','], ['', '.'], $row[15]))
+            : null;
 
         // Get battery based on code.
         $code = $row[0];
@@ -66,8 +69,11 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
                     return;
                 }
 
-                if ($battery->price_retail != $newPrice) {
+                if ($battery->price_retail != $newPrice || (!is_null($newPriceBuy) && $battery->price_buy != $newPriceBuy)) {
                     $battery->price_retail = $newPrice;
+                    if (!is_null($newPriceBuy)) {
+                        $battery->price_buy = $newPriceBuy;
+                    }
 
                     try {
                         $battery->saveOrFail();
@@ -95,9 +101,12 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
             return;
         }
 
-        if ($battery->name != $newName || $battery->price_retail != $newPrice) {
+        if ($battery->name != $newName || $battery->price_retail != $newPrice || (!is_null($newPriceBuy) && $battery->price_buy != $newPriceBuy)) {
             $battery->name = $newName;
             $battery->price_retail = $newPrice;
+            if (!is_null($newPriceBuy)) {
+                $battery->price_buy = $newPriceBuy;
+            }
 
             try {
                 $battery->saveOrFail();
