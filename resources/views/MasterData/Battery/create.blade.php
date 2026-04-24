@@ -254,7 +254,7 @@
                     </div>
                 </div>
 
-                {{-- Warranty & Price Retail --}}
+                {{-- Warranty, Price Retail & Price Buy --}}
                 <div class="row">
                     {{-- Warranty --}}
                     <div class="col">
@@ -281,6 +281,22 @@
                             </div>
                             <small id="price-warning-number" class="form-text text-danger" style="display: none;">Please
                                 enter a valid numeric value for the price.</small>
+                        </div>
+                    </div>
+
+                    {{-- Price Buy --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="price-buy">Price Buy <span class="login-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text border-end">IDR</span>
+                                <input type="text" min="0" class="form-control" id="price-buy"
+                                    name="price_buy" placeholder="Enter battery price buy" required
+                                    @if (isset($data['profile'])) value="{{ $data['profile']['price_buy'] }}" @endif>
+                            </div>
+                            <small id="price-buy-warning-number" class="form-text text-danger"
+                                style="display: none;">Please
+                                enter a valid numeric value for the buy price.</small>
                         </div>
                     </div>
 
@@ -741,9 +757,14 @@
     <script>
         $(document).ready(function() {
             formatPrice($("#price"), $("#price-warning-number"));
+            formatPrice($("#price-buy"), $("#price-buy-warning-number"));
 
             $('#price').on("keyup", function() {
                 formatPrice($("#price"), $("#price-warning-number"));
+            });
+
+            $('#price-buy').on("keyup", function() {
+                formatPrice($("#price-buy"), $("#price-buy-warning-number"));
             });
         });
     </script>

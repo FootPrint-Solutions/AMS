@@ -88,6 +88,7 @@
                             <th scope="col">Capacity (AH)</th>
                             <th scope="col">Warranty (month)</th>
                             <th scope="col">Retail Price (IDR)</th>
+                            <th scope="col">Buy Price (IDR)</th>
                         </tr>
                     </thead>
                 </table>
@@ -127,7 +128,7 @@
                     targets: [8, 9, 10, 11],
                     className: 'dt-body-right'
                 }, {
-                    targets: [12],
+                    targets: [13, 14],
                     className: 'table-col-price'
                 }, {
                     targets: [0, 1, -1],
@@ -217,14 +218,14 @@
                 language: getDatatablesLanguangeConfigurations("Battery"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[14] == 0) {
+                    if (data[16] == 0) {
                         $('td', row).addClass("text-muted");
                     }
                 }
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(14, "/battery/edit/", null, "/battery/toggle");
+            appendDatatablesToolbar(15, "/battery/edit/", null, "/battery/toggle");
 
             $("#btn-add").on("click", function() {
                 goToPage("/battery/create");

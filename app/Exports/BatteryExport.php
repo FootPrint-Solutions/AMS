@@ -33,7 +33,8 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
             'Standard CCA',
             'Capacity',
             'Warranty',
-            'Retail Price'
+            'Retail Price',
+            'Buy Price'
         ];
     }
 
@@ -55,6 +56,7 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
             $battery->capacity,
             $battery->warranty,
             $battery->price_retail,
+            $battery->price_buy,
         ];
     }
 

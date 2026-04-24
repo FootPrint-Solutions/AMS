@@ -207,6 +207,7 @@ class Battery extends Controller
             $row[] = $key->capacity;
             $row[] = $key->warranty;
             $row[] = formatPrice($key->price_retail);
+            $row[] = formatPrice($key->price_buy);
             $row[] = $key->id;
             $row[] = $key->status;
             $rows[] = $row;
@@ -314,6 +315,7 @@ class Battery extends Controller
                 $battery->warranty = $request->warranty;
 
             $battery->price_retail = (float) str_replace(".", "", $request->price);
+            $battery->price_buy = (float) str_replace(".", "", $request->price_buy);
 
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
@@ -505,6 +507,7 @@ class Battery extends Controller
             if (isset($request->warranty))
                 $battery->warranty = $request->warranty;
             $battery->price_retail = (float) str_replace(".", "", $request->price);
+            $battery->price_buy = (float) str_replace(".", "", $request->price_buy);
 
             // Check if an image has been uploaded or not.
             if ($request->hasFile('image')) {
