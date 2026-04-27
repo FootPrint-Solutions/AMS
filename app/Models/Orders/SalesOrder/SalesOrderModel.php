@@ -163,8 +163,9 @@ class SalesOrderModel extends Model implements Auditable
     {
         // Get the latest added code.
         $latestCode = self::withTrashed()
-            ->orderByDesc('created_at')
-            ->first()?->sales_order_number ?? null;
+            ->where('sales_order_number', 'like', 'AK%')
+            ->orderByDesc('sales_order_number')
+            ->value('sales_order_number');
 
         // Generate the new sales order code.
         $year = substr($latestCode, 2, 2);

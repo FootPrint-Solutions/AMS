@@ -300,11 +300,10 @@ class SalesOrder extends Controller
             $row[] = $key->customer_name ?? $key->vendorData->name ?? "<p class='text-center'>-</p>";
             $row[] = $key->vehicle_name ?? $key->shipToData->name ?? "<p class='text-center'>-</p>";
             if ($key->type == 'recycle') {
-                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+                $row[] = $key->shop_name ? "$key->shop_name" : "<p class='text-center'>-</p>";
             } else {
-                $row[] = $key->shop_name ? "$key->distributor_name/$key->shop_name" : "<p class='text-center'>-</p>";
+                $row[] = $key->shop_name ? "$key->shop_name" : "<p class='text-center'>-</p>";
             }
-            $row[] = $key->technician_name ?? "<p class='text-center'>-</p>";
             $row[] = formatPrice($key->total);
             $row[] = "<span class='badge $paymentStatusBadgeClass'>$key->payment_status</span>" . $paymentMethodBadge . $sourcePlatformBadge;
             $row[] = "<span class='badge $statusBadgeClass'>$key->status</span>";
