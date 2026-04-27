@@ -27,6 +27,109 @@
             justify-content: center;
             align-items: center;
         }
+
+        @media (max-width: 991.98px) {
+            .card:hover {
+                transform: none;
+            }
+
+            .page-sub-header {
+                margin-bottom: 1rem;
+            }
+
+            .page-sub-header .page-title {
+                font-size: 1.25rem;
+                line-height: 1.4;
+            }
+
+            .breadcrumb {
+                margin-bottom: 0;
+                font-size: 0.85rem;
+                flex-wrap: wrap;
+            }
+
+            #chart-revenue {
+                height: 240px !important;
+            }
+
+            #chart-revenue .apexcharts-xaxis-label {
+                font-size: 10px;
+            }
+
+            .card .card-body {
+                padding: 1rem;
+            }
+
+            .row .col-xl-3.col-sm-6.col-12.d-flex {
+                margin-bottom: 0.75rem;
+            }
+
+            .db-widgets {
+                gap: 0.75rem;
+            }
+
+            .db-info h6 {
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .db-info h3 {
+                font-size: 1.15rem;
+                word-break: break-word;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+
+            .chart-list-out {
+                width: 100%;
+            }
+
+            #item-menus-promo {
+                display: flex;
+                width: 100%;
+                padding: 0;
+            }
+
+            #item-menus-promo .btn {
+                flex: 1;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #table-promo {
+                min-width: 560px;
+            }
+
+            #table-promo td,
+            #table-promo th {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .page-sub-header .page-title {
+                font-size: 1.05rem;
+            }
+
+            .form-label {
+                font-size: 0.85rem;
+                margin-bottom: 0.35rem;
+            }
+
+            #start-date,
+            #end-date {
+                min-height: 42px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 
     @if (session('error'))
@@ -41,7 +144,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="d-none d-lg-block">
+                    <div>
                         <div class="page-sub-header">
                             <h3 class="page-title">Welcome, @auth{{ Auth::user()->name }}@endauth!</h3>
 
@@ -56,7 +159,7 @@
         </div>
 
         {{-- Overview Row --}}
-        <div class="d-none d-lg-block">
+        <div>
             <div class="row">
                 {{-- add chart revenue --}}
                 <div class="col">
@@ -151,7 +254,7 @@
             </div>
         </div>
 
-        <div class="d-none d-lg-block">
+        <div>
             <div class="card flex-fill student-space comman-shadow">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title">Currently Active Promo</h5>
@@ -184,7 +287,6 @@
         </div>
     @endif
 
-    @include('Mobile.Dashboard.index')
     {{-- DataTables configuration --}}
     <script>
         var promoTable;
@@ -282,7 +384,24 @@
                     labels: {
                         formatter: value => rupiahFormatter.format(value)
                     }
-                }
+                },
+                responsive: [{
+                    breakpoint: 768,
+                    options: {
+                        chart: {
+                            height: 260
+                        },
+                        xaxis: {
+                            labels: {
+                                rotate: -30,
+                                hideOverlappingLabels: true
+                            }
+                        },
+                        stroke: {
+                            width: 2
+                        }
+                    }
+                }]
             };
 
             if (chartRevenue) {
