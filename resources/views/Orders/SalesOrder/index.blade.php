@@ -143,8 +143,7 @@
                                 <th scope="col">Date</th>
                                 <th scope="col">Customer</th>
                                 <th scope="col">Vehicle</th>
-                                <th scope="col">Distributor/Shop</th>
-                                <th scope="col">Technician</th>
+                                <th scope="col">Shop</th>
                                 <th scope="col">Total (IDR)</th>
                                 <th scope="col">Payment Status</th>
                                 <th scope="col">Status</th>
@@ -289,7 +288,7 @@
                                 });
                                 return;
                             }
-                            let id = selectedRows[0][12];
+                            let id = selectedRows[0][11];
                             goToPage("/sales-order/edit/" + id);
                         }
                     },
@@ -310,7 +309,7 @@
                                 });
                                 return;
                             }
-                            let ids = selectedRows.map(row => row[12]);
+                            let ids = selectedRows.map(row => row[11]);
                             sendDestroyRequest(ids, "/sales-order/delete", function() {
                                 // Reload the index table.
                                 table.ajax.reload();
@@ -328,7 +327,7 @@
                             }).data().toArray();
 
                             // Show modal more action
-                            showModalMoreAction(selectedRows[0][12], selectedRows[0][12]);
+                            showModalMoreAction(selectedRows[0][11], selectedRows[0][11]);
                         }
                     },
                 ]),
@@ -353,7 +352,7 @@
                     tr.removeClass('shown');
                 } else {
                     // Open this row
-                    var salesOrderId = row.data()[12];
+                    var salesOrderId = row.data()[11];
 
                     // Fetch items via AJAX
                     $.ajax({
