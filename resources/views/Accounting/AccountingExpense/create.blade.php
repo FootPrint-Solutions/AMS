@@ -55,7 +55,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group local-forms">
-                            <label for="account_id">Debet Account <span class="login-danger">*</span></label>
+                            <label for="account_id"> Account <span class="login-danger">*</span></label>
                             <select class="form-control" id="account_id" name="account_id" required>
                                 <option value="">Select Account</option>
                                 @foreach ($data['chartOfAccounts'] as $coa)
@@ -232,11 +232,32 @@
             `;
         }
 
+        function initSelect2IfAvailable($element, placeholderText) {
+            if (!$.fn || typeof $.fn.select2 !== 'function') {
+                return;
+            }
+
+            if ($element.hasClass('select2-hidden-accessible')) {
+                $element.select2('destroy');
+            }
+
+            $element.select2({
+                placeholder: placeholderText,
+                allowClear: true,
+                width: '100%'
+            });
+        }
+
         $(document).ready(function() {
+            initSelect2IfAvailable($('#account_id'), 'Select Debit Account');
+            initSelect2IfAvailable($('.detail-account'), 'Select Account');
+
             recalculateGrandTotal();
 
             $('#btn-add-row').on('click', function() {
-                $('#table-expense-detail tbody').append(buildDetailRow());
+                const $newRow = $(buildDetailRow());
+                $('#table-expense-detail tbody').append($newRow);
+                initSelect2IfAvailable($newRow.find('.detail-account'), 'Select Account');
             });
 
             $(document).on('click', '.btn-delete-row', function() {

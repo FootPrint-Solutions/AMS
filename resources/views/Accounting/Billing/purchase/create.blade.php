@@ -1168,6 +1168,18 @@
                 }
             });
 
+            $('#debit_account').select2({
+                placeholder: "Select Debit Account",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#credit_account').select2({
+                placeholder: "Select Credit Account",
+                allowClear: true,
+                width: '100%'
+            });
+
             // Initialize values for edit mode
             if (isEditMode) {
                 $('#discount-price-value').val(editDiscountPrice.toLocaleString('id-ID'));
