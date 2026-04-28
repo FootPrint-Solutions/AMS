@@ -660,61 +660,50 @@
                  }
                  $('.loop').html(html);
 
-                 var inventoryRequests = data.map(function(vehicle) {
-                     return $.ajax({
-                         url: "/inventory/get/" + vehicle.code,
-                         type: "GET",
-                         success: function(data) {
-                             // jika data 0 atau - atau null maka disable checkbox 
-                             if (data == 0 || data == '-' || data == null) {
-                                 if (ignoreStock) {
-                                     $(".btn-owl-carousel-check-" + vehicle.id).prop(
-                                         'disabled',
-                                         false);
-                                 } else {
-                                     $(".btn-owl-carousel-check-" + vehicle.id).prop(
-                                         'disabled',
-                                         true);
-                                 }
-                             } else {
-                                 $(".btn-owl-carousel-check-" + vehicle.id).prop(
-                                     'disabled',
-                                     false);
-                             }
-
-                             // set stock
-                             $("#stock" + vehicle.id).html("Stock : " + data);
-                             // show code battery
-                             if (vehicle.code != null) {
-                                 $("#stock" + vehicle.id).append("<br>ID : " +
-                                     vehicle.code);
-                             } else {
-                                 $("#stock" + vehicle.id).append("<br>ID : -");
-                             }
-
-                             // insert data to vehicle
-                             vehicle.stock = data;
+                 // Process stock information from response data
+                 data.forEach(function(vehicle) {
+                     // jika data 0 atau - atau null maka disable checkbox 
+                     if (vehicle.stock == 0 || vehicle.stock == '-' || vehicle.stock == null) {
+                         if (ignoreStock) {
+                             $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                                 'disabled',
+                                 false);
+                         } else {
+                             $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                                 'disabled',
+                                 true);
                          }
-                     });
+                     } else {
+                         $(".btn-owl-carousel-check-" + vehicle.id).prop(
+                             'disabled',
+                             false);
+                     }
+
+                     // set stock
+                     $("#stock" + vehicle.id).html("Stock : " + vehicle.stock);
+                     // show code battery
+                     if (vehicle.code != null) {
+                         $("#stock" + vehicle.id).append("<br>ID : " +
+                             vehicle.code);
+                     } else {
+                         $("#stock" + vehicle.id).append("<br>ID : -");
+                     }
                  });
 
-                 $.when.apply($, inventoryRequests).done(function() {
-                     var owl = $('.loop');
-                     owl.owlCarousel({
-                         items: 2,
-                         loop: false,
-                         margin: 10,
-                         dots: true,
-                         responsive: {
-                             600: {
-                                 items: 4
-                             }
-                         },
-                     });
-
-                     $("#ResultRecommendationBatteryVehicleMobile").html('');
+                 var owl = $('.loop');
+                 owl.owlCarousel({
+                     items: 2,
+                     loop: false,
+                     margin: 10,
+                     dots: true,
+                     responsive: {
+                         600: {
+                             items: 4
+                         }
+                     },
                  });
 
+                 $("#ResultRecommendationBatteryVehicleMobile").html('');
 
              },
              error: function() {

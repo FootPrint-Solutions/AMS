@@ -56,13 +56,13 @@
                         <div class="input-group">
                             <input type="file" name="file" class="form-control form-control-sm" required
                                 accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                            <button type="submit" class="btn btn-outline-success btn-sm" id='btn-import'>
-                                <i class="fa-solid fa-file-import"></i> Import Battery Data</button>
+                            {{-- <button type="submit" class="btn btn-outline-success btn-sm" id='btn-import'>
+                                <i class="fa-solid fa-file-import"></i> Import Battery Data</button> --}}
                             <button type="button" class="btn btn-outline-danger btn-sm" id='btn-import-price'>
-                                <i class="fa-solid fa-dollar"></i> Import Battery Price</button>
-                            <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
+                                <i class="fa-solid fa-dollar"></i> Import Battery Data Price</button>
+                            {{-- <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
-                                Download Sample Import Data</a>
+                                Download Sample Import Data</a> --}}
                         </div>
                     </div>
                 </div>
