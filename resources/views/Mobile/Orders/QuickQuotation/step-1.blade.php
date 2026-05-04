@@ -630,19 +630,21 @@
                  } else {
 
                      data.forEach(function(vehicle, index) {
-                         html += '<div class="item product-card">';
+                         html +=
+                             '<div class="item product-card" style="height: 320px; display: flex; flex-direction: column; justify-content: space-between;">';
                          if (vehicle.image == null) {
                              html +=
-                                 '<img src="https://placehold.co/150" alt="" class="image-carousel">';
+                                 '<img src="https://placehold.co/150" alt="" class="image-carousel" style="width: 150px; height: 150px; object-fit: cover; margin: 0 auto;">';
                          } else {
                              var baseUrl = "{{ asset('storage/image/battery/') }}";
                              vehicle.image = vehicle.image;
                              html += '<img src="' + baseUrl + '/' + vehicle.image +
-                                 '" alt="" class="image-carousel" width="150px" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150\';">';
+                                 '" alt="" class="image-carousel" width="150px" height="150px" style="object-fit: cover; margin: 0 auto;" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150\';">';
                          }
-                         html += '<div class="row mt-3">';
+                         html += '<div class="row mt-3" style="flex: 1;">';
                          html += '<div class="col">';
-                         html += '<div class="text-carousell">' + vehicle.name + '</div>';
+                         html += '<div class="text-carousell" style="min-height: 48px;">' + vehicle
+                             .name + '</div>';
                          html += '</div>';
                          html += '<div class="col-4">';
                          html +=
@@ -671,7 +673,7 @@
                          } else {
                              $(".btn-owl-carousel-check-" + vehicle.id).prop(
                                  'disabled',
-                                 true);
+                                 false);
                          }
                      } else {
                          $(".btn-owl-carousel-check-" + vehicle.id).prop(
@@ -679,14 +681,14 @@
                              false);
                      }
 
-                     // set stock
-                     $("#stock" + vehicle.id).html("Stock : " + vehicle.stock);
-                     // show code battery
-                     if (vehicle.code != null) {
-                         $("#stock" + vehicle.id).append("<br>ID : " +
-                             vehicle.code);
-                     } else {
-                         $("#stock" + vehicle.id).append("<br>ID : -");
+                     if (vehicle.id !== undefined && vehicle.id !== null) {
+                         $("#stock" + vehicle.id).html("Stock : " + (vehicle.stock || '-'));
+                         if (vehicle.code != null) {
+                             $("#stock" + vehicle.id).append("<br>ID : " +
+                                 vehicle.code);
+                         } else {
+                             $("#stock" + vehicle.id).append("<br>ID : -");
+                         }
                      }
                  });
 
@@ -792,11 +794,12 @@
                      '<i class="fa fa-camera fa-md"></i> Capture'
                  );
                  $('#ModalScreenshotBodyMobile').html(data);
-                 // check apakah didalam #body-screenshoot ada table atau tidak
-                 // jika ada maka trigger click event
                  if ($('#body-screenshoot table').length > 0) {
                      $('#screenshoot-btn').trigger('click');
-                     $('#ModalScreenshotMobile').modal('show');
+                     $('#image-coppy').addClass('img-responsive img-thumbnail');
+                     if ($('#image-coppy').length > 0) {
+                         $('#ModalScreenshotMobile').modal('show');
+                     }
                  }
              }
          });
@@ -900,7 +903,8 @@
                      $("#product-recommendation-mobile-tab").css("display", "block");
 
                      data.forEach(function(vehicle, index) {
-                         html += '<div class="item product-card">';
+                         html +=
+                             '<div class="item product-card" style="height: 320px; display: flex; flex-direction: column; justify-content: space-between;">';
                          if (vehicle.image == null) {
                              html +=
                                  '<img src="https://via.placeholder.com/150" alt="" class="image-carousel">';
@@ -908,7 +912,7 @@
                              var baseUrl = "{{ asset('storage/image/battery/') }}";
                              vehicle.image = vehicle.image;
                              html += '<img src="' + baseUrl + '/' + vehicle.image +
-                                 '" alt="" class="image-carousel" width="150px">';
+                                 '" alt="" class="image-carousel" width="150px" >';
                          }
                          html += '<div class="row mt-3">';
                          html += '<div class="col">';
