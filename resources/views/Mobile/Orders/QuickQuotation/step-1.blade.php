@@ -630,19 +630,21 @@
                  } else {
 
                      data.forEach(function(vehicle, index) {
-                         html += '<div class="item product-card">';
+                         html +=
+                             '<div class="item product-card" style="height: 320px; display: flex; flex-direction: column; justify-content: space-between;">';
                          if (vehicle.image == null) {
                              html +=
-                                 '<img src="https://placehold.co/150" alt="" class="image-carousel">';
+                                 '<img src="https://placehold.co/150" alt="" class="image-carousel" style="width: 150px; height: 150px; object-fit: cover; margin: 0 auto;">';
                          } else {
                              var baseUrl = "{{ asset('storage/image/battery/') }}";
                              vehicle.image = vehicle.image;
                              html += '<img src="' + baseUrl + '/' + vehicle.image +
-                                 '" alt="" class="image-carousel" width="150px" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150\';">';
+                                 '" alt="" class="image-carousel" width="150px" height="150px" style="object-fit: cover; margin: 0 auto;" onerror="this.onerror=null; this.src=\'https://placehold.co/150x150\';">';
                          }
-                         html += '<div class="row mt-3">';
+                         html += '<div class="row mt-3" style="flex: 1;">';
                          html += '<div class="col">';
-                         html += '<div class="text-carousell">' + vehicle.name + '</div>';
+                         html += '<div class="text-carousell" style="min-height: 48px;">' + vehicle
+                             .name + '</div>';
                          html += '</div>';
                          html += '<div class="col-4">';
                          html +=
@@ -671,7 +673,7 @@
                          } else {
                              $(".btn-owl-carousel-check-" + vehicle.id).prop(
                                  'disabled',
-                                 true);
+                                 false);
                          }
                      } else {
                          $(".btn-owl-carousel-check-" + vehicle.id).prop(
@@ -679,14 +681,14 @@
                              false);
                      }
 
-                     // set stock
-                     $("#stock" + vehicle.id).html("Stock : " + vehicle.stock);
-                     // show code battery
-                     if (vehicle.code != null) {
-                         $("#stock" + vehicle.id).append("<br>ID : " +
-                             vehicle.code);
-                     } else {
-                         $("#stock" + vehicle.id).append("<br>ID : -");
+                     if (vehicle.id !== undefined && vehicle.id !== null) {
+                         $("#stock" + vehicle.id).html("Stock : " + (vehicle.stock || '-'));
+                         if (vehicle.code != null) {
+                             $("#stock" + vehicle.id).append("<br>ID : " +
+                                 vehicle.code);
+                         } else {
+                             $("#stock" + vehicle.id).append("<br>ID : -");
+                         }
                      }
                  });
 
@@ -754,11 +756,14 @@
          }
      });
 
-     $("#btn-screenshoot-mobile").click(function() {
-         let $btn = $(this);
-         $btn.prop("disabled", true);
+     $("#btn-screenshoot-mobile").on('click', async function() {
+         var $btn = $(this);
+         if ($btn.data('loading')) return;
+         $btn.data('loading', true);
+         $btn.prop('disabled', true);
+         var originalHtml = $btn.html();
          $btn.html(
-             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Capture'
          );
 
          // get all battery id selected in owl carousel
@@ -771,35 +776,54 @@
 
          if (batteryId.length == 0) {
              swal.fire("Error!", "Please select battery", "error").then(() => {
-                 $btn.prop("disabled", false);
-                 $btn.html(
-                     '<i class="fa fa-camera fa-md"></i> Capture'
-                 );
+                 $btn.data('loading', false);
+                 $btn.prop('disabled', false);
+                 $btn.html(originalHtml);
              });
              return false;
          }
 
-         $.ajax({
-             url: "/quotation/battery/screenshot",
-             type: "POST",
-             data: {
-                 Battery: batteryId,
-                 _token: $('meta[name="csrf-token"]').attr('content')
-             },
-             success: function(data) {
-                 $btn.prop("disabled", false);
-                 $btn.html(
-                     '<i class="fa fa-camera fa-md"></i> Capture'
-                 );
-                 $('#ModalScreenshotBodyMobile').html(data);
-                 // check apakah didalam #body-screenshoot ada table atau tidak
-                 // jika ada maka trigger click event
-                 if ($('#body-screenshoot table').length > 0) {
-                     $('#screenshoot-btn').trigger('click');
+         try {
+             const formData = new FormData();
+             batteryId.forEach(id => formData.append('Battery[]', id));
+             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+             const controller = new AbortController();
+             const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+             const res = await fetch('/quotation/battery/screenshot', {
+                 method: 'POST',
+                 body: formData,
+                 signal: controller.signal
+             });
+
+             clearTimeout(timeout);
+
+             if (!res.ok) throw new Error('Network response was not ok');
+
+             const data = await res.text();
+             $('#ModalScreenshotBodyMobile').html(data);
+             if ($('#body-screenshoot table').length > 0) {
+                 $('#screenshoot-btn').trigger('click');
+                 $('#image-coppy').addClass('img-responsive img-thumbnail');
+                 if ($('#image-coppy').length > 0) {
+                     console.log('Image found, showing modal');
                      $('#ModalScreenshotMobile').modal('show');
                  }
+             } else {
+                 swal.fire('Info', 'No screenshot content returned', 'info');
              }
-         });
+         } catch (err) {
+             if (err.name === 'AbortError') {
+                 swal.fire('Error!', 'Request timed out. Please try again.', 'error');
+             } else {
+                 swal.fire('Error!', 'Error capturing screenshot', 'error');
+             }
+         } finally {
+             $btn.data('loading', false);
+             $btn.prop('disabled', false);
+             $btn.html(originalHtml);
+         }
      });
 
      $("#btn-copy-text-mobile").click(function() {
@@ -900,7 +924,8 @@
                      $("#product-recommendation-mobile-tab").css("display", "block");
 
                      data.forEach(function(vehicle, index) {
-                         html += '<div class="item product-card">';
+                         html +=
+                             '<div class="item product-card" style="height: 320px; display: flex; flex-direction: column; justify-content: space-between;">';
                          if (vehicle.image == null) {
                              html +=
                                  '<img src="https://via.placeholder.com/150" alt="" class="image-carousel">';
@@ -908,7 +933,7 @@
                              var baseUrl = "{{ asset('storage/image/battery/') }}";
                              vehicle.image = vehicle.image;
                              html += '<img src="' + baseUrl + '/' + vehicle.image +
-                                 '" alt="" class="image-carousel" width="150px">';
+                                 '" alt="" class="image-carousel" width="150px" >';
                          }
                          html += '<div class="row mt-3">';
                          html += '<div class="col">';

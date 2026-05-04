@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- Custom CSS  MOBILE RESPONSIVE --}}
-    <link rel="stylesheet" href="{{ asset('/css/quick-quotation.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/quick-quotation.css?v=' . time()) }}">
     {{-- Title --}}
 
 
