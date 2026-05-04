@@ -756,11 +756,14 @@
          }
      });
 
-     $("#btn-screenshoot-mobile").click(function() {
-         let $btn = $(this);
-         $btn.prop("disabled", true);
+     $("#btn-screenshoot-mobile").on('click', async function() {
+         var $btn = $(this);
+         if ($btn.data('loading')) return;
+         $btn.data('loading', true);
+         $btn.prop('disabled', true);
+         var originalHtml = $btn.html();
          $btn.html(
-             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Capture'
          );
 
          // get all battery id selected in owl carousel
@@ -773,36 +776,54 @@
 
          if (batteryId.length == 0) {
              swal.fire("Error!", "Please select battery", "error").then(() => {
-                 $btn.prop("disabled", false);
-                 $btn.html(
-                     '<i class="fa fa-camera fa-md"></i> Capture'
-                 );
+                 $btn.data('loading', false);
+                 $btn.prop('disabled', false);
+                 $btn.html(originalHtml);
              });
              return false;
          }
 
-         $.ajax({
-             url: "/quotation/battery/screenshot",
-             type: "POST",
-             data: {
-                 Battery: batteryId,
-                 _token: $('meta[name="csrf-token"]').attr('content')
-             },
-             success: function(data) {
-                 $btn.prop("disabled", false);
-                 $btn.html(
-                     '<i class="fa fa-camera fa-md"></i> Capture'
-                 );
-                 $('#ModalScreenshotBodyMobile').html(data);
-                 if ($('#body-screenshoot table').length > 0) {
-                     $('#screenshoot-btn').trigger('click');
-                     $('#image-coppy').addClass('img-responsive img-thumbnail');
-                     if ($('#image-coppy').length > 0) {
-                         $('#ModalScreenshotMobile').modal('show');
-                     }
+         try {
+             const formData = new FormData();
+             batteryId.forEach(id => formData.append('Battery[]', id));
+             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+             const controller = new AbortController();
+             const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+             const res = await fetch('/quotation/battery/screenshot', {
+                 method: 'POST',
+                 body: formData,
+                 signal: controller.signal
+             });
+
+             clearTimeout(timeout);
+
+             if (!res.ok) throw new Error('Network response was not ok');
+
+             const data = await res.text();
+             $('#ModalScreenshotBodyMobile').html(data);
+             if ($('#body-screenshoot table').length > 0) {
+                 $('#screenshoot-btn').trigger('click');
+                 $('#image-coppy').addClass('img-responsive img-thumbnail');
+                 if ($('#image-coppy').length > 0) {
+                     console.log('Image found, showing modal');
+                     $('#ModalScreenshotMobile').modal('show');
                  }
+             } else {
+                 swal.fire('Info', 'No screenshot content returned', 'info');
              }
-         });
+         } catch (err) {
+             if (err.name === 'AbortError') {
+                 swal.fire('Error!', 'Request timed out. Please try again.', 'error');
+             } else {
+                 swal.fire('Error!', 'Error capturing screenshot', 'error');
+             }
+         } finally {
+             $btn.data('loading', false);
+             $btn.prop('disabled', false);
+             $btn.html(originalHtml);
+         }
      });
 
      $("#btn-copy-text-mobile").click(function() {
