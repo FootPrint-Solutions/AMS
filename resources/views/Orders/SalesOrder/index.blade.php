@@ -334,9 +334,9 @@
                 language: getDatatablesLanguangeConfigurations("Sales Order"),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[12] == "posted")
+                    if (data[11] == "posted")
                         $('td', row).addClass("text-success");
-                    else if (data[12] == "completed")
+                    else if (data[11] == "completed")
                         $('td', row).addClass("text-info");
                 }
             });
@@ -535,12 +535,12 @@
                 method: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    id: selectedRows[0][12]
+                    id: selectedRows[0][11]
                 },
                 success: function(response) {
                     if (response.status == 'success') {
                         // Redirect to create sales invoice page.
-                        goToPage(url + "/" + selectedRows[0][12]);
+                        goToPage(url + "/" + selectedRows[0][11]);
                     } else {
                         Swal.fire({
                             title: "Error",
@@ -583,7 +583,7 @@
                 return;
             }
 
-            var ids = selectedRows.map(row => row[12]);
+            var ids = selectedRows.map(row => row[11]);
 
             $.ajax({
                 url: "/sales-order/post",
@@ -843,7 +843,7 @@
                 return;
             }
 
-            var salesOrderIds = selectedRows.map(row => row[12]);
+            var salesOrderIds = selectedRows.map(row => row[11]);
             var salesOrderNumbers = selectedRows.map(row => row[2]);
             salesOrderNumbers = salesOrderNumbers.map(num => num.replace(/<span[^>]*>.*?<\/span>/gi, '').trim());
             var salesOrderNumbersString = salesOrderNumbers.join(", ");
