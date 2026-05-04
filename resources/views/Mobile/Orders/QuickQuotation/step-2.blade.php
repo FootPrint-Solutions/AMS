@@ -455,7 +455,9 @@
                             discountPrice;
                         var FormatPriceNet = new Intl.NumberFormat('id-ID', {
                             style: 'currency',
-                            currency: 'IDR'
+                            currency: 'IDR',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
                         }).format(batteryNetPriceTax);
 
                         html += '<div class="item-detail d-flex align-items-center">';

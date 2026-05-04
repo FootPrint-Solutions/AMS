@@ -6,7 +6,8 @@
         <div class="card-body">
             <div class="container">
                 <h5 id="full_name_customer_checkout_mobile"></h5>
-                <h5 id="address_customer_checkout_mobile"></h5>, <h5 id="address_customer_checkout_mobile_alternative"></h5>
+                <h5 id="address_customer_checkout_mobile"></h5>, <h5 id="address_customer_checkout_mobile_alternative">
+                </h5>
                 <h5><span id="email_customer_checkout_mobile"></span>, <span id="number_customer_checkout_mobile"></span>
                 </h5>
             </div>
@@ -40,87 +41,58 @@
     </div>
     <div class="card bg-stabilo mt-3">
         <div class="card-body">
-            <div class="">
-                <h4>Partner Detail</h4>
-                <div class="row">
-                    <div class="col">
-                        <h6>
-                            Distributor Shop Name
-                        </h6>
-                    </div>
-                    <div class="col">
-                        <h6 id="distributor_shop_name_checkout_mobile">
-
-                        </h6>
-                    </div>
+            <h4 class="mb-4">Partner Detail</h4>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <small class="text-light">Distributor Shop Name</small>
+                    <h6 id="distributor_shop_name_checkout_mobile" class="fw-bold"></h6>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <h6>
-                            Address Distributor / Shop
-                        </h6>
-                    </div>
-                    <div class="col">
-                        <h6 id="address_distributor_checkout_mobile">
-                        </h6>
-                    </div>
+                <div class="col-6"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small class="text-light">Address Distributor / Shop</small>
+                    <h6 id="address_distributor_checkout_mobile" class="fw-bold"></h6>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <h6>
-                            Technicians
-                        </h6>
-                    </div>
-                    <div class="col">
-                        <select name="technicians_checkout_mobile" id="technicians_checkout_mobile">
-                            <option value="">Select Technicians</option>
-                        </select>
-                    </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small class="text-light">Technicians</small>
+                    <select name="technicians_checkout_mobile" id="technicians_checkout_mobile"
+                        class="form-select form-select-sm">
+                        <option value="">Select Technicians</option>
+                    </select>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <h6>
-                            Mechanic Phone
-                        </h6>
-                    </div>
-                    <div class="col">
-                        <h6 id="mechanic_phone_checkout_mobile">
-
-                        </h6>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <small class="text-light">Mechanic Phone</small>
+                    <h6 id="mechanic_phone_checkout_mobile" class="fw-bold"></h6>
                 </div>
             </div>
         </div>
     </div>
     <div class="card bg-stabilo mt-3">
         <div class="card-body">
-            <div class="">
-                <h4>Summary</h4>
-                <div class="row">
-                    <div class="col">
-                        <h6>
-                            Subtotal
-                        </h6>
-                    </div>
-                    <div class="col">
-                        <input type="hidden" name="subtotal_hidden_checkout_mobile"
-                            id="subtotal_hidden_checkout_mobile">
-                        <h6 id="subtotal_checkout_mobile">
-
-                        </h6>
-                    </div>
+            <h4 class="mb-4">Summary</h4>
+            <div class="row mb-2 align-items-center">
+                <div class="col-6">
+                    <small class="text-light">Subtotal</small>
                 </div>
-                {{-- dot white hr --}}
-                <div class="dot-white-hr"></div>
-                <div class="row">
-                    <div class="col">
-                        <h5>Grand Total</h5>
-                    </div>
-                    <div class="col">
-                        <h5 id="total_amount_checkout_mobile"></h5>
-                        <input type="hidden" name="total_amount_hidden_checkout_mobile"
-                            id="total_amount_hidden_checkout_mobile">
-                    </div>
+                <div class="col-6 text-end">
+                    <input type="hidden" name="subtotal_hidden_checkout_mobile" id="subtotal_hidden_checkout_mobile">
+                    <h6 id="subtotal_checkout_mobile" class="fw-bold mb-0"></h6>
+                </div>
+            </div>
+            <hr class="my-2">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <h5 class="mb-0">Grand Total</h5>
+                </div>
+                <div class="col-6 text-end">
+                    <h5 id="total_amount_checkout_mobile" class="mb-0"></h5>
+                    <input type="hidden" name="total_amount_hidden_checkout_mobile"
+                        id="total_amount_hidden_checkout_mobile">
                 </div>
             </div>
         </div>
@@ -150,129 +122,103 @@
     aria-labelledby="battery_detail_checkout_mobile" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="battery_detail_checkout_mobile">Battery Detail</h5>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="battery_detail_checkout_mobile">Battery Detail</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <div class="row">
-                    <div class="col">
-                        <img src="" alt="" id="image_battery_checkout_mobile"
-                            style="width: 100px; height: 100px;">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        Battery
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col" id="name_battery_detail_mobile_checkout">
-
-                    </div>
+            <div class="modal-body">
+                {{-- battery image --}}
+                <div class="text-center mb-4">
+                    <img src="" alt="" id="image_battery_checkout_mobile"
+                        style="width: 120px; height: 120px; object-fit: contain;">
                 </div>
 
-                {{-- qty  --}}
-                <div class="row">
-                    <div class="col">
-                        Qty
+                <div class="card border-0 shadow-sm p-3">
+                    {{-- Battery Name --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-2">Battery Name</label>
+                        <div id="name_battery_detail_mobile_checkout" class="text-muted ps-2"></div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
+
+                    {{-- qty  --}}
+                    <div class="mb-3">
+                        <label for="qty_battery_detail_input_mobile_checkout"
+                            class="form-label fw-semibold">Quantity</label>
                         <input type="number" name="qty_battery_detail_input_mobile_checkout"
-                            id="qty_battery_detail_input_mobile_checkout" value="1" class="form-control">
+                            id="qty_battery_detail_input_mobile_checkout" value="1" class="form-control"
+                            min="1">
                     </div>
-                </div>
 
-                {{-- Gross Price --}}
-                <div class="row">
-                    <div class="col">
-                        Gross Price
+                    {{-- Gross Price --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-2">Gross Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <span id="price_battery_detail_mobile_checkout" class="form-control text-end"
+                                readonly></span>
+                            <input type="hidden" name="price_battery_detail_input_mobile_checkout"
+                                id="price_battery_detail_input_mobile_checkout">
+                        </div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <span id="price_battery_detail_mobile_checkout"></span>
-                        <input type="hidden" name="price_battery_detail_input_mobile_checkout"
-                            id="price_battery_detail_input_mobile_checkout">
-                    </div>
-                </div>
 
-                {{-- Tax --}}
-                <div class="row">
-                    <div class="col">
-                        Tax
+                    {{-- Tax --}}
+                    <div class="mb-3">
+                        <label for="tax_battery_detail_input_mobile_checkout"
+                            class="form-label fw-semibold">Tax</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" name="tax_battery_detail_input_mobile_checkout"
+                                id="tax_battery_detail_input_mobile_checkout" value="" readonly
+                                class="form-control text-end">
+                        </div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="text" name="tax_battery_detail_input_mobile_checkout"
-                            id="tax_battery_detail_input_mobile_checkout" value="" readonly
-                            class="form-control">
-                    </div>
-                </div>
 
-                {{-- Price + Tax  --}}
-                <div class="row">
-                    <div class="col">
-                        Price + Tax
+                    {{-- Price + Tax  --}}
+                    <div class="mb-3">
+                        <label for="battery_price_tax_detail_input_mobile_checkout"
+                            class="form-label fw-semibold">Price + Tax</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" name="battery_price_tax_detail_input_mobile_checkout"
+                                id="battery_price_tax_detail_input_mobile_checkout" value="0" readonly
+                                class="form-control text-end bg-light">
+                        </div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="text" name="battery_price_tax_detail_input_mobile_checkout"
-                            id="battery_price_tax_detail_input_mobile_checkout" value="0" readonly
-                            class="form-control">
-                    </div>
-                </div>
 
-                {{-- discount --}}
-                <div class="row">
-                    <div class="col">
-                        Diskon (Rp)
+                    {{-- discount --}}
+                    <div class="mb-3">
+                        <label for="discount_battery_detail_input_mobile_checkout"
+                            class="form-label fw-semibold">Discount (Rp)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" name="discount_battery_detail_input_mobile_checkout"
+                                id="discount_battery_detail_input_mobile_checkout" value="0"
+                                class="form-control text-end" min="0">
+                        </div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="number" name="discount_battery_detail_input_mobile_checkout"
-                            id="discount_battery_detail_input_mobile_checkout" value="0" class="form-control">
-                    </div>
-                </div>
 
-                {{-- Net Price --}}
-                <div class="row">
-                    <div class="col">
-                        Net Price
+                    {{-- Net Price --}}
+                    <div class="mb-3">
+                        <label for="net_price_battery_detail_input_mobile_checkout" class="form-label fw-semibold">Net
+                            Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" name="net_price_battery_detail_input_mobile_checkout"
+                                id="net_price_battery_detail_input_mobile_checkout" value="0" readonly
+                                class="form-control text-end bg-light">
+                        </div>
                     </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="text" name="net_price_battery_detail_input_mobile_checkout"
-                            id="net_price_battery_detail_input_mobile_checkout" value="0" readonly
-                            class="form-control">
-                    </div>
-                </div>
 
-                {{-- subtotal  --}}
-                <div class="row">
-                    <div class="col">
-                        Subtotal
-                    </div>
-                    <div class="col">
-                        :
-                    </div>
-                    <div class="col">
-                        <input type="text" name="subtotal_battery_detail_input_mobile_checkout"
-                            id="subtotal_battery_detail_input_mobile_checkout" value="0" readonly
-                            class="form-control">
+                    {{-- subtotal  --}}
+                    <div class="mb-3">
+                        <label for="subtotal_battery_detail_input_mobile_checkout"
+                            class="form-label fw-semibold">Subtotal</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" name="subtotal_battery_detail_input_mobile_checkout"
+                                id="subtotal_battery_detail_input_mobile_checkout" value="0" readonly
+                                class="form-control text-end bg-light fw-bold">
+                        </div>
                     </div>
                 </div>
 
@@ -403,14 +349,18 @@
         $("#subtotal_hidden_checkout_mobile").val(subtotal);
         formatSubtotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
-            currency: 'IDR'
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         }).format(subtotal);
         $("#subtotal_checkout_mobile").text(formatSubtotal);
 
         $("#total_amount_hidden_checkout_mobile").val(subtotal);
         formatTotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
-            currency: 'IDR'
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         }).format(subtotal);
         $("#total_amount_checkout_mobile").text(formatTotal);
     }
@@ -447,11 +397,22 @@
                 res.image = baseUrl + '/' + res.image;
 
 
-                $("#image_battery_checkout_mobile").attr('src', res.image);
+                // set image, fallback to placeholder if missing or fails to load
+                var placeholderImg = "https://placehold.co/120x120?text=No+Image&bg=cccccc&fg=757575";
+                if (res.image && res.image.trim() !== '') {
+                    $("#image_battery_checkout_mobile").off('error').attr('src', res.image).on('error',
+                        function() {
+                            $(this).attr('src', placeholderImg);
+                        });
+                } else {
+                    $("#image_battery_checkout_mobile").off('error').attr('src', placeholderImg);
+                }
                 $("#name_battery_detail_mobile_checkout").text(res.name);
                 formatPriceRetail = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
-                    currency: 'IDR'
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
                 }).format(res.price_retail);
                 $("#price_battery_detail_mobile_checkout").text(formatPriceRetail);
                 $("#price_battery_detail_input_mobile_checkout").val(res.price_retail);
@@ -461,7 +422,9 @@
                 var pricetax = res.price_retail + (res.price_retail * response.tax / 100);
                 formatPriceTax = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
-                    currency: 'IDR'
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
                 }).format(pricetax);
                 $("#battery_price_tax_detail_input_mobile_checkout").val(formatPriceTax);
                 $("#discount_battery_detail_input_mobile_checkout").val(res.battery_prices[0]
@@ -471,7 +434,9 @@
                 var netPrice = res.price_retail - res.battery_prices[0].discount_price;
                 var formatNetPrice = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
-                    currency: 'IDR'
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
                 }).format(netPrice);
                 $("#net_price_battery_detail_input_mobile_checkout").val(formatNetPrice);
 
@@ -498,7 +463,9 @@
 
         formatSubtotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
-            currency: 'IDR'
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         }).format(subtotal);
         $("#subtotal_battery_detail_input_mobile_checkout").val(formatSubtotal);
         $("#net_price_battery_detail_input_mobile_checkout").val(formatSubtotal);
@@ -686,10 +653,13 @@
                     $("#number_customer_payment_details_mobile").text(ContactNumber);
                     $("#email_customer_payment_details_mobile").text(EmailCustomer);
                     $("#address_customer_payment_details_mobile").text(AddressCustomer);
-                    $("#address_customer_payment_details_mobile_alternative").text(AddressCustomerAlternative);
+                    $("#address_customer_payment_details_mobile_alternative").text(
+                        AddressCustomerAlternative);
                     formatTotalAmount = new Intl.NumberFormat('id-ID', {
                         style: 'currency',
-                        currency: 'IDR'
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
                     }).format(TotalAmountHidden);
                     $("#grand_total_payment_details_mobile").text(formatTotalAmount);
                     $("#invoice_number_payment_details_mobile").text(response.data
@@ -704,13 +674,23 @@
                         baseUrl = "{{ asset('storage/image/battery/') }}";
                         battery.image = baseUrl + '/' + battery.image;
 
+                        // Check if image exists, if not use placeholder
+                        var imageUrl = battery.image;
+                        var img = new Image();
+                        img.onload = function() {};
+                        img.onerror = function() {
+                            imageUrl =
+                                "https://placehold.co/70x70?text=No+Image&bg=cccccc&fg=757575";
+                        };
+                        img.src = battery.image;
+
                         batteryHtml += `
                             <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
                                 <div class="d-flex align-items-center">
-                                    <img src="${battery.image}" alt="Product Image" class="img-fluid" style="width: 70px; margin-left: 10px;">
+                                    <img src="${imageUrl}" alt="Product Image" class="img-fluid" style="width: 70px; margin-right: 12px;" onerror="this.src='https://placehold.co/70x70?text=No+Image&bg=cccccc&fg=757575';">
                                     <div class="ml-3">
                                         <h6 class="mb-1">${battery.name}</h6>
-                                        <p class="mb-0">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price)}</p>
+                                        <p class="mb-0">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price)}</p>
                                     </div>
                                 </div>
                                 <span>X${qty}</span>
