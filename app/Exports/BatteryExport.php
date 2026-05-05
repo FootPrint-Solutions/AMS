@@ -19,7 +19,8 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
     public function headings(): array
     {
         return [
-            'ID',
+            'Battery ID',
+            'Battery Code',
             'Name',
             'Alternate Name',
             'Brand',
@@ -41,6 +42,7 @@ class BatteryExport implements FromCollection, WithHeadings, WithMapping, WithCu
     public function map($battery): array
     {
         return [
+            $battery->id,
             $battery->code->code ?? "",
             $battery->name,
             $battery->name_alternate,
