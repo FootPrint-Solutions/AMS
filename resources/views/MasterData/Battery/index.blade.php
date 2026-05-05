@@ -58,7 +58,7 @@
                                 accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                             {{-- <button type="submit" class="btn btn-outline-success btn-sm" id='btn-import'>
                                 <i class="fa-solid fa-file-import"></i> Import Battery Data</button> --}}
-                            <button type="button" class="btn btn-outline-danger btn-sm" id='btn-import-price'>
+                            <button type="button" class="btn btn-outline-danger btn-sm" id='btn-import-price-ajax'>
                                 <i class="fa-solid fa-dollar"></i> Import Battery Data Price</button>
                             {{-- <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
@@ -92,6 +92,24 @@
                         </tr>
                     </thead>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-import-result" tabindex="-1" aria-labelledby="modal-import-result-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-import-result-label">Import Battery Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="import-result-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -310,6 +328,24 @@
 
             $("#filter-type").on("change", function() {
                 table.ajax.reload();
+            });
+
+            $("#btn-import-price-ajax").on("click", function() {
+                var formData = new FormData();
+                formData.append('file', $('input[type="file"]')[0].files[0]);
+                formData.append('_token', "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: '/battery/import/price/preview',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $("#import-result-content").html(response);
+                        $("#modal-import-result").modal("show");
+                    }
+                });
             });
         });
     </script>

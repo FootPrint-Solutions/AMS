@@ -148,4 +148,13 @@ class BatteryPriceImport implements ToModel, WithStartRow, WithEvents
             },
         ];
     }
+
+    public function getPreviewData()
+    {
+        return [
+            'total_rows' => $this->getTotalRows(),
+            'total_updated_rows' => $this->getTotalUpdatedRows(),
+            'unimported_rows' => $this->getUnimportedRows(),
+        ];
+    }
 }

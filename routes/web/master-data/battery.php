@@ -18,3 +18,4 @@ Route::get('/battery/get/{keyword}', [Battery::class, 'getBatteriesByKeyword'])-
 Route::get('/battery/get/recycle/{keyword}', [Battery::class, 'getBatteriesByKeywordRecycle'])->name('battery.get.recycle')->middleware('permission:view_battery');
 Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.compress')->middleware('permission:view_battery');
 Route::post('/battery/image/delete', [Battery::class, 'deleteImage'])->name('battery.image.delete')->middleware('permission:edit_battery');
+Route::post('/battery/import/price/preview', [Battery::class, 'importPricePreview'])->name('battery.import.price.preview')->middleware('permission:add_battery');

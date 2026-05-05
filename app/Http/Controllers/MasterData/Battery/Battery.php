@@ -861,4 +861,36 @@ class Battery extends Controller
 
         return response()->json(['success' => false, 'message' => 'Image not found'], 404);
     }
+
+    public function importPricePreview(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,xls,csv',
+            ]);
+            if ($validator->fails())
+                throw new Exception('Invalid file format.');
+
+            // Proceed with the file storage and import
+            $path1 = $request->file('file')->store('temp');
+            $path = storage_path('app') . '/' . $path1;
+
+            // buatkan preview data dari file excel
+            $import = new BatteryPriceImport();
+            Excel::import($import, $path);
+            return response()->json([
+                'status' => true,
+                'data' => $import->getPreviewData(),
+                'totalRows' => $import->getTotalRows(),
+                'totalUpdatedRows' => $import->getTotalUpdatedRows(),
+                'unimportedRows' => $import->getUnimportedRows()
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }
