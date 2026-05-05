@@ -157,7 +157,9 @@
                                     var url = window.URL.createObjectURL(data);
                                     var a = document.createElement('a');
                                     a.href = url;
-                                    a.download = 'batteries.xlsx';
+                                    a.download = 'batteries_' + new Date()
+                                        .toISOString().slice(0, 19).replace(/[:T]/g,
+                                            '-') + '.xlsx';
                                     document.body.append(a);
                                     a.click();
                                     a.remove();

@@ -155,7 +155,7 @@ class Battery extends Controller
     public function export(Request $request)
     {
         try {
-            return Excel::download(new BatteryExport, 'batteries.xlsx');
+            return Excel::download(new BatteryExport, 'batteries_' . date('Y-m-d_H-i-s') . '.xlsx');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
