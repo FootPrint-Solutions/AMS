@@ -20,3 +20,5 @@ Route::post('/battery/compress', [Battery::class, 'compress'])->name('battery.co
 Route::post('/battery/image/delete', [Battery::class, 'deleteImage'])->name('battery.image.delete')->middleware('permission:edit_battery');
 Route::post('/battery/import/price/preview', [Battery::class, 'importPricePreview'])->name('battery.import.price.preview')->middleware('permission:add_battery');
 Route::get('/battery/backup', [Battery::class, 'backupIndex'])->name('battery.backup.index')->middleware('permission:view_battery');
+Route::post('/battery/backup/restore', [Battery::class, 'restoreBackup'])->name('battery.backup.restore')->middleware('permission:edit_battery');
+Route::delete('/battery/backup/delete', [Battery::class, 'deleteBackup'])->name('battery.backup.delete')->middleware('permission:edit_battery');

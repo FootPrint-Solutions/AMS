@@ -578,6 +578,125 @@
                     }
                 });
             });
+
+            $(document).on('click', '.btn-restore-backup', function() {
+                var backupNumber = $(this).data('backup-number');
+
+                Swal.fire({
+                    title: 'Restore Backup?',
+                    text: 'This will restore all rows in backup number ' + backupNumber + '.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Restore',
+                    cancelButtonText: 'Cancel'
+                }).then(function(result) {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+
+                    // add swal loading
+                    Swal.fire({
+                        title: 'Restoring Backup',
+                        text: 'Please wait...',
+                        allowOutsideClick: false,
+                        onBeforeOpen: () => {
+                            Swal.showLoading();
+                        },
+                        showConfirmButton: false,
+                    });
+
+                    $.ajax({
+                        url: '/battery/backup/restore',
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            backup_number: backupNumber
+                        },
+                        success: function(response) {
+                            table.ajax.reload();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Restored',
+                                text: (response.message ||
+                                        'Backup restored successfully.') +
+                                    (response.restored_count !== undefined ?
+                                        ' Restored rows: ' + response
+                                        .restored_count + '.' : '')
+                            });
+                        },
+                        error: function(xhr) {
+                            var message = (xhr.responseJSON && xhr.responseJSON
+                                    .message) ? xhr
+                                .responseJSON.message : 'Failed to restore backup.';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Restore Failed',
+                                text: message
+                            });
+                        }
+                    });
+                });
+            });
+
+            $(document).on('click', '.btn-delete-backup', function() {
+                var backupNumber = $(this).data('backup-number');
+
+                Swal.fire({
+                    title: 'Delete Backup?',
+                    text: 'Backup number ' + backupNumber + ' will be deleted permanently.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete',
+                    cancelButtonText: 'Cancel'
+                }).then(function(result) {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '/battery/backup/delete',
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            _method: 'DELETE',
+                            backup_number: backupNumber
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted',
+                                text: response.message ||
+                                    'Backup deleted successfully.'
+                            });
+
+                            // Reload grouped backup modal content and main battery table.
+                            $.ajax({
+                                url: '/battery/backup',
+                                method: 'GET',
+                                success: function(html) {
+                                    $('#backup-data-content').html(html);
+                                }
+                            });
+
+                            table.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            var message = (xhr.responseJSON && xhr.responseJSON
+                                    .message) ? xhr
+                                .responseJSON.message : 'Failed to delete backup.';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Delete Failed',
+                                text: message
+                            });
+                        }
+                    });
+                });
+            });
         });
     </script>
 @endsection

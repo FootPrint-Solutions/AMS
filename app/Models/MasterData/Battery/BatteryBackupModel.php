@@ -38,7 +38,7 @@ class BatteryBackupModel extends Model
     ];
 
     protected $casts = [
-        'backup_date' => 'date',
+        'backup_date' => 'datetime',
         'brand_id' => 'integer',
         'subbrand_category_id' => 'integer',
         'usage_type_id' => 'integer',

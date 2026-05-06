@@ -16,7 +16,7 @@ class CreateTableBackupBattery extends Migration
         Schema::create('battery_backups', function (Blueprint $table) {
             $table->id();
             $table->string('backup_number', 255);
-            $table->date('backup_date')->nullable();
+            $table->dateTime('backup_date');
             $table->unsignedBigInteger('battery_id')->nullable();
             $table->string('code', 255)->nullable();
             $table->string('name', 100);
