@@ -58,11 +58,14 @@
                                 accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                             {{-- <button type="submit" class="btn btn-outline-success btn-sm" id='btn-import'>
                                 <i class="fa-solid fa-file-import"></i> Import Battery Data</button> --}}
-                            <button type="button" class="btn btn-outline-danger btn-sm" id='btn-import-price'>
+                            <button type="button" class="btn btn-outline-danger btn-sm" id='btn-import-price-ajax'>
                                 <i class="fa-solid fa-dollar"></i> Import Battery Data Price</button>
                             {{-- <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
                                 Download Sample Import Data</a> --}}
+                            {{-- Show Backup Data --}}
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id='btn-show-backup'>
+                                <i class="fa-solid fa-clock-rotate-left"></i> Show Backup Data</button>
                         </div>
                     </div>
                 </div>
@@ -96,8 +99,149 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modal-import-result" tabindex="-1" aria-labelledby="modal-import-result-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-import-result-label">Import Battery Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="import-result-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary d-none" id="btn-confirm-import-price">Confirm
+                        Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal for Backup Data --}}
+    <div class="modal fade" id="modal-backup-data" tabindex="-1" aria-labelledby="modal-backup-data-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-backup-data-label">Backup Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="backup-data-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var table;
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatPreviewValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return '-';
+            }
+
+            if (typeof value === 'number') {
+                return new Intl.NumberFormat('id-ID').format(value);
+            }
+
+            return escapeHtml(value);
+        }
+
+        function renderPreviewModal(response) {
+            var previewRows = response.previewRows || [];
+            var plannedUpdatedRows = response.plannedUpdatedRows || 0;
+            var unimportedRows = response.unimportedRows || [];
+
+            var summaryHtml = '<div class="row g-3 mb-3">' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Total Rows</div><div class="h4 mb-0 text-primary">' +
+                escapeHtml(response.totalRows || 0) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Will Update</div><div class="h4 mb-0 text-warning">' +
+                escapeHtml(plannedUpdatedRows) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Skipped / Failed</div><div class="h4 mb-0 text-danger">' +
+                escapeHtml(unimportedRows.length) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Preview Rows</div><div class="h4 mb-0 text-info">' +
+                escapeHtml(previewRows.length) + '</div></div></div></div>' +
+                '</div>';
+
+            var tableHtml = '<div class="table-responsive">' +
+                '<table class="table table-sm table-bordered align-middle">' +
+                '<thead class="table-light"><tr>' +
+                '<th style="width:70px;">Row</th>' +
+                '<th style="width:120px;">Battery ID</th>' +
+                '<th style="width:120px;">Code</th>' +
+                '<th>Name</th>' +
+                '<th style="width:150px;">Current Retail</th>' +
+                '<th style="width:150px;">New Retail</th>' +
+                '<th style="width:150px;">Current Buy</th>' +
+                '<th style="width:150px;">New Buy</th>' +
+                '<th style="width:120px;">Action</th>' +
+                '<th>Changes / Reason</th>' +
+                '</tr></thead><tbody>';
+
+            if (previewRows.length === 0) {
+                tableHtml += '<tr><td colspan="9" class="text-center text-muted">No preview data available.</td></tr>';
+            } else {
+                previewRows.forEach(function(row) {
+                    var badgeClass = 'bg-secondary';
+                    var badgeText = row.action || 'skipped';
+
+                    if (row.action === 'preview') {
+                        badgeClass = 'bg-warning text-dark';
+                        badgeText = 'preview';
+                    } else if (row.action === 'updated') {
+                        badgeClass = 'bg-success';
+                        badgeText = 'updated';
+                    } else if (row.action === 'failed') {
+                        badgeClass = 'bg-danger';
+                        badgeText = 'failed';
+                    }
+
+                    var changes = row.changes || {};
+                    var changeList = Object.keys(changes).length ? Object.keys(changes).map(function(key) {
+                        return '<div><strong>' + escapeHtml(key) + ':</strong> ' + formatPreviewValue(
+                                changes[key][0]) + ' &rarr; ' + formatPreviewValue(changes[key][1]) +
+                            '</div>';
+                    }).join('') : '<div>-</div>';
+
+                    tableHtml += '<tr>' +
+                        '<td>' + escapeHtml(row.row_number || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.id || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.code || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.name || '-') + '</td>' +
+                        '<td>' + formatPreviewValue(row.current_price_retail) + '</td>' +
+                        '<td>' + formatPreviewValue(row.new_price_retail) + '</td>' +
+                        '<td>' + formatPreviewValue(row.current_price_buy) + '</td>' +
+                        '<td>' + formatPreviewValue(row.new_price_buy) + '</td>' +
+                        '<td><span class="badge ' + badgeClass + '">' + escapeHtml(badgeText) + '</span></td>' +
+                        '<td><div class="fw-semibold">' + escapeHtml(row.reason || '-') + '</div>' + changeList +
+                        '</td>' +
+                        '</tr>';
+                });
+            }
+
+            tableHtml += '</tbody></table></div>';
+
+            var noticeHtml = '<div class="alert alert-warning mb-3">' +
+                'This preview has not saved any changes yet. Click <strong>Confirm Update</strong> to apply the changes, or close the modal to cancel everything.' +
+                '</div>';
+
+            return summaryHtml + noticeHtml + tableHtml;
+        }
 
         $(document).ready(function() {
             // DataTables configuration
@@ -310,6 +454,248 @@
 
             $("#filter-type").on("change", function() {
                 table.ajax.reload();
+            });
+
+            $("#btn-import-price-ajax").on("click", function() {
+                var button = $(this);
+                var fileInput = $('input[type="file"]')[0];
+
+                if (!fileInput.files.length) {
+                    alert('Please choose a file first.');
+                    return;
+                }
+
+                button.attr('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('_token', "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: '/battery/import/price/preview',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (!response.status) {
+                            $("#import-result-content").html(
+                                '<div class="alert alert-danger mb-0">' + escapeHtml(
+                                    response.error || 'Failed to load preview.') + '</div>');
+                            $("#btn-confirm-import-price").addClass('d-none').data(
+                                'preview-ready', false);
+                            $("#modal-import-result").modal("show");
+                            return;
+                        }
+
+                        $("#import-result-content").html(renderPreviewModal(response));
+                        $("#btn-confirm-import-price").removeClass('d-none').data(
+                            'preview-ready', true);
+                        $("#modal-import-result").modal("show");
+
+                        // remove loading state
+                        button.attr('disabled', false).html(
+                            '<i class="fa-solid fa-dollar"></i> Import Battery Data Price'
+                        );
+                    },
+                    complete: function() {
+                        button.attr('disabled', false);
+                    }
+                });
+            });
+
+            $("#btn-confirm-import-price").on("click", function() {
+                if (!$(this).data('preview-ready')) {
+                    return;
+                }
+
+                var button = $(this);
+                var fileInput = $('input[type="file"]')[0];
+
+                if (!fileInput.files.length) {
+                    alert('Please choose a file first.');
+                    return;
+                }
+
+                button.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...'
+                );
+
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('_token', "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: '/battery/import/price',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $("#form-import")[0].reset();
+                        table.ajax.reload();
+
+                        var newTab = window.open();
+                        newTab.document.open();
+                        newTab.document.write(response);
+                        newTab.document.close();
+
+                        $("#modal-import-result").modal('hide');
+                    },
+                    error: function() {
+                        alert('Failed to apply import.');
+                    },
+                    complete: function() {
+                        button.attr('disabled', false).html('Confirm Update');
+                    }
+                });
+            });
+
+            // btn-show-backup
+            $("#btn-show-backup").on("click", function() {
+                var button = $(this);
+                button.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                $.ajax({
+                    url: '/battery/backup',
+                    method: 'GET',
+                    success: function(response) {
+                        $("#backup-data-content").html(response);
+                        $("#modal-backup-data").modal("show");
+                    },
+                    error: function() {
+                        alert('Failed to load backup data.');
+                    },
+                    complete: function() {
+                        button.attr('disabled', false).html(
+                            '<i class="fa-solid fa-clock-rotate-left"></i> Show Backup Data'
+                        );
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-restore-backup', function() {
+                var backupNumber = $(this).data('backup-number');
+
+                Swal.fire({
+                    title: 'Restore Backup?',
+                    text: 'This will restore all rows in backup number ' + backupNumber + '.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Restore',
+                    cancelButtonText: 'Cancel'
+                }).then(function(result) {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+
+                    // add swal loading
+                    Swal.fire({
+                        title: 'Restoring Backup',
+                        text: 'Please wait...',
+                        allowOutsideClick: false,
+                        onBeforeOpen: () => {
+                            Swal.showLoading();
+                        },
+                        showConfirmButton: false,
+                    });
+
+                    $.ajax({
+                        url: '/battery/backup/restore',
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            backup_number: backupNumber
+                        },
+                        success: function(response) {
+                            table.ajax.reload();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Restored',
+                                text: (response.message ||
+                                        'Backup restored successfully.') +
+                                    (response.restored_count !== undefined ?
+                                        ' Restored rows: ' + response
+                                        .restored_count + '.' : '')
+                            });
+                        },
+                        error: function(xhr) {
+                            var message = (xhr.responseJSON && xhr.responseJSON
+                                    .message) ? xhr
+                                .responseJSON.message : 'Failed to restore backup.';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Restore Failed',
+                                text: message
+                            });
+                        }
+                    });
+                });
+            });
+
+            $(document).on('click', '.btn-delete-backup', function() {
+                var backupNumber = $(this).data('backup-number');
+
+                Swal.fire({
+                    title: 'Delete Backup?',
+                    text: 'Backup number ' + backupNumber + ' will be deleted permanently.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete',
+                    cancelButtonText: 'Cancel'
+                }).then(function(result) {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '/battery/backup/delete',
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            _method: 'DELETE',
+                            backup_number: backupNumber
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted',
+                                text: response.message ||
+                                    'Backup deleted successfully.'
+                            });
+
+                            // Reload grouped backup modal content and main battery table.
+                            $.ajax({
+                                url: '/battery/backup',
+                                method: 'GET',
+                                success: function(html) {
+                                    $('#backup-data-content').html(html);
+                                }
+                            });
+
+                            table.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            var message = (xhr.responseJSON && xhr.responseJSON
+                                    .message) ? xhr
+                                .responseJSON.message : 'Failed to delete backup.';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Delete Failed',
+                                text: message
+                            });
+                        }
+                    });
+                });
             });
         });
     </script>

@@ -19,6 +19,7 @@ use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatteryBrandModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\MasterData\Battery\BatteryImageModel;
+use App\Models\MasterData\Battery\BatteryBackupModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
@@ -130,6 +131,8 @@ class Battery extends Controller
             ]);
             if ($validator->fails())
                 throw new Exception('Invalid file format.');
+
+            $this->backupBatteryData();
 
             // Proceed with the file storage and import
             $path1 = $request->file('file')->store('temp');
@@ -860,5 +863,244 @@ class Battery extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+    }
+
+    public function importPricePreview(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,xls,csv',
+            ]);
+            if ($validator->fails())
+                throw new Exception('Invalid file format.');
+
+            // Proceed with the file storage and import
+            $path1 = $request->file('file')->store('temp');
+            $path = storage_path('app') . '/' . $path1;
+
+            // buatkan preview data dari file excel
+            $import = (new BatteryPriceImport())->setPreviewOnly(true);
+            Excel::import($import, $path);
+
+            $previewRows = $import->getPreviewRows();
+            $plannedUpdates = collect($previewRows)->filter(function ($row) {
+                return in_array($row['action'] ?? '', ['preview', 'updated']);
+            })->count();
+
+            return response()->json([
+                'status' => true,
+                'totalRows' => $import->getTotalRows(),
+                'totalUpdatedRows' => $import->getTotalUpdatedRows(),
+                'plannedUpdatedRows' => $plannedUpdates,
+                'previewRows' => $previewRows,
+                'unimportedRows' => $import->getUnimportedRows()
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function backupBatteryData()
+    {
+        try {
+            $batteries = BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory', 'urls', 'code'])->get();
+            $backupNumber = 'BB-' . now()->format('YmdHis');
+
+            foreach ($batteries as $battery) {
+                $backup = new BatteryBackupModel();
+                $backup->battery_id = $battery->id;
+                $backup->code = $battery->code->code ?? null;
+                $backup->name = $battery->name;
+                $backup->name_alternate = $battery->name_alternate;
+                $backup->type = $battery->type;
+                $backup->editable_price = $battery->editable_price;
+                $backup->brand_id = $battery->brand_id;
+                $backup->subbrand_category_id = $battery->subbrand_category_id;
+                $backup->usage_type_id = $battery->usage_type_id;
+                $backup->technology_id = $battery->technology_id;
+                $backup->size_category_id = $battery->size_category_id;
+                $backup->dimension_length = $battery->dimension_length;
+                $backup->dimension_width = $battery->dimension_width;
+                $backup->dimension_height = $battery->dimension_height;
+                $backup->standard_cca = $battery->standard_cca;
+                $backup->capacity = $battery->capacity;
+                $backup->warranty = $battery->warranty;
+                $backup->price_retail = $battery->price_retail;
+                $backup->price_buy = $battery->price_buy;
+                if ($battery->image) {
+                    if (Storage::exists('public/image/battery/' . $battery->image)) {
+                        Storage::copy('public/image/battery/' . $battery->image, 'public/backup/battery/' . $battery->image);
+                        Log::info("Image backed up and deleted: " . 'public/image/battery/' . $battery->image);
+                    } else {
+                        Log::warning("Image file not found for backup: " . 'public/image/battery/' . $battery->image);
+                    }
+                    $backup->image = basename($battery->image);
+                }
+                $backup->status = $battery->status;
+                $backup->backup_date = now();
+                $backup->backup_number = $backupNumber;
+                $backup->save();
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Battery data backup completed successfully.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to backup battery data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function backupIndex()
+    {
+        $backupData = BatteryBackupModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory'])
+            ->orderBy('backup_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('backup_number');
+
+        return view('MasterData.Battery.backup', compact('backupData'));
+    }
+
+    public function restoreBackup(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'backup_number' => 'required|string',
+            ]);
+
+            if ($validator->fails())
+                throw new Exception('Invalid backup number.');
+
+            $backupNumber = $request->backup_number;
+            $rows = BatteryBackupModel::where('backup_number', $backupNumber)->get();
+
+            if ($rows->isEmpty())
+                throw new Exception('Backup data not found.');
+
+            $restoredCount = 0;
+
+            foreach ($rows as $row) {
+                $battery = BatteryModel::withTrashed()->find($row->battery_id);
+
+                if (!$battery) {
+                    continue;
+                }
+
+                if ($battery->trashed()) {
+                    $battery->restore();
+                }
+
+                $battery->name = $row->name;
+                $battery->name_alternate = $row->name_alternate;
+                $battery->type = $row->type;
+                $battery->editable_price = $row->editable_price;
+                $battery->brand_id = $row->brand_id;
+                $battery->subbrand_category_id = $row->subbrand_category_id;
+                $battery->usage_type_id = $row->usage_type_id;
+                $battery->technology_id = $row->technology_id;
+                $battery->size_category_id = $row->size_category_id;
+                $battery->dimension_length = $row->dimension_length;
+                $battery->dimension_width = $row->dimension_width;
+                $battery->dimension_height = $row->dimension_height;
+                $battery->standard_cca = $row->standard_cca;
+                $battery->capacity = $row->capacity;
+                $battery->warranty = $row->warranty;
+                $battery->price_retail = $row->price_retail;
+                $battery->price_buy = $row->price_buy;
+                $battery->image = $row->image;
+                $battery->status = $row->status;
+                $battery->save();
+
+                BatteryPriceModel::updateOrCreate(
+                    ['battery_id' => $battery->id],
+                    ['price_retail' => $row->price_retail]
+                );
+
+                if (!is_null($row->code) && $row->code !== '') {
+                    BatteryCodeModel::updateOrCreate(
+                        ['battery_id' => $battery->id],
+                        ['code' => $row->code]
+                    );
+                }
+
+                $restoredCount++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Backup restored successfully.',
+                'restored_count' => $restoredCount
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function deleteBackup(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'backup_number' => 'required|string',
+            ]);
+
+            if ($validator->fails())
+                throw new Exception('Invalid backup number.');
+
+            $backupNumber = $request->backup_number;
+            $rows = BatteryBackupModel::where('backup_number', $backupNumber)->get();
+
+            if ($rows->isEmpty())
+                throw new Exception('Backup data not found.');
+
+            $images = $rows->pluck('image')->filter()->unique();
+
+            foreach ($images as $image) {
+                $imageUsedByOtherBackups = BatteryBackupModel::where('backup_number', '!=', $backupNumber)
+                    ->where('image', $image)
+                    ->exists();
+
+                if (!$imageUsedByOtherBackups) {
+                    Storage::delete('public/backup/battery/' . $image);
+                }
+            }
+
+            BatteryBackupModel::where('backup_number', $backupNumber)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Backup deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }
