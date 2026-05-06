@@ -19,6 +19,7 @@ use App\Models\MasterData\Battery\BatteryUsageTypeModel;
 use App\Models\MasterData\Battery\BatteryBrandModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\MasterData\Battery\BatteryImageModel;
+use App\Models\MasterData\Battery\BatteryBackupModel;
 
 // IMPORT CLASS
 use App\Imports\BatteryImport;
@@ -130,6 +131,8 @@ class Battery extends Controller
             ]);
             if ($validator->fails())
                 throw new Exception('Invalid file format.');
+
+            $this->backupBatteryData();
 
             // Proceed with the file storage and import
             $path1 = $request->file('file')->store('temp');
@@ -899,5 +902,66 @@ class Battery extends Controller
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function backupBatteryData()
+    {
+        try {
+            $batteries = BatteryModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory', 'urls', 'code'])->get();
+
+            foreach ($batteries as $battery) {
+                $backup = new BatteryBackupModel();
+                $backup->battery_id = $battery->id;
+                $backup->code = $battery->code->code ?? null;
+                $backup->name = $battery->name;
+                $backup->name_alternate = $battery->name_alternate;
+                $backup->type = $battery->type;
+                $backup->editable_price = $battery->editable_price;
+                $backup->brand_id = $battery->brand_id;
+                $backup->subbrand_category_id = $battery->subbrand_category_id;
+                $backup->usage_type_id = $battery->usage_type_id;
+                $backup->technology_id = $battery->technology_id;
+                $backup->size_category_id = $battery->size_category_id;
+                $backup->dimension_length = $battery->dimension_length;
+                $backup->dimension_width = $battery->dimension_width;
+                $backup->dimension_height = $battery->dimension_height;
+                $backup->standard_cca = $battery->standard_cca;
+                $backup->capacity = $battery->capacity;
+                $backup->warranty = $battery->warranty;
+                $backup->price_retail = $battery->price_retail;
+                $backup->price_buy = $battery->price_buy;
+                if ($battery->image) {
+                    if (Storage::exists('public/image/battery/' . $battery->image)) {
+                        Storage::copy('public/image/battery/' . $battery->image, 'public/backup/battery/' . $battery->image);
+                        Log::info("Image backed up and deleted: " . 'public/image/battery/' . $battery->image);
+                    } else {
+                        Log::warning("Image file not found for backup: " . 'public/image/battery/' . $battery->image);
+                    }
+                    $backup->image = basename($battery->image);
+                }
+                $backup->status = $battery->status;
+                $backup->backup_date = now();
+                $backup->backup_number = 'BB-' . now()->format('YmdHis') . '-' . $battery->id;
+                $backup->save();
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Battery data backup completed successfully.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to backup battery data: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function backupIndex()
+    {
+        $backupData = BatteryBackupModel::with(['brand', 'subbrandCategory', 'usageType', 'technology', 'sizeCategory'])->orderBy('backup_date', 'desc')->get();
+
+        return view('MasterData.Battery.backup', compact('backupData'));
     }
 }

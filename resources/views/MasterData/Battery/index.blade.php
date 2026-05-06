@@ -63,6 +63,9 @@
                             {{-- <a href="{{ asset('template/excel/SampleImportBatteryBrand.xlsx') }}"
                                 class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-download"></i>
                                 Download Sample Import Data</a> --}}
+                            {{-- Show Backup Data --}}
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id='btn-show-backup'>
+                                <i class="fa-solid fa-clock-rotate-left"></i> Show Backup Data</button>
                         </div>
                     </div>
                 </div>
@@ -110,6 +113,25 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary d-none" id="btn-confirm-import-price">Confirm
                         Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal for Backup Data --}}
+    <div class="modal fade" id="modal-backup-data" tabindex="-1" aria-labelledby="modal-backup-data-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-backup-data-label">Backup Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="backup-data-content"></div>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -215,7 +237,7 @@
             tableHtml += '</tbody></table></div>';
 
             var noticeHtml = '<div class="alert alert-warning mb-3">' +
-                'Preview ini belum menyimpan perubahan apa pun. Tekan <strong>Confirm Update</strong> untuk menerapkan perubahan, atau tutup modal untuk membatalkan semuanya.' +
+                'This preview has not saved any changes yet. Click <strong>Confirm Update</strong> to apply the changes, or close the modal to cancel everything.' +
                 '</div>';
 
             return summaryHtml + noticeHtml + tableHtml;
@@ -444,6 +466,9 @@
                 }
 
                 button.attr('disabled', true);
+                button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
 
                 var formData = new FormData();
                 formData.append('file', fileInput.files[0]);
@@ -470,6 +495,11 @@
                         $("#btn-confirm-import-price").removeClass('d-none').data(
                             'preview-ready', true);
                         $("#modal-import-result").modal("show");
+
+                        // remove loading state
+                        button.attr('disabled', false).html(
+                            '<i class="fa-solid fa-dollar"></i> Import Battery Data Price'
+                        );
                     },
                     complete: function() {
                         button.attr('disabled', false);
@@ -520,6 +550,31 @@
                     },
                     complete: function() {
                         button.attr('disabled', false).html('Confirm Update');
+                    }
+                });
+            });
+
+            // btn-show-backup
+            $("#btn-show-backup").on("click", function() {
+                var button = $(this);
+                button.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+
+                $.ajax({
+                    url: '/battery/backup',
+                    method: 'GET',
+                    success: function(response) {
+                        $("#backup-data-content").html(response);
+                        $("#modal-backup-data").modal("show");
+                    },
+                    error: function() {
+                        alert('Failed to load backup data.');
+                    },
+                    complete: function() {
+                        button.attr('disabled', false).html(
+                            '<i class="fa-solid fa-clock-rotate-left"></i> Show Backup Data'
+                        );
                     }
                 });
             });
