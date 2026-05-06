@@ -107,9 +107,9 @@
                                         ' x ',
                                         array_filter(
                                             [
-                                                data_get($rowData, 'dimension_length', data_get($rowData, 8, null)),
-                                                data_get($rowData, 'dimension_width', data_get($rowData, 9, null)),
-                                                data_get($rowData, 'dimension_height', data_get($rowData, 10, null)),
+                                                data_get($rowData, 'dimension_length', data_get($rowData, 9, null)),
+                                                data_get($rowData, 'dimension_width', data_get($rowData, 10, null)),
+                                                data_get($rowData, 'dimension_height', data_get($rowData, 11, null)),
                                             ],
                                             function ($value) {
                                                 return $value !== null && $value !== '' && $value !== '-';
@@ -125,53 +125,57 @@
                                 $fields = [
                                     ['label' => 'ID', 'value' => data_get($rowData, 'id', data_get($rowData, 0, '-'))],
                                     [
+                                        'label' => 'Code',
+                                        'value' => data_get($rowData, 'code', data_get($rowData, 1, '-')),
+                                    ],
+                                    [
                                         'label' => 'Name',
-                                        'value' => data_get($rowData, 'name', data_get($rowData, 1, '-')),
+                                        'value' => data_get($rowData, 'name', data_get($rowData, 2, '-')),
                                     ],
                                     [
                                         'label' => 'Alternate Name',
-                                        'value' => data_get($rowData, 'alternate_name', data_get($rowData, 2, '-')),
+                                        'value' => data_get($rowData, 'alternate_name', data_get($rowData, 3, '-')),
                                     ],
                                     [
                                         'label' => 'Brand',
-                                        'value' => data_get($rowData, 'brand', data_get($rowData, 3, '-')),
+                                        'value' => data_get($rowData, 'brand', data_get($rowData, 4, '-')),
                                     ],
                                     [
                                         'label' => 'Subbrand Category',
-                                        'value' => data_get($rowData, 'subbrand_category', data_get($rowData, 4, '-')),
+                                        'value' => data_get($rowData, 'subbrand_category', data_get($rowData, 5, '-')),
                                     ],
                                     [
                                         'label' => 'Usage Type',
-                                        'value' => data_get($rowData, 'usage_type', data_get($rowData, 5, '-')),
+                                        'value' => data_get($rowData, 'usage_type', data_get($rowData, 6, '-')),
                                     ],
                                     [
                                         'label' => 'Size Category',
-                                        'value' => data_get($rowData, 'size_category', data_get($rowData, 6, '-')),
+                                        'value' => data_get($rowData, 'size_category', data_get($rowData, 7, '-')),
                                     ],
                                     [
                                         'label' => 'Technology',
-                                        'value' => data_get($rowData, 'technology', data_get($rowData, 7, '-')),
+                                        'value' => data_get($rowData, 'technology', data_get($rowData, 8, '-')),
                                     ],
                                     ['label' => 'Dimension', 'value' => $dimensionValue],
                                     [
                                         'label' => 'Standard CCA',
-                                        'value' => data_get($rowData, 'standard_cca', data_get($rowData, 11, '-')),
+                                        'value' => data_get($rowData, 'standard_cca', data_get($rowData, 12, '-')),
                                     ],
                                     [
                                         'label' => 'Capacity',
-                                        'value' => data_get($rowData, 'capacity', data_get($rowData, 12, '-')),
+                                        'value' => data_get($rowData, 'capacity', data_get($rowData, 13, '-')),
                                     ],
                                     [
                                         'label' => 'Warranty',
-                                        'value' => data_get($rowData, 'warranty', data_get($rowData, 13, '-')),
+                                        'value' => data_get($rowData, 'warranty', data_get($rowData, 14, '-')),
                                     ],
                                     [
                                         'label' => 'Retail Price',
-                                        'value' => data_get($rowData, 'retail_price', data_get($rowData, 14, '-')),
+                                        'value' => data_get($rowData, 'retail_price', data_get($rowData, 15, '-')),
                                     ],
                                     [
                                         'label' => 'Buy Price',
-                                        'value' => data_get($rowData, 'buy_price', data_get($rowData, 15, '-')),
+                                        'value' => data_get($rowData, 'buy_price', data_get($rowData, 16, '-')),
                                     ],
                                 ];
                             @endphp

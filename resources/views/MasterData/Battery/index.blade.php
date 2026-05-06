@@ -108,6 +108,8 @@
                     <div id="import-result-content"></div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary d-none" id="btn-confirm-import-price">Confirm
+                        Update</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -116,6 +118,108 @@
 
     <script>
         var table;
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatPreviewValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return '-';
+            }
+
+            if (typeof value === 'number') {
+                return new Intl.NumberFormat('id-ID').format(value);
+            }
+
+            return escapeHtml(value);
+        }
+
+        function renderPreviewModal(response) {
+            var previewRows = response.previewRows || [];
+            var plannedUpdatedRows = response.plannedUpdatedRows || 0;
+            var unimportedRows = response.unimportedRows || [];
+
+            var summaryHtml = '<div class="row g-3 mb-3">' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Total Rows</div><div class="h4 mb-0 text-primary">' +
+                escapeHtml(response.totalRows || 0) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Will Update</div><div class="h4 mb-0 text-warning">' +
+                escapeHtml(plannedUpdatedRows) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Skipped / Failed</div><div class="h4 mb-0 text-danger">' +
+                escapeHtml(unimportedRows.length) + '</div></div></div></div>' +
+                '<div class="col-12 col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Preview Rows</div><div class="h4 mb-0 text-info">' +
+                escapeHtml(previewRows.length) + '</div></div></div></div>' +
+                '</div>';
+
+            var tableHtml = '<div class="table-responsive">' +
+                '<table class="table table-sm table-bordered align-middle">' +
+                '<thead class="table-light"><tr>' +
+                '<th style="width:70px;">Row</th>' +
+                '<th style="width:120px;">Battery ID</th>' +
+                '<th style="width:120px;">Code</th>' +
+                '<th>Name</th>' +
+                '<th style="width:150px;">Current Retail</th>' +
+                '<th style="width:150px;">New Retail</th>' +
+                '<th style="width:150px;">Current Buy</th>' +
+                '<th style="width:150px;">New Buy</th>' +
+                '<th style="width:120px;">Action</th>' +
+                '<th>Changes / Reason</th>' +
+                '</tr></thead><tbody>';
+
+            if (previewRows.length === 0) {
+                tableHtml += '<tr><td colspan="9" class="text-center text-muted">No preview data available.</td></tr>';
+            } else {
+                previewRows.forEach(function(row) {
+                    var badgeClass = 'bg-secondary';
+                    var badgeText = row.action || 'skipped';
+
+                    if (row.action === 'preview') {
+                        badgeClass = 'bg-warning text-dark';
+                        badgeText = 'preview';
+                    } else if (row.action === 'updated') {
+                        badgeClass = 'bg-success';
+                        badgeText = 'updated';
+                    } else if (row.action === 'failed') {
+                        badgeClass = 'bg-danger';
+                        badgeText = 'failed';
+                    }
+
+                    var changes = row.changes || {};
+                    var changeList = Object.keys(changes).length ? Object.keys(changes).map(function(key) {
+                        return '<div><strong>' + escapeHtml(key) + ':</strong> ' + formatPreviewValue(
+                                changes[key][0]) + ' &rarr; ' + formatPreviewValue(changes[key][1]) +
+                            '</div>';
+                    }).join('') : '<div>-</div>';
+
+                    tableHtml += '<tr>' +
+                        '<td>' + escapeHtml(row.row_number || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.id || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.code || '-') + '</td>' +
+                        '<td>' + escapeHtml(row.name || '-') + '</td>' +
+                        '<td>' + formatPreviewValue(row.current_price_retail) + '</td>' +
+                        '<td>' + formatPreviewValue(row.new_price_retail) + '</td>' +
+                        '<td>' + formatPreviewValue(row.current_price_buy) + '</td>' +
+                        '<td>' + formatPreviewValue(row.new_price_buy) + '</td>' +
+                        '<td><span class="badge ' + badgeClass + '">' + escapeHtml(badgeText) + '</span></td>' +
+                        '<td><div class="fw-semibold">' + escapeHtml(row.reason || '-') + '</div>' + changeList +
+                        '</td>' +
+                        '</tr>';
+                });
+            }
+
+            tableHtml += '</tbody></table></div>';
+
+            var noticeHtml = '<div class="alert alert-warning mb-3">' +
+                'Preview ini belum menyimpan perubahan apa pun. Tekan <strong>Confirm Update</strong> untuk menerapkan perubahan, atau tutup modal untuk membatalkan semuanya.' +
+                '</div>';
+
+            return summaryHtml + noticeHtml + tableHtml;
+        }
 
         $(document).ready(function() {
             // DataTables configuration
@@ -331,8 +435,18 @@
             });
 
             $("#btn-import-price-ajax").on("click", function() {
+                var button = $(this);
+                var fileInput = $('input[type="file"]')[0];
+
+                if (!fileInput.files.length) {
+                    alert('Please choose a file first.');
+                    return;
+                }
+
+                button.attr('disabled', true);
+
                 var formData = new FormData();
-                formData.append('file', $('input[type="file"]')[0].files[0]);
+                formData.append('file', fileInput.files[0]);
                 formData.append('_token', "{{ csrf_token() }}");
 
                 $.ajax({
@@ -342,8 +456,70 @@
                     contentType: false,
                     processData: false,
                     success: function(response) {
-                        $("#import-result-content").html(response);
+                        if (!response.status) {
+                            $("#import-result-content").html(
+                                '<div class="alert alert-danger mb-0">' + escapeHtml(
+                                    response.error || 'Failed to load preview.') + '</div>');
+                            $("#btn-confirm-import-price").addClass('d-none').data(
+                                'preview-ready', false);
+                            $("#modal-import-result").modal("show");
+                            return;
+                        }
+
+                        $("#import-result-content").html(renderPreviewModal(response));
+                        $("#btn-confirm-import-price").removeClass('d-none').data(
+                            'preview-ready', true);
                         $("#modal-import-result").modal("show");
+                    },
+                    complete: function() {
+                        button.attr('disabled', false);
+                    }
+                });
+            });
+
+            $("#btn-confirm-import-price").on("click", function() {
+                if (!$(this).data('preview-ready')) {
+                    return;
+                }
+
+                var button = $(this);
+                var fileInput = $('input[type="file"]')[0];
+
+                if (!fileInput.files.length) {
+                    alert('Please choose a file first.');
+                    return;
+                }
+
+                button.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...'
+                );
+
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('_token', "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: '/battery/import/price',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $("#form-import")[0].reset();
+                        table.ajax.reload();
+
+                        var newTab = window.open();
+                        newTab.document.open();
+                        newTab.document.write(response);
+                        newTab.document.close();
+
+                        $("#modal-import-result").modal('hide');
+                    },
+                    error: function() {
+                        alert('Failed to apply import.');
+                    },
+                    complete: function() {
+                        button.attr('disabled', false).html('Confirm Update');
                     }
                 });
             });

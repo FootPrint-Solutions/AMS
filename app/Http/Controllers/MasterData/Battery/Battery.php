@@ -876,13 +876,20 @@ class Battery extends Controller
             $path = storage_path('app') . '/' . $path1;
 
             // buatkan preview data dari file excel
-            $import = new BatteryPriceImport();
+            $import = (new BatteryPriceImport())->setPreviewOnly(true);
             Excel::import($import, $path);
+
+            $previewRows = $import->getPreviewRows();
+            $plannedUpdates = collect($previewRows)->filter(function ($row) {
+                return in_array($row['action'] ?? '', ['preview', 'updated']);
+            })->count();
+
             return response()->json([
                 'status' => true,
-                'data' => $import->getPreviewData(),
                 'totalRows' => $import->getTotalRows(),
                 'totalUpdatedRows' => $import->getTotalUpdatedRows(),
+                'plannedUpdatedRows' => $plannedUpdates,
+                'previewRows' => $previewRows,
                 'unimportedRows' => $import->getUnimportedRows()
             ]);
         } catch (\Exception $e) {
