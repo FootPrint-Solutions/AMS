@@ -35,6 +35,8 @@ class JournalTransactionDetailModel extends Model
         'account_name',
         'description',
         'ref',
+        'invoice_id',
+        'invoice_type',
         'debit',
         'credit',
     ];
@@ -61,6 +63,8 @@ class JournalTransactionDetailModel extends Model
         'description',
         'debit',
         'credit',
+        'invoice_id',
+        'invoice_type',
     ];
 
     /**
