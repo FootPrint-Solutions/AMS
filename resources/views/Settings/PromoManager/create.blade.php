@@ -524,6 +524,7 @@
                     // If there is at least one battery to display, show the list group.
                     // Otherwise, show the 'No batteries found' container.
                     if (data.length > 0) {
+                        $("#list-battery").empty();
                         $("#list-battery").removeClass("d-none");
                         $("#list-battery-none").addClass("d-none");
 

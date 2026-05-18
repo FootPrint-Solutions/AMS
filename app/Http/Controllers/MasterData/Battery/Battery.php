@@ -744,6 +744,7 @@ class Battery extends Controller
                 $query->whereNull('battery_prices.promo_id')
                     ->orWhere('battery_prices.promo_id', '=', 0);
             });
+            $query->where('batteries.status', 1);
 
             return $query->get()->toArray();
         } catch (Exception $e) {

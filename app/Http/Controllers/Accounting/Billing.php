@@ -19,6 +19,7 @@ use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
 
 class Billing extends Controller
 {
@@ -214,8 +215,7 @@ class Billing extends Controller
                 $statusBadgeClass = "badge-secondary text-dark";
             } elseif ($status === "posted") {
                 $statusBadgeClass = "badge-success";
-            }
-            else {
+            } else {
                 $statusBadgeClass = "badge-info";
             }
 
@@ -548,6 +548,8 @@ class Billing extends Controller
                     'account_name' => optional($inv->billing->debitAccount)->name,
                     'description' => 'Debit for Billing - ' . implode(', ', $invoiceNumbers),
                     'ref' => implode(', ', $invoiceNumbers),
+                    'invoice_id' => $inv->invoice_id,
+                    'invoice_type' => BillingInvoiceModel::class,
                     'debit' => $inv->total ?? 0,
                     'credit' => 0,
                 ]);
@@ -561,6 +563,8 @@ class Billing extends Controller
                     'ref' =>  implode(', ', $invoiceNumbers),
                     'debit' => 0,
                     'credit' => $inv->total ?? 0,
+                    'invoice_id' => $inv->invoice_id,
+                    'invoice_type' => BillingInvoiceModel::class,
                 ]);
             }
 
@@ -790,8 +794,7 @@ class Billing extends Controller
                     'reference_type' => SupplierModel::class,
                 ];
             }
-        }
-        else if ($type === 'distributorshop') {
+        } else if ($type === 'distributorshop') {
             $shopQuery = DistributorShopModel::query();
             if (!empty($search)) {
                 $shopQuery->where('name', 'like', '%' . $search . '%');
@@ -808,8 +811,7 @@ class Billing extends Controller
                     'reference_type' => DistributorShopModel::class,
                 ];
             }
-        }
-        else {
+        } else {
             // All types
             $customerQuery = CustomerModel::query();
             $supplierQuery = SupplierModel::query();
@@ -994,8 +996,7 @@ class Billing extends Controller
                     'total' => formatPrice($order->total)
                 ];
             }
-        }
-        else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
+        } else if ($shipToType === 'distributorshop' || $shipToType === 'App\Models\MasterData\Distributor\DistributorShopModel') {
             $query = SalesOrderModel::with(['vendorData', 'shipToData'])
                 ->where('vendor', $shipToId)
                 ->where('type', $type);
@@ -1486,5 +1487,31 @@ class Billing extends Controller
                 ]
             )
         );
+    }
+
+    public function getOrderExpense($id)
+    {
+        try {
+            $salesInvoice = SalesInvoiceModel::with(['expenses'])->where('sales_order_id', $id)->first();
+            $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
+                ->orderBy('number')
+                ->select('id', 'number', 'name')
+                ->get();
+
+            $data = [
+                'sales_invoice' => $salesInvoice ? $salesInvoice->expenses : [],
+                'chart_of_accounts' => $chartOfAccounts
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get order expenses: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
