@@ -34,7 +34,7 @@
                     {{-- Quotation Number & Date --}}
                     <div class="row">
                         {{-- Billing Number --}}
-                        <div class="col">
+                        <div class="col-3">
                             <div class="form-group local-forms">
                                 <label for="billing-number">Billing Number <span class="login-danger">*</span></label>
                                 <input type="text" class="form-control" id="billing-number" name="billingnumber"
@@ -44,7 +44,7 @@
                         </div>
 
                         {{-- Date --}}
-                        <div class="col">
+                        <div class="col-3">
                             <div class="form-group local-forms">
                                 <label for="quotation-date">Billing Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
@@ -347,6 +347,38 @@
         </div>
     </div>
 
+    {{-- Modal Show Expense Details --}}
+    <div class="modal fade" id="modal-show-expense" tabindex="-1" aria-labelledby="modalShowExpenseLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalShowExpenseLabel">Expense Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered table-sm align-middle mb-0" id="expense-details-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Name</th>
+                                    <th>COA</th>
+                                    <th class="text-end">Debit</th>
+                                    <th class="text-end">Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-expenses">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if (isset($data['type']) && $data['type'] == 'edit' && isset($data['billing']))
         <script>
@@ -369,6 +401,7 @@
         const shipToSelect = $("#ship_to");
         const btnFind = $('#btn-find-billing');
         const modalShowOrders = new bootstrap.Modal(document.getElementById('modal-show-invoice'));
+        const modalShowExpense = new bootstrap.Modal(document.getElementById('modal-show-expense'));
 
         function getShipToData() {
             const selected = shipToSelect.select2('data');
@@ -686,8 +719,6 @@
                 });
             });
 
-            console.log('All selected orders:', ids); // Debug log
-
             if (ids.length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -743,7 +774,7 @@
                             }
 
                             const newRow = `
-                                <tr>
+                                <tr id="order-${order.id}" data-order-id="${order.id}" data-order-type="${order.type}">
                                     <td>
                                         <button type="button" class="btn btn-sm btn-danger delete-order-row">
                                             <i class="fas fa-trash"></i>
@@ -761,6 +792,9 @@
                                     <td>${order.customer_supplier_name}</td>
                                     <td class="text-end">
                                         ${formattedTotal}
+                                        <button type="button" class="btn btn-sm btn-warning ms-2 edit-order-row" data-id="${order.id}" data-type="${order.type}">
+                                            <i class="fas fa-money-bill"></i>
+                                        </button>
                                         <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${orderTotal}">
                                     </td>
                                     <td>
@@ -1080,6 +1114,9 @@
                     <td>${orderData.name || ''}</td>
                     <td class="text-end">
                         Rp ${orderData.subtotal.toLocaleString('id-ID')}
+                        <button type="button" class="btn btn-sm btn-warning ms-2 edit-order-row" data-id="${orderData.id}" data-toggle="tooltip" data-placement="top" title="Expense Details">
+                            <i class="fas fa-money-bill"></i>
+                        </button>
                         <input type="hidden" class="subtotal" data-id="${orderData.id}" data-original-subtotal="${orderData.subtotal}">
                     </td>
                     <td>
@@ -1094,6 +1131,109 @@
 
             tableBody.append(row);
         }
+
+        // edit-order-row onclick handler
+        $('#selected-orders-table').on('click', '.edit-order-row', function() {
+            const orderId = $(this).data('id');
+            const orderRow = $(this).closest('tr');
+            const orderType = orderRow.data('order-type');
+            const orderSource = orderRow.data('order-source');
+
+            // Only show expense modal for sales orders
+            if (orderType === 'App\\Models\\Orders\\SalesOrder\\SalesOrderModel' || orderType === 'sales_order') {
+                $.ajax({
+                    url: '/billing/order/expense/' + orderId,
+                    method: 'GET',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success' && response.data) {
+                            const salesInvoices = response.data.sales_invoice || [];
+                            const chartOfAccounts = response.data.chart_of_accounts || [];
+                            let expenseDetailsHtml = '';
+
+                            if (salesInvoices.length > 0) {
+                                var no = 1;
+                                salesInvoices.forEach(function(item) {
+                                    const expenseName = item.expense?.name || item
+                                        .description || '-';
+                                    const selectedCoaId = item.chart_of_account_id || '';
+                                    const coaOptions = chartOfAccounts.length > 0 ?
+                                        chartOfAccounts.map(function(coa) {
+                                            return `<option value="${coa.id}" ${String(selectedCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
+                                        }).join('') :
+                                        '<option value="">No COA available</option>';
+
+                                    expenseDetailsHtml += `
+                                            <tr>
+                                                <td>${no++}</td>
+                                                <td>${expenseName}</td>
+                                                <td>
+                                                    <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="${item.id}">
+                                                        <option value="">Select COA</option>
+                                                        ${coaOptions}
+                                                    </select>
+                                                    <input type="hidden" name="sales_invoice_expense_ids[]" value="${item.id}">
+                                                </td>
+                                                <td class="text-end">Rp ${Number(item.amount || 0).toLocaleString('id-ID')}</td>
+                                                <td class="text-end">-</td>
+                                            </tr>
+                                        `;
+                                });
+
+                                const totalExpenses = salesInvoices.reduce((sum, item) => sum + (item
+                                    .amount || 0), 0);
+                                expenseDetailsHtml += `
+                                    <tr>
+                                        <td>${no}</td>
+                                        <td><strong>Credit Account</strong></td>
+                                        <td>
+                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="credit">
+                                                <option value="">Select COA</option>
+                                                ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
+                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                }).join('') : '<option value="">No COA available</option>'}
+                                            </select>
+                                        </td>
+                                        <td class="text-end"><strong>-</strong></td>
+                                        <td class="text-end"><strong>Rp ${totalExpenses.toLocaleString('id-ID')}</strong></td>
+                                    </tr>
+                                `;
+                            } else {
+                                expenseDetailsHtml = `
+                                        <tr>
+                                            <td colspan="5" class="text-center">No expenses found for this order.</td>
+                                        </tr>
+                                    `;
+                            }
+
+                            $('#expense-details-table tbody').html(expenseDetailsHtml);
+                            modalShowExpense.show();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message || 'Failed to load expense details.'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load expense details.'
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Expense Details',
+                    text: 'Expense details are only available for sales orders.'
+                });
+            }
+        });
 
         $(document).ready(function() {
             // Initialize Select2

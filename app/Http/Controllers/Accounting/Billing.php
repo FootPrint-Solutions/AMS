@@ -19,6 +19,7 @@ use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
+use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
 
 class Billing extends Controller
 {
@@ -1486,5 +1487,31 @@ class Billing extends Controller
                 ]
             )
         );
+    }
+
+    public function getOrderExpense($id)
+    {
+        try {
+            $salesInvoice = SalesInvoiceModel::with(['expenses'])->where('sales_order_id', $id)->first();
+            $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
+                ->orderBy('number')
+                ->select('id', 'number', 'name')
+                ->get();
+
+            $data = [
+                'sales_invoice' => $salesInvoice ? $salesInvoice->expenses : [],
+                'chart_of_accounts' => $chartOfAccounts
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get order expenses: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
