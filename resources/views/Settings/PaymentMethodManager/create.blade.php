@@ -19,6 +19,20 @@
             <form id="payment-method-form">
                 @csrf
 
+                <div class="row">
+                    <div class="form-group local-forms">
+                        <label for="chart_of_account_id">Chart of Account <span class="login-danger">*</span></label>
+                        <select class="form-control" id="chart_of_account_id" name="chart_of_account_id" required>
+                            <option value="">Select Chart of Account</option>
+                            @foreach ($data['chart_of_accounts'] as $account)
+                                <option value="{{ $account['id'] }}" @if (isset($data['profile']) && $data['profile']['chart_of_account_id'] == $account['id']) selected @endif>
+                                    {{ ($account['number'] ?? '') . (!empty($account['number']) && !empty($account['name']) ? ' - ' : '') . ($account['name'] ?? '') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Name --}}
                 <div class="row">
                     <div class="form-group local-forms">
