@@ -87,7 +87,7 @@
                                 );
                             } else {
                                 var promoId = selectedData[0][5];
-                                // swal confirmation before ajax request
+
                                 swal.fire({
                                     title: "Are you sure?",
                                     text: "You are about to update the price retail for this promo.",
@@ -97,6 +97,17 @@
                                     cancelButtonText: "No, cancel!"
                                 }).then((result) => {
                                     if (result.isConfirmed) {
+
+                                        // loading
+                                        swal.fire({
+                                            title: "Updating...",
+                                            text: "Please wait while the price retail is being updated.",
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                swal.showLoading();
+                                            }
+                                        });
+
                                         $.ajax({
                                             url: "/promo/update-price-retail/" +
                                                 promoId,
