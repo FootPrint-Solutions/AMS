@@ -11,6 +11,7 @@ use Exception;
 
 // MODELS
 use App\Models\Accounting\ExpenseModel;
+use App\Models\Accounting\ChartOfAccountModel;
 
 class Expense extends Controller
 {
@@ -28,7 +29,12 @@ class Expense extends Controller
     {
         return view(
             "Accounting.Expense.create",
-            getIndexData($this->title)
+            getIndexData(
+                $this->title,
+                [
+                    "chart_of_accounts" => ChartOfAccountModel::get()->toArray()
+                ]
+            )
         );
     }
 
@@ -46,7 +52,10 @@ class Expense extends Controller
             "Accounting.Expense.create",
             getIndexData(
                 $this->title,
-                ["profile" => $expense->toArray()]
+                [
+                    "profile" => $expense->toArray(),
+                    "chart_of_accounts" => ChartOfAccountModel::get()->toArray()
+                ]
             )
         );
     }
@@ -63,6 +72,7 @@ class Expense extends Controller
         foreach ($data["row"] as $key) {
             $row = [];
             $row[] = $no++;
+            $row[] = $key->chartOfAccount ? ($key->chartOfAccount->number ? $key->chartOfAccount->number . ' - ' : '') . $key->chartOfAccount->name : '';
             $row[] = $key->name;
             $row[] = $key->description;
             $row[] = $key->is_active ? 'Active' : 'Inactive';
@@ -85,6 +95,7 @@ class Expense extends Controller
         try {
             $validatedData = $request->validate(
                 [
+                    'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
                     'name' => 'required|string|max:100',
                     'description' => 'nullable|string|max:255',
                     'is_active' => 'required|boolean',
@@ -96,6 +107,7 @@ class Expense extends Controller
             );
 
             $expense = new ExpenseModel();
+            $expense->chart_of_account_id = $validatedData['chart_of_account_id'];
             $expense->name = $validatedData['name'];
             $expense->description = $validatedData['description'] ?? null;
             $expense->is_active = $validatedData['is_active'];
@@ -127,17 +139,20 @@ class Expense extends Controller
         try {
             $validatedData = $request->validate(
                 [
+                    'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
                     'name' => 'required|string|max:100',
                     'description' => 'nullable|string|max:255',
                     'is_active' => 'required|boolean',
                 ],
                 [
+                    'chart_of_account_id.required' => 'Chart of account is required!',
                     'name.required' => 'Expense name is required!',
                     'is_active.required' => 'Status is required!',
                 ]
             );
 
             $expense = ExpenseModel::find($request->id);
+            $expense->chart_of_account_id = $validatedData['chart_of_account_id'];
             $expense->name = $validatedData['name'];
             $expense->description = $validatedData['description'] ?? null;
             $expense->is_active = $validatedData['is_active'];

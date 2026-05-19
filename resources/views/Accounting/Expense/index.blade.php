@@ -36,6 +36,7 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Chart of Account</th>
                             <th scope="col">Name</th>
                             <th scope="col">Description</th>
                             <th scope="col">Status</th>
@@ -73,13 +74,19 @@
                         orderable: false
                     },
                     {
-                        data: 1
+                        data: 1,
+                        render: function(data, type, row) {
+                            return data ? data : '-';
+                        }
                     },
                     {
                         data: 2
                     },
                     {
-                        data: 3,
+                        data: 3
+                    },
+                    {
+                        data: 4,
                         render: function(data, type, row) {
                             if (data == 1 || data == 'Active') {
                                 return '<i class="fa-solid fa-circle text-success"></i>';
@@ -105,7 +112,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/expense/edit/", null, "/expense/toggle");
+            appendDatatablesToolbar(5, "/expense/edit/", null, "/expense/toggle");
 
             $("#btn-add").on("click", function() {
                 goToPage("/expense/create");
