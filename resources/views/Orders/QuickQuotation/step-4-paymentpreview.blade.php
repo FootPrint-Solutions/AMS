@@ -169,6 +169,30 @@
             </div>
         </div>
     </div>
+
+    <div class="card d-none" id="ExpenseSection">
+        <div class="card-body">
+            {{-- add button add expense --}}
+            <button class="btn btn-primary mb-3" id="addExpense">Add Expense</button>
+            <div class="table-responsive" id="ExpenseTable">
+                <table class="table table-center mb-0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Expense Name</th>
+                            <th>Chart of Account</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ExpenseTableBody">
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>

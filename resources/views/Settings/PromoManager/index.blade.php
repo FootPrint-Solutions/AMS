@@ -63,7 +63,99 @@
                     className: 'dt-body-center'
                 }],
                 dom: "lBfrtip",
-                buttons: getDatatablesButtonConfigurations(),
+                buttons: getDatatablesButtonConfigurations(
+                    [{
+                        // Update Price Retail
+                        text: '<i class="fas fa-dollar-sign"></i> Update Price Retail',
+                        className: "btn btn-outline-secondary btn-sm",
+                        action: function(e, dt, node, config) {
+                            var selectedData = table.rows({
+                                selected: true
+                            }).data();
+
+                            if (selectedData.length == 0) {
+                                swal.fire(
+                                    "No promo selected",
+                                    "Please select a promo to update its price retail.",
+                                    "warning"
+                                );
+                            } else if (selectedData.length > 1) {
+                                swal.fire(
+                                    "Multiple promos selected",
+                                    "Please select only one promo to update its price retail.",
+                                    "warning"
+                                );
+                            } else {
+                                var promoId = selectedData[0][5];
+                                // swal confirmation before ajax request
+                                swal.fire({
+                                    title: "Are you sure?",
+                                    text: "You are about to update the price retail for this promo.",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonText: "Yes, update it!",
+                                    cancelButtonText: "No, cancel!"
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: "/promo/update-price-retail/" +
+                                                promoId,
+                                            type: "POST",
+                                            data: {
+                                                _token: "{{ csrf_token() }}"
+                                            },
+                                            success: function(response) {
+                                                var res = (
+                                                        typeof response ===
+                                                        "string") ? JSON
+                                                    .parse(
+                                                        response) :
+                                                    response;
+                                                var message = res && res
+                                                    .message ? res.message :
+                                                    "An unexpected response was received.";
+
+                                                if (res && res.status ===
+                                                    "success") {
+                                                    swal.fire(
+                                                        "Updated!",
+                                                        message,
+                                                        "success"
+                                                    );
+                                                } else {
+                                                    swal.fire(
+                                                        "Error!",
+                                                        message,
+                                                        "error"
+                                                    );
+                                                }
+
+                                                table.ajax.reload(null,
+                                                    false);
+                                            },
+                                            error: function(xhr, status,
+                                                error) {
+                                                swal.fire(
+                                                    "Error!",
+                                                    "An error occurred while updating the price retail.",
+                                                    "error"
+                                                );
+                                                table.ajax.reload(null,
+                                                    false);
+                                            }
+                                        });
+                                    } else {
+                                        swal.fire(
+                                            "Cancelled",
+                                            "The price retail update has been cancelled.",
+                                            "info"
+                                        );
+                                    }
+                                });
+                            }
+                        }
+                    }]
+                ),
                 language: getDatatablesLanguangeConfigurations("Promo"),
                 select: true,
                 rowCallback: function(row, data) {
