@@ -350,7 +350,7 @@
     {{-- Modal Show Expense Details --}}
     <div class="modal fade" id="modal-show-expense" tabindex="-1" aria-labelledby="modalShowExpenseLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalShowExpenseLabel">Expense Details</h5>
@@ -1149,16 +1149,16 @@
                     },
                     success: function(response) {
                         if (response.status === 'success' && response.data) {
-                            const salesInvoices = response.data.sales_invoice || [];
+                            const salesOrderExpenses = response.data.sales_order_expenses || [];
                             const chartOfAccounts = response.data.chart_of_accounts || [];
                             let expenseDetailsHtml = '';
 
-                            if (salesInvoices.length > 0) {
+                            if (salesOrderExpenses.length > 0) {
                                 var no = 1;
-                                salesInvoices.forEach(function(item) {
-                                    const expenseName = item.expense?.name || item
-                                        .description || '-';
-                                    const selectedCoaId = item.chart_of_account_id || '';
+                                salesOrderExpenses.forEach(function(item) {
+                                    const expenseName = item.expense?.name || '-';
+                                    const selectedCoaId = item.expense?.chart_of_account_id ||
+                                        '';
                                     const coaOptions = chartOfAccounts.length > 0 ?
                                         chartOfAccounts.map(function(coa) {
                                             return `<option value="${coa.id}" ${String(selectedCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
@@ -1170,11 +1170,11 @@
                                                 <td>${no++}</td>
                                                 <td>${expenseName}</td>
                                                 <td>
-                                                    <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="${item.id}">
+                                                    <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="${item.id}" disabled>
                                                         <option value="">Select COA</option>
                                                         ${coaOptions}
                                                     </select>
-                                                    <input type="hidden" name="sales_invoice_expense_ids[]" value="${item.id}">
+                                                    <input type="hidden" name="sales_order_expense_ids[]" value="${item.id}">
                                                 </td>
                                                 <td class="text-end">Rp ${Number(item.amount || 0).toLocaleString('id-ID')}</td>
                                                 <td class="text-end">-</td>
@@ -1182,7 +1182,8 @@
                                         `;
                                 });
 
-                                const totalExpenses = salesInvoices.reduce((sum, item) => sum + (item
+                                const totalExpenses = salesOrderExpenses.reduce((sum, item) => sum + (
+                                    item
                                     .amount || 0), 0);
                                 expenseDetailsHtml += `
                                     <tr>
@@ -1198,6 +1199,35 @@
                                         </td>
                                         <td class="text-end"><strong>-</strong></td>
                                         <td class="text-end"><strong>Rp ${totalExpenses.toLocaleString('id-ID')}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>${no + 1}</td>
+                                        <td><strong>Cost of Goods Sold (COGS)</strong></td>
+                                        <td>
+                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="cogs">
+                                                <option value="">Select COA</option>
+                                                ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
+                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                }).join('') : '<option value="">No COA available</option>'}
+                                            </select>
+                                        </td>
+                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong></td>
+                                        <td class="text-end"><strong>-</strong></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>${no + 2}</td>
+                                        <td><strong>Inventory Account</strong></td>
+                                        <td>
+                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="inventory">
+                                                <option value="">Select COA</option>
+                                                ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
+                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                }).join('') : '<option value="">No COA available</option>'}
+                                            </select>
+                                        </td>
+                                        <td class="text-end"><strong>-</strong></td>
+                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong></td>
                                     </tr>
                                 `;
                             } else {

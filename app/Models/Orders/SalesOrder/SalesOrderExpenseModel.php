@@ -28,7 +28,8 @@ class SalesOrderExpenseModel extends Model
 
     public function salesOrder()
     {
-        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id');
+        return $this->belongsTo(SalesOrderModel::class, 'sales_order_id')
+            ->with('batteries');
     }
 
     public function expense()

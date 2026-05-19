@@ -20,6 +20,7 @@ use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
+use App\Models\Orders\SalesOrder\SalesOrderExpenseModel;
 
 class Billing extends Controller
 {
@@ -1492,15 +1493,25 @@ class Billing extends Controller
     public function getOrderExpense($id)
     {
         try {
-            $salesInvoice = SalesInvoiceModel::with(['expenses'])->where('sales_order_id', $id)->first();
+            $salesOrderExpenses = SalesOrderExpenseModel::with('expense', 'salesOrder.batteries')->where('sales_order_id', $id)->get();
+            $salesOrder = SalesOrderModel::with('batteries')->find($id);
+
+            $totalPriceBuy = 0;
+            if ($salesOrder && $salesOrder->batteries) {
+                foreach ($salesOrder->batteries as $battery) {
+                    $totalPriceBuy += (float) ($battery->battery->price_buy ?? 0) * (float) ($battery->quantity ?? 1);
+                }
+            }
+
             $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
                 ->orderBy('number')
                 ->select('id', 'number', 'name')
                 ->get();
 
             $data = [
-                'sales_invoice' => $salesInvoice ? $salesInvoice->expenses : [],
-                'chart_of_accounts' => $chartOfAccounts
+                'sales_order_expenses' => $salesOrderExpenses,
+                'chart_of_accounts' => $chartOfAccounts,
+                'total_price_buy' => $totalPriceBuy
             ];
 
             return response()->json([
