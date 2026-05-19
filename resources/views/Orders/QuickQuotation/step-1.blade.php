@@ -92,10 +92,10 @@
                                 <select name="VehicleCustomer[]" multiple="multiple" id="VehicleCustomer"
                                     class="form-select" aria-label="Select vehicles" style="width: 100%;">
                                     @foreach ($data['Vehicle'] as $vehicle)
-                                    <option value="{{ $vehicle['id'] }}"
-                                        data-year="{{ $vehicle['year']['start_year'] ?? '' }}">
-                                        {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
-                                    </option>
+                                        <option value="{{ $vehicle['id'] }}"
+                                            data-year="{{ $vehicle['year']['start_year'] ?? '' }}">
+                                            {{ $vehicle['name'] }}{{ $vehicle['note'] ? ' - ' . $vehicle['note'] : '' }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -491,9 +491,9 @@
                                 <select class="form-control" id="vehicleBrand" name="vehicleBrand" required>
                                     <option value="">Select Brand</option>
                                     @if (isset($data['VehicleBrands']))
-                                    @foreach ($data['VehicleBrands'] as $brand)
-                                    <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
-                                    @endforeach
+                                        @foreach ($data['VehicleBrands'] as $brand)
+                                            <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                                        @endforeach
                                     @endif
                                     <option value="new">Add New Brand...</option>
                                 </select>
@@ -535,9 +535,9 @@
                                 <select class="form-control" id="vehicleFuel" name="vehicleFuel" required>
                                     <option value="">Select Fuel</option>
                                     @if (isset($data['VehicleFuels']))
-                                    @foreach ($data['VehicleFuels'] as $fuel)
-                                    <option value="{{ $fuel['id'] }}">{{ $fuel['name'] }}</option>
-                                    @endforeach
+                                        @foreach ($data['VehicleFuels'] as $fuel)
+                                            <option value="{{ $fuel['id'] }}">{{ $fuel['name'] }}</option>
+                                        @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -552,10 +552,10 @@
                                     required>
                                     <option value="">Select Transmission</option>
                                     @if (isset($data['VehicleTransmissions']))
-                                    @foreach ($data['VehicleTransmissions'] as $transmission)
-                                    <option value="{{ $transmission['id'] }}">{{ $transmission['name'] }}
-                                    </option>
-                                    @endforeach
+                                        @foreach ($data['VehicleTransmissions'] as $transmission)
+                                            <option value="{{ $transmission['id'] }}">{{ $transmission['name'] }}
+                                            </option>
+                                        @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -568,9 +568,9 @@
                                         class="text-danger">*</span></label>
                                 <select class="form-control" id="vehicleBattery" name="vehicleBattery[]" required>
                                     @if (isset($data['BatteryCategory']))
-                                    @foreach ($data['BatteryCategory'] as $battery)
-                                    <option value="{{ $battery['id'] }}">{{ $battery['name'] }}</option>
-                                    @endforeach
+                                        @foreach ($data['BatteryCategory'] as $battery)
+                                            <option value="{{ $battery['id'] }}">{{ $battery['name'] }}</option>
+                                        @endforeach
                                     @endif
                                 </select>
                             </div>
@@ -885,49 +885,49 @@
                             html += '</div><div class="row">';
                         }
 
-                        var col =
-                            '<div class="col alert alert-primary text-center mx-2" id="stock' +
-                            vehicle.id +
-                            '"></div>';
-                        $("#ResultRecommendationStockBatteryVehicle").append(col);
+                        // var col =
+                        //     '<div class="col alert alert-primary text-center mx-2" id="stock' +
+                        //     vehicle.id +
+                        //     '"></div>';
+                        // $("#ResultRecommendationStockBatteryVehicle").append(col);
 
-                        if (ignoreStock) {
-                            $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
+                        // if (ignoreStock) {
+                        //     $("#checkBoxBattery" + vehicle.id).prop('disabled', false);
 
-                            $("#stock" + vehicle.id).html("Stock : 0");
-                            if (vehicle.code != null) {
-                                $("#stock" + vehicle.id).append("<br>ID : " + vehicle.code);
-                            } else {
-                                $("#stock" + vehicle.id).append("<br>ID : -");
-                            }
-                        } else {
-                            (function(vehicleId, vehicleCode) {
-                                $.ajax({
-                                    url: "/inventory/get/" + vehicleCode,
-                                    type: "GET",
-                                    success: function(data) {
-                                        if (data == 0 || data == '-' || data ==
-                                            null) {
-                                            $("#checkBoxBattery" + vehicleId).prop(
-                                                'disabled', true);
-                                        } else {
-                                            $("#checkBoxBattery" + vehicleId).prop(
-                                                'disabled', false);
-                                        }
+                        //     $("#stock" + vehicle.id).html("Stock : 0");
+                        //     if (vehicle.code != null) {
+                        //         $("#stock" + vehicle.id).append("<br>ID : " + vehicle.code);
+                        //     } else {
+                        //         $("#stock" + vehicle.id).append("<br>ID : -");
+                        //     }
+                        // } else {
+                        //     (function(vehicleId, vehicleCode) {
+                        //         $.ajax({
+                        //             url: "/inventory/get/" + vehicleCode,
+                        //             type: "GET",
+                        //             success: function(data) {
+                        //                 if (data == 0 || data == '-' || data ==
+                        //                     null) {
+                        //                     $("#checkBoxBattery" + vehicleId).prop(
+                        //                         'disabled', true);
+                        //                 } else {
+                        //                     $("#checkBoxBattery" + vehicleId).prop(
+                        //                         'disabled', false);
+                        //                 }
 
-                                        $("#stock" + vehicleId).html("Stock : " +
-                                            data);
-                                        if (vehicleCode != null) {
-                                            $("#stock" + vehicleId).append(
-                                                "<br>ID : " + vehicleCode);
-                                        } else {
-                                            $("#stock" + vehicleId).append(
-                                                "<br>ID : -");
-                                        }
-                                    }
-                                });
-                            })(vehicle.id, vehicle.code);
-                        }
+                        //                 $("#stock" + vehicleId).html("Stock : " +
+                        //                     data);
+                        //                 if (vehicleCode != null) {
+                        //                     $("#stock" + vehicleId).append(
+                        //                         "<br>ID : " + vehicleCode);
+                        //                 } else {
+                        //                     $("#stock" + vehicleId).append(
+                        //                         "<br>ID : -");
+                        //                 }
+                        //             }
+                        //         });
+                        //     })(vehicle.id, vehicle.code);
+                        // }
                     });
                     html += '</div>'; // Menutup row terakhir
                     $('#ResultRecommendationBatteryVehicle').html(html);

@@ -384,4 +384,47 @@ class Promo extends Controller
             return getResponseData(false);
         }
     }
+
+    public function updatePriceRetail(Request $request, $id)
+    {
+        $allBattery = PromoBatteryModel::where('promo_id', $id)->get();
+
+        foreach ($allBattery as $battery) {
+
+            $batteryData = BatteryModel::find($battery->battery_id);
+
+            if (!$batteryData) {
+                continue;
+            }
+
+            $check = BatteryPriceModel::where('battery_id', $battery->battery_id)->where('promo_id', $id)->first();
+            if (!$check) {
+                Log::warning("Battery price record not found for battery_id: {$battery->battery_id} and promo_id: {$id}. Creating a new record.");
+            }
+
+            BatteryPriceModel::updateOrCreate(
+                [
+                    'promo_id'   => $id,
+                    'battery_id' => $battery->battery_id,
+                ],
+                [
+                    'price_retail' => $batteryData->price_retail,
+                ]
+            );
+
+            $promoBattery = PromoBatteryModel::where('promo_id', $id)->where('battery_id', $battery->battery_id)->first();
+            if ($promoBattery) {
+                $promoBattery->price_retail = $batteryData->price_retail;
+                $promoBattery->price_net = $batteryData->price_retail - $promoBattery->discount_price;
+                $promoBattery->save();
+            } else {
+                Log::warning("Promo battery record not found for battery_id: {$battery->battery_id} and promo_id: {$id}. Unable to update price_retail.");
+            }
+        }
+
+        return getResponseData(
+            "success",
+            'The retail price was successfully updated!'
+        );
+    }
 }

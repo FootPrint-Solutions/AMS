@@ -9,6 +9,8 @@ use Exception;
 
 // MODELS
 use App\Models\Settings\PaymentMethodModel;
+use App\Models\Accounting\ChartOfAccountModel;
+
 
 class PaymentMethod extends Controller
 {
@@ -42,6 +44,9 @@ class PaymentMethod extends Controller
             "Settings.PaymentMethodManager.create",
             getIndexData(
                 $this->title,
+                [
+                    "chart_of_accounts" => ChartOfAccountModel::get()->toArray()
+                ]
             )
         );
     }
@@ -59,7 +64,8 @@ class PaymentMethod extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => PaymentMethodModel::find($id)->toArray()
+                    "profile" => PaymentMethodModel::find($id)->toArray(),
+                    "chart_of_accounts" => ChartOfAccountModel::get()->toArray()
                 )
             )
         );
@@ -104,6 +110,7 @@ class PaymentMethod extends Controller
             // Set an array for each row.
             $row = [];
             $row[] = $no++;
+            $row[] = $key->chartOfAccount ? ($key->chartOfAccount->number ? $key->chartOfAccount->number . ' - ' : '') . $key->chartOfAccount->name : '';
             $row[] = $key->name;
             $row[] = $key->type;
             $row[] = "<i class='fa-solid fa-circle $statusIndicatorColor'></i>";
@@ -130,6 +137,7 @@ class PaymentMethod extends Controller
     {
         try {
             $payment = new PaymentMethodModel();
+            $payment->chart_of_account_id = $request->chart_of_account_id;
             $payment->name = $request->name;
             $payment->type = $request->type;
             $payment->note = $request->note;
@@ -161,6 +169,7 @@ class PaymentMethod extends Controller
                 'name' => 'required|string|max:255',
                 'type' => 'required|string|max:100',
                 'note' => 'nullable|string',
+                'chart_of_account_id' => 'nullable|integer|exists:chart_of_accounts,id',
             ]);
 
             $payment = PaymentMethodModel::find($request->id);
@@ -169,6 +178,7 @@ class PaymentMethod extends Controller
                 return getResponseData(false, 'Payment method not found.');
             }
 
+            $payment->chart_of_account_id = $request->chart_of_account_id;
             $payment->name = $request->name;
             $payment->type = $request->type;
             $payment->note = $request->note;

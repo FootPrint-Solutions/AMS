@@ -11,3 +11,4 @@ Route::get('/promo/edit/{id}', [Promo::class, 'edit'])->name('promo.edit')->midd
 Route::post('/promo/store', [Promo::class, 'store'])->name('promo.store')->middleware('permission:add_promo');
 Route::post('/promo/update', [Promo::class, 'update'])->name('promo.update')->middleware('permission:edit_promo');
 Route::post('/promo/toggle', [Promo::class, 'updateStatus'])->name('promo.toggle')->middleware('permission:edit_promo');
+Route::post('/promo/update-price-retail/{id}', [Promo::class, 'updatePriceRetail'])->name('promo.updatePriceRetail')->middleware('permission:edit_promo');

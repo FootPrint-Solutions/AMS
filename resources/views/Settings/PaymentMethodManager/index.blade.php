@@ -23,6 +23,7 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-col-no">#</th>
+                        <th scope="col">Chart of Account</th>
                         <th scope="col">Name</th>
                         <th scope="col">Type</th>
                         <th scope="col" class="table-col-status">Status</th>
@@ -73,7 +74,7 @@
             });
 
             // Load DataTables toolbar component.
-            appendDatatablesToolbar(4, "/payment/edit/", null, "/payment/toggle");
+            appendDatatablesToolbar(5, "/payment/edit/", null, "/payment/toggle");
         });
     </script>
 
