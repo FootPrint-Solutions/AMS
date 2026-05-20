@@ -586,7 +586,7 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
-            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount', 'billing'])
+            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount', 'billing', 'expenses'])
                 ->whereIn('billing_id', $billingIds)
                 ->get();
             $salesOrderIds = [];
@@ -635,6 +635,40 @@ class Billing extends Controller
                     'invoice_id' => $inv->invoice_id,
                     'invoice_type' => BillingInvoiceModel::class,
                 ]);
+
+                // insert expenses to JournalTransactionDetail
+                $BillingInvoiceExpenses = BillingInvoiceExpenseModel::where('billing_invoice_id', $inv->id)->get();
+                foreach ($BillingInvoiceExpenses as $expense) {
+                    if ($expense->debit_account_id) {
+                        JournalTransactionDetailModel::create([
+                            'journal_entry_id' => $journalTransaction->id,
+                            'chart_of_account_id' => $expense->debit_account_id,
+                            'account_number' => optional($expense->debitAccount)->number,
+                            'account_name' => optional($expense->debitAccount)->name,
+                            'description' => 'Debit Expense for Billing - ' . $expense->description,
+                            'ref' => $expense->description,
+                            'debit' => $expense->amount ?? 0,
+                            'credit' => 0,
+                            'invoice_id' => $inv->invoice_id,
+                            'invoice_type' => BillingInvoiceModel::class,
+                        ]);
+                    }
+
+                    if ($expense->credit_account_id) {
+                        JournalTransactionDetailModel::create([
+                            'journal_entry_id' => $journalTransaction->id,
+                            'chart_of_account_id' => $expense->credit_account_id,
+                            'account_number' => optional($expense->creditAccount)->number,
+                            'account_name' => optional($expense->creditAccount)->name,
+                            'description' => 'Credit Expense for Billing - ' . $expense->description,
+                            'ref' => $expense->description,
+                            'debit' => 0,
+                            'credit' => $expense->amount ?? 0,
+                            'invoice_id' => $inv->invoice_id,
+                            'invoice_type' => BillingInvoiceModel::class,
+                        ]);
+                    }
+                }
             }
 
             $billingNumber = BillingModel::whereIn('id', $billingIds)->pluck('billing_number')->toArray();

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 // Models
 use App\Models\Accounting\BillingModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
 
 class BillingInvoiceModel extends Model
 {
@@ -43,5 +44,10 @@ class BillingInvoiceModel extends Model
     public function invoice()
     {
         return $this->morphTo(__FUNCTION__, 'invoice_type', 'invoice_id');
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(BillingInvoiceExpenseModel::class, 'billing_invoice_id');
     }
 }
