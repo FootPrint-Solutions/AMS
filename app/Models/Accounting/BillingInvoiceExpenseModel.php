@@ -14,7 +14,7 @@ class BillingInvoiceExpenseModel extends Model
 
     protected $fillable = [
         'billing_invoice_id',
-        'sales_invoice_id',
+        'sales_order_id',
         'debit_account_id',
         'credit_account_id',
         'description',
@@ -23,7 +23,7 @@ class BillingInvoiceExpenseModel extends Model
 
     protected $casts = [
         'billing_invoice_id' => 'integer',
-        'sales_invoice_id' => 'integer',
+        'sales_order_id' => 'integer',
         'debit_account_id' => 'integer',
         'credit_account_id' => 'integer',
         'amount' => 'decimal:2',

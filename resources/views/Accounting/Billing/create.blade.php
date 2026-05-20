@@ -397,6 +397,8 @@
     <script>
         let ordersDataTable = null;
         let purchaseOrdersDataTable = null;
+        let currentOrderExpenseData = {}; // Store current order expense data
+        let allOrderExpenses = {}; // Store all expenses by invoice ID
         const vendorSelect = $("#vendor");
         const shipToSelect = $("#ship_to");
         const btnFind = $('#btn-find-billing');
@@ -907,6 +909,73 @@
             calculateTotals();
         });
 
+        // Handle save expenses button
+        $('#btn-save-expenses').on('click', function() {
+            const $btn = $(this).prop('disabled', true).html(
+                '<i class="fas fa-spinner fa-spin"></i> Saving...'
+            );
+
+            if (!currentOrderExpenseData.salesOrderId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Sales Order ID is missing. Please try again.'
+                });
+                $btn.prop('disabled', false).html('Save');
+                return;
+            }
+
+            // Collect expense data from modal
+            const expenseData = {
+                _token: '{{ csrf_token() }}',
+                sales_order_id: currentOrderExpenseData.salesOrderId,
+                billing_invoice_id: null, // Will be set during store
+                coa_ids: [],
+                sales_order_expense_ids: [],
+                expense_amounts: [],
+                credit_account_id: null,
+                total_price_buy: 0
+            };
+
+            // Collect COA selections
+            $('#expense-details-table tbody').find('select.coa-selection').each(function(index) {
+                const coaId = $(this).val();
+                const expenseId = $(this).data('expense-id');
+                const $row = $(this).closest('tr');
+                const amount = parseFloat($row.find('td:eq(3)').text().replace(/[^\d]/g, '')) || 0;
+
+                if (expenseId === 'credit') {
+                    expenseData.credit_account_id = coaId;
+                } else if (expenseId === 'cogs') {
+                    expenseData.coa_ids.push(coaId);
+                    expenseData.sales_order_expense_ids.push('cogs');
+                    expenseData.expense_amounts.push(amount);
+                } else if (expenseId === 'inventory') {
+                    expenseData.coa_ids.push(coaId);
+                    expenseData.sales_order_expense_ids.push('inventory');
+                    expenseData.expense_amounts.push(amount);
+                    expenseData.total_price_buy = amount;
+                } else if (expenseId) {
+                    expenseData.coa_ids.push(coaId);
+                    expenseData.sales_order_expense_ids.push(expenseId);
+                    expenseData.expense_amounts.push(amount);
+                }
+            });
+
+            // Store the expense data for later use during billing save
+            allOrderExpenses[currentOrderExpenseData.salesOrderId] = expenseData;
+
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Expense details saved temporarily. They will be stored when you save the billing.'
+            }).then(() => {
+                $btn.prop('disabled', false).html('Save');
+                modalShowExpense.hide();
+            });
+        });
+
         // Form Submit Handler
         $('#quotation-form').on('submit', function(e) {
             e.preventDefault();
@@ -959,6 +1028,7 @@
             formData.delete('order_types[]');
             formData.delete('order_sources[]');
             formData.delete('invoice_ids[]');
+            formData.delete('sales_order_ids[]');
             formData.delete('order_numbers[]');
             formData.delete('discounts[]');
             formData.delete('subtotals[]');
@@ -973,6 +1043,8 @@
                 formData.append('subtotals[]', order.subtotal);
                 formData.append('totals[]', order.total);
             });
+
+            formData.append('expenses_data', JSON.stringify(allOrderExpenses));
 
             const url = isEdit ? '/billing/update' : '/billing/store';
             const actionText = isEdit ? 'update' : 'create';
@@ -1138,6 +1210,15 @@
             const orderRow = $(this).closest('tr');
             const orderType = orderRow.data('order-type');
             const orderSource = orderRow.data('order-source');
+            const salesOrderId = orderRow.find('input[name="invoice_ids[]"]').val();
+
+            // Store current order expense data
+            currentOrderExpenseData = {
+                salesOrderId: salesOrderId,
+                orderId: orderId,
+                orderType: orderType,
+                orderSource: orderSource
+            };
 
             // Only show expense modal for sales orders
             if (orderType === 'App\\Models\\Orders\\SalesOrder\\SalesOrderModel' || orderType === 'sales_order') {
@@ -1175,6 +1256,7 @@
                                                         ${coaOptions}
                                                     </select>
                                                     <input type="hidden" name="sales_order_expense_ids[]" value="${item.id}">
+                                                    <input type="hidden" name="sales_order_id[]" value="${item.sales_order_id}">
                                                 </td>
                                                 <td class="text-end">Rp ${Number(item.amount || 0).toLocaleString('id-ID')}</td>
                                                 <td class="text-end">-</td>
