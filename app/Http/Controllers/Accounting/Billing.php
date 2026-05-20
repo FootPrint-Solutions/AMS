@@ -421,22 +421,35 @@ class Billing extends Controller
 
                 // Save expenses for this invoice if they exist
                 if (!empty($expensesData[$invoiceId])) {
-                    // dd($expensesData);
                     $expenseData = $expensesData[$invoiceId];
 
-                    // Save each expense record
-                    for ($i = 0; $i < count($expenseData['coa_ids']); $i++) {
-                        $coaId = $expenseData['coa_ids'][$i] ?? null;
+                    for ($i = 0; $i < count($expenseData['expense_names']); $i++) {
+                        $coaDebitId = $expenseData['coa_debit_ids'][$i] ?? null;
+                        $coaCreditId = $expenseData['coa_credit_ids'][$i] ?? null;
                         $expenseId = $expenseData['sales_order_expense_ids'][$i] ?? null;
-                        $amount = $expenseData['expense_amounts'][$i] ?? 0;
-                        if ($coaId) {
+                        $amountExpenseId = $expenseData['expense_debit_amounts'][$i] ?? 0;
+                        $amountCreditExpenseId = $expenseData['expense_credit_amounts'][$i] ?? 0;
+                        $expenseName = $expenseData['expense_names'][$i] ?? null;
+
+                        if ($coaDebitId) {
                             BillingInvoiceExpenseModel::create([
                                 'billing_invoice_id' => $billingInvoice->id,
                                 'sales_order_id' => $expenseData['sales_order_id'] ?? null,
-                                'debit_account_id' => $coaId,
-                                'credit_account_id' => $expenseData['credit_account_id'] ?? null,
-                                'description' => $expenseId === 'cogs' ? 'Cost of Goods Sold (COGS)' : ($expenseId === 'inventory' ? 'Inventory Account' : 'Expense from Sales Order'),
-                                'amount' => $amount,
+                                'debit_account_id' => $coaDebitId,
+                                'credit_account_id' => NULL,
+                                'description' => $expenseName,
+                                'amount' => $amountExpenseId,
+                            ]);
+                        }
+
+                        if ($coaCreditId) {
+                            BillingInvoiceExpenseModel::create([
+                                'billing_invoice_id' => $billingInvoice->id,
+                                'sales_order_id' => $expenseData['sales_order_id'] ?? null,
+                                'debit_account_id' => NULL,
+                                'credit_account_id' => $coaCreditId,
+                                'description' => $expenseName,
+                                'amount' => $amountCreditExpenseId,
                             ]);
                         }
                     }

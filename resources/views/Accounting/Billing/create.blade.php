@@ -930,35 +930,42 @@
                 _token: '{{ csrf_token() }}',
                 sales_order_id: currentOrderExpenseData.salesOrderId,
                 billing_invoice_id: null, // Will be set during store
-                coa_ids: [],
+                expense_names: [],
+                coa_debit_ids: [],
+                coa_credit_ids: [],
                 sales_order_expense_ids: [],
-                expense_amounts: [],
+                expense_debit_amounts: [],
+                expense_credit_amounts: [],
                 credit_account_id: null,
                 total_price_buy: 0
             };
 
             // Collect COA selections
-            $('#expense-details-table tbody').find('select.coa-selection').each(function(index) {
-                const coaId = $(this).val();
+            $('#expense-details-table tbody').find('tr').each(function() {
                 const expenseId = $(this).data('expense-id');
-                const $row = $(this).closest('tr');
-                const amount = parseFloat($row.find('td:eq(3)').text().replace(/[^\d]/g, '')) || 0;
+                const name = $(this).find('.expense-name').val();
+                const coaDebitId = $(this).find('.coa-debit-select').val();
+                const coaCreditId = $(this).find('.coa-credit-select').val();
+                const debitAmount = parseFloat($(this).find('.debit-amount').val()) || 0;
+                const creditAmount = parseFloat($(this).find('.credit-amount').val()) || 0;
 
-                if (expenseId === 'credit') {
-                    expenseData.credit_account_id = coaId;
-                } else if (expenseId === 'cogs') {
-                    expenseData.coa_ids.push(coaId);
-                    expenseData.sales_order_expense_ids.push('cogs');
-                    expenseData.expense_amounts.push(amount);
-                } else if (expenseId === 'inventory') {
-                    expenseData.coa_ids.push(coaId);
-                    expenseData.sales_order_expense_ids.push('inventory');
-                    expenseData.expense_amounts.push(amount);
-                    expenseData.total_price_buy = amount;
-                } else if (expenseId) {
-                    expenseData.coa_ids.push(coaId);
+                console.log('Expense Row Data:', {
+                    expenseId,
+                    name,
+                    coaDebitId,
+                    coaCreditId,
+                    debitAmount,
+                    creditAmount
+                });
+
+                if (name && (coaDebitId || coaCreditId) && (debitAmount > 0 || creditAmount > 0)) {
+                    expenseData.expense_names.push(name);
+                    expenseData.coa_debit_ids.push(coaDebitId);
+                    expenseData.coa_credit_ids.push(coaCreditId);
                     expenseData.sales_order_expense_ids.push(expenseId);
-                    expenseData.expense_amounts.push(amount);
+                    expenseData.expense_debit_amounts.push(debitAmount);
+                    expenseData.expense_credit_amounts.push(creditAmount);
+                    expenseData.total_price_buy += debitAmount; // Assuming total_price_buy is sum of debits
                 }
             });
 
@@ -1249,16 +1256,21 @@
                                     expenseDetailsHtml += `
                                             <tr>
                                                 <td>${no++}</td>
-                                                <td>${expenseName}</td>
+                                                <td>${expenseName}
+                                                <input type="hidden" name="expense_names[]" value="${expenseName}" class="expense-name">
+                                                </td>
                                                 <td>
-                                                    <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="${item.id}" disabled>
+                                                    <select class="form-control form-select coa-selection coa-debit-select" name="coa_debit_ids[]" data-expense-id="${item.id}" disabled>
                                                         <option value="">Select COA</option>
                                                         ${coaOptions}
                                                     </select>
                                                     <input type="hidden" name="sales_order_expense_ids[]" value="${item.id}">
                                                     <input type="hidden" name="sales_order_id[]" value="${item.sales_order_id}">
                                                 </td>
-                                                <td class="text-end">Rp ${Number(item.amount || 0).toLocaleString('id-ID')}</td>
+                                                <td class="text-end">
+                                                    Rp ${Number(item.amount || 0).toLocaleString('id-ID')}
+                                                    <input type="hidden" name="expense_debit_amounts[]" value="${item.amount || 0}" class="debit-amount">
+                                                </td>
                                                 <td class="text-end">-</td>
                                             </tr>
                                         `;
@@ -1270,9 +1282,11 @@
                                 expenseDetailsHtml += `
                                     <tr>
                                         <td>${no}</td>
-                                        <td><strong>Credit Account</strong></td>
+                                        <td><strong>Credit Account</strong>
+                                            <input type="hidden" name="expense_names[]" value="Credit Account" class="expense-name">
+                                        </td>
                                         <td>
-                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="credit">
+                                            <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="credit">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
                                                     return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
@@ -1280,28 +1294,36 @@
                                             </select>
                                         </td>
                                         <td class="text-end"><strong>-</strong></td>
-                                        <td class="text-end"><strong>Rp ${totalExpenses.toLocaleString('id-ID')}</strong></td>
+                                        <td class="text-end"><strong>Rp ${totalExpenses.toLocaleString('id-ID')}</strong>
+                                            <input type="hidden" name="expense_credit_amounts[]" value="${totalExpenses}" class="credit-amount">
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>${no + 1}</td>
-                                        <td><strong>Cost of Goods Sold (COGS)</strong></td>
+                                        <td><strong>Cost of Goods Sold (COGS)</strong>
+                                            <input type="hidden" name="expense_names[]" value="Cost of Goods Sold (COGS)" class="expense-name">
+                                        </td>
                                         <td>
-                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="cogs">
+                                            <select class="form-control form-select coa-selection coa-debit-select" name="coa_debit_ids[]" data-expense-id="cogs">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
                                                     return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
                                                 }).join('') : '<option value="">No COA available</option>'}
                                             </select>
                                         </td>
-                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong></td>
+                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong>
+                                            <input type="hidden" name="expense_debit_amounts[]" value="${response.data.total_price_buy}" class="debit-amount">
+                                        </td>
                                         <td class="text-end"><strong>-</strong></td>
                                     </tr>
 
                                     <tr>
                                         <td>${no + 2}</td>
-                                        <td><strong>Inventory Account</strong></td>
+                                        <td><strong>Inventory Account</strong>
+                                            <input type="hidden" name="expense_names[]" value="Inventory Account" class="expense-name">
+                                        </td>
                                         <td>
-                                            <select class="form-control form-select coa-selection" name="coa_ids[]" data-expense-id="inventory">
+                                            <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="inventory">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
                                                     return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
@@ -1309,7 +1331,9 @@
                                             </select>
                                         </td>
                                         <td class="text-end"><strong>-</strong></td>
-                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong></td>
+                                        <td class="text-end"><strong>Rp ${response.data.total_price_buy.toLocaleString('id-ID')}</strong>
+                                            <input type="hidden" name="expense_credit_amounts[]" value="${response.data.total_price_buy}" class="credit-amount">
+                                        </td>
                                     </tr>
                                 `;
                             } else {
