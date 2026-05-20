@@ -785,6 +785,23 @@ class Billing extends Controller
 
         $items = [];
         foreach ($billing->invoices as $invoice) {
+            // load related expenses for this billing invoice (if any)
+            $expensesQuery = BillingInvoiceExpenseModel::where('billing_invoice_id', $invoice->id)
+                ->with(['debitAccount', 'creditAccount'])
+                ->get();
+
+            $expenses = $expensesQuery->map(function ($e) {
+                return [
+                    'id' => $e->id,
+                    'description' => $e->description,
+                    'amount' => number_format($e->amount, 0, ',', '.'),
+                    'debit_account' => $e->debitAccount ? ($e->debitAccount->number . ' - ' . $e->debitAccount->name) : null,
+                    'credit_account' => $e->creditAccount ? ($e->creditAccount->number . ' - ' . $e->creditAccount->name) : null,
+                    'debit_account_id' => $e->debit_account_id,
+                    'credit_account_id' => $e->credit_account_id,
+                ];
+            })->toArray();
+
             $items[] = [
                 'billing_id' => $invoice->billing_id,
                 'invoice_id' => $invoice->invoice_id,
@@ -796,6 +813,7 @@ class Billing extends Controller
                 'discount_price' => number_format($invoice->discount_price, 0, ',', '.'),
                 'subtotal' => number_format($invoice->subtotal, 0, ',', '.'),
                 'total' => number_format($invoice->total, 0, ',', '.'),
+                'expenses' => $expenses,
             ];
         }
 
