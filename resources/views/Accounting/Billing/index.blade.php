@@ -106,7 +106,7 @@
                 processing: true,
                 serverSide: true,
                 order: [
-                    [5, "desc"]
+                    [2, "desc"]
                 ],
                 ajax: {
                     url: "{{ url('/billing/show') }}",
