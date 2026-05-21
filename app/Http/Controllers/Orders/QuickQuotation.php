@@ -34,6 +34,7 @@ use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\Settings\PaymentMethodModel;
 use App\Models\Accounting\ExpenseModel;
 use App\Models\Orders\SalesOrder\SalesOrderExpenseModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
 use App\Models\Servers\ServerPaymentGatewayModel;
 use Illuminate\Support\Facades\DB;
 
@@ -1097,6 +1098,15 @@ $arrayBattery
                     SalesOrderExpenseModel::create([
                         'sales_order_id' => $Quotation->id,
                         'expense_id' => $ExpenseId,
+                        'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
+                    ]);
+
+                    BillingInvoiceExpenseModel::create([
+                        'billing_invoice_id' => $billing->id,
+                        'sales_order_id' => $Quotation->id,
+                        'debit_account_id' => ExpenseModel::find($ExpenseId)->chart_of_account_id,
+                        'credit_account_id' => NULL,
+                        'description' => ExpenseModel::find($ExpenseId)->name,
                         'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
                     ]);
                 }

@@ -287,6 +287,10 @@
         $("#ExpenseTableBody").append(newRow);
         $("#TotalExpense").text("Rp. " + totalExpense.toLocaleString('id-ID'));
         $("#AddExpenseModal").modal("hide");
+
+        // clear modal input
+        $("#ExpenseName").val("");
+        $("#ExpenseAmount").val("");
     });
 
     $(document).on("click", ".btn-delete-expense", function() {

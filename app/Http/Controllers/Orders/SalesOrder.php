@@ -32,6 +32,11 @@ use App\Models\Inventory\InventoryRecycleDetailModel;
 use App\Models\MasterData\Distributor\DistributorModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Inventory\InventoryModel;
+use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Accounting\ExpenseModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
+use App\Models\Accounting\BillingModel;
+use App\Models\Accounting\BillingInvoiceModel;
 
 // Midtrans 
 use App\Services\Midtrans\Transaction;
@@ -100,6 +105,7 @@ class SalesOrder extends Controller
                     "shops" => DistributorShopModel::with(['distributor'])->get()->toArray(),
                     "tax" => TaxModel::where('status', 1)->first()->percentage ?? "0.00",
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
+                    "expenses" => ExpenseModel::with('chartOfAccount')->where('is_active', 1)->orderBy('name', 'asc')->get()->toArray()
                 )
             )
         );
@@ -385,6 +391,57 @@ class SalesOrder extends Controller
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
+            }
+
+            $billing = BillingModel::create([
+                'billing_number' => BillingModel::generateSalesBillingNumber(),
+                'vendor_id' => $salesOrder->shop->distributor_id,
+                'vendor_type' => DistributorShopModel::class,
+                'ship_to_id' => $salesOrder->customer_id,
+                'ship_to_type' => CustomerModel::class,
+                'date' => date('Y-m-d'),
+                'discount' => $salesOrder->discount,
+                'discount_price' => $salesOrder->discount_price,
+                'subtotal' => $salesOrder->subtotal,
+                'total' => $salesOrder->total,
+                'status' => 'draft',
+            ]);
+
+            if ($billing ?? false) {
+                BillingInvoiceModel::create([
+                    'billing_id' => $billing->id,
+                    'invoice_id' => $salesOrder->id,
+                    'invoice_type' => SalesOrderModel::class,
+                    'invoice_number' => $salesOrder->sales_order_number,
+                    'date' => date('Y-m-d'),
+                    'discount' => $salesOrder->discount,
+                    'discount_price' => $salesOrder->discount_price,
+                    'subtotal' => $salesOrder->subtotal,
+                    'total' => $salesOrder->total,
+                    'note' => 'Battery Regular From Sales Order ' . $salesOrder->sales_order_number,
+                ]);
+            }
+
+            // store expenses
+            if ($request->has('ExpenseIds')) {
+                $expenseIds = $request->input('ExpenseIds');
+                $expenseAmounts = $request->input('ExpenseAmounts');
+
+                for ($i = 0; $i < count($expenseIds); $i++) {
+                    $expenseId = $expenseIds[$i];
+                    $expenseModel = ExpenseModel::find($expenseId);
+
+                    if ($expenseModel) {
+                        $expense = new BillingInvoiceExpenseModel();
+                        $expense->billing_invoice_id = $billing->id;
+                        $expense->sales_order_id = $salesOrder->id;
+                        $expense->debit_account_id = $expenseModel->chartOfAccount->id;
+                        $expense->credit_account_id = NULL;
+                        $expense->description = $expenseModel->name;
+                        $expense->amount = (float) str_replace(".", "", $expenseAmounts[$i]);
+                        $status &= $expense->save();
+                    }
+                }
             }
 
             if ($status)
