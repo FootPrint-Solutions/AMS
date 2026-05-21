@@ -202,7 +202,14 @@ class SalesOrderModel extends Model implements Auditable
     {
         // Set the list of select and search columns.
         $selectColumns = [
-            'sales_orders.*',
+            'sales_orders.id',
+            'sales_orders.sales_order_number',
+            'sales_orders.invoice_number',
+            'sales_orders.date',
+            'sales_orders.total',
+            'sales_orders.status',
+            'sales_orders.payment_status',
+            'sales_orders.type',
             'customers.name AS customer_name',
             'vehicles.name AS vehicle_name',
             'shops.name AS shop_name',
@@ -210,7 +217,9 @@ class SalesOrderModel extends Model implements Auditable
             'distributors.name AS distributor_name',
             'technicians.name AS technician_name',
             'payment_methods.name AS payment_method_name',
-            'billing.billing_number AS billing_number'
+            'billing.billing_number AS billing_number',
+            'vendor.name AS vendor_name',
+            'ship_to.name AS ship_to_name',
         ];
         $searchColumns = ['sales_order_number', 'sales_orders.invoice_number', 'customers.name', 'shops.name', 'distributors.name', 'technicians.name'];
 
@@ -231,32 +240,16 @@ class SalesOrderModel extends Model implements Auditable
 
         // Build the query to obtain all rows.
         $query = self::query();
-        $query->leftJoin("customers", "sales_orders.customer_id", "=", "customers.id");
-        $query->leftJoin("vehicles", "sales_orders.vehicle_id", "=", "vehicles.id");
-        $query->leftJoin("distributor_shops AS shops", function ($join) {
-            $join->on("sales_orders.distributor_shop_id", "=", "shops.id")
-                ->orOn("sales_orders.vendor", "=", "shops.id");
-        });
-        $query->leftJoin("distributors", function ($join) {
-            $join->on("shops.distributor_id", "=", "distributors.id")
-                ->orOn("sales_orders.ship_to", "=", "distributors.id");
-        });
-        $query->leftJoin("distributor_shop_technicians AS technicians", "sales_orders.distributor_shop_technician_id", "=", "technicians.id");
-        $query->leftJoin("payment_methods", "sales_orders.payment_method_id", "=", "payment_methods.id");
-        $billingInvoiceSub = DB::table('billing_invoices')
-            ->select('invoice_id', DB::raw('MAX(id) as max_id'))
-            ->where('invoice_type', SalesOrderModel::class)
-            ->groupBy('invoice_id');
-
-        $query->leftJoinSub($billingInvoiceSub, 'bi_pick', function ($join) {
-            $join->on('sales_orders.id', '=', 'bi_pick.invoice_id');
-        });
-
-        $query->leftJoin('billing_invoices as billing_invoices', 'billing_invoices.id', '=', 'bi_pick.max_id');
-        $query->leftJoin('billings as billing', 'billing_invoices.billing_id', '=', 'billing.id');
-
-
-        $query->with('vendorData', 'shipToData');
+        $query->leftJoin('customers', 'sales_orders.customer_id', '=', 'customers.id');
+        $query->leftJoin('vehicles', 'sales_orders.vehicle_id', '=', 'vehicles.id');
+        $query->leftJoin('distributor_shops AS shops', 'sales_orders.distributor_shop_id', '=', 'shops.id');
+        $query->leftJoin('distributors', 'shops.distributor_id', '=', 'distributors.id');
+        $query->leftJoin('distributor_shop_technicians AS technicians', 'sales_orders.distributor_shop_technician_id', '=', 'technicians.id');
+        $query->leftJoin('payment_methods', 'sales_orders.payment_method_id', '=', 'payment_methods.id');
+        $query->leftJoin('billing_invoices AS billing_invoices', 'sales_orders.id', '=', 'billing_invoices.invoice_id');
+        $query->leftJoin('billings AS billing', 'billing_invoices.billing_id', '=', 'billing.id');
+        $query->leftJoin('distributor_shops AS vendor', 'sales_orders.vendor', '=', 'vendor.id');
+        $query->leftJoin('distributors AS ship_to', 'sales_orders.ship_to', '=', 'ship_to.id');
 
         // filter tanggal
         if ($request->dateStart && $request->dateEnd) {
@@ -268,8 +261,6 @@ class SalesOrderModel extends Model implements Auditable
             $query->where('sales_orders.type', $request->salesOrderType);
         }
 
-
-        $query->distinct('sales_orders.id');
         $query->select($selectColumns);
 
         // order by
