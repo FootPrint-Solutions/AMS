@@ -268,6 +268,8 @@ class SalesOrderModel extends Model implements Auditable
             $query->where('sales_orders.type', $request->salesOrderType);
         }
 
+
+        $query->distinct('sales_orders.id');
         $query->select($selectColumns);
 
         // order by

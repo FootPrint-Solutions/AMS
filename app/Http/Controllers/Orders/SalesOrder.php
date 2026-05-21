@@ -1150,6 +1150,7 @@ class SalesOrder extends Controller
                     "payment_methods" => PaymentMethodModel::where('status', 1)->get()->toArray(),
                     "DistributorShop" => DistributorShopModel::get()->toArray(),
                     "Distributor" => DistributorModel::get()->toArray(),
+                    "expenses" => ExpenseModel::with('chartOfAccount')->where('is_active', 1)->orderBy('name', 'asc')->get()->toArray()
                 )
             )
         );
@@ -1203,6 +1204,58 @@ class SalesOrder extends Controller
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
+            }
+
+            $billing = BillingModel::create([
+                'billing_number' => BillingModel::generateSalesBillingNumber(),
+                'vendor_id' => $salesOrder->vendor,
+                'vendor_type' => DistributorShopModel::class,
+                'ship_to_id' => $salesOrder->ship_to,
+                'ship_to_type' => DistributorModel::class,
+                'date' => date('Y-m-d'),
+                'discount' => $salesOrder->discount,
+                'discount_price' => $salesOrder->discount_price,
+                'subtotal' => $salesOrder->subtotal,
+                'total' => $salesOrder->total,
+                'status' => 'draft',
+            ]);
+
+            if ($billing ?? false) {
+                BillingInvoiceModel::create([
+                    'billing_id' => $billing->id,
+                    'invoice_id' => $salesOrder->id,
+                    'invoice_type' => SalesOrderModel::class,
+                    'invoice_number' => $salesOrder->sales_order_number,
+                    'date' => date('Y-m-d'),
+                    'discount' => $salesOrder->discount,
+                    'discount_price' => $salesOrder->discount_price,
+                    'subtotal' => $salesOrder->subtotal,
+                    'total' => $salesOrder->total,
+                    'note' => 'Battery Recycle From Sales Order Recycle ' . $salesOrder->sales_order_number,
+                ]);
+            }
+
+            // store expenses
+            if ($request->has('ExpenseIds')) {
+                $expenseIds = $request->input('ExpenseIds');
+                $expenseAmounts = $request->input('ExpenseAmounts');
+
+                for ($i = 0; $i < count($expenseIds); $i++) {
+                    $expenseId = $expenseIds[$i];
+                    $expenseModel = ExpenseModel::find($expenseId);
+
+                    if ($expenseModel) {
+                        $expense = new BillingInvoiceExpenseModel();
+                        $expense->expense_id = $expenseId;
+                        $expense->billing_invoice_id = $billing->id;
+                        $expense->sales_order_id = $salesOrder->id;
+                        $expense->debit_account_id = $expenseModel->chartOfAccount->id;
+                        $expense->credit_account_id = NULL;
+                        $expense->description = $expenseModel->name;
+                        $expense->amount = (float) str_replace(".", "", $expenseAmounts[$i]);
+                        $status &= $expense->save();
+                    }
+                }
             }
 
             if ($status)
@@ -1260,11 +1313,78 @@ class SalesOrder extends Controller
             $salesOrder->type = 'recycle';
             $status = $salesOrder->save();
 
+            // Delete the existing sales order batteries.
+            $existingBatteries = SalesOrderBatteryModel::where('sales_order_id', $salesOrder->id)->get();
+            foreach ($existingBatteries as $existingBattery) {
+                $existingBattery->delete();
+            }
+
+            $billingNumber = BillingInvoiceModel::where('invoice_id', $salesOrder->id)->where('invoice_type', SalesOrderModel::class)->first()->billing->billing_number ?? null;
+
+            // Update or create billing and billing invoice
+            $billing = BillingModel::updateOrCreate(
+                ['billing_number' => $billingNumber],
+                [
+                    'vendor_id' => $salesOrder->vendor,
+                    'vendor_type' => DistributorShopModel::class,
+                    'ship_to_id' => $salesOrder->ship_to,
+                    'ship_to_type' => DistributorModel::class,
+                    'date' => date('Y-m-d'),
+                    'discount' => $salesOrder->discount,
+                    'discount_price' => $salesOrder->discount_price,
+                    'subtotal' => $salesOrder->subtotal,
+                    'total' => $salesOrder->total,
+                    'status' => 'draft',
+                ]
+            );
+
+            // Delete the existing billing invoice expenses.
+            $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->get();
+            foreach ($existingExpenses as $existingExpense) {
+                $existingExpense->delete();
+            }
+
             // Store sales order detail data.
             for ($i = 0; $i < count($request->batteriesprice); $i++) {
-                $battery = SalesOrderBatteryModel::find($request->detailid[$i]);
+                $battery = new SalesOrderBatteryModel();
+                $battery->sales_order_id = $salesOrder->id;
+                $battery->battery_id = $request->batteriesid[$i];
+                $battery->battery_name = $request->batteriesname[$i];
+                $battery->battery_price_retail = (float) str_replace(".", "", $request->batteriespriceretail[$i]);
+                $battery->tax = (float) $request->batteriestax[$i];
+                $battery->tax_price = (float) $request->batteriestaxprice[$i];
+                $battery->discount = (float) $request->batteriesdiscount[$i];
+                $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
+                $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
                 $status &= $battery->save();
+            }
+
+            // store expenses
+            if ($request->has('ExpenseIds')) {
+                $expenseIds = $request->input('ExpenseIds');
+                $expenseAmounts = $request->input('ExpenseAmounts');
+
+                for ($i = 0; $i < count($expenseIds); $i++) {
+                    $expenseId = $expenseIds[$i];
+                    $expenseModel = ExpenseModel::find($expenseId);
+
+                    if ($expenseModel) {
+                        $expense = new BillingInvoiceExpenseModel();
+                        $expense->expense_id = $expenseId;
+                        $expense->billing_invoice_id = $billing->id;
+                        $expense->sales_order_id = $salesOrder->id;
+                        $expense->debit_account_id = $expenseModel->chartOfAccount->id;
+                        $expense->credit_account_id = NULL;
+                        $expense->description = $expenseModel->name;
+                        $expense->amount = str_replace(".", "", $expenseAmounts[$i]);
+                        $status &= $expense->save();
+                    } else {
+                        // If the expense model is not found, rollback the transaction and return an error response.
+                        DB::rollBack();
+                        return getResponseData(false, "Expense with ID $expenseId not found.");
+                    }
+                }
             }
 
             if ($status)

@@ -176,6 +176,7 @@
                                                 'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
                                                 'name' => 'batteriesname[]',
                                                 'nameHiddenId' => 'batteriesid[]',
+                                                'valueHiddenId' => isset($data['profile']['batteries']) ? $battery['battery_id'] : '',
                                                 'url' => '/battery-recycle/get/',
                                                 'placeholder' => 'Enter item name',
                                                 'targets' => $encodedTargets,
@@ -377,6 +378,111 @@
                 </tr>
             </tfoot>
             </table>
+
+            <div class="card" id="ExpenseSection">
+                <div class="card-body">
+
+                    <button class="btn btn-primary mb-3" id="addExpense" type="button">Add Expense</button>
+                    <div class="table-responsive" id="ExpenseTable">
+                        <table class="table table-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Chart of Account</th>
+                                    <th>Expense Name</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ExpenseTableBody">
+                                {{-- @dd($data['profile']['billing_invoice_expenses']); --}}
+                                @if (isset($data['profile']['billing_invoice_expenses']))
+                                    @if (count($data['profile']['billing_invoice_expenses']) == 0)
+                                        <tr id="NoExpenseRow">
+                                            <td colspan="5" class="text-center">No expenses added</td>
+                                        </tr>
+                                    @endif
+
+                                    @foreach ($data['profile']['billing_invoice_expenses'] as $index => $expense)
+                                        <tr data-expense-id="{{ $expense['id'] }}">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td class="chart-of-account">{{ $expense['debit_account']['number'] }}
+                                                -
+                                                {{ $expense['debit_account']['name'] }}</td>
+                                            <td class="expense-name">{{ $expense['description'] }}
+                                                <input type="hidden" name="ExpenseIds[]"
+                                                    value="{{ $expense['expense_id'] }}">
+                                            </td>
+                                            <td class="expense-amount">
+                                                Rp. {{ number_format($expense['amount'], 0, ',', '.') }}
+                                                <input type ="hidden" name="ExpenseAmounts[]"
+                                                    value="{{ $expense['amount'] }}" class="ExpenseAmount">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm btn-delete-expense"
+                                                    title="Delete Expense"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Total Expense</th>
+                                    <th colspan="2" id="TotalExpense">
+                                        @if (isset($data['profile']['billing_invoice_expenses']))
+                                            Rp.
+                                            {{ number_format(array_sum(array_column($data['profile']['billing_invoice_expenses'], 'amount')), 0, ',', '.') }}
+                                        @else
+                                            Rp. 0
+                                        @endif
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+
+            {{-- Modal Add Expense --}}
+            <div class="modal fade" id="AddExpenseModal" tabindex="-1" aria-labelledby="AddExpenseModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="AddExpenseModalLabel">Add Expense</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="ExpenseName" class="form-label">Expense Name</label>
+                                <select class="form-select" id="ExpenseName" name="ExpenseName">
+                                    <option value="">Select Expense</option>
+                                    @foreach ($data['expenses'] as $expense)
+                                        <option value="{{ $expense['id'] }}"
+                                            data-chart-of-account="{{ $expense['chart_of_account']['number'] }} - {{ $expense['chart_of_account']['name'] }}">
+                                            {{ $expense['chart_of_account']['number'] }} -
+                                            {{ $expense['chart_of_account']['name'] }} -
+                                            {{ $expense['name'] }}</option>
+                                    @endforeach
+                                </select>
+
+                            </div>
+                            <div class="mb-3">
+                                <label for="ExpenseAmount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="ExpenseAmount" name="ExpenseAmount"
+                                    placeholder="Enter Expense Amount">
+                            </div>
+                            <button class="btn btn-primary" id="btnAddExpense" type="button">Add
+                                Expense</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <br>
 
             {{-- Hidden Inputs --}}
@@ -393,7 +499,7 @@
                         @else
                         value="create">
                         Create @endif
-                    Quotation </button>
+                    Sales Order Recycle </button>
 
                     {{-- Cancel Button --}}
                     <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
@@ -495,6 +601,26 @@
 
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
+
+            let expenses = [];
+            $("#ExpenseTableBody tr").each(function() {
+                let expenseId = $(this).data("expense-id");
+                let chartOfAccount = $(this).find(".chart-of-account").text();
+                let expenseName = $(this).find(".expense-name").text();
+                let amountText = $(this).find(".expense-amount").text().replace(/[^0-9.-]+/g, "");
+                let amount = parseFloat(amountText);
+
+                if (!isNaN(amount)) {
+                    expenses.push({
+                        id: expenseId,
+                        chart_of_account: chartOfAccount,
+                        name: expenseName,
+                        amount: amount,
+                    });
+                }
+            });
+
+            formData.append("expenses", JSON.stringify(expenses));
 
             // Show SweetAlert loading
             Swal.fire({
@@ -717,5 +843,85 @@
 
             return total;
         }
+
+        $("#addExpense").on("click", function() {
+            $("#AddExpenseModal").modal("show");
+        });
+
+        $("#ExpenseAmount").on("keypress", function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $("#btnAddExpense").click();
+            }
+        });
+
+        $("#btnAddExpense").on("click", function() {
+            var ExpenseName = $("#ExpenseName").val();
+            var ExpenseAmount = $("#ExpenseAmount").val();
+            var ExpenseText = $("#ExpenseName option:selected").text();
+            var ChartOfAccount = $("#ExpenseName option:selected").data("chart-of-account");
+            var ExpenseId = $("#ExpenseName option:selected").val();
+
+            if (ExpenseName == "" || ExpenseAmount == "") {
+                swal.fire("Error!", "Please fill all fields", "error");
+                return;
+            }
+
+            if ($("#NoExpenseRow").length) {
+                $("#NoExpenseRow").remove();
+            }
+
+            var no = $("#ExpenseTableBody tr").length + 1;
+
+            var newRow = `
+            <tr>
+                <td>${no}</td>
+                <td>${ChartOfAccount}</td>
+                <td>${ExpenseText}
+                    <input type="hidden" name="ExpenseIds[]" value="${ExpenseId}" class="ExpenseId">
+                </td>
+                <td>Rp. ${parseFloat(ExpenseAmount).toLocaleString('id-ID')}
+                    <input type="hidden" name="ExpenseAmounts[]" value="${ExpenseAmount}" class="ExpenseAmount">
+                </td>
+                <td><button class="btn btn-danger btn-sm btn-delete-expense"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `;
+
+            var totalExpense = 0;
+
+            $("#ExpenseTableBody tr").each(function() {
+                var amount = parseFloat($(this).find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g,
+                    ""));
+                totalExpense += amount;
+            });
+            totalExpense += parseFloat(ExpenseAmount);
+
+            $("#ExpenseTableBody").append(newRow);
+            $("#TotalExpense").text("Rp. " + totalExpense.toLocaleString('id-ID'));
+            $("#AddExpenseModal").modal("hide");
+
+            // clear modal input
+            $("#ExpenseName").val("");
+            $("#ExpenseAmount").val("");
+        });
+
+        $(document).on("click", ".btn-delete-expense", function() {
+            var row = $(this).closest("tr");
+            var amount = parseFloat(row.find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g, ""));
+            row.remove();
+
+            var totalExpense = 0;
+            $("#ExpenseTableBody tr").each(function() {
+                var amount = parseFloat($(this).find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g,
+                    ""));
+                totalExpense += amount;
+            });
+
+            $("#TotalExpense").text("Rp. " + totalExpense.toLocaleString('id-ID'));
+
+            $("#ExpenseTableBody tr").each(function(index) {
+                $(this).find("td:eq(0)").text(index + 1);
+            });
+        });
     </script>
 @endsection
