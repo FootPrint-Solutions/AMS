@@ -27,6 +27,7 @@ use App\Models\Inventory\InventoryModel;
 use App\Models\Inventory\InventoryDetailModel;
 use App\Models\Inventory\InventoryRecycleModel;
 use App\Models\Inventory\InventoryRecycleDetailModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
 use Illuminate\Support\Facades\Log as Logger;
 
 class SalesOrderModel extends Model implements Auditable
@@ -600,5 +601,10 @@ class SalesOrderModel extends Model implements Auditable
             }
         }
         return $status;
+    }
+
+    public function billingInvoiceExpenses()
+    {
+        return $this->hasMany(BillingInvoiceExpenseModel::class, 'sales_order_id')->with('debitAccount');
     }
 }

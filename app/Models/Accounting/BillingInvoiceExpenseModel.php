@@ -14,6 +14,7 @@ class BillingInvoiceExpenseModel extends Model
 
     protected $fillable = [
         'billing_invoice_id',
+        'expense_id',
         'sales_order_id',
         'debit_account_id',
         'credit_account_id',

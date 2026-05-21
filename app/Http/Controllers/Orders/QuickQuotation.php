@@ -1103,6 +1103,7 @@ $arrayBattery
 
                     BillingInvoiceExpenseModel::create([
                         'billing_invoice_id' => $billing->id,
+                        'expense_id' => $ExpenseId,
                         'sales_order_id' => $Quotation->id,
                         'debit_account_id' => ExpenseModel::find($ExpenseId)->chart_of_account_id,
                         'credit_account_id' => NULL,
