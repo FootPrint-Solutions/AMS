@@ -286,11 +286,6 @@
                                             $encodedTargets = json_encode($targets);
                                         @endphp
 
-                                        {{-- @isset($data['profile'])
-                                            <input type="text" class="form-control" required
-                                                @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
-                                        @else --}}
                                         @component('components.autocomplete', [
                                             'id' => "battery-name-$counter",
                                             'class' => 'battery-name',
@@ -304,7 +299,6 @@
                                             'callback' => 'calculateTotal',
                                         ])
                                         @endcomponent
-                                        {{-- @endisset --}}
                                     </td>
 
                                     {{-- Retail Price --}}
