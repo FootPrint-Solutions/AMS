@@ -290,7 +290,7 @@
                                 return;
                             }
 
-                            downloadPDF("/billing/print/" + id, "_blank");
+                            window.open("/billing/print/" + id, "_blank");
                         }
                     },
                     // // Print Kwitansi Button
@@ -308,7 +308,7 @@
                                 return;
                             }
                             let id = selected[0][12];
-                            downloadPDF("/billing/print-receipt/" + id, "_blank");
+                            window.open("/billing/print-receipt/" + id, "_blank");
                         }
                     }
                 ],
