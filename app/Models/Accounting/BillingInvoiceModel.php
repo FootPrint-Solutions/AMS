@@ -48,6 +48,7 @@ class BillingInvoiceModel extends Model
 
     public function expenses()
     {
-        return $this->hasMany(BillingInvoiceExpenseModel::class, 'billing_invoice_id');
+        return $this->hasMany(BillingInvoiceExpenseModel::class, 'billing_invoice_id')
+            ->with(['debitAccount', 'creditAccount']);
     }
 }

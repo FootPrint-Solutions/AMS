@@ -401,7 +401,6 @@ class Billing extends Controller
             $expensesData = $rawExpenses ? json_decode($rawExpenses, true) : [];
 
             if ($rawExpenses && $rawExpenses !== '{}') {
-                BillingInvoiceModel::where('billing_id', $billing->id)->delete();
                 BillingInvoiceExpenseModel::whereHas('billingInvoice', function ($query) use ($billing) {
                     $query->where('billing_id', $billing->id);
                 })->delete();
@@ -409,18 +408,22 @@ class Billing extends Controller
 
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                $billingInvoice = BillingInvoiceModel::create([
-                    'billing_id' => $billing->id,
-                    'invoice_id' => $invoiceId,
-                    'invoice_type' => $orderSources[$idx] ?? null,
-                    'invoice_number' => $orderNumbers[$idx] ?? null,
-                    'date' => $request->input('date'),
-                    'discount' => 0,
-                    'discount_price' => $discounts[$idx] ?? 0,
-                    'subtotal' => $subtotals[$idx] ?? 0,
-                    'total' => $totals[$idx] ?? 0,
-                    'note' => $notes[$idx] ?? null,
-                ]);
+                $billingInvoice = BillingInvoiceModel::updateOrCreate(
+                    [
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $invoiceId,
+                        'invoice_type' => $orderSources[$idx] ?? null,
+                    ],
+                    [
+                        'invoice_number' => $orderNumbers[$idx] ?? null,
+                        'date' => $request->input('date'),
+                        'discount' => 0,
+                        'discount_price' => $discounts[$idx] ?? 0,
+                        'subtotal' => $subtotals[$idx] ?? 0,
+                        'total' => $totals[$idx] ?? 0,
+                        'note' => $notes[$idx] ?? null,
+                    ]
+                );
 
                 // Save expenses for this invoice if they exist
                 if (!empty($expensesData[$invoiceId])) {
@@ -838,7 +841,7 @@ class Billing extends Controller
             ], 404);
         }
 
-        $expensesQuery = BillingInvoiceExpenseModel::where('billing_invoice_id', $id)
+        $expensesQuery = BillingInvoiceExpenseModel::whereIn('billing_invoice_id', $billing->invoices->pluck('id'))
             ->with(['debitAccount', 'creditAccount'])
             ->get();
 
