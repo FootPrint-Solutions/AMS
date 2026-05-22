@@ -794,9 +794,6 @@
                                     <td>${order.customer_supplier_name}</td>
                                     <td class="text-end">
                                         ${formattedTotal}
-                                        <button type="button" class="btn btn-sm btn-warning ms-2 edit-order-row" data-id="${order.id}" data-type="${order.type}">
-                                            <i class="fas fa-money-bill"></i>
-                                        </button>
                                         <input type="hidden" class="subtotal" data-id="${order.id}" data-original-subtotal="${orderTotal}">
                                     </td>
                                     <td>
@@ -914,16 +911,6 @@
             const $btn = $(this).prop('disabled', true).html(
                 '<i class="fas fa-spinner fa-spin"></i> Saving...'
             );
-
-            if (!currentOrderExpenseData.salesOrderId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Sales Order ID is missing. Please try again.'
-                });
-                $btn.prop('disabled', false).html('Save');
-                return;
-            }
 
             // Collect expense data from modal
             const expenseData = {

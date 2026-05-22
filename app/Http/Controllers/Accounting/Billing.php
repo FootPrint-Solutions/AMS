@@ -1628,7 +1628,21 @@ class Billing extends Controller
                 ->where('source', 'sales_order')
                 ->get();
 
+            if ($billingInvoiceExpenses->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No expense data found for the given Sales Order.'
+                ]);
+            }
+
             $salesOrder = SalesOrderModel::with('batteries', 'paymentMethod')->find($billingInvoiceExpenses->first()->sales_order_id);
+
+            if (!$salesOrder) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Order not found for the given expense data.'
+                ]);
+            }
 
             $totalPriceBuy = 0;
             if ($salesOrder && $salesOrder->batteries) {
@@ -1654,10 +1668,11 @@ class Billing extends Controller
                 'data' => $data
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to get order expenses: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to get order expenses: ' . $e->getMessage()
-            ], 500);
+            ]);
         }
     }
 
