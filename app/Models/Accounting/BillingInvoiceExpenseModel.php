@@ -20,6 +20,7 @@ class BillingInvoiceExpenseModel extends Model
         'credit_account_id',
         'description',
         'amount',
+        'source',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class BillingInvoiceExpenseModel extends Model
         'debit_account_id' => 'integer',
         'credit_account_id' => 'integer',
         'amount' => 'decimal:2',
+        'source' => 'string',
     ];
 
     public function billingInvoice(): BelongsTo

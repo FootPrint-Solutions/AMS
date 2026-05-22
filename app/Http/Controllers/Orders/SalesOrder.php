@@ -410,7 +410,7 @@ class SalesOrder extends Controller
             ]);
 
             if ($billing ?? false) {
-                BillingInvoiceModel::create([
+                $billingInvoice = BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
                     'invoice_id' => $salesOrder->id,
                     'invoice_type' => SalesOrderModel::class,
@@ -435,7 +435,7 @@ class SalesOrder extends Controller
 
                     if ($expenseModel) {
                         $expense = new BillingInvoiceExpenseModel();
-                        $expense->billing_invoice_id = $billing->id;
+                        $expense->billing_invoice_id = $billingInvoice->id;
                         $expense->expense_id = $expenseId;
                         $expense->sales_order_id = $salesOrder->id;
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
@@ -550,6 +550,21 @@ class SalesOrder extends Controller
                 ]
             );
 
+            // Update or create billing invoice
+            $billingInvoice = BillingInvoiceModel::updateOrCreate(
+                ['invoice_id' => $salesOrder->id, 'invoice_type' => SalesOrderModel::class],
+                [
+                    'billing_id' => $billing->id,
+                    'invoice_number' => $salesOrder->sales_order_number,
+                    'date' => date('Y-m-d'),
+                    'discount' => $salesOrder->discount,
+                    'discount_price' => $salesOrder->discount_price,
+                    'subtotal' => $salesOrder->subtotal,
+                    'total' => $salesOrder->total,
+                    'note' => 'Battery Regular From Sales Order ' . $salesOrder->sales_order_number,
+                ]
+            );
+
             // Delete the existing billing invoice expenses.
             $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->get();
             foreach ($existingExpenses as $existingExpense) {
@@ -584,7 +599,7 @@ class SalesOrder extends Controller
                     if ($expenseModel) {
                         $expense = new BillingInvoiceExpenseModel();
                         $expense->expense_id = $expenseId;
-                        $expense->billing_invoice_id = $billing->id;
+                        $expense->billing_invoice_id = $billingInvoice->id;
                         $expense->sales_order_id = $salesOrder->id;
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
@@ -1221,7 +1236,7 @@ class SalesOrder extends Controller
             ]);
 
             if ($billing ?? false) {
-                BillingInvoiceModel::create([
+                $billingInvoice = BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
                     'invoice_id' => $salesOrder->id,
                     'invoice_type' => SalesOrderModel::class,
@@ -1247,7 +1262,7 @@ class SalesOrder extends Controller
                     if ($expenseModel) {
                         $expense = new BillingInvoiceExpenseModel();
                         $expense->expense_id = $expenseId;
-                        $expense->billing_invoice_id = $billing->id;
+                        $expense->billing_invoice_id = $billingInvoice->id;
                         $expense->sales_order_id = $salesOrder->id;
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
@@ -1338,6 +1353,21 @@ class SalesOrder extends Controller
                 ]
             );
 
+            // Update or create billing invoice
+            $billingInvoice = BillingInvoiceModel::updateOrCreate(
+                ['invoice_id' => $salesOrder->id, 'invoice_type' => SalesOrderModel::class],
+                [
+                    'billing_id' => $billing->id,
+                    'invoice_number' => $salesOrder->sales_order_number,
+                    'date' => date('Y-m-d'),
+                    'discount' => $salesOrder->discount,
+                    'discount_price' => $salesOrder->discount_price,
+                    'subtotal' => $salesOrder->subtotal,
+                    'total' => $salesOrder->total,
+                    'note' => 'Battery Regular From Sales Order Recycle ' . $salesOrder->sales_order_number,
+                ]
+            );
+
             // Delete the existing billing invoice expenses.
             $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->get();
             foreach ($existingExpenses as $existingExpense) {
@@ -1372,7 +1402,7 @@ class SalesOrder extends Controller
                     if ($expenseModel) {
                         $expense = new BillingInvoiceExpenseModel();
                         $expense->expense_id = $expenseId;
-                        $expense->billing_invoice_id = $billing->id;
+                        $expense->billing_invoice_id = $billingInvoice->id;
                         $expense->sales_order_id = $salesOrder->id;
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;

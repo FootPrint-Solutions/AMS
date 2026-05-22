@@ -295,7 +295,7 @@ class Billing extends Controller
             $expensesData = $request->input('expenses_data') ? json_decode($request->input('expenses_data'), true) : [];
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::create([
+                $billingInvoice = BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
                     'invoice_id' => $invoiceId,
                     'invoice_type' => $orderSources[$idx] ?? null,
@@ -326,6 +326,7 @@ class Billing extends Controller
                                 'credit_account_id' => $expenseData['credit_account_id'] ?? null,
                                 'description' => $expenseId === 'cogs' ? 'Cost of Goods Sold (COGS)' : ($expenseId === 'inventory' ? 'Inventory Account' : 'Expense from Sales Order'),
                                 'amount' => $amount,
+                                'source' => 'sales_billing',
                             ]);
                         }
                     }
@@ -391,7 +392,11 @@ class Billing extends Controller
             foreach ($oldInvoices as $oldInvoice) {
                 BillingInvoiceExpenseModel::where('billing_invoice_id', $oldInvoice->id)->delete();
             }
+
             BillingInvoiceModel::where('billing_id', $billing->id)->delete();
+            BillingInvoiceExpenseModel::whereHas('billingInvoice', function ($query) use ($billing) {
+                $query->where('billing_id', $billing->id);
+            })->delete();
 
             // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
@@ -426,30 +431,35 @@ class Billing extends Controller
                     for ($i = 0; $i < count($expenseData['expense_names']); $i++) {
                         $coaDebitId = $expenseData['coa_debit_ids'][$i] ?? null;
                         $coaCreditId = $expenseData['coa_credit_ids'][$i] ?? null;
-                        $expenseId = $expenseData['sales_order_expense_ids'][$i] ?? null;
+                        $expenseId = $expenseData['expense_ids'][$i] ?? null;
                         $amountExpenseId = $expenseData['expense_debit_amounts'][$i] ?? 0;
                         $amountCreditExpenseId = $expenseData['expense_credit_amounts'][$i] ?? 0;
                         $expenseName = $expenseData['expense_names'][$i] ?? null;
+                        $source = $expenseData['source'][$i] ?? null;
 
                         if ($coaDebitId) {
                             BillingInvoiceExpenseModel::create([
                                 'billing_invoice_id' => $billingInvoice->id,
+                                'expense_id' => $expenseId,
                                 'sales_order_id' => $expenseData['sales_order_id'] ?? null,
                                 'debit_account_id' => $coaDebitId,
                                 'credit_account_id' => NULL,
                                 'description' => $expenseName,
                                 'amount' => $amountExpenseId,
+                                'source' => $source
                             ]);
                         }
 
                         if ($coaCreditId) {
                             BillingInvoiceExpenseModel::create([
                                 'billing_invoice_id' => $billingInvoice->id,
+                                'expense_id' => $expenseId,
                                 'sales_order_id' => $expenseData['sales_order_id'] ?? null,
                                 'debit_account_id' => NULL,
                                 'credit_account_id' => $coaCreditId,
                                 'description' => $expenseName,
                                 'amount' => $amountCreditExpenseId,
+                                'source' => $source
                             ]);
                         }
                     }
@@ -1615,6 +1625,7 @@ class Billing extends Controller
         try {
             $billingInvoiceExpenses = BillingInvoiceExpenseModel::with('debitAccount', 'creditAccount')
                 ->where('sales_order_id', $id)
+                ->where('source', 'sales_order')
                 ->get();
 
             $salesOrder = SalesOrderModel::with('batteries', 'paymentMethod')->find($billingInvoiceExpenses->first()->sales_order_id);

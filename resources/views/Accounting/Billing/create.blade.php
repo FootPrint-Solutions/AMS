@@ -930,6 +930,7 @@
                 _token: '{{ csrf_token() }}',
                 sales_order_id: currentOrderExpenseData.salesOrderId,
                 billing_invoice_id: null, // Will be set during store
+                expense_ids: [],
                 expense_names: [],
                 coa_debit_ids: [],
                 coa_credit_ids: [],
@@ -937,17 +938,19 @@
                 expense_debit_amounts: [],
                 expense_credit_amounts: [],
                 credit_account_id: null,
+                source: [],
                 total_price_buy: 0
             };
 
             // Collect COA selections
             $('#expense-details-table tbody').find('tr').each(function() {
-                const expenseId = $(this).data('expense-id');
+                const expenseId = $(this).find('.expense-id').val();
                 const name = $(this).find('.expense-name').val();
                 const coaDebitId = $(this).find('.coa-debit-select').val();
                 const coaCreditId = $(this).find('.coa-credit-select').val();
                 const debitAmount = parseFloat($(this).find('.debit-amount').val()) || 0;
                 const creditAmount = parseFloat($(this).find('.credit-amount').val()) || 0;
+                const source = $(this).find('.expense-source').val();
 
                 console.log('Expense Row Data:', {
                     expenseId,
@@ -955,16 +958,19 @@
                     coaDebitId,
                     coaCreditId,
                     debitAmount,
-                    creditAmount
+                    creditAmount,
+                    source
                 });
 
                 if (name && (coaDebitId || coaCreditId) && (debitAmount > 0 || creditAmount > 0)) {
                     expenseData.expense_names.push(name);
                     expenseData.coa_debit_ids.push(coaDebitId);
                     expenseData.coa_credit_ids.push(coaCreditId);
+                    expenseData.expense_ids.push(expenseId);
                     expenseData.sales_order_expense_ids.push(expenseId);
                     expenseData.expense_debit_amounts.push(debitAmount);
                     expenseData.expense_credit_amounts.push(creditAmount);
+                    expenseData.source.push(source);
                     expenseData.total_price_buy += debitAmount; // Assuming total_price_buy is sum of debits
                 }
             });
@@ -972,36 +978,16 @@
             // Store the expense data for later use during billing save
             allOrderExpenses[currentOrderExpenseData.salesOrderId] = expenseData;
 
-            $.ajax({
-                url: '/billing/expenses/add-temp',
-                method: 'POST',
-                data: expenseData,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log('Expense save response:', response);
-                    if (response.status !== 'success') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message ||
-                                'Failed to save expenses. Please try again.'
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to save expenses. Please try again.'
-                    });
-                },
-                complete: function() {
-                    $btn.prop('disabled', false).html('Save');
-                    modalShowExpense.hide();
-                }
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Expense details saved temporarily. They will be stored when you save the billing.'
+            }).then(() => {
+                $btn.prop('disabled', false).html('Save');
+                modalShowExpense.hide();
             });
+
+            $btn.prop('disabled', false).html('Save');
         });
 
         // Form Submit Handler
@@ -1265,7 +1251,7 @@
                             if (billingInvoiceExpenses.length > 0) {
                                 var no = 1;
                                 billingInvoiceExpenses.forEach(function(item) {
-                                    const expenseName = item.debit_account?.name || '-';
+                                    const expenseName = item.description;
                                     const selectedCoaId = item.debit_account?.id || null;
                                     '';
                                     const coaOptions = chartOfAccounts.length > 0 ?
@@ -1279,6 +1265,8 @@
                                                 <td>${no++}</td>
                                                 <td>${expenseName}
                                                 <input type="hidden" name="expense_names[]" value="${expenseName}" class="expense-name">
+                                                <input type="hidden" name="expense_ids[]" value="${item.expense_id || ''}" class="expense-id">
+                                                <input type="hidden" name="source_types[]" value="sales_order" class="expense-source">
                                                 </td>
                                                 <td>
                                                     <select class="form-control form-select coa-selection coa-debit-select" name="coa_debit_ids[]" data-expense-id="${item.id}" disabled>
@@ -1309,6 +1297,7 @@
                                         <td>${no}</td>
                                         <td><strong>Credit Account</strong>
                                             <input type="hidden" name="expense_names[]" value="Credit Account" class="expense-name">
+                                            <input type="hidden" name="source_types[]" value="sales_billing" class="expense-source">
                                         </td>
                                         <td>
                                             <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="credit">
@@ -1327,6 +1316,7 @@
                                         <td>${no + 1}</td>
                                         <td><strong>Cost of Goods Sold (COGS)</strong>
                                             <input type="hidden" name="expense_names[]" value="Cost of Goods Sold (COGS)" class="expense-name">
+                                            <input type="hidden" name="source_types[]" value="sales_billing" class="expense-source">
                                         </td>
                                         <td>
                                             <select class="form-control form-select coa-selection coa-debit-select" name="coa_debit_ids[]" data-expense-id="cogs">
@@ -1346,6 +1336,7 @@
                                         <td>${no + 2}</td>
                                         <td><strong>Inventory Account</strong>
                                             <input type="hidden" name="expense_names[]" value="Inventory Account" class="expense-name">
+                                            <input type="hidden" name="source_types[]" value="sales_billing" class="expense-source">
                                         </td>
                                         <td>
                                             <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="inventory">
