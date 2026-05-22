@@ -387,17 +387,6 @@ class Billing extends Controller
                 'credit_account_id' => $request->input('credit_account'),
             ]);
 
-            // Delete old invoices and their expenses
-            $oldInvoices = BillingInvoiceModel::where('billing_id', $billing->id)->get();
-            foreach ($oldInvoices as $oldInvoice) {
-                BillingInvoiceExpenseModel::where('billing_invoice_id', $oldInvoice->id)->delete();
-            }
-
-            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
-            BillingInvoiceExpenseModel::whereHas('billingInvoice', function ($query) use ($billing) {
-                $query->where('billing_id', $billing->id);
-            })->delete();
-
             // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
             $salesOrderIds = $request->input('sales_order_ids', []);
@@ -408,7 +397,16 @@ class Billing extends Controller
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
             $totals = $request->input('totals', []);
-            $expensesData = $request->input('expenses_data') ? json_decode($request->input('expenses_data'), true) : [];
+            $rawExpenses = $request->input('expenses_data');
+            $expensesData = $rawExpenses ? json_decode($rawExpenses, true) : [];
+
+            if ($rawExpenses && $rawExpenses !== '{}') {
+                BillingInvoiceModel::where('billing_id', $billing->id)->delete();
+                BillingInvoiceExpenseModel::whereHas('billingInvoice', function ($query) use ($billing) {
+                    $query->where('billing_id', $billing->id);
+                })->delete();
+            }
+
 
             foreach ($invoiceIds as $idx => $invoiceId) {
                 $billingInvoice = BillingInvoiceModel::create([
