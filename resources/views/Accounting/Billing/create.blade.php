@@ -972,14 +972,35 @@
             // Store the expense data for later use during billing save
             allOrderExpenses[currentOrderExpenseData.salesOrderId] = expenseData;
 
-            // Show success message
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Expense details saved temporarily. They will be stored when you save the billing.'
-            }).then(() => {
-                $btn.prop('disabled', false).html('Save');
-                modalShowExpense.hide();
+            $.ajax({
+                url: '/billing/expenses/add-temp',
+                method: 'POST',
+                data: expenseData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('Expense save response:', response);
+                    if (response.status !== 'success') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message ||
+                                'Failed to save expenses. Please try again.'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to save expenses. Please try again.'
+                    });
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).html('Save');
+                    modalShowExpense.hide();
+                }
             });
         });
 
@@ -1237,16 +1258,16 @@
                     },
                     success: function(response) {
                         if (response.status === 'success' && response.data) {
-                            const salesOrderExpenses = response.data.sales_order_expenses || [];
+                            const billingInvoiceExpenses = response.data.billing_invoice_expenses || [];
                             const chartOfAccounts = response.data.chart_of_accounts || [];
                             let expenseDetailsHtml = '';
 
-                            if (salesOrderExpenses.length > 0) {
+                            if (billingInvoiceExpenses.length > 0) {
                                 var no = 1;
-                                salesOrderExpenses.forEach(function(item) {
-                                    const expenseName = item.expense?.name || '-';
-                                    const selectedCoaId = item.expense?.chart_of_account_id ||
-                                        '';
+                                billingInvoiceExpenses.forEach(function(item) {
+                                    const expenseName = item.debit_account?.name || '-';
+                                    const selectedCoaId = item.debit_account?.id || null;
+                                    '';
                                     const coaOptions = chartOfAccounts.length > 0 ?
                                         chartOfAccounts.map(function(coa) {
                                             return `<option value="${coa.id}" ${String(selectedCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
@@ -1276,9 +1297,13 @@
                                         `;
                                 });
 
-                                const totalExpenses = salesOrderExpenses.reduce((sum, item) => sum + (
-                                    item
-                                    .amount || 0), 0);
+                                const totalExpenses = billingInvoiceExpenses.reduce((sum, item) => sum +
+                                    Number(item.amount || 0), 0);
+                                const defaultCreditCoaId = response.data.sales_order.payment_method
+                                    ?.chart_of_account_id || null;
+                                const defaultCOGSCoaId = 41;
+                                const defaultInventoryCoaId = 15;
+
                                 expenseDetailsHtml += `
                                     <tr>
                                         <td>${no}</td>
@@ -1289,7 +1314,7 @@
                                             <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="credit">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
-                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                    return `<option value="${coa.id}" ${String(defaultCreditCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
                                                 }).join('') : '<option value="">No COA available</option>'}
                                             </select>
                                         </td>
@@ -1307,7 +1332,7 @@
                                             <select class="form-control form-select coa-selection coa-debit-select" name="coa_debit_ids[]" data-expense-id="cogs">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
-                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                    return `<option value="${coa.id}" ${String(defaultCOGSCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
                                                 }).join('') : '<option value="">No COA available</option>'}
                                             </select>
                                         </td>
@@ -1326,7 +1351,7 @@
                                             <select class="form-control form-select coa-selection coa-credit-select" name="coa_credit_ids[]" data-expense-id="inventory">
                                                 <option value="">Select COA</option>
                                                 ${chartOfAccounts.length > 0 ? chartOfAccounts.map(function(coa) {
-                                                    return `<option value="${coa.id}">${coa.number} - ${coa.name}</option>`;
+                                                    return `<option value="${coa.id}" ${String(defaultInventoryCoaId) === String(coa.id) ? 'selected' : ''}>${coa.number} - ${coa.name}</option>`;
                                                 }).join('') : '<option value="">No COA available</option>'}
                                             </select>
                                         </td>

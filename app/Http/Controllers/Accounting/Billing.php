@@ -1613,8 +1613,11 @@ class Billing extends Controller
     public function getOrderExpense($id)
     {
         try {
-            $salesOrderExpenses = SalesOrderExpenseModel::with('expense', 'salesOrder.batteries')->where('sales_order_id', $id)->get();
-            $salesOrder = SalesOrderModel::with('batteries')->find($id);
+            $billingInvoiceExpenses = BillingInvoiceExpenseModel::with('debitAccount', 'creditAccount')
+                ->where('sales_order_id', $id)
+                ->get();
+
+            $salesOrder = SalesOrderModel::with('batteries', 'paymentMethod')->find($billingInvoiceExpenses->first()->sales_order_id);
 
             $totalPriceBuy = 0;
             if ($salesOrder && $salesOrder->batteries) {
@@ -1629,9 +1632,10 @@ class Billing extends Controller
                 ->get();
 
             $data = [
-                'sales_order_expenses' => $salesOrderExpenses,
+                'billing_invoice_expenses' => $billingInvoiceExpenses,
                 'chart_of_accounts' => $chartOfAccounts,
-                'total_price_buy' => $totalPriceBuy
+                'total_price_buy' => $totalPriceBuy,
+                'sales_order' => $salesOrder
             ];
 
             return response()->json([
@@ -1737,6 +1741,45 @@ class Billing extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to save expenses: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function addExpenseToTemp(Request $request)
+    {
+        try {
+            $billingInvoiceId = $request->input('billing_invoice_id');
+            $salesInvoiceId = $request->input('sales_invoice_id');
+            $coaId = $request->input('coa_id');
+            $description = $request->input('description');
+            $amount = $request->input('amount');
+
+            if (!$billingInvoiceId || !$salesInvoiceId || !$coaId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Missing required fields: billing_invoice_id, sales_invoice_id, or coa_id'
+                ], 400);
+            }
+
+            $tempExpenses = session()->get('temp_billing_expenses', []);
+            $tempExpenses[] = [
+                'billing_invoice_id' => $billingInvoiceId,
+                'sales_invoice_id' => $salesInvoiceId,
+                'coa_id' => $coaId,
+                'description' => $description,
+                'amount' => $amount,
+            ];
+            session()->put('temp_billing_expenses', $tempExpenses);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Expense added to temporary list successfully',
+                'data' => $tempExpenses
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to add expense: ' . $e->getMessage()
             ], 500);
         }
     }
