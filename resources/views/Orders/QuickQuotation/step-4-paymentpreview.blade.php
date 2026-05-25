@@ -215,11 +215,14 @@
                         <select class="form-select" id="ExpenseName" name="ExpenseName">
                             <option value="">Select Expense</option>
                             @foreach ($expenses as $expense)
-                                <option value="{{ $expense['id'] }}"
-                                    data-chart-of-account="{{ $expense['chart_of_account']['number'] }} - {{ $expense['chart_of_account']['name'] }}">
-                                    {{ $expense['chart_of_account']['number'] }} -
-                                    {{ $expense['chart_of_account']['name'] }} -
-                                    {{ $expense['name'] }}</option>
+                                @php
+                                    $chartOfAccount = $expense['chart_of_account'] ?? [];
+                                    $chartNumber = $chartOfAccount['number'] ?? '';
+                                    $chartName = $chartOfAccount['name'] ?? '';
+                                    $chartLabel = trim($chartNumber . ' - ' . $chartName, ' -');
+                                @endphp
+                                <option value="{{ $expense['id'] }}" data-chart-of-account="{{ $chartLabel }}">
+                                    {{ $chartLabel }} - {{ $expense['name'] }}</option>
                             @endforeach
                         </select>
 
