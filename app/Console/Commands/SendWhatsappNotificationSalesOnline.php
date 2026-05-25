@@ -166,12 +166,12 @@ class SendWhatsappNotificationSalesOnline extends Command
                 $this->info('Status penjualan online telah diperbarui menjadi "sent".');
                 return 0;
             } else {
-                Log::error('Error fetching QR code: ' . json_encode($response->json()));
+                // Log::error('Error fetching QR code: ' . json_encode($response->json()));
                 $this->error('Gagal mendapatkan QR code 1.');
                 return 1;
             }
         } else {
-            Log::error('Error fetching QR code: ' . json_encode($response->json()));
+            // Log::error('Error fetching QR code: ' . json_encode($response->json()));
             $this->error('Gagal mendapatkan QR code 2.');
             return 1;
         }
