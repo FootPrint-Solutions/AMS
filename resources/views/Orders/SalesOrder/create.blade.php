@@ -580,13 +580,21 @@
                                         <label for="ExpenseName" class="form-label">Expense Name</label>
                                         <select class="form-select" id="ExpenseName" name="ExpenseName">
                                             <option value="">Select Expense</option>
-                                            @foreach ($data['expenses'] as $expense)
-                                                <option value="{{ $expense['id'] }}"
-                                                    data-chart-of-account="{{ $expense['chart_of_account']['number'] }} - {{ $expense['chart_of_account']['name'] }}">
-                                                    {{ $expense['chart_of_account']['number'] }} -
-                                                    {{ $expense['chart_of_account']['name'] }} -
-                                                    {{ $expense['name'] }}</option>
-                                            @endforeach
+                                            @if (isset($data['expenses']))
+                                                @foreach ($data['expenses'] as $expense)
+                                                    @php
+                                                        $coaNumber = data_get($expense, 'chart_of_account.number', '');
+                                                        $coaName = data_get($expense, 'chart_of_account.name', '');
+                                                        $expenseName = data_get($expense, 'name', '');
+                                                    @endphp
+                                                    <option value="{{ $expense['id'] }}"
+                                                        data-chart-of-account="{{ trim($coaNumber . ' - ' . $coaName, ' -') }}">
+                                                        {{ trim($coaNumber . ' - ' . $coaName . ' - ' . $expenseName, ' -') }}
+                                                    </option>
+                                                @endforeach
+                                            @else
+                                                <option value="">No expenses available</option>
+                                            @endif
                                         </select>
 
                                     </div>
