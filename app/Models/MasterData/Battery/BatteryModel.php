@@ -250,6 +250,7 @@ class BatteryModel extends Model implements Auditable
     {
         $columns = ["batteries.id", "batteries.name"];
         $batteryQuery = self::select(array_merge($columns, $extraColumn))
+            ->where('status', 1)
             ->where("batteries.type", "regular")
             ->where("batteries.name", "like", "%{$keyword}%")
             ->join('battery_prices', 'batteries.id', '=', 'battery_prices.battery_id')

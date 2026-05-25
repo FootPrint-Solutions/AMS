@@ -406,32 +406,56 @@
 
                             // build expenses section if any invoice has expenses
                             let expensesSection = '';
+                            let totalAmountDebit = 0;
+                            let totalAmountCredit = 0;
                             items.forEach(item => {
                                 if (item.expenses && item.expenses.length) {
                                     expensesSection +=
-                                        `<div class="mt-2"><strong>Expenses for ${item.invoice_number}</strong>`;
+                                        `<div class="mt-2"><h5>Expenses for ${item.invoice_number}</h5>`;
                                     expensesSection += `
                                         <table class="table table-sm table-bordered mt-1">
                                             <thead>
                                                 <tr>
                                                     <th>Description</th>
-                                                    <th>Debit Account</th>
-                                                    <th>Credit Account</th>
-                                                    <th class="text-end">Amount</th>
+                                                    <th>Account</th>
+                                                    <th>Debit</th>
+                                                    <th>Credit</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                     `;
                                     item.expenses.forEach(exp => {
-                                        expensesSection += `
-                                            <tr>
-                                                <td>${exp.description ?? '-'}</td>
-                                                <td>${exp.debit_account ?? '-'}</td>
-                                                <td>${exp.credit_account ?? '-'}</td>
-                                                <td class="text-end">${exp.amount ?? '-'}</td>
-                                            </tr>
-                                        `;
+                                        if (exp.debit_account_id !== null) {
+                                            expensesSection += `
+                                                <tr>
+                                                    <td>${exp.description ?? '-'}</td>
+                                                    <td>${exp.debit_account ?? '-'}</td>
+                                                    <td>${exp.amount ?? '-'}</td>
+                                                    <td></td>
+                                                </tr>
+                                            `;
+                                            totalAmountDebit += parseFloat(exp
+                                                .amount) || 0;
+                                        } else {
+                                            expensesSection += `
+                                                <tr>
+                                                    <td>${exp.description ?? '-'}</td>
+                                                    <td>${exp.credit_account ?? '-'}</td>
+                                                    <td></td>
+                                                    <td>${exp.amount ?? '-'}</td>
+                                                </tr>
+                                            `;
+                                            totalAmountCredit += parseFloat(exp
+                                                .amount) || 0;
+                                        }
                                     });
+                                    expensesSection += `
+                                        <tr>
+                                            <td colspan="2" class="text-end fw-bold">Total</td>
+                                            <td class="fw-bold">${totalAmountDebit.toFixed(3)}</td>
+                                            <td class="fw-bold">${totalAmountCredit.toFixed(3)}</td>
+                                        </tr>
+                                    `;
                                     expensesSection += `</tbody></table></div>`;
                                 }
                             });
