@@ -15,7 +15,7 @@
 </style>
 
 <div style="position: relative;">
-    <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }}>
+    <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }} value="{{ $valueHiddenId }}">
     <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }}
         name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}" required
         placeholder="{{ $placeholder }}" @if ($value !== '')

@@ -131,7 +131,8 @@ class BillingModel extends Model
 
     public function invoices()
     {
-        return $this->hasMany(BillingInvoiceModel::class, 'billing_id')->with('invoice');
+        return $this->hasMany(BillingInvoiceModel::class, 'billing_id')->with('invoice')
+            ->with('expenses');
     }
 
     public function debitAccount()

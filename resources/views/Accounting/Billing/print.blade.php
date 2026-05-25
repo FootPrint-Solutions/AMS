@@ -543,3 +543,9 @@
         @endif
     </div>
 </body>
+
+<script>
+    window.onload = () => {
+        window.print();
+    };
+</script>

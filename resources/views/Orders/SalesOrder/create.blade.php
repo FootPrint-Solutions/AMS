@@ -215,9 +215,8 @@
                             <div class="form-group local-forms">
                                 <label for="coordinates">Coordinates latitude and longitude</label>
                                 <input type="text" class="form-control" id="coordinates"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }}, {{ ltrim($data['profile']['longitude']) }} @endif"
-                                    pattern="^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$" onkeyup="sanitizeCoordinates(this)"
-                                    onfocus="sanitizeCoordinates(this)" placeholder="Enter coordinates (lat, lon)">
+                                    value="@if (isset($data['profile'])) {{ trim($data['profile']['latitude']) }},{{ trim($data['profile']['longitude']) }} @endif"
+                                    name="coordinates" placeholder="Enter coordinates (lat, lon)">
                             </div>
                         </div>
                     </div>
@@ -228,11 +227,11 @@
                         <thead>
                             <tr>
                                 <td colspan="7" class="h5 text-center">
-                                    Item @if (!isset($data['profile']))
-                                        <button type="button" id="btn-add-row"
-                                            class="btn btn-primary btn-sm rounded-circle mx-2"><i
-                                                class="fas fa-plus"></i></button>
-                                    @endif
+                                    Item
+                                    <button type="button" id="btn-add-row"
+                                        class="btn btn-primary btn-sm rounded-circle mx-2">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </td>
                             </tr>
 
@@ -287,24 +286,19 @@
                                             $encodedTargets = json_encode($targets);
                                         @endphp
 
-                                        @isset($data['profile'])
-                                            <input type="text" class="form-control" required
-                                                @isset($data['profile']['batteries']) readonly @endisset
-                                                @isset($data['profile']['batteries']) value="{{ $battery['battery_name'] }}" @endisset>
-                                        @else
-                                            @component('components.autocomplete', [
-                                                'id' => "battery-name-$counter",
-                                                'class' => 'battery-name',
-                                                'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
-                                                'name' => 'batteriesname[]',
-                                                'nameHiddenId' => 'batteriesid[]',
-                                                'url' => '/battery/get/',
-                                                'placeholder' => 'Enter item name',
-                                                'targets' => $encodedTargets,
-                                                'callback' => 'calculateTotal',
-                                            ])
-                                            @endcomponent
-                                        @endisset
+                                        @component('components.autocomplete', [
+                                            'id' => "battery-name-$counter",
+                                            'class' => 'battery-name',
+                                            'value' => isset($data['profile']['batteries']) ? $battery['battery_name'] : '',
+                                            'name' => 'batteriesname[]',
+                                            'nameHiddenId' => 'batteriesid[]',
+                                            'valueHiddenId' => isset($data['profile']['batteries']) ? $battery['battery_id'] : '',
+                                            'url' => '/battery/get/',
+                                            'placeholder' => 'Enter item name',
+                                            'targets' => $encodedTargets,
+                                            'callback' => 'calculateTotal',
+                                        ])
+                                        @endcomponent
                                     </td>
 
                                     {{-- Retail Price --}}
@@ -356,7 +350,7 @@
                                             <input type="text" class="form-control text-end battery-discountprice"
                                                 id="battery-discountprice-{{ $counter }}"
                                                 name="batteriesdiscountprice[]" placeholder="Enter item discount price"
-                                                required @isset($data['profile']['batteries']) readonly @endisset
+                                                required
                                                 @isset($data['profile']['batteries']) value="{{ $battery['discount_price'] }}" @endisset>
                                         </div>
 
@@ -367,163 +361,279 @@
                                     {{-- Net Price --}}
                                     <td>
                                         <div class="row">
-                                            @if (!isset($data['profile']))
-                                                <div class="col">
-                                            @endif
 
-                                            <div class="input-group">
-                                                <span class="input-group-text border-end">IDR</span>
-                                                <input type="text" class="form-control text-end battery-price"
-                                                    id="battery-price-{{ $counter }}" name="batteriesprice[]"
-                                                    placeholder="Enter item price" required readonly
-                                                    @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
+                                            <div class="col">
+                                                <div class="input-group">
+                                                    <span class="input-group-text border-end">IDR</span>
+                                                    <input type="text" class="form-control text-end battery-price"
+                                                        id="battery-price-{{ $counter }}" name="batteriesprice[]"
+                                                        placeholder="Enter item price" required readonly
+                                                        @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
+                                                </div>
                                             </div>
 
-                                            @if (!isset($data['profile']))
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-danger btn-sm btn-delete-row"
+                                                    title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                            </div>
+
+                                        </div>
+                                    </td>
+
+                                    {{-- Hidden Inputs --}}
+                                    @isset($data['profile']['batteries'])
+                                        <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
+                                    @endisset
+                                </tr>
+
+                                @php
+                                    $counter++;
+                                @endphp
+                            @endforeach
+                        </tbody>
+
+                        {{-- Footer (Tax, Discount, Total) --}}
+                        <tfoot>
+                            {{-- Subtotal --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Subtotal</td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end" id="subtotal"
+                                            name="subtotal"
+                                            @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
+                                            readonly required>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {{-- Discount --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Discount</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            {{-- Discount Percentage --}}
+                                            <div class="input-group d-none" id="discount-percentage">
+                                                <input type="text" pattern="[0-9.]+" class="form-control text-end"
+                                                    id="discount" name="discount"
+                                                    @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
+                                                    @isset($data['profile']['discount']) readonly @endisset required>
+                                                <span class="input-group-text border-end">%</span>
+                                            </div>
+
+                                            {{-- Discount Price --}}
+                                            <div class="input-group" id="discount-price">
+                                                <span class="input-group-text border-end">IDR</span>
+                                                <input type="text" class="form-control text-end"
+                                                    id="discount-price-value" name="discountprice"
+                                                    @isset($data['profile']['discount']) readonly @endisset
+                                                    @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
+                                                    required>
+                                            </div>
                                         </div>
 
                                         <div class="col-sm-2">
-                                            <button type="button" class="btn btn-danger btn-sm disabled btn-delete-row"
-                                                title="Delete Item"><i class="fas fa-xmark"></i></button>
+                                            <input type="checkbox" id="toggle-discount" data-toggle="toggle"
+                                                data-size="sm" data-offlabel="%" data-onlabel="IDR" checked readonly>
                                         </div>
-                            @endif
-            </div>
-            </td>
+                                    </div>
+                                </td>
+                            </tr>
 
-            {{-- Hidden Inputs --}}
-            @isset($data['profile']['batteries'])
-                <input type="hidden" name="detailid[]" value="{{ $battery['id'] }}">
-            @endisset
-            </tr>
+                            {{-- Total --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Total</td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end">IDR</span>
+                                        <input type="text" class="form-control text-end" id="total"
+                                            name="total"
+                                            @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
+                                            required readonly>
+                                    </div>
+                                </td>
+                            </tr>
 
-            @php
-                $counter++;
-            @endphp
-            @endforeach
-            </tbody>
+                            {{-- Payment Method & Status --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Payment method</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <select class="form-control" id="payment-method" name="paymentmethod"
+                                                required>
+                                                <option></option>
+                                                @foreach ($data['payment_methods'] as $method)
+                                                    <option value="{{ $method['id'] }}"
+                                                        @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
+                                                        {{ $method['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-            {{-- Footer (Tax, Discount, Total) --}}
-            <tfoot>
-                {{-- Subtotal --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Subtotal</td>
-                    <td>
-                        <div class="input-group">
-                            <span class="input-group-text border-end">IDR</span>
-                            <input type="text" class="form-control text-end" id="subtotal" name="subtotal"
-                                @isset($data['profile'])value="{{ $data['profile']['subtotal'] }}" @else value="0" @endisset
-                                readonly required>
+                                        <div class="col-5">
+                                            <select name="status" id="status" class="form-control" required>
+                                                <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>
+                                                    Paid
+                                                </option>
+                                                <option value="pending"
+                                                    @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
+                                                    Pending</option>
+                                                <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
+                                                    Failed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="card" id="ExpenseSection">
+                        <div class="card-body">
+
+                            <button class="btn btn-primary mb-3" id="addExpense" type="button">Add Expense</button>
+                            <div class="table-responsive" id="ExpenseTable">
+                                <table class="table table-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Chart of Account</th>
+                                            <th>Expense Name</th>
+                                            <th>Amount</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ExpenseTableBody">
+                                        {{-- @dd($data['profile']['billing_invoice_expenses']); --}}
+                                        @if (isset($data['profile']['billing_invoice_expenses']))
+                                            @if (count($data['profile']['billing_invoice_expenses']) == 0)
+                                                <tr id="NoExpenseRow">
+                                                    <td colspan="5" class="text-center">No expenses added</td>
+                                                </tr>
+                                            @endif
+
+                                            @foreach ($data['profile']['billing_invoice_expenses'] as $index => $expense)
+                                                <tr data-expense-id="{{ $expense['id'] }}">
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td class="chart-of-account">{{ $expense['debit_account']['number'] }}
+                                                        -
+                                                        {{ $expense['debit_account']['name'] }}</td>
+                                                    <td class="expense-name">{{ $expense['description'] }}
+                                                        <input type="hidden" name="ExpenseIds[]"
+                                                            value="{{ $expense['expense_id'] }}">
+                                                    </td>
+                                                    <td class="expense-amount">
+                                                        Rp. {{ number_format($expense['amount'], 0, ',', '.') }}
+                                                        <input type ="hidden" name="ExpenseAmounts[]"
+                                                            value="{{ $expense['amount'] }}" class="ExpenseAmount">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                            class="btn btn-danger btn-sm btn-delete-expense"
+                                                            title="Delete Expense"><i class="fas fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3" class="text-end">Total Expense</th>
+                                            <th colspan="2" id="TotalExpense">
+                                                @if (isset($data['profile']['billing_invoice_expenses']))
+                                                    Rp.
+                                                    {{ number_format(array_sum(array_column($data['profile']['billing_invoice_expenses'], 'amount')), 0, ',', '.') }}
+                                                @else
+                                                    Rp. 0
+                                                @endif
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                            </div>
                         </div>
-                    </td>
-                </tr>
+                    </div>
 
-                {{-- Discount --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Discount</td>
-                    <td>
-                        <div class="row">
-                            <div class="col">
-                                {{-- Discount Percentage --}}
-                                <div class="input-group d-none" id="discount-percentage">
-                                    <input type="text" pattern="[0-9.]+" class="form-control text-end" id="discount"
-                                        name="discount"
-                                        @isset($data['profile'])value="{{ $data['profile']['discount'] }}" @else value="0" @endisset
-                                        @isset($data['profile']['discount']) readonly @endisset required>
-                                    <span class="input-group-text border-end">%</span>
+
+                    {{-- Modal Add Expense --}}
+                    <div class="modal fade" id="AddExpenseModal" tabindex="-1" aria-labelledby="AddExpenseModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="AddExpenseModalLabel">Add Expense</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="ExpenseName" class="form-label">Expense Name</label>
+                                        <select class="form-select" id="ExpenseName" name="ExpenseName">
+                                            <option value="">Select Expense</option>
+                                            @if (isset($data['expenses']))
+                                                @foreach ($data['expenses'] as $expense)
+                                                    @php
+                                                        $coaNumber = data_get($expense, 'chart_of_account.number', '');
+                                                        $coaName = data_get($expense, 'chart_of_account.name', '');
+                                                        $expenseName = data_get($expense, 'name', '');
+                                                    @endphp
+                                                    <option value="{{ $expense['id'] }}"
+                                                        data-chart-of-account="{{ trim($coaNumber . ' - ' . $coaName, ' -') }}">
+                                                        {{ trim($coaNumber . ' - ' . $coaName . ' - ' . $expenseName, ' -') }}
+                                                    </option>
+                                                @endforeach
+                                            @else
+                                                <option value="">No expenses available</option>
+                                            @endif
+                                        </select>
 
-                                {{-- Discount Price --}}
-                                <div class="input-group" id="discount-price">
-                                    <span class="input-group-text border-end">IDR</span>
-                                    <input type="text" class="form-control text-end" id="discount-price-value"
-                                        name="discountprice" @isset($data['profile']['discount']) readonly @endisset
-                                        @isset($data['profile'])value="{{ $data['profile']['discount_price'] }}" @else value="0" @endisset
-                                        required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="ExpenseAmount" class="form-label">Amount</label>
+                                        <input type="number" class="form-control" id="ExpenseAmount"
+                                            name="ExpenseAmount" placeholder="Enter Expense Amount">
+                                    </div>
+                                    <button class="btn btn-primary" id="btnAddExpense" type="button">Add
+                                        Expense</button>
                                 </div>
                             </div>
-
-                            <div class="col-sm-2">
-                                <input type="checkbox" id="toggle-discount" data-toggle="toggle" data-size="sm"
-                                    data-offlabel="%" data-onlabel="IDR" checked readonly>
-                            </div>
                         </div>
-                    </td>
-                </tr>
+                    </div>
 
-                {{-- Total --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Total</td>
-                    <td>
-                        <div class="input-group">
-                            <span class="input-group-text border-end">IDR</span>
-                            <input type="text" class="form-control text-end" id="total" name="total"
-                                @isset($data['profile'])value="{{ $data['profile']['total'] }}" @else value="0" @endisset
-                                required readonly>
-                        </div>
-                    </td>
-                </tr>
+                    <br>
 
-                {{-- Payment Method & Status --}}
-                <tr>
-                    <td colspan="5"></td>
-                    <td class="text-end">Payment method</td>
-                    <td>
-                        <div class="row">
-                            <div class="col">
-                                <select class="form-control" id="payment-method" name="paymentmethod" required>
-                                    <option></option>
-                                    @foreach ($data['payment_methods'] as $method)
-                                        <option value="{{ $method['id'] }}"
-                                            @if (isset($data['profile']) && $data['profile']['payment_method_id'] == $method['id']) selected @endif>
-                                            {{ $method['name'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    {{-- Hidden Inputs --}}
+                    @isset($data['profile'])
+                        <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
+                    @endisset
 
-                            <div class="col-5">
-                                <select name="status" id="status" class="form-control" required>
-                                    <option value="paid" @if (isset($data['profile']) && $data['profile']['status'] == 'paid') selected @endif>Paid
-                                    </option>
-                                    <option value="pending" @if (isset($data['profile']) && $data['profile']['status'] == 'pending') selected @endif>
-                                        Pending</option>
-                                    <option value="failed" @if (isset($data['profile']) && $data['profile']['status'] == 'failed') selected @endif>
-                                        Failed</option>
-                                </select>
-                            </div>
-                        </div>
-
-                    </td>
-                </tr>
-            </tfoot>
-            </table>
-            <br>
-
-            {{-- Hidden Inputs --}}
-            @isset($data['profile'])
-                <input type="hidden" id="id" name="id" value="{{ $data['profile']['id'] }}">
-            @endisset
-
-            {{-- Buttons --}}
-            <div class="d-flex flex-row-reverse">
-                {{-- Create Button --}}
-                <button type="submit" class="btn btn-success mx-1" id="btn-save"
-                    @if (isset($data['profile'])) value="update">
+                    {{-- Buttons --}}
+                    <div class="d-flex flex-row-reverse">
+                        {{-- Create Button --}}
+                        <button type="submit" class="btn btn-success mx-1" id="btn-save"
+                            @if (isset($data['profile'])) value="update">
                         Update
                         @else
                         value="create">
                         Create @endif
-                    Quotation </button>
+                            Sales Order </button>
 
-                    {{-- Cancel Button --}}
-                    <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                            {{-- Cancel Button --}}
+                            <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                    </div>
+                </form>
             </div>
-            </form>
         </div>
-    </div>
     </div>
 
     @include('Mobile.SalesOrder.create')
@@ -645,6 +755,26 @@
             // Obtain submitted form data.
             let formData = new FormData($(this)[0]);
 
+            let expenses = [];
+            $("#ExpenseTableBody tr").each(function() {
+                let expenseId = $(this).data("expense-id");
+                let chartOfAccount = $(this).find(".chart-of-account").text();
+                let expenseName = $(this).find(".expense-name").text();
+                let amountText = $(this).find(".expense-amount").text().replace(/[^0-9.-]+/g, "");
+                let amount = parseFloat(amountText);
+
+                if (!isNaN(amount)) {
+                    expenses.push({
+                        id: expenseId,
+                        chart_of_account: chartOfAccount,
+                        name: expenseName,
+                        amount: amount,
+                    });
+                }
+            });
+
+            formData.append("expenses", JSON.stringify(expenses));
+
             // Show SweetAlert loading
             Swal.fire({
                 title: 'Please wait',
@@ -713,6 +843,8 @@
                     $(".btn-delete-row").addClass("disabled");
                 }
             }
+
+            calculateTotal();
         });
     </script>
 
@@ -873,6 +1005,87 @@
             let address = selectedOption.data('address') || '';
 
             $("#AddressSearchColumnSalesOrderEditable").val(address);
+        });
+
+
+        $("#addExpense").on("click", function() {
+            $("#AddExpenseModal").modal("show");
+        });
+
+        $("#ExpenseAmount").on("keypress", function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $("#btnAddExpense").click();
+            }
+        });
+
+        $("#btnAddExpense").on("click", function() {
+            var ExpenseName = $("#ExpenseName").val();
+            var ExpenseAmount = $("#ExpenseAmount").val();
+            var ExpenseText = $("#ExpenseName option:selected").text();
+            var ChartOfAccount = $("#ExpenseName option:selected").data("chart-of-account");
+            var ExpenseId = $("#ExpenseName option:selected").val();
+
+            if (ExpenseName == "" || ExpenseAmount == "") {
+                swal.fire("Error!", "Please fill all fields", "error");
+                return;
+            }
+
+            if ($("#NoExpenseRow").length) {
+                $("#NoExpenseRow").remove();
+            }
+
+            var no = $("#ExpenseTableBody tr").length + 1;
+
+            var newRow = `
+            <tr>
+                <td>${no}</td>
+                <td>${ChartOfAccount}</td>
+                <td>${ExpenseText}
+                    <input type="hidden" name="ExpenseIds[]" value="${ExpenseId}" class="ExpenseId">
+                </td>
+                <td>Rp. ${parseFloat(ExpenseAmount).toLocaleString('id-ID')}
+                    <input type="hidden" name="ExpenseAmounts[]" value="${ExpenseAmount}" class="ExpenseAmount">
+                </td>
+                <td><button class="btn btn-danger btn-sm btn-delete-expense"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `;
+
+            var totalExpense = 0;
+
+            $("#ExpenseTableBody tr").each(function() {
+                var amount = parseFloat($(this).find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g,
+                    ""));
+                totalExpense += amount;
+            });
+            totalExpense += parseFloat(ExpenseAmount);
+
+            $("#ExpenseTableBody").append(newRow);
+            $("#TotalExpense").text("Rp. " + totalExpense.toLocaleString('id-ID'));
+            $("#AddExpenseModal").modal("hide");
+
+            // clear modal input
+            $("#ExpenseName").val("");
+            $("#ExpenseAmount").val("");
+        });
+
+        $(document).on("click", ".btn-delete-expense", function() {
+            var row = $(this).closest("tr");
+            var amount = parseFloat(row.find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g, ""));
+            row.remove();
+
+            var totalExpense = 0;
+            $("#ExpenseTableBody tr").each(function() {
+                var amount = parseFloat($(this).find("td:eq(3)").text().replace("Rp. ", "").replace(/\./g,
+                    ""));
+                totalExpense += amount;
+            });
+
+            $("#TotalExpense").text("Rp. " + totalExpense.toLocaleString('id-ID'));
+
+            $("#ExpenseTableBody tr").each(function(index) {
+                $(this).find("td:eq(0)").text(index + 1);
+            });
         });
     </script>
 @endsection

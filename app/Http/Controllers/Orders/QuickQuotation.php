@@ -32,6 +32,9 @@ use App\Models\Settings\MessageTemplateModel;
 use App\Models\Settings\TaxModel;
 use App\Models\MasterData\Battery\BatteryUrlModel;
 use App\Models\Settings\PaymentMethodModel;
+use App\Models\Accounting\ExpenseModel;
+use App\Models\Orders\SalesOrder\SalesOrderExpenseModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
 use App\Models\Servers\ServerPaymentGatewayModel;
 use Illuminate\Support\Facades\DB;
 
@@ -468,7 +471,8 @@ $arrayBattery
             'Subtotal' => $request->input('subtotal') ?? 0,
             'PaymentMethod' => $PaymentMethod,
             'typeDiscount' => $typeDiscount,
-            'alternativeAddress' => $alternativeAddress
+            'alternativeAddress' => $alternativeAddress,
+            'expenses' => ExpenseModel::with('chartOfAccount')->where('is_active', 1)->orderBy('name', 'asc')->get()->toArray()
         ];
 
 
@@ -1082,6 +1086,31 @@ $arrayBattery
                 $billing->subtotal = $totalPriceNetRegular;
                 $billing->total = $totalPriceNetRegular;
                 $billing->save();
+            }
+
+
+            // Save Sales Order Expense
+            // ExpenseIds, ExpenseAmounts
+            if ($request->input('ExpenseIds') && $request->input('ExpenseAmounts')) {
+                $ExpenseIds = $request->input('ExpenseIds');
+                $ExpenseAmounts = $request->input('ExpenseAmounts');
+                foreach ($ExpenseIds as $index => $ExpenseId) {
+                    SalesOrderExpenseModel::create([
+                        'sales_order_id' => $Quotation->id,
+                        'expense_id' => $ExpenseId,
+                        'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
+                    ]);
+
+                    BillingInvoiceExpenseModel::create([
+                        'billing_invoice_id' => $billing->id,
+                        'expense_id' => $ExpenseId,
+                        'sales_order_id' => $Quotation->id,
+                        'debit_account_id' => ExpenseModel::find($ExpenseId)->chart_of_account_id,
+                        'credit_account_id' => NULL,
+                        'description' => ExpenseModel::find($ExpenseId)->name,
+                        'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
+                    ]);
+                }
             }
 
 

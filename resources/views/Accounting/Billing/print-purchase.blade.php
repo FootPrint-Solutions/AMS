@@ -100,6 +100,8 @@
     }
 </style>
 
+<title>Invoice Billing - {{ $profile['billing_number'] }}</title>
+
 <body>
     <div id="printini" class="content">
         <div id="header0">
@@ -465,3 +467,10 @@
         </div>
     </div>
 </body>
+
+
+<script>
+    window.onload = () => {
+        window.print();
+    };
+</script>

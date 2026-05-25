@@ -106,7 +106,7 @@
                 processing: true,
                 serverSide: true,
                 order: [
-                    [10, "desc"]
+                    [2, "desc"]
                 ],
                 ajax: {
                     url: "{{ url('/billing/show') }}",
@@ -290,7 +290,7 @@
                                 return;
                             }
 
-                            downloadPDF("/billing/print/" + id, "_blank");
+                            window.open("/billing/print/" + id, "_blank");
                         }
                     },
                     // // Print Kwitansi Button
@@ -308,7 +308,7 @@
                                 return;
                             }
                             let id = selected[0][12];
-                            downloadPDF("/billing/print-receipt/" + id, "_blank");
+                            window.open("/billing/print-receipt/" + id, "_blank");
                         }
                     }
                 ],
@@ -403,7 +403,40 @@
                             `;
                             });
                             itemTable += '</tbody></table>';
-                            row.child(itemTable).show();
+
+                            // build expenses section if any invoice has expenses
+                            let expensesSection = '';
+                            items.forEach(item => {
+                                if (item.expenses && item.expenses.length) {
+                                    expensesSection +=
+                                        `<div class="mt-2"><strong>Expenses for ${item.invoice_number}</strong>`;
+                                    expensesSection += `
+                                        <table class="table table-sm table-bordered mt-1">
+                                            <thead>
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <th>Debit Account</th>
+                                                    <th>Credit Account</th>
+                                                    <th class="text-end">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                    `;
+                                    item.expenses.forEach(exp => {
+                                        expensesSection += `
+                                            <tr>
+                                                <td>${exp.description ?? '-'}</td>
+                                                <td>${exp.debit_account ?? '-'}</td>
+                                                <td>${exp.credit_account ?? '-'}</td>
+                                                <td class="text-end">${exp.amount ?? '-'}</td>
+                                            </tr>
+                                        `;
+                                    });
+                                    expensesSection += `</tbody></table></div>`;
+                                }
+                            });
+
+                            row.child(itemTable + expensesSection).show();
                             tr.addClass('shown');
                         } else {
                             Swal.fire("Error", "Failed to fetch items.", "error");

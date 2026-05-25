@@ -789,6 +789,8 @@
                 var TaxPayment = [];
                 var TaxPricePayment = [];
                 var BatteryIdCheckout = [];
+                var ExpenseId = [];
+                var ExpenseAmount = [];
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -853,6 +855,16 @@
                 $(".BatteryTypeCheckout").each(function() {
                     var value = $(this).val();
                     BatteryType.push(value);
+                });
+
+                $(".ExpenseId").each(function() {
+                    var value = $(this).val();
+                    ExpenseId.push(value);
+                });
+
+                $(".ExpenseAmount").each(function() {
+                    var value = $(this).val();
+                    ExpenseAmount.push(value);
                 });
 
                 var onlyRecycle = BatteryType.every(function(type) {
@@ -920,7 +932,9 @@
                     typeDiscount: typeDiscount,
                     alternative_address: alternative_address,
                     MarketplaceInvoice: MarketplaceInvoice,
-                    BatteryType: BatteryType
+                    BatteryType: BatteryType,
+                    ExpenseIds: ExpenseId,
+                    ExpenseAmounts: ExpenseAmount
                 };
 
                 $.ajax({

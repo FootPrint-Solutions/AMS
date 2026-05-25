@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\BillingModel;
 use App\Models\Accounting\BillingInvoiceModel;
+use App\Models\Accounting\BillingInvoiceExpenseModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Supplier\SupplierModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
@@ -20,6 +21,7 @@ use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
 use App\Models\Orders\SalesInvoice\SalesInvoiceModel;
+use App\Models\Orders\SalesOrder\SalesOrderExpenseModel;
 
 class Billing extends Controller
 {
@@ -282,6 +284,7 @@ class Billing extends Controller
 
             // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
+            $salesOrderIds = $request->input('sales_order_ids', []);
             $orderTypes = $request->input('order_types', []);
             $orderSources = $request->input('order_sources', []);
             $orderNumbers = $request->input('order_numbers', []);
@@ -289,9 +292,10 @@ class Billing extends Controller
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
             $totals = $request->input('totals', []);
+            $expensesData = $request->input('expenses_data') ? json_decode($request->input('expenses_data'), true) : [];
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::create([
+                $billingInvoice = BillingInvoiceModel::create([
                     'billing_id' => $billing->id,
                     'invoice_id' => $invoiceId,
                     'invoice_type' => $orderSources[$idx] ?? null,
@@ -303,6 +307,30 @@ class Billing extends Controller
                     'total' => $totals[$idx] ?? 0,
                     'note' => $notes[$idx] ?? null,
                 ]);
+
+                // Save expenses for this invoice if they exist
+                if (!empty($expensesData[$invoiceId])) {
+                    $expenseData = $expensesData[$invoiceId];
+
+                    // Save each expense record
+                    for ($i = 0; $i < count($expenseData['coa_ids']); $i++) {
+                        $coaId = $expenseData['coa_ids'][$i] ?? null;
+                        $expenseId = $expenseData['sales_order_expense_ids'][$i] ?? null;
+                        $amount = $expenseData['expense_amounts'][$i] ?? 0;
+
+                        if ($coaId) {
+                            BillingInvoiceExpenseModel::create([
+                                'billing_invoice_id' => $billingInvoice->id,
+                                'sales_order_id' => $salesOrderIds,
+                                'debit_account_id' => $coaId,
+                                'credit_account_id' => $expenseData['credit_account_id'] ?? null,
+                                'description' => $expenseId === 'cogs' ? 'Cost of Goods Sold (COGS)' : ($expenseId === 'inventory' ? 'Inventory Account' : 'Expense from Sales Order'),
+                                'amount' => $amount,
+                                'source' => 'sales_billing',
+                            ]);
+                        }
+                    }
+                }
             }
 
             DB::commit();
@@ -359,11 +387,9 @@ class Billing extends Controller
                 'credit_account_id' => $request->input('credit_account'),
             ]);
 
-            // Delete old invoices
-            BillingInvoiceModel::where('billing_id', $billing->id)->delete();
-
             // Save BillingInvoice(s)
             $invoiceIds = $request->input('invoice_ids', []);
+            $salesOrderIds = $request->input('sales_order_ids', []);
             $orderTypes = $request->input('order_types', []);
             $orderSources = $request->input('order_sources', []);
             $orderNumbers = $request->input('order_numbers', []);
@@ -371,20 +397,74 @@ class Billing extends Controller
             $discounts = $request->input('discounts', []);
             $subtotals = $request->input('subtotals', []);
             $totals = $request->input('totals', []);
+            $rawExpenses = $request->input('expenses_data');
+            $expensesData = $rawExpenses ? json_decode($rawExpenses, true) : [];
+
+            if ($rawExpenses && $rawExpenses !== '{}') {
+                BillingInvoiceExpenseModel::whereHas('billingInvoice', function ($query) use ($billing) {
+                    $query->where('billing_id', $billing->id);
+                })->delete();
+            }
+
 
             foreach ($invoiceIds as $idx => $invoiceId) {
-                BillingInvoiceModel::create([
-                    'billing_id' => $billing->id,
-                    'invoice_id' => $invoiceId,
-                    'invoice_type' => $orderSources[$idx] ?? null,
-                    'invoice_number' => $orderNumbers[$idx] ?? null,
-                    'date' => $request->input('date'),
-                    'discount' => 0,
-                    'discount_price' => $discounts[$idx] ?? 0,
-                    'subtotal' => $subtotals[$idx] ?? 0,
-                    'total' => $totals[$idx] ?? 0,
-                    'note' => $notes[$idx] ?? null,
-                ]);
+                $billingInvoice = BillingInvoiceModel::updateOrCreate(
+                    [
+                        'billing_id' => $billing->id,
+                        'invoice_id' => $invoiceId,
+                        'invoice_type' => $orderSources[$idx] ?? null,
+                    ],
+                    [
+                        'invoice_number' => $orderNumbers[$idx] ?? null,
+                        'date' => $request->input('date'),
+                        'discount' => 0,
+                        'discount_price' => $discounts[$idx] ?? 0,
+                        'subtotal' => $subtotals[$idx] ?? 0,
+                        'total' => $totals[$idx] ?? 0,
+                        'note' => $notes[$idx] ?? null,
+                    ]
+                );
+
+                // Save expenses for this invoice if they exist
+                if (!empty($expensesData[$invoiceId])) {
+                    $expenseData = $expensesData[$invoiceId];
+
+                    for ($i = 0; $i < count($expenseData['expense_names']); $i++) {
+                        $coaDebitId = $expenseData['coa_debit_ids'][$i] ?? null;
+                        $coaCreditId = $expenseData['coa_credit_ids'][$i] ?? null;
+                        $expenseId = $expenseData['expense_ids'][$i] ?? null;
+                        $amountExpenseId = $expenseData['expense_debit_amounts'][$i] ?? 0;
+                        $amountCreditExpenseId = $expenseData['expense_credit_amounts'][$i] ?? 0;
+                        $expenseName = $expenseData['expense_names'][$i] ?? null;
+                        $source = $expenseData['source'][$i] ?? null;
+
+                        if ($coaDebitId) {
+                            BillingInvoiceExpenseModel::create([
+                                'billing_invoice_id' => $billingInvoice->id,
+                                'expense_id' => $expenseId,
+                                'sales_order_id' => $expenseData['sales_order_id'] ?? null,
+                                'debit_account_id' => $coaDebitId,
+                                'credit_account_id' => NULL,
+                                'description' => $expenseName,
+                                'amount' => $amountExpenseId,
+                                'source' => $source
+                            ]);
+                        }
+
+                        if ($coaCreditId) {
+                            BillingInvoiceExpenseModel::create([
+                                'billing_invoice_id' => $billingInvoice->id,
+                                'expense_id' => $expenseId,
+                                'sales_order_id' => $expenseData['sales_order_id'] ?? null,
+                                'debit_account_id' => NULL,
+                                'credit_account_id' => $coaCreditId,
+                                'description' => $expenseName,
+                                'amount' => $amountCreditExpenseId,
+                                'source' => $source
+                            ]);
+                        }
+                    }
+                }
             }
 
             DB::commit();
@@ -517,7 +597,7 @@ class Billing extends Controller
             BillingModel::whereIn('id', $billingIds)
                 ->update(['status' => 'posted']);
 
-            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount', 'billing'])
+            $invoices = BillingInvoiceModel::with(['billing.debitAccount', 'billing.creditAccount', 'billing', 'expenses'])
                 ->whereIn('billing_id', $billingIds)
                 ->get();
             $salesOrderIds = [];
@@ -566,6 +646,40 @@ class Billing extends Controller
                     'invoice_id' => $inv->invoice_id,
                     'invoice_type' => BillingInvoiceModel::class,
                 ]);
+
+                // insert expenses to JournalTransactionDetail
+                $BillingInvoiceExpenses = BillingInvoiceExpenseModel::where('billing_invoice_id', $inv->id)->get();
+                foreach ($BillingInvoiceExpenses as $expense) {
+                    if ($expense->debit_account_id) {
+                        JournalTransactionDetailModel::create([
+                            'journal_entry_id' => $journalTransaction->id,
+                            'chart_of_account_id' => $expense->debit_account_id,
+                            'account_number' => optional($expense->debitAccount)->number,
+                            'account_name' => optional($expense->debitAccount)->name,
+                            'description' => 'Debit Expense for Billing - ' . $expense->description,
+                            'ref' => $expense->description,
+                            'debit' => $expense->amount ?? 0,
+                            'credit' => 0,
+                            'invoice_id' => $inv->invoice_id,
+                            'invoice_type' => BillingInvoiceModel::class,
+                        ]);
+                    }
+
+                    if ($expense->credit_account_id) {
+                        JournalTransactionDetailModel::create([
+                            'journal_entry_id' => $journalTransaction->id,
+                            'chart_of_account_id' => $expense->credit_account_id,
+                            'account_number' => optional($expense->creditAccount)->number,
+                            'account_name' => optional($expense->creditAccount)->name,
+                            'description' => 'Credit Expense for Billing - ' . $expense->description,
+                            'ref' => $expense->description,
+                            'debit' => 0,
+                            'credit' => $expense->amount ?? 0,
+                            'invoice_id' => $inv->invoice_id,
+                            'invoice_type' => BillingInvoiceModel::class,
+                        ]);
+                    }
+                }
             }
 
             $billingNumber = BillingModel::whereIn('id', $billingIds)->pluck('billing_number')->toArray();
@@ -727,8 +841,25 @@ class Billing extends Controller
             ], 404);
         }
 
+        $expensesQuery = BillingInvoiceExpenseModel::whereIn('billing_invoice_id', $billing->invoices->pluck('id'))
+            ->with(['debitAccount', 'creditAccount'])
+            ->get();
+
+        $expenses = $expensesQuery->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'description' => $e->description,
+                'amount' => number_format($e->amount, 0, ',', '.'),
+                'debit_account' => $e->debitAccount ? ($e->debitAccount->number . ' - ' . $e->debitAccount->name) : null,
+                'credit_account' => $e->creditAccount ? ($e->creditAccount->number . ' - ' . $e->creditAccount->name) : null,
+                'debit_account_id' => $e->debit_account_id,
+                'credit_account_id' => $e->credit_account_id,
+            ];
+        })->toArray();
+
         $items = [];
         foreach ($billing->invoices as $invoice) {
+
             $items[] = [
                 'billing_id' => $invoice->billing_id,
                 'invoice_id' => $invoice->invoice_id,
@@ -740,6 +871,7 @@ class Billing extends Controller
                 'discount_price' => number_format($invoice->discount_price, 0, ',', '.'),
                 'subtotal' => number_format($invoice->subtotal, 0, ',', '.'),
                 'total' => number_format($invoice->total, 0, ',', '.'),
+                'expenses' => $expenses,
             ];
         }
 
@@ -1492,15 +1624,44 @@ class Billing extends Controller
     public function getOrderExpense($id)
     {
         try {
-            $salesInvoice = SalesInvoiceModel::with(['expenses'])->where('sales_order_id', $id)->first();
+            $billingInvoiceExpenses = BillingInvoiceExpenseModel::with('debitAccount', 'creditAccount')
+                ->where('sales_order_id', $id)
+                ->where('source', 'sales_order')
+                ->get();
+
+            if ($billingInvoiceExpenses->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No expense data found for the given Sales Order.'
+                ]);
+            }
+
+            $salesOrder = SalesOrderModel::with('batteries', 'paymentMethod')->find($billingInvoiceExpenses->first()->sales_order_id);
+
+            if (!$salesOrder) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sales Order not found for the given expense data.'
+                ]);
+            }
+
+            $totalPriceBuy = 0;
+            if ($salesOrder && $salesOrder->batteries) {
+                foreach ($salesOrder->batteries as $battery) {
+                    $totalPriceBuy += (float) ($battery->battery->price_buy ?? 0) * (float) ($battery->quantity ?? 1);
+                }
+            }
+
             $chartOfAccounts = ChartOfAccountModel::where('is_active', 1)
                 ->orderBy('number')
                 ->select('id', 'number', 'name')
                 ->get();
 
             $data = [
-                'sales_invoice' => $salesInvoice ? $salesInvoice->expenses : [],
-                'chart_of_accounts' => $chartOfAccounts
+                'billing_invoice_expenses' => $billingInvoiceExpenses,
+                'chart_of_accounts' => $chartOfAccounts,
+                'total_price_buy' => $totalPriceBuy,
+                'sales_order' => $salesOrder
             ];
 
             return response()->json([
@@ -1508,9 +1669,144 @@ class Billing extends Controller
                 'data' => $data
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to get order expenses: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to get order expenses: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Save expense details for a billing invoice
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function saveExpenses(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $billingInvoiceId = $request->input('billing_invoice_id');
+            $salesInvoiceId = $request->input('sales_invoice_id');
+            $coaIds = $request->input('coa_ids', []);
+            $salesOrderExpenseIds = $request->input('sales_order_expense_ids', []);
+            $expenseAmounts = $request->input('expense_amounts', []);
+
+            // Validate inputs
+            if (!$billingInvoiceId || !$salesInvoiceId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Missing required fields: billing_invoice_id or sales_invoice_id'
+                ], 400);
+            }
+
+            // Delete existing expenses for this invoice
+            BillingInvoiceExpenseModel::where('billing_invoice_id', $billingInvoiceId)
+                ->where('sales_invoice_id', $salesInvoiceId)
+                ->delete();
+
+            // Save new expenses
+            $expenseIndex = 0;
+            foreach ($salesOrderExpenseIds as $idx => $expenseId) {
+                $coaId = $coaIds[$idx] ?? null;
+
+                if ($coaId && $expenseId) {
+                    $expenseAmount = $expenseAmounts[$idx] ?? 0;
+
+                    BillingInvoiceExpenseModel::create([
+                        'billing_invoice_id' => $billingInvoiceId,
+                        'sales_invoice_id' => $salesInvoiceId,
+                        'debit_account_id' => $coaId,
+                        'credit_account_id' => $request->input('credit_account_id'),
+                        'description' => 'Expense from Sales Order',
+                        'amount' => $expenseAmount,
+                    ]);
+                }
+            }
+
+            // Handle additional accounts (COGS, Inventory, etc.)
+            $creditAccountId = $coaIds[count($salesOrderExpenseIds)] ?? null;
+            $cogsAccountId = $coaIds[count($salesOrderExpenseIds) + 1] ?? null;
+            $inventoryAccountId = $coaIds[count($salesOrderExpenseIds) + 2] ?? null;
+
+            // Save COGS expense
+            if ($cogsAccountId) {
+                $totalPriceBuy = $request->input('total_price_buy', 0);
+                BillingInvoiceExpenseModel::create([
+                    'billing_invoice_id' => $billingInvoiceId,
+                    'sales_invoice_id' => $salesInvoiceId,
+                    'debit_account_id' => $cogsAccountId,
+                    'credit_account_id' => $inventoryAccountId,
+                    'description' => 'Cost of Goods Sold (COGS)',
+                    'amount' => $totalPriceBuy,
+                ]);
+            }
+
+            // Save Inventory expense
+            if ($inventoryAccountId && $cogsAccountId) {
+                $totalPriceBuy = $request->input('total_price_buy', 0);
+                BillingInvoiceExpenseModel::create([
+                    'billing_invoice_id' => $billingInvoiceId,
+                    'sales_invoice_id' => $salesInvoiceId,
+                    'debit_account_id' => $inventoryAccountId,
+                    'credit_account_id' => $creditAccountId,
+                    'description' => 'Inventory Account',
+                    'amount' => $totalPriceBuy,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Expenses saved successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save expenses: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function addExpenseToTemp(Request $request)
+    {
+        try {
+            $billingInvoiceId = $request->input('billing_invoice_id');
+            $salesInvoiceId = $request->input('sales_invoice_id');
+            $coaId = $request->input('coa_id');
+            $description = $request->input('description');
+            $amount = $request->input('amount');
+
+            if (!$billingInvoiceId || !$salesInvoiceId || !$coaId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Missing required fields: billing_invoice_id, sales_invoice_id, or coa_id'
+                ], 400);
+            }
+
+            $tempExpenses = session()->get('temp_billing_expenses', []);
+            $tempExpenses[] = [
+                'billing_invoice_id' => $billingInvoiceId,
+                'sales_invoice_id' => $salesInvoiceId,
+                'coa_id' => $coaId,
+                'description' => $description,
+                'amount' => $amount,
+            ];
+            session()->put('temp_billing_expenses', $tempExpenses);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Expense added to temporary list successfully',
+                'data' => $tempExpenses
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to add expense: ' . $e->getMessage()
             ], 500);
         }
     }

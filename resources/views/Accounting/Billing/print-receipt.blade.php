@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Kwitansi - {{ $profile['billing_number'] ?? '-' }}</title>
+    <title>Kwitansi - {{ $data['profile']['billing_number'] ?? '-' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -262,7 +262,8 @@
 
                 <img src="https://akikita.id/img/logo-aki.png" alt="akikita">
             </div>
-            <div class="header-title">KWITANSI</div>
+            <div class="header-title">KWITANSI<br><span
+                    style="font-size:18px;font-weight:700;">{{ $profile['billing_number'] ?? '-' }}</span></div>
         </div>
         <div class="hr"></div>
 
@@ -371,9 +372,9 @@
     </div>
 
     <script>
-        // window.onload = () => {
-        //     window.print();
-        // };
+        window.onload = () => {
+            window.print();
+        };
     </script>
 
 </body>
