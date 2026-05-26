@@ -1098,7 +1098,7 @@ $arrayBattery
                     SalesOrderExpenseModel::create([
                         'sales_order_id' => $Quotation->id,
                         'expense_id' => $ExpenseId,
-                        'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
+                        'amount' => parseNumber($ExpenseAmounts[$index]),
                     ]);
 
                     BillingInvoiceExpenseModel::create([
@@ -1108,7 +1108,7 @@ $arrayBattery
                         'debit_account_id' => ExpenseModel::find($ExpenseId)->chart_of_account_id,
                         'credit_account_id' => NULL,
                         'description' => ExpenseModel::find($ExpenseId)->name,
-                        'amount' => str_replace(".", "", $ExpenseAmounts[$index]),
+                        'amount' => parseNumber($ExpenseAmounts[$index]),
                     ]);
                 }
             }
