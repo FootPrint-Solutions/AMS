@@ -524,9 +524,15 @@
                                             @foreach ($data['profile']['billing_invoice_expenses'] as $index => $expense)
                                                 <tr data-expense-id="{{ $expense['id'] }}">
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td class="chart-of-account">{{ $expense['debit_account']['number'] }}
-                                                        -
-                                                        {{ $expense['debit_account']['name'] }}</td>
+                                                    <td class="chart-of-account">
+                                                        @if (!empty($expense['debit_account']))
+                                                            {{ $expense['debit_account']['number'] }} - {{ $expense['debit_account']['name'] }}
+                                                        @elseif (!empty($expense['credit_account']))
+                                                            {{ $expense['credit_account']['number'] }} - {{ $expense['credit_account']['name'] }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
                                                     <td class="expense-name">{{ $expense['description'] }}
                                                         <input type="hidden" name="ExpenseIds[]"
                                                             value="{{ $expense['expense_id'] }}">
@@ -534,7 +540,8 @@
                                                     <td class="expense-amount">
                                                         Rp. {{ number_format($expense['amount'], 0, ',', '.') }}
                                                         <input type ="hidden" name="ExpenseAmounts[]"
-                                                            value="{{ (float) $expense['amount'] }}" class="ExpenseAmount">
+                                                            value="{{ (float) $expense['amount'] }}"
+                                                            class="ExpenseAmount">
                                                     </td>
                                                     <td>
                                                         <button type="button"
