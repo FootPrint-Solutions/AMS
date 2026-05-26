@@ -96,6 +96,18 @@
 
     <script>
         $(function() {
+            function parseFormattedNumber(val) {
+                if (val === null || val === undefined) return 0;
+                let str = val.toString().trim();
+                str = str.replace(/\./g, '').replace(/,/g, '.');
+                return parseFloat(str) || 0;
+            }
+
+            function formatNumberID(val) {
+                if (val === null || val === undefined) return '0';
+                return val.toLocaleString('id-ID');
+            }
+
             let table = $("#table-billing").DataTable({
                 lengthMenu: [
                     [5, 10, 25],
@@ -368,11 +380,9 @@
                                 }
 
                                 if (item.invoice_type === "recycle") {
-                                    item.subtotal = (parseFloat(item.subtotal) * -1)
-                                        .toFixed(3);
-                                    item.discount_price = (parseFloat(item.discount_price) *
-                                        -1).toFixed(0);
-                                    item.total = (parseFloat(item.total) * -1).toFixed(3);
+                                    item.subtotal = formatNumberID(parseFormattedNumber(item.subtotal) * -1);
+                                    item.discount_price = formatNumberID(parseFormattedNumber(item.discount_price) * -1);
+                                    item.total = formatNumberID(parseFormattedNumber(item.total) * -1);
                                 }
                             });
 
@@ -406,10 +416,10 @@
 
                             // build expenses section if any invoice has expenses
                             let expensesSection = '';
-                            let totalAmountDebit = 0;
-                            let totalAmountCredit = 0;
                             items.forEach(item => {
                                 if (item.expenses && item.expenses.length) {
+                                    let totalAmountDebit = 0;
+                                    let totalAmountCredit = 0;
                                     expensesSection +=
                                         `<div class="mt-2"><h5>Expenses for ${item.invoice_number}</h5>`;
                                     expensesSection += `
@@ -434,8 +444,7 @@
                                                     <td></td>
                                                 </tr>
                                             `;
-                                            totalAmountDebit += parseFloat(exp
-                                                .amount) || 0;
+                                            totalAmountDebit += parseFormattedNumber(exp.amount);
                                         } else {
                                             expensesSection += `
                                                 <tr>
@@ -445,15 +454,14 @@
                                                     <td>${exp.amount ?? '-'}</td>
                                                 </tr>
                                             `;
-                                            totalAmountCredit += parseFloat(exp
-                                                .amount) || 0;
+                                            totalAmountCredit += parseFormattedNumber(exp.amount);
                                         }
                                     });
                                     expensesSection += `
                                         <tr>
                                             <td colspan="2" class="text-end fw-bold">Total</td>
-                                            <td class="fw-bold">${totalAmountDebit.toFixed(3)}</td>
-                                            <td class="fw-bold">${totalAmountCredit.toFixed(3)}</td>
+                                            <td class="fw-bold">${formatNumberID(totalAmountDebit)}</td>
+                                            <td class="fw-bold">${formatNumberID(totalAmountCredit)}</td>
                                         </tr>
                                     `;
                                     expensesSection += `</tbody></table></div>`;
