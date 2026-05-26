@@ -566,7 +566,7 @@ class SalesOrder extends Controller
             );
 
             // Delete the existing billing invoice expenses.
-            $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->get();
+            $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->where('source', 'sales_order')->get();
             foreach ($existingExpenses as $existingExpense) {
                 $existingExpense->delete();
             }
@@ -1373,7 +1373,7 @@ class SalesOrder extends Controller
             );
 
             // Delete the existing billing invoice expenses.
-            $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->get();
+            $existingExpenses = BillingInvoiceExpenseModel::where('sales_order_id', $salesOrder->id)->where('source', 'sales_order')->get();
             foreach ($existingExpenses as $existingExpense) {
                 $existingExpense->delete();
             }

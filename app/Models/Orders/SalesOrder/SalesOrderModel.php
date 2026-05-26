@@ -598,6 +598,7 @@ class SalesOrderModel extends Model implements Auditable
 
     public function billingInvoiceExpenses()
     {
-        return $this->hasMany(BillingInvoiceExpenseModel::class, 'sales_order_id')->with('debitAccount');
+        return $this->hasMany(BillingInvoiceExpenseModel::class, 'sales_order_id')->with('debitAccount')
+            ->where('source', 'sales_order');
     }
 }
