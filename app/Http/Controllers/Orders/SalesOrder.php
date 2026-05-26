@@ -441,7 +441,7 @@ class SalesOrder extends Controller
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
                         $expense->description = $expenseModel->name;
-                        $expense->amount = (float) str_replace(".", "", $expenseAmounts[$i]);
+                        $expense->amount = parseNumber($expenseAmounts[$i]);
                         $status &= $expense->save();
                     }
                 }
@@ -591,6 +591,10 @@ class SalesOrder extends Controller
             if ($request->has('ExpenseIds')) {
                 $expenseIds = $request->input('ExpenseIds');
                 $expenseAmounts = $request->input('ExpenseAmounts');
+                // remove 2 decimal value ex : 18000.00 -> 18000
+                $expenseAmounts = array_map(function ($amount) {
+                    return parseNumber($amount);
+                }, $expenseAmounts);
 
                 for ($i = 0; $i < count($expenseIds); $i++) {
                     $expenseId = $expenseIds[$i];
@@ -604,7 +608,7 @@ class SalesOrder extends Controller
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
                         $expense->description = $expenseModel->name;
-                        $expense->amount = str_replace(".", "", $expenseAmounts[$i]);
+                        $expense->amount = (float) $expenseAmounts[$i];
                         $status &= $expense->save();
                     } else {
                         // If the expense model is not found, rollback the transaction and return an error response.
@@ -1267,7 +1271,7 @@ class SalesOrder extends Controller
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
                         $expense->description = $expenseModel->name;
-                        $expense->amount = (float) str_replace(".", "", $expenseAmounts[$i]);
+                        $expense->amount = parseNumber($expenseAmounts[$i]);
                         $status &= $expense->save();
                     }
                 }
@@ -1407,7 +1411,7 @@ class SalesOrder extends Controller
                         $expense->debit_account_id = $expenseModel->chartOfAccount->id;
                         $expense->credit_account_id = NULL;
                         $expense->description = $expenseModel->name;
-                        $expense->amount = str_replace(".", "", $expenseAmounts[$i]);
+                        $expense->amount = parseNumber($expenseAmounts[$i]);
                         $status &= $expense->save();
                     } else {
                         // If the expense model is not found, rollback the transaction and return an error response.

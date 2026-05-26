@@ -130,3 +130,57 @@ if (!function_exists('terbilang')) {
         return convertToTerbilang($price);
     }
 }
+
+/**
+ * Parse a localized or standard numeric string into a float.
+ * Handles both Indonesian (dot as thousand, comma as decimal) and standard formats.
+ * 
+ * @param mixed $value
+ * @return float
+ */
+if (!function_exists('parseNumber')) {
+    function parseNumber($value)
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return 0.0;
+        }
+
+        // If it contains both dot and comma, e.g. 18.000,50
+        if (strpos($value, '.') !== false && strpos($value, ',') !== false) {
+            $value = str_replace('.', '', $value);
+            $value = str_replace(',', '.', $value);
+            return (float) $value;
+        }
+
+        // If it contains a comma and NO dot, e.g. 18000,50
+        if (strpos($value, ',') !== false && strpos($value, '.') === false) {
+            $value = str_replace(',', '.', $value);
+            return (float) $value;
+        }
+
+        // If it contains a dot and NO comma, e.g. 18.000 or 18000.00
+        if (strpos($value, '.') !== false) {
+            $dotCount = substr_count($value, '.');
+            if ($dotCount > 1) {
+                return (float) str_replace('.', '', $value);
+            }
+
+            $parts = explode('.', $value);
+            $decimalPart = $parts[1] ?? '';
+
+            if (strlen($decimalPart) === 3) {
+                return (float) str_replace('.', '', $value);
+            } else {
+                return (float) $value;
+            }
+        }
+
+        return (float) $value;
+    }
+}
+

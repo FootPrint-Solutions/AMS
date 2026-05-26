@@ -410,7 +410,7 @@
                                                     <td class="expense-amount">
                                                         Rp. {{ number_format($expense['amount'], 0, ',', '.') }}
                                                         <input type ="hidden" name="ExpenseAmounts[]"
-                                                            value="{{ number_format($expense['amount'], 0, ',', '.') }}"
+                                                            value="{{ (float) $expense['amount'] }}"
                                                             class="ExpenseAmount">
                                                     </td>
                                                     <td>
