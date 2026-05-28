@@ -103,22 +103,32 @@ class JournalTransactionModel extends Model implements Auditable
         $selectColumns = ['id', 'date', 'voucher_number', 'total', 'status', 'note'];
         $searchColumns = ['voucher_number', 'status', 'note'];
 
-        $query = self::query()->with(['createdBy', 'updatedBy']);
-        $query->select(self::$selectColumns);
-
-        if (!empty($request->status) && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        if (!empty($request->dateStart)) {
-            $query->whereDate('date', '>=', $request->dateStart);
-        }
-
-        if (!empty($request->dateEnd)) {
-            $query->whereDate('date', '<=', $request->dateEnd);
-        }
+        $query = self::filteredListQuery($request->status, $request->dateStart, $request->dateEnd)
+            ->with(['createdBy', 'updatedBy']);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+    }
+
+    /**
+     * Base query for journal transaction list filters.
+     */
+    public static function filteredListQuery(?string $status = null, ?string $dateStart = null, ?string $dateEnd = null)
+    {
+        $query = self::query()->select(self::$selectColumns);
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if (!empty($dateStart)) {
+            $query->whereDate('date', '>=', $dateStart);
+        }
+
+        if (!empty($dateEnd)) {
+            $query->whereDate('date', '<=', $dateEnd);
+        }
+
+        return $query;
     }
 
     /**

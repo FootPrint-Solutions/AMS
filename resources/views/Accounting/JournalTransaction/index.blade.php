@@ -9,6 +9,9 @@
                         <h3 class="page-title mb-0">Journal Transaction List</h3>
                     </div>
                     <div class="col-auto text-end float-end ms-auto download-grp">
+                        <button id="btn-export" class="btn btn-success btn-sm me-1">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
                         <button id="btn-add" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Add New Journal Transaction
                         </button>
@@ -366,6 +369,26 @@
 
             $('#btn-add').on('click', function() {
                 goToPage('/journal-transaction/create');
+            });
+
+            $('#btn-export').on('click', function() {
+                const status = $('#filter-status').val();
+                const dateStart = $('#filter-date-start').val();
+                const dateEnd = $('#filter-date-end').val();
+
+                const params = new URLSearchParams();
+                if (status) {
+                    params.append('status', status);
+                }
+                if (dateStart) {
+                    params.append('dateStart', dateStart);
+                }
+                if (dateEnd) {
+                    params.append('dateEnd', dateEnd);
+                }
+
+                window.location.href = '/journal-transaction/export' + (params.toString() ? '?' + params
+                    .toString() : '');
             });
 
             $('#filter-status, #filter-date-start, #filter-date-end').on('change', function() {
