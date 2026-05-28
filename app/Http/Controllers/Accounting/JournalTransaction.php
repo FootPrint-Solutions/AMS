@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Accounting;
 
+use App\Exports\JournalTransactionExport;
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JournalTransaction extends Controller
 {
@@ -372,6 +374,39 @@ class JournalTransaction extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve journal transaction items.',
+            ], 500);
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $status = $request->input('status');
+            $dateStart = $request->input('dateStart');
+            $dateEnd = $request->input('dateEnd');
+
+            $fileName = 'journal-transactions';
+
+            if (!empty($status) && $status !== 'all') {
+                $fileName .= '-' . $status;
+            }
+
+            if (!empty($dateStart) || !empty($dateEnd)) {
+                $fileName .= '-' . ($dateStart ?: 'all') . '-to-' . ($dateEnd ?: 'all');
+            }
+
+            $fileName .= '-' . date('YmdHis') . '.xlsx';
+
+            return Excel::download(
+                new JournalTransactionExport($status, $dateStart, $dateEnd),
+                $fileName
+            );
+        } catch (Exception $e) {
+            Log::error('Journal Transaction Export Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to export journal transaction.',
             ], 500);
         }
     }
