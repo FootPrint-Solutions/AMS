@@ -12,7 +12,7 @@
             </div>
             <br>
 
-            <form id="form-journal-report" method="GET" target="_blank">
+            <form id="form-journal-report" method="GET">
                 <div class="row align-items-end mb-3">
                     <div class="col-md-3">
                         <label for="date-start" class="form-label">Start Month</label>
@@ -30,8 +30,11 @@
                             placeholder="Voucher Number or Account Name" autocomplete="off">
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary" onclick="return submitForm(event)">
+                        <button type="button" class="btn btn-primary" onclick="submitForm('print', event)">
                             <i class="fas fa-print"></i> Print Report
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="submitForm('export', event)">
+                            <i class="fas fa-file-excel"></i> Export Excel
                         </button>
                     </div>
                 </div>
@@ -92,7 +95,7 @@
             $("#date-end").val(currentDate);
         });
 
-        function submitForm(event) {
+        function submitForm(action, event) {
             event.preventDefault();
 
             const dateStart = $('#date-start').val();
@@ -118,12 +121,39 @@
                 return false;
             }
 
-            let url = `/journal-report/print/${dateStart}/${dateEnd}`;
-            if (filter) {
-                url += `/${encodeURIComponent(filter)}`;
+            // Loading indicator
+            let loadingTitle = action === 'print' ? 'Generating Print Report...' : 'Generating Excel Report...';
+            Swal.fire({
+                title: loadingTitle,
+                html: 'Processing data...<br><small>This may take a moment for large datasets</small>',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            let url;
+            if (action === 'print') {
+                url = `/journal-report/print/${dateStart}/${dateEnd}`;
+                if (filter) {
+                    url += `/${encodeURIComponent(filter)}`;
+                }
+                // Delay to show loading
+                setTimeout(() => {
+                    window.open(url, '_blank');
+                    Swal.close();
+                }, 300);
+            } else if (action === 'export') {
+                url = `/journal-report/export/${dateStart}/${dateEnd}`;
+                if (filter) {
+                    url += `/${encodeURIComponent(filter)}`;
+                }
+                // Start download and close modal
+                window.location.href = url;
+                setTimeout(() => Swal.close(), 500);
             }
 
-            window.open(url, '_blank');
             return false;
         }
     </script>

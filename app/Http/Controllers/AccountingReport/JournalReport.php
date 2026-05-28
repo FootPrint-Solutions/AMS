@@ -8,6 +8,8 @@ use App\Models\Master\CompanyProfile;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Exports\JournalReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class JournalReport extends Controller
@@ -137,19 +139,72 @@ class JournalReport extends Controller
         return redirect()->route('journal-report.index')->with('error', 'Reference ' . $ref . ' not found.');
     }
 
-    private function generateTableDetailPrint($row)
+    public function export($dateStart, $dateEnd, $filter = null)
     {
-        $detail = [];
-        $detail["description"] = "(" . $row['account_number'] . ") " . $row['account_name'];
+        $dateStartObj = \DateTime::createFromFormat('m-Y', $dateStart);
+        $dateStartObj->modify('first day of this month');
+        $dateEndObj = \DateTime::createFromFormat('m-Y', $dateEnd);
+        $dateEndObj->modify('last day of this month');
 
-        if (!empty($row['description'])) {
-            $detail["description"] .= "\n" . $row['description'];
+        // Get raw data from database
+        $rawData = JournalTransactionModel::allForPrint($dateStartObj->format('Y-m-d'), $dateEndObj->format('Y-m-d'), $filter);
+
+        // Process data efficiently in single loop
+        $reports = [];
+        $currentVoucherNumber = '';
+        $currentParentIndex = -1;
+
+        foreach ($rawData as $index => $row) {
+            if ($currentVoucherNumber != $row['number']) {
+                $currentVoucherNumber = $row['number'];
+                $currentParentIndex = $index;
+
+                $reports[$index] = [
+                    'date' => date('d M Y', strtotime($row['date'])),
+                    'number' => $row['number'],
+                    'details' => [
+                        $this->generateTableDetail($row)
+                    ]
+                ];
+            } else {
+                $reports[$currentParentIndex]['details'][] = $this->generateTableDetail($row);
+            }
         }
 
-        $detail["total_debit"] = $row['total_debit'];
-        $detail["total_credit"] = $row['total_credit'];
-        $detail["ref"] = $row['ref'] ?? null;
-        $detail["ref_url"] = !empty($detail["ref"]) ? route('journal-report.ref-detail', ['ref' => $detail["ref"]]) : null;
-        return $detail;
+        $fileName = 'Journal_Report_' . $dateStart . '_to_' . $dateEnd;
+        if (!empty($filter)) {
+            $fileName .= '_' . str_replace(' ', '_', $filter);
+        }
+        $fileName .= '_' . date('YmdHis') . '.xlsx';
+
+        return Excel::download(
+            new JournalReportExport(
+                $reports,
+                $dateStartObj->format('F Y'),
+                $dateEndObj->format('F Y') != $dateStartObj->format('F Y') ? $dateEndObj->format('F Y') : null
+            ),
+            $fileName
+        );
+    }
+
+    private function generateTableDetail($row)
+    {
+        $description = "(" . $row['account_number'] . ") " . $row['account_name'];
+
+        if (!empty($row['description'])) {
+            $description .= "\n" . $row['description'];
+        }
+
+        return [
+            "description" => $description,
+            "total_debit" => $row['total_debit'],
+            "total_credit" => $row['total_credit'],
+            "ref" => $row['ref'] ?? null,
+        ];
+    }
+
+    private function generateTableDetailPrint($row)
+    {
+        return $this->generateTableDetail($row);
     }
 }
