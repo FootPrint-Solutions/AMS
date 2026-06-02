@@ -15,7 +15,7 @@
 </style>
 
 <div style="position: relative;">
-    <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }} value="{{ $valueHiddenId }}">
+    <input type="hidden" class="hidden-id-input" name={{ $nameHiddenId }} value="{{ $valueHiddenId ?? '' }}">
     <input type="text" class="form-control autocomplete {{ $class }}" id={{ $id }}
         name={{ $name }} data-url="{{ $url }}" data-targets="{{ $targets }}" required
         placeholder="{{ $placeholder }}" @if ($value !== '')
@@ -59,7 +59,8 @@ value="{{ $value }}" @endempty>
                         idInput.val(data[0]);
 
                         // Reset battery-discountprice to 0 if exists
-                        autocomplete.closest('tr').find('.battery-discountprice').val(0);
+                        autocomplete.closest('tr').find('.battery-discountprice')
+                            .val(0);
 
                         // Hide current autocomplete item list.
                         autocompleteList.empty();
