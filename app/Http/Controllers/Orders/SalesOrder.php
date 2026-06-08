@@ -392,6 +392,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
+                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
                 $status &= $battery->save();
             }
 
@@ -584,6 +585,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
+                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
                 $status &= $battery->save();
             }
 
@@ -1222,6 +1224,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
+                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
                 $status &= $battery->save();
             }
 
@@ -1391,6 +1394,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
+                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
                 $status &= $battery->save();
             }
 
