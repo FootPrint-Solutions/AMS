@@ -377,6 +377,8 @@
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
+                                    var IsInstallationIncluded = item
+                                        .is_installation_included ? 'Yes' : 'No';
                                     var name = item.battery_name || item.item_name ||
                                         '-';
                                     var qty = (item.quantity !== null && item
@@ -388,7 +390,10 @@
                                     var prodCode = item.battery_production_code || '-';
 
                                     itemTable += '<tr>' +
-                                        '<td>' + name + '</td>' +
+                                        '<td>' + name + (IsInstallationIncluded ===
+                                            'Yes' ?
+                                            ' <span class="badge bg-info">Installation Included</span>' :
+                                            '') + '</td>' +
                                         '<td>' + qty + '</td>' +
                                         '<td>' + price + '</td>' +
                                         '<td>' + type + '</td>' +

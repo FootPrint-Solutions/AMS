@@ -1467,7 +1467,8 @@ class SalesOrder extends Controller
                     'type' => $battery->type,
                     'battery_price' => $battery->price_net,
                     'quantity' => $battery->quantity,
-                    'battery_production_code' => $battery->battery_production_code
+                    'battery_production_code' => $battery->battery_production_code,
+                    'is_installation_included' => $battery->is_installation_included,
                 ];
             });
 
