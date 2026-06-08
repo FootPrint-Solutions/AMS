@@ -16,6 +16,8 @@ Route::prefix('journal-transaction')->group(function () {
     Route::get('/', [JournalTransaction::class, 'index'])->name('journal-transaction.index')->middleware('permission:view_journal_transaction');
     Route::get('/create', [JournalTransaction::class, 'create'])->name('journal-transaction.create')->middleware('permission:add_journal_transaction');
     Route::post('/store', [JournalTransaction::class, 'store'])->name('journal-transaction.store')->middleware('permission:add_journal_transaction');
+    Route::post('/import', [JournalTransaction::class, 'import'])->name('journal-transaction.import')->middleware('permission:add_journal_transaction');
+    Route::get('/template', [JournalTransaction::class, 'importTemplate'])->name('journal-transaction.template')->middleware('permission:add_journal_transaction');
     Route::post('/show', [JournalTransaction::class, 'show'])->name('journal-transaction.show')->middleware('permission:view_journal_transaction');
     Route::get('/export', [JournalTransaction::class, 'export'])->name('journal-transaction.export')->middleware('permission:view_journal_transaction');
     Route::get('/edit/{id}', [JournalTransaction::class, 'edit'])->name('journal-transaction.edit')->middleware('permission:edit_journal_transaction');
