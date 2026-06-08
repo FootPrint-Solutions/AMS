@@ -226,7 +226,7 @@
                         {{-- Header --}}
                         <thead>
                             <tr>
-                                <td colspan="7" class="h5 text-center">
+                                <td colspan="8" class="h5 text-center">
                                     Item
                                     <button type="button" id="btn-add-row"
                                         class="btn btn-primary btn-sm rounded-circle mx-2">
@@ -243,6 +243,7 @@
                                 <td class="p-1 text-muted small">Price + Tax</td>
                                 <td class="p-1 text-muted small">Discount</td>
                                 <td class="p-1 text-muted small">Price Net</td>
+                                <td class="p-1 text-muted small">Inc Install</td>
                             </tr>
                         </thead>
 
@@ -371,6 +372,25 @@
                                                         @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </td>
+
+                                    {{-- Is Installation Included --}}
+                                    <td>
+                                        <div class="row">
+
+                                            <div class="col">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="is-installation-included-{{ $counter }}"
+                                                        name="is_installation_included[]" value="1"
+                                                        @isset($data['profile']['batteries']) {{ $battery['is_installation_included'] ? 'checked' : '' }} @endisset>
+                                                    <label class="form-check-label"
+                                                        for="is-installation-included-{{ $counter }}">
+                                                        Yes
+                                                    </label>
+                                                </div>
+                                            </div>
 
                                             <div class="col-sm-2">
                                                 <button type="button" class="btn btn-danger btn-sm btn-delete-row"
@@ -407,6 +427,7 @@
                                             readonly required>
                                     </div>
                                 </td>
+                                <td></td>
                             </tr>
 
                             {{-- Discount --}}
@@ -442,6 +463,7 @@
                                         </div>
                                     </div>
                                 </td>
+                                <td></td>
                             </tr>
 
                             {{-- Total --}}
@@ -457,6 +479,7 @@
                                             required readonly>
                                     </div>
                                 </td>
+                                <td></td>
                             </tr>
 
                             {{-- Payment Method & Status --}}
@@ -491,8 +514,8 @@
                                             </select>
                                         </div>
                                     </div>
-
                                 </td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -526,9 +549,11 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td class="chart-of-account">
                                                         @if (!empty($expense['debit_account']))
-                                                            {{ $expense['debit_account']['number'] }} - {{ $expense['debit_account']['name'] }}
+                                                            {{ $expense['debit_account']['number'] }} -
+                                                            {{ $expense['debit_account']['name'] }}
                                                         @elseif (!empty($expense['credit_account']))
-                                                            {{ $expense['credit_account']['number'] }} - {{ $expense['credit_account']['name'] }}
+                                                            {{ $expense['credit_account']['number'] }} -
+                                                            {{ $expense['credit_account']['name'] }}
                                                         @else
                                                             -
                                                         @endif

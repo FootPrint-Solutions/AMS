@@ -405,6 +405,7 @@
                     var SubtotalRow = [];
                     var TaxRow = [];
                     var TaxPriceRow = [];
+                    var IsInstallationIncluded = [];
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -471,6 +472,11 @@
                         TaxPriceRow.push(value);
                     });
 
+                    $(".IsInstallationIncluded").each(function() {
+                        var value = $(this).val();
+                        IsInstallationIncluded.push(value);
+                    });
+
                     var subtotal = $("#subtotal").val();
                     var DiscountRupiah = $("#discount-rupiah").val();
                     var DiscountPercentage = $("#discount-percent").val();
@@ -515,6 +521,7 @@
                     TaxRow: TaxRow,
                     TaxPriceRow: TaxPriceRow,
                     typeDiscount: typeDiscount,
+                    IsInstallationIncluded: IsInstallationIncluded,
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     alternative_address: alternative_address
                 };
@@ -791,6 +798,7 @@
                 var BatteryIdCheckout = [];
                 var ExpenseId = [];
                 var ExpenseAmount = [];
+                var IsInstallationIncluded = [];
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -867,6 +875,11 @@
                     ExpenseAmount.push(value);
                 });
 
+                $(".IsInstallationIncluded").each(function() {
+                    var value = $(this).is(':checked') ? 1 : 0;
+                    IsInstallationIncluded.push(value);
+                });
+
                 var onlyRecycle = BatteryType.every(function(type) {
                     return type === 'recycle';
                 });
@@ -934,7 +947,8 @@
                     MarketplaceInvoice: MarketplaceInvoice,
                     BatteryType: BatteryType,
                     ExpenseIds: ExpenseId,
-                    ExpenseAmounts: ExpenseAmount
+                    ExpenseAmounts: ExpenseAmount,
+                    IsInstallationIncluded: IsInstallationIncluded
                 };
 
                 $.ajax({

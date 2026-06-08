@@ -114,6 +114,8 @@
         html +=
             '<td><div class="input-group"><input type="text" name="SubtotalRow[]" id="SubtotalRow" class="form-control SubtotalRow text-end" value="" disabled></div></td>';
         html +=
+            '<td><div class="input-group"><input type="checkbox" name="IsInstallationIncluded[]" id="IsInstallationIncluded" class="form-check-input IsInstallationIncluded" value="0"></div></td>';
+        html +=
             '<td><button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button></td>';
         html += '</tr>';
         $('.add-table-items tbody').append(html);
@@ -138,6 +140,8 @@
             '<td><div class="input-group"><input type="text" name="NetPrice[]" id="NetPrice" class="form-control NetPrice text-end" value="" disabled></div></td>';
         html +=
             '<td><div class="input-group"><input type="text" name="SubtotalRow[]" id="SubtotalRow" class="form-control SubtotalRow text-end" value="" disabled></div></td>';
+        html +=
+            '<td><div class="input-group"><input type="checkbox" name="IsInstallationIncluded[]" id="IsInstallationIncluded" class="form-check-input IsInstallationIncluded" value="0"></div></td>';
         html +=
             '<td><button type="button" class="btn btn-light btn-sm remove-row text-danger"><i class="fas fa-trash"></i></button></td>';
         html += '</tr>';

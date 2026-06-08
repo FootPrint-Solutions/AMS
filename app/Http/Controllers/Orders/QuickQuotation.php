@@ -407,6 +407,8 @@ $arrayBattery
         $PaymentMethod = PaymentMethodModel::all()->toArray();
         $typeDiscount = $request->input('typeDiscount');
         $alternativeAddress = $request->input('alternative_address');
+        $IsInstallationIncluded = $request->input('IsInstallationIncluded');
+
         if ($typeDiscount == 'rupiah') {
             $Discount = $request->input('DiscountRupiah') ?? 0;
         } else {
@@ -428,6 +430,7 @@ $arrayBattery
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
                     'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
+                    'IsInstallationIncluded' => $IsInstallationIncluded[$key] ?? 0,
                 ];
             }
         } else {
@@ -445,6 +448,7 @@ $arrayBattery
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
                     'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
+                    'IsInstallationIncluded' => $IsInstallationIncluded[$key] ?? 0,
                 ];
             }
         }
@@ -807,6 +811,7 @@ $arrayBattery
             $VehicleCustomer = $request->input('VehicleCustomer');
             $MarketplaceInvoice = $request->input('MarketplaceInvoice') ?? null;
             $batteryType = $request->input('BatteryType');
+            $IsInstallationIncluded = $request->input('IsInstallationIncluded');
 
             if ($PaymentMethodData['id'] == 1) {
                 $payment_methode = "midtrans";
@@ -1014,6 +1019,7 @@ $arrayBattery
                             'tax_price' =>  $TaxPrice,
                             'price_net' =>  str_replace(".", "", $PriceNet),
                             'quantity' => 1,
+                            'is_installation_included' => $IsInstallationIncluded[$key] ?? 0,
                             'created_at' => date('Y-m-d H:i:s'),
                             'updated_at' => date('Y-m-d H:i:s'),
                         ];

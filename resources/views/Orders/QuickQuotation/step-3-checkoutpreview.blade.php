@@ -61,6 +61,7 @@
                     <th style="width: 5%;">Discount ( Rp )</th>
                     <th>Net Price</th>
                     <th>Subtotal</th>
+                    <th style="width: 10%;">Installation Included</th>
                     <th></th>
                 </tr>
             </thead>
@@ -135,6 +136,14 @@
                             <div class="input-group">
                                 <input type="text" name="SubtotalRow[]" id="SubtotalRow"
                                     class="form-control SubtotalRow text-end" value="" disabled>
+                            </div>
+                        </td>
+                        {{-- Installation Included --}}
+                        <td id="InstallationIncluded">
+                            <div class="form-check">
+                                <input type="checkbox" name="IsInstallationIncluded[]" id="IsInstallationIncluded"
+                                    class="form-check-input IsInstallationIncluded" value="0">
+                                <label class="form-check-label" for="IsInstallationIncluded">Yes</label>
                             </div>
                         </td>
                         <td>
@@ -454,6 +463,12 @@
         });
 
         calculateTotalAmount();
+
+        // IsInstallationIncluded checkbox change event
+        $(document).on('change', '.IsInstallationIncluded', function() {
+            var isChecked = $(this).is(':checked');
+            $(this).val(isChecked ? '1' : '0');
+        });
     });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"

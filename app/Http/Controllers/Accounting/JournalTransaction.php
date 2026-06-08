@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Exports\JournalTransactionExport;
+use App\Exports\JournalTransactionTemplateExport;
+use App\Imports\JournalTransactionImport;
 use App\Http\Controllers\Controller;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
@@ -12,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
 class JournalTransaction extends Controller
@@ -71,6 +75,70 @@ class JournalTransaction extends Controller
             'Accounting.JournalTransaction.create',
             getIndexData($this->title, $data)
         );
+    }
+
+    public function importTemplate()
+    {
+        return Excel::download(
+            new JournalTransactionTemplateExport(),
+            'journal-transaction-import-template.xlsx'
+        );
+    }
+
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        if ($validator->fails()) {
+            return view(
+                'Accounting.JournalTransaction.import-result',
+                getIndexData($this->title, [
+                    'status' => false,
+                    'error' => 'Please upload a valid Excel file (.xlsx, .xls, or .csv).',
+                    'totalRows' => 0,
+                    'totalTransactions' => 0,
+                    'totalInsertedRows' => 0,
+                    'unimportedRows' => [],
+                ])
+            );
+        }
+
+        $storedPath = $request->file('file')->store('temp');
+        $fullPath = storage_path('app') . '/' . $storedPath;
+
+        try {
+            $import = new JournalTransactionImport();
+            Excel::import($import, $fullPath);
+
+            return view(
+                'Accounting.JournalTransaction.import-result',
+                getIndexData($this->title, [
+                    'status' => true,
+                    'error' => null,
+                    'totalRows' => $import->getTotalRows(),
+                    'totalTransactions' => $import->getTotalTransactions(),
+                    'totalInsertedRows' => $import->getTotalInsertedRows(),
+                    'unimportedRows' => $import->getUnimportedRows(),
+                ])
+            );
+        } catch (Exception $e) {
+            Log::error('Journal Transaction Import Error: ' . $e->getMessage());
+            return view(
+                'Accounting.JournalTransaction.import-result',
+                getIndexData($this->title, [
+                    'status' => false,
+                    'error' => 'An error occurred during import: ' . $e->getMessage(),
+                    'totalRows' => 0,
+                    'totalTransactions' => 0,
+                    'totalInsertedRows' => 0,
+                    'unimportedRows' => [],
+                ])
+            );
+        } finally {
+            Storage::delete($storedPath);
+        }
     }
 
     public function show(Request $request)
