@@ -4,6 +4,7 @@ namespace App\Models\MasterData\Distributor;
 
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
+use App\Models\MasterData\Distributor\DistributorShopAccountModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -75,5 +76,13 @@ class DistributorShopModel extends Model implements Auditable
         $query->select($selectColumns);
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+    }
+
+    /**
+     * Get all accounts associated with the distributor shop.
+     */
+    public function accounts()
+    {
+        return $this->hasMany(DistributorShopAccountModel::class, 'distributor_shop_id', 'id');
     }
 }

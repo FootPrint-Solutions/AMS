@@ -10,6 +10,8 @@ use Exception;
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\MasterData\Distributor\DistributorModel;
+use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\MasterData\Distributor\DistributorShopAccountModel;
 
 class DistributorShop extends Controller
 {
@@ -42,7 +44,8 @@ class DistributorShop extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "distributors" => DistributorModel::where('status', 1)->get()->toArray()
+                    "distributors" => DistributorModel::where('status', 1)->get()->toArray(),
+                    "chartOfAccounts" => ChartOfAccountModel::where('is_active', 1)->get()->toArray(),
                 )
             )
         );
@@ -61,8 +64,12 @@ class DistributorShop extends Controller
             getIndexData(
                 $this->title,
                 array(
-                    "profile" => DistributorShopModel::find($id)->toArray(),
-                    "distributors" => DistributorModel::where('status', 1)->get()->toArray()
+                    "profile" => DistributorShopModel::with('accounts')->find($id)->toArray(),
+                    "distributors" => DistributorModel::where('status', 1)->get()->toArray(),
+                    "chartOfAccounts" => ChartOfAccountModel::where('is_active', 1)->get()->toArray(),
+                    "technicianAccount" => DistributorShopModel::with('accounts')->find($id)->accounts->where('type', 'technician')->first() ?? null,
+                    "picAccount" => DistributorShopModel::with('accounts')->find($id)->accounts->where('type', 'pic')->first() ?? null,
+                    "pitStopAccount" => DistributorShopModel::with('accounts')->find($id)->accounts->where('type', 'pit_stop')->first() ?? null,
                 )
             )
         );
@@ -139,6 +146,34 @@ class DistributorShop extends Controller
             $shop->longitude = $request->Longitude;
             $status = $shop->save();
 
+            // Create shop accounts if they exist in the request
+            if ($request->has('technicianAccount')) {
+                $technicianAccount = new DistributorShopAccountModel();
+                $technicianAccount->distributor_shop_id = $shop->id;
+                $technicianAccount->chart_of_account_id = $request->technicianAccount;
+                $technicianAccount->commission = $request->technicianCommission;
+                $technicianAccount->type = 'technician';
+                $technicianAccount->save();
+            }
+
+            if ($request->has('picAccount')) {
+                $picAccount = new DistributorShopAccountModel();
+                $picAccount->distributor_shop_id = $shop->id;
+                $picAccount->chart_of_account_id = $request->picAccount;
+                $picAccount->commission = $request->picCommission;
+                $picAccount->type = 'pic';
+                $picAccount->save();
+            }
+
+            if ($request->has('pitStopAccount')) {
+                $pitStopAccount = new DistributorShopAccountModel();
+                $pitStopAccount->distributor_shop_id = $shop->id;
+                $pitStopAccount->chart_of_account_id = $request->pitStopAccount;
+                $pitStopAccount->commission = $request->pitStopCommission;
+                $pitStopAccount->type = 'pit_stop';
+                $pitStopAccount->save();
+            }
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
@@ -175,10 +210,31 @@ class DistributorShop extends Controller
             $shop->longitude = $request->Longitude;
             $status = $shop->save();
 
+            // Update or create shop accounts based on the request
+            $accountTypes = ['technician', 'pic', 'pit_stop'];
+
+            foreach ($accountTypes as $type) {
+                $accountId = $request->get("{$type}Account");
+                $commission = $request->get("{$type}Commission");
+
+                if ($accountId && $commission) {
+                    $account = DistributorShopAccountModel::updateOrCreate(
+                        [
+                            'distributor_shop_id' => $shop->id,
+                            'type' => $type
+                        ],
+                        [
+                            'chart_of_account_id' => $accountId,
+                            'commission' => $commission
+                        ]
+                    );
+                }
+            }
+
             // Set a new response data to be sent.
             return getResponseData(
                 $status,
-                $status ? "The new shop was successfully created!" : "Failed to create the new shop!"
+                $status ? "The shop was successfully updated!" : "Failed to update the shop!"
             );
         } catch (Exception $e) {
             // Logging error message.
