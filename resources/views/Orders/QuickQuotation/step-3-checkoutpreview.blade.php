@@ -61,7 +61,7 @@
                     <th style="width: 5%;">Discount ( Rp )</th>
                     <th>Net Price</th>
                     <th>Subtotal</th>
-                    <th style="width: 10%;">Installation Included</th>
+                    {{-- <th style="width: 10%;">Installation Included</th> --}}
                     <th></th>
                 </tr>
             </thead>
@@ -139,13 +139,13 @@
                             </div>
                         </td>
                         {{-- Installation Included --}}
-                        <td id="InstallationIncluded">
+                        {{-- <td id="InstallationIncluded">
                             <div class="form-check">
                                 <input type="checkbox" name="IsInstallationIncluded[]" id="IsInstallationIncluded"
                                     class="form-check-input IsInstallationIncluded" value="0">
                                 <label class="form-check-label" for="IsInstallationIncluded">Yes</label>
                             </div>
-                        </td>
+                        </td> --}}
                         <td>
                             <button type="button" class="btn btn-danger btn-sm remove-row">
                                 <i class="fas fa-trash"></i>
@@ -200,6 +200,18 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Installation Included --}}
+                    <div class="form-group row mb-3">
+                        <label for="order-customer" class="col-sm-5 col-form-label">Installation Included</label>
+                        <div class="col-sm-7">
+                            <div class="form-check">
+                                <input type="checkbox" name="IsInstallationIncluded[]" id="IsInstallationIncluded"
+                                    class="form-check-input IsInstallationIncluded" value="0">
+                                <label class="form-check-label" for="IsInstallationIncluded">Yes</label>
+                            </div>
                         </div>
                     </div>
 

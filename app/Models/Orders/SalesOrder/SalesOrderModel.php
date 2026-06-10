@@ -72,6 +72,7 @@ class SalesOrderModel extends Model implements Auditable
         'vendor',
         'ship_to',
         'type',
+        'is_installation_included',
     ];
 
     /**
