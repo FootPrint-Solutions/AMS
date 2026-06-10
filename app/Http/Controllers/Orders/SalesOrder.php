@@ -298,11 +298,18 @@ class SalesOrder extends Controller
                 $billingNumberBadge = "";
             }
 
+            // Installation included badge
+            if ($key->is_installation_included) {
+                $installationBadge = "<br><span class='badge bg-info'>Installation Included</span>";
+            } else {
+                $installationBadge = "";
+            }
+
             // Set an array for each row.
             $row = [];
             $row[] = "";
             $row[] = $no++;
-            $row[] = $key->sales_order_number . $typeBadge . $billingNumberBadge;
+            $row[] = $key->sales_order_number . $typeBadge . $billingNumberBadge . $installationBadge;
             $row[] = $key->invoice_number ?? "<p class='text-center'>-</p>";
             $row[] = formatDate($key->date);
             $row[] = $key->customer_name ?? $key->vendor_name ?? "<p class='text-center'>-</p>";
@@ -377,6 +384,7 @@ class SalesOrder extends Controller
             $salesOrder->total = (float) str_replace(".", "", $request->total);
             $salesOrder->payment_method_id = $request->paymentmethod;
             $salesOrder->payment_status = $request->status;
+            $salesOrder->is_installation_included = $request->installationincluded ?? false;
             $status = $salesOrder->save();
 
             // Store sales order detail data.
@@ -392,7 +400,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
-                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
+                $battery->is_installation_included = $request->installationincluded ?? false;
                 $status &= $battery->save();
             }
 
@@ -524,6 +532,7 @@ class SalesOrder extends Controller
             $salesOrder->discount_price = (float) str_replace(".", "", $request->discountprice);
             $salesOrder->subtotal = (float) str_replace(".", "", $request->subtotal);
             $salesOrder->total = (float) str_replace(".", "", $request->total);
+            $salesOrder->is_installation_included = $request->installationincluded ? 1 : 0;
             $status = $salesOrder->save();
 
             // Delete the existing sales order batteries.
@@ -585,7 +594,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
-                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
+                $battery->is_installation_included = $request->installationincluded ? 1 : 0;
                 $status &= $battery->save();
             }
 
@@ -1208,6 +1217,7 @@ class SalesOrder extends Controller
             $salesOrder->vendor = $request->vendor;
             $salesOrder->ship_to = $request->ship_to;
             $salesOrder->type = 'recycle';
+            $salesOrder->is_installation_included = $request->installationincluded ? 1 : 0;
             $status = $salesOrder->save();
 
             // Store sales order detail data.
@@ -1224,7 +1234,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
-                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
+                $battery->is_installation_included = $request->installationincluded ? 1 : 0;
                 $status &= $battery->save();
             }
 
@@ -1333,6 +1343,7 @@ class SalesOrder extends Controller
             $salesOrder->vendor = $request->vendor;
             $salesOrder->ship_to = $request->ship_to;
             $salesOrder->type = 'recycle';
+            $salesOrder->is_installation_included = $request->installationincluded ? 1 : 0;
             $status = $salesOrder->save();
 
             // Delete the existing sales order batteries.
@@ -1394,7 +1405,7 @@ class SalesOrder extends Controller
                 $battery->discount_price = (float) $request->batteriesdiscountprice[$i];
                 $battery->price_net = (float) str_replace(".", "", $request->batteriesprice[$i]);
                 $battery->battery_production_code = $request->batteriescode[$i];
-                $battery->is_installation_included = $request->batteriesinstallation[$i] ?? false;
+                $battery->is_installation_included = $request->installationincluded ?? false;
                 $status &= $battery->save();
             }
 
@@ -1498,7 +1509,7 @@ class SalesOrder extends Controller
     public function summary(Request $request)
     {
         try {
-            $summary = SalesOrderModel::getSalesOrderSummary($request->dateStart, $request->dateEnd, $request->salesOrderType);
+            $summary = SalesOrderModel::getSalesOrderSummary($request->dateStart, $request->dateEnd, $request->salesOrderType, $request->installationIncluded);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Sales order summary fetched successfully.',

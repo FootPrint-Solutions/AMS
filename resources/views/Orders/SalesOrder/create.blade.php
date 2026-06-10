@@ -226,7 +226,7 @@
                         {{-- Header --}}
                         <thead>
                             <tr>
-                                <td colspan="8" class="h5 text-center">
+                                <td colspan="7" class="h5 text-center">
                                     Item
                                     <button type="button" id="btn-add-row"
                                         class="btn btn-primary btn-sm rounded-circle mx-2">
@@ -243,7 +243,6 @@
                                 <td class="p-1 text-muted small">Price + Tax</td>
                                 <td class="p-1 text-muted small">Discount</td>
                                 <td class="p-1 text-muted small">Price Net</td>
-                                <td class="p-1 text-muted small">Inc Install</td>
                             </tr>
                         </thead>
 
@@ -372,31 +371,11 @@
                                                         @isset($data['profile']['batteries']) value="{{ $battery['price_net'] }}" @endisset>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-
-                                    {{-- Is Installation Included --}}
-                                    <td>
-                                        <div class="row">
-
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="is-installation-included-{{ $counter }}"
-                                                        name="is_installation_included[]" value="1"
-                                                        @isset($data['profile']['batteries']) {{ $battery['is_installation_included'] ? 'checked' : '' }} @endisset>
-                                                    <label class="form-check-label"
-                                                        for="is-installation-included-{{ $counter }}">
-                                                        Yes
-                                                    </label>
-                                                </div>
-                                            </div>
 
                                             <div class="col-sm-2">
                                                 <button type="button" class="btn btn-danger btn-sm btn-delete-row"
                                                     title="Delete Item"><i class="fas fa-xmark"></i></button>
                                             </div>
-
                                         </div>
                                     </td>
 
@@ -427,7 +406,6 @@
                                             readonly required>
                                     </div>
                                 </td>
-                                <td></td>
                             </tr>
 
                             {{-- Discount --}}
@@ -463,7 +441,6 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td></td>
                             </tr>
 
                             {{-- Total --}}
@@ -479,7 +456,6 @@
                                             required readonly>
                                     </div>
                                 </td>
-                                <td></td>
                             </tr>
 
                             {{-- Payment Method & Status --}}
@@ -515,7 +491,17 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td></td>
+                            </tr>
+
+                            {{-- Is Installation Included --}}
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-end">Installation included</td>
+                                <td>
+                                    <input type="checkbox" id="installation-included" name="installationincluded"
+                                        data-toggle="toggle" data-size="sm" data-onlabel="Yes" data-offlabel="No"
+                                        @if (isset($data['profile']) && $data['profile']['is_installation_included']) checked @endif>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
