@@ -261,6 +261,9 @@ Route::middleware(['auth'])->group(function () {
     // Journal Transaction
     require __DIR__ . '/web/accounting/journal-transaction.php';
 
+    // Comission
+    require __DIR__ . '/web/accounting/commission.php';
+
     // Accounting Reports
     require __DIR__ . '/web/accounting-report/journal-report.php';
 
