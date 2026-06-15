@@ -5,14 +5,13 @@ namespace App\Models\Accounting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\DataTablesTrait;
 
 use App\Models\Accounting\CommissionItemModel;
 
 class CommissionModel extends Model
 {
-    use HasFactory;
-
-    use SoftDeletes;
+    use HasFactory, SoftDeletes, DataTablesTrait;
 
     protected $table = 'commissions';
 
@@ -27,6 +26,42 @@ class CommissionModel extends Model
         'date' => 'date',
         'total' => 'float',
     ];
+
+    private static $selectColumns = [
+        'id',
+        'commission_number',
+        'date',
+        'total',
+        'status',
+    ];
+
+    public static function allForDataTables($request): array
+    {
+        $selectColumns = ['id', 'commission_number', 'date', 'total', 'status'];
+        $searchColumns = ['commission_number', 'date', 'total', 'status'];
+
+        $query = self::query();
+        $query->select(self::$selectColumns);
+
+        //     d._token = '{{ csrf_token() }}';
+        // d.status = $('#commission-status-filter').val();
+        // d.dateStart = $('#input-commission-date-start').val();
+        // d.dateEnd = $('#input-commission-date-end').val();
+
+        if (!empty($request->status) && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if (!empty($request->dateStart)) {
+            $query->whereDate('date', '>=', $request->dateStart);
+        }
+
+        if (!empty($request->dateEnd)) {
+            $query->whereDate('date', '<=', $request->dateEnd);
+        }
+
+        return self::getAllRows($request, $query, $selectColumns, $searchColumns);
+    }
 
     public static function generateCommissionNumber()
     {

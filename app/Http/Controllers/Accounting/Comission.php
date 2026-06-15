@@ -54,6 +54,64 @@ class Comission extends Controller
         );
     }
 
+    public function edit($id)
+    {
+        $commission = CommissionModel::with('items')->findOrFail($id);
+
+        return view(
+            "Accounting.Commission.create",
+            getIndexData(
+                $this->title,
+                [
+                    'commission' => $commission,
+                    'distributor_shops' => DistributorShopModel::get()->toArray(),
+                    'chart_of_accounts' => ChartOfAccountModel::get()->toArray(),
+                ]
+            )
+        );
+    }
+
+    public function show(Request $request)
+    {
+        $draw = (int) $request->input('draw', 0);
+        $start = (int) $request->input('start', 0);
+
+        $data = CommissionModel::allForDataTables($request);
+
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data['row'] as $item) {
+            $statusBadgeClass = $item->status === 'post' ? 'badge-success' : 'badge-secondary text-dark';
+
+            $row = [];
+            $row[] = $item->id;
+            $row[] = $no++;
+            $row[] = $item->commission_number ?? '-';
+            $row[] = formatDate((string) $item->date, 'j M Y');
+            $row[] = formatPrice($item->total ?? 0);
+            $row[] = "<span class='badge $statusBadgeClass'>" . ($item->status ?? '-') . '</span>';
+            $rows[] = $row;
+        }
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => CommissionModel::count(),
+            'recordsFiltered' => $data['count'],
+            'data' => $rows,
+        ]);
+    }
+
+    public function getItems($id)
+    {
+        $commissionItems = CommissionItemModel::with(['distributorShop', 'salesOrderBattery.salesOrder', 'battery', 'debitAccount', 'creditAccount'])->where('commission_id', $id)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Commission items retrieved successfully.',
+            'data' => $commissionItems
+        ]);
+    }
+
     public function getSalesOrders(Request $request)
     {
         $distributorShopId = $request->query('distributor_shop_id');
