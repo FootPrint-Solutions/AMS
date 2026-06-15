@@ -405,7 +405,8 @@
                     var SubtotalRow = [];
                     var TaxRow = [];
                     var TaxPriceRow = [];
-                    var IsInstallationIncluded = [];
+                    var IsInstallationIncluded = $("#IsInstallationIncluded").is(':checked') ? 1 : 0;
+
                     $(".QtyCheckout").each(function() {
                         var value = $(this).val();
                         QtyTabel.push(value);
@@ -470,11 +471,6 @@
                     $(".PriceTaxRow").each(function() {
                         var value = $(this).val();
                         TaxPriceRow.push(value);
-                    });
-
-                    $(".IsInstallationIncluded").each(function() {
-                        var value = $(this).val();
-                        IsInstallationIncluded.push(value);
                     });
 
                     var subtotal = $("#subtotal").val();
@@ -798,7 +794,7 @@
                 var BatteryIdCheckout = [];
                 var ExpenseId = [];
                 var ExpenseAmount = [];
-                var IsInstallationIncluded = [];
+                var IsInstallationIncluded = $("#IsInstallationIncluded").is(':checked') ? 1 : 0;
 
                 $(".QtyCheckout").each(function() {
                     var value = $(this).val();
@@ -873,11 +869,6 @@
                 $(".ExpenseAmount").each(function() {
                     var value = $(this).val();
                     ExpenseAmount.push(value);
-                });
-
-                $(".IsInstallationIncluded").each(function() {
-                    var value = $(this).is(':checked') ? 1 : 0;
-                    IsInstallationIncluded.push(value);
                 });
 
                 var onlyRecycle = BatteryType.every(function(type) {

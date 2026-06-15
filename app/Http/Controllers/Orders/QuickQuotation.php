@@ -430,7 +430,6 @@ $arrayBattery
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
                     'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
-                    'IsInstallationIncluded' => $IsInstallationIncluded[$key] ?? 0,
                 ];
             }
         } else {
@@ -448,7 +447,6 @@ $arrayBattery
                     'TaxRow' => $TaxRow[$key],
                     'TaxPriceRow' => $TaxPriceRow[$key],
                     'BatteryType' => $request->input('BatteryType')[$key] ?? 'regular',
-                    'IsInstallationIncluded' => $IsInstallationIncluded[$key] ?? 0,
                 ];
             }
         }
@@ -476,6 +474,7 @@ $arrayBattery
             'PaymentMethod' => $PaymentMethod,
             'typeDiscount' => $typeDiscount,
             'alternativeAddress' => $alternativeAddress,
+            'IsInstallationIncluded' => $IsInstallationIncluded,
             'expenses' => ExpenseModel::with('chartOfAccount')->where('is_active', 1)->orderBy('name', 'asc')->get()->toArray()
         ];
 
@@ -868,7 +867,8 @@ $arrayBattery
                 'alternative_address' => $request->input('alternative_address'),
                 'latitude' => $request->input('Latitude') ?? 0,
                 'longitude' => $request->input('Longitude') ?? 0,
-                'date' => date('Y-m-d')
+                'date' => date('Y-m-d'),
+                'is_installation_included' => $IsInstallationIncluded ?? false,
             ];
 
             $Quotation = SalesOrderModel::create($data);
@@ -1019,7 +1019,7 @@ $arrayBattery
                             'tax_price' =>  $TaxPrice,
                             'price_net' =>  str_replace(".", "", $PriceNet),
                             'quantity' => 1,
-                            'is_installation_included' => $IsInstallationIncluded[$key] ?? 0,
+                            'is_installation_included' => $IsInstallationIncluded ?? false,
                             'created_at' => date('Y-m-d H:i:s'),
                             'updated_at' => date('Y-m-d H:i:s'),
                         ];

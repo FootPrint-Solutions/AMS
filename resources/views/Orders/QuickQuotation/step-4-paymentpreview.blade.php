@@ -48,7 +48,6 @@
                         <th style="width: 5%;">Discount ( Rp )</th>
                         <th>Net Price</th>
                         <th>Subtotal</th>
-                        <th style="width: 5%;">Installation Included</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,12 +87,6 @@
                             <td>
                                 <input readonly type="text" name="SubtotalPaymentDetails[]"
                                     class="form-control SubtotalPaymentDetails" value="{{ $data['SubtotalRow'] }}">
-                            </td>
-                            <td>
-                                <input readonly type="checkbox" name="IsInstallationIncluded[]"
-                                    class="form-check-input IsInstallationIncluded"
-                                    value={{ $data['IsInstallationIncluded'] }}
-                                    @if ($data['IsInstallationIncluded'] == 1) checked @endif>
                             </td>
                         </tr>
                     @endforeach

@@ -72,6 +72,7 @@ class SalesOrderModel extends Model implements Auditable
         'vendor',
         'ship_to',
         'type',
+        'is_installation_included',
     ];
 
     /**
@@ -87,7 +88,7 @@ class SalesOrderModel extends Model implements Auditable
      */
     public function shop(): BelongsTo
     {
-        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id");
+        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id")->with('accounts');
     }
 
     /**
@@ -210,6 +211,7 @@ class SalesOrderModel extends Model implements Auditable
             'sales_orders.status',
             'sales_orders.payment_status',
             'sales_orders.type',
+            'sales_orders.is_installation_included',
             'customers.name AS customer_name',
             'vehicles.name AS vehicle_name',
             'shops.name AS shop_name',
@@ -259,6 +261,10 @@ class SalesOrderModel extends Model implements Auditable
         // filter sales order type
         if ($request->salesOrderType) {
             $query->where('sales_orders.type', $request->salesOrderType);
+        }
+
+        if (isset($request->installationIncluded) && $request->installationIncluded !== '') {
+            $query->where('sales_orders.is_installation_included', $request->installationIncluded);
         }
 
         $query->select($selectColumns);
@@ -332,7 +338,7 @@ class SalesOrderModel extends Model implements Auditable
      * @param string|null $salesOrderType The type of sales order (optional).
      * @return array Associative array containing total quantity, total transactions, and total nominal.
      */
-    public static function getSalesOrderSummary($dateStart, $dateEnd, $salesOrderType)
+    public static function getSalesOrderSummary($dateStart, $dateEnd, $salesOrderType, $installationIncluded = null)
     {
         $query = self::query();
 
@@ -353,6 +359,11 @@ class SalesOrderModel extends Model implements Auditable
 
         if ($salesOrderType) {
             $totalQtyQuery->where('sales_orders.type', $salesOrderType);
+        }
+
+        if (isset($installationIncluded) && $installationIncluded !== '') {
+            $query->where('sales_orders.is_installation_included', $installationIncluded);
+            $totalQtyQuery->where('sales_orders.is_installation_included', $installationIncluded);
         }
 
         $totalQty = (int) $totalQtyQuery->sum('sales_order_battery.quantity');

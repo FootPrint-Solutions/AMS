@@ -107,6 +107,97 @@
                     </div>
                 </div>
 
+
+                <div class="row">
+
+                    {{-- Technician Chart Of Account --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="technicianAccount">Technician Account <span class="login-danger">*</span></label>
+                            <select class="form-control" id="technicianAccount" name="technicianAccount" required>
+                                <option>Select technician account</option>
+                                @foreach ($data['chartOfAccounts'] as $account)
+                                    <option value="{{ $account['id'] }}" @if (isset($data['profile']) &&
+                                            $data['technicianAccount'] &&
+                                            $data['technicianAccount']->chart_of_account_id == $account['id']
+                                    ) selected @endif>
+                                        {{ $account['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Technician Commission Amoutn --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="technicianCommission">Technician Commission Amount</label>
+                            <input type="number" min="0" class="form-control" id="technicianCommission"
+                                name="technicianCommission" placeholder="Enter technician commission amount"
+                                @isset($data['profile']) value="{{ $data['technicianAccount'] ? $data['technicianAccount']->commission : '' }}" @endisset>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {{-- PIC Chart Of Account --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="picAccount">PIC Account <span class="login-danger">*</span></label>
+                            <select class="form-control" id="picAccount" name="picAccount" required>
+                                <option>Select PIC account</option>
+                                @foreach ($data['chartOfAccounts'] as $account)
+                                    <option value="{{ $account['id'] }}"
+                                        @if (isset($data['profile']) && $data['picAccount'] && $data['picAccount']->chart_of_account_id == $account['id']) selected @endif>
+                                        {{ $account['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- PIC Commission Amount --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="picCommission">PIC Commission Amount</label>
+                            <input type="number" min="0" class="form-control" id="picCommission"
+                                name="picCommission" placeholder="Enter PIC commission amount"
+                                @isset($data['profile']) value="{{ $data['picAccount'] ? $data['picAccount']->commission : '' }}" @endisset>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {{-- Pit Stop Chart Of Account --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="pitStopAccount">Pit Stop Account <span class="login-danger">*</span></label>
+                            <select class="form-control" id="pitStopAccount" name="pit_stopAccount" required>
+                                <option>Select pit stop account</option>
+                                @foreach ($data['chartOfAccounts'] as $account)
+                                    <option value="{{ $account['id'] }}"
+                                        @if (isset($data['profile']) &&
+                                                $data['pitStopAccount'] &&
+                                                $data['pitStopAccount']->chart_of_account_id == $account['id']
+                                        ) selected @endif>
+                                        {{ $account['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Pit Stop Commission Amount --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="pit_stopCommission">Pit Stop Commission Amount</label>
+                            <input type="number" min="0" class="form-control" id="pit_stopCommission"
+                                name="pit_stopCommission" placeholder="Enter pit stop commission amount"
+                                @isset($data['profile']) value="{{ $data['pitStopAccount'] ? $data['pitStopAccount']->commission : '' }}" @endisset>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Note --}}
                 <div class="form-group local-forms">
                     <label for="note">Note</label>

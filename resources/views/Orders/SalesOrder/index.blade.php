@@ -85,31 +85,19 @@
             <div class="card-body">
                 {{-- filter tanggal --}}
                 <div class="row mt-2">
-                    <div class="col-md-2 d-flex align-items-center">
-                        Date
-                    </div>
-
                     <div class="col-md-4">
-                        <div class="row align-items-center">
-                            <div class="col-5">
-                                <input type="date" class="form-control" id="input-sales-order-date-start"
-                                    onchange="reloadTable()">
-                            </div>
-                            <div class="col-2 text-center">
-                                to
-                            </div>
-                            <div class="col-5">
-                                <input type="date" class="form-control" id="input-sales-order-date-end"
-                                    onchange="reloadTable()">
-                            </div>
+                        <label class="form-label d-block">Date</label>
+                        <div class="d-flex">
+                            <input type="date" class="form-control me-2" id="input-sales-order-date-start"
+                                onchange="reloadTable()">
+                            <span class="align-self-center">to</span>
+                            <input type="date" class="form-control ms-2" id="input-sales-order-date-end"
+                                onchange="reloadTable()">
                         </div>
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-center">
-                        Sales Order Type
-                    </div>
-
-                    <div class="col-md-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Sales Order Type</label>
                         <select class="form-select" id="filter-sales-order-type" onchange="reloadTable()">
                             <option value="">All Types</option>
                             <option value="regular">Regular</option>
@@ -117,6 +105,14 @@
                         </select>
                     </div>
 
+                    <div class="col-md-4">
+                        <label class="form-label">Installation Included</label>
+                        <select class="form-select" id="filter-installation-included" onchange="reloadTable()">
+                            <option value="">All</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,6 +177,8 @@
                         d.dateStart = document.getElementById('input-sales-order-date-start').value;
                         d.dateEnd = document.getElementById('input-sales-order-date-end').value;
                         d.salesOrderType = document.getElementById('filter-sales-order-type').value;
+                        d.installationIncluded = document.getElementById('filter-installation-included')
+                            .value;
                     }
                 },
                 columnDefs: [
@@ -422,6 +420,7 @@
             var dateStart = document.getElementById('input-sales-order-date-start').value;
             var dateEnd = document.getElementById('input-sales-order-date-end').value;
             var salesOrderType = document.getElementById('filter-sales-order-type').value;
+            var installationIncluded = document.getElementById('filter-installation-included').value;
 
             // Reload the table.
             table.ajax.reload(null, false);
@@ -925,6 +924,7 @@
             var dateStart = document.getElementById('input-sales-order-date-start').value;
             var dateEnd = document.getElementById('input-sales-order-date-end').value;
             var salesOrderType = document.getElementById('filter-sales-order-type').value;
+            var installationIncluded = document.getElementById('filter-installation-included').value;
 
             setSummaryLoading();
 
@@ -935,7 +935,8 @@
                     _token: "{{ csrf_token() }}",
                     dateStart: dateStart,
                     dateEnd: dateEnd,
-                    salesOrderType: salesOrderType
+                    salesOrderType: salesOrderType,
+                    installationIncluded: installationIncluded
                 },
                 success: function(response) {
                     if (response && response.status === 'success' && response.data) {
@@ -961,10 +962,11 @@
             fetchSalesOrderSummary();
 
             // refetch when date filters change
-            $('#input-sales-order-date-start, #input-sales-order-date-end, #input-sales-order-type').on('change',
-                function() {
-                    fetchSalesOrderSummary();
-                });
+            $('#input-sales-order-date-start, #input-sales-order-date-end, #input-sales-order-type, #filter-installation-included')
+                .on('change',
+                    function() {
+                        fetchSalesOrderSummary();
+                    });
 
             // refetch after DataTable ajax completes (works when table reloads)
             $(document).on('xhr.dt', '#table-sales-order', function(e, settings, json, xhr) {
