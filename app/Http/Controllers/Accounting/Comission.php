@@ -11,6 +11,8 @@ use App\Models\Accounting\CommissionModel;
 use App\Models\Accounting\CommissionItemModel;
 use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\Accounting\JournalTransactionModel;
+use App\Models\Accounting\JournalTransactionDetailModel;
 
 class Comission extends Controller
 {
@@ -297,6 +299,113 @@ class Comission extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update commission: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            '_token' => 'required',
+            'ids' => 'required|array',
+            'ids.*' => 'required|exists:commissions,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $commissions = CommissionModel::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($commissions as $commission) {
+                CommissionItemModel::where('commission_id', $commission->id)->delete();
+
+                $commission->delete();
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Commission deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete commission: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function post(Request $request)
+    {
+        $request->validate([
+            '_token' => 'required',
+            'ids' => 'required|array',
+            'ids.*' => 'required|exists:commissions,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $commissions = CommissionModel::whereIn('id', $request->input('ids'))->where('status', '!=', 'post')->get();
+            if ($commissions->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No valid commissions to post.',
+                ]);
+            }
+            foreach ($commissions as $commission) {
+                $commission->update([
+                    'status' => 'post',
+                    'updated_by' => auth()->user()->id,
+                ]);
+
+                // Create journal transaction
+                $journalTransaction = JournalTransactionModel::create([
+                    'voucher_number' => JournalTransactionModel::generateVoucherNumber(),
+                    'date' => $commission->date,
+                    'total' => $commission->total,
+                    'note' => 'Commission Posting - ' . $commission->commission_number,
+                    'created_by' => auth()->user()->id,
+                ]);
+
+                // Create journal transaction details for each commission item
+                foreach ($commission->items as $item) {
+
+                    // Debit entry
+                    JournalTransactionDetailModel::create([
+                        'journal_entry_id' => $journalTransaction->id,
+                        'chart_of_account_id' => $item->debit_account_id,
+                        'account_number' => $item->debitAccount->number,
+                        'account_name' => $item->debitAccount->name,
+                        'description' => 'Commission Debit - ' . $item->commission_type,
+                        'debit' => $item->commission_amount,
+                        'credit' => 0,
+                    ]);
+
+                    // Credit entry
+                    JournalTransactionDetailModel::create([
+                        'journal_entry_id' => $journalTransaction->id,
+                        'chart_of_account_id' => $item->credit_account_id,
+                        'account_number' => $item->creditAccount->number,
+                        'account_name' => $item->creditAccount->name,
+                        'description' => 'Commission Credit - ' . $item->commission_type,
+                        'debit' => 0,
+                        'credit' => $item->commission_amount,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Commission posted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to post commission: ' . $e->getMessage(),
             ], 500);
         }
     }

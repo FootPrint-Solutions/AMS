@@ -277,7 +277,8 @@
                                                 return;
                                             }
                                         }
-                                        if (response.status) {
+                                        if (response.status === 'success' ||
+                                            response.status === true) {
                                             Swal.fire('Success', response
                                                 .message, 'success');
                                             table.ajax.reload();
