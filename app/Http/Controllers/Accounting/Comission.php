@@ -66,6 +66,7 @@ class Comission extends Controller
                     'commission' => $commission,
                     'distributor_shops' => DistributorShopModel::get()->toArray(),
                     'chart_of_accounts' => ChartOfAccountModel::get()->toArray(),
+                    'type' => 'edit',
                 ]
             )
         );
@@ -180,7 +181,6 @@ class Comission extends Controller
         $request->validate([
             'commission_number' => 'required|unique:commissions,commission_number',
             'date' => 'required|date',
-            'distributor_shop' => 'required|exists:distributor_shops,id',
             'total' => 'required|numeric|min:0',
             'sales_order_battery_id' => 'required|array|min:1',
             'sales_order_battery_id.*' => 'required|exists:sales_order_battery,id',
@@ -210,7 +210,7 @@ class Comission extends Controller
             foreach ($request->input('sales_order_battery_id') as $index => $salesOrderBatteryId) {
                 CommissionItemModel::create([
                     'commission_id' => $commission->id,
-                    'distributor_shop_id' => $request->input('distributor_shop'),
+                    'distributor_shop_id' => $salesOrder->salesOrder->distributor_shop_id,
                     'sales_order_id' => $salesOrder->sales_order_id,
                     'sales_order_battery_id' => $salesOrderBatteryId,
                     'battery_id' => $salesOrder->battery_id,
@@ -233,6 +233,70 @@ class Comission extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create commission: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:commissions,id',
+            'date' => 'required|date',
+            'total' => 'required|numeric|min:0',
+            'sales_order_battery_id' => 'required|array|min:1',
+            'sales_order_battery_id.*' => 'required|exists:sales_order_battery,id',
+            'commission_type' => 'required|array|min:1',
+            'commission_type.*' => 'required|string',
+            'commission_value' => 'required|array|min:1',
+            'commission_value.*' => 'required|numeric|min:0',
+            'debit_account' => 'required|array|min:1',
+            'debit_account.*' => 'required|exists:chart_of_accounts,id',
+            'credit_account' => 'required|array|min:1',
+            'credit_account.*' => 'required|exists:chart_of_accounts,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $commission = CommissionModel::findOrFail($request->input('id'));
+            $salesOrder = SalesOrderBatteryModel::with('salesOrder')->findOrFail($request->input('sales_order_battery_id')[0]);
+
+            // Update the commission record
+            $commission->update([
+                'date' => $request->input('date'),
+                'total' => str_replace('.', '', $request->input('total')),
+                'updated_by' => auth()->user()->id,
+            ]);
+
+            // Delete existing commission items
+            CommissionItemModel::where('commission_id', $commission->id)->delete();
+
+            // Create new commission items
+            foreach ($request->input('sales_order_battery_id') as $index => $salesOrderBatteryId) {
+                CommissionItemModel::create([
+                    'commission_id' => $commission->id,
+                    'distributor_shop_id' => $salesOrder->salesOrder->distributor_shop_id,
+                    'sales_order_id' => $salesOrder->sales_order_id,
+                    'sales_order_battery_id' => $salesOrderBatteryId,
+                    'battery_id' => $salesOrder->battery_id,
+                    'commission_type' => $request->input('commission_type')[$index],
+                    'commission_amount' => $request->input('commission_value')[$index],
+                    'debit_account_id' => $request->input('debit_account')[$index],
+                    'credit_account_id' => $request->input('credit_account')[$index],
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Commission updated successfully.',
+                'data' => $commission->load('items')
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update commission: ' . $e->getMessage(),
             ], 500);
         }
     }

@@ -39,7 +39,7 @@
                                 <label for="commission-number">Commission Number <span class="login-danger">*</span></label>
                                 <input type="text" class="form-control" id="commission-number" name="commission_number"
                                     placeholder="Enter commission number" required readonly
-                                    value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['commission_number'] ?? '' }}">
+                                    value="{{ isset($data['commission']) ? $data['commission']->commission_number : $data['commission_number'] ?? '' }}">
                             </div>
                         </div>
 
@@ -48,7 +48,7 @@
                             <div class="form-group local-forms">
                                 <label for="quotation-date">Commission Date <span class="login-danger">*</span></label>
                                 <input type="date" class="form-control" id="quotation-date" name="date" required
-                                    value="{{ isset($data['billing']) ? \Carbon\Carbon::parse($data['billing']->date)->format('Y-m-d') : date('Y-m-d') }}">
+                                    value="{{ isset($data['commission']) ? \Carbon\Carbon::parse($data['commission']->date)->format('Y-m-d') : date('Y-m-d') }}">
                             </div>
                         </div>
 
@@ -59,11 +59,12 @@
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
                                         title="This vendor data contains customer data."></i>
                                 </label>
-                                <select class="form-control" id="distributor_shop" name="distributor_shop" required>
+                                <select class="form-control" id="distributor_shop" name="distributor_shop"
+                                    @if (isset($data['type']) && $data['type'] == 'edit') disabled @endif required>
                                     <option value="">Select Distributor Shop</option>
                                     @foreach ($data['distributor_shops'] as $shop)
                                         <option value="{{ $shop['id'] }}"
-                                            {{ isset($data['billing']) && $data['billing']->distributor_shop_id == $shop['id'] ? 'selected' : '' }}>
+                                            {{ isset($data['commission']) && $data['commission']->distributor_shop_id == $shop['id'] ? 'selected' : '' }}>
                                             {{ $shop['name'] }}
                                         </option>
                                     @endforeach
@@ -117,6 +118,73 @@
 
                         {{-- Body (Items) --}}
                         <tbody>
+                            @if (isset($data['type']) && $data['type'] == 'edit')
+                                @if (isset($data['commission']) && $data['commission']->items->isNotEmpty())
+                                    @foreach ($data['commission']->items as $index => $item)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $item->salesOrderBattery && $item->salesOrderBattery->salesOrder ? $item->salesOrderBattery->salesOrder->sales_order_number : '-' }}
+                                            </td>
+                                            <td>{{ $item->battery ? $item->battery->name : '-' }}</td>
+                                            <td>{{ $item->commission_type }}
+                                                <input type="commission_item_id" name="commission_item_id[]"
+                                                    value="{{ $item->id }}" hidden>
+                                                <input type="hidden" name="sales_order_battery_id[]"
+                                                    value="{{ $item->sales_order_battery_id }}">
+                                                <input type="hidden" name="commission_type[]"
+                                                    value="{{ $item->commission_type }}">
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <span class="input-group-text border-end">IDR <span
+                                                            class="login-danger">*</span></span>
+                                                    <input type="number" class="form-control commission-value"
+                                                        name="commission_value[]" value="{{ $item->commission_amount }}"
+                                                        required>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select class="form-control debit-account" name="debit_account[]" required>
+                                                    <option value="">Select Debit Account</option>
+                                                    @foreach ($data['chart_of_accounts'] as $account)
+                                                        <option value="{{ $account['id'] }}"
+                                                            {{ $item->debit_account_id == $account['id'] ? 'selected' : '' }}>
+                                                            {{ $account['number'] }} - {{ $account['name'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <select class="form-control credit-account" name="credit_account[]"
+                                                            required>
+                                                            <option value="">Select Credit Account</option>
+                                                            @foreach ($data['chart_of_accounts'] as $account)
+                                                                <option value="{{ $account['id'] }}"
+                                                                    {{ $item->credit_account_id == $account['id'] ? 'selected' : '' }}>
+                                                                    {{ $account['number'] }} - {{ $account['name'] }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-sm-2 d-flex align-items-center">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-danger btn-remove-order"><i
+                                                                class="fas fa-xmark"></i></button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-5">
+                                            No orders selected. Please click the search button to find sales orders.
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endif
                         </tbody>
                         <tfoot>
                             {{-- Total --}}
@@ -138,7 +206,7 @@
 
                     {{-- Hidden Inputs --}}
                     @if (isset($data['type']) && $data['type'] == 'edit')
-                        <input type="hidden" id="id" name="id" value="{{ $data['billing']->id }}">
+                        <input type="hidden" id="id" name="id" value="{{ $data['commission']->id }}">
                     @endif
 
                     {{-- Buttons --}}
@@ -220,7 +288,10 @@
     <script>
         var chartOfAccounts = @json($data['chart_of_accounts']);
 
-        // btn-find-sales-orders
+        $(document).ready(function() {
+            updateTotal();
+        });
+
         $('#btn-find-sales-orders').on('click', function() {
 
             if (!$('#distributor_shop').val()) {
@@ -289,7 +360,6 @@
                         }
                     ],
 
-                    // when row is clicked, toggle the checkbox
                     'createdRow': function(row, data, dataIndex) {
                         $(row).on('click', function(e) {
                             if (e.target.type !== 'checkbox') {
@@ -304,7 +374,6 @@
             }
         });
 
-        // btn-add-selected-orders
         $('#btn-add-selected-orders').on('click', function() {
             var selectedOrders = [];
             $('#table-sales-orders tbody input.select-order:checked').each(function() {

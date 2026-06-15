@@ -97,6 +97,6 @@ class CommissionModel extends Model
 
     public function items()
     {
-        return $this->hasMany(CommissionItemModel::class, 'commission_id');
+        return $this->hasMany(CommissionItemModel::class, 'commission_id')->with(['distributorShop', 'salesOrderBattery.salesOrder', 'battery', 'debitAccount', 'creditAccount'])->orderBy('id');
     }
 }
