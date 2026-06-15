@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\Accounting\CommissionModel;
@@ -57,7 +58,8 @@ class Comission extends Controller
     {
         $distributorShopId = $request->query('distributor_shop_id');
         $salesOrderId = $request->query('selected_order_ids');
-        // dd($distributorShopId, $salesOrderId);
+        $filterStartDate = $request->query('filter_start_date');
+        $filterEndDate = $request->query('filter_end_date');
 
         if (!$distributorShopId) {
             return response()->json(
@@ -70,9 +72,17 @@ class Comission extends Controller
         }
 
         if ($salesOrderId) {
-            $salesOrderBatteries = SalesOrderBatteryModel::with('salesOrder')->whereHas('salesOrder', function ($query) use ($distributorShopId, $salesOrderId) {
+            $salesOrderBatteries = SalesOrderBatteryModel::with('salesOrder')->whereHas('salesOrder', function ($query) use ($distributorShopId, $salesOrderId, $filterStartDate, $filterEndDate) {
                 $query->where('distributor_shop_id', $distributorShopId)
                     ->where('status', 'posted');
+
+                if ($filterStartDate) {
+                    $query->where('date', '>=', $filterStartDate);
+                }
+
+                if ($filterEndDate) {
+                    $query->where('date', '<=', $filterEndDate);
+                }
             })->whereIn('id',  $salesOrderId)->orderBy('created_at', 'desc')->get()->toArray();
 
             return response()->json(
@@ -84,9 +94,17 @@ class Comission extends Controller
             );
         } else {
 
-            $salesOrderBatteries = SalesOrderBatteryModel::with('salesOrder')->whereHas('salesOrder', function ($query) use ($distributorShopId) {
+            $salesOrderBatteries = SalesOrderBatteryModel::with('salesOrder')->whereHas('salesOrder', function ($query) use ($distributorShopId, $filterStartDate, $filterEndDate) {
                 $query->where('distributor_shop_id', $distributorShopId)
                     ->where('status', 'posted');
+
+                if ($filterStartDate) {
+                    $query->where('date', '>=', $filterStartDate);
+                }
+
+                if ($filterEndDate) {
+                    $query->where('date', '<=', $filterEndDate);
+                }
             })->orderBy('created_at', 'desc')->get()->toArray();
 
             return response()->json(
@@ -96,6 +114,68 @@ class Comission extends Controller
                     'data' => $salesOrderBatteries
                 ]
             );
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'commission_number' => 'required|unique:commissions,commission_number',
+            'date' => 'required|date',
+            'distributor_shop' => 'required|exists:distributor_shops,id',
+            'total' => 'required|numeric|min:0',
+            'sales_order_battery_id' => 'required|array|min:1',
+            'sales_order_battery_id.*' => 'required|exists:sales_order_battery,id',
+            'commission_type' => 'required|array|min:1',
+            'commission_type.*' => 'required|string',
+            'commission_value' => 'required|array|min:1',
+            'commission_value.*' => 'required|numeric|min:0',
+            'debit_account' => 'required|array|min:1',
+            'debit_account.*' => 'required|exists:chart_of_accounts,id',
+            'credit_account' => 'required|array|min:1',
+            'credit_account.*' => 'required|exists:chart_of_accounts,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $salesOrder = SalesOrderBatteryModel::with('salesOrder')->findOrFail($request->input('sales_order_battery_id')[0]);
+
+            // Create the commission record
+            $commission = CommissionModel::create([
+                'commission_number' => $request->input('commission_number'),
+                'date' => $request->input('date'),
+                'total' => str_replace('.', '', $request->input('total')),
+                'created_by' => auth()->user()->id,
+            ]);
+
+            // Create the commission items
+            foreach ($request->input('sales_order_battery_id') as $index => $salesOrderBatteryId) {
+                CommissionItemModel::create([
+                    'commission_id' => $commission->id,
+                    'distributor_shop_id' => $request->input('distributor_shop'),
+                    'sales_order_id' => $salesOrder->sales_order_id,
+                    'sales_order_battery_id' => $salesOrderBatteryId,
+                    'battery_id' => $salesOrder->battery_id,
+                    'commission_type' => $request->input('commission_type')[$index],
+                    'commission_amount' => $request->input('commission_value')[$index],
+                    'debit_account_id' => $request->input('debit_account')[$index],
+                    'credit_account_id' => $request->input('credit_account')[$index],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Commission created successfully.',
+                'data' => $commission->load('items')
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create commission: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

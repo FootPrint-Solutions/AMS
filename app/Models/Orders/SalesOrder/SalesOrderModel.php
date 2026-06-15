@@ -88,7 +88,7 @@ class SalesOrderModel extends Model implements Auditable
      */
     public function shop(): BelongsTo
     {
-        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id");
+        return $this->belongsTo(DistributorShopModel::class, "distributor_shop_id")->with('accounts');
     }
 
     /**

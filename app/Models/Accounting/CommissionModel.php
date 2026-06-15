@@ -6,13 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Accounting\CommissionItemModel;
+
 class CommissionModel extends Model
 {
     use HasFactory;
 
     use SoftDeletes;
 
-    protected $table = 'commission';
+    protected $table = 'commissions';
 
     protected $fillable = [
         'commission_number',
@@ -56,5 +58,10 @@ class CommissionModel extends Model
             $newCode .= $currentYear . $currentMonth . '00001';
         }
         return $newCode;
+    }
+
+    public function items()
+    {
+        return $this->hasMany(CommissionItemModel::class, 'commission_id');
     }
 }

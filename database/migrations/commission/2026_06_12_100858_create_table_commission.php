@@ -13,7 +13,7 @@ class CreateTableCommission extends Migration
      */
     public function up()
     {
-        Schema::create('commission', function (Blueprint $table) {
+        Schema::create('commissions', function (Blueprint $table) {
             $table->id();
             $table->string('commission_number')->unique();
             $table->date('date');

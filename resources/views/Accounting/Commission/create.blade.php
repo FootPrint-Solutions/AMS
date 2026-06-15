@@ -5,6 +5,11 @@
         .dataTables_filter {
             margin-top: 0px;
         }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+        }
     </style>
     <div class="d-none d-lg-block">
         <div class="card">
@@ -21,7 +26,9 @@
                 <br>
 
                 {{-- Form --}}
-                <form id="commission-form">
+                <form id="commission-form" method="POST"
+                    @if (isset($data['type']) && $data['type'] == 'edit') action="{{ route('commission.update') }}"
+                @else action="{{ route('commission.store') }}" @endif>
                     @csrf
 
                     {{-- Commission Number & Date --}}
@@ -29,8 +36,8 @@
                         {{-- Billing Number --}}
                         <div class="col-3">
                             <div class="form-group local-forms">
-                                <label for="billing-number">Commission Number <span class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="billing-number" name="billingnumber"
+                                <label for="commission-number">Commission Number <span class="login-danger">*</span></label>
+                                <input type="text" class="form-control" id="commission-number" name="commission_number"
                                     placeholder="Enter commission number" required readonly
                                     value="{{ isset($data['billing']) ? $data['billing']->billing_number : $data['commission_number'] ?? '' }}">
                             </div>
@@ -81,13 +88,23 @@
                         {{-- Header --}}
                         <thead>
                             <tr>
-                                <td colspan="8" class="h5 text-center">
+                                <td colspan="7" class="h5 text-center">
                                     Selected Orders
                                 </td>
                             </tr>
-
+                            <tr>
+                                <td colspan="6"></td>
+                                <td>
+                                    <select class="form-control form-control-sm" id="mass-credit-account">
+                                        <option value="">Change All Credit Account</option>
+                                        @foreach ($data['chart_of_accounts'] as $account)
+                                            <option value="{{ $account['id'] }}">{{ $account['number'] }} -
+                                                {{ $account['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
                             <tr class="text-center">
-                                <td class="p-1 text-muted small">#</td>
                                 <td class="p-1 text-muted small">No</td>
                                 <td class="p-1 text-muted small">Sales Order Number</td>
                                 <td class="p-1 text-muted small">Battery Name</td>
@@ -104,7 +121,7 @@
                         <tfoot>
                             {{-- Total --}}
                             <tr>
-                                <td colspan="6"></td>
+                                <td colspan="5"></td>
                                 <td class="text-end">Total</td>
                                 <td>
                                     <div class="input-group">
@@ -136,7 +153,8 @@
                             Commission </button>
 
                             {{-- Cancel Button --}}
-                            <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
+                            <a type="reset" class="btn btn-danger mx-1" id="btn-cancel"
+                                href="{{ route('commission.index') }}">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -154,6 +172,26 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    {{-- Filter Date --}}
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="form-group local-forms">
+                                <label for="filter-start-date">Start Date</label>
+                                <input type="date" class="form-control" id="filter-start-date"
+                                    name="filter_start_date" value="{{ date('Y-m-d', strtotime('-1 month')) }}">
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group local-forms">
+                                <label for="filter-end-date">End Date</label>
+                                <input type="date" class="form-control" id="filter-end-date" name="filter_end_date"
+                                    value="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+                    </div>
+
+
+
                     <div class="table-responsive">
                         <table class="table table-striped" id="table-sales-orders" style="width:100%">
                             <thead>
@@ -161,6 +199,8 @@
                                     <th></th>
                                     <th>#</th>
                                     <th>Sales Order Number</th>
+                                    <th>Sales Order Date</th>
+                                    <th>Customer Name</th>
                                     <th>Battery Name</th>
                                     <th>Include Installation</th>
                                 </tr>
@@ -201,13 +241,15 @@
                         url: '{{ route('commission.get_sales_orders') }}',
                         data: function(d) {
                             d.distributor_shop_id = $('#distributor_shop').val();
+                            d.filter_start_date = $('#filter-start-date').val();
+                            d.filter_end_date = $('#filter-end-date').val();
                         },
                         dataSrc: 'data'
                     },
                     columns: [{
                             data: 'id',
                             render: function(data, type, row) {
-                                return `<input type="checkbox" class="select-order" value="${data}">`;
+                                return `<input type="checkbox" class="select-order checkbox" value="${data}">`;
                             },
                             orderable: false,
                             searchable: false
@@ -224,6 +266,19 @@
                             data: 'sales_order.sales_order_number'
                         },
                         {
+                            data: 'sales_order.date',
+                            render: function(data) {
+                                return new Date(data).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                });
+                            }
+                        },
+                        {
+                            data: 'sales_order.customer.name'
+                        },
+                        {
                             data: 'battery_name'
                         },
                         {
@@ -232,7 +287,17 @@
                                 return Number(data) === 1 ? 'Yes' : 'No';
                             }
                         }
-                    ]
+                    ],
+
+                    // when row is clicked, toggle the checkbox
+                    'createdRow': function(row, data, dataIndex) {
+                        $(row).on('click', function(e) {
+                            if (e.target.type !== 'checkbox') {
+                                var checkbox = $(this).find('input.select-order');
+                                checkbox.prop('checked', !checkbox.prop('checked'));
+                            }
+                        });
+                    }
                 });
             } else {
                 $('#table-sales-orders').DataTable().ajax.reload();
@@ -254,7 +319,6 @@
                 return;
             }
 
-            // Fetch details of selected sales orders
             $.ajax({
                 url: '{{ route('commission.get_sales_orders') }}',
                 method: 'GET',
@@ -266,6 +330,19 @@
                     var orders = response.data;
                     var tbody = $('#selected-orders-table tbody');
                     orders.forEach(function(order, index) {
+                        var shopAccounts = (order.sales_order && order.sales_order.shop && Array
+                                .isArray(order.sales_order.shop.accounts)) ? order.sales_order
+                            .shop.accounts : [];
+                        var technicianAccount = shopAccounts.find(function(account) {
+                            return account.type === 'technician';
+                        });
+                        var picAccount = shopAccounts.find(function(account) {
+                            return account.type === 'pic';
+                        });
+                        var pitStopAccount = shopAccounts.find(function(account) {
+                            return account.type === 'pit_stop';
+                        });
+
                         var commissionTypeOptions = [
                             'Technical commission',
                             'Install Commission',
@@ -274,39 +351,73 @@
                         ];
 
                         var chartOfAccountOptions = chartOfAccounts.map(function(account) {
-                            return `<option value="${account.id}">${account.name}</option>`;
+                            return `<option value="${account.id}">${account.number} - ${account.name}</option>`;
                         }).join('');
 
-                        // loop through commission types tr and create row for each commission type
                         commissionTypeOptions.forEach(function(commissionType) {
+                            var no = tbody.find('tr').length + 1;
 
                             if (commissionType === 'Install Commission' && Number(order
                                     .is_installation_included) === 0) {
                                 return;
                             }
 
+                            var technicalCommissionValue = technicianAccount ?
+                                technicianAccount.commission : 0;
+                            var installCommissionValue = 10000;
+                            var picCommissionValue = picAccount ? picAccount
+                                .commission : 0;
+                            var pitstopCommissionValue = pitStopAccount ? pitStopAccount
+                                .commission : 0;
+                            var selectedAccountId = commissionType ===
+                                'Technical commission' ? (technicianAccount ?
+                                    technicianAccount.chart_of_account_id : '') :
+                                commissionType === 'PIC Commission' ? (picAccount ?
+                                    picAccount.chart_of_account_id : '') :
+                                commissionType === 'Pitstop Commission' ? (
+                                    pitStopAccount ? pitStopAccount
+                                    .chart_of_account_id : '') : '';
+
+                            var debitAccountOptions = chartOfAccountOptions.replace(
+                                new RegExp(`value="${selectedAccountId}"`),
+                                '$& selected');
+                            var creditAccountOptions = chartOfAccountOptions.replace(
+                                new RegExp(`value="${selectedAccountId}"`),
+                                '$& selected');
+
                             var row = `
                                 <tr>
-                                    <td><button type="button" class="btn btn-sm btn-danger btn-remove-order"><i class="fas fa-trash"></i></button></td>
-                                    <td>${index + 1}</td>
+                                    <td>${no}</td>
                                     <td>${order.sales_order.sales_order_number}</td>
                                     <td>${order.battery_name}</td>
                                     <td>${commissionType}
                                         <input type="hidden" name="sales_order_battery_id[]" value="${order.id}">
                                         <input type="hidden" name="commission_type[]" value="${commissionType}">
                                         </td>
-                                    <td><input type="number" class="form-control form-control-sm commission-value" name="commission_value[]" value="0"></td>
                                     <td>
-                                        <select class="form-control form-control-sm debit-account" name="debit_account[]">
+                                        <div class="input-group">
+                                            <span class="input-group-text border-end">IDR <span class="login-danger">*</span></span>
+                                        <input type="number" class="form-control  commission-value" name="commission_value[]" value="${commissionType === 'Technical commission' ? technicalCommissionValue : commissionType === 'Install Commission' ? installCommissionValue : commissionType === 'PIC Commission' ? picCommissionValue : commissionType === 'Pitstop Commission' ? pitstopCommissionValue : 0}" required>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select class="form-control  debit-account" name="debit_account[]" required >
                                             <option value="">Select Debit Account</option>
-                                            ${chartOfAccountOptions}
+                                            ${debitAccountOptions}
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control form-control-sm credit-account" name="credit_account[]">
+                                        <div class="row">
+                                        <div class="col">
+                                        <select class="form-control  credit-account" name="credit_account[]" required>
                                             <option value="">Select Credit Account</option>
                                             ${chartOfAccountOptions}
                                         </select>
+                                        </div>
+                                        <div class="col-sm-2 d-flex align-items-center">
+                                             <button type="button" class="btn btn-sm btn-danger btn-remove-order"><i class="fas fa-xmark"></i></button>
+                                        </div>
+                                        </div>
                                     </td>
                                 </tr>
                             `;
@@ -325,8 +436,26 @@
             });
         });
 
+        $('#mass-credit-account').on('change', function() {
+            var selectedAccountId = $(this).val();
+            if (selectedAccountId) {
+                $('.credit-account').val(selectedAccountId);
+            }
+        });
+
+        $(document).on('click', '.btn-remove-order', function() {
+            $(this).closest('tr').remove();
+            updateTotal();
+        });
+
         $(document).on('input', '.commission-value', function() {
             updateTotal();
+        });
+
+        $('#filter-start-date, #filter-end-date').on('change', function() {
+            if ($('#modal-sales-orders').hasClass('show')) {
+                $('#table-sales-orders').DataTable().ajax.reload();
+            }
         });
 
         function updateTotal() {
@@ -334,7 +463,59 @@
             $('.commission-value').each(function() {
                 total += Number($(this).val());
             });
+            total = total.toLocaleString('id-ID');
             $('#total').val(total);
         }
+
+        $('#commission-form').on('submit', function(e) {
+            e.preventDefault();
+            $('#btn-save').prop('disabled', true);
+
+
+            if ($('#selected-orders-table tbody tr').length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please add at least one sales order',
+                });
+                $('#btn-save').prop('disabled', false);
+                return;
+            }
+
+            var formData = $(this).serialize();
+
+            Swal.fire({
+                title: 'Saving commission...',
+                allowOutsideClick: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.message,
+                    }).then(function() {
+                        window.location.href = '{{ route('commission.index') }}';
+                    });
+                },
+                error: function(xhr) {
+                    var errorMessage = 'An error occurred while saving the commission';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: errorMessage,
+                    });
+
+                    $('#btn-save').prop('disabled', false);
+                }
+            });
+        });
     </script>
 @endsection
