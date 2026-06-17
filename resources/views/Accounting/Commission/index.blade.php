@@ -330,7 +330,7 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Distributor Shop</th><th>Sales Order Number</th><th>Commission Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-end">Commission Amount (IDR)</th>' +
+                                    '<th>Distributor Shop</th><th>Sales Order Number</th><th>Battery</th><th>Commission Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-end">Commission Amount (IDR)</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
@@ -348,10 +348,12 @@
                                     var commissionAmount = item.commission_amount ?
                                         toCurrency(item.commission_amount) :
                                         '-';
+                                    var batteryName = item.battery.name || '-';
 
                                     itemTable += '<tr>' +
                                         '<td>' + distributorShopName + '</td>' +
                                         '<td>' + salesOrderNumber + '</td>' +
+                                        '<td>' + batteryName + '</td>' +
                                         '<td>' + commissionType + '</td>' +
                                         '<td>' + debitAccountName + '</td>' +
                                         '<td>' + creditAccountName + '</td>' +
@@ -388,9 +390,10 @@
                 goToPage('/commission/create');
             });
 
-            $('#commission-status-filter, #distributor-shop-filter, #input-commission-date-start, #input-commission-date-end').on('change', function() {
-                table.ajax.reload();
-            });
+            $('#commission-status-filter, #distributor-shop-filter, #input-commission-date-start, #input-commission-date-end')
+                .on('change', function() {
+                    table.ajax.reload();
+                });
         });
     </script>
 @endsection
