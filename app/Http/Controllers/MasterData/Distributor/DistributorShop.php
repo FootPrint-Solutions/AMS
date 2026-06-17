@@ -290,4 +290,26 @@ class DistributorShop extends Controller
             return getResponseData(false);
         }
     }
+
+    public function account($shopId)
+    {
+        try {
+            $accounts = DistributorShopAccountModel::with('chartOfAccount')
+                ->where('distributor_shop_id', $shopId)
+                ->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Accounts retrieved successfully!",
+                'accounts' => $accounts
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => "Failed to retrieve accounts!"
+            ]);
+        }
+    }
 }

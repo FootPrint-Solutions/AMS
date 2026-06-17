@@ -57,7 +57,7 @@
                             <div class="form-group local-forms">
                                 <label for="distributor_shop">Distributor Shop <span class="login-danger">*</span>
                                     <i class="fas fa-info-circle ms-1 text-muted" data-toggle="tooltip" data-placement="top"
-                                        title="This vendor data contains customer data."></i>
+                                        title="When edited, this does not need to be changed."></i>
                                 </label>
                                 <select class="form-control" id="distributor_shop" name="distributor_shop"
                                     @if (isset($data['type']) && $data['type'] == 'edit') disabled @endif required>

@@ -43,11 +43,6 @@ class CommissionModel extends Model
         $query = self::query();
         $query->select(self::$selectColumns);
 
-        //     d._token = '{{ csrf_token() }}';
-        // d.status = $('#commission-status-filter').val();
-        // d.dateStart = $('#input-commission-date-start').val();
-        // d.dateEnd = $('#input-commission-date-end').val();
-
         if (!empty($request->status) && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
@@ -58,6 +53,13 @@ class CommissionModel extends Model
 
         if (!empty($request->dateEnd)) {
             $query->whereDate('date', '<=', $request->dateEnd);
+        }
+
+        // Filter by distributor shop via commission_items relation.
+        if (!empty($request->distributorShop) && $request->distributorShop !== 'all') {
+            $query->whereHas('items', function ($q) use ($request) {
+                $q->where('distributor_shop_id', $request->distributorShop);
+            });
         }
 
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);

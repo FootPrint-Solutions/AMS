@@ -18,3 +18,4 @@ Route::post('/distributor/shop/battery/store', [DistributorShopBattery::class, '
 Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBattery::class, 'storeBatch'])->name('distributor.shop.battery.store.batch')->middleware('permission:add_distributor');
 Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update'])->name('distributor.shop.battery.update')->middleware('permission:edit_distributor');
 Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy'])->name('distributor.shop.battery.destroy')->middleware('permission:delete_distributor');
+Route::get('/distributor/shop/account/{shopId}', [DistributorShop::class, 'account'])->name('distributor.shop.account')->middleware('permission:view_distributor');

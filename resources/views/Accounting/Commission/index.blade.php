@@ -38,16 +38,6 @@
                         <option value="posted">Posted</option>
                     </select>
                 </div>
-
-                <label class="col-md-1 col-form-label fw-bold">Distributor Shop</label>
-                <div class="col-md-2">
-                    <select class="form-select" id="distributor-shop-filter">
-                        <option value="all">All</option>
-                        @foreach ($data['DistributorShops'] as $shop)
-                            <option value="{{ $shop['id'] }}">{{ $shop['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
             </form>
         </div>
     </div>
@@ -108,7 +98,7 @@
                     data: function(d) {
                         d._token = '{{ csrf_token() }}';
                         d.status = $('#commission-status-filter').val();
-                        d.type = $('#commission-type-filter').val();
+                        d.distributorShop = $('#distributor-shop-filter').val();
                         d.dateStart = $('#input-commission-date-start').val();
                         d.dateEnd = $('#input-commission-date-end').val();
                     }
@@ -213,14 +203,22 @@
                                                 return;
                                             }
                                         }
-                                        if (response.status) {
+                                        if (response.status === 'success' ||
+                                            response.status === true) {
                                             Swal.fire('Deleted', response
-                                                .message, 'success');
+                                                .message,
+                                                'success');
                                             table.ajax.reload();
                                             return;
+                                        } else if (response.status ===
+                                            'error' ||
+                                            response.status === false) {
+                                            Swal.fire('Error', response
+                                                .message ||
+                                                'Failed to delete commission.',
+                                                'error');
+                                            return;
                                         }
-                                        Swal.fire('Error', response.message,
-                                            'error');
                                     },
                                     error: function() {
                                         Swal.fire('Error',
@@ -330,7 +328,7 @@
 
                                 var itemTable =
                                     '<table class="table table-bordered"><thead><tr>' +
-                                    '<th>Distributor Shop</th><th>Sales Order Number</th><th>Commission Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-end">Commission Amount (IDR)</th>' +
+                                    '<th>Distributor Shop</th><th>Sales Order Number</th><th>Battery</th><th>Commission Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-end">Commission Amount (IDR)</th>' +
                                     '</tr></thead><tbody>';
 
                                 items.forEach(function(item) {
@@ -348,10 +346,12 @@
                                     var commissionAmount = item.commission_amount ?
                                         toCurrency(item.commission_amount) :
                                         '-';
+                                    var batteryName = item.battery.name || '-';
 
                                     itemTable += '<tr>' +
                                         '<td>' + distributorShopName + '</td>' +
                                         '<td>' + salesOrderNumber + '</td>' +
+                                        '<td>' + batteryName + '</td>' +
                                         '<td>' + commissionType + '</td>' +
                                         '<td>' + debitAccountName + '</td>' +
                                         '<td>' + creditAccountName + '</td>' +
@@ -388,9 +388,10 @@
                 goToPage('/commission/create');
             });
 
-            $('#filter-status, #filter-type, #filter-date-start, #filter-date-end').on('change', function() {
-                table.ajax.reload();
-            });
+            $('#commission-status-filter, #distributor-shop-filter, #input-commission-date-start, #input-commission-date-end')
+                .on('change', function() {
+                    table.ajax.reload();
+                });
         });
     </script>
 @endsection

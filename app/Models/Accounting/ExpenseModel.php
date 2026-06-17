@@ -48,6 +48,11 @@ class ExpenseModel extends Model implements Auditable
         $query->select($selectColumns);
         $query->with('chartOfAccount:id,name,number');
 
+        // Filter by status if set.
+        if ($request->status !== null && $request->status !== 'all') {
+            $query->where('is_active', $request->status);
+        }
+
         return self::getAllRows($request, $query, $selectColumns, $searchColumns);
     }
 

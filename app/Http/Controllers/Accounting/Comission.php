@@ -60,6 +60,10 @@ class Comission extends Controller
     {
         $commission = CommissionModel::with('items')->findOrFail($id);
 
+        if ($commission->status === 'post') {
+            return redirect()->route('commission.index')->with('error', 'Cannot edit a posted commission.');
+        }
+
         return view(
             "Accounting.Commission.create",
             getIndexData(
@@ -146,6 +150,13 @@ class Comission extends Controller
                 }
             })->whereIn('id',  $salesOrderId)->orderBy('created_at', 'desc')->get()->toArray();
 
+            $usedSalesOrderBatteries = CommissionItemModel::whereIn('sales_order_battery_id', $salesOrderId)->pluck('sales_order_battery_id')->toArray();
+            $salesOrderBatteries = array_filter($salesOrderBatteries, function ($battery) use ($usedSalesOrderBatteries) {
+                return !in_array($battery['id'], $usedSalesOrderBatteries);
+            });
+
+            $salesOrderBatteries = array_values($salesOrderBatteries);
+
             return response()->json(
                 [
                     'status' => 'success',
@@ -167,6 +178,13 @@ class Comission extends Controller
                     $query->where('date', '<=', $filterEndDate);
                 }
             })->orderBy('created_at', 'desc')->get()->toArray();
+
+            $usedSalesOrderBatteries = CommissionItemModel::pluck('sales_order_battery_id')->toArray();
+            $salesOrderBatteries = array_filter($salesOrderBatteries, function ($battery) use ($usedSalesOrderBatteries) {
+                return !in_array($battery['id'], $usedSalesOrderBatteries);
+            });
+
+            $salesOrderBatteries = array_values($salesOrderBatteries);
 
             return response()->json(
                 [
@@ -316,6 +334,18 @@ class Comission extends Controller
 
             $commissions = CommissionModel::whereIn('id', $request->input('ids'))->get();
 
+            // check if any of the commissions are already posted
+            $postedCommissions = $commissions->filter(function ($commission) {
+                return $commission->status === 'post';
+            });
+
+            if ($postedCommissions->isNotEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Some commission(s) are already posted and cannot be deleted.',
+                ], 400);
+            }
+
             foreach ($commissions as $commission) {
                 CommissionItemModel::where('commission_id', $commission->id)->delete();
 
@@ -347,12 +377,21 @@ class Comission extends Controller
         try {
             DB::beginTransaction();
 
-            $commissions = CommissionModel::whereIn('id', $request->input('ids'))->where('status', '!=', 'post')->get();
+            $ids = $request->input('ids');
+            $commissions = CommissionModel::whereIn('id', $ids)->where('status', '!=', 'post')->get();
+
+            if (count($commissions) !== count($ids)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Some commission(s) are already posted or invalid.',
+                ], 400);
+            }
+
             if ($commissions->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'No valid commissions to post.',
-                ]);
+                    'message' => 'Commission(s) already posted.',
+                ], 400);
             }
             foreach ($commissions as $commission) {
                 $commission->update([
