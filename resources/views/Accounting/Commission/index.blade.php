@@ -35,7 +35,7 @@
                     <select class="form-select" id="commission-status-filter">
                         <option value="all">All</option>
                         <option value="draft">Draft</option>
-                        <option value="posted">Posted</option>
+                        <option value="post">Posted</option>
                     </select>
                 </div>
             </form>
