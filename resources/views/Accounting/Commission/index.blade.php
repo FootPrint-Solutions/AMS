@@ -38,16 +38,6 @@
                         <option value="posted">Posted</option>
                     </select>
                 </div>
-
-                <label class="col-md-1 col-form-label fw-bold">Distributor Shop</label>
-                <div class="col-md-2">
-                    <select class="form-select" id="distributor-shop-filter">
-                        <option value="all">All</option>
-                        @foreach ($data['DistributorShops'] as $shop)
-                            <option value="{{ $shop['id'] }}">{{ $shop['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
             </form>
         </div>
     </div>
