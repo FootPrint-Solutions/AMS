@@ -203,14 +203,22 @@
                                                 return;
                                             }
                                         }
-                                        if (response.status) {
+                                        if (response.status === 'success' ||
+                                            response.status === true) {
                                             Swal.fire('Deleted', response
-                                                .message, 'success');
+                                                .message,
+                                                'success');
                                             table.ajax.reload();
                                             return;
+                                        } else if (response.status ===
+                                            'error' ||
+                                            response.status === false) {
+                                            Swal.fire('Error', response
+                                                .message ||
+                                                'Failed to delete commission.',
+                                                'error');
+                                            return;
                                         }
-                                        Swal.fire('Error', response.message,
-                                            'error');
                                     },
                                     error: function() {
                                         Swal.fire('Error',
