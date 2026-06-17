@@ -21,6 +21,7 @@
             <table class="table table-striped" id="table-distributor-shop">
                 <thead>
                     <tr>
+                        <th scope="col"></th>
                         <th scope="col" class="table-col-no">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Distributor</th>
@@ -88,6 +89,56 @@
                         _token: "{{ csrf_token() }}"
                     }
                 },
+                columns: [{
+                        targets: 0,
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    {
+                        data: 1
+                    },
+                    {
+                        data: 2
+                    },
+                    {
+                        data: 3
+                    },
+                    {
+                        data: 4
+                    },
+                    {
+                        data: 5
+                    },
+                    {
+                        data: 6
+                    },
+                    {
+                        data: 7,
+                        render: function(data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 8,
+                        visible: false
+                    },
+                    {
+                        data: 9,
+                        visible: false
+                    },
+                    {
+                        data: 10,
+                        visible: false
+                    }
+                ],
                 columnDefs: [{
                     targets: [0],
                     orderable: false
@@ -163,6 +214,91 @@
                         $('td', row).addClass("text-muted");
                     }
                 },
+            });
+
+            $('#table-distributor-shop tbody').on('click', 'td.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    var distributorShopId = row.data()[8];
+
+                    $.ajax({
+                        url: '/distributor/shop/account/' + distributorShopId,
+                        method: 'GET',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            if (response && (response.success === true || response.status ===
+                                    'success' ||
+                                    response.status === true)) {
+                                var items = response.accounts || response.data || [];
+                                if (items.length === 0) {
+                                    row.child(
+                                        '<div class="p-2 text-muted">No accounts found.</div>'
+                                    ).show();
+                                    tr.addClass('shown');
+                                    return;
+                                }
+
+                                var itemTable =
+                                    '<table class="table table-bordered table-sm align-middle mb-0"><thead><tr>' +
+                                    '<th>Type</th><th>Chart of Account</th><th class="text-end">Commission</th>' +
+                                    '</tr></thead><tbody>';
+
+                                items.forEach(function(item) {
+                                    var accountType = item.type || '-';
+                                    var chartOfAccount = item.chart_of_account ?
+                                        ((item.chart_of_account.number || '-') + ' - ' +
+                                            (item.chart_of_account.name || '-')) : '-';
+                                    var accountNumber = item.chart_of_account ?
+                                        (item.chart_of_account.number || '-') : '-';
+                                    var commissionAmount = item.commission != null ?
+                                        item.commission : '-';
+                                    if (typeof commissionAmount === 'number') {
+                                        commissionAmount = commissionAmount
+                                            .toLocaleString(
+                                                undefined, {
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 0
+                                                });
+                                    }
+
+                                    itemTable += '<tr>' +
+                                        '<td><span class="badge bg-primary text-uppercase">' +
+                                        accountType + '</span></td>' +
+                                        '<td>' + chartOfAccount + '</td>' +
+                                        '<td class="text-end">' + commissionAmount +
+                                        '</td>' +
+                                        '</tr>';
+                                });
+
+                                itemTable += '</tbody></table>';
+
+                                row.child(itemTable).show();
+                                tr.addClass('shown');
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: response.message || 'Failed to fetch items.',
+                                    icon: 'error',
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: xhr.responseJSON?.message ||
+                                    'Failed to fetch items.',
+                                icon: 'error',
+                            });
+                        }
+                    });
+                }
             });
 
             // Load DataTables toolbar component.

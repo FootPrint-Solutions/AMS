@@ -108,7 +108,7 @@
                     data: function(d) {
                         d._token = '{{ csrf_token() }}';
                         d.status = $('#commission-status-filter').val();
-                        d.type = $('#commission-type-filter').val();
+                        d.distributorShop = $('#distributor-shop-filter').val();
                         d.dateStart = $('#input-commission-date-start').val();
                         d.dateEnd = $('#input-commission-date-end').val();
                     }
@@ -388,7 +388,7 @@
                 goToPage('/commission/create');
             });
 
-            $('#filter-status, #filter-type, #filter-date-start, #filter-date-end').on('change', function() {
+            $('#commission-status-filter, #distributor-shop-filter, #input-commission-date-start, #input-commission-date-end').on('change', function() {
                 table.ajax.reload();
             });
         });

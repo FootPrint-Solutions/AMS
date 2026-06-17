@@ -105,7 +105,7 @@
                 buttons: getDatatablesButtonConfigurations(),
                 select: true,
                 rowCallback: function(row, data) {
-                    if (data[3] == 'Inactive') {
+                    if (data[4] == 'Inactive') {
                         $('td', row).addClass("text-muted");
                     }
                 }
