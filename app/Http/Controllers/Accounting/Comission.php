@@ -146,6 +146,13 @@ class Comission extends Controller
                 }
             })->whereIn('id',  $salesOrderId)->orderBy('created_at', 'desc')->get()->toArray();
 
+            $usedSalesOrderBatteries = CommissionItemModel::whereIn('sales_order_battery_id', $salesOrderId)->pluck('sales_order_battery_id')->toArray();
+            $salesOrderBatteries = array_filter($salesOrderBatteries, function ($battery) use ($usedSalesOrderBatteries) {
+                return !in_array($battery['id'], $usedSalesOrderBatteries);
+            });
+
+            $salesOrderBatteries = array_values($salesOrderBatteries);
+
             return response()->json(
                 [
                     'status' => 'success',
@@ -167,6 +174,13 @@ class Comission extends Controller
                     $query->where('date', '<=', $filterEndDate);
                 }
             })->orderBy('created_at', 'desc')->get()->toArray();
+
+            $usedSalesOrderBatteries = CommissionItemModel::pluck('sales_order_battery_id')->toArray();
+            $salesOrderBatteries = array_filter($salesOrderBatteries, function ($battery) use ($usedSalesOrderBatteries) {
+                return !in_array($battery['id'], $usedSalesOrderBatteries);
+            });
+
+            $salesOrderBatteries = array_values($salesOrderBatteries);
 
             return response()->json(
                 [
