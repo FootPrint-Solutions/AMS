@@ -264,7 +264,9 @@
                         <table class="table table-striped" id="table-sales-orders" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th>
+                                        <input type="checkbox" id="select-all-orders" class="checkbox">
+                                    </th>
                                     <th>#</th>
                                     <th>Sales Order Number</th>
                                     <th>Sales Order Date</th>
@@ -287,6 +289,7 @@
 
     <script>
         var chartOfAccounts = @json($data['chart_of_accounts']);
+        var selectedSalesOrderIds = [];
 
         $(document).ready(function() {
             updateTotal();
@@ -308,6 +311,7 @@
                 $('#table-sales-orders').DataTable({
                     processing: true,
                     serverSide: false,
+                    paging: true,
                     ajax: {
                         url: '{{ route('commission.get_sales_orders') }}',
                         data: function(d) {
@@ -359,26 +363,106 @@
                             }
                         }
                     ],
-
                     'createdRow': function(row, data, dataIndex) {
+                        var checkbox = $(row).find('input.select-order');
+                        checkbox.prop('checked', selectedSalesOrderIds.includes(String(data.id)));
+
                         $(row).on('click', function(e) {
                             if (e.target.type !== 'checkbox') {
                                 var checkbox = $(this).find('input.select-order');
                                 checkbox.prop('checked', !checkbox.prop('checked'));
+                                checkbox.trigger('change');
                             }
                         });
-                    }
+                    },
+                    drawCallback: function() {
+                        var table = this.api();
+                        table.rows({
+                            page: 'current'
+                        }).every(function() {
+                            var rowData = this.data();
+                            $(this.node()).find('input.select-order').prop(
+                                'checked',
+                                selectedSalesOrderIds.includes(String(rowData.id))
+                            );
+                        });
+
+                        var allChecked = true;
+                        var totalRows = 0;
+                        table.rows({
+                            search: 'applied'
+                        }).every(function() {
+                            totalRows++;
+                            if (!selectedSalesOrderIds.includes(String(this.data().id))) {
+                                allChecked = false;
+                            }
+                        });
+                        $('#select-all-orders').prop('checked', totalRows > 0 && allChecked);
+                    },
                 });
             } else {
                 $('#table-sales-orders').DataTable().ajax.reload();
             }
         });
 
-        $('#btn-add-selected-orders').on('click', function() {
-            var selectedOrders = [];
-            $('#table-sales-orders tbody input.select-order:checked').each(function() {
-                selectedOrders.push($(this).val());
+        $(document).on('change', '#table-sales-orders tbody input.select-order', function() {
+            var orderId = String($(this).val());
+            if ($(this).is(':checked')) {
+                if (!selectedSalesOrderIds.includes(orderId)) {
+                    selectedSalesOrderIds.push(orderId);
+                }
+            } else {
+                selectedSalesOrderIds = selectedSalesOrderIds.filter(function(id) {
+                    return id !== orderId;
+                });
+            }
+
+            var table = $('#table-sales-orders').DataTable();
+            var allChecked = true;
+            var totalRows = 0;
+            table.rows({
+                search: 'applied'
+            }).every(function() {
+                totalRows++;
+                if (!selectedSalesOrderIds.includes(String(this.data().id))) {
+                    allChecked = false;
+                }
             });
+            $('#select-all-orders').prop('checked', totalRows > 0 && allChecked);
+        });
+
+        $('#select-all-orders').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var table = $('#table-sales-orders').DataTable();
+
+            table.rows({
+                search: 'applied'
+            }).every(function() {
+                var rowData = this.data();
+                var orderId = String(rowData.id);
+
+                if (isChecked) {
+                    if (!selectedSalesOrderIds.includes(orderId)) {
+                        selectedSalesOrderIds.push(orderId);
+                    }
+                } else {
+                    selectedSalesOrderIds = selectedSalesOrderIds.filter(function(id) {
+                        return id !== orderId;
+                    });
+                }
+            });
+
+
+            table.rows({
+                page: 'current'
+            }).every(function() {
+                $(this.node()).find('input.select-order').prop('checked', isChecked);
+            });
+        });
+
+        $('#btn-add-selected-orders').on('click', function() {
+            $(this).prop('disabled', true);
+            var selectedOrders = selectedSalesOrderIds.slice();
 
             if (selectedOrders.length === 0) {
                 Swal.fire({
@@ -387,6 +471,14 @@
                 });
                 return;
             }
+
+            Swal.fire({
+                title: 'Fetching sales order details...',
+                allowOutsideClick: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
 
             $.ajax({
                 url: '{{ route('commission.get_sales_orders') }}',
@@ -470,7 +562,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <select class="form-control  debit-account" name="debit_account[]" required >
+                                        <select class="form-control debit-account" name="debit_account[]" required >
                                             <option value="">Select Debit Account</option>
                                             ${debitAccountOptions}
                                         </select>
@@ -494,6 +586,8 @@
                         });
                     });
                     $('#modal-sales-orders').modal('hide');
+                    $('#btn-add-selected-orders').prop('disabled', false);
+                    Swal.close();
                     updateTotal();
                 },
                 error: function() {
