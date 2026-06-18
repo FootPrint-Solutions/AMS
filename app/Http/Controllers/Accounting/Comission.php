@@ -49,7 +49,7 @@ class Comission extends Controller
                 $this->title,
                 [
                     'commission_number' => CommissionModel::generateCommissionNumber(),
-                    'distributor_shops' => DistributorShopModel::get()->toArray(),
+                    'distributor_shops' => DistributorShopModel::where('status', true)->get()->toArray(),
                     'chart_of_accounts' => ChartOfAccountModel::get()->toArray(),
                 ]
             )
@@ -70,7 +70,7 @@ class Comission extends Controller
                 $this->title,
                 [
                     'commission' => $commission,
-                    'distributor_shops' => DistributorShopModel::get()->toArray(),
+                    'distributor_shops' => DistributorShopModel::where('status', true)->get()->toArray(),
                     'chart_of_accounts' => ChartOfAccountModel::get()->toArray(),
                     'type' => 'edit',
                 ]
@@ -201,7 +201,6 @@ class Comission extends Controller
         $request->validate([
             'commission_number' => 'required|unique:commissions,commission_number',
             'date' => 'required|date',
-            'total' => 'required|numeric|min:0',
             'sales_order_battery_id' => 'required|array|min:1',
             'sales_order_battery_id.*' => 'required|exists:sales_order_battery,id',
             'commission_type' => 'required|array|min:1',
@@ -262,7 +261,6 @@ class Comission extends Controller
         $request->validate([
             'id' => 'required|exists:commissions,id',
             'date' => 'required|date',
-            'total' => 'required|numeric|min:0',
             'sales_order_battery_id' => 'required|array|min:1',
             'sales_order_battery_id.*' => 'required|exists:sales_order_battery,id',
             'commission_type' => 'required|array|min:1',
