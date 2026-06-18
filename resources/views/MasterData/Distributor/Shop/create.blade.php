@@ -121,7 +121,7 @@
                                             $data['technicianAccount'] &&
                                             $data['technicianAccount']->chart_of_account_id == $account['id']
                                     ) selected @endif>
-                                        {{ $account['name'] }}
+                                        {{ $account['number'] }} - {{ $account['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -149,7 +149,7 @@
                                 @foreach ($data['chartOfAccounts'] as $account)
                                     <option value="{{ $account['id'] }}"
                                         @if (isset($data['profile']) && $data['picAccount'] && $data['picAccount']->chart_of_account_id == $account['id']) selected @endif>
-                                        {{ $account['name'] }}
+                                        {{ $account['number'] }} - {{ $account['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -180,7 +180,7 @@
                                                 $data['pitStopAccount'] &&
                                                 $data['pitStopAccount']->chart_of_account_id == $account['id']
                                         ) selected @endif>
-                                        {{ $account['name'] }}
+                                        {{ $account['number'] }} - {{ $account['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -241,6 +241,15 @@
         $(document).ready(function() {
             $('#distributor').select2({
                 placeholder: "Enter distributor brand"
+            });
+            $('#technicianAccount').select2({
+                placeholder: "Select technician account"
+            });
+            $('#picAccount').select2({
+                placeholder: "Select PIC account"
+            });
+            $('#pitStopAccount').select2({
+                placeholder: "Select pit stop account"
             });
 
             $("#distributor-shop-form").on("submit", function(event) {
