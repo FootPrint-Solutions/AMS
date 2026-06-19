@@ -1,6 +1,12 @@
 @extends('template.master')
 
 @section('content')
+    <style>
+        #table-table-commission_filter {
+            margin-top: 10px !important;
+        }
+    </style>
+
     {{-- Form --}}
     <div class="card">
         <div class="card-body">
@@ -229,6 +235,48 @@
                         <button type="reset" class="btn btn-danger mx-1" id="btn-cancel">Cancel</button>
                 </div>
             </form>
+
+            <br><br>
+
+            {{-- Battery Import Section --}}
+            @if (isset($data['profile']))
+                <div class="row text-end mt-3">
+                    <div class="col">
+                        {{-- Download Template Battery Import --}}
+                        <a href="/distributor/shop/{{ $data['profile']['id'] }}/battery-import-template"
+                            class="btn btn-outline-success btn-sm me-1">
+                            <i class="fa fa-download"></i> Download Battery Import Template
+                        </a>
+                    </div>
+                    <div class="col">
+                        {{-- Import Battery --}}
+                        <form id="battery-import-form" class="d-inline" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" id="batteryImportFile" name="batteryImportFile" accept=".xlsx">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnBatteryImport">
+                                <i class="fa fa-upload"></i> Import Battery
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="table-responsive">
+                            <table class="table table-striped custom-table" id="table-commission">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Battery Name</th>
+                                        <th>Commission Type</th>
+                                        <th>Commission Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -275,6 +323,179 @@
             $("#distributor-shop-form").on("reset", function() {
                 goToPage(indexUrl);
             });
+
+            // btnBatteryImport ajax submit
+            $("#btnBatteryImport").on("click", function(event) {
+                event.preventDefault();
+                let formData = new FormData($("#battery-import-form")[0]);
+                let shopId = $("#id").val();
+                let url = "/distributor/shop/" + shopId + "/battery-import";
+
+                // Add CSRF token
+                formData.append("_token", "{{ csrf_token() }}");
+                formData.append("batteryImportFile", $("#batteryImportFile")[0].files[0]);
+                formData.append("shopId", shopId);
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            swal.fire("Success!", response.message, "success");
+
+                            // Reload the commission DataTable
+                            if (tableCommission) {
+                                tableCommission.ajax.reload();
+                            }
+                        } else {
+                            swal.fire("Error!", response.message, "error");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        swal.fire("Error!",
+                            "An error occurred while importing the battery data.", "error");
+                    }
+                });
+            });
+
+            // Initialize Commission DataTable if the table exists (only in Edit mode)
+            let tableCommission;
+            if ($("#table-commission").length > 0) {
+                let shopId = $("#id").val();
+                tableCommission = $("#table-commission").DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "/distributor/shop/commission/show",
+                        type: "POST",
+                        data: function(d) {
+                            d._token = "{{ csrf_token() }}";
+                            d.shop_id = shopId;
+                        }
+                    },
+                    columns: [{
+                            data: 0,
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 1
+                        },
+                        {
+                            data: 2
+                        },
+                        {
+                            data: 3,
+                            className: 'text-end'
+                        },
+                        {
+                            data: 4,
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                return `
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit-commission" data-id="${data}" data-name="${row[1]}" data-type="${row[2]}" data-amount="${row[3]}">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-commission" data-id="${data}">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                `;
+                            }
+                        }
+                    ]
+                });
+
+                // Edit commission handler
+                $("#table-commission").on("click", ".btn-edit-commission", function() {
+                    let id = $(this).data("id");
+                    let name = $(this).data("name");
+                    let type = $(this).data("type");
+                    let amount = $(this).data("amount").toString().replace(/\./g, ""); // strip dots
+
+                    swal.fire({
+                        title: 'Edit Commission',
+                        text: `Enter new commission for ${name} (${type}):`,
+                        input: 'number',
+                        inputValue: amount,
+                        showCancelButton: true,
+                        confirmButtonText: 'Update',
+                        preConfirm: (newAmount) => {
+                            if (!newAmount || newAmount < 0) {
+                                Swal.showValidationMessage('Please enter a valid amount');
+                            }
+                            return newAmount;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "/distributor/shop/commission/update",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    id: id,
+                                    commission: result.value
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal.fire("Success!", response.message,
+                                            "success");
+                                        tableCommission.ajax.reload();
+                                    } else {
+                                        swal.fire("Error!", response.message, "error");
+                                    }
+                                },
+                                error: function() {
+                                    swal.fire("Error!", "Failed to update commission.",
+                                        "error");
+                                }
+                            });
+                        }
+                    });
+                });
+
+                // Delete commission handler
+                $("#table-commission").on("click", ".btn-delete-commission", function() {
+                    let id = $(this).data("id");
+
+                    swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "/distributor/shop/commission/destroy",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    id: id
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal.fire("Deleted!", response.message,
+                                            "success");
+                                        tableCommission.ajax.reload();
+                                    } else {
+                                        swal.fire("Error!", response.message, "error");
+                                    }
+                                },
+                                error: function() {
+                                    swal.fire("Error!", "Failed to delete commission.",
+                                        "error");
+                                }
+                            });
+                        }
+                    });
+                });
+            }
         });
     </script>
 @endsection

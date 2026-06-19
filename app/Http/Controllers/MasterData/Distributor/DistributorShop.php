@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use App\Exports\DistributorShopBatteryCommissionTemplateExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\DistributorShopBatteryCommissionImport;
+use App\Models\MasterData\Distributor\DistributorShopCommissionModel;
+use App\Models\MasterData\Battery\BatteryModel;
 
 // MODELS
 use App\Models\MasterData\Distributor\DistributorShopModel;
@@ -309,6 +314,143 @@ class DistributorShop extends Controller
             return response()->json([
                 'status' => false,
                 'message' => "Failed to retrieve accounts!"
+            ]);
+        }
+    }
+
+    public function downloadTemplate($shopId)
+    {
+        $shop = DistributorShopModel::find($shopId);
+
+        if (!$shop) {
+            return redirect()->back()->with('error', 'Shop not found!');
+        }
+
+        $fileName = "Distributor_Shop_Battery_Commission_Template.xlsx";
+
+        return Excel::download(new DistributorShopBatteryCommissionTemplateExport(), $fileName);
+    }
+
+    public function import(Request $request, $shopId)
+    {
+        $request->validate([
+            'batteryImportFile' => 'required|mimes:xlsx,xls,csv',
+        ]);
+        $path1 = $request->file('batteryImportFile')->store('temp');
+        $path = storage_path('app') . '/' . $path1;
+
+        try {
+            $import = new DistributorShopBatteryCommissionImport($shopId);
+            Excel::import($import, $path);
+
+            $imported = $import->getTotalImportedRows();
+            $total = $import->getTotalRows();
+            $unimported = $import->getUnimportedRows();
+
+            $message = "Successfully imported {$imported} of {$total} rows.";
+            if (count($unimported) > 0) {
+                $message .= " Failed to import " . count($unimported) . " rows.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'unimported' => $unimported
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during import: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function showCommissions(Request $request)
+    {
+        $draw = $request->input("draw");
+        $start = $request->input("start");
+
+        $data = DistributorShopCommissionModel::whereForDataTables($request);
+
+        $rows = [];
+        $no = $start + 1;
+        foreach ($data["row"] as $key) {
+            $row = [];
+            $row[] = $no++;
+            $row[] = $key->battery_name;
+            $row[] = ucfirst($key->type);
+            $row[] = number_format($key->commission, 0, ',', '.');
+            $row[] = $key->id; // ID for Action buttons (edit / delete)
+            $rows[] = $row;
+        }
+
+        return response()->json(array(
+            "draw" => $draw,
+            "recordsTotal" => DistributorShopCommissionModel::where('distributor_shop_id', $request->shop_id)->count(),
+            "recordsFiltered" => $data["count"],
+            "data" => $rows
+        ));
+    }
+
+    public function updateCommission(Request $request)
+    {
+        try {
+            $commission = DistributorShopCommissionModel::find($request->id);
+            if (!$commission) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Commission not found!'
+                ]);
+            }
+
+            $amount = $request->commission;
+            if ($amount === null || $amount === '') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Commission amount is required.'
+                ]);
+            }
+            $amount = (double) str_replace(['.', ','], ['', '.'], $amount);
+
+            $commission->commission = $amount;
+            $status = $commission->save();
+
+            return response()->json([
+                'success' => $status,
+                'message' => $status ? 'Commission successfully updated!' : 'Failed to update commission!'
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function destroyCommission(Request $request)
+    {
+        try {
+            $commission = DistributorShopCommissionModel::find($request->id);
+            if (!$commission) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Commission not found!'
+                ]);
+            }
+
+            $status = $commission->delete();
+
+            return response()->json([
+                'success' => $status,
+                'message' => $status ? 'Commission successfully deleted!' : 'Failed to delete commission!'
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
             ]);
         }
     }

@@ -19,3 +19,8 @@ Route::post('/distributor/shop/battery/store/batch/{shopId}', [DistributorShopBa
 Route::post('/distributor/shop/battery/update', [DistributorShopBattery::class, 'update'])->name('distributor.shop.battery.update')->middleware('permission:edit_distributor');
 Route::post('/distributor/shop/battery/destroy', [DistributorShopBattery::class, 'destroy'])->name('distributor.shop.battery.destroy')->middleware('permission:delete_distributor');
 Route::get('/distributor/shop/account/{shopId}', [DistributorShop::class, 'account'])->name('distributor.shop.account')->middleware('permission:view_distributor');
+Route::get('/distributor/shop/{shopId}/battery-import-template', [DistributorShop::class, 'downloadTemplate'])->name('distributor.shop.battery.import.template')->middleware('permission:view_distributor');
+Route::post('/distributor/shop/{shopId}/battery-import', [DistributorShop::class, 'import'])->name('distributor.shop.battery.import')->middleware('permission:edit_distributor');
+Route::post('/distributor/shop/commission/show', [DistributorShop::class, 'showCommissions'])->name('distributor.shop.commission.show')->middleware('permission:view_distributor');
+Route::post('/distributor/shop/commission/update', [DistributorShop::class, 'updateCommission'])->name('distributor.shop.commission.update')->middleware('permission:edit_distributor');
+Route::post('/distributor/shop/commission/destroy', [DistributorShop::class, 'destroyCommission'])->name('distributor.shop.commission.destroy')->middleware('permission:edit_distributor');
