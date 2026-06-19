@@ -15,3 +15,4 @@ Route::post('/chart-of-account/group/list', [ChartOfAccount::class, 'groupList']
 Route::post('/chart-of-account/group/store', [ChartOfAccount::class, 'groupStore'])->name('chart-of-account.group.store')->middleware('permission:add_chart_of_account');
 Route::post('/chart-of-account/group/update', [ChartOfAccount::class, 'groupUpdate'])->name('chart-of-account.group.update')->middleware('permission:edit_chart_of_account');
 Route::post('/chart-of-account/group/destroy', [ChartOfAccount::class, 'groupDestroy'])->name('chart-of-account.group.destroy')->middleware('permission:delete_chart_of_account');
+Route::post('/chart-of-account/group/next-number', [ChartOfAccount::class, 'groupNextNumber'])->name('chart-of-account.group.next-number')->middleware('permission:add_chart_of_account');

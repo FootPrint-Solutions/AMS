@@ -27,7 +27,7 @@ class ChartOfAccountGroupModel extends Model implements Auditable
      *
      * @var array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['number', 'name'];
 
     /**
      * Relation to chart of accounts.

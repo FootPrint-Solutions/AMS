@@ -40,7 +40,7 @@ class ChartOfAccount extends Controller
     {
         $groups = ChartOfAccountGroupModel::query()
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'number', 'name']);
 
         return view(
             "Accounting.ChartOfAccount.create",
@@ -66,7 +66,7 @@ class ChartOfAccount extends Controller
 
         $groups = ChartOfAccountGroupModel::query()
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'number', 'name']);
 
         return view(
             "Accounting.ChartOfAccount.create",
@@ -261,7 +261,7 @@ class ChartOfAccount extends Controller
     {
         $groups = ChartOfAccountGroupModel::query()
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'number', 'name']);
 
         return response()->json([
             'status' => true,
@@ -287,10 +287,16 @@ class ChartOfAccount extends Controller
                         'string',
                         Rule::unique('chart_of_account_group', 'name')->whereNull('deleted_at'),
                     ],
+                    'number' => [
+                        'nullable',
+                        'string',
+                        Rule::unique('chart_of_account_group', 'number')->whereNull('deleted_at'),
+                    ],
                 ],
                 [
                     'name.required' => 'Account group name is required!',
                     'name.unique' => 'Account group name already exists!',
+                    'number.unique' => 'Account group number already exists!',
                 ]
             );
 
@@ -345,10 +351,18 @@ class ChartOfAccount extends Controller
                             ->ignore($request->id)
                             ->whereNull('deleted_at'),
                     ],
+                    'number' => [
+                        'nullable',
+                        'string',
+                        Rule::unique('chart_of_account_group', 'number')
+                            ->ignore($request->id)
+                            ->whereNull('deleted_at'),
+                    ],
                 ],
                 [
                     'name.required' => 'Account group name is required!',
                     'name.unique' => 'Account group name already exists!',
+                    'number.unique' => 'Account group number already exists!',
                 ]
             );
 
@@ -423,5 +437,29 @@ class ChartOfAccount extends Controller
             Log::error($e->getMessage());
             return getResponseData(false);
         }
+    }
+
+    public function groupNextNumber(Request $request)
+    {
+        $group_id = $request->input('group_id');
+
+        $nextNumber = ChartOfAccountModel::query()
+            ->where('chart_of_account_group_id', $group_id)
+            ->max('number');
+
+        if ($nextNumber) {
+            $parts = explode('.', $nextNumber);
+            $lastPart = array_pop($parts);
+            $lastPart = str_pad((int)$lastPart + 1, strlen($lastPart), '0', STR_PAD_LEFT);
+            $nextNumber = implode('.', $parts) . '.' . $lastPart;
+        } else {
+            $nextNumber = '1.01';
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Next number retrieved successfully.',
+            'data' => $nextNumber
+        ]);
     }
 }
