@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\MasterData\Distributor\DistributorShopModel;
 use App\Models\Accounting\ChartOfAccountModel;
+use App\Models\MasterData\Distributor\DistributorShopCommissionModel;
 
 class DistributorShopAccountModel extends Model
 {

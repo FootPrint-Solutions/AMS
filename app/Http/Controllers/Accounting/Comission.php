@@ -13,6 +13,7 @@ use App\Models\Orders\SalesOrder\SalesOrderBatteryModel;
 use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
+use App\Models\MasterData\Distributor\DistributorShopCommissionModel;
 
 class Comission extends Controller
 {
@@ -156,12 +157,24 @@ class Comission extends Controller
             });
 
             $salesOrderBatteries = array_values($salesOrderBatteries);
+            $shopCommission = DistributorShopCommissionModel::where('distributor_shop_id', $distributorShopId)->where('battery_id', $salesOrderBatteries[0]['battery_id'])->get();
+            unset($battery);
+            $commissionData = [];
+            foreach ($shopCommission as $commission) {
+                $commissionData[] = [
+                    'battery_id' => $commission->battery_id,
+                    'distributor_shop_account_id' => $commission->distributor_shop_account_id,
+                    'commission_type' => $commission->type,
+                    'commission_value' => $commission->commission,
+                ];
+            }
 
             return response()->json(
                 [
                     'status' => 'success',
                     'message' => 'Selected sales orders retrieved successfully.',
-                    'data' => $salesOrderBatteries
+                    'data' => $salesOrderBatteries,
+                    'commission_data' => $commissionData
                 ]
             );
         } else {

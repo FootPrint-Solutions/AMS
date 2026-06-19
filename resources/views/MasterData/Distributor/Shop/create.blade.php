@@ -5,6 +5,12 @@
         #table-table-commission_filter {
             margin-top: 10px !important;
         }
+
+        .dataTables_wrapper {
+            position: relative;
+            clear: both;
+            margin-top: 40px;
+        }
     </style>
 
     {{-- Form --}}

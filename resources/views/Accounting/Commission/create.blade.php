@@ -506,6 +506,7 @@
                 success: function(response) {
 
                     var orders = response.data || [];
+                    var commissionData = response.commission_data || [];
                     var tbody = $('#selected-orders-table tbody');
 
                     orders.forEach(function(order) {
@@ -561,6 +562,24 @@
                                     selectedAccountId = pitStopAccount
                                         ?.chart_of_account_id || '';
                                     break;
+                            }
+
+                            // Check if commission_data has custom value for this battery and commission type
+                            var commissionTypeMapping = {
+                                'Technician commission': 'technician',
+                                'Install Commission': 'install',
+                                'PIC Commission': 'pic',
+                                'Pitstop Commission': 'pit_stop'
+                            };
+
+                            var mappedType = commissionTypeMapping[commissionType];
+                            var customCommission = commissionData.find(function(cd) {
+                                return cd.battery_id === order.battery_id && cd
+                                    .commission_type === mappedType;
+                            });
+
+                            if (customCommission) {
+                                commissionValue = customCommission.commission_value;
                             }
 
                             var debitAccountOptions = chartOfAccounts.map(function(
