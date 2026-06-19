@@ -19,26 +19,6 @@
             <form id="chart-of-account-form">
                 @csrf
 
-                {{-- Account Number --}}
-                <div class="form-group local-forms">
-                    <label for="number">Account Number <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="number" name="number" placeholder="Enter account number"
-                        required
-                        @isset($data['profile'])
-                            value="{{ $data['profile']['number'] }}"
-                        @endisset>
-                </div>
-
-                {{-- Account Name --}}
-                <div class="form-group local-forms">
-                    <label for="name">Account Name <span class="login-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name"
-                        placeholder="Enter account name" required
-                        @isset($data['profile'])
-                            value="{{ $data['profile']['name'] }}"
-                        @endisset>
-                </div>
-
                 {{-- Account Group --}}
                 <div class="form-group local-forms">
                     <div class="d-flex justify-content-between align-items-center">
@@ -52,15 +32,37 @@
                         <option value="">Select Account Group</option>
                         @if (isset($data['groups']) && count($data['groups']) > 0)
                             @foreach ($data['groups'] as $group)
-                                <option value="{{ $group['id'] }}"
+                                <option value="{{ $group['id'] }}" data-number="{{ $group['number'] ?? '-' }}"
                                     @isset($data['profile'])
                                         @if ($data['profile']['chart_of_account_group_id'] == $group['id']) selected @endif
                                     @endisset>
+                                    ({{ $group['number'] ?? '-' }})
                                     {{ $group['name'] }}
                                 </option>
                             @endforeach
                         @endif
                     </select>
+                </div>
+
+
+                {{-- Account Number --}}
+                <div class="form-group local-forms">
+                    <label for="number">Account Number <span class="login-danger">*</span></label>
+                    <input type="text" class="form-control" id="number" name="number"
+                        placeholder="Enter account number" required
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['number'] }}"
+                        @endisset>
+                </div>
+
+                {{-- Account Name --}}
+                <div class="form-group local-forms">
+                    <label for="name">Account Name <span class="login-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name"
+                        placeholder="Enter account name" required
+                        @isset($data['profile'])
+                            value="{{ $data['profile']['name'] }}"
+                        @endisset>
                 </div>
 
                 {{-- Active Status --}}
@@ -114,15 +116,31 @@
                         <input type="hidden" id="group_id" name="id">
 
                         <div class="row g-2 align-items-end">
-                            <div class="col-md-8">
-                                <label for="group_name" class="form-label">Group Name <span
-                                        class="login-danger">*</span></label>
-                                <input type="text" class="form-control" id="group_name" name="name"
-                                    placeholder="Enter account group name" required>
+                            {{-- Group Number --}}
+                            <div class="col-md-4">
+                                <label for="group_number" class="form-label">
+                                    Group Number <span class="login-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="group_number" name="number"
+                                    placeholder="Enter account group number" autocomplete="off" required>
                             </div>
-                            <div class="col-md-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-success" id="btn-group-save">Add Group</button>
-                                <button type="button" class="btn btn-secondary" id="btn-group-cancel">Cancel</button>
+
+                            {{-- Group Name --}}
+                            <div class="col-md-8">
+                                <label for="group_name" class="form-label">
+                                    Group Name <span class="login-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="group_name" name="name"
+                                    placeholder="Enter account group name" autocomplete="off" required>
+                            </div>
+
+                            <div class="col-12 d-flex gap-2 mt-2">
+                                <button type="submit" class="btn btn-success" id="btn-group-save">
+                                    Add Group
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="btn-group-cancel">
+                                    Cancel
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -132,13 +150,14 @@
                             <thead>
                                 <tr>
                                     <th style="width: 8%">#</th>
+                                    <th>Group Number</th>
                                     <th>Group Name</th>
                                     <th style="width: 25%">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="account-group-table-body">
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted">Loading account groups...</td>
+                                    <td colspan="4" class="text-center text-muted">Loading account groups...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -196,7 +215,7 @@
             function renderGroupTable(groups) {
                 if (!groups || groups.length === 0) {
                     $("#account-group-table-body").html(
-                        '<tr><td colspan="3" class="text-center text-muted">No account group data.</td></tr>'
+                        '<tr><td colspan="4" class="text-center text-muted">No account group data.</td></tr>'
                     );
                     return;
                 }
@@ -208,10 +227,11 @@
                     rowsHtml += `
                         <tr>
                             <td>${index + 1}</td>
+                            <td>${group.number ? escapeHtml(group.number) : '-'}</td>
                             <td>${safeName}</td>
                             <td>
                                 <button type="button" class="btn btn-warning btn-sm btn-group-edit" data-id="${group.id}"
-                                    data-name="${safeName}">Edit</button>
+                                    data-name="${safeName}" data-number="${group.number ? escapeHtml(group.number) : ''}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-sm btn-group-delete" data-id="${group.id}">
                                     Delete
                                 </button>
@@ -323,6 +343,31 @@
                         loadGroups(nextSelected);
                         resetGroupForm();
                     });
+                });
+            });
+
+            $("#chart_of_account_group_id").on("change", function() {
+                const groupId = $(this).val();
+                if (!groupId) {
+                    $("#number").val("");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/chart-of-account/group/next-number",
+                    method: "POST",
+                    data: {
+                        _token: csrfToken,
+                        group_id: groupId
+                    },
+                    success: function(response) {
+                        const responseData = parseJsonResponse(response);
+                        if (responseData.status == "success") {
+                            $("#number").val(responseData.data);
+                        } else {
+                            $("#number").val("");
+                        }
+                    }
                 });
             });
         });

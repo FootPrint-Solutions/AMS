@@ -264,7 +264,9 @@
                         <table class="table table-striped" id="table-sales-orders" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th>
+                                        <input type="checkbox" id="select-all-orders" class="checkbox">
+                                    </th>
                                     <th>#</th>
                                     <th>Sales Order Number</th>
                                     <th>Sales Order Date</th>
@@ -287,9 +289,21 @@
 
     <script>
         var chartOfAccounts = @json($data['chart_of_accounts']);
+        var selectedSalesOrderIds = [];
 
         $(document).ready(function() {
             updateTotal();
+
+            $('.debit-account').each(function() {
+                $(this).select2({
+                    width: '100%'
+                });
+            });
+            $('.credit-account').each(function() {
+                $(this).select2({
+                    width: '100%'
+                });
+            });
         });
 
         $('#btn-find-sales-orders').on('click', function() {
@@ -308,6 +322,7 @@
                 $('#table-sales-orders').DataTable({
                     processing: true,
                     serverSide: false,
+                    paging: true,
                     ajax: {
                         url: '{{ route('commission.get_sales_orders') }}',
                         data: function(d) {
@@ -359,148 +374,291 @@
                             }
                         }
                     ],
-
                     'createdRow': function(row, data, dataIndex) {
+                        var checkbox = $(row).find('input.select-order');
+                        checkbox.prop('checked', selectedSalesOrderIds.includes(String(data.id)));
+
                         $(row).on('click', function(e) {
                             if (e.target.type !== 'checkbox') {
                                 var checkbox = $(this).find('input.select-order');
                                 checkbox.prop('checked', !checkbox.prop('checked'));
+                                checkbox.trigger('change');
                             }
                         });
-                    }
+                    },
+                    drawCallback: function() {
+                        var table = this.api();
+                        table.rows({
+                            page: 'current'
+                        }).every(function() {
+                            var rowData = this.data();
+                            $(this.node()).find('input.select-order').prop(
+                                'checked',
+                                selectedSalesOrderIds.includes(String(rowData.id))
+                            );
+                        });
+
+                        var allChecked = true;
+                        var totalRows = 0;
+                        table.rows({
+                            search: 'applied'
+                        }).every(function() {
+                            totalRows++;
+                            if (!selectedSalesOrderIds.includes(String(this.data().id))) {
+                                allChecked = false;
+                            }
+                        });
+                        $('#select-all-orders').prop('checked', totalRows > 0 && allChecked);
+                    },
                 });
             } else {
                 $('#table-sales-orders').DataTable().ajax.reload();
             }
         });
 
-        $('#btn-add-selected-orders').on('click', function() {
-            var selectedOrders = [];
-            $('#table-sales-orders tbody input.select-order:checked').each(function() {
-                selectedOrders.push($(this).val());
+        $(document).on('change', '#table-sales-orders tbody input.select-order', function() {
+            var orderId = String($(this).val());
+            if ($(this).is(':checked')) {
+                if (!selectedSalesOrderIds.includes(orderId)) {
+                    selectedSalesOrderIds.push(orderId);
+                }
+            } else {
+                selectedSalesOrderIds = selectedSalesOrderIds.filter(function(id) {
+                    return id !== orderId;
+                });
+            }
+
+            var table = $('#table-sales-orders').DataTable();
+            var allChecked = true;
+            var totalRows = 0;
+            table.rows({
+                search: 'applied'
+            }).every(function() {
+                totalRows++;
+                if (!selectedSalesOrderIds.includes(String(this.data().id))) {
+                    allChecked = false;
+                }
+            });
+            $('#select-all-orders').prop('checked', totalRows > 0 && allChecked);
+        });
+
+        $('#select-all-orders').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var table = $('#table-sales-orders').DataTable();
+
+            table.rows({
+                search: 'applied'
+            }).every(function() {
+                var rowData = this.data();
+                var orderId = String(rowData.id);
+
+                if (isChecked) {
+                    if (!selectedSalesOrderIds.includes(orderId)) {
+                        selectedSalesOrderIds.push(orderId);
+                    }
+                } else {
+                    selectedSalesOrderIds = selectedSalesOrderIds.filter(function(id) {
+                        return id !== orderId;
+                    });
+                }
             });
 
-            if (selectedOrders.length === 0) {
+
+            table.rows({
+                page: 'current'
+            }).every(function() {
+                $(this.node()).find('input.select-order').prop('checked', isChecked);
+            });
+        });
+
+        $('#btn-add-selected-orders').on('click', function() {
+            var $btn = $(this);
+
+            $btn.prop('disabled', true);
+
+            var selectedOrders = selectedSalesOrderIds.slice();
+
+            if (!selectedOrders.length) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Please select at least one sales order',
+                    title: 'Please select at least one sales order'
                 });
+
+                $btn.prop('disabled', false);
                 return;
             }
 
+            Swal.fire({
+                title: 'Fetching sales order details...',
+                allowOutsideClick: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
             $.ajax({
                 url: '{{ route('commission.get_sales_orders') }}',
-                method: 'GET',
+                type: 'GET',
                 data: {
                     distributor_shop_id: $('#distributor_shop').val(),
                     selected_order_ids: selectedOrders
                 },
                 success: function(response) {
-                    var orders = response.data;
-                    var tbody = $('#selected-orders-table tbody');
-                    orders.forEach(function(order, index) {
-                        var shopAccounts = (order.sales_order && order.sales_order.shop && Array
-                                .isArray(order.sales_order.shop.accounts)) ? order.sales_order
-                            .shop.accounts : [];
-                        var technicianAccount = shopAccounts.find(function(account) {
-                            return account.type === 'technician';
-                        });
-                        var picAccount = shopAccounts.find(function(account) {
-                            return account.type === 'pic';
-                        });
-                        var pitStopAccount = shopAccounts.find(function(account) {
-                            return account.type === 'pit_stop';
-                        });
 
-                        var commissionTypeOptions = [
-                            'Technical commission',
+                    var orders = response.data || [];
+                    var tbody = $('#selected-orders-table tbody');
+
+                    orders.forEach(function(order) {
+
+                        var shopAccounts =
+                            order.sales_order?.shop?.accounts || [];
+
+                        var technicianAccount = shopAccounts.find(a => a.type === 'technician');
+                        var picAccount = shopAccounts.find(a => a.type === 'pic');
+                        var pitStopAccount = shopAccounts.find(a => a.type === 'pit_stop');
+
+                        var commissionTypes = [
+                            'Technician commission',
                             'Install Commission',
                             'PIC Commission',
                             'Pitstop Commission'
                         ];
 
-                        var chartOfAccountOptions = chartOfAccounts.map(function(account) {
-                            return `<option value="${account.id}">${account.number} - ${account.name}</option>`;
-                        }).join('');
+                        commissionTypes.forEach(function(commissionType) {
 
-                        commissionTypeOptions.forEach(function(commissionType) {
-                            var no = tbody.find('tr').length + 1;
-
-                            if (commissionType === 'Install Commission' && Number(order
-                                    .is_installation_included) === 0) {
+                            if (
+                                commissionType === 'Install Commission' &&
+                                Number(order.is_installation_included) === 0
+                            ) {
                                 return;
                             }
 
-                            var technicalCommissionValue = technicianAccount ?
-                                technicianAccount.commission : 0;
-                            var installCommissionValue = 10000;
-                            var picCommissionValue = picAccount ? picAccount
-                                .commission : 0;
-                            var pitstopCommissionValue = pitStopAccount ? pitStopAccount
-                                .commission : 0;
-                            var selectedAccountId = commissionType ===
-                                'Technical commission' ? (technicianAccount ?
-                                    technicianAccount.chart_of_account_id : '') :
-                                commissionType === 'PIC Commission' ? (picAccount ?
-                                    picAccount.chart_of_account_id : '') :
-                                commissionType === 'Pitstop Commission' ? (
-                                    pitStopAccount ? pitStopAccount
-                                    .chart_of_account_id : '') : '';
+                            var no = tbody.find('tr').length + 1;
 
-                            var debitAccountOptions = chartOfAccountOptions.replace(
-                                new RegExp(`value="${selectedAccountId}"`),
-                                '$& selected');
-                            var creditAccountOptions = chartOfAccountOptions.replace(
-                                new RegExp(`value="${selectedAccountId}"`),
-                                '$& selected');
+                            var commissionValue = 0;
+                            var selectedAccountId = '';
 
-                            var row = `
-                                <tr>
-                                    <td>${no}</td>
-                                    <td>${order.sales_order.sales_order_number}</td>
-                                    <td>${order.battery_name}</td>
-                                    <td>${commissionType}
-                                        <input type="hidden" name="sales_order_battery_id[]" value="${order.id}">
-                                        <input type="hidden" name="commission_type[]" value="${commissionType}">
-                                        </td>
-                                    <td>
-                                        <div class="input-group">
-                                            <span class="input-group-text border-end">IDR <span class="login-danger">*</span></span>
-                                        <input type="number" class="form-control  commission-value" name="commission_value[]" value="${commissionType === 'Technical commission' ? technicalCommissionValue : commissionType === 'Install Commission' ? installCommissionValue : commissionType === 'PIC Commission' ? picCommissionValue : commissionType === 'Pitstop Commission' ? pitstopCommissionValue : 0}" required>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <select class="form-control  debit-account" name="debit_account[]" required >
-                                            <option value="">Select Debit Account</option>
-                                            ${debitAccountOptions}
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="row">
-                                        <div class="col">
-                                        <select class="form-control  credit-account" name="credit_account[]" required>
+                            switch (commissionType) {
+                                case 'Technician commission':
+                                    commissionValue = technicianAccount?.commission ||
+                                        0;
+                                    selectedAccountId = technicianAccount
+                                        ?.chart_of_account_id || '';
+                                    break;
+
+                                case 'Install Commission':
+                                    commissionValue = 10000;
+                                    break;
+
+                                case 'PIC Commission':
+                                    commissionValue = picAccount?.commission || 0;
+                                    selectedAccountId = picAccount
+                                        ?.chart_of_account_id || '';
+                                    break;
+
+                                case 'Pitstop Commission':
+                                    commissionValue = pitStopAccount?.commission || 0;
+                                    selectedAccountId = pitStopAccount
+                                        ?.chart_of_account_id || '';
+                                    break;
+                            }
+
+                            var debitAccountOptions = chartOfAccounts.map(function(
+                                account) {
+
+                                var selected =
+                                    String(account.id) === String(
+                                        selectedAccountId) ?
+                                    ' selected' :
+                                    '';
+
+                                return `
+                            <option value="${account.id}"${selected}>
+                                ${account.number} - ${account.name}
+                            </option>
+                        `;
+                            }).join('');
+
+                            var creditAccountOptions = chartOfAccounts.map(function(
+                                account) {
+                                return `
+                            <option value="${account.id}">
+                                ${account.number} - ${account.name}
+                            </option>
+                        `;
+                            }).join('');
+
+                            tbody.append(`
+                        <tr>
+                            <td>${no}</td>
+                            <td>${order.sales_order.sales_order_number}</td>
+                            <td>${order.battery_name}</td>
+                            <td>
+                                ${commissionType}
+                                <input type="hidden" name="sales_order_battery_id[]" value="${order.id}">
+                                <input type="hidden" name="commission_type[]" value="${commissionType}">
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end">
+                                        IDR <span class="login-danger">*</span>
+                                    </span>
+                                    <input
+                                        type="number"
+                                        class="form-control commission-value"
+                                        name="commission_value[]"
+                                        value="${commissionValue}"
+                                        required
+                                    >
+                                </div>
+                            </td>
+                            <td>
+                                <select class="form-control debit-account" name="debit_account[]" required>
+                                    <option value="">Select Debit Account</option>
+                                    ${debitAccountOptions}
+                                </select>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col">
+                                        <select class="form-control credit-account" name="credit_account[]" required>
                                             <option value="">Select Credit Account</option>
-                                            ${chartOfAccountOptions}
+                                            ${creditAccountOptions}
                                         </select>
-                                        </div>
-                                        <div class="col-sm-2 d-flex align-items-center">
-                                             <button type="button" class="btn btn-sm btn-danger btn-remove-order"><i class="fas fa-xmark"></i></button>
-                                        </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                            tbody.append(row);
+                                    </div>
+                                    <div class="col-sm-2 d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-danger btn-remove-order">
+                                            <i class="fas fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
                         });
                     });
+
                     $('#modal-sales-orders').modal('hide');
+
+                    $('.debit-account:not(.select2-hidden-accessible)').select2({
+                        width: '100%'
+                    });
+
+                    $('.credit-account:not(.select2-hidden-accessible)').select2({
+                        width: '100%'
+                    });
+
                     updateTotal();
+                    Swal.close();
                 },
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Failed to fetch sales order details',
+                        title: 'Failed to fetch sales order details'
                     });
+                },
+                complete: function() {
+                    $btn.prop('disabled', false);
                 }
             });
         });
@@ -508,7 +666,7 @@
         $('#mass-credit-account').on('change', function() {
             var selectedAccountId = $(this).val();
             if (selectedAccountId) {
-                $('.credit-account').val(selectedAccountId);
+                $('.credit-account').val(selectedAccountId).trigger('change');
             }
         });
 
@@ -545,6 +703,24 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'Please add at least one sales order',
+                });
+                $('#btn-save').prop('disabled', false);
+                return;
+            }
+
+            // check if credit account is selected for all rows
+            var allCreditAccountsSelected = true;
+            $('.credit-account').each(function() {
+                if (!$(this).val()) {
+                    allCreditAccountsSelected = false;
+                    return false; // break the loop
+                }
+            });
+
+            if (!allCreditAccountsSelected) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please select a credit account for all rows',
                 });
                 $('#btn-save').prop('disabled', false);
                 return;
