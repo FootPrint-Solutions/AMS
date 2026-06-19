@@ -333,9 +333,19 @@
             // btnBatteryImport ajax submit
             $("#btnBatteryImport").on("click", function(event) {
                 event.preventDefault();
+                $(this).prop("disabled", true);
                 let formData = new FormData($("#battery-import-form")[0]);
                 let shopId = $("#id").val();
                 let url = "/distributor/shop/" + shopId + "/battery-import";
+
+                swal.fire({
+                    title: "Importing...",
+                    text: "Please wait while the battery data is being imported.",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        swal.showLoading();
+                    }
+                });
 
                 // Add CSRF token
                 formData.append("_token", "{{ csrf_token() }}");
