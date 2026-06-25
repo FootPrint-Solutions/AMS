@@ -179,6 +179,9 @@ Route::middleware(['auth'])->group(function () {
     // Quick Quotation Mobile
     require __DIR__ . '/web/orders/quick-quotation-mobile.php';
 
+    // Experimental Quick Quotation
+    require __DIR__ . '/web/orders/experimental-quick-quotation.php';
+
     // Sales Order
     require __DIR__ . '/web/orders/sales-order.php';
 
