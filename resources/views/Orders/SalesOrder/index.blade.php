@@ -287,7 +287,7 @@
                                 return;
                             }
                             let id = selectedRows[0][11];
-                            goToPage("/sales-order/edit/" + id);
+                            window.open("/sales-order/edit/" + id, '_blank');
                         }
                     },
                     // Delete   
