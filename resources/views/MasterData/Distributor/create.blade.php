@@ -36,7 +36,7 @@
                             <div class="col">
                                 <div class="form-group local-forms">
                                     <label for="distributor-address">Address <span class="login-danger">*</span></label>
-                                    <input readonly type="text" class="form-control" id="AddressSearchColumn"
+                                    <input type="text" class="form-control" id="AddressSearchColumn"
                                         name="address" placeholder="Enter distributor address" required
                                         @isset($data['profile'])
                                     value="{{ $data['profile']['address'] }}"
