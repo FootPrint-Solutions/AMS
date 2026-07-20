@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Accounting\JournalTransactionModel;
+use App\Models\Accounting\JournalTransactionDetailModel;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -19,15 +19,37 @@ use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 class JournalTransactionExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithEvents
 {
     private Collection $rows;
-    private int $rowNumber = 1;
     private string $title;
 
     public function __construct(?string $status = null, ?string $dateStart = null, ?string $dateEnd = null)
     {
-        $this->rows = JournalTransactionModel::filteredListQuery($status, $dateStart, $dateEnd)
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->get();
+        $query = JournalTransactionDetailModel::query()
+            ->join('journal_entries', 'journal_entry_details.journal_entry_id', '=', 'journal_entries.id')
+            ->select(
+                'journal_entries.date',
+                'journal_entries.note',
+                'journal_entry_details.account_number',
+                'journal_entry_details.description',
+                'journal_entry_details.debit',
+                'journal_entry_details.credit'
+            )
+            ->orderBy('journal_entries.date', 'desc')
+            ->orderBy('journal_entries.id', 'desc')
+            ->orderBy('journal_entry_details.id', 'asc');
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('journal_entries.status', $status);
+        }
+
+        if (!empty($dateStart)) {
+            $query->whereDate('journal_entries.date', '>=', $dateStart);
+        }
+
+        if (!empty($dateEnd)) {
+            $query->whereDate('journal_entries.date', '<=', $dateEnd);
+        }
+
+        $this->rows = $query->get();
 
         $parts = ['Journal Transaction Export'];
 
@@ -47,29 +69,27 @@ class JournalTransactionExport implements FromCollection, WithHeadings, WithMapp
         return $this->rows;
     }
 
-    public function map($journal): array
+    public function map($detail): array
     {
         return [
-            $this->rowNumber++,
-            $journal->voucher_number,
-            formatDate((string) $journal->date, 'j M Y'),
-            $journal->note ?? '-',
-            (float) ($journal->total ?? 0),
-            (float) ($journal->total ?? 0),
-            ucfirst((string) ($journal->status ?? '-')),
+            formatDate((string) $detail->date, 'Y-m-d'),
+            $detail->note ?? '-',
+            $detail->account_number ?? '',
+            $detail->description ?? '',
+            (float) ($detail->debit ?? 0),
+            (float) ($detail->credit ?? 0),
         ];
     }
 
     public function headings(): array
     {
         return [
-            'No',
-            'Voucher Number',
             'Date',
             'Note',
-            'Total Debit',
-            'Total Credit',
-            'Status',
+            'Account Number',
+            'Description',
+            'Debit',
+            'Credit',
         ];
     }
 
@@ -93,23 +113,36 @@ class JournalTransactionExport implements FromCollection, WithHeadings, WithMapp
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-
                 $highestRow = $sheet->getHighestRow();
 
-                $sheet->insertNewRowBefore(1, 1);
+                $sheet->insertNewRowBefore(1, 2);
                 $sheet->setCellValue('A1', $this->title);
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => [
                         'bold' => true,
-                        'size' => 12,
+                        'size' => 13,
                     ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_LEFT,
                     ],
                 ]);
-                $sheet->mergeCells('A1:G1');
+                $sheet->mergeCells('A1:F1');
 
-                $sheet->getStyle('A2:G2')->applyFromArray([
+                $sheet->setCellValue('A2', 'Exported journal transaction details. Fill in one row for each detail with a valid account number from Chart of Accounts and date format YYYY-MM-DD.');
+                $sheet->getStyle('A2')->applyFromArray([
+                    'font' => [
+                        'italic' => true,
+                        'size' => 11,
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'wrapText' => true,
+                    ],
+                ]);
+                $sheet->mergeCells('A2:F2');
+                $sheet->getRowDimension(2)->setRowHeight(36);
+
+                $sheet->getStyle('A3:F3')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'],
@@ -131,12 +164,12 @@ class JournalTransactionExport implements FromCollection, WithHeadings, WithMapp
                     ],
                 ]);
 
-                $sheet->freezePane('A3');
+                $sheet->freezePane('A4');
 
-                if ($highestRow > 1) {
-                    $sheet->getStyle('A2:G' . ($highestRow + 1))->applyFromArray([
+                if ($highestRow > 3) {
+                    $sheet->getStyle('A3:F' . $highestRow)->applyFromArray([
                         'font' => [
-                            'size' => 10,
+                            'size' => 11,
                         ],
                         'alignment' => [
                             'vertical' => Alignment::VERTICAL_TOP,
@@ -150,8 +183,7 @@ class JournalTransactionExport implements FromCollection, WithHeadings, WithMapp
                         ],
                     ]);
 
-                    $sheet->getStyle('E3:F' . ($highestRow + 1))->getNumberFormat()->setFormatCode('#,##0.00');
-                    $sheet->getStyle('E3:F' . ($highestRow + 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                    $sheet->getStyle('E4:F' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 }
             },
         ];
