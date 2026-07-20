@@ -149,10 +149,6 @@
         }, 3000);
     }
 
-    $("#AddressSearchColumn").on("click", function() {
-        openAddressModal();
-    });
-
     $("#btnAddress").on("click", function() {
         openAddressModal();
     });
