@@ -80,10 +80,10 @@
                                 </div>
 
                                 <input type="hidden" name="Latitude" id="Latitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['latitude']) }} @endif"
+                                    value="{{ isset($data['profile']) && !empty($data['profile']['latitude']) ? ltrim($data['profile']['latitude']) : 0 }}"
                                     required>
                                 <input type="hidden" name="Longitude" id="Longitude"
-                                    value="@if (isset($data['profile'])) {{ ltrim($data['profile']['longitude']) }} @endif"
+                                    value="{{ isset($data['profile']) && !empty($data['profile']['longitude']) ? ltrim($data['profile']['longitude']) : 0 }}"
                                     required>
                             </div>
                         </div>
@@ -758,9 +758,9 @@
             let url = (mode == "update") ? "/sales-order/update" : "/sales-order/store";
 
             let address = $("#AddressSearchColumnSalesOrderEditable").val();
-            let lat = $("#Latitude").val();
-            let lon = $("#Longitude").val();
-            if (address == "" || lat == "" || lon == "") {
+            let lat = $("#Latitude").val() || 0;
+            let lon = $("#Longitude").val() || 0;
+            if (address == "") {
                 Swal.fire({
                     title: "Error",
                     text: "Please select address",
@@ -768,6 +768,16 @@
                 });
                 return;
             }
+
+            if (lat == "" || lon == "") {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please select address from the suggestions to get valid coordinates",
+                    icon: "error",
+                });
+                return;
+            }
+
             calculateTotal();
 
             // Obtain submitted form data.
