@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterData\Battery\BatteryModel;
 use App\Models\MasterData\Customer\CustomerModel;
 use App\Models\MasterData\Vehicle\VehicleModel;
+use App\Models\Orders\PurchaseOrder\PurchaseOrderModel;
 use App\Models\Orders\SalesOrder\SalesOrderModel;
 use App\Models\Settings\PromoModel;
 use App\Models\Orders\WorkOrder\WorkOrderModel;
@@ -23,7 +24,77 @@ class Dashboard extends Controller
      */
     public function index()
     {
-        $today = Carbon::today();
+        $today = Carbon::today()->format('Y-m-d');
+        $yesterday = Carbon::yesterday()->format('Y-m-d');
+
+        $numberOfSalesOrderToday = SalesOrderModel::whereDate('date', $today)->count();
+        $numberOfSalesOrderYesterday = SalesOrderModel::whereDate('date', $yesterday)->count();
+        $todayRevenue = SalesOrderModel::whereDate('date', $today)->sum('total');
+        $yesterdayRevenue = SalesOrderModel::whereDate('date', $yesterday)->sum('total');
+
+        $paidSalesOrderToday = SalesOrderModel::where('payment_status', 'paid')
+            ->whereDate('date', $today)
+            ->count();
+        $paidSalesOrderYesterday = SalesOrderModel::where('payment_status', 'paid')
+            ->whereDate('date', $yesterday)
+            ->count();
+
+        $unpaidSalesOrderToday = SalesOrderModel::whereIn('payment_status', ['unpaid', 'pending'])
+            ->whereDate('date', $today)
+            ->count();
+        $unpaidSalesOrderYesterday = SalesOrderModel::whereIn('payment_status', ['unpaid', 'pending'])
+            ->whereDate('date', $yesterday)
+            ->count();
+
+        $recentSalesOrders = SalesOrderModel::with('customer')
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($so) {
+                return [
+                    'id' => $so->id,
+                    'number' => $so->sales_order_number,
+                    'date' => $so->date,
+                    'customer' => $so->customer->name ?? '-',
+                    'total' => $so->total,
+                    'payment_status' => $so->payment_status,
+                ];
+            });
+
+        $recentPurchaseOrders = PurchaseOrderModel::with('vendor')
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($po) {
+                return [
+                    'id' => $po->id,
+                    'number' => $po->purchase_order_number,
+                    'date' => $po->date,
+                    'vendor' => $po->vendor->name ?? '-',
+                    'total' => $po->total,
+                ];
+            });
+
+        $unpaidSalesOrders = SalesOrderModel::with('customer')
+            ->whereIn('payment_status', ['unpaid', 'pending'])
+            ->whereDate('date', $today)
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($so) {
+                return [
+                    'id' => $so->id,
+                    'number' => $so->sales_order_number,
+                    'date' => $so->date,
+                    'customer' => $so->customer->name ?? '-',
+                    'total' => $so->total,
+                    'payment_status' => $so->payment_status,
+                ];
+            });
+
         return view(
             'Dashboard.index',
             getIndexData('Dashboard', [
@@ -32,7 +103,19 @@ class Dashboard extends Controller
                 'NumberOfBattery' => BatteryModel::count(),
                 'TotalRevenue' => SalesOrderModel::sum('total'),
                 'NumberOfWorkOrder' => WorkOrderModel::count(),
+                'NumberOfPurchaseOrder' => PurchaseOrderModel::count(),
                 'NumberOfSalesOrder' => SalesOrderModel::count(),
+                'NumberOfSalesOrderToday' => $numberOfSalesOrderToday,
+                'NumberOfSalesOrderYesterday' => $numberOfSalesOrderYesterday,
+                'TodayRevenue' => $todayRevenue,
+                'YesterdayRevenue' => $yesterdayRevenue,
+                'PaidSalesOrderToday' => $paidSalesOrderToday,
+                'PaidSalesOrderYesterday' => $paidSalesOrderYesterday,
+                'UnpaidSalesOrder' => $unpaidSalesOrderToday,
+                'UnpaidSalesOrderYesterday' => $unpaidSalesOrderYesterday,
+                'RecentSalesOrders' => $recentSalesOrders,
+                'RecentPurchaseOrders' => $recentPurchaseOrders,
+                'UnpaidSalesOrders' => $unpaidSalesOrders,
                 'Promo' => PromoModel::where('period_start', '<=', $today)->where('period_end', '>=', $today)->get(),
             ]),
         );
