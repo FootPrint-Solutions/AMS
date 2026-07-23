@@ -251,8 +251,337 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info">
+                                    <h6>Sales Order</h6>
+                                    <h3>{{ $data['NumberOfSalesOrder'] }}</h3>
+                                </div>
+                                <div class="db-icon">
+                                    <i class="fa fa-file-invoice text-dark"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info">
+                                    <h6>Purchase Order</h6>
+                                    <h3>{{ $data['NumberOfPurchaseOrder'] }}</h3>
+                                </div>
+                                <div class="db-icon">
+                                    <i class="fa fa-shopping-cart text-dark"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        {{-- Today's Summary --}}
+        <div class="row mb-3">
+            <div class="col-12">
+                <h5 class="fw-semibold mb-2">Today's Summary</h5>
+            </div>
+            @php
+                $soPct =
+                    $data['NumberOfSalesOrderYesterday'] > 0
+                        ? round(
+                            (($data['NumberOfSalesOrderToday'] - $data['NumberOfSalesOrderYesterday']) /
+                                $data['NumberOfSalesOrderYesterday']) *
+                                100,
+                        )
+                        : ($data['NumberOfSalesOrderToday'] > 0
+                            ? 100
+                            : 0);
+                $revPct =
+                    $data['YesterdayRevenue'] > 0
+                        ? round((($data['TodayRevenue'] - $data['YesterdayRevenue']) / $data['YesterdayRevenue']) * 100)
+                        : ($data['TodayRevenue'] > 0
+                            ? 100
+                            : 0);
+                $paidPct =
+                    $data['PaidSalesOrderYesterday'] > 0
+                        ? round(
+                            (($data['PaidSalesOrderToday'] - $data['PaidSalesOrderYesterday']) /
+                                $data['PaidSalesOrderYesterday']) *
+                                100,
+                        )
+                        : ($data['PaidSalesOrderToday'] > 0
+                            ? 100
+                            : 0);
+                $unpaidPct =
+                    $data['UnpaidSalesOrderYesterday'] > 0
+                        ? round(
+                            (($data['UnpaidSalesOrder'] - $data['UnpaidSalesOrderYesterday']) /
+                                $data['UnpaidSalesOrderYesterday']) *
+                                100,
+                        )
+                        : ($data['UnpaidSalesOrder'] > 0
+                            ? 100
+                            : 0);
+            @endphp
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Sales Order Today</h6>
+                                <h3 class="mb-1">{{ $data['NumberOfSalesOrderToday'] }}</h3>
+                                <div class="small">
+                                    @if ($soPct > 0)
+                                        <span class="text-success"><i
+                                                class="fa fa-arrow-up me-1"></i>{{ $soPct }}%</span>
+                                    @elseif ($soPct < 0)
+                                        <span class="text-danger"><i
+                                                class="fa fa-arrow-down me-1"></i>{{ abs($soPct) }}%</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                    vs yesterday
+                                </div>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-file-invoice text-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Revenue Today</h6>
+                                <h3 class="mb-1">Rp. {{ number_format($data['TodayRevenue'], 0, ',', '.') }}</h3>
+                                <div class="small">
+                                    @if ($revPct > 0)
+                                        <span class="text-success"><i
+                                                class="fa fa-arrow-up me-1"></i>{{ $revPct }}%</span>
+                                    @elseif ($revPct < 0)
+                                        <span class="text-danger"><i
+                                                class="fa fa-arrow-down me-1"></i>{{ abs($revPct) }}%</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                    vs yesterday
+                                </div>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-dollar-sign text-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Paid Sales Order Today</h6>
+                                <h3 class="mb-1">{{ $data['PaidSalesOrderToday'] }}</h3>
+                                <div class="small">
+                                    @if ($paidPct > 0)
+                                        <span class="text-success"><i
+                                                class="fa fa-arrow-up me-1"></i>{{ $paidPct }}%</span>
+                                    @elseif ($paidPct < 0)
+                                        <span class="text-danger"><i
+                                                class="fa fa-arrow-down me-1"></i>{{ abs($paidPct) }}%</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                    vs yesterday
+                                </div>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-check-circle text-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="card bg-comman w-100">
+                    <div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <div class="db-info">
+                                <h6>Unpaid Sales Order</h6>
+                                <h3 class="mb-1">{{ $data['UnpaidSalesOrder'] }}</h3>
+                                <div class="small">
+                                    @if ($unpaidPct > 0)
+                                        <span class="text-danger"><i
+                                                class="fa fa-arrow-up me-1"></i>{{ $unpaidPct }}%</span>
+                                    @elseif ($unpaidPct < 0)
+                                        <span class="text-success"><i
+                                                class="fa fa-arrow-down me-1"></i>{{ abs($unpaidPct) }}%</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                    vs yesterday
+                                </div>
+                            </div>
+                            <div class="db-icon">
+                                <i class="fa fa-exclamation-triangle text-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Recent Activity --}}
+        <div class="row">
+            <div class="col-lg-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Sales Orders</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Number</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($data['RecentSalesOrders'] as $so)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <a href="/sales-order/edit/{{ $so['id'] }}" target="_blank"
+                                                    class="text-primary">
+                                                    {{ $so['number'] }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $so['date'] ? formatDate($so['date'], 'j M Y') : '-' }}</td>
+                                            <td>{{ $so['customer'] }}</td>
+                                            <td class="text-end">Rp. {{ number_format($so['total'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">No sales orders yet.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Purchase Orders</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Number</th>
+                                        <th>Date</th>
+                                        <th>Vendor</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($data['RecentPurchaseOrders'] as $po)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <a href="/purchase-order/edit/{{ $po['id'] }}" target="_blank"
+                                                    class="text-primary">
+                                                    {{ $po['number'] }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $po['date'] ? formatDate($po['date'], 'j M Y') : '-' }}</td>
+                                            <td>{{ $po['vendor'] }}</td>
+                                            <td class="text-end">Rp. {{ number_format($po['total'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">No purchase orders yet.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Unpaid SO --}}
+        @if ($data['UnpaidSalesOrders']->isNotEmpty())
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-exclamation-triangle text-warning me-1"></i>
+                                Unpaid Sales Orders
+                                <span
+                                    class="badge bg-warning text-dark ms-1">{{ $data['UnpaidSalesOrders']->count() }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Number</th>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th class="text-end">Total</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data['UnpaidSalesOrders'] as $so)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <a href="/sales-order/edit/{{ $so['id'] }}" target="_blank"
+                                                        class="text-primary">
+                                                        {{ $so['number'] }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $so['date'] ? formatDate($so['date'], 'j M Y') : '-' }}</td>
+                                                <td>{{ $so['customer'] }}</td>
+                                                <td class="text-end">Rp. {{ number_format($so['total'], 0, ',', '.') }}
+                                                </td>
+                                                <td><span
+                                                        class="badge bg-warning text-dark">{{ ucfirst($so['payment_status']) }}</span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div>
             <div class="card flex-fill student-space comman-shadow">
