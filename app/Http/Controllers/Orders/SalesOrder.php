@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Orders;
 
 
 // LIBRARY EXCEL
+use App\Exports\SalesOrderAuditExport;
 use App\Exports\SalesOrderExport;
 use App\Exports\SalesOrderDetailsExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -1149,6 +1150,31 @@ class SalesOrder extends Controller
                 'success' => false,
                 'message' => 'Error exporting data ' . $e->getMessage()
             ]);
+        }
+    }
+
+    public function exportAudit(Request $request)
+    {
+        try {
+            $dateStart = $request->input('dateStart');
+            $dateEnd = $request->input('dateEnd');
+
+            $fileName = 'sales-order-audit';
+
+            if (!empty($dateStart) || !empty($dateEnd)) {
+                $fileName .= '-' . ($dateStart ?: 'all') . '-to-' . ($dateEnd ?: 'all');
+            }
+
+            $fileName .= '-' . date('YmdHis') . '.xlsx';
+
+            return Excel::download(new SalesOrderAuditExport($dateStart, $dateEnd), $fileName);
+        } catch (\Exception $e) {
+            Log::error('Sales Order Audit Export Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to export audit: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

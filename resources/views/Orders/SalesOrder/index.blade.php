@@ -61,6 +61,9 @@
                     </div>
 
                     <div class="col-auto text-end float-end ms-auto download-grp">
+                        <button type="button" class="btn btn-outline-info btn-sm me-2" id="btn-export-audit">
+                            <i class="fas fa-history"></i> Export Audit
+                        </button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -971,6 +974,112 @@
             // refetch after DataTable ajax completes (works when table reloads)
             $(document).on('xhr.dt', '#table-sales-order', function(e, settings, json, xhr) {
                 fetchSalesOrderSummary();
+            });
+        });
+    </script>
+
+    {{-- Audit Export Modal --}}
+    <div class="modal fade" id="modal-export-audit" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Export Sales Order Audit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="form-export-audit">
+                    @csrf
+                    <div class="modal-body">
+                        <p class="text-muted small mb-3">
+                            Export all changes (create, update, delete) made to Sales Orders
+                            within the selected period.
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="audit-date-start" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="audit-date-start" name="dateStart">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="audit-date-end" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="audit-date-end" name="dateEnd">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success" id="btn-export-audit-submit">
+                            <i class="fas fa-file-excel me-1"></i> Export
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#btn-export-audit').on('click', function() {
+                $('#modal-export-audit').modal('show');
+            });
+
+            $('#form-export-audit').on('submit', function(e) {
+                e.preventDefault();
+
+                let dateStart = $('#audit-date-start').val();
+                let dateEnd = $('#audit-date-end').val();
+
+                Swal.fire({
+                    title: "Exporting Audit Data",
+                    text: "Please wait...",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: '/sales-order/export/audit',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        dateStart: dateStart,
+                        dateEnd: dateEnd,
+                    },
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function(data) {
+                        var url = window.URL.createObjectURL(data);
+                        var a = document.createElement('a');
+                        a.href = url;
+
+                        var filename = 'sales-order-audit';
+                        if (dateStart && dateEnd) {
+                            filename += '-' + dateStart + '-to-' + dateEnd;
+                        } else if (dateStart) {
+                            filename += '-from-' + dateStart;
+                        } else if (dateEnd) {
+                            filename += '-until-' + dateEnd;
+                        }
+                        filename += '-' + new Date().toISOString().slice(0, 10) + '.xlsx';
+                        a.download = filename;
+                        document.body.append(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+
+                        Swal.close();
+                        $('#modal-export-audit').modal('hide');
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        let msg = 'Failed to export audit data.';
+                        try {
+                            let resp = JSON.parse(xhr.responseText);
+                            msg = resp.message || msg;
+                        } catch (e) {}
+                        Swal.fire('Error', msg, 'error');
+                    }
+                });
             });
         });
     </script>
