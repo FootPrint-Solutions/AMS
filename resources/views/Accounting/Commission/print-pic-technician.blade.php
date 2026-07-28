@@ -67,7 +67,7 @@
         $grandTotalPIC = 0; 
         $grandTotalTechnician = 0; 
         foreach($grouped as $date => $orders) {
-            foreach($orders as $orderType => $commissions) {
+            foreach($orders as $orderId => $commissions) {
                 $grandTotalPIC += $commissions['PIC'];
                 $grandTotalTechnician += $commissions['Technician'];
             }
@@ -106,10 +106,10 @@
         </thead>
         <tbody>
             @foreach($grouped as $date => $orders)
-                @foreach($orders as $orderType => $commissions)
+                @foreach($orders as $orderId => $commissions)
                     <tr>
                         <td class="text-center">{{ date('Y-m-d', strtotime($date)) }}</td>
-                        <td class="text-center">{{ $orderType }}</td>
+                        <td class="text-center">{{ $commissions['orderType'] }}</td>
                         <td class="text-right">Rp{{ number_format($commissions['PIC'], 2, '.', ',') }}</td>
                         <td class="text-right">Rp{{ number_format($commissions['Technician'], 2, '.', ',') }}</td>
                     </tr>

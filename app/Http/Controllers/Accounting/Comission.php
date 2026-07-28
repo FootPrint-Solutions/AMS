@@ -607,25 +607,31 @@ class Comission extends Controller
         foreach ($items as $item) {
             $date = $item->commission ? date('Y-m-d', strtotime($item->commission->date)) : '-';
             
+            $orderId = '-';
             $orderType = '-';
             if ($item->salesOrderBattery && $item->salesOrderBattery->salesOrder) {
+                $orderId = $item->salesOrderBattery->salesOrder->id;
                 $orderType = ucfirst($item->salesOrderBattery->salesOrder->type);
+            } else {
+                // fallback to group by commission_id if no sales order attached
+                $orderId = 'item_' . $item->id;
             }
 
             if (!isset($grouped[$date])) {
                 $grouped[$date] = [];
             }
-            if (!isset($grouped[$date][$orderType])) {
-                $grouped[$date][$orderType] = [
+            if (!isset($grouped[$date][$orderId])) {
+                $grouped[$date][$orderId] = [
+                    'orderType' => $orderType,
                     'PIC' => 0,
                     'Technician' => 0,
                 ];
             }
 
             if ($item->commission_type == 'PIC Commission') {
-                $grouped[$date][$orderType]['PIC'] += $item->commission_amount;
+                $grouped[$date][$orderId]['PIC'] += $item->commission_amount;
             } elseif ($item->commission_type == 'Technician commission') {
-                $grouped[$date][$orderType]['Technician'] += $item->commission_amount;
+                $grouped[$date][$orderId]['Technician'] += $item->commission_amount;
             }
         }
 
