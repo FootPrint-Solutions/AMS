@@ -350,7 +350,6 @@
                             url.searchParams.append('dateStart', dateStart);
                             url.searchParams.append('dateEnd', dateEnd);
 
-                            const selectedRows = table.rows({ selected: true }).data().toArray();
                             if (selectedRows.length > 0) {
                                 const ids = selectedRows.map(row => row[0]).join(',');
                                 url.searchParams.append('ids', ids);
@@ -397,7 +396,6 @@
                             url.searchParams.append('dateStart', dateStart);
                             url.searchParams.append('dateEnd', dateEnd);
 
-                            const selectedRows = table.rows({ selected: true }).data().toArray();
                             if (selectedRows.length > 0) {
                                 const ids = selectedRows.map(row => row[0]).join(',');
                                 url.searchParams.append('ids', ids);
