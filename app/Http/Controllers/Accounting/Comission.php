@@ -606,15 +606,21 @@ class Comission extends Controller
             }
         }
 
+        $items = $query->get();
+
         $shopName = '';
         $picNameHeader = 'PIC All Distributor';
         $technicianNameHeader = 'Teknisi All Distributor';
 
+        $shopId = null;
         if ($distributorShop && $distributorShop !== 'all') {
-            if (!$ids) {
-                $query->where('distributor_shop_id', $distributorShop);
-            }
-            $shop = DistributorShopModel::find($distributorShop);
+            $shopId = $distributorShop;
+        } elseif ($items->count() > 0) {
+            $shopId = $items->first()->distributor_shop_id;
+        }
+
+        if ($shopId) {
+            $shop = DistributorShopModel::find($shopId);
             if ($shop) {
                 $shopName = ' ' . $shop->name;
                 $picAccount = DistributorShopAccountModel::where('distributor_shop_id', $shop->id)->where('type', 'pic')->first();
@@ -633,9 +639,7 @@ class Comission extends Controller
                 }
             }
         }
-
-        $items = $query->get();
-
+        
         $grouped = [];
         foreach ($items as $item) {
             $date = '-';
