@@ -13,3 +13,4 @@ Route::post('/commission/store', [Comission::class, 'store'])->name('commission.
 Route::get('/commission/edit/{id}', [Comission::class, 'edit'])->name('commission.edit')->middleware('permission:edit_commission');
 Route::post('/commission/update', [Comission::class, 'update'])->name('commission.update')->middleware('permission:edit_commission');
 Route::post('/commission/destroy', [Comission::class, 'destroy'])->name('commission.destroy')->middleware('permission:delete_commission');
+Route::post('/commission/sync-battery', [Comission::class, 'syncBattery'])->name('commission.sync_battery')->middleware('permission:edit_commission');

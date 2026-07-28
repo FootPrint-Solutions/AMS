@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\DataTablesTrait;
 
 use App\Models\Accounting\CommissionItemModel;
+use Illuminate\Support\Facades\DB;
 
 class CommissionModel extends Model
 {
@@ -37,11 +38,13 @@ class CommissionModel extends Model
 
     public static function allForDataTables($request): array
     {
-        $selectColumns = ['id', 'commission_number', 'date', 'total', 'status'];
+        $selectColumns = ['id', 'commission_number', 'date', 'total', 'status', 'distributor_shop_name'];
         $searchColumns = ['commission_number', 'date', 'total', 'status'];
 
         $query = self::query();
-        $query->select(self::$selectColumns);
+        $query->select(array_merge(self::$selectColumns, [
+            DB::raw("(SELECT GROUP_CONCAT(DISTINCT ds.name SEPARATOR ', ') FROM commission_items ci JOIN distributor_shops ds ON ci.distributor_shop_id = ds.id WHERE ci.commission_id = commissions.id) as distributor_shop_name"),
+        ]));
 
         if (!empty($request->status) && $request->status !== 'all') {
             $query->where('status', $request->status);

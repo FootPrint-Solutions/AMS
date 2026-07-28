@@ -8,6 +8,9 @@
                     <h3 class="page-title mb-0">Commission List</h3>
                 </div>
                 <div class="col-auto ms-auto text-end">
+                    <button type="button" id="btn-sync-battery" class="btn btn-outline-warning btn-sm me-1">
+                        <i class="fas fa-sync"></i> Sync Battery
+                    </button>
                     <a href="{{ route('commission.create') }}" id="btn-add" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Add New Commission
                     </a>
@@ -38,6 +41,16 @@
                         <option value="post">Posted</option>
                     </select>
                 </div>
+
+                <label class="col-md-2 col-form-label fw-bold">Distributor Shop</label>
+                <div class="col-md-2">
+                    <select class="form-select" id="distributor-shop-filter">
+                        <option value="all">All</option>
+                        @foreach ($data['DistributorShops'] as $shop)
+                            <option value="{{ $shop['id'] }}">{{ $shop['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </form>
         </div>
     </div>
@@ -57,6 +70,7 @@
                             <th></th>
                             <th>#</th>
                             <th>Commission Number</th>
+                            <th>Distributor Shop</th>
                             <th>Date</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -120,6 +134,10 @@
                     },
                     {
                         data: 3,
+                        orderable: false,
+                    },
+                    {
+                        data: 4,
                         render: function(data) {
                             if (!data) return '-';
                             const date = new Date(data);
@@ -131,11 +149,11 @@
                         }
                     },
                     {
-                        data: 4,
+                        data: 5,
                         className: 'text-end',
                     },
                     {
-                        data: 5,
+                        data: 6,
                         className: 'dt-body-center'
                     }
                 ],
@@ -392,6 +410,42 @@
                 .on('change', function() {
                     table.ajax.reload();
                 });
+
+            $('#btn-sync-battery').on('click', function() {
+                Swal.fire({
+                    title: 'Sync Battery IDs?',
+                    text: 'This will check all commission items and fix any mismatched battery_id by looking up the correct value from Sales Order Battery.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Sync Now',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+
+                    Swal.fire({
+                        title: 'Syncing...',
+                        text: 'Please wait',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    $.ajax({
+                        url: '/commission/sync-battery',
+                        type: 'POST',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function(resp) {
+                            Swal.fire('Done', resp.message, 'success');
+                            table.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            let msg = 'Failed to sync.';
+                            try { msg = JSON.parse(xhr.responseText).message || msg; } catch(e) {}
+                            Swal.fire('Error', msg, 'error');
+                        }
+                    });
+                });
+            });
         });
     </script>
 @endsection

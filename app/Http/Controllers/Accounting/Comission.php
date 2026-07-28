@@ -95,6 +95,7 @@ class Comission extends Controller
             $row[] = $item->id;
             $row[] = $no++;
             $row[] = $item->commission_number ?? '-';
+            $row[] = $item->distributor_shop_name ?? '-';
             $row[] = formatDate((string) $item->date, 'j M Y');
             $row[] = formatPrice($item->total ?? 0);
             $row[] = "<span class='badge $statusBadgeClass'>" . ($item->status ?? '-') . '</span>';
@@ -157,7 +158,14 @@ class Comission extends Controller
             });
 
             $salesOrderBatteries = array_values($salesOrderBatteries);
-            $shopCommission = DistributorShopCommissionModel::where('distributor_shop_id', $distributorShopId)->where('battery_id', $salesOrderBatteries[0]['battery_id'])->get();
+
+            $shopCommission = [];
+            if (!empty($salesOrderBatteries)) {
+                $batteryIds = array_unique(array_column($salesOrderBatteries, 'battery_id'));
+                $shopCommission = DistributorShopCommissionModel::where('distributor_shop_id', $distributorShopId)
+                    ->whereIn('battery_id', $batteryIds)
+                    ->get();
+            }
             unset($battery);
             $commissionData = [];
             foreach ($shopCommission as $commission) {
@@ -228,7 +236,6 @@ class Comission extends Controller
 
         try {
             DB::beginTransaction();
-            $salesOrder = SalesOrderBatteryModel::with('salesOrder')->findOrFail($request->input('sales_order_battery_id')[0]);
 
             // Create the commission record
             $commission = CommissionModel::create([
@@ -240,12 +247,14 @@ class Comission extends Controller
 
             // Create the commission items
             foreach ($request->input('sales_order_battery_id') as $index => $salesOrderBatteryId) {
+                $soBattery = SalesOrderBatteryModel::with('salesOrder')->findOrFail($salesOrderBatteryId);
+
                 CommissionItemModel::create([
                     'commission_id' => $commission->id,
-                    'distributor_shop_id' => $salesOrder->salesOrder->distributor_shop_id,
-                    'sales_order_id' => $salesOrder->sales_order_id,
+                    'distributor_shop_id' => $soBattery->salesOrder->distributor_shop_id,
+                    'sales_order_id' => $soBattery->sales_order_id,
                     'sales_order_battery_id' => $salesOrderBatteryId,
-                    'battery_id' => $salesOrder->battery_id,
+                    'battery_id' => $soBattery->battery_id,
                     'commission_type' => $request->input('commission_type')[$index],
                     'commission_amount' => $request->input('commission_value')[$index],
                     'debit_account_id' => $request->input('debit_account')[$index],
@@ -290,7 +299,6 @@ class Comission extends Controller
             DB::beginTransaction();
 
             $commission = CommissionModel::findOrFail($request->input('id'));
-            $salesOrder = SalesOrderBatteryModel::with('salesOrder')->findOrFail($request->input('sales_order_battery_id')[0]);
 
             // Update the commission record
             $commission->update([
@@ -304,12 +312,14 @@ class Comission extends Controller
 
             // Create new commission items
             foreach ($request->input('sales_order_battery_id') as $index => $salesOrderBatteryId) {
+                $soBattery = SalesOrderBatteryModel::with('salesOrder')->findOrFail($salesOrderBatteryId);
+
                 CommissionItemModel::create([
                     'commission_id' => $commission->id,
-                    'distributor_shop_id' => $salesOrder->salesOrder->distributor_shop_id,
-                    'sales_order_id' => $salesOrder->sales_order_id,
+                    'distributor_shop_id' => $soBattery->salesOrder->distributor_shop_id,
+                    'sales_order_id' => $soBattery->sales_order_id,
                     'sales_order_battery_id' => $salesOrderBatteryId,
-                    'battery_id' => $salesOrder->battery_id,
+                    'battery_id' => $soBattery->battery_id,
                     'commission_type' => $request->input('commission_type')[$index],
                     'commission_amount' => $request->input('commission_value')[$index],
                     'debit_account_id' => $request->input('debit_account')[$index],
@@ -328,6 +338,35 @@ class Comission extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update commission: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncBattery(Request $request)
+    {
+        try {
+            $updated = 0;
+            $items = CommissionItemModel::with('salesOrderBattery')->get();
+
+            foreach ($items as $item) {
+                if ($item->salesOrderBattery && $item->battery_id !== $item->salesOrderBattery->battery_id) {
+                    $oldBatteryId = $item->battery_id;
+                    $item->battery_id = $item->salesOrderBattery->battery_id;
+                    $item->save();
+                    $updated++;
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Battery sync completed. {$updated} item(s) fixed.",
+                'total_checked' => $items->count(),
+                'updated' => $updated,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to sync battery: ' . $e->getMessage(),
             ], 500);
         }
     }
