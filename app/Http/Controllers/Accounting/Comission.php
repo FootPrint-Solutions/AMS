@@ -516,7 +516,7 @@ class Comission extends Controller
             $query->whereIn('commission_id', $idArray);
         } else {
             if ($status && $status !== 'all') {
-                $query->whereHas('commission', function($q) use ($status) {
+                $query->whereHas('commission', function ($q) use ($status) {
                     $q->where('status', $status);
                 });
             }
@@ -526,13 +526,13 @@ class Comission extends Controller
             }
 
             if ($dateStart) {
-                $query->whereHas('commission', function($q) use ($dateStart) {
+                $query->whereHas('commission', function ($q) use ($dateStart) {
                     $q->where('date', '>=', $dateStart);
                 });
             }
 
             if ($dateEnd) {
-                $query->whereHas('commission', function($q) use ($dateEnd) {
+                $query->whereHas('commission', function ($q) use ($dateEnd) {
                     $q->where('date', '<=', $dateEnd);
                 });
             }
@@ -588,19 +588,19 @@ class Comission extends Controller
             $query->whereIn('commission_id', $idArray);
         } else {
             if ($status && $status !== 'all') {
-                $query->whereHas('commission', function($q) use ($status) {
+                $query->whereHas('commission', function ($q) use ($status) {
                     $q->where('status', $status);
                 });
             }
 
             if ($dateStart) {
-                $query->whereHas('commission', function($q) use ($dateStart) {
+                $query->whereHas('commission', function ($q) use ($dateStart) {
                     $q->where('date', '>=', $dateStart);
                 });
             }
 
             if ($dateEnd) {
-                $query->whereHas('commission', function($q) use ($dateEnd) {
+                $query->whereHas('commission', function ($q) use ($dateEnd) {
                     $q->where('date', '<=', $dateEnd);
                 });
             }
@@ -625,21 +625,21 @@ class Comission extends Controller
                 $shopName = ' ' . $shop->name;
                 $picAccount = DistributorShopAccountModel::where('distributor_shop_id', $shop->id)->where('type', 'pic')->first();
                 $techAccount = DistributorShopAccountModel::where('distributor_shop_id', $shop->id)->where('type', 'technician')->first();
-                
+
                 if ($picAccount && $picAccount->name) {
-                    $picNameHeader = 'PIC ' . $picAccount->name;
+                    $picNameHeader = '' . $picAccount->name;
                 } else {
                     $picNameHeader = 'PIC ' . $shop->name;
                 }
-                
+
                 if ($techAccount && $techAccount->name) {
-                    $technicianNameHeader = 'Teknisi ' . $techAccount->name;
+                    $technicianNameHeader = '' . $techAccount->name;
                 } else {
                     $technicianNameHeader = 'Teknisi ' . $shop->name;
                 }
             }
         }
-        
+
         $grouped = [];
         foreach ($items as $item) {
             $date = '-';
