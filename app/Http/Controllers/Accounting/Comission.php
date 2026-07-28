@@ -14,6 +14,7 @@ use App\Models\Accounting\ChartOfAccountModel;
 use App\Models\Accounting\JournalTransactionModel;
 use App\Models\Accounting\JournalTransactionDetailModel;
 use App\Models\MasterData\Distributor\DistributorShopCommissionModel;
+use App\Models\MasterData\Distributor\DistributorShopAccountModel;
 
 class Comission extends Controller
 {
@@ -560,7 +561,15 @@ class Comission extends Controller
 
         krsort($grouped);
 
-        return view('Accounting.Commission.print-pitstop', compact('grouped', 'dateStart', 'dateEnd'));
+        $printMonthYear = 'All Time';
+        if (!empty($grouped)) {
+            $firstDate = array_key_first($grouped);
+            $printMonthYear = date('F Y', strtotime($firstDate));
+        } elseif ($dateStart) {
+            $printMonthYear = date('F Y', strtotime($dateStart));
+        }
+
+        return view('Accounting.Commission.print-pitstop', compact('grouped', 'dateStart', 'dateEnd', 'printMonthYear'));
     }
 
     public function printPicTechnician(Request $request)
@@ -598,6 +607,9 @@ class Comission extends Controller
         }
 
         $shopName = '';
+        $picNameHeader = 'PIC All Distributor';
+        $technicianNameHeader = 'Teknisi All Distributor';
+
         if ($distributorShop && $distributorShop !== 'all') {
             if (!$ids) {
                 $query->where('distributor_shop_id', $distributorShop);
@@ -605,6 +617,20 @@ class Comission extends Controller
             $shop = DistributorShopModel::find($distributorShop);
             if ($shop) {
                 $shopName = ' ' . $shop->name;
+                $picAccount = DistributorShopAccountModel::where('distributor_shop_id', $shop->id)->where('type', 'pic')->first();
+                $techAccount = DistributorShopAccountModel::where('distributor_shop_id', $shop->id)->where('type', 'technician')->first();
+                
+                if ($picAccount && $picAccount->name) {
+                    $picNameHeader = 'PIC ' . $picAccount->name;
+                } else {
+                    $picNameHeader = 'PIC ' . $shop->name;
+                }
+                
+                if ($techAccount && $techAccount->name) {
+                    $technicianNameHeader = 'Teknisi ' . $techAccount->name;
+                } else {
+                    $technicianNameHeader = 'Teknisi ' . $shop->name;
+                }
             }
         }
 
@@ -618,37 +644,51 @@ class Comission extends Controller
             } else if ($item->commission) {
                 $date = date('Y-m-d', strtotime($item->commission->date));
             }
-            
-            $orderId = '-';
-            $orderType = '-';
-            if ($item->salesOrderBattery && $item->salesOrderBattery->salesOrder) {
-                $orderId = $item->salesOrderBattery->salesOrder->id;
-                $orderType = ucfirst($item->salesOrderBattery->salesOrder->type);
+            $rowId = '-';
+            $produk = '-';
+            $antarPasang = '-';
+
+            if ($item->salesOrderBattery) {
+                $rowId = 'sob_' . $item->salesOrderBattery->id;
+                $produk = $item->salesOrderBattery->battery ? $item->salesOrderBattery->battery->name : '-';
+                if ($item->salesOrderBattery->salesOrder) {
+                    $antarPasang = $item->salesOrderBattery->salesOrder->is_installation_included == 1 ? 'Ya' : 'Tidak';
+                }
             } else {
-                // fallback to group by commission_id if no sales order attached
-                $orderId = 'item_' . $item->id;
+                // fallback if no sales order attached
+                $rowId = 'item_' . $item->id;
+                $produk = $item->battery ? $item->battery->name : '-';
             }
 
             if (!isset($grouped[$date])) {
                 $grouped[$date] = [];
             }
-            if (!isset($grouped[$date][$orderId])) {
-                $grouped[$date][$orderId] = [
-                    'orderType' => $orderType,
+            if (!isset($grouped[$date][$rowId])) {
+                $grouped[$date][$rowId] = [
+                    'Produk' => $produk,
+                    'AntarPasang' => $antarPasang,
                     'PIC' => 0,
                     'Technician' => 0,
                 ];
             }
 
-            if ($item->commission_type == 'PIC Commission') {
-                $grouped[$date][$orderId]['PIC'] += $item->commission_amount;
-            } elseif ($item->commission_type == 'Technician commission') {
-                $grouped[$date][$orderId]['Technician'] += $item->commission_amount;
+            if (stripos($item->commission_type, 'PIC Commission') !== false) {
+                $grouped[$date][$rowId]['PIC'] += $item->commission_amount;
+            } elseif (stripos($item->commission_type, 'Technician commission') !== false) {
+                $grouped[$date][$rowId]['Technician'] += $item->commission_amount;
             }
         }
 
         krsort($grouped);
 
-        return view('Accounting.Commission.print-pic-technician', compact('grouped', 'dateStart', 'dateEnd', 'shopName'));
+        $printMonthYear = 'All Time';
+        if (!empty($grouped)) {
+            $firstDate = array_key_first($grouped);
+            $printMonthYear = date('F Y', strtotime($firstDate));
+        } elseif ($dateStart) {
+            $printMonthYear = date('F Y', strtotime($dateStart));
+        }
+
+        return view('Accounting.Commission.print-pic-technician', compact('grouped', 'dateStart', 'dateEnd', 'shopName', 'picNameHeader', 'technicianNameHeader', 'printMonthYear'));
     }
 }

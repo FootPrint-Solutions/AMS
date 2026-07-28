@@ -67,7 +67,7 @@
         <h2>Komisi Akikita</h2>
         <div class="header-details">
             <strong>Bulan / Tahun</strong>
-            {{ $dateStart ? date('F Y', strtotime($dateStart)) : 'All Time' }}
+            {{ $printMonthYear }}
         </div>
     </div>
 
