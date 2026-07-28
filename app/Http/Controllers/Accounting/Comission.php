@@ -498,4 +498,123 @@ class Comission extends Controller
             ], 500);
         }
     }
+
+    public function printPitstop(Request $request)
+    {
+        $status = $request->query('status');
+        $distributorShop = $request->query('distributorShop');
+        $dateStart = $request->query('dateStart');
+        $dateEnd = $request->query('dateEnd');
+
+        $query = CommissionItemModel::with(['commission', 'battery'])
+            ->where('commission_type', 'like', '%Pitstop%');
+
+        if ($status && $status !== 'all') {
+            $query->whereHas('commission', function($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
+        if ($distributorShop && $distributorShop !== 'all') {
+            $query->where('distributor_shop_id', $distributorShop);
+        }
+
+        if ($dateStart) {
+            $query->whereHas('commission', function($q) use ($dateStart) {
+                $q->where('date', '>=', $dateStart);
+            });
+        }
+
+        if ($dateEnd) {
+            $query->whereHas('commission', function($q) use ($dateEnd) {
+                $q->where('date', '<=', $dateEnd);
+            });
+        }
+
+        $items = $query->get();
+
+        $grouped = [];
+        foreach ($items as $item) {
+            $date = $item->commission ? date('Y-m-d', strtotime($item->commission->date)) : '-';
+            $productName = $item->battery ? $item->battery->name : '-';
+
+            if (!isset($grouped[$date])) {
+                $grouped[$date] = [];
+            }
+            if (!isset($grouped[$date][$productName])) {
+                $grouped[$date][$productName] = 0;
+            }
+            $grouped[$date][$productName] += $item->commission_amount;
+        }
+
+        return view('Accounting.Commission.print-pitstop', compact('grouped', 'dateStart', 'dateEnd'));
+    }
+
+    public function printPicTechnician(Request $request)
+    {
+        $status = $request->query('status');
+        $distributorShop = $request->query('distributorShop');
+        $dateStart = $request->query('dateStart');
+        $dateEnd = $request->query('dateEnd');
+
+        $query = CommissionItemModel::with(['commission', 'salesOrderBattery.salesOrder'])
+            ->whereIn('commission_type', ['PIC Commission', 'Technician commission']);
+
+        if ($status && $status !== 'all') {
+            $query->whereHas('commission', function($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
+        $shopName = '';
+        if ($distributorShop && $distributorShop !== 'all') {
+            $query->where('distributor_shop_id', $distributorShop);
+            $shop = DistributorShopModel::find($distributorShop);
+            if ($shop) {
+                $shopName = ' ' . $shop->name;
+            }
+        }
+
+        if ($dateStart) {
+            $query->whereHas('commission', function($q) use ($dateStart) {
+                $q->where('date', '>=', $dateStart);
+            });
+        }
+
+        if ($dateEnd) {
+            $query->whereHas('commission', function($q) use ($dateEnd) {
+                $q->where('date', '<=', $dateEnd);
+            });
+        }
+
+        $items = $query->get();
+
+        $grouped = [];
+        foreach ($items as $item) {
+            $date = $item->commission ? date('Y-m-d', strtotime($item->commission->date)) : '-';
+            
+            $orderType = '-';
+            if ($item->salesOrderBattery && $item->salesOrderBattery->salesOrder) {
+                $orderType = ucfirst($item->salesOrderBattery->salesOrder->type);
+            }
+
+            if (!isset($grouped[$date])) {
+                $grouped[$date] = [];
+            }
+            if (!isset($grouped[$date][$orderType])) {
+                $grouped[$date][$orderType] = [
+                    'PIC' => 0,
+                    'Technician' => 0,
+                ];
+            }
+
+            if ($item->commission_type == 'PIC Commission') {
+                $grouped[$date][$orderType]['PIC'] += $item->commission_amount;
+            } elseif ($item->commission_type == 'Technician commission') {
+                $grouped[$date][$orderType]['Technician'] += $item->commission_amount;
+            }
+        }
+
+        return view('Accounting.Commission.print-pic-technician', compact('grouped', 'dateStart', 'dateEnd', 'shopName'));
+    }
 }

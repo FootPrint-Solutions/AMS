@@ -14,3 +14,5 @@ Route::get('/commission/edit/{id}', [Comission::class, 'edit'])->name('commissio
 Route::post('/commission/update', [Comission::class, 'update'])->name('commission.update')->middleware('permission:edit_commission');
 Route::post('/commission/destroy', [Comission::class, 'destroy'])->name('commission.destroy')->middleware('permission:delete_commission');
 Route::post('/commission/sync-battery', [Comission::class, 'syncBattery'])->name('commission.sync_battery')->middleware('permission:edit_commission');
+Route::get('/commission/print-pitstop', [Comission::class, 'printPitstop'])->name('commission.print_pitstop')->middleware('permission:view_commission');
+Route::get('/commission/print-pic-technician', [Comission::class, 'printPicTechnician'])->name('commission.print_pic_technician')->middleware('permission:view_commission');

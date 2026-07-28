@@ -8,6 +8,12 @@
                     <h3 class="page-title mb-0">Commission List</h3>
                 </div>
                 <div class="col-auto ms-auto text-end">
+                    <button type="button" id="btn-print-pitstop" class="btn btn-outline-info btn-sm me-1">
+                        <i class="fas fa-print"></i> Print Commission Recap Pitstop
+                    </button>
+                    <button type="button" id="btn-print-pic-technician" class="btn btn-outline-info btn-sm me-1">
+                        <i class="fas fa-print"></i> Print Commission Recap PIC & Technician
+                    </button>
                     <button type="button" id="btn-sync-battery" class="btn btn-outline-warning btn-sm me-1">
                         <i class="fas fa-sync"></i> Sync Battery
                     </button>
@@ -445,6 +451,36 @@
                         }
                     });
                 });
+            });
+
+            $('#btn-print-pitstop').on('click', function() {
+                const status = $('#commission-status-filter').val();
+                const distributorShop = $('#distributor-shop-filter').val();
+                const dateStart = $('#input-commission-date-start').val();
+                const dateEnd = $('#input-commission-date-end').val();
+
+                const url = new URL(window.location.origin + '/commission/print-pitstop');
+                url.searchParams.append('status', status);
+                url.searchParams.append('distributorShop', distributorShop);
+                url.searchParams.append('dateStart', dateStart);
+                url.searchParams.append('dateEnd', dateEnd);
+
+                window.open(url.toString(), '_blank');
+            });
+
+            $('#btn-print-pic-technician').on('click', function() {
+                const status = $('#commission-status-filter').val();
+                const distributorShop = $('#distributor-shop-filter').val();
+                const dateStart = $('#input-commission-date-start').val();
+                const dateEnd = $('#input-commission-date-end').val();
+
+                const url = new URL(window.location.origin + '/commission/print-pic-technician');
+                url.searchParams.append('status', status);
+                url.searchParams.append('distributorShop', distributorShop);
+                url.searchParams.append('dateStart', dateStart);
+                url.searchParams.append('dateEnd', dateEnd);
+
+                window.open(url.toString(), '_blank');
             });
         });
     </script>
