@@ -24,3 +24,4 @@ Route::post('/distributor/shop/{shopId}/battery-import', [DistributorShop::class
 Route::post('/distributor/shop/commission/show', [DistributorShop::class, 'showCommissions'])->name('distributor.shop.commission.show')->middleware('permission:view_distributor');
 Route::post('/distributor/shop/commission/update', [DistributorShop::class, 'updateCommission'])->name('distributor.shop.commission.update')->middleware('permission:edit_distributor');
 Route::post('/distributor/shop/commission/destroy', [DistributorShop::class, 'destroyCommission'])->name('distributor.shop.commission.destroy')->middleware('permission:edit_distributor');
+Route::post('/distributor/shop/{id}/commission/delete-all', [DistributorShop::class, 'destroyAllCommission'])->name('distributor.shop.commission.destroy_all')->middleware('permission:edit_distributor');

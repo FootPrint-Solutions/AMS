@@ -30,6 +30,7 @@ class DistributorShopAccountModel extends Model
         'type',
         'chart_of_account_id',
         'commission',
+        'name',
     ];
 
     /**
