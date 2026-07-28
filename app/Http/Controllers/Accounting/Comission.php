@@ -505,30 +505,36 @@ class Comission extends Controller
         $distributorShop = $request->query('distributorShop');
         $dateStart = $request->query('dateStart');
         $dateEnd = $request->query('dateEnd');
+        $ids = $request->query('ids');
 
         $query = CommissionItemModel::with(['commission', 'battery'])
             ->where('commission_type', 'like', '%Pitstop%');
 
-        if ($status && $status !== 'all') {
-            $query->whereHas('commission', function($q) use ($status) {
-                $q->where('status', $status);
-            });
-        }
+        if ($ids) {
+            $idArray = explode(',', $ids);
+            $query->whereIn('commission_id', $idArray);
+        } else {
+            if ($status && $status !== 'all') {
+                $query->whereHas('commission', function($q) use ($status) {
+                    $q->where('status', $status);
+                });
+            }
 
-        if ($distributorShop && $distributorShop !== 'all') {
-            $query->where('distributor_shop_id', $distributorShop);
-        }
+            if ($distributorShop && $distributorShop !== 'all') {
+                $query->where('distributor_shop_id', $distributorShop);
+            }
 
-        if ($dateStart) {
-            $query->whereHas('commission', function($q) use ($dateStart) {
-                $q->where('date', '>=', $dateStart);
-            });
-        }
+            if ($dateStart) {
+                $query->whereHas('commission', function($q) use ($dateStart) {
+                    $q->where('date', '>=', $dateStart);
+                });
+            }
 
-        if ($dateEnd) {
-            $query->whereHas('commission', function($q) use ($dateEnd) {
-                $q->where('date', '<=', $dateEnd);
-            });
+            if ($dateEnd) {
+                $query->whereHas('commission', function($q) use ($dateEnd) {
+                    $q->where('date', '<=', $dateEnd);
+                });
+            }
         }
 
         $items = $query->get();
@@ -556,35 +562,43 @@ class Comission extends Controller
         $distributorShop = $request->query('distributorShop');
         $dateStart = $request->query('dateStart');
         $dateEnd = $request->query('dateEnd');
+        $ids = $request->query('ids');
 
         $query = CommissionItemModel::with(['commission', 'salesOrderBattery.salesOrder'])
             ->whereIn('commission_type', ['PIC Commission', 'Technician commission']);
 
-        if ($status && $status !== 'all') {
-            $query->whereHas('commission', function($q) use ($status) {
-                $q->where('status', $status);
-            });
+        if ($ids) {
+            $idArray = explode(',', $ids);
+            $query->whereIn('commission_id', $idArray);
+        } else {
+            if ($status && $status !== 'all') {
+                $query->whereHas('commission', function($q) use ($status) {
+                    $q->where('status', $status);
+                });
+            }
+
+            if ($dateStart) {
+                $query->whereHas('commission', function($q) use ($dateStart) {
+                    $q->where('date', '>=', $dateStart);
+                });
+            }
+
+            if ($dateEnd) {
+                $query->whereHas('commission', function($q) use ($dateEnd) {
+                    $q->where('date', '<=', $dateEnd);
+                });
+            }
         }
 
         $shopName = '';
         if ($distributorShop && $distributorShop !== 'all') {
-            $query->where('distributor_shop_id', $distributorShop);
+            if (!$ids) {
+                $query->where('distributor_shop_id', $distributorShop);
+            }
             $shop = DistributorShopModel::find($distributorShop);
             if ($shop) {
                 $shopName = ' ' . $shop->name;
             }
-        }
-
-        if ($dateStart) {
-            $query->whereHas('commission', function($q) use ($dateStart) {
-                $q->where('date', '>=', $dateStart);
-            });
-        }
-
-        if ($dateEnd) {
-            $query->whereHas('commission', function($q) use ($dateEnd) {
-                $q->where('date', '<=', $dateEnd);
-            });
         }
 
         $items = $query->get();
