@@ -66,8 +66,8 @@
     @php 
         $grandTotalPIC = 0; 
         $grandTotalTechnician = 0; 
-        foreach($grouped as $date => $orders) {
-            foreach($orders as $orderId => $commissions) {
+        foreach($grouped as $date => $rows) {
+            foreach($rows as $rowId => $commissions) {
                 $grandTotalPIC += $commissions['PIC'];
                 $grandTotalTechnician += $commissions['Technician'];
             }
@@ -77,39 +77,41 @@
     <table>
         <thead>
             <tr>
-                <th colspan="2" rowspan="2" style="border: none; vertical-align: bottom; padding: 0 0 5px 0; text-align: left;">
+                <th colspan="3" rowspan="2" style="border: none; vertical-align: bottom; padding: 0 0 5px 0; text-align: left;">
                     <div style="display: flex; align-items: flex-end; padding-left: 5px;">
                         <h2 style="margin: 0; margin-right: 20px; font-size: 24px;">Komisi Akikita</h2>
-                        <div style="font-size: 11px; line-height: 1.2;">
-                            <strong style="font-size: 12px;">Bulan</strong><br>
-                            {{ $dateStart ? date('F Y', strtotime($dateStart)) : 'All Time' }}
+                        <div style="font-size: 14px; font-weight: bold; line-height: 1.2;">
+                            {{ trim($shopName) ?: 'All Distributor' }}<br>
+                            <span style="font-weight: normal;">{{ $printMonthYear }}</span>
                         </div>
                     </div>
                 </th>
                 <th colspan="2" class="grey-bg text-center">Komisi</th>
             </tr>
             <tr>
-                <th class="text-center" style="width: 25%;">PIC{{ $shopName ?? '' }}</th>
-                <th class="text-center" style="width: 25%;">Teknisi{{ $shopName ?? '' }}</th>
+                <th class="text-center" style="width: 20%;">{{ $picNameHeader }}</th>
+                <th class="text-center" style="width: 20%;">{{ $technicianNameHeader }}</th>
             </tr>
             <tr>
-                <th colspan="2" class="text-right">Total:</th>
+                <th colspan="3" class="text-right" style="border-right: 1px solid #777;">Total:</th>
                 <th class="text-right">Rp{{ number_format($grandTotalPIC, 2, '.', ',') }}</th>
                 <th class="text-right">Rp{{ number_format($grandTotalTechnician, 2, '.', ',') }}</th>
             </tr>
             <tr>
-                <th class="grey-bg text-center" style="width: 25%;">Tanggal</th>
-                <th class="grey-bg text-center" style="width: 25%;">Tipe Pesanan</th>
+                <th class="grey-bg text-center" style="width: 20%;">Tanggal</th>
+                <th class="grey-bg text-center" style="width: 25%;">Produk</th>
+                <th class="grey-bg text-center" style="width: 15%;">Antar Pasang</th>
                 <th class="grey-bg"></th>
                 <th class="grey-bg"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach($grouped as $date => $orders)
-                @foreach($orders as $orderId => $commissions)
+            @foreach($grouped as $date => $rows)
+                @foreach($rows as $rowId => $commissions)
                     <tr>
                         <td class="text-center">{{ date('Y-m-d', strtotime($date)) }}</td>
-                        <td class="text-center">{{ $commissions['orderType'] }}</td>
+                        <td class="text-center">{{ $commissions['Produk'] }}</td>
+                        <td class="text-center">{{ $commissions['AntarPasang'] }}</td>
                         <td class="text-right">Rp{{ number_format($commissions['PIC'], 2, '.', ',') }}</td>
                         <td class="text-right">Rp{{ number_format($commissions['Technician'], 2, '.', ',') }}</td>
                     </tr>

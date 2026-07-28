@@ -316,6 +316,29 @@
                         text: "<i class='fas fa-print'></i> Print Recap Pitstop",
                         className: 'btn btn-outline-info btn-sm',
                         action: function() {
+                            const selectedRows = table.rows({ selected: true }).data().toArray();
+                            
+                            if (selectedRows.length > 0) {
+                                let firstShop = selectedRows[0][3];
+                                let firstDate = selectedRows[0][4];
+                                let firstMonthYear = firstDate.split(' ').slice(1).join(' ');
+
+                                for (let i = 1; i < selectedRows.length; i++) {
+                                    let shop = selectedRows[i][3];
+                                    let date = selectedRows[i][4];
+                                    let monthYear = date.split(' ').slice(1).join(' ');
+
+                                    if (shop !== firstShop) {
+                                        Swal.fire('Error', 'Tidak bisa mencetak dari Distributor Shop yang berbeda secara bersamaan.', 'error');
+                                        return;
+                                    }
+                                    if (monthYear !== firstMonthYear) {
+                                        Swal.fire('Error', 'Tidak bisa mencetak dari bulan yang berbeda secara bersamaan.', 'error');
+                                        return;
+                                    }
+                                }
+                            }
+
                             const status = $('#commission-status-filter').val();
                             const distributorShop = $('#distributor-shop-filter').val();
                             const dateStart = $('#input-commission-date-start').val();
@@ -340,6 +363,29 @@
                         text: "<i class='fas fa-print'></i> Print Recap PIC & Technician",
                         className: 'btn btn-outline-info btn-sm',
                         action: function() {
+                            const selectedRows = table.rows({ selected: true }).data().toArray();
+                            
+                            if (selectedRows.length > 0) {
+                                let firstShop = selectedRows[0][3];
+                                let firstDate = selectedRows[0][4];
+                                let firstMonthYear = firstDate.split(' ').slice(1).join(' ');
+
+                                for (let i = 1; i < selectedRows.length; i++) {
+                                    let shop = selectedRows[i][3];
+                                    let date = selectedRows[i][4];
+                                    let monthYear = date.split(' ').slice(1).join(' ');
+
+                                    if (shop !== firstShop) {
+                                        Swal.fire('Error', 'Tidak bisa mencetak dari Distributor Shop yang berbeda secara bersamaan.', 'error');
+                                        return;
+                                    }
+                                    if (monthYear !== firstMonthYear) {
+                                        Swal.fire('Error', 'Tidak bisa mencetak dari bulan yang berbeda secara bersamaan.', 'error');
+                                        return;
+                                    }
+                                }
+                            }
+
                             const status = $('#commission-status-filter').val();
                             const distributorShop = $('#distributor-shop-filter').val();
                             const dateStart = $('#input-commission-date-start').val();
