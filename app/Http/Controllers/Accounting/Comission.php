@@ -507,7 +507,7 @@ class Comission extends Controller
         $dateEnd = $request->query('dateEnd');
         $ids = $request->query('ids');
 
-        $query = CommissionItemModel::with(['commission', 'battery'])
+        $query = CommissionItemModel::with(['commission', 'battery', 'salesOrderBattery.salesOrder'])
             ->where('commission_type', 'like', '%Pitstop%');
 
         if ($ids) {
@@ -541,7 +541,12 @@ class Comission extends Controller
 
         $grouped = [];
         foreach ($items as $item) {
-            $date = $item->commission ? date('Y-m-d', strtotime($item->commission->date)) : '-';
+            $date = '-';
+            if ($item->salesOrderBattery && $item->salesOrderBattery->salesOrder) {
+                $date = date('Y-m-d', strtotime($item->salesOrderBattery->salesOrder->date));
+            } else if ($item->commission) {
+                $date = date('Y-m-d', strtotime($item->commission->date));
+            }
             $productName = $item->battery ? $item->battery->name : '-';
 
             if (!isset($grouped[$date])) {
@@ -552,6 +557,8 @@ class Comission extends Controller
             }
             $grouped[$date][$productName] += $item->commission_amount;
         }
+
+        krsort($grouped);
 
         return view('Accounting.Commission.print-pitstop', compact('grouped', 'dateStart', 'dateEnd'));
     }
@@ -605,7 +612,12 @@ class Comission extends Controller
 
         $grouped = [];
         foreach ($items as $item) {
-            $date = $item->commission ? date('Y-m-d', strtotime($item->commission->date)) : '-';
+            $date = '-';
+            if ($item->salesOrderBattery && $item->salesOrderBattery->salesOrder) {
+                $date = date('Y-m-d', strtotime($item->salesOrderBattery->salesOrder->date));
+            } else if ($item->commission) {
+                $date = date('Y-m-d', strtotime($item->commission->date));
+            }
             
             $orderId = '-';
             $orderType = '-';
@@ -634,6 +646,8 @@ class Comission extends Controller
                 $grouped[$date][$orderId]['Technician'] += $item->commission_amount;
             }
         }
+
+        krsort($grouped);
 
         return view('Accounting.Commission.print-pic-technician', compact('grouped', 'dateStart', 'dateEnd', 'shopName'));
     }
