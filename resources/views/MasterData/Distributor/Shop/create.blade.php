@@ -149,6 +149,16 @@
                                 @isset($data['profile']) value="{{ $data['technicianAccount'] ? $data['technicianAccount']->commission : '' }}" @endisset>
                         </div>
                     </div>
+                    
+                    {{-- Technician Name --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="technicianName">Technician Name</label>
+                            <input type="text" class="form-control" id="technicianName"
+                                name="technicianName" placeholder="Enter technician name"
+                                @isset($data['profile']) value="{{ $data['technicianAccount'] ? $data['technicianAccount']->name : '' }}" @endisset>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -175,6 +185,16 @@
                             <input type="number" min="0" class="form-control" id="picCommission"
                                 name="picCommission" placeholder="Enter PIC commission amount"
                                 @isset($data['profile']) value="{{ $data['picAccount'] ? $data['picAccount']->commission : '' }}" @endisset>
+                        </div>
+                    </div>
+
+                    {{-- PIC Name --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="picName">PIC Name</label>
+                            <input type="text" class="form-control" id="picName"
+                                name="picName" placeholder="Enter PIC name"
+                                @isset($data['profile']) value="{{ $data['picAccount'] ? $data['picAccount']->name : '' }}" @endisset>
                         </div>
                     </div>
                 </div>
@@ -206,6 +226,16 @@
                             <input type="number" min="0" class="form-control" id="pit_stopCommission"
                                 name="pit_stopCommission" placeholder="Enter pit stop commission amount"
                                 @isset($data['profile']) value="{{ $data['pitStopAccount'] ? $data['pitStopAccount']->commission : '' }}" @endisset>
+                        </div>
+                    </div>
+
+                    {{-- Pit Stop Name --}}
+                    <div class="col">
+                        <div class="form-group local-forms">
+                            <label for="pit_stopName">Pit Stop Name</label>
+                            <input type="text" class="form-control" id="pit_stopName"
+                                name="pit_stopName" placeholder="Enter pit stop name"
+                                @isset($data['profile']) value="{{ $data['pitStopAccount'] ? $data['pitStopAccount']->name : '' }}" @endisset>
                         </div>
                     </div>
                 </div>
@@ -266,7 +296,13 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col">
+                    <div class="col-sm-12">
+                        <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                            <h4 class="card-title m-0">Battery Commission List</h4>
+                            <button type="button" class="btn btn-sm btn-danger" id="btn-delete-all-commission">
+                                <i class="fa fa-trash"></i> Delete All
+                            </button>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table" id="table-commission">
                                 <thead>
@@ -423,6 +459,39 @@
                             }
                         }
                     ]
+                });
+
+                $("#btn-delete-all-commission").on("click", function() {
+                    let shopId = $("#id").val();
+                    swal.fire({
+                        title: 'Delete All Commissions?',
+                        text: 'Are you sure you want to delete all battery commissions for this shop?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete all',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "/distributor/shop/" + shopId + "/commission/delete-all",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal.fire('Deleted!', response.message, 'success');
+                                        tableCommission.ajax.reload();
+                                    } else {
+                                        swal.fire('Error!', response.message, 'error');
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    swal.fire('Error!', 'An error occurred while deleting commissions.', 'error');
+                                }
+                            });
+                        }
+                    });
                 });
 
                 // Edit commission handler

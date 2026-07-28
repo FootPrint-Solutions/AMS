@@ -157,6 +157,7 @@ class DistributorShop extends Controller
                 $technicianAccount->distributor_shop_id = $shop->id;
                 $technicianAccount->chart_of_account_id = $request->technicianAccount;
                 $technicianAccount->commission = $request->technicianCommission;
+                $technicianAccount->name = $request->technicianName;
                 $technicianAccount->type = 'technician';
                 $technicianAccount->save();
             }
@@ -166,6 +167,7 @@ class DistributorShop extends Controller
                 $picAccount->distributor_shop_id = $shop->id;
                 $picAccount->chart_of_account_id = $request->picAccount;
                 $picAccount->commission = $request->picCommission;
+                $picAccount->name = $request->picName;
                 $picAccount->type = 'pic';
                 $picAccount->save();
             }
@@ -175,6 +177,7 @@ class DistributorShop extends Controller
                 $pitStopAccount->distributor_shop_id = $shop->id;
                 $pitStopAccount->chart_of_account_id = $request->pit_stopAccount;
                 $pitStopAccount->commission = $request->pit_stopCommission;
+                $pitStopAccount->name = $request->pit_stopName;
                 $pitStopAccount->type = 'pit_stop';
                 $pitStopAccount->save();
             }
@@ -221,6 +224,7 @@ class DistributorShop extends Controller
             foreach ($accountTypes as $type) {
                 $accountId = $request->get("{$type}Account");
                 $commission = $request->get("{$type}Commission");
+                $name = $request->get("{$type}Name");
 
                 if ($accountId !== null && $accountId !== '' && $commission !== null && $commission !== '') {
                     $account = DistributorShopAccountModel::updateOrCreate(
@@ -230,7 +234,8 @@ class DistributorShop extends Controller
                         ],
                         [
                             'chart_of_account_id' => $accountId,
-                            'commission' => $commission
+                            'commission' => $commission,
+                            'name' => $name
                         ]
                     );
                 }
@@ -445,6 +450,32 @@ class DistributorShop extends Controller
             return response()->json([
                 'success' => $status,
                 'message' => $status ? 'Commission successfully deleted!' : 'Failed to delete commission!'
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function destroyAllCommission(Request $request, $id)
+    {
+        try {
+            $shop = DistributorShopModel::find($id);
+            if (!$shop) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Shop not found!'
+                ]);
+            }
+
+            $status = DistributorShopCommissionModel::where('distributor_shop_id', $id)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All commissions successfully deleted!'
             ]);
         } catch (Exception $e) {
             Log::error($e->getMessage());
