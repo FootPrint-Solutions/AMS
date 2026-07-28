@@ -170,11 +170,11 @@ class DistributorShop extends Controller
                 $picAccount->save();
             }
 
-            if ($request->has('pitStopAccount')) {
+            if ($request->has('pit_stopAccount')) {
                 $pitStopAccount = new DistributorShopAccountModel();
                 $pitStopAccount->distributor_shop_id = $shop->id;
-                $pitStopAccount->chart_of_account_id = $request->pitStopAccount;
-                $pitStopAccount->commission = $request->pitStopCommission;
+                $pitStopAccount->chart_of_account_id = $request->pit_stopAccount;
+                $pitStopAccount->commission = $request->pit_stopCommission;
                 $pitStopAccount->type = 'pit_stop';
                 $pitStopAccount->save();
             }
@@ -222,7 +222,7 @@ class DistributorShop extends Controller
                 $accountId = $request->get("{$type}Account");
                 $commission = $request->get("{$type}Commission");
 
-                if ($accountId && $commission) {
+                if ($accountId !== null && $accountId !== '' && $commission !== null && $commission !== '') {
                     $account = DistributorShopAccountModel::updateOrCreate(
                         [
                             'distributor_shop_id' => $shop->id,
